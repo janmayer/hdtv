@@ -32,7 +32,7 @@
 GSDisplayObj::GSDisplayObj(int col)
 {
   // Set a trivial calibration
-  SetCal();
+  SetCal(NULL);
   
   // Setup GC for color
   TColor *color = (TColor*) (gROOT->GetListOfColors()->At(col));
@@ -46,77 +46,6 @@ GSDisplayObj::~GSDisplayObj()
 {
   gClient->GetGCPool()->FreeGC(fGC); 
   //cout << "GSDisplayObj destructor" << endl;
-}
-
-void GSDisplayObj::SetCal(double cal0, double cal1, double cal2, double cal3)
-{
-  // Set the energy calibration for the spectrum. At the moment,
-  // this is limited to a cubic polynomial.
-
- fCal[0] = cal0;
- fCal[1] = cal1;
- fCal[2] = cal2;
- fCal[3] = cal3;
-}
-
-double GSDisplayObj::Ch2E(double ch)
-{
-  // Convert a channel to an energy, using the chosen energy
-  // calibration.
-
-  return fCal[0] + (fCal[1] + fCal[2] + (fCal[3] * ch) * ch) * ch;
-}
-
-double GSDisplayObj::E2Ch(double e)
-{
-  // Convert an energy to a channel, using the chosen energy
-  // calibration. For the moment, this can be done analytically.
-
-  // Catch the case of a quadratic calibration
-  if(TMath::Abs(fCal[3]) < 1e-50) {
-    // Catch the case of a linear calibration
-    if(TMath::Abs(fCal[2]) < 1e-50) {
-  	  return (e - fCal[0]) / fCal[1];
-    }
-    
-    double k, c1, c2, ctr = GetCenterCh();
-
-    k = TMath::Sqrt(fCal[1]*fCal[1] - 4*fCal[2]*(fCal[0]-e));
-
-    c1 = (k - fCal[1]) / (2 * fCal[2]);
-    c2 = (-k - fCal[1]) / (2 * fCal[2]);
-
-    // Return the root which is closer to the center of
-    // the spectrums channel range
-
-    return (TMath::Abs(c1 - ctr) < TMath::Abs(c2 - ctr)) ? c1 : c2;
-  }
-  
-  double a, b, c;
-  
-  if(TMath::RootsCubic(fCal, a, b, c)) {
-    // only one real root
-    return a;
-  } else {
-  	// three real roots: return the one which is close to the center
-  	// of the spectrums channel range
-  
-  	double ctr = GetCenterCh();
-  	
-  	if(TMath::Abs(a - ctr) < TMath::Abs(b - ctr)) {
-  		if(TMath::Abs(c - ctr) < TMath::Abs(a - ctr)) {
-  			return c;
-  		} else {
-  			return a;
-  		}
-  	} else {
-  		if(TMath::Abs(c - ctr) < TMath::Abs(b - ctr)) {
-  			return c;
-  		} else {
-  			return b;
-  		}
-  	}
-  }
 }
 
 double GSDisplayObj::GetMinE()

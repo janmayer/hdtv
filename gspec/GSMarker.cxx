@@ -23,21 +23,22 @@
 #include "GSMarker.h"
 #include <TROOT.h>
 
-GSMarker::GSMarker(int n, double e1, double e2)
+GSMarker::GSMarker(int n, double p1, double p2, int col)
 {
   fN = n;
 
-  if(n <= 1 || e1 <= e2) {
-	fE1 = e1;
-	fE2 = e2;
+  if(n <= 1 || p1 <= p2) {
+	fP1 = p1;
+	fP2 = p2;
   } else {
-	fE1 = e2;
-	fE2 = e1;
+	fP1 = p2;
+	fP2 = p1;
   }
   
+  SetCal(NULL);
   fDash1 = fDash2 = false;
 
-  TColor *color = (TColor*) (gROOT->GetListOfColors()->At(5));
+  TColor *color = (TColor*) (gROOT->GetListOfColors()->At(col));
   GCValues_t gval;
   gval.fMask = kGCForeground | kGCLineStyle;
   gval.fForeground = color->GetPixel();

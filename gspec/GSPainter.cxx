@@ -376,17 +376,12 @@ void GSPainter::DrawYLinearScale(void)
   UInt_t x = fXBase - 2;
   UInt_t y;
   char tmp[16];
-  char fmt[5] = "%.0f";
   size_t len;
   int i, i2;
   double major_tic, minor_tic;
   int n;
 
   GetTicDistance((double) 50.0 / fYZoom, major_tic, minor_tic, n);
-
-  // Set the required precision
-  if(n < 0)
-	fmt[2] = '0' - n;
 
   // Draw the minor tics
   i2 = (int) TMath::Floor(YtoC(fYBase - fHeight) / minor_tic);
@@ -404,7 +399,7 @@ void GSPainter::DrawYLinearScale(void)
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x-9, y, x, y);
   
 	// TODO: handle len > 16
-	len = snprintf(tmp, 16, fmt, (double) major_tic * i);
+	len = snprintf(tmp, 16, "%.4g", (double) major_tic * i);
 	DrawString(fAxisGC, x-12, y, tmp, len, kRight, kMiddle);
   }
   
@@ -503,7 +498,7 @@ void GSPainter::DrawYMajorTic(double c, bool drawLine)
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x-9, y, x, y);
   
   // TODO: handle len > 16
-  len = snprintf(tmp, 16, "%.0f", c);
+  len = snprintf(tmp, 16, "%.4g", c);
   DrawString(fAxisGC, x-12, y, tmp, len, kRight, kMiddle);
 }
 

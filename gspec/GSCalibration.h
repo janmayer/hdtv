@@ -20,35 +20,23 @@
  * 
  */
 
-#ifndef __GSDisplayObj_h__
-#define __GSDisplayObj_h__
+#ifndef __GSCalibration_h__
+#define __GSCalibration_h__
 
-const int defaultColor = 3;   // green
-
-#include <TGGC.h>
-#include "GSCalibration.h"
-
-class GSDisplayObj {
+class GSCalibration {
   public:
-  	GSDisplayObj(int col);
-  	~GSDisplayObj();
-  	
-    inline TGGC *GetGC() { return fGC; }
-  	
-	void SetCal(GSCalibration *cal) { fCal = cal; };
-    inline double Ch2E(double ch) { return fCal ? fCal->Ch2E(ch) : ch; }
-    inline double E2Ch(double e) { return fCal ? fCal->E2Ch(e) : e; }
+  	GSCalibration(double cal0 = 0.0, double cal1 = 1.0, double cal2 = 0.0, double cal3 = 0.0);
+  	  	
+	void SetCal(double cal0 = 0.0, double cal1 = 1.0, double cal2 = 0.0, double cal3 = 0.0);
+    double Ch2E(double ch);
+    double E2Ch(double e);
     
-    double GetMaxE();
-    double GetMinE();
-    double GetERange();
-    virtual inline double GetMinCh() { return 0.0; }
-    virtual inline double GetMaxCh() { return 0.0; }
-    inline double GetCenterCh() { return (GetMinCh() + GetMaxCh()) / 2.0; }
-  	
+    inline void SetCenterCh(double ch)  { fCenterCh = ch; }
+    inline double GetCenterCh()  { return fCenterCh; }
+    
   private:
-    GSCalibration *fCal;
-    TGGC *fGC;   
+    double fCal[4];
+    double fCenterCh;
 };
 
 #endif

@@ -97,6 +97,7 @@ class SpecReader:
 				hist = ROOT.TH1I(histname, histtitle, nbins, -0.5, nbins - 0.5)
 				reader.Fill(hist)
 				reader.Close()
+				ROOT.SetOwnership(hist, True)
 				break
 			else:
 				reader.Close()

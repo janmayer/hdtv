@@ -1,0 +1,5 @@
+#!/bin/sh
+
+export PYTHONPATH=/home/braun/gspec/pylib
+
+python -i autoshift-debug.py $@

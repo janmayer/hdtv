@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export PYTHONPATH="/home/braun/gspec/pylib"
+
+python -i hdtv-inspector.py $@

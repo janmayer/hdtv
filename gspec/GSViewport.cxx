@@ -109,27 +109,69 @@ void GSViewport::DeleteItem(std::vector<itemType> &items, int id)
 }
 
 /*** Object management functions ***/
-int GSViewport::AddMarker(double pos)
+int GSViewport::AddMarker(double pos, int color, bool update)
 {
   int id = FindFreeId(fMarkers);
 
-  fMarkers[id] = new GSMarker(1, pos);
-  Update(true);
+  fMarkers[id] = new GSMarker(1, pos, 0.0, color);
+  
+  if(update)
+    Update(true);
   
   return id;
 }
 
 GSMarker *GSViewport::GetMarker(int id)
 {
-  if(id < 0 || id > fMarkers.size())
+  if(id < 0 || id >= fMarkers.size())
     return NULL;
   return fMarkers[id];
 }
 
-void GSViewport::DeleteMarker(int id)
+int GSViewport::FindNearestMarker(double e, double tol)
+{
+  int id = -1;
+  double minDist = 1e50;
+  double dist;
+
+  for(int i=0; i < fMarkers.size(); i++) {
+  	dist = TMath::Abs(fMarkers[i]->GetE1() - e);
+  	if(dist < minDist) {
+  		minDist = dist;
+  		id = i << 1;
+  	}
+  	
+  	if(fMarkers[i]->GetN() > 1) {
+  		dist = TMath::Abs(fMarkers[i]->GetE1() - e);
+  		if(dist < minDist) {
+  			minDist = dist;
+  			id = (i << 1) + 1;
+  		}
+  	}
+  }
+  
+  if(tol >= 0 && minDist > tol)
+  	id = -1;
+  	
+  return id;
+}
+
+void GSViewport::DeleteMarker(int id, bool update)
 {
   DeleteItem(fMarkers, id);
-  Update(true);
+  if(update)
+    Update(true);
+}
+
+void GSViewport::DeleteAllMarkers(bool update)
+{
+  for(int i=0; i < fMarkers.size(); i++)
+    delete fMarkers[i];
+    
+  fMarkers.clear();
+  
+  if(update)
+  	Update(true);
 }
 
 int GSViewport::AddSpec(const TH1I *spec, int color, bool update)
@@ -153,7 +195,7 @@ GSDisplaySpec *GSViewport::GetDisplaySpec(int id)
   return fSpectra[id];
 }
 
-void GSViewport::SetSpecCal(int id, double cal0, double cal1, double cal2, double cal3, bool update)
+/* void GSViewport::SetSpecCal(int id, double cal0, double cal1, double cal2, double cal3, bool update)
 {
 	GSDisplaySpec *ds = GetDisplaySpec(id);
 	if(ds)
@@ -161,12 +203,24 @@ void GSViewport::SetSpecCal(int id, double cal0, double cal1, double cal2, doubl
 	  
 	if(update)
 	  Update(true);
-}
+} */
 
-void GSViewport::DeleteSpec(int id)
+void GSViewport::DeleteSpec(int id, bool update)
 {
   DeleteItem(fSpectra, id);
-  Update(true);
+  if(update)
+    Update(true);
+}
+
+void GSViewport::DeleteAllSpecs(bool update)
+{
+  for(int i=0; i < fSpectra.size(); i++)
+    delete fSpectra[i];
+    
+  fSpectra.clear();
+  
+  if(update)
+  	Update(true);
 }
 
 int GSViewport::AddFunc(const TF1 *func, int color, bool update)
@@ -187,7 +241,7 @@ GSDisplayFunc *GSViewport::GetDisplayFunc(int id)
   return fFunctions[id];
 }
 
-void GSViewport::SetFuncCal(int id, double cal0, double cal1, double cal2, double cal3, bool update)
+/* void GSViewport::SetFuncCal(int id, double cal0, double cal1, double cal2, double cal3, bool update)
 {
 	GSDisplayFunc *df = GetDisplayFunc(id);
 	if(df)
@@ -195,12 +249,24 @@ void GSViewport::SetFuncCal(int id, double cal0, double cal1, double cal2, doubl
 	  
 	if(update)
 	  Update(true);
-}
+} */
 
-void GSViewport::DeleteFunc(int id)
+void GSViewport::DeleteFunc(int id, bool update)
 {
   DeleteItem(fFunctions, id);
-  Update(true);
+  if(update)
+    Update(true);
+}
+
+void GSViewport::DeleteAllFuncs(bool update)
+{
+  for(int i=0; i < fFunctions.size(); i++)
+    delete fFunctions[i];
+    
+  fFunctions.clear();
+  
+  if(update)
+  	Update(true);
 }
 
 void GSViewport::SetLogScale(Bool_t l)
@@ -267,6 +333,11 @@ double GSViewport::GetCursorX(void)
   return fPainter->XtoE(fCursorX);
 }
 
+int GSViewport::FindMarkerNearestCursor(int tol)
+{
+  return FindNearestMarker(fPainter->XtoE(fCursorX), fPainter->dXtodE(tol));
+}
+
 void GSViewport::XZoomAroundCursor(double f)
 {
   fOffset += fPainter->dXtodE(fCursorX - fPainter->GetBaseX()) * (1.0 - 1.0/f);
@@ -317,8 +388,10 @@ void GSViewport::Update(bool redraw)
   if(fYAutoScale) {
     fYVisibleRegion = fYMinVisibleRegion;
     
-    for(int i=0; i < fSpectra.size(); i++)
-	  fYVisibleRegion = TMath::Max(fYVisibleRegion, fPainter->GetYAutoZoom(fSpectra[i]));
+    for(int i=0; i < fSpectra.size(); i++) {
+      if(fSpectra[i])
+	    fYVisibleRegion = TMath::Max(fYVisibleRegion, fPainter->GetYAutoZoom(fSpectra[i]));
+	}
   }
 
   if(TMath::Abs(fYVisibleRegion - fPainter->GetYVisibleRegion()) > 1e-7) {

@@ -86,7 +86,7 @@ int GSDisplaySpec::GetMax_Cached(int b1, int b2)
   if(b2 < b1)
 	return -1;
 
-  if(fCachedB2 < b1 || fCachedB1 > b2) {
+  if(fCachedB2 < b1 || fCachedB1 > b2 || fCachedB1 > fCachedB2) {
 	fCachedB1 = b1;
 	fCachedB2 = b2;
 	fCachedMaxBin = GetRegionMaxBin(b1, b2);

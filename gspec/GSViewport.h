@@ -51,19 +51,24 @@ class GSViewport : public TGFrame {
   void UpdateScrollbarRange(void);
   inline void SetScrollbar(TGHScrollBar *sb) { fScrollbar = sb; }
   double GetCursorX(void);
+  int FindMarkerNearestCursor(int tol=3);
   
   /*** Object management functions ***/
-  int AddMarker(double pos);
+  int AddMarker(double pos, int color=defaultColor, bool update=true);
   GSMarker *GetMarker(int id);
-  void DeleteMarker(int id);
+  int FindNearestMarker(double e, double tol=-1.0);
+  void DeleteMarker(int id, bool update=true);
+  void DeleteAllMarkers(bool update=true);
   int AddSpec(const TH1I *spec, int color=defaultColor, bool update=true);
   GSDisplaySpec *GetDisplaySpec(int id);
-  void SetSpecCal(int id, double cal0, double cal1, double cal2, double cal3, bool update);
-  void DeleteSpec(int id);
+  //void SetSpecCal(int id, double cal0, double cal1, double cal2, double cal3, bool update);
+  void DeleteSpec(int id, bool update=true);
+  void DeleteAllSpecs(bool update=true);
   int AddFunc(const TF1 *func, int color=defaultColor, bool update=true);
   GSDisplayFunc *GetDisplayFunc(int id);
-  void SetFuncCal(int id, double cal0, double cal1, double cal2, double cal3, bool update);
-  void DeleteFunc(int id);
+  //void SetFuncCal(int id, double cal0, double cal1, double cal2, double cal3, bool update);
+  void DeleteFunc(int id, bool update=true);
+  void DeleteAllFuncs(bool update=true);
    
   ClassDef(GSViewport, 1)
   

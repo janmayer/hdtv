@@ -19,6 +19,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  * 
  */
+ 
+/* The position of a marker is considered to be in energy units if
+   no calibration is given, and in channel units otherwise. */
 
 #ifndef __GSMarker_h__
 #define __GSMarker_h__
@@ -26,27 +29,37 @@
 #include <TGFrame.h>
 #include <TColor.h>
 
+#include "GSCalibration.h"
+
 class GSMarker {
  public:
-  GSMarker(int n, double e1, double e2=0.0);
+  GSMarker(int n, double p1, double p2=0.0, int col=5);
   ~GSMarker(void);
 
   inline TGGC *GetGC_1(void) { return fDash1 ? fDashedGC : fGC; }
   inline TGGC *GetGC_2(void) { return fDash2 ? fDashedGC : fGC; }
   inline TGGC *GetGC_C(void) { return (fDash1 && fDash2) ? fDashedGC : fGC; }
   inline int GetN(void) { return fN; }
-  inline double GetE1(void) { return fE1; }
-  inline double GetE2(void) { return fE2; }
+  inline double GetE1(void) { return fCal1 ? fCal1->Ch2E(fP1) : fP1; }
+  inline double GetE2(void) { return fCal2 ? fCal2->Ch2E(fP2) : fP2; }
+  inline double GetP1(void) { return fP1; }
+  inline double GetP2(void) { return fP2; }
   
-  inline void SetE(double e1, double e2=0.0)
-    { fE1 = e1; fE2 = e2; }
+  inline void SetPos(double p1, double p2=0.0)
+    { fP1 = p1; fP2 = p2; }
   inline void SetDash(bool dash1, bool dash2=false)
     { fDash1 = dash1; fDash2 = dash2; }
+  inline void SetCal(GSCalibration *cal1)
+    { fCal1 = cal1; fCal2 = cal1; }
+  inline void SetCal(GSCalibration *cal1, GSCalibration *cal2)
+    { fCal1 = cal1; fCal2 = cal2; }
+  
 
  private:
+  GSCalibration *fCal1, *fCal2;
   bool fDash1, fDash2;
   TGGC *fGC, *fDashedGC;
-  double fE1, fE2;
+  double fP1, fP2;
   int fN;
 };
 
