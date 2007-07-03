@@ -63,9 +63,6 @@ Bool_t GSViewer::HandleKey(Event_t *ev)
 	  case kVMDotted: fViewport->SetViewMode(kVMSolid);  break;
 	  }
 	  break;
-	case kKey_c:
-	  fViewport->CenterView();
-	  break;
 	case kKey_z:
 	  fViewport->XZoomAroundCursor(2.0);
 	  break;

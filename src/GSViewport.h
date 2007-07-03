@@ -42,13 +42,11 @@ class GSViewport : public TGFrame {
   void XZoomAroundCursor(double f);
   void ToBegin(void);
   void ShowAll(void);
-  // inline double GetXZoom(void) { return fSpecPainter->GetXZoom(); }
   void SetViewMode(EViewMode vm);
   inline EViewMode GetViewMode(void) { return fSpecPainter->GetViewMode(); }
   void SetLogScale(Bool_t l);
   inline void ToggleLogScale(void) { SetLogScale(!GetLogScale()); }
   inline Bool_t GetLogScale(void) { return fSpecPainter->GetLogScale(); }
-  void CenterView(void);
   void Layout(void);
   void UpdateScrollbarRange(void);
   inline void SetScrollbar(TGHScrollBar *sb) { fScrollbar = sb; }

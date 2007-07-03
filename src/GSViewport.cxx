@@ -138,15 +138,6 @@ void GSViewport::LoadSpectrum(GSSpectrum *spec)
   fSpecPainter->SetSpectrum(fSpec);
 }
 
-/* void GSViewport::SetXZoom(double xzoom)
-{
-  fLazyXZoom = xzoom;
-  if(fScrollbar)
-	UpdateScrollbarRange();
-  else
-	Update();
-} */
-
 void GSViewport::XZoomAroundCursor(double f)
 {
   //int dO;
@@ -239,12 +230,6 @@ void GSViewport::Update(bool redraw)
 	cout << "shift offset" << endl;
 	ShiftOffset((int) TMath::Ceil(dOPix - 0.5));
   }
-}
-
-void GSViewport::CenterView()
-{
-  // TODO: implement correctly
-  SetOffset(0);
 }
 
 void GSViewport::UpdateScrollbarRange(void)

@@ -28,7 +28,7 @@ GSMainFrame::GSMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
   // Create a main frame
   fMain = new TGMainFrame(p,w,h);
   // Create canvas widget
-  fViewer = new GSViewer(fMain,600,400);
+  fViewer = new GSViewer(fMain,600,300);
   fMain->AddFrame(fViewer, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY,
                                                       10,10,10,1));
 
