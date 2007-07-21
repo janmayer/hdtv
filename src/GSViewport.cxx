@@ -188,23 +188,24 @@ void GSViewport::Update(bool redraw)
   double az;
   double dO, dOPix;
 
-  cout << "Update() called" << endl;
+  //cout << "Update() called" << endl;
 
   // TODO: still required?
-  if(fUpdateLocked > 0) {
+  /* if(fUpdateLocked > 0) {
 	fUpdateLocked--;
 	return;
-  }
+	} */
 
   // Remember not to compare floating point values
   // for equality directly (rouding error problems)
   if(TMath::Abs(GetLazyXZoom() - fSpecPainter->GetXZoom()) > 1e-7) {
 	redraw = true;
 	fSpecPainter->SetXZoom(GetLazyXZoom());
+	UpdateScrollbarRange();
   }
 
-  if(TMath::Abs(fLazyOffset - fSpecPainter->GetOffset()) > 1e-5) {
-	dO = fLazyOffset - fSpecPainter->GetOffset();
+  dO = fLazyOffset - fSpecPainter->GetOffset();
+  if(TMath::Abs(dO) > 1e-5) {
 	fSpecPainter->SetOffset(fLazyOffset);
   }
 
@@ -219,26 +220,43 @@ void GSViewport::Update(bool redraw)
   // We can only use ShiftOffset if the shift is an integer number
   // of pixels, otherwise we will have to do a full redraw
   dOPix = fSpecPainter->dEtodX(dO);
-  if(TMath::Abs(TMath::Ceil(dOPix - 0.5) - dOPix) > 1e-7)
+  if(TMath::Abs(TMath::Ceil(dOPix - 0.5) - dOPix) > 1e-7) {
+	cout << "not an integer: " << dOPix << endl;
 	redraw = true;
+  }
   
   if(redraw) {
 	cout << "redraw" << endl;
 	fNeedClear = true;
 	gClient->NeedRedraw(this);
   } else if(TMath::Abs(dOPix) > 0.5) {
-	cout << "shift offset" << endl;
+	//cout << "shift offset" << endl;
 	ShiftOffset((int) TMath::Ceil(dOPix - 0.5));
   }
+
+  UpdateScrollbarRange();
 }
 
 void GSViewport::UpdateScrollbarRange(void)
 {
   if(fScrollbar) {
-	UInt_t rs = GetRequiredSize();
-	UInt_t as = GetAvailSize();
+	UInt_t as, rs, pos;
+	double minE, maxE;
+
+	as = fSpecPainter->GetWidth();
+
+	minE = fSpec ? fSpec->GetMinEnergy() : 0.0;
+	minE = TMath::Min(minE, fSpecPainter->GetOffset());
+	
+	maxE = fSpec ? fSpec->GetMaxEnergy() : 0.0;
+	maxE = TMath::Max(maxE, fSpecPainter->GetOffset() + fXVisibleRegion);
+
+	rs = (UInt_t) TMath::Ceil(fSpecPainter->dEtodX(maxE - minE));
+
+	pos = (UInt_t) TMath::Ceil(fSpecPainter->dEtodX(fSpecPainter->GetOffset() - minE) - 0.5);
 
 	fScrollbar->SetRange(rs, as);
+	fScrollbar->SetPosition(pos);
   }
 }
 
@@ -272,14 +290,22 @@ void GSViewport::HandleScrollbar(Long_t parm)
 {
   // Callback for scrollbar motion
 
-  //cout << "HandleScrollbar(): parm=" << parm << endl;
+  //if(parm >= 0)
+  //cout << "take action: " << parm << endl;
+
+  if(fLazyOffset < fSpec->GetMinEnergy())
+	fLazyOffset += fSpecPainter->dXtodE(parm);
+  else
+	fLazyOffset = fSpec->GetMinEnergy() + fSpecPainter->dXtodE(parm);
+
+  Update();
 
   // Capture nonsense input
-  if(parm < 0)
-	parm = 0;
+  //if(parm < 0)
+  //	parm = 0;
 
-  fLazyOffset = parm;
-  Update();
+  //fLazyOffset = parm;
+  //Update();
 }
 
 
@@ -288,7 +314,7 @@ Bool_t GSViewport::HandleMotion(Event_t *ev)
   bool cv = fCursorVisible;
   if(cv) DrawCursor();
   if(fDragging) {
-	SetOffset(fLazyOffset + fSpecPainter->dXtodE(fCursorX - ev->fX));
+	SetOffset(fLazyOffset + fSpecPainter->dXtodE((int) fCursorX - ev->fX));
   }
   fCursorX = ev->fX;
   fCursorY = ev->fY;
@@ -346,7 +372,7 @@ void GSViewport::DoRedraw(void)
   w = fWidth - fLeftBorder - fRightBorder;
   h = fHeight - fTopBorder - fBottomBorder;
 
-  cout << "DoRedraw()" << endl;
+  //cout << "DoRedraw()" << endl;
 
   fSpecPainter->SetXZoom(GetLazyXZoom());
   fSpecPainter->SetOffset(fLazyOffset);

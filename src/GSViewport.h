@@ -51,9 +51,9 @@ class GSViewport : public TGFrame {
   void UpdateScrollbarRange(void);
   inline void SetScrollbar(TGHScrollBar *sb) { fScrollbar = sb; }
   
-  inline UInt_t GetAvailSize(void) { fSpecPainter->GetAvailSize(); }
+  /* inline UInt_t GetAvailSize(void) { fSpecPainter->GetAvailSize(); }
   inline UInt_t GetRequiredSize(void)
-	{ return (UInt_t) ((fMaxEnergy - fMinEnergy) * GetLazyXZoom()); }
+  { return (UInt_t) ((fMaxEnergy - fMinEnergy) * GetLazyXZoom()); } */
 
  protected:
   void DoRedraw(void);

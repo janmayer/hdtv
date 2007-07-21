@@ -30,14 +30,14 @@ GSMainFrame::GSMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
   // Create canvas widget
   fViewer = new GSViewer(fMain,600,300);
   fMain->AddFrame(fViewer, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY,
-                                                      10,10,10,1));
+                                                      0,0,0,0));
 
   // Create a horizontal frame widget with buttons
-  TGHorizontalFrame *hframe = new TGHorizontalFrame(fMain,200,40);
-  TGTextButton *exit = new TGTextButton(hframe,"&Exit",
-                                               "gApplication->Terminate(0)");
-  hframe->AddFrame(exit, new TGLayoutHints(kLHintsCenterX,5,5,3,4));
-  fMain->AddFrame(hframe, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
+  //TGHorizontalFrame *hframe = new TGHorizontalFrame(fMain,200,40);
+  //TGTextButton *exit = new TGTextButton(hframe,"&Exit",
+  //                                               "gApplication->Terminate(0)");
+//hframe->AddFrame(exit, new TGLayoutHints(kLHintsCenterX,5,5,3,4));
+//fMain->AddFrame(hframe, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
   // Set a name to the main frame
   fMain->SetWindowName("gSpec");
   // Map all subwindows of main frame

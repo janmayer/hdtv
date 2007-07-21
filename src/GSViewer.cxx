@@ -63,6 +63,8 @@ Bool_t GSViewer::HandleKey(Event_t *ev)
 	  case kVMDotted: fViewport->SetViewMode(kVMSolid);  break;
 	  }
 	  break;
+    case kKey_q:
+	  gApplication->Terminate(0);
 	case kKey_z:
 	  fViewport->XZoomAroundCursor(2.0);
 	  break;
@@ -91,7 +93,7 @@ void GSViewer::Layout(void)
 
   fViewport->MoveResize(2,2,fWidth-4,ch);
   fScrollbar->MoveResize(2,ch+4,fWidth-4, sh);
-  fViewport->UpdateScrollbarRange();
+  //fViewport->UpdateScrollbarRange();
 }
 
 void GSViewer::MapSubwindows(void)
@@ -112,12 +114,10 @@ void GSViewer::MapSubwindows(void)
 Bool_t GSViewer::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
 {
   if(GET_MSG(msg) == kC_HSCROLL) {
-	if(GET_SUBMSG(msg) == kSB_SLIDERTRACK || 
-	   GET_SUBMSG(msg) == kSB_SLIDERPOS) {
-	  //fViewport->HandleScrollbar(parm1);
-	}
+	if(GET_SUBMSG(msg) == kSB_SLIDERTRACK)
+	  fViewport->HandleScrollbar(parm1);
 
-	/* if(GET_SUBMSG(msg) == kSB_SLIDERTRACK)
+  /* if(GET_SUBMSG(msg) == kSB_SLIDERTRACK)
 	  cout << "kSB_SLIDERTRACK" << endl;
 	else if(GET_SUBMSG(msg) == kSB_SLIDERPOS)
 	cout << "kSB_SLIDERPOS" << endl; */

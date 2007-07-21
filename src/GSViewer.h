@@ -23,6 +23,7 @@
 #ifndef __GSViewer_h__
 #define __GSViewer_h__
 
+#include <TApplication.h>
 #include <TGFrame.h>
 #include <TGScrollBar.h>
 #include <KeySymbols.h>

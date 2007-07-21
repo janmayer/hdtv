@@ -33,6 +33,9 @@ GSSpecPainter::GSSpecPainter()
   SetSpectrum(NULL);
   SetViewMode(kVMHollow);
   SetOffset(0.0);
+
+  fFont = gClient->GetResourcePool()->GetDefaultFont();
+  fFontStruct = fFont->GetFontStruct();
 }
 
 void GSSpecPainter::DrawSpectrum(GSDisplaySpec *dSpec, UInt_t x1, UInt_t x2)
@@ -148,9 +151,6 @@ double GSSpecPainter::GetYAutoZoom(void)
   e1 = XtoE(fXBase);
   e2 = XtoE(fXBase + fWidth);
 
-  cout << "fOffset=" << fOffset << endl;
-  cout << "e1=" << e1 << " e2=" << e2 << endl;
-
   y = (double) fSpec->GetRegionMax_e(e1, e2);
 
   if(y < 1.0)
@@ -221,7 +221,6 @@ void GSSpecPainter::DrawXScale(UInt_t x1, UInt_t x2)
   char fmt[5] = "%.0f";
   size_t len;
   int i, i2;
-  UInt_t w, h;
   double major_tic, minor_tic;
   int n;
 
@@ -248,10 +247,9 @@ void GSSpecPainter::DrawXScale(UInt_t x1, UInt_t x2)
 	x = (UInt_t) EtoX((double) i * major_tic);
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x, y, x, y+9);
   
-	len = snprintf(tmp, 16, fmt, (double) major_tic * i);
 	// TODO: handle len > 16
-	gVirtualX->GetTextExtent(w, h, tmp);
-	gVirtualX->DrawString(fDrawable, fAxisGC, x-w/2+1, y+23, tmp, len);
+	len = snprintf(tmp, 16, fmt, (double) major_tic * i);
+	DrawString(fAxisGC, x, y+12, tmp, len, kCenter, kTop);
   }
   
 }
@@ -264,6 +262,31 @@ void GSSpecPainter::DrawYScale(void)
 	DrawYLinearScale();
 }
 
+void GSSpecPainter::DrawString(GContext_t gc, int x, int y, char *str, size_t len,
+							   EHTextAlign hAlign, EVTextAlign vAlign)
+{
+  int max_ascent, max_descent;
+  int width;
+
+  gVirtualX->GetFontProperties(fFontStruct, max_ascent, max_descent);
+  width = gVirtualX->TextWidth(fFontStruct, str, len);
+
+  switch(hAlign) {
+  case kLeft: break;
+  case kCenter: x -= width/2; break;
+  case kRight: x -= width; break;
+  }
+
+  switch(vAlign) {
+  case kBottom: y -= max_descent; break;
+  case kBaseline: break;
+  case kMiddle:  y += (max_ascent - max_descent) / 2; break;
+  case kTop: y += max_ascent;
+  }
+
+  gVirtualX->DrawString(fDrawable, gc, x, y, str, len);
+}
+
 void GSSpecPainter::DrawYLinearScale(void)
 {
   UInt_t x = fXBase - 2;
@@ -272,7 +295,6 @@ void GSSpecPainter::DrawYLinearScale(void)
   char fmt[5] = "%.0f";
   size_t len;
   int i, i2;
-  UInt_t w, h;
   double major_tic, minor_tic;
   int n;
 
@@ -297,12 +319,9 @@ void GSSpecPainter::DrawYLinearScale(void)
 	y = (UInt_t) CtoY((double) i * major_tic);
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x-9, y, x, y);
   
-	len = snprintf(tmp, 16, fmt, (double) major_tic * i);
 	// TODO: handle len > 16
-	gVirtualX->GetTextExtent(w, h, tmp);
-	// Workaround: needed for an unknown reason
-	w += len;
-	gVirtualX->DrawString(fDrawable, fAxisGC, x-12-w, y+h/2, tmp, len);
+	len = snprintf(tmp, 16, fmt, (double) major_tic * i);
+	DrawString(fAxisGC, x-12, y, tmp, len, kRight, kMiddle);
   }
   
 }
@@ -393,20 +412,15 @@ void GSSpecPainter::DrawYMajorTic(double c, bool drawLine)
 {
   UInt_t x = fXBase - 2;
   UInt_t y = (UInt_t) CtoY(c);
-  UInt_t w, h;
   char tmp[16];
   size_t len;
   
   if(drawLine)
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x-9, y, x, y);
   
-  len = snprintf(tmp, 16, "%.0f", c);
   // TODO: handle len > 16
-  gVirtualX->GetTextExtent(w, h, tmp);
-  // Wordaround: needed for an unknown reason
-  w += len;
-  
-  gVirtualX->DrawString(fDrawable, fAxisGC, x-12-w, y+h/2, tmp, len);
+  len = snprintf(tmp, 16, "%.0f", c);
+  DrawString(fAxisGC, x-12, y, tmp, len, kRight, kMiddle);
 }
 
 inline void GSSpecPainter::DrawYMinorTic(double c)

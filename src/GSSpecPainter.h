@@ -24,7 +24,7 @@
   A note about the coordinate system:
   fXBase is the point that corresponds to energy 0 (if fOffset = 0)
   fYBase is the point that corresponds to zero counts
-  fOffset is an x shift, in pixels (to make mouse scrolling easy)
+  fOffset is an x shift, in pixels
 
   fXZoom is in pixels per energy
   fYZoom is in pixels per count
@@ -33,6 +33,8 @@
 #ifndef __GSSpecPainter_h__
 #define __GSSpecPainter_h__
 
+#include <TGResourcePool.h>
+#include <TGFont.h>
 #include <TGFrame.h>
 #include "GSDisplaySpec.h"
 #include "GSSpectrum.h"
@@ -41,6 +43,19 @@ enum EViewMode {
   kVMSolid = 1,
   kVMHollow = 2,
   kVMDotted = 3
+};
+
+enum EHTextAlign {
+  kLeft = 1,
+  kCenter = 2,
+  kRight = 3
+};
+
+enum EVTextAlign {
+  kBottom = 1,
+  kBaseline = 2,
+  kMiddle = 3,
+  kTop = 4
 };
 
 class GSSpecPainter { 
@@ -65,9 +80,9 @@ class GSSpecPainter {
   inline void SetClearGC(GContext_t gc) { fClearGC = gc; }
   inline void SetOffset(double offset) { fOffset = offset; }
   inline double GetOffset(void) { return fOffset; }
-  inline UInt_t GetAvailSize(void) { return fWidth; }
-  inline UInt_t GetRequiredSize(double xzoom)
-	{ return fSpec ? (UInt_t) TMath::Ceil(fSpec->GetEnergyRange() * xzoom) : 0; }
+
+  //  inline UInt_t GetRequiredSize(void)
+  //{ return fSpec ? (UInt_t) TMath::Ceil(fSpec->GetEnergyRange() * fXZoom) : 0; }
 
   inline double XtoE(UInt_t x)
 	{ return (double) (x - fXBase) / fXZoom + fOffset; }
@@ -90,6 +105,8 @@ class GSSpecPainter {
   void DrawYLinearScale(void);
   void DrawYLogScale(void);
   void DrawYMajorTic(double c, bool drawLine=true);
+  void DrawString(GContext_t gc, int x, int y, char *str, size_t len,
+				  EHTextAlign hAlign, EVTextAlign vAlign);
   inline void DrawYMinorTic(double c);
   int GetCountsAtPixel(UInt_t x);
 
@@ -111,6 +128,8 @@ class GSSpecPainter {
   Drawable_t fDrawable;
   GContext_t fAxisGC;
   GContext_t fClearGC;
+  const TGFont *fFont;
+  FontStruct_t fFontStruct;
 
   //  ClassDef(ViewerFrame,0)
 };
