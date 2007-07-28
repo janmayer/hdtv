@@ -62,27 +62,29 @@ class GSSpecPainter {
  public:
   GSSpecPainter(void);
   ~GSSpecPainter(void);
-  inline void SetSpectrum(GSSpectrum *spec) { fSpec = spec; }
-  inline void SetXZoom(double xzoom) { fXZoom = xzoom; }
+  inline void SetXVisibleRegion(double xv) 
+	{ fXVisibleRegion = xv; fXZoom = fWidth / fXVisibleRegion; }
+  inline double GetXVisibleRegion(void) { return fXVisibleRegion; }
+  inline void SetYVisibleRegion(double yv) 
+	{ fYVisibleRegion = yv; UpdateYZoom(); }
+  inline double GetYVisibleRegion(void) { return fYVisibleRegion; }
   inline double GetXZoom(void) { return fXZoom; }
-  inline void SetYZoom(double yzoom) { fYZoom = yzoom; }
   inline double GetYZoom(void) { return fYZoom; }
-  inline void SetLogScale(Bool_t l) { fLogScale = l; }
+  inline void SetLogScale(Bool_t l) 
+	{ fLogScale = l; UpdateYZoom(); }
   inline Bool_t GetLogScale(void) { return fLogScale; }
   inline void SetViewMode(EViewMode vm) { fViewMode = vm; }
   inline EViewMode GetViewMode(void) { return fViewMode; }
   inline void SetBasePoint(int x, int y) { fXBase = x; fYBase = y; }
   inline UInt_t GetBaseX(void) { return fXBase; }
-  inline void SetSize(int w, int h) { fWidth = w; fHeight = h; }
+  void SetSize(int w, int h);
   inline UInt_t GetWidth(void) { return fWidth; }
+  inline UInt_t GetHeight(void) { return fHeight; }
   inline void SetDrawable(Drawable_t drawable) { fDrawable = drawable; }
   inline void SetAxisGC(GContext_t gc) { fAxisGC = gc; }
   inline void SetClearGC(GContext_t gc) { fClearGC = gc; }
   inline void SetOffset(double offset) { fOffset = offset; }
   inline double GetOffset(void) { return fOffset; }
-
-  //  inline UInt_t GetRequiredSize(void)
-  //{ return fSpec ? (UInt_t) TMath::Ceil(fSpec->GetEnergyRange() * fXZoom) : 0; }
 
   inline double XtoE(UInt_t x)
 	{ return (double) (x - fXBase) / fXZoom + fOffset; }
@@ -96,7 +98,7 @@ class GSSpecPainter {
 	{ return dE * fXZoom; }
 
   void DrawSpectrum(GSDisplaySpec *dSpec, UInt_t x1, UInt_t x2);
-  double GetYAutoZoom(void);
+  double GetYAutoZoom(GSDisplaySpec *dSpec);
   void DrawXScale(UInt_t x1, UInt_t x2);
   void ClearXScale(void);
   void DrawYScale(void);
@@ -108,22 +110,23 @@ class GSSpecPainter {
   void DrawString(GContext_t gc, int x, int y, char *str, size_t len,
 				  EHTextAlign hAlign, EVTextAlign vAlign);
   inline void DrawYMinorTic(double c);
-  int GetCountsAtPixel(UInt_t x);
+  int GetCountsAtPixel(GSDisplaySpec *dSpec, UInt_t x);
 
-  inline int GetYAtPixel(UInt_t x)
-	{ return CtoY(GetCountsAtPixel(x)); }
+  inline int GetYAtPixel(GSDisplaySpec *dSpec, UInt_t x)
+	{ return CtoY(GetCountsAtPixel(dSpec, x)); }
 
   int CtoY(double c);
   double YtoC(int y);
   void GetTicDistance(double tic, double& major_tic, double& minor_tic, int& n);
+  void UpdateYZoom(void);
 
  protected:
   double fXZoom, fYZoom;  // px / keV, px / count
+  double fXVisibleRegion, fYVisibleRegion;
   double fOffset;
   Bool_t fLogScale;
   UInt_t fXBase, fYBase;
   UInt_t fWidth, fHeight;
-  GSSpectrum *fSpec;
   EViewMode fViewMode;
   Drawable_t fDrawable;
   GContext_t fAxisGC;

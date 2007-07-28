@@ -53,7 +53,7 @@ int GSTextSpectrumReader::GetNumLines(void)
 void GSTextSpectrumReader::ToROOT(TH1 *hist)
 {
   istream fstr(fFile);
-  int x, n=0;
+  int x, n=1;
 
   fFile->pubseekpos(0);
 

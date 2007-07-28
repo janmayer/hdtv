@@ -37,10 +37,15 @@ class GSDisplaySpec {
 
   inline GSSpectrum *GetSpec(void)
 	{ return fSpec; }
+  
+  int GetMax_Cached(int b1, int b2);
 
  private:
   GSSpectrum *fSpec;
   TGGC *fSpecGC;
+
+  int fCachedB1, fCachedB2, fCachedMaxBin;
+  int fCachedMax;
 };
 
 #endif

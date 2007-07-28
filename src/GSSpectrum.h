@@ -31,10 +31,8 @@ class GSSpectrum : public TH1I {
   GSSpectrum(const char *name, const char *title, Int_t nbinsx);
   ~GSSpectrum(void);
   void SetCal(double a, double b, double c);
-  int GetRegionMaxCh_ch(int c1, int c2);
-  int GetRegionMaxCh_ch(double c1, double c2);
-  int GetRegionMaxCh_e(double e1, double e2);
-  int GetRegionMax_e(double e1, double e2);
+  int GetRegionMaxBin(int b1, int b2);
+  int GetRegionMax(int b1, int b2);
   
   double Channel2Energy(double ch);
   double Energy2Channel(double e);

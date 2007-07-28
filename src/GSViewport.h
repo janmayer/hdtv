@@ -34,7 +34,7 @@ class GSViewport : public TGFrame {
   GSViewport(const TGWindow *p, UInt_t w, UInt_t h);
   ~GSViewport(void);
   void SetOffset(double offset);
-  inline double GetOffset(void) { return fLazyOffset; }
+  inline double GetOffset(void) { return fOffset; }
   void Update(bool redraw=false);
   void HandleScrollbar(Long_t parm);
   void LoadSpectrum(GSSpectrum *spec);
@@ -51,12 +51,9 @@ class GSViewport : public TGFrame {
   void UpdateScrollbarRange(void);
   inline void SetScrollbar(TGHScrollBar *sb) { fScrollbar = sb; }
   
-  /* inline UInt_t GetAvailSize(void) { fSpecPainter->GetAvailSize(); }
-  inline UInt_t GetRequiredSize(void)
-  { return (UInt_t) ((fMaxEnergy - fMinEnergy) * GetLazyXZoom()); } */
-
  protected:
   void DoRedraw(void);
+  void DrawRegion(UInt_t x1, UInt_t x2);
   Bool_t HandleMotion(Event_t *ev);
   Bool_t HandleButton(Event_t *ev);
   Bool_t HandleCrossing(Event_t *ev);
@@ -65,14 +62,12 @@ class GSViewport : public TGFrame {
 
   // Return the X zoom which _should_ currently be used,
   // even if the update has not taken place yet.
-  inline double GetLazyXZoom(void)
-	{ return ((double)fSpecPainter->GetWidth()) / fXVisibleRegion; }
-
+ 
  protected:
-  double fLazyOffset;
-  double fXVisibleRegion;
+  double fXVisibleRegion, fYVisibleRegion;
+  double fYMinVisibleRegion;
+  double fOffset;
   double fMinEnergy, fMaxEnergy;
-  int fUpdateLocked;
   int fNbins;
   GSSpectrum *fSpec;
   GSDisplaySpec *fDispSpec;

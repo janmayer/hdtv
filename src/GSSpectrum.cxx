@@ -34,7 +34,7 @@
 #include "GSSpectrum.h"
 
 GSSpectrum::GSSpectrum(const char *name, const char *title, Int_t nbinsx) 
-  : TH1I(name, title, nbinsx, 0.0, (Double_t) nbinsx)
+  : TH1I(name, title, nbinsx, -0.5, (Double_t) nbinsx - 0.5)
 {
   // Constructor
 
@@ -45,7 +45,6 @@ GSSpectrum::GSSpectrum(const char *name, const char *title, Int_t nbinsx)
 }
 
 GSSpectrum::~GSSpectrum(void) { }
-
 
 void GSSpectrum::SetCal(double a, double b, double c)
 {
@@ -89,63 +88,31 @@ double GSSpectrum::Energy2Channel(double e)
   return (TMath::Abs(c1 - ctr) < TMath::Abs(c2 - ctr)) ? c1 : c2;
 }
 
-int GSSpectrum::GetRegionMaxCh_ch(int c1, int c2)
+/* Find the bin number of the bin between b1 and b2 (inclusive) which
+   contains the most events */
+int GSSpectrum::GetRegionMaxBin(int b1, int b2)
 {
-  // Calculate the maximum count found between channel c1
-  // and channel c2, inclusive
+  int bin, y, max_bin = -1, max_y = -1;
 
-  int n, y, max_y = -1, max_n = -1;
+  if(b1 < 0) b1 = 0;
+  if(b2 > GetNbinsX() + 1) b2 = GetNbinsX() + 1;
 
-  if(c1 < 0) c1 = 0;
-  if(c2 > GetNbinsX() + 1) c2 = GetNbinsX() + 1;
-
-  for(n = c1; n <= c2; n ++) {
-	y = (int) GetBinContent(n);
+  for(bin = b1; bin <= b2; bin ++) {
+	y = (int) GetBinContent(bin);
 	if(y > max_y) {
 	  max_y = y;
-	  max_n = n;
+	  max_bin = bin;
 	}
   }
   
-  return max_n;
+  return max_bin;
 }
 
-int GSSpectrum::GetRegionMaxCh_ch(double c1, double c2)
+int GSSpectrum::GetRegionMax(int b1, int b2)
 {
-  // Calculate the maximum count found between channel c1
-  // and channel c2, where c1 and c2 may be non-integer
-  
-  int n1, n2;
+  int max_bin = GetRegionMaxBin(b1, b2);
 
-  if(c1 < c2) {
-	n1 = (int) TMath::Ceil(c1 - 0.5);
-	n2 = (int) TMath::Ceil(c2 - 1.5);
-  } else {
-	n1 = (int) TMath::Ceil(c2 - 0.5);
-	n2 = (int) TMath::Ceil(c1 - 1.5);
-  }
-
-  if(n2 < n1)
-	n2 = n1;
-
-  return GetRegionMaxCh_ch(n1, n2);
-}
-
-int GSSpectrum::GetRegionMaxCh_e(double e1, double e2)
-{
-  // Calculate the maximum count found between energy e1
-  // and energy e2
-
-  double c1 = Energy2Channel(e1);
-  double c2 = Energy2Channel(e2);
-
-  return GetRegionMaxCh_ch(c1, c2);
-}
-
-int GSSpectrum::GetRegionMax_e(double e1, double e2) {
-  int maxCh = GetRegionMaxCh_e(e1, e2);
-  
-  return maxCh < 0 ? -1 : (int) GetBinContent(maxCh);
+  return max_bin == -1 ? -1 : (int) GetBinContent(max_bin);
 }
 
 double GSSpectrum::GetMinEnergy(void)

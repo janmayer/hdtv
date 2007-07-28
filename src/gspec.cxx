@@ -51,8 +51,10 @@ GSMainFrame::GSMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
 
   fSpec = new GSSpectrum("hist1", "hist1", ts->GetNumLines() + 2);
   ts->ToROOT(fSpec);
-  fSpec->SetCal(2000.0, -0.5, 0.0);
+  fSpec->SetCal(0.0, 1.0, 0.0);
   fViewer->LoadSpectrum(fSpec);
+
+  //  fSpec->Draw();
 
   delete ts;
 }

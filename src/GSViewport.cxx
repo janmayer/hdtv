@@ -27,11 +27,12 @@ GSViewport::GSViewport(const TGWindow *p, UInt_t w, UInt_t h)
   : TGFrame(p, w, h)
 {
   SetBackgroundColor(GetBlackPixel());
-  fLazyOffset = 0.0;
   fXVisibleRegion = 100.0;
+  fYVisibleRegion = 100.0;
+  fYMinVisibleRegion = 20.0;
+  fOffset = 0.0;
   fMinEnergy = 0;
   fMaxEnergy = 5000;
-  fUpdateLocked = 0;
   fNbins = 0;
   fSpec = NULL;
   fDispSpec = NULL;
@@ -40,7 +41,7 @@ GSViewport::GSViewport(const TGWindow *p, UInt_t w, UInt_t h)
   fDragging = false;
   fLeftBorder = 60;
   fRightBorder = 3;
-  fTopBorder = 3;
+  fTopBorder = 4;
   fBottomBorder = 30;
 
   AddInput(kPointerMotionMask | kEnterWindowMask | kLeaveWindowMask
@@ -57,8 +58,8 @@ GSViewport::GSViewport(const TGWindow *p, UInt_t w, UInt_t h)
   fSpecPainter->SetAxisGC(GetHilightGC().GetGC());
   fSpecPainter->SetClearGC(GetBlackGC().GetGC());
   fSpecPainter->SetLogScale(false);
-  fSpecPainter->SetXZoom(1.0);
-  fSpecPainter->SetYZoom(0.1);
+  fSpecPainter->SetXVisibleRegion(fXVisibleRegion);
+  fSpecPainter->SetYVisibleRegion(fYVisibleRegion);
 }
 
 GSViewport::~GSViewport() {
@@ -97,19 +98,19 @@ void GSViewport::ShiftOffset(int dO)
 
   if(dO < -((Int_t) w) || dO > ((Int_t) w)) { // entire area needs updating
 	gVirtualX->FillRectangle(GetId(), GetBlackGC()(), x, y, w+1, h+1);
-	fSpecPainter->DrawSpectrum(fDispSpec, x, x+w);
+	DrawRegion(x, x+w);
   } else if(dO < 0) {   // move right (note that dO ist negative)
 	gVirtualX->CopyArea(GetId(), GetId(), GetWhiteGC()(), x, y,
 						w + dO + 1, h + 1, x - dO, y);
 	// Note that the area filled by FillRectangle() will not include
 	// the border drawn by DrawRectangle() on the right and the bottom
 	gVirtualX->FillRectangle(GetId(), GetBlackGC()(), x, y, -dO, h+1);
-	fSpecPainter->DrawSpectrum(fDispSpec, x, x-dO);
+	DrawRegion(x, x-dO);
   } else { // if(dO > 0) : move left (we caught dO == 0 above)
 	gVirtualX->CopyArea(GetId(), GetId(), GetWhiteGC()(), x + dO, y,
 						w - dO + 1, h + 1, x, y);
 	gVirtualX->FillRectangle(GetId(), GetBlackGC()(), x+w-dO+1, y, dO, h+1);
-	fSpecPainter->DrawSpectrum(fDispSpec, x+w-dO+1, x+w);
+	DrawRegion(x+w-dO+1, x+w);
   }
 
   // Redrawing the entire scale is not terribly efficent, but
@@ -135,32 +136,12 @@ void GSViewport::LoadSpectrum(GSSpectrum *spec)
   fDispSpec = new GSDisplaySpec(fSpec);
 
   fNbins = fSpec->GetNbinsX();
-  fSpecPainter->SetSpectrum(fSpec);
 }
 
 void GSViewport::XZoomAroundCursor(double f)
 {
-  //int dO;
-  //dO = (int) TMath::Ceil(e * GetLazyXZoom() * (f - 1) - 0.5);
-
-  // Make sure there is only one screen update, to avoid ugly flicker
-  //fUpdateLocked++;
-
-  //SetXZoom(fLazyXZoom * f);
-  fLazyOffset += fSpecPainter->dXtodE(fCursorX - fSpecPainter->GetBaseX()) * (1.0 - 1.0/f);
+  fOffset += fSpecPainter->dXtodE(fCursorX - fSpecPainter->GetBaseX()) * (1.0 - 1.0/f);
   fXVisibleRegion /= f;
-
-  //fLazyOffset += 15.0;
-  
-  //SetOffset(fLazyOffset + dO);
-  //fLazyOffset += dO;
-
-  // The offset in the SpecPainter class is of type UInt_t
-  // and must not become negative.
-  // TODO: is this sensible?
-  // Note: Negative offsets are impossible to set on the scrollbar.
-  //if(fLazyOffset < 0)
-  //	fLazyOffset = 0;
 
   Update(false);
 }
@@ -172,7 +153,7 @@ void GSViewport::ToBegin(void)
 
 void GSViewport::ShowAll(void)
 {
-  fLazyOffset = fSpec->GetMinEnergy();
+  fOffset = fSpec->GetMinEnergy();
   fXVisibleRegion = fSpec->GetMaxEnergy() - fSpec->GetMinEnergy();
   Update(false);
 }
@@ -190,51 +171,48 @@ void GSViewport::Update(bool redraw)
 
   //cout << "Update() called" << endl;
 
-  // TODO: still required?
-  /* if(fUpdateLocked > 0) {
-	fUpdateLocked--;
-	return;
-	} */
-
   // Remember not to compare floating point values
   // for equality directly (rouding error problems)
-  if(TMath::Abs(GetLazyXZoom() - fSpecPainter->GetXZoom()) > 1e-7) {
+  if(TMath::Abs(fXVisibleRegion - fSpecPainter->GetXVisibleRegion()) > 1e-7) {
 	redraw = true;
-	fSpecPainter->SetXZoom(GetLazyXZoom());
+	fSpecPainter->SetXVisibleRegion(fXVisibleRegion);
 	UpdateScrollbarRange();
   }
 
-  dO = fLazyOffset - fSpecPainter->GetOffset();
+  dO = fOffset - fSpecPainter->GetOffset();
   if(TMath::Abs(dO) > 1e-5) {
-	fSpecPainter->SetOffset(fLazyOffset);
+	fSpecPainter->SetOffset(fOffset);
   }
 
-  // TODO: GetYAutoZoom() is too costly
-  az = fSpecPainter->GetYAutoZoom();
+  if(fYAutoScale)
+	fYVisibleRegion = TMath::Max(fYMinVisibleRegion, fSpecPainter->GetYAutoZoom(fDispSpec));
 
-  if(TMath::Abs(az - fSpecPainter->GetYZoom()) > 1e-7) {
+  if(TMath::Abs(fYVisibleRegion - fSpecPainter->GetYVisibleRegion()) > 1e-7) {
 	redraw = true;
-	fSpecPainter->SetYZoom(az);
+	fSpecPainter->SetYVisibleRegion(fYVisibleRegion);
   }
 
   // We can only use ShiftOffset if the shift is an integer number
   // of pixels, otherwise we will have to do a full redraw
   dOPix = fSpecPainter->dEtodX(dO);
   if(TMath::Abs(TMath::Ceil(dOPix - 0.5) - dOPix) > 1e-7) {
-	cout << "not an integer: " << dOPix << endl;
 	redraw = true;
   }
   
   if(redraw) {
-	cout << "redraw" << endl;
+	//cout << "redraw" << endl;
 	fNeedClear = true;
 	gClient->NeedRedraw(this);
   } else if(TMath::Abs(dOPix) > 0.5) {
-	//cout << "shift offset" << endl;
 	ShiftOffset((int) TMath::Ceil(dOPix - 0.5));
   }
 
   UpdateScrollbarRange();
+}
+
+void GSViewport::DrawRegion(UInt_t x1, UInt_t x2)
+{
+  fSpecPainter->DrawSpectrum(fDispSpec, x1, x2);
 }
 
 void GSViewport::UpdateScrollbarRange(void)
@@ -262,50 +240,24 @@ void GSViewport::UpdateScrollbarRange(void)
 
 void GSViewport::SetOffset(double offset)
 {
-  // SetOffset() takes a note that the offset will have to be changed
-  // and informs the scrollbar about it, which will later cause an
-  // Update(). If no scrollbar exists, Update() is called directly.
-
-  fLazyOffset = offset;
-
-  // If we have an associated scrollbar, set its position
-  // and let the callback handle the rest...
-  if(false) { //fScrollbar) {
-	//fScrollbar->SetPosition(offset);
-  } else {
-	// ...otherwise, we only have to take note that it will have to be
-	// done (and perform clipping).
-	/* if(offset < 0)
-	  offset = 0;
-
-	if(offset > GetRequiredSize() - GetAvailSize())
-	offset = GetRequiredSize() - GetAvailSize(); */
-
-	//fLazyOffset = offset;
-	Update();
-  }
+  fOffset = offset;
+  Update();
 }
 
 void GSViewport::HandleScrollbar(Long_t parm)
 {
   // Callback for scrollbar motion
 
-  //if(parm >= 0)
-  //cout << "take action: " << parm << endl;
+  // Capture nonsense input (TODO: still required?)
+  if(parm < 0)
+  	parm = 0;
 
-  if(fLazyOffset < fSpec->GetMinEnergy())
-	fLazyOffset += fSpecPainter->dXtodE(parm);
+  if(fOffset < fSpec->GetMinEnergy())
+	fOffset += fSpecPainter->dXtodE(parm);
   else
-	fLazyOffset = fSpec->GetMinEnergy() + fSpecPainter->dXtodE(parm);
+	fOffset = fSpec->GetMinEnergy() + fSpecPainter->dXtodE(parm);
 
   Update();
-
-  // Capture nonsense input
-  //if(parm < 0)
-  //	parm = 0;
-
-  //fLazyOffset = parm;
-  //Update();
 }
 
 
@@ -314,7 +266,7 @@ Bool_t GSViewport::HandleMotion(Event_t *ev)
   bool cv = fCursorVisible;
   if(cv) DrawCursor();
   if(fDragging) {
-	SetOffset(fLazyOffset + fSpecPainter->dXtodE((int) fCursorX - ev->fX));
+	SetOffset(fOffset + fSpecPainter->dXtodE((int) fCursorX - ev->fX));
   }
   fCursorX = ev->fX;
   fCursorY = ev->fY;
@@ -366,7 +318,7 @@ void GSViewport::DoRedraw(void)
 {
   Bool_t cv;
   UInt_t x, y, w, h;
-  double az = fSpecPainter->GetYAutoZoom();
+
   x = fLeftBorder;
   y = fTopBorder;
   w = fWidth - fLeftBorder - fRightBorder;
@@ -374,8 +326,9 @@ void GSViewport::DoRedraw(void)
 
   //cout << "DoRedraw()" << endl;
 
-  fSpecPainter->SetXZoom(GetLazyXZoom());
-  fSpecPainter->SetOffset(fLazyOffset);
+  fSpecPainter->SetXVisibleRegion(fXVisibleRegion);
+  fSpecPainter->SetYVisibleRegion(fYVisibleRegion);
+  fSpecPainter->SetOffset(fOffset);
 
   cv = fCursorVisible;
   if(cv) DrawCursor();
@@ -390,7 +343,7 @@ void GSViewport::DoRedraw(void)
   gVirtualX->DrawRectangle(GetId(), GetHilightGC()(), x, y, w, h);
 
   if(fSpec) {
-	fSpecPainter->DrawSpectrum(fDispSpec, x+2, x+w-2);
+	DrawRegion(x+2, x+w-2);
 	fSpecPainter->DrawXScale(x+2, x+w-2);
 	fSpecPainter->DrawYScale();
   }

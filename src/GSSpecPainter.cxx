@@ -25,12 +25,11 @@
 
 GSSpecPainter::GSSpecPainter()
 {
-  SetXZoom(1.0);
-  SetYZoom(1.0);
+  SetXVisibleRegion(100.0);
+  SetYVisibleRegion(100.0);
   SetLogScale(false);
   SetBasePoint(0, 0);
   SetSize(0, 0);
-  SetSpectrum(NULL);
   SetViewMode(kVMHollow);
   SetOffset(0.0);
 
@@ -60,7 +59,7 @@ void GSSpecPainter::DrawSpectrum(GSDisplaySpec *dSpec, UInt_t x1, UInt_t x2)
   switch(fViewMode) {
   case kVMSolid:
 	for(x=x1; x<=x2; x++) {
-	  y = GetYAtPixel(x);
+	  y = GetYAtPixel(dSpec, x);
 	  if(y < clip) y = clip;
 	  gVirtualX->DrawLine(fDrawable, dSpec->GetGC()->GetGC(),
 						  x, fYBase, x, y);
@@ -69,7 +68,7 @@ void GSSpecPainter::DrawSpectrum(GSDisplaySpec *dSpec, UInt_t x1, UInt_t x2)
 	
   case kVMDotted:
 	for(x=x1; x<=x2; x++) {
-	  y = GetYAtPixel(x);
+	  y = GetYAtPixel(dSpec, x);
 	  if(y >= clip)
 		gVirtualX->DrawRectangle(fDrawable, dSpec->GetGC()->GetGC(),
 								 x, y, 0, 0);
@@ -78,10 +77,10 @@ void GSSpecPainter::DrawSpectrum(GSDisplaySpec *dSpec, UInt_t x1, UInt_t x2)
 	
   case kVMHollow:
 	int ly, cy;
-	ly = GetYAtPixel(x1-1);
+	ly = GetYAtPixel(dSpec, x1-1);
 
 	for(x=x1; x<=x2; x++) {
-	  y = GetYAtPixel(x);
+	  y = GetYAtPixel(dSpec, x);
 	  
 	  if(y < ly) {
 		if(ly >= clip) {
@@ -108,13 +107,44 @@ void GSSpecPainter::DrawSpectrum(GSDisplaySpec *dSpec, UInt_t x1, UInt_t x2)
   }
 }
 
-int GSSpecPainter::GetCountsAtPixel(UInt_t x)
+void GSSpecPainter::UpdateYZoom(void)
 {
-  double e1, e2;  
+  double yRange = fYVisibleRegion;
+
+  if(fLogScale)
+  	yRange = TMath::Log(yRange) + 1.0;
+
+  fYZoom = fHeight / yRange;
+}
+
+void GSSpecPainter::SetSize(int w, int h)
+{
+  fWidth = w;
+  fHeight = h;
+  fXZoom = fWidth / fXVisibleRegion;
+  UpdateYZoom();
+}
+
+int GSSpecPainter::GetCountsAtPixel(GSDisplaySpec *dSpec, UInt_t x)
+{
+  double c1, c2;
+  int n1, n2;
   
-  e1 = XtoE((double) x - 0.5);
-  e2 = XtoE((double) x + 0.5);
-  return fSpec->GetRegionMax_e(e1, e2);
+  c1 = dSpec->GetSpec()->Energy2Channel(XtoE((double) x - 0.5));
+  c2 = dSpec->GetSpec()->Energy2Channel(XtoE((double) x + 0.5));
+
+  if(c1 < c2) {
+	n1 = (int) TMath::Ceil(c1 + 0.5);
+	n2 = (int) TMath::Ceil(c2 - 0.5);
+  } else {
+	n1 = (int) TMath::Ceil(c2 + 0.5);
+	n2 = (int) TMath::Ceil(c1 - 0.5);
+  }
+
+  if(n2 < n1)
+	n2 = n1;
+
+  return dSpec->GetSpec()->GetRegionMax(n1, n2);
 }
 
 int GSSpecPainter::CtoY(double c)
@@ -143,23 +173,17 @@ double GSSpecPainter::YtoC(int y)
   return c;
 }
 
-double GSSpecPainter::GetYAutoZoom(void)
+double GSSpecPainter::GetYAutoZoom(GSDisplaySpec *dSpec)
 {
-  int h = fHeight - 5;
-  double e1, e2, y;
+  double e1, e2;
+  int b1, b2;
   
   e1 = XtoE(fXBase);
   e2 = XtoE(fXBase + fWidth);
+  b1 = (int) TMath::Floor(dSpec->GetSpec()->Energy2Channel(e1) + 1.5);
+  b2 = (int) TMath::Ceil(dSpec->GetSpec()->Energy2Channel(e2) + 0.5);
 
-  y = (double) fSpec->GetRegionMax_e(e1, e2);
-
-  if(y < 1.0)
-	y = 1.0;
-
-  if(fLogScale)
-  	y = TMath::Log(y) + 1.0;
-
-  return ((double) h) / y;
+  return (double) dSpec->GetMax_Cached(b1, b2) * 1.02;
 }
 
 void GSSpecPainter::ClearXScale(void)
