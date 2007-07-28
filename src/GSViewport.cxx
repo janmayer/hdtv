@@ -60,6 +60,8 @@ GSViewport::GSViewport(const TGWindow *p, UInt_t w, UInt_t h)
   fSpecPainter->SetLogScale(false);
   fSpecPainter->SetXVisibleRegion(fXVisibleRegion);
   fSpecPainter->SetYVisibleRegion(fYVisibleRegion);
+
+  fMarkers.push_back(new GSMarker(1, 150.0));
 }
 
 GSViewport::~GSViewport() {
@@ -67,6 +69,9 @@ GSViewport::~GSViewport() {
   fClient->GetGCPool()->FreeGC(fCursorGC);   //?
   if(fDispSpec)
 	delete fDispSpec;
+
+  for(int i=0; i < fMarkers.size(); i++)
+	delete fMarkers[i];
 }
 
 void GSViewport::SetLogScale(Bool_t l)
@@ -213,6 +218,9 @@ void GSViewport::Update(bool redraw)
 void GSViewport::DrawRegion(UInt_t x1, UInt_t x2)
 {
   fSpecPainter->DrawSpectrum(fDispSpec, x1, x2);
+
+  for(int i=0; i < fMarkers.size(); i++)
+	fSpecPainter->DrawMarker(fMarkers[i], x1, x2);
 }
 
 void GSViewport::UpdateScrollbarRange(void)

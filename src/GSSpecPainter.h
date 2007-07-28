@@ -37,6 +37,7 @@
 #include <TGFont.h>
 #include <TGFrame.h>
 #include "GSDisplaySpec.h"
+#include "GSMarker.h"
 #include "GSSpectrum.h"
 
 enum EViewMode {
@@ -97,7 +98,8 @@ class GSSpecPainter {
   inline double dEtodX(double dE)
 	{ return dE * fXZoom; }
 
-  void DrawSpectrum(GSDisplaySpec *dSpec, UInt_t x1, UInt_t x2);
+  void DrawSpectrum(GSDisplaySpec *dSpec, int x1, int x2);
+  void DrawMarker(GSMarker *marker, int x1, int x2);
   double GetYAutoZoom(GSDisplaySpec *dSpec);
   void DrawXScale(UInt_t x1, UInt_t x2);
   void ClearXScale(void);

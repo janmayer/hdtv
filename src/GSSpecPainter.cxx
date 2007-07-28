@@ -37,9 +37,9 @@ GSSpecPainter::GSSpecPainter()
   fFontStruct = fFont->GetFontStruct();
 }
 
-void GSSpecPainter::DrawSpectrum(GSDisplaySpec *dSpec, UInt_t x1, UInt_t x2)
+void GSSpecPainter::DrawSpectrum(GSDisplaySpec *dSpec, int x1, int x2)
 {
-  UInt_t x;
+  int x;
   int y;
   int clip = fYBase - fHeight;
 
@@ -47,14 +47,8 @@ void GSSpecPainter::DrawSpectrum(GSDisplaySpec *dSpec, UInt_t x1, UInt_t x2)
   int minX = EtoX(dSpec->GetSpec()->GetMinEnergy());
   int maxX = EtoX(dSpec->GetSpec()->GetMaxEnergy());
 
-  /* Note that x1 and x2 are of type UInt_t */
-  if(minX > 0 && x1 < minX)
-	x1 = minX;
-
-  if(maxX < 0)
-	x2 = 0;
-  else if(x2 > maxX)
-	x2 = maxX;
+  if(x1 < minX) x1 = minX;
+  if(x2 > maxX)	x2 = maxX;
 
   switch(fViewMode) {
   case kVMSolid:
@@ -104,6 +98,34 @@ void GSSpecPainter::DrawSpectrum(GSDisplaySpec *dSpec, UInt_t x1, UInt_t x2)
 	  ly = y;
 	}
 	break;
+  }
+}
+
+void GSSpecPainter::DrawMarker(GSMarker *marker, int x1, int x2)
+{
+  int xm1, xm2;
+
+  /* Draw first marker of the pair */
+  xm1 = EtoX(marker->GetE1());
+  if(xm1 >= x1 && xm1 <= x2)
+	gVirtualX->DrawLine(fDrawable, marker->GetGC()->GetGC(), 
+						xm1, fYBase, xm1, fYBase - fHeight);
+
+  if(marker->GetN() > 1) {
+	/* Draw second marker of the pair */
+	xm2 = EtoX(marker->GetE2());
+
+	if(xm2 >= x1 && xm2 <= x2)
+	  gVirtualX->DrawLine(fDrawable, marker->GetGC()->GetGC(), 
+						  xm2, fYBase, xm2, fYBase - fHeight);
+
+	/* Draw connecting line */
+	if(xm1 < x1) xm1 = x1;
+	if(xm2 > x2) xm2 = x2;
+
+	if(xm1 <= xm2)
+	  gVirtualX->DrawLine(fDrawable, marker->GetGC()->GetGC(),
+						  xm1, fYBase - fHeight, xm2, fYBase - fHeight);
   }
 }
 

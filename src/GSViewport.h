@@ -23,11 +23,13 @@
 #ifndef __GSViewport_h__
 #define __GSViewport_h__
 
+#include <vector>
 #include <TGFrame.h>
 #include <TGScrollBar.h>
 #include "GSSpecPainter.h"
 #include "GSSpectrum.h"
 #include "GSDisplaySpec.h"
+#include "GSMarker.h"
 
 class GSViewport : public TGFrame { 
  public:
@@ -71,6 +73,7 @@ class GSViewport : public TGFrame {
   int fNbins;
   GSSpectrum *fSpec;
   GSDisplaySpec *fDispSpec;
+  std::vector<GSMarker *> fMarkers;
   Bool_t fYAutoScale;
   Bool_t fNeedClear;
   TGGC *fCursorGC;

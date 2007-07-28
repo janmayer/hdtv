@@ -116,11 +116,6 @@ Bool_t GSViewer::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
   if(GET_MSG(msg) == kC_HSCROLL) {
 	if(GET_SUBMSG(msg) == kSB_SLIDERTRACK)
 	  fViewport->HandleScrollbar(parm1);
-
-  /* if(GET_SUBMSG(msg) == kSB_SLIDERTRACK)
-	  cout << "kSB_SLIDERTRACK" << endl;
-	else if(GET_SUBMSG(msg) == kSB_SLIDERPOS)
-	cout << "kSB_SLIDERPOS" << endl; */
   }
 }
 

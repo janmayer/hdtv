@@ -5,8 +5,8 @@ CPP=g++
 ROOTCINT=rootcint
 CFLAGS=$(shell root-config --cflags)
 LFLAGS=$(shell root-config --glibs)
-SOURCES= GSTextSpectrumReader.cxx GSSpectrum.cxx GSDisplaySpec.cxx GSViewport.cxx GSViewer.cxx GSSpecPainter.cxx gspec.cxx
-HEADERS= GSTextSpectrumReader.h GSSpectrum.h GSDisplaySpec.h GSViewport.h GSViewer.h GSSpecPainter.h gspec.h
+SOURCES= GSTextSpectrumReader.cxx GSSpectrum.cxx GSDisplaySpec.cxx GSViewport.cxx GSViewer.cxx GSSpecPainter.cxx GSMarker.cxx gspec.cxx
+HEADERS= GSTextSpectrumReader.h GSSpectrum.h GSDisplaySpec.h GSViewport.h GSViewer.h GSSpecPainter.h GSMarker.h gspec.h
 OBJ= $(SOURCES:.cxx=.o)
 
 .PHONY: build clean
