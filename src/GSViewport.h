@@ -39,7 +39,8 @@ class GSViewport : public TGFrame {
   inline double GetOffset(void) { return fOffset; }
   void Update(bool redraw=false);
   void HandleScrollbar(Long_t parm);
-  void LoadSpectrum(GSSpectrum *spec);
+  int AddSpec(const TH1I *spec, double cal0 = 0.0, double cal1 = 1.0, double cal2 = 0.0, double cal3 = 0.0);
+  void DeleteSpec(int id);
   void SetXVisibleRegion(double region);
   void XZoomAroundCursor(double f);
   void ToBegin(void);
@@ -52,6 +53,9 @@ class GSViewport : public TGFrame {
   void Layout(void);
   void UpdateScrollbarRange(void);
   inline void SetScrollbar(TGHScrollBar *sb) { fScrollbar = sb; }
+  void AddMarker(double pos);
+  
+  ClassDef(GSViewport, 1)
   
  protected:
   void DoRedraw(void);
@@ -61,18 +65,13 @@ class GSViewport : public TGFrame {
   Bool_t HandleCrossing(Event_t *ev);
   void DrawCursor(void);
   void ShiftOffset(int dO);
-
-  // Return the X zoom which _should_ currently be used,
-  // even if the update has not taken place yet.
  
  protected:
   double fXVisibleRegion, fYVisibleRegion;
   double fYMinVisibleRegion;
   double fOffset;
   double fMinEnergy, fMaxEnergy;
-  int fNbins;
-  GSSpectrum *fSpec;
-  GSDisplaySpec *fDispSpec;
+  std::vector<GSDisplaySpec *> fSpectra;
   std::vector<GSMarker *> fMarkers;
   Bool_t fYAutoScale;
   Bool_t fNeedClear;

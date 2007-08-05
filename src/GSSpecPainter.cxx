@@ -44,8 +44,8 @@ void GSSpecPainter::DrawSpectrum(GSDisplaySpec *dSpec, int x1, int x2)
   int clip = fYBase - fHeight;
 
   /* Do x axis clipping */
-  int minX = EtoX(dSpec->GetSpec()->GetMinEnergy());
-  int maxX = EtoX(dSpec->GetSpec()->GetMaxEnergy());
+  int minX = EtoX(dSpec->GetMinEnergy());
+  int maxX = EtoX(dSpec->GetMaxEnergy());
 
   if(x1 < minX) x1 = minX;
   if(x2 > maxX)	x2 = maxX;
@@ -152,8 +152,8 @@ int GSSpecPainter::GetCountsAtPixel(GSDisplaySpec *dSpec, UInt_t x)
   double c1, c2;
   int n1, n2;
   
-  c1 = dSpec->GetSpec()->Energy2Channel(XtoE((double) x - 0.5));
-  c2 = dSpec->GetSpec()->Energy2Channel(XtoE((double) x + 0.5));
+  c1 = dSpec->E2Ch(XtoE((double) x - 0.5));
+  c2 = dSpec->E2Ch(XtoE((double) x + 0.5));
 
   if(c1 < c2) {
 	n1 = (int) TMath::Ceil(c1 + 0.5);
@@ -166,7 +166,7 @@ int GSSpecPainter::GetCountsAtPixel(GSDisplaySpec *dSpec, UInt_t x)
   if(n2 < n1)
 	n2 = n1;
 
-  return dSpec->GetSpec()->GetRegionMax(n1, n2);
+  return dSpec->GetRegionMax(n1, n2);
 }
 
 int GSSpecPainter::CtoY(double c)
@@ -202,8 +202,8 @@ double GSSpecPainter::GetYAutoZoom(GSDisplaySpec *dSpec)
   
   e1 = XtoE(fXBase);
   e2 = XtoE(fXBase + fWidth);
-  b1 = (int) TMath::Floor(dSpec->GetSpec()->Energy2Channel(e1) + 1.5);
-  b2 = (int) TMath::Ceil(dSpec->GetSpec()->Energy2Channel(e2) + 0.5);
+  b1 = (int) TMath::Floor(dSpec->E2Ch(e1) + 1.5);
+  b2 = (int) TMath::Ceil(dSpec->E2Ch(e2) + 0.5);
 
   return (double) dSpec->GetMax_Cached(b1, b2) * 1.02;
 }

@@ -30,11 +30,14 @@
 #include "GSViewport.h"
 #include "GSSpectrum.h"
 
-class GSViewer : public TGFrame {
+class GSViewer : public TGMainFrame {
  public:
-  GSViewer(const TGWindow *p, UInt_t w, UInt_t h);
+  GSViewer(UInt_t w=800, UInt_t h=400, const char *title = "gSpec");
   ~GSViewer(void);
-  void LoadSpectrum(GSSpectrum *spec);
+  void RegisterKeyHandler(const char *cmd);
+  inline const GSViewport *GetViewport(void) { return fViewport; }
+  
+  ClassDef(GSViewer, 1)
 
  protected:
   void MapSubwindows(void);

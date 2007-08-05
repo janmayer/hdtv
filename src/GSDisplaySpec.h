@@ -29,20 +29,32 @@
 
 class GSDisplaySpec {
  public:
-  GSDisplaySpec(GSSpectrum *spec);
+  GSDisplaySpec(const TH1I *spec);
   ~GSDisplaySpec(void);
 
   inline TGGC *GetGC(void)
 	{ return fSpecGC; }
 
-  inline GSSpectrum *GetSpec(void)
-	{ return fSpec; }
+  void SetCal(double cal0 = 0.0, double cal1 = 1.0, double cal2 = 0.0, double cal3 = 0.0);
+  int GetRegionMaxBin(int b1, int b2);
+  int GetRegionMax(int b1, int b2);
   
+  double Ch2E(double ch);
+  double E2Ch(double e);
+  double GetMaxEnergy(void);
+  double GetMinEnergy(void);
+  double GetEnergyRange(void);
+  inline int GetMinChannel(void) { return 0; }
+  inline int GetMaxChannel(void) { return fSpec->GetNbinsX(); }
+  inline double GetBinContent(Int_t bin) { return fSpec->GetBinContent(bin); }
+  inline Int_t GetNbinsX(void) { return fSpec->GetNbinsX(); }
   int GetMax_Cached(int b1, int b2);
 
  private:
-  GSSpectrum *fSpec;
+  TH1I *fSpec;
   TGGC *fSpecGC;
+  
+  double fCal[4];
 
   int fCachedB1, fCachedB2, fCachedMaxBin;
   int fCachedMax;

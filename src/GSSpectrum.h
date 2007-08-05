@@ -26,24 +26,14 @@
 #include <TH1.h>
 #include <TMath.h>
 
-class GSSpectrum : public TH1I {
+class GSSpectrum {
  public:
-  GSSpectrum(const char *name, const char *title, Int_t nbinsx);
+  GSSpectrum(TH1 *spec);
   ~GSSpectrum(void);
-  void SetCal(double a, double b, double c);
-  int GetRegionMaxBin(int b1, int b2);
-  int GetRegionMax(int b1, int b2);
-  
-  double Channel2Energy(double ch);
-  double Energy2Channel(double e);
-  double GetMaxEnergy(void);
-  double GetMinEnergy(void);
-  double GetEnergyRange(void);
-  inline int GetMinChannel(void) { return 0; }
-  inline int GetMaxChannel(void) { return GetNbinsX(); }
-
+ 
  protected:
   double fA, fB, fC;
+  TH1 *fSpec;
 };
 
 #endif

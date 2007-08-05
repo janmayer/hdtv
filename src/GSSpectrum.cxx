@@ -32,11 +32,11 @@
  */
 
 #include "GSSpectrum.h"
+#include <Riostream.h>
 
-GSSpectrum::GSSpectrum(const char *name, const char *title, Int_t nbinsx) 
-  : TH1I(name, title, nbinsx, -0.5, (Double_t) nbinsx - 0.5)
+GSSpectrum::GSSpectrum(TH1 *spec) 
 {
-  // Constructor
+  fSpec = spec;
 
   // Start with a trivial calibration
   fA = 0.0;
@@ -44,97 +44,8 @@ GSSpectrum::GSSpectrum(const char *name, const char *title, Int_t nbinsx)
   fC = 0.0;
 }
 
-GSSpectrum::~GSSpectrum(void) { }
-
-void GSSpectrum::SetCal(double a, double b, double c)
-{
-  // Set the energy calibration for the spectrum. At the moment,
-  // this is limited to a quadratic polynomial.
-
-  fA = a;
-  fB = b;
-  fC = c;
+GSSpectrum::~GSSpectrum(void) { 
+	cout << "GSSpectrum destructor" << endl;
 }
 
-double GSSpectrum::Channel2Energy(double ch)
-{
-  // Convert a channel to an energy, using the chosen energy
-  // calibration.
 
-  return fA + (fB + fC * ch) * ch;
-}
-
-double GSSpectrum::Energy2Channel(double e)
-{
-  // Convert an energy to a channel, using the chosen energy
-  // calibration. For the moment, this can be done analytically.
-
-  double k, c1, c2, ctr;
-
-  // Catch the case of a linear calibration
-  if(fC == 0) {
-	return (e - fA) / fB;
-  }
-
-  k = TMath::Sqrt(fB*fB - 4*fC*(fA-e));
-
-  c1 = (k - fB) / (2 * fC);
-  c2 = (-k - fB) / (2 * fC);
-
-  // Return the solution which is closer to the center of
-  // the spectrums channel range
-  ctr = ((double) GetMaxChannel() - GetMinChannel()) / 2.0;
-
-  return (TMath::Abs(c1 - ctr) < TMath::Abs(c2 - ctr)) ? c1 : c2;
-}
-
-/* Find the bin number of the bin between b1 and b2 (inclusive) which
-   contains the most events */
-int GSSpectrum::GetRegionMaxBin(int b1, int b2)
-{
-  int bin, y, max_bin = -1, max_y = -1;
-
-  if(b1 < 0) b1 = 0;
-  if(b2 > GetNbinsX() + 1) b2 = GetNbinsX() + 1;
-
-  for(bin = b1; bin <= b2; bin ++) {
-	y = (int) GetBinContent(bin);
-	if(y > max_y) {
-	  max_y = y;
-	  max_bin = bin;
-	}
-  }
-  
-  return max_bin;
-}
-
-int GSSpectrum::GetRegionMax(int b1, int b2)
-{
-  int max_bin = GetRegionMaxBin(b1, b2);
-
-  return max_bin == -1 ? -1 : (int) GetBinContent(max_bin);
-}
-
-double GSSpectrum::GetMinEnergy(void)
-{
-  // Return the spectrums lower endpoint in energy units
-
-  return TMath::Min(Channel2Energy((double) GetMinChannel()),
-					Channel2Energy((double) GetMaxChannel()));
-}
-
-double GSSpectrum::GetMaxEnergy(void)
-{
-  // Return the spectrums upper endpoint in energy units
-
-  return TMath::Max(Channel2Energy((double) GetMinChannel()),
-					Channel2Energy((double) GetMaxChannel()));
-}
-
-double GSSpectrum::GetEnergyRange(void)
-{
-  // Returns the width of the spectrum in energy units
-
-  return TMath::Abs(Channel2Energy((double) GetMinChannel())
-					- Channel2Energy((double) GetMaxChannel()));
-}

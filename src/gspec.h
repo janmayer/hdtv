@@ -37,7 +37,7 @@
 #include "GSViewer.h"
 #include "GSSpectrum.h"
 
-class GSMainFrame {
+/* class GSMainFrame {
   RQ_OBJECT("GSMainFrame")
  private:
   TGMainFrame         *fMain;
@@ -47,6 +47,6 @@ class GSMainFrame {
  public:
   GSMainFrame(const TGWindow *p,UInt_t w,UInt_t h);
   virtual ~GSMainFrame();
-};
+}; */
 
 #endif

@@ -2,30 +2,29 @@
 #
 
 CPP=g++
+CC=gcc
 ROOTCINT=rootcint
 CFLAGS=$(shell root-config --cflags)
 LFLAGS=$(shell root-config --glibs)
-SOURCES= GSTextSpectrumReader.cxx GSSpectrum.cxx GSDisplaySpec.cxx GSViewport.cxx GSViewer.cxx GSSpecPainter.cxx GSMarker.cxx gspec.cxx
-HEADERS= GSTextSpectrumReader.h GSSpectrum.h GSDisplaySpec.h GSViewport.h GSViewer.h GSSpecPainter.h GSMarker.h gspec.h
+SOURCES= GSSpectrum.cxx GSDisplaySpec.cxx GSViewport.cxx GSViewer.cxx GSSpecPainter.cxx GSMarker.cxx LC2Reader.cxx mfile-tiny.cxx
+HEADERS= GSSpectrum.h GSDisplaySpec.h GSViewport.h GSViewer.h GSSpecPainter.h GSMarker.h LC2Reader.h mfile-tiny.h
 OBJ= $(SOURCES:.cxx=.o)
 
 .PHONY: build clean
 
-build: gspec
+build: gspec.so
 
 clean:
-	-/bin/rm -f Dict.cxx Dict.h
+	-/bin/rm -f dict.cxx dict.h
 	-/bin/rm -f *~
 	-/bin/rm -f $(OBJ)
 
-gspec: $(OBJ) Makefile
-	$(CPP) $(LFLAGS) -o gspec $(OBJ)
+gspec.so: $(OBJ) dict.o Makefile
+	$(CPP) -fpic $(CFLAGS) $(LFLAGS) -shared -o gspec.so $(OBJ) dict.o
 
-Dict.cxx: gspec.h LinkDef.h Makefile
-	$(ROOTCINT) -f Dict.cxx -c gspec.h LinkDef.h
-
-Dict.o: Dict.cxx Makefile
-	$(CPP) $(CFLAGS) -c $<
+dict.cxx: GSViewer.h GSSpectrum.h LC2Reader.h Makefile
+	$(ROOTCINT) -f dict.cxx -c GSViewer.h GSSpectrum.h GSViewport.h LC2Reader.h
 
 %.o: %.cxx $(HEADERS) Makefile
-	$(CPP) $(CFLAGS) -c $<
+	$(CPP) $(CFLAGS) -fpic -c $<
+

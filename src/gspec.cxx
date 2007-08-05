@@ -22,54 +22,48 @@
 
 #include "gspec.h"
 
-GSMainFrame::GSMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
-  TGHScrollBar *fScroll;
+/* GSMainFrame::GSMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
+  //TGHScrollBar *fScroll;
 
   // Create a main frame
-  fMain = new TGMainFrame(p,w,h);
+  //fMain = new TGMainFrame(p,w,h);
   // Create canvas widget
-  fViewer = new GSViewer(fMain,600,300);
-  fMain->AddFrame(fViewer, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY,
-                                                      0,0,0,0));
+  fViewer = new GSViewer(p,w,h);
+  //fMain->AddFrame(fViewer, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY,
+                                                      //0,0,0,0));
 
-  // Create a horizontal frame widget with buttons
-  //TGHorizontalFrame *hframe = new TGHorizontalFrame(fMain,200,40);
-  //TGTextButton *exit = new TGTextButton(hframe,"&Exit",
-  //                                               "gApplication->Terminate(0)");
-//hframe->AddFrame(exit, new TGLayoutHints(kLHintsCenterX,5,5,3,4));
-//fMain->AddFrame(hframe, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
   // Set a name to the main frame
-  fMain->SetWindowName("gSpec");
+  //fViewer->SetWindowName("gSpec");
   // Map all subwindows of main frame
-  fMain->MapSubwindows();
+  //fViewer->MapSubwindows();
   // Initialize the layout algorithm
-  fMain->Resize(fMain->GetDefaultSize());
+  //fViewer->Resize(fMain->GetDefaultSize());
   // Map main frame
-  fMain->MapWindow();
+  //fViewer->MapWindow();
 
-  GSTextSpectrumReader *ts = new GSTextSpectrumReader("test.asc");
+ // GSTextSpectrumReader *ts = new GSTextSpectrumReader("test.asc");
 
-  fSpec = new GSSpectrum("hist1", "hist1", ts->GetNumLines() + 2);
-  ts->ToROOT(fSpec);
-  fSpec->SetCal(0.0, 1.0, 0.0);
-  fViewer->LoadSpectrum(fSpec);
+  //fSpec = new GSSpectrum("hist1", "hist1", ts->GetNumLines() + 2);
+  //ts->ToROOT(fSpec);
+  //fSpec->SetCal(0.0, 1.0, 0.0);
+  //fViewer->LoadSpectrum(fSpec);
 
   //  fSpec->Draw();
 
-  delete ts;
+//  delete ts;
 }
 
 GSMainFrame::~GSMainFrame() {
   // Clean up used widgets: frames, buttons, layouthints
-  fMain->Cleanup();
-  delete fMain;
+  //fViewer->Cleanup();
+  //delete fMain;
   delete fViewer;
-  delete fSpec;
-}
+  //delete fSpec;
+} */
 
 int main(int argc, char **argv) {
   TApplication theApp("App",&argc,argv);
-  new GSMainFrame(gClient->GetRoot(),600,300);
+  new GSViewer(gClient->GetRoot(),800,400);
   theApp.Run();
   return 0;
 }

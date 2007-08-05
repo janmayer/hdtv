@@ -21,25 +21,41 @@
  */
 
 #include <Riostream.h>
+#include <TPython.h>
 
 #include "GSViewer.h"
 
-GSViewer::GSViewer(const TGWindow *p, UInt_t w, UInt_t h)
-  : TGFrame(p, w, h)
+GSViewer::GSViewer(UInt_t w, UInt_t h, const char *title)
+  : TGMainFrame(gClient->GetRoot(), w, h)
 {
   fViewport = new GSViewport(this, w-4, h-4);
+  AddFrame(fViewport, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0,0,0,0));
+  
   fScrollbar = new TGHScrollBar(this, 10, kDefaultScrollBarWidth);
+  AddFrame(fScrollbar, new TGLayoutHints(kLHintsExpandX, 0,0,0,0));
+  
   fSpec = NULL;
   fViewport->SetScrollbar(fScrollbar);
 
+  SetWindowName(title);
   MapSubwindows();
-
+  Resize(GetDefaultSize());
+  MapWindow();
+  
+  fViewport->UpdateScrollbarRange();
+  
   AddInput(kKeyPressMask);
 }
 
 GSViewer::~GSViewer(void)
 { 
-  delete fViewport;
+  Cleanup();
+}
+
+/* Python interface */
+void GSViewer::RegisterKeyHandler(const char *cmd)
+{
+
 }
 
 Bool_t GSViewer::HandleKey(Event_t *ev)
@@ -53,7 +69,7 @@ Bool_t GSViewer::HandleKey(Event_t *ev)
 
   if(ev->fType == kGKeyPress) {
 	gVirtualX->LookupString(ev, buf, 16, keysym);
-
+	
 	switch((EKeySym)keysym) {
 	case kKey_m:
 	  vm = fViewport->GetViewMode();
@@ -63,8 +79,9 @@ Bool_t GSViewer::HandleKey(Event_t *ev)
 	  case kVMDotted: fViewport->SetViewMode(kVMSolid);  break;
 	  }
 	  break;
-    case kKey_q:
-	  gApplication->Terminate(0);
+    case kKey_u:
+	  fViewport->Update(true);
+	  break;
 	case kKey_z:
 	  fViewport->XZoomAroundCursor(2.0);
 	  break;
@@ -117,11 +134,4 @@ Bool_t GSViewer::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
 	if(GET_SUBMSG(msg) == kSB_SLIDERTRACK)
 	  fViewport->HandleScrollbar(parm1);
   }
-}
-
-void GSViewer::LoadSpectrum(GSSpectrum *spec)
-{
-  fSpec = spec;
-  fViewport->LoadSpectrum(spec);
-  fViewport->UpdateScrollbarRange();
 }

@@ -31,11 +31,8 @@ GSViewport::GSViewport(const TGWindow *p, UInt_t w, UInt_t h)
   fYVisibleRegion = 100.0;
   fYMinVisibleRegion = 20.0;
   fOffset = 0.0;
-  fMinEnergy = 0;
-  fMaxEnergy = 5000;
-  fNbins = 0;
-  fSpec = NULL;
-  fDispSpec = NULL;
+  fMinEnergy = 0.0;
+  fMaxEnergy = 100.0;
   fYAutoScale = true;
   fNeedClear = false;
   fDragging = false;
@@ -60,18 +57,22 @@ GSViewport::GSViewport(const TGWindow *p, UInt_t w, UInt_t h)
   fSpecPainter->SetLogScale(false);
   fSpecPainter->SetXVisibleRegion(fXVisibleRegion);
   fSpecPainter->SetYVisibleRegion(fYVisibleRegion);
-
-  fMarkers.push_back(new GSMarker(1, 150.0));
 }
 
 GSViewport::~GSViewport() {
-  cout << "viewport destructor" << endl;
+  //cout << "viewport destructor" << endl;
   fClient->GetGCPool()->FreeGC(fCursorGC);   //?
-  if(fDispSpec)
-	delete fDispSpec;
+  for(int i=0; i < fSpectra.size(); i++)
+    delete fSpectra[i];
 
   for(int i=0; i < fMarkers.size(); i++)
 	delete fMarkers[i];
+}
+
+void GSViewport::AddMarker(double pos)
+{	
+  fMarkers.push_back(new GSMarker(1, pos));
+  Update();
 }
 
 void GSViewport::SetLogScale(Bool_t l)
@@ -91,8 +92,6 @@ void GSViewport::ShiftOffset(int dO)
   w = fWidth - fLeftBorder - fRightBorder - 4;
   h = fHeight - fTopBorder - fBottomBorder - 4;
 
-  if(!fSpec) return;
-  
   // TODO: debug code, remove
   if(dO == 0) {
 	cout << "WARNING: Pointless call to ShiftOffset()." << endl;
@@ -135,12 +134,23 @@ void GSViewport::SetViewMode(EViewMode vm)
   }
 }
 
-void GSViewport::LoadSpectrum(GSSpectrum *spec)
+int GSViewport::AddSpec(const TH1I *spec, double cal0, double cal1, double cal2, double cal3)
 {
-  fSpec = spec;
-  fDispSpec = new GSDisplaySpec(fSpec);
+  GSDisplaySpec *dispSpec = new GSDisplaySpec(spec);
+  dispSpec->SetCal(cal0, cal1, cal2, cal3);
+  fSpectra.push_back(dispSpec);
+  
+  fMinEnergy = fSpectra[0]->GetMinEnergy();
+  fMaxEnergy = fSpectra[0]->GetMaxEnergy();
+  
+  Update(true);
+  
+  return fSpectra.size();
+}
 
-  fNbins = fSpec->GetNbinsX();
+void GSViewport::DeleteSpec(int id)
+{
+
 }
 
 void GSViewport::XZoomAroundCursor(double f)
@@ -153,13 +163,14 @@ void GSViewport::XZoomAroundCursor(double f)
 
 void GSViewport::ToBegin(void)
 {
-  SetOffset(fSpec->GetMinEnergy());
+  SetOffset(fMinEnergy);
 }
 
 void GSViewport::ShowAll(void)
 {
-  fOffset = fSpec->GetMinEnergy();
-  fXVisibleRegion = fSpec->GetMaxEnergy() - fSpec->GetMinEnergy();
+  fOffset = fMinEnergy;
+  fXVisibleRegion = fMaxEnergy - fMinEnergy;
+    
   Update(false);
 }
 
@@ -189,8 +200,12 @@ void GSViewport::Update(bool redraw)
 	fSpecPainter->SetOffset(fOffset);
   }
 
-  if(fYAutoScale)
-	fYVisibleRegion = TMath::Max(fYMinVisibleRegion, fSpecPainter->GetYAutoZoom(fDispSpec));
+  if(fYAutoScale) {
+    fYVisibleRegion = fYMinVisibleRegion;
+    
+    for(int i=0; i < fSpectra.size(); i++)
+	  fYVisibleRegion = TMath::Max(fYVisibleRegion, fSpecPainter->GetYAutoZoom(fSpectra[i]));
+  }
 
   if(TMath::Abs(fYVisibleRegion - fSpecPainter->GetYVisibleRegion()) > 1e-7) {
 	redraw = true;
@@ -217,7 +232,8 @@ void GSViewport::Update(bool redraw)
 
 void GSViewport::DrawRegion(UInt_t x1, UInt_t x2)
 {
-  fSpecPainter->DrawSpectrum(fDispSpec, x1, x2);
+  for(int i=0; i < fSpectra.size(); i++)
+    fSpecPainter->DrawSpectrum(fSpectra[i], x1, x2);
 
   for(int i=0; i < fMarkers.size(); i++)
 	fSpecPainter->DrawMarker(fMarkers[i], x1, x2);
@@ -231,10 +247,10 @@ void GSViewport::UpdateScrollbarRange(void)
 
 	as = fSpecPainter->GetWidth();
 
-	minE = fSpec ? fSpec->GetMinEnergy() : 0.0;
+	minE = fMinEnergy;
 	minE = TMath::Min(minE, fSpecPainter->GetOffset());
 	
-	maxE = fSpec ? fSpec->GetMaxEnergy() : 0.0;
+	maxE = fMaxEnergy;
 	maxE = TMath::Max(maxE, fSpecPainter->GetOffset() + fXVisibleRegion);
 
 	rs = (UInt_t) TMath::Ceil(fSpecPainter->dEtodX(maxE - minE));
@@ -260,10 +276,10 @@ void GSViewport::HandleScrollbar(Long_t parm)
   if(parm < 0)
   	parm = 0;
 
-  if(fOffset < fSpec->GetMinEnergy())
+  if(fOffset < fMinEnergy)
 	fOffset += fSpecPainter->dXtodE(parm);
   else
-	fOffset = fSpec->GetMinEnergy() + fSpecPainter->dXtodE(parm);
+	fOffset = fMinEnergy + fSpecPainter->dXtodE(parm);
 
   Update();
 }
@@ -350,11 +366,9 @@ void GSViewport::DoRedraw(void)
 
   gVirtualX->DrawRectangle(GetId(), GetHilightGC()(), x, y, w, h);
 
-  if(fSpec) {
-	DrawRegion(x+2, x+w-2);
-	fSpecPainter->DrawXScale(x+2, x+w-2);
-	fSpecPainter->DrawYScale();
-  }
-
+  DrawRegion(x+2, x+w-2);
+  fSpecPainter->DrawXScale(x+2, x+w-2);
+  fSpecPainter->DrawYScale();
+  
   if(cv) DrawCursor();
 }

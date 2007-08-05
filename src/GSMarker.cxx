@@ -21,7 +21,7 @@
  */
 
 #include "GSMarker.h"
-#include <Riostream.h>
+#include <TROOT.h>
 
 GSMarker::GSMarker(int n, double e1, double e2)
 {
