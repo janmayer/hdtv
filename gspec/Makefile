@@ -6,8 +6,9 @@ CC=gcc
 ROOTCINT=rootcint
 CFLAGS=$(shell root-config --cflags)
 LFLAGS=$(shell root-config --glibs)
-SOURCES= GSSpectrum.cxx GSDisplaySpec.cxx GSViewport.cxx GSViewer.cxx GSSpecPainter.cxx GSMarker.cxx LC2Reader.cxx mfile-tiny.cxx
-HEADERS= GSSpectrum.h GSDisplaySpec.h GSViewport.h GSViewer.h GSSpecPainter.h GSMarker.h LC2Reader.h mfile-tiny.h
+SOURCES= GSDisplaySpec.cxx GSDisplayFunc.cxx GSDisplayObj.cxx GSViewport.cxx GSViewer.cxx GSPainter.cxx GSMarker.cxx
+EXPHEADERS= GSViewer.h GSViewport.h GSDisplaySpec.h GSDisplayFunc.h GSDisplayObj.h GSMarker.h
+HEADERS= $(EXPHEADERS) GSPainter.h
 OBJ= $(SOURCES:.cxx=.o)
 
 .PHONY: build clean
@@ -22,8 +23,8 @@ clean:
 gspec.so: $(OBJ) dict.o Makefile
 	$(CPP) -fpic $(CFLAGS) $(LFLAGS) -shared -o gspec.so $(OBJ) dict.o
 
-dict.cxx: GSViewer.h GSSpectrum.h LC2Reader.h Makefile
-	$(ROOTCINT) -f dict.cxx -c GSViewer.h GSSpectrum.h GSViewport.h LC2Reader.h
+dict.cxx:  Makefile $(EXPHEADERS)
+	$(ROOTCINT) -f dict.cxx -c $(EXPHEADERS)
 
 %.o: %.cxx $(HEADERS) Makefile
 	$(CPP) $(CFLAGS) -fpic -c $<

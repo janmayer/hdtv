@@ -36,9 +36,10 @@
 #include <TGResourcePool.h>
 #include <TGFont.h>
 #include <TGFrame.h>
+#include <TMath.h>
 #include "GSDisplaySpec.h"
+#include "GSDisplayFunc.h"
 #include "GSMarker.h"
-#include "GSSpectrum.h"
 
 enum EViewMode {
   kVMSolid = 1,
@@ -59,10 +60,10 @@ enum EVTextAlign {
   kTop = 4
 };
 
-class GSSpecPainter { 
+class GSPainter { 
  public:
-  GSSpecPainter(void);
-  ~GSSpecPainter(void);
+  GSPainter(void);
+  ~GSPainter(void);
   inline void SetXVisibleRegion(double xv) 
 	{ fXVisibleRegion = xv; fXZoom = fWidth / fXVisibleRegion; }
   inline double GetXVisibleRegion(void) { return fXVisibleRegion; }
@@ -99,6 +100,7 @@ class GSSpecPainter {
 	{ return dE * fXZoom; }
 
   void DrawSpectrum(GSDisplaySpec *dSpec, int x1, int x2);
+  void DrawFunction(GSDisplayFunc *dFunc, int x1, int x2);
   void DrawMarker(GSMarker *marker, int x1, int x2);
   double GetYAutoZoom(GSDisplaySpec *dSpec);
   void DrawXScale(UInt_t x1, UInt_t x2);

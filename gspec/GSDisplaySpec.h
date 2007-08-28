@@ -20,27 +20,34 @@
  * 
  */
 
-#ifndef __GSMarker_h__
-#define __GSMarker_h__
+#ifndef __GSDisplaySpec_h__
+#define __GSDisplaySpec_h__
 
-#include <TGFrame.h>
-#include <TColor.h>
-#include "GSSpectrum.h"
+#include <TH1I.h>
 
-class GSMarker {
+#include "GSDisplayObj.h"
+
+class GSDisplaySpec : public GSDisplayObj {
  public:
-  GSMarker(int n, double e1, double e2=0.0);
-  ~GSMarker(void);
+  GSDisplaySpec(const TH1I *spec, int col = defaultColor);
+  ~GSDisplaySpec();
+  
+  inline TH1I *GetSpec()  { return fSpec; }
 
-  inline TGGC *GetGC(void) { return fGC; }
-  inline int GetN(void) { return fN; }
-  inline double GetE1(void) { return fE1; }
-  inline double GetE2(void) { return fE2; }
+  int GetRegionMaxBin(int b1, int b2);
+  int GetRegionMax(int b1, int b2);
+
+  inline double GetMinCh(void) { return 0.0; }
+  inline double GetMaxCh(void) { return (double) fSpec->GetNbinsX(); }
+  inline double GetBinContent(Int_t bin) { return fSpec->GetBinContent(bin); }
+  inline Int_t GetNbinsX(void) { return fSpec->GetNbinsX(); }
+  int GetMax_Cached(int b1, int b2);
 
  private:
-  TGGC *fGC;
-  double fE1, fE2;
-  int fN;
+  TH1I *fSpec;
+   
+  int fCachedB1, fCachedB2, fCachedMaxBin;
+  int fCachedMax;
 };
 
 #endif

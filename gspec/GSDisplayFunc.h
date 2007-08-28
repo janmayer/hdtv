@@ -20,36 +20,27 @@
  * 
  */
 
-#ifndef __GSViewer_h__
-#define __GSViewer_h__
+#ifndef __GSDisplayFunc_h__
+#define __GSDisplayFunc_h__
 
-#include <TApplication.h>
-#include <TGFrame.h>
-#include <TGScrollBar.h>
-#include <KeySymbols.h>
-#include "GSViewport.h"
-#include "GSSpectrum.h"
+#include <TF1.h>
+#include "GSDisplayObj.h"
 
-class GSViewer : public TGMainFrame {
- public:
-  GSViewer(UInt_t w=800, UInt_t h=400, const char *title = "gSpec");
-  ~GSViewer(void);
-  void RegisterKeyHandler(const char *cmd);
-  inline const GSViewport *GetViewport(void) { return fViewport; }
-  
-  ClassDef(GSViewer, 1)
-
- protected:
-  void MapSubwindows(void);
-  void Layout(void);
-  void UpdateScrollbar(void);
-  Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
-  Bool_t HandleKey(Event_t *ev);
-
- protected:
-  GSViewport *fViewport;
-  TGHScrollBar *fScrollbar;
-  GSSpectrum *fSpec;
+class GSDisplayFunc : public GSDisplayObj {
+  public:
+  	GSDisplayFunc(const TF1 *func, int col = defaultColor);
+  	~GSDisplayFunc();
+  	
+  	inline TF1 *GetFunc()  { return fFunc; }
+  	inline double Eval(double x)  { return fFunc->Eval(x); }
+  	
+  	inline double GetMinCh(void) { double min, max; fFunc->GetRange(min, max); return min; }
+    inline double GetMaxCh(void) { double min, max; fFunc->GetRange(min, max); return max; }
+  	
+  private:
+  	TF1 *fFunc;
 };
 
 #endif
+
+

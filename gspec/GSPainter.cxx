@@ -20,10 +20,10 @@
  * 
  */
 
-#include "GSSpecPainter.h"
+#include "GSPainter.h"
 #include <Riostream.h>
 
-GSSpecPainter::GSSpecPainter()
+GSPainter::GSPainter()
 {
   SetXVisibleRegion(100.0);
   SetYVisibleRegion(100.0);
@@ -37,15 +37,53 @@ GSSpecPainter::GSSpecPainter()
   fFontStruct = fFont->GetFontStruct();
 }
 
-void GSSpecPainter::DrawSpectrum(GSDisplaySpec *dSpec, int x1, int x2)
+GSPainter::~GSPainter()
+{
+}
+
+void GSPainter::DrawFunction(GSDisplayFunc *dFunc, int x1, int x2)
+{
+  int x;
+  int y;
+  int hClip = fYBase - fHeight;
+  int lClip = fYBase;
+
+  /* Do x axis clipping */
+  int minX = EtoX(dFunc->GetMinE());
+  int maxX = EtoX(dFunc->GetMaxE());
+
+  if(x1 < minX) x1 = minX;
+  if(x2 > maxX)	x2 = maxX;
+
+  int ly, cy;
+  ly = CtoY(dFunc->Eval(XtoE((double) x1 - 0.5)));
+
+  for(x=x1; x<=x2; x++) {
+    y = cy = CtoY(dFunc->Eval(XtoE((double) x + 0.5)));
+    
+    if(TMath::Min(y, ly) <= lClip && TMath::Max(y, ly) >= hClip) {
+      if(cy < hClip) cy = hClip;
+      else if(cy > lClip) cy = lClip;
+      if(ly < hClip) ly = hClip;
+      else if(ly > lClip) ly = lClip;
+    
+      gVirtualX->DrawLine(fDrawable, dFunc->GetGC()->GetGC(),
+      					  x, ly, x, cy);
+    }
+    
+    ly = y;
+  }
+}
+
+void GSPainter::DrawSpectrum(GSDisplaySpec *dSpec, int x1, int x2)
 {
   int x;
   int y;
   int clip = fYBase - fHeight;
 
   /* Do x axis clipping */
-  int minX = EtoX(dSpec->GetMinEnergy());
-  int maxX = EtoX(dSpec->GetMaxEnergy());
+  int minX = EtoX(dSpec->GetMinE());
+  int maxX = EtoX(dSpec->GetMaxE());
 
   if(x1 < minX) x1 = minX;
   if(x2 > maxX)	x2 = maxX;
@@ -101,14 +139,14 @@ void GSSpecPainter::DrawSpectrum(GSDisplaySpec *dSpec, int x1, int x2)
   }
 }
 
-void GSSpecPainter::DrawMarker(GSMarker *marker, int x1, int x2)
+void GSPainter::DrawMarker(GSMarker *marker, int x1, int x2)
 {
   int xm1, xm2;
 
   /* Draw first marker of the pair */
   xm1 = EtoX(marker->GetE1());
   if(xm1 >= x1 && xm1 <= x2)
-	gVirtualX->DrawLine(fDrawable, marker->GetGC()->GetGC(), 
+	gVirtualX->DrawLine(fDrawable, marker->GetGC_1()->GetGC(), 
 						xm1, fYBase, xm1, fYBase - fHeight);
 
   if(marker->GetN() > 1) {
@@ -116,7 +154,7 @@ void GSSpecPainter::DrawMarker(GSMarker *marker, int x1, int x2)
 	xm2 = EtoX(marker->GetE2());
 
 	if(xm2 >= x1 && xm2 <= x2)
-	  gVirtualX->DrawLine(fDrawable, marker->GetGC()->GetGC(), 
+	  gVirtualX->DrawLine(fDrawable, marker->GetGC_2()->GetGC(), 
 						  xm2, fYBase, xm2, fYBase - fHeight);
 
 	/* Draw connecting line */
@@ -124,12 +162,12 @@ void GSSpecPainter::DrawMarker(GSMarker *marker, int x1, int x2)
 	if(xm2 > x2) xm2 = x2;
 
 	if(xm1 <= xm2)
-	  gVirtualX->DrawLine(fDrawable, marker->GetGC()->GetGC(),
+	  gVirtualX->DrawLine(fDrawable, marker->GetGC_C()->GetGC(),
 						  xm1, fYBase - fHeight, xm2, fYBase - fHeight);
   }
 }
 
-void GSSpecPainter::UpdateYZoom(void)
+void GSPainter::UpdateYZoom(void)
 {
   double yRange = fYVisibleRegion;
 
@@ -139,7 +177,7 @@ void GSSpecPainter::UpdateYZoom(void)
   fYZoom = fHeight / yRange;
 }
 
-void GSSpecPainter::SetSize(int w, int h)
+void GSPainter::SetSize(int w, int h)
 {
   fWidth = w;
   fHeight = h;
@@ -147,7 +185,7 @@ void GSSpecPainter::SetSize(int w, int h)
   UpdateYZoom();
 }
 
-int GSSpecPainter::GetCountsAtPixel(GSDisplaySpec *dSpec, UInt_t x)
+int GSPainter::GetCountsAtPixel(GSDisplaySpec *dSpec, UInt_t x)
 {
   double c1, c2;
   int n1, n2;
@@ -169,7 +207,7 @@ int GSSpecPainter::GetCountsAtPixel(GSDisplaySpec *dSpec, UInt_t x)
   return dSpec->GetRegionMax(n1, n2);
 }
 
-int GSSpecPainter::CtoY(double c)
+int GSPainter::CtoY(double c)
 {
   if(fLogScale) {
 	if(c > 0.5)
@@ -181,7 +219,7 @@ int GSSpecPainter::CtoY(double c)
   return fYBase - (int) TMath::Ceil(c * fYZoom - 0.5);
 }
 
-double GSSpecPainter::YtoC(int y)
+double GSPainter::YtoC(int y)
 {
   double c;
   c = (double) (fYBase - y) / fYZoom;
@@ -195,7 +233,7 @@ double GSSpecPainter::YtoC(int y)
   return c;
 }
 
-double GSSpecPainter::GetYAutoZoom(GSDisplaySpec *dSpec)
+double GSPainter::GetYAutoZoom(GSDisplaySpec *dSpec)
 {
   double e1, e2;
   int b1, b2;
@@ -208,7 +246,7 @@ double GSSpecPainter::GetYAutoZoom(GSDisplaySpec *dSpec)
   return (double) dSpec->GetMax_Cached(b1, b2) * 1.02;
 }
 
-void GSSpecPainter::ClearXScale(void)
+void GSPainter::ClearXScale(void)
 {
   // This function will clear the region containing the
   // X scale so that it can be redrawn with a different
@@ -222,7 +260,7 @@ void GSSpecPainter::ClearXScale(void)
 						   fWidth+60, 20);
 }
 
-void GSSpecPainter::GetTicDistance(double tic, double& major_tic, double& minor_tic, int& n)
+void GSPainter::GetTicDistance(double tic, double& major_tic, double& minor_tic, int& n)
 {
   double exp;
 
@@ -259,7 +297,7 @@ void GSSpecPainter::GetTicDistance(double tic, double& major_tic, double& minor_
   }
 }
 
-void GSSpecPainter::DrawXScale(UInt_t x1, UInt_t x2)
+void GSPainter::DrawXScale(UInt_t x1, UInt_t x2)
 {
   UInt_t x;
   UInt_t y = fYBase + 2;
@@ -300,7 +338,7 @@ void GSSpecPainter::DrawXScale(UInt_t x1, UInt_t x2)
   
 }
 
-void GSSpecPainter::DrawYScale(void)
+void GSPainter::DrawYScale(void)
 {
   if(fLogScale)
 	DrawYLogScale();
@@ -308,7 +346,7 @@ void GSSpecPainter::DrawYScale(void)
 	DrawYLinearScale();
 }
 
-void GSSpecPainter::DrawString(GContext_t gc, int x, int y, char *str, size_t len,
+void GSPainter::DrawString(GContext_t gc, int x, int y, char *str, size_t len,
 							   EHTextAlign hAlign, EVTextAlign vAlign)
 {
   int max_ascent, max_descent;
@@ -333,7 +371,7 @@ void GSSpecPainter::DrawString(GContext_t gc, int x, int y, char *str, size_t le
   gVirtualX->DrawString(fDrawable, gc, x, y, str, len);
 }
 
-void GSSpecPainter::DrawYLinearScale(void)
+void GSPainter::DrawYLinearScale(void)
 {
   UInt_t x = fXBase - 2;
   UInt_t y;
@@ -372,7 +410,7 @@ void GSSpecPainter::DrawYLinearScale(void)
   
 }
 
-void GSSpecPainter::DrawYLogScale(void)
+void GSPainter::DrawYLogScale(void)
 {
   double exp = 1.0;
   int c = 1;
@@ -454,7 +492,7 @@ void GSSpecPainter::DrawYLogScale(void)
   }
 }
 
-void GSSpecPainter::DrawYMajorTic(double c, bool drawLine)
+void GSPainter::DrawYMajorTic(double c, bool drawLine)
 {
   UInt_t x = fXBase - 2;
   UInt_t y = (UInt_t) CtoY(c);
@@ -469,7 +507,7 @@ void GSSpecPainter::DrawYMajorTic(double c, bool drawLine)
   DrawString(fAxisGC, x-12, y, tmp, len, kRight, kMiddle);
 }
 
-inline void GSSpecPainter::DrawYMinorTic(double c)
+inline void GSPainter::DrawYMinorTic(double c)
 {
   UInt_t x = fXBase - 2;
   UInt_t y = (UInt_t) CtoY(c);

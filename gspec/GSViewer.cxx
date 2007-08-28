@@ -34,7 +34,6 @@ GSViewer::GSViewer(UInt_t w, UInt_t h, const char *title)
   fScrollbar = new TGHScrollBar(this, 10, kDefaultScrollBarWidth);
   AddFrame(fScrollbar, new TGLayoutHints(kLHintsExpandX, 0,0,0,0));
   
-  fSpec = NULL;
   fViewport->SetScrollbar(fScrollbar);
 
   SetWindowName(title);
@@ -55,51 +54,21 @@ GSViewer::~GSViewer(void)
 /* Python interface */
 void GSViewer::RegisterKeyHandler(const char *cmd)
 {
-
+	fKeyHandlerCmd.assign(cmd);
 }
 
 Bool_t GSViewer::HandleKey(Event_t *ev)
 {
   char buf[16];
-  Int_t n;
   UInt_t keysym;
-  EViewMode vm;
-
-  if(!fViewport) return true;
-
-  if(ev->fType == kGKeyPress) {
+  ostringstream cmd;
+    
+  if(ev->fType == kGKeyPress && fKeyHandlerCmd.size() > 0) {
 	gVirtualX->LookupString(ev, buf, 16, keysym);
-	
-	switch((EKeySym)keysym) {
-	case kKey_m:
-	  vm = fViewport->GetViewMode();
-	  switch(vm) {
-	  case kVMSolid:  fViewport->SetViewMode(kVMHollow); break;
-	  case kVMHollow: fViewport->SetViewMode(kVMDotted); break;
-	  case kVMDotted: fViewport->SetViewMode(kVMSolid);  break;
-	  }
-	  break;
-    case kKey_u:
-	  fViewport->Update(true);
-	  break;
-	case kKey_z:
-	  fViewport->XZoomAroundCursor(2.0);
-	  break;
-	case kKey_x:
-	  fViewport->XZoomAroundCursor(0.5);
-	  break;
-	case kKey_l:
-	  fViewport->ToggleLogScale();
-	  break;
-	case kKey_0:
-	  fViewport->ToBegin();
-	  break;
-	case kKey_f:
-	  fViewport->ShowAll();
-	  break;
-	}
+	cmd << fKeyHandlerCmd << "(" << keysym << ")";
+	TPython::Exec(cmd.str().c_str());
   }
-
+	
   return true;
 }
 

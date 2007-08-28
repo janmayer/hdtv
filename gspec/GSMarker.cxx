@@ -20,33 +20,37 @@
  * 
  */
 
-#ifndef __gspec_h__
-#define __gspec_h__
+#include "GSMarker.h"
+#include <TROOT.h>
 
-#include <TQObject.h>
-#include <RQ_OBJECT.h>
-#include <TApplication.h>
-#include <TGClient.h>
-#include <TCanvas.h>
-#include <TGButton.h>
-#include <TGFrame.h>
-#include <TGScrollBar.h>
-#include <TH1.h>
+GSMarker::GSMarker(int n, double e1, double e2)
+{
+  fN = n;
 
-#include "GSTextSpectrumReader.h"
-#include "GSViewer.h"
-#include "GSSpectrum.h"
+  if(n <= 1 || e1 <= e2) {
+	fE1 = e1;
+	fE2 = e2;
+  } else {
+	fE1 = e2;
+	fE2 = e1;
+  }
+  
+  fDash1 = fDash2 = false;
 
-/* class GSMainFrame {
-  RQ_OBJECT("GSMainFrame")
- private:
-  TGMainFrame         *fMain;
-  GSViewer            *fViewer;
-  GSSpectrum *fSpec;
+  TColor *color = (TColor*) (gROOT->GetListOfColors()->At(5));
+  GCValues_t gval;
+  gval.fMask = kGCForeground | kGCLineStyle;
+  gval.fForeground = color->GetPixel();
+  gval.fLineStyle = kLineSolid;
+  fGC = gClient->GetGCPool()->GetGC(&gval, true);
+  
+  gval.fForeground = color->GetPixel();
+  gval.fLineStyle = kLineOnOffDash;
+  fDashedGC = gClient->GetGCPool()->GetGC(&gval, true);
+}
 
- public:
-  GSMainFrame(const TGWindow *p,UInt_t w,UInt_t h);
-  virtual ~GSMainFrame();
-}; */
-
-#endif
+GSMarker::~GSMarker(void)
+{
+  gClient->GetGCPool()->FreeGC(fGC);
+  gClient->GetGCPool()->FreeGC(fDashedGC);
+}

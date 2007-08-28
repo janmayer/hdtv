@@ -20,29 +20,38 @@
  * 
  */
 
-#include "GSMarker.h"
-#include <TROOT.h>
+#ifndef __GSViewer_h__
+#define __GSViewer_h__
 
-GSMarker::GSMarker(int n, double e1, double e2)
-{
-  fN = n;
+#include <string>
+#include <sstream>
 
-  if(n <= 1 || e1 <= e2) {
-	fE1 = e1;
-	fE2 = e2;
-  } else {
-	fE1 = e2;
-	fE2 = e1;
-  }
+#include <TApplication.h>
+#include <TGFrame.h>
+#include <TGScrollBar.h>
+#include <KeySymbols.h>
+#include "GSViewport.h"
 
-  TColor *color = (TColor*) (gROOT->GetListOfColors()->At(5));
-  GCValues_t gval;
-  gval.fMask = kGCForeground;
-  gval.fForeground = color->GetPixel();
-  fGC = gClient->GetGCPool()->GetGC(&gval, true);
-}
+class GSViewer : public TGMainFrame {
+ public:
+  GSViewer(UInt_t w=800, UInt_t h=400, const char *title = "gSpec");
+  ~GSViewer(void);
+  void RegisterKeyHandler(const char *cmd);
+  inline const GSViewport *GetViewport(void) { return fViewport; }
+  
+  ClassDef(GSViewer, 1)
 
-GSMarker::~GSMarker(void)
-{
-  gClient->GetGCPool()->FreeGC(fGC);
-}
+ protected:
+  void MapSubwindows(void);
+  void Layout(void);
+  void UpdateScrollbar(void);
+  Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
+  Bool_t HandleKey(Event_t *ev);
+
+ protected:
+  GSViewport *fViewport;
+  TGHScrollBar *fScrollbar;
+  string fKeyHandlerCmd;
+};
+
+#endif

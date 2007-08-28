@@ -26,8 +26,7 @@
 #include <vector>
 #include <TGFrame.h>
 #include <TGScrollBar.h>
-#include "GSSpecPainter.h"
-#include "GSSpectrum.h"
+#include "GSPainter.h"
 #include "GSDisplaySpec.h"
 #include "GSMarker.h"
 
@@ -39,22 +38,33 @@ class GSViewport : public TGFrame {
   inline double GetOffset(void) { return fOffset; }
   void Update(bool redraw=false);
   void HandleScrollbar(Long_t parm);
-  int AddSpec(const TH1I *spec, double cal0 = 0.0, double cal1 = 1.0, double cal2 = 0.0, double cal3 = 0.0);
-  void DeleteSpec(int id);
   void SetXVisibleRegion(double region);
   void XZoomAroundCursor(double f);
   void ToBegin(void);
   void ShowAll(void);
   void SetViewMode(EViewMode vm);
-  inline EViewMode GetViewMode(void) { return fSpecPainter->GetViewMode(); }
+  inline EViewMode GetViewMode(void) { return fPainter->GetViewMode(); }
   void SetLogScale(Bool_t l);
   inline void ToggleLogScale(void) { SetLogScale(!GetLogScale()); }
-  inline Bool_t GetLogScale(void) { return fSpecPainter->GetLogScale(); }
+  inline Bool_t GetLogScale(void) { return fPainter->GetLogScale(); }
   void Layout(void);
   void UpdateScrollbarRange(void);
   inline void SetScrollbar(TGHScrollBar *sb) { fScrollbar = sb; }
-  void AddMarker(double pos);
+  double GetCursorX(void);
   
+  /*** Object management functions ***/
+  int AddMarker(double pos);
+  GSMarker *GetMarker(int id);
+  void DeleteMarker(int id);
+  int AddSpec(const TH1I *spec, int color=defaultColor, bool update=true);
+  GSDisplaySpec *GetDisplaySpec(int id);
+  void SetSpecCal(int id, double cal0, double cal1, double cal2, double cal3, bool update);
+  void DeleteSpec(int id);
+  int AddFunc(const TF1 *func, int color=defaultColor, bool update=true);
+  GSDisplayFunc *GetDisplayFunc(int id);
+  void SetFuncCal(int id, double cal0, double cal1, double cal2, double cal3, bool update);
+  void DeleteFunc(int id);
+   
   ClassDef(GSViewport, 1)
   
  protected:
@@ -65,6 +75,10 @@ class GSViewport : public TGFrame {
   Bool_t HandleCrossing(Event_t *ev);
   void DrawCursor(void);
   void ShiftOffset(int dO);
+  template <class itemType>
+  int FindFreeId(std::vector<itemType> &items);
+  template <class itemType>
+  void DeleteItem(std::vector<itemType> &items, int id);
  
  protected:
   double fXVisibleRegion, fYVisibleRegion;
@@ -72,6 +86,7 @@ class GSViewport : public TGFrame {
   double fOffset;
   double fMinEnergy, fMaxEnergy;
   std::vector<GSDisplaySpec *> fSpectra;
+  std::vector<GSDisplayFunc *> fFunctions;
   std::vector<GSMarker *> fMarkers;
   Bool_t fYAutoScale;
   Bool_t fNeedClear;
@@ -80,7 +95,7 @@ class GSViewport : public TGFrame {
   Bool_t fCursorVisible;
   Bool_t fDragging;
   UInt_t fLeftBorder, fRightBorder, fTopBorder, fBottomBorder;
-  GSSpecPainter *fSpecPainter;
+  GSPainter *fPainter;
   TGHScrollBar *fScrollbar;
 
   //  ClassDef(ViewerFrame,0)

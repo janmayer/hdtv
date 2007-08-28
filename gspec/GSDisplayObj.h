@@ -20,20 +20,35 @@
  * 
  */
 
-#ifndef __GSSpectrum_h__
-#define __GSSpectrum_h__
+#ifndef __GSDisplayObj_h__
+#define __GSDisplayObj_h__
 
-#include <TH1.h>
-#include <TMath.h>
+const int defaultColor = 3;   // green
 
-class GSSpectrum {
- public:
-  GSSpectrum(TH1 *spec);
-  ~GSSpectrum(void);
- 
- protected:
-  double fA, fB, fC;
-  TH1 *fSpec;
+#include <TGGC.h>
+
+class GSDisplayObj {
+  public:
+  	GSDisplayObj(int col);
+  	~GSDisplayObj();
+  	
+    inline TGGC *GetGC() { return fGC; }
+  	
+	void SetCal(double cal0 = 0.0, double cal1 = 1.0, double cal2 = 0.0, double cal3 = 0.0);
+    double Ch2E(double ch);
+    double E2Ch(double e);
+    
+    double GetMaxE();
+    double GetMinE();
+    double GetERange();
+    virtual inline double GetMinCh() { return 0.0; }
+    virtual inline double GetMaxCh() { return 0.0; }
+    inline double GetCenterCh() { return (GetMinCh() + GetMaxCh()) / 2.0; }
+  	
+  private:
+    double fCal[4];
+    TGGC *fGC;   
 };
 
 #endif
+

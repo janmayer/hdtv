@@ -20,32 +20,14 @@
  * 
  */
 
-/*
- * A note about the bin contents in the ROOT spectrum classes:
- * Bin 0: underflow bin
- * Bin 1...nbinsx: actual spectrum
- * Bin nbinxs+1: overflow bin
- *
- * GetBinContent(x) returns the content of the underflow bin for
- * x < 0 and the content of the overflow bin for x > nbinsx.
- * 
- */
+#include "GSDisplayFunc.h"
 
-#include "GSSpectrum.h"
-#include <Riostream.h>
-
-GSSpectrum::GSSpectrum(TH1 *spec) 
+GSDisplayFunc::GSDisplayFunc(const TF1 *func, int col) : GSDisplayObj(col)
 {
-  fSpec = spec;
-
-  // Start with a trivial calibration
-  fA = 0.0;
-  fB = 1.0;
-  fC = 0.0;
+  fFunc = new TF1(*func);
 }
 
-GSSpectrum::~GSSpectrum(void) { 
-	cout << "GSSpectrum destructor" << endl;
+GSDisplayFunc::~GSDisplayFunc()
+{
+  delete fFunc;
 }
-
-

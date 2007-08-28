@@ -20,44 +20,34 @@
  * 
  */
 
-#ifndef __GSDisplaySpec_h__
-#define __GSDisplaySpec_h__
+#ifndef __GSMarker_h__
+#define __GSMarker_h__
 
 #include <TGFrame.h>
 #include <TColor.h>
-#include "GSSpectrum.h"
 
-class GSDisplaySpec {
+class GSMarker {
  public:
-  GSDisplaySpec(const TH1I *spec);
-  ~GSDisplaySpec(void);
+  GSMarker(int n, double e1, double e2=0.0);
+  ~GSMarker(void);
 
-  inline TGGC *GetGC(void)
-	{ return fSpecGC; }
-
-  void SetCal(double cal0 = 0.0, double cal1 = 1.0, double cal2 = 0.0, double cal3 = 0.0);
-  int GetRegionMaxBin(int b1, int b2);
-  int GetRegionMax(int b1, int b2);
+  inline TGGC *GetGC_1(void) { return fDash1 ? fDashedGC : fGC; }
+  inline TGGC *GetGC_2(void) { return fDash2 ? fDashedGC : fGC; }
+  inline TGGC *GetGC_C(void) { return (fDash1 && fDash2) ? fDashedGC : fGC; }
+  inline int GetN(void) { return fN; }
+  inline double GetE1(void) { return fE1; }
+  inline double GetE2(void) { return fE2; }
   
-  double Ch2E(double ch);
-  double E2Ch(double e);
-  double GetMaxEnergy(void);
-  double GetMinEnergy(void);
-  double GetEnergyRange(void);
-  inline int GetMinChannel(void) { return 0; }
-  inline int GetMaxChannel(void) { return fSpec->GetNbinsX(); }
-  inline double GetBinContent(Int_t bin) { return fSpec->GetBinContent(bin); }
-  inline Int_t GetNbinsX(void) { return fSpec->GetNbinsX(); }
-  int GetMax_Cached(int b1, int b2);
+  inline void SetE(double e1, double e2=0.0)
+    { fE1 = e1; fE2 = e2; }
+  inline void SetDash(bool dash1, bool dash2=false)
+    { fDash1 = dash1; fDash2 = dash2; }
 
  private:
-  TH1I *fSpec;
-  TGGC *fSpecGC;
-  
-  double fCal[4];
-
-  int fCachedB1, fCachedB2, fCachedMaxBin;
-  int fCachedMax;
+  bool fDash1, fDash2;
+  TGGC *fGC, *fDashedGC;
+  double fE1, fE2;
+  int fN;
 };
 
 #endif
