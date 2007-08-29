@@ -16,15 +16,15 @@ OBJ= $(SOURCES:.cxx=.o)
 build: gspec.so
 
 clean:
-	-/bin/rm -f dict.cxx dict.h
+	-/bin/rm -f gsdict.cxx gsdict.h gsdict.o
 	-/bin/rm -f *~
 	-/bin/rm -f $(OBJ)
 
-gspec.so: $(OBJ) dict.o Makefile
-	$(CPP) -fpic $(CFLAGS) $(LFLAGS) -shared -o gspec.so $(OBJ) dict.o
+gspec.so: $(OBJ) gsdict.o Makefile
+	$(CPP) -fpic $(CFLAGS) $(LFLAGS) -shared -o gspec.so $(OBJ) gsdict.o
 
-dict.cxx:  Makefile $(EXPHEADERS)
-	$(ROOTCINT) -f dict.cxx -c $(EXPHEADERS)
+gsdict.cxx:  Makefile $(EXPHEADERS)
+	$(ROOTCINT) -f gsdict.cxx -c $(EXPHEADERS)
 
 %.o: %.cxx $(HEADERS) Makefile
 	$(CPP) $(CFLAGS) -fpic -c $<

@@ -47,8 +47,8 @@ class TextSpecReader:
 				
 class LC2SpecReader:
 	def __init__(self, filename):
-		# if ROOT.gSystem.Load("/home/braun/python-local/lc2reader.so") < 0:
-		#	raise RuntimeError, "Library not found (lc2reader.so)"
+		if ROOT.gSystem.Load("../lib/lc2reader.so") < 0:
+			raise RuntimeError, "Library not found (lc2reader.so)"
 			
 		self.reader = ROOT.LC2Reader()
 		
