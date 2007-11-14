@@ -45,6 +45,8 @@ class GSMarker {
   inline double GetP1(void) { return fP1; }
   inline double GetP2(void) { return fP2; }
   
+  inline void SetN(int n)
+    { fN = n; }
   inline void SetPos(double p1, double p2=0.0)
     { fP1 = p1; fP2 = p2; }
   inline void SetDash(bool dash1, bool dash2=false)

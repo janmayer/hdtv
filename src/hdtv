@@ -1,5 +1,5 @@
 #!/bin/bash
 
-export PYTHONPATH="/home/braun/gspec/pylib"
+export PYTHONPATH="/home/braun/hdtv/pylib"
 
 python -i hdtv-startup.py $@

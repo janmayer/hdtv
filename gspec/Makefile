@@ -6,8 +6,8 @@ CC=gcc
 ROOTCINT=rootcint
 CFLAGS=$(shell root-config --cflags)
 LFLAGS=$(shell root-config --glibs)
-SOURCES= GSDisplaySpec.cxx GSDisplayFunc.cxx GSDisplayObj.cxx GSViewport.cxx GSViewer.cxx GSPainter.cxx GSMarker.cxx GSCalibration.cxx
-EXPHEADERS= GSViewer.h GSViewport.h GSDisplaySpec.h GSDisplayFunc.h GSDisplayObj.h GSMarker.h GSCalibration.h
+SOURCES= GSDisplaySpec.cxx GSDisplayFunc.cxx GSDisplayObj.cxx GSViewport.cxx GSViewer.cxx GSPainter.cxx GSMarker.cxx GSCalibration.cxx GSFitter.cxx
+EXPHEADERS= GSViewer.h GSViewport.h GSDisplaySpec.h GSDisplayFunc.h GSDisplayObj.h GSMarker.h GSCalibration.h GSFitter.h
 HEADERS= $(EXPHEADERS) GSPainter.h
 OBJ= $(SOURCES:.cxx=.o)
 
