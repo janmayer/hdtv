@@ -19,6 +19,11 @@ def s_del(sid):
     
 hdtv.RegisterKeyHandler("hdtv.KeyHandler")
 
+### Debug ###
+s_getn(108, 0)
+hdtv.fViewport.ShowAll()
+### End Debug ###
+
 print "Welcome to HDTV"
 
 

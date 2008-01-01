@@ -34,11 +34,11 @@ class GSViewport : public TGFrame {
  public:
   GSViewport(const TGWindow *p, UInt_t w, UInt_t h);
   ~GSViewport(void);
-  void SetOffset(double offset);
+  void SetOffset(double offset, bool update=true);
   inline double GetOffset(void) { return fOffset; }
   void Update(bool redraw=false);
   void HandleScrollbar(Long_t parm);
-  void SetXVisibleRegion(double region);
+  void SetXVisibleRegion(double region, bool update=true);
   void XZoomAroundCursor(double f);
   void ToBegin(void);
   void ShowAll(void);

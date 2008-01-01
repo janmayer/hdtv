@@ -3,6 +3,7 @@ import sys
 import math
 import time
 from array import *
+from libpeaks import *
 
 # Start ROOT in batch mode
 # sys.argv += ["-b"]
@@ -10,11 +11,148 @@ import ROOT
 from ROOT import std
 
 # Energies of the calibration source
-# src_energies = [186.2, 242.0, 295.2, 351.9, 609.3, 1120.3, 1764.5, 2447.8]
-src_energies = [186.2, 242.0, 295.2, 351.9, 609.3, 1120.3, 1764.5]
+# src_energies = [186.2, 242.0, 295.2, 351.9, 609.3, 1120.3, 1764.5, 2447.8] 
 
-ROOT.gSystem.Load("gspec.so")
 from specreader import *
+
+if ROOT.gSystem.Load("../lib/gspec.so") < 0:
+	raise RuntimeError, "Library not found (gspec.so)"
+
+class Autocal:
+	def __init__(self):
+		self.fRefPeaks = [186.2, 242.0, 295.2, 351.9, 609.3, 1120.3, 1764.5, 2447.8]
+		self.fPeaks = None
+		self.fPeakAssocs = None
+		self.fAllPeakAssocs = None
+		self.p0 = None
+		self.p1 = None
+		self.chi2 = None
+			
+	def FindPeaks(self, hist):
+		fList = PeakList()
+		fList.fit(hist)
+		# fList.reject_bad_groups(2000.0, 15.0)
+		self.fPeaks = map(lambda p: p.pos(), fList.peak_list_by_pos())
+
+	# Do a linear fit, i.e. E = a + b*x
+	def Fit(self):
+		linfit = ROOT.TLinearFitter(1, "hyp1", "")
+		v = array('d', [0.0])
+			
+		for i in range(0, len(self.fPeakAssocs)):
+			if self.fPeakAssocs[i] != None:
+				x = self.fPeaks[self.fPeakAssocs[i]]
+				y = self.fRefPeaks[i]
+				
+				v[0] = x
+				linfit.AddPoint(v,y)
+					
+		linfit.Eval()
+	
+		self.p0 = linfit.GetParameter(0)
+		self.p1 = linfit.GetParameter(1)
+		self.chi2 = linfit.GetChisquare()
+
+	# Find peak closest to a given position
+	# Assumes peaks to be a sorted list
+	# NB: This implementation is probably not optimal in
+	# terms of run time
+	def FindNearest(self, pos):
+		best = None
+		min_dist = 1E10
+		self.fPeaks.append(1E11)
+		i = 0
+	
+		while True:
+			dist = abs(self.fPeaks[i] - pos)
+			
+			if dist > min_dist:
+				break
+				
+			min_dist = dist
+			i += 1
+			
+		self.fPeaks.pop()
+			
+		return (i-1)
+
+	# Match the peaks in the spectrum to the peaks expected
+	# Assumes that the first two peaks in the list can be seen
+	def MatchPeaks(self):
+		if not self.fRefPeaks or len(self.fRefPeaks) < 2:
+			raise RuntimeError, "Too few reference peaks given"
+
+		best_chi = 1E10
+		
+		e1 = self.fRefPeaks[0]
+		e2 = self.fRefPeaks[1]
+		
+		if not self.fPeaks or len(self.fPeaks) < len(self.fRefPeaks):
+			raise RuntimeError, "Too few peaks found"
+
+		# (i1, i2) is the index of the candidate for the	
+		# (first, second) literature peak
+		for i1 in range(0, len(self.fPeaks)):
+			for i2 in range(i1 + 1, len(self.fPeaks)):
+				x1 = self.fPeaks[i1]
+				x2 = self.fPeaks[i2]
+				
+				# Do a linear calibration: e(x) = p1 * x + p0
+				p1 = (e2 - e1) / (x2 - x1)
+				p0 = e1 - p1 * x1
+					
+				# Calculate squared sum of position deviations
+				chiList = []
+					
+				for i in range(0, len(self.fRefPeaks)):
+					lit_pos = (self.fRefPeaks[i] - p0) / p1
+					i_n = self.FindNearest(lit_pos)
+					dist = abs(self.fPeaks[i_n] - lit_pos)
+					chiList.append(dist**2)
+					
+				#chiList.sort()
+				#chi = sum(chiList[0:-3])
+				chi = sum(chiList)
+				
+				# print "%d %d %.2f %.2f %.2f" % (i1, i2, a, b, chi)
+					
+				if chi < best_chi:
+					best_i1 = i1
+					best_i2 = i2
+					best_chi = chi
+					
+				#if abs(a) < 100 and abs(b-1.0) < 0.5:
+				#	print i1, i2, chi
+				
+		# Calculate association of literature to source peaks
+		# for the best match
+		self.fAllPeakAssocs = []
+		self.fPeakAssocs = []
+		distances = []
+			
+		x1 = self.fPeaks[best_i1]
+		x2 = self.fPeaks[best_i2]
+		p1 = (e2 - e1) / (x2 - x1)
+		p0 = e1 - p1 * x1
+		
+		for i in range(0, len(self.fRefPeaks)):
+			lit_pos = (self.fRefPeaks[i] - p0) / p1
+			i_n = self.FindNearest(lit_pos)
+			dist = abs(self.fPeaks[i_n] - lit_pos)
+			self.fAllPeakAssocs.append(i_n)
+			self.fPeakAssocs.append(i_n)
+			distances.append([i, dist])
+			
+		distances.sort(None, lambda l: l[1], False)
+		
+		self.fPeakAssocs[distances[-1][0]] = None
+		self.fPeakAssocs[distances[-2][0]] = None
+		self.fPeakAssocs[distances[-3][0]] = None
+		
+	def ShowPeakAssocs(self):
+		for i in range(0, len(self.fRefPeaks)):
+			print "%10.2f %10.2f" % (self.fRefPeaks[i], self.fPeaks[self.fAllPeakAssocs[i]])
+
 
 # Do a polynomial fit, i.e. E = a + b*x + c*x**2 + d*x**3
 def fit_poly(positions, energies):
@@ -29,60 +167,6 @@ def fit_poly(positions, energies):
 	
 	return map(lambda i: linfit.GetParameter(i), [0,1,2,3])
 	
-# Do a linear fit, i.e. E = a + b*x (presently not used)
-def fit_linear(positions, energies):
-	linfit = ROOT.TLinearFitter(1, "hyp1", "")
-	v = array('d', [0.0])
-		
-	for (x,y) in zip(positions, energies):
-		v[0] = x
-		linfit.AddPoint(v,y)
-		
-	linfit.Eval()
-	
-	return [linfit.GetParameter(0), linfit.GetParameter(1)]
-	
-# Invoke ROOT's peak finder
-def find_peaks(hist):
-	spec = ROOT.TSpectrum(100)
-	npk = spec.Search(hist, 2.0, "goff", 0.005)
-	pks = spec.GetPositionX()
-	peaks = []
-	
-	# Copy peaks to a python list
-	# (otherwise, things like len() won't work)
-	for i in range(0, npk):
-		peaks.append(pks[i])
-		
-	return peaks
-	
-# Fit the peak, using a Gaussian with linear background
-# in a region 40 channels wide
-def fit_peak(hist, pos, left_neighbour, right_neighbour):
-	left_pos = (pos + left_neighbour) / 2.0
-	right_pos = (pos + right_neighbour) / 2.0
-	
-	if(pos - left_pos > 20):
-		left_pos = pos - 20
-		
-	if(right_pos - pos > 20):
-		right_pos = pos + 20
-		
-	a = hist.GetBinContent(int(left_pos)) - hist.GetBinContent(int(right_pos))
-	a /= (left_pos - right_pos)
-	b = hist.GetBinContent(int(left_pos)) - a*left_pos
-	
-	par = array('d', [hist.GetBinContent(int(pos)), pos, 1.0, a, b])
-
-	func = ROOT.TF1("func", "gaus(0) + [3] * x + [4]")
-	func.SetParameters(par)
-	hist.Fit(func, "QN", "", pos-20, pos+20)
-	func.GetParameters(par)
-	
-	fit_pos = par[1]
-	fit_vol = math.sqrt(2 * math.pi) * par[0] * par[2]
-	
-	return (fit_pos, fit_vol)
 	
 # Find peak closest to a given position
 # Assumes peaks to be a sorted list
@@ -172,44 +256,88 @@ def ch2e(x, polypar):
 		
 	return res
 
-#viewer = ROOT.GSViewer()
-hist = SpecReader().Get("specs/ge11.0072", "spec", "spec")
+def test():
+	#viewer = ROOT.GSViewer()
+	hist = SpecReader().Get("specs/ge11.0072", "spec", "spec")
+	
+	#viewer.LoadSpectrum(ROOT.GSSpectrum(hist))
 
-#viewer.LoadSpectrum(ROOT.GSSpectrum(hist))
+	peaks = [0.0] + find_peaks(hist) + [8192.0]
 
-peaks = [0.0] + find_peaks(hist) + [8192.0]
+	peaks.sort()
 
-peaks.sort()
-
-fit_peaks = []
-for i in range(1,len(peaks)-1):
-	fit = fit_peak(hist, peaks[i], peaks[i-1], peaks[i+1])
-	if abs(fit[0] - peaks[i]) < 5.0:
-		fit_peaks.append(fit)
+	fit_peaks = []
+	for i in range(1,len(peaks)-1):
+		fit = fit_peak(hist, peaks[i], peaks[i-1], peaks[i+1])
+		if abs(fit[0] - peaks[i]) < 5.0:
+			fit_peaks.append(fit)
 		
-assoc_peaks = match_peaks(map(lambda x: x[0], fit_peaks), src_energies)
+	assoc_peaks = match_peaks(map(lambda x: x[0], fit_peaks), src_energies)
 
-polypar = fit_poly(map(lambda i: fit_peaks[i][0], assoc_peaks), src_energies)
+	polypar = fit_poly(map(lambda i: fit_peaks[i][0], assoc_peaks), src_energies)
 
-print "  FitPos   CalcEn    LitEn      Vol"
+	print "  FitPos   CalcEn    LitEn      Vol"
 
-for i in range(0, len(src_energies)):
-	fit_pos = fit_peaks[assoc_peaks[i]][0]
-	fit_vol = fit_peaks[assoc_peaks[i]][1]
-	print "%8.2f %8.2f %8.2f %8.0f" % (fit_pos, ch2e(fit_pos, polypar), src_energies[i], fit_vol)
-#	viewer.SetMarker(fit_pos)
+	for i in range(0, len(src_energies)):
+		fit_pos = fit_peaks[assoc_peaks[i]][0]
+		fit_vol = fit_peaks[assoc_peaks[i]][1]
+		print "%8.2f %8.2f %8.2f %8.0f" % (fit_pos, ch2e(fit_pos, polypar), src_energies[i], fit_vol)
+	#	viewer.SetMarker(fit_pos)
 	
 	
-#for i in range(0, len(fit_peaks)):
-#	pos = peaks[i]
-#	fit_pos = fit_peaks[i]
-#	print "%8.2f %8.2f" % (pos, fit_pos)
+	#for i in range(0, len(fit_peaks)):
+	#	pos = peaks[i]
+	#	fit_pos = fit_peaks[i]
+	#	print "%8.2f %8.2f" % (pos, fit_pos)
 	
-print ""
+	print ""
 
-print " ".join(map(lambda x: str(x), polypar))
+	print " ".join(map(lambda x: str(x), polypar))
 
-f = open("test.cal", "w")
-f.write("\n".join(map(lambda x: str(x), polypar)))
-f.close()
+	f = open("test.cal", "w")
+	f.write("\n".join(map(lambda x: str(x), polypar)))
+	f.close()
 
+
+class Debug:
+	def __init__(self):
+		self.fHist = SpecReader().Get("/mnt/omega/braun/88Zr_angle_singles/0108/ge1.0108", "spec", "spec")
+		self.fViewer = ROOT.GSViewer()
+		self.fViewport = self.fViewer.GetViewport()
+		self.fAC = None
+		
+		self.DoAutocal()
+		self.fAC.ShowPeakAssocs()
+		
+		self.fViewer.RegisterKeyHandler("debug.KeyHandler")
+	
+		self.fViewport.AddSpec(self.fHist, 6, True)
+		
+	def DoAutocal(self):
+		self.fAC = Autocal()
+	
+		self.fAC.FindPeaks(self.fHist)
+		self.fAC.MatchPeaks()
+		#a.Fit()
+		
+	def KeyHandler(self, key):
+		handled = True
+		
+		if key == ROOT.kKey_u:
+			self.fViewport.Update(True)
+		elif key == ROOT.kKey_z:
+			self.fViewport.XZoomAroundCursor(2.0)
+		elif key == ROOT.kKey_x:
+			self.fViewport.XZoomAroundCursor(0.5)
+		elif key == ROOT.kKey_l:
+			self.fViewport.ToggleLogScale()
+		elif key == ROOT.kKey_0:
+			self.fViewport.ToBegin()
+		elif key == ROOT.kKey_f:
+			self.fViewport.ShowAll()
+		else:
+			handled = False
+			
+		return handled
+
+debug = Debug()

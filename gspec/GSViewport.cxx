@@ -458,10 +458,18 @@ void GSViewport::UpdateScrollbarRange(void)
   }
 }
 
-void GSViewport::SetOffset(double offset)
+void GSViewport::SetOffset(double offset, bool update)
 {
   fOffset = offset;
-  Update();
+  if(update)
+    Update();
+}
+
+void GSViewport::SetXVisibleRegion(double region, bool update)
+{
+  fXVisibleRegion = region;
+  if(update)
+    Update();
 }
 
 void GSViewport::HandleScrollbar(Long_t parm)
