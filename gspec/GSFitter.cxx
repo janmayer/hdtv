@@ -22,6 +22,7 @@
  
 #include "GSFitter.h"
 #include <TMath.h>
+#include <math.h>
 #include <Riostream.h>
 
 /* As of version 5.15, ROOT does not allow a fitting function
@@ -150,8 +151,8 @@ void GSFitter::AddBgRegion(double p1, double p2)
 
 TF1 *GSFitter::FitBackground(TH1 *hist)
 {
-  TF1 *fitFunc = new TF1("b_fit", &LinearBgForFit, *(fBgRegions.begin()), *(fBgRegions.end()), 2);
-  TF1 *func = new TF1("b", &LinearBg, *(fBgRegions.begin()), *(fBgRegions.end()), 2);
+  TF1 *fitFunc = new TF1("b_fit", &LinearBgForFit, *(fBgRegions.begin()), *(fBgRegions.rbegin()), 2);
+  TF1 *func = new TF1("b", &LinearBg, *(fBgRegions.begin()), *(fBgRegions.rbegin()), 2);
 
   /* Setup global variables used for parameter passing (UGLY!!!) */
   gBgRegions = &fBgRegions;
@@ -216,3 +217,59 @@ TF1 *GSFitter::Fit(TH1 *hist, TF1 *bgFunc)
      
   return func;
 }
+
+double GSFitter::GetPeakPos(TF1 *func, int id)
+{
+  if(id < 0 || id > int(func->GetParameter(0)))
+     return 0.0;
+     
+  return func->GetParameter(5*id + 1 + 3);
+}
+
+double GSFitter::GetPeakVol(TF1 *func, int id)
+{
+  if(id < 0 || id > int(func->GetParameter(0)))
+     return 0.0;
+     
+  double sigma = func->GetParameter(5*id + 2 + 3);
+  double tl = func->GetParameter(5*id + 3 + 3);
+  double tr = func->GetParameter(5*id + 4 + 3);
+  double vol = 0.0;
+  
+  // Contribution from left tail
+  vol += (sigma * sigma) / tl * exp(-(tl*tl)/(2.0*sigma*sigma));
+  
+  // Contribution from truncated gaussian
+  vol += sqrt(M_PI / 2.0) * sigma * (TMath::Erf(tl / (sqrt(2.0)*sigma)) + TMath::Erf(tr / (sqrt(2.0)*sigma)));
+  
+  // Contribution from right tail
+  vol += (sigma * sigma) / tr * exp(-(tr*tr)/(2.0*sigma*sigma));
+  
+  // Multiply by scaling factor A
+  return func->GetParameter(5*id + 0 + 3) * vol;
+}
+
+double GSFitter::GetPeakFWHM(TF1 *func, int id)
+{
+  if(id < 0 || id > int(func->GetParameter(0)))
+     return 0.0;
+     
+  return 2.0 * sqrt(2.0 * log(2.0)) * func->GetParameter(5*id + 2 + 3);
+}
+
+double GSFitter::GetPeakLT(TF1 *func, int id)
+{
+  if(id < 0 || id > int(func->GetParameter(0)))
+     return 0.0;
+     
+  return func->GetParameter(5*id + 3 + 3);
+}
+
+double GSFitter::GetPeakRT(TF1 *func, int id)
+{
+  if(id < 0 || id > int(func->GetParameter(0)))
+     return 0.0;
+     
+  return func->GetParameter(5*id + 4 + 3);
+}
+

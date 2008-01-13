@@ -59,9 +59,9 @@ class Fit:
 		
 	def Realize(self, viewport, update=True):
 		if self.bgFunc and self.bgFuncId == None:
-			self.bgFuncId = viewport.AddFunc(self.bgFunc, False)
+			self.bgFuncId = viewport.AddFunc(self.bgFunc, 25, False)
 		if self.peakFunc and self.peakFuncId == None:
-			self.peakFuncId = viewport.AddFunc(self.peakFunc, False)
+			self.peakFuncId = viewport.AddFunc(self.peakFunc, 10, False)
 		
 		if update:
 			viewport.Update(True)
@@ -80,20 +80,35 @@ class Fit:
 		self.Realize()
 		
 	def Report(self, panel):
+		if not self.peakFunc:
+			return
+	
 		text = ""
-		par = self.peakFunc.GetParameter
-		numPeaks = int(par(0))
+		func = self.peakFunc
+		numPeaks = int(func.GetParameter(0))
 		
-		text += "Chi: %8.3f\n" % self.peakFunc.GetChisquare()
-		text += "Background: %6.2f %6.4f\n" % (par(1), par(2))
-		text += "A pos sigma tl tr\n"
+		text += "Chi^2: %.3f\n" % self.peakFunc.GetChisquare()
+		text += "Background: %.2f %.4f\n" % (func.GetParameter(1), func.GetParameter(2))
+		text += "pos        fwhm    vol      tl      tr\n"
 		
 		for i in range(0, numPeaks):
-			text += "%8.3f "  % (par(5*i + 0 + 3))
-			text += "%8.3f "  % (par(5*i + 1 + 3))
-			text += "%8.5f "  % (par(5*i + 2 + 3))
-			text += "%8.5f "  % (par(5*i + 3 + 3))
-			text += "%8.2f\n" % (par(5*i + 4 + 3))
+			text += "%10.3f "  % ROOT.GSFitter.GetPeakPos(func, i)
+			text += "%7.3f "  % ROOT.GSFitter.GetPeakFWHM(func, i)
+			text += "%8.1f "  % ROOT.GSFitter.GetPeakVol(func, i)
+			
+			lt = ROOT.GSFitter.GetPeakLT(func, i)
+			if lt > 1000:
+				text += "None   "
+			else:
+				text += "%7.3f "  % lt
+				
+			rt = ROOT.GSFitter.GetPeakRT(func, i)
+			if rt > 1000:
+				text += "None   "
+			else:
+				text += "%7.3f "  % rt
+				
+			text += "\n"
 		
 		panel.SetText(text)
 	
@@ -123,25 +138,34 @@ class HDTV:
 			
 	def Fit(self):
 	  	if not self.fPendingMarker and len(self.fRegionMarkers) == 1 and len(self.fPeakMarkers) > 0:
+			# Make sure a fit panel is displayed
+			if not self.fFitPanel:
+				self.fFitPanel = FitPanel()
+			
 			if self.fCurrentFit:
 				self.fCurrentFit.Delete(self.fViewport)
 				self.fCurrentFit = None
 		  
 			fitter = ROOT.GSFitter(self.fRegionMarkers[0].e1, self.fRegionMarkers[0].e2)
+			
+			for marker in self.fBgMarkers:
+				fitter.AddBgRegion(marker.e1, marker.e2)
+			
 			for marker in self.fPeakMarkers:
 				fitter.AddPeak(marker.e1)
 				
-			# Fit left tails
-			fitter.SetLeftTails(-1.0)
+			bgFunc = None
+			if len(self.fBgMarkers) > 0:
+				bgFunc = fitter.FitBackground(self.fSpectra[0].hist)
 				
-			func = fitter.Fit(self.fSpectra[0].hist)
+			# Fit left tails
+			fitter.SetLeftTails(self.fFitPanel.GetLeftTails())
+			fitter.SetRightTails(self.fFitPanel.GetRightTails())
+			func = fitter.Fit(self.fSpectra[0].hist, bgFunc)
 			
-			self.fCurrentFit = Fit(func)
+			self.fCurrentFit = Fit(func, bgFunc)
 			self.fCurrentFit.Realize(self.fViewport)
 			
-			if not self.fFitPanel:
-				self.fFitPanel = FitPanel()
-				
 			self.fCurrentFit.Report(self.fFitPanel)
 		
 	def SpecGet(self, fname, update=True):
@@ -154,9 +178,12 @@ class HDTV:
 	
 		if fname:
 			hist = SpecReader().Get(fname, fname, "hist")
-			sid = self.fViewport.AddSpec(hist, len(self.fSpectra) + 2, update)
-			self.fSpectra[sid] = Spectrum(fname, hist, sid)
-			self.fViewport.ShowAll()
+			if hist:
+				sid = self.fViewport.AddSpec(hist, len(self.fSpectra) + 2, update)
+				self.fSpectra[sid] = Spectrum(fname, hist, sid)
+				self.fViewport.ShowAll()
+			else:
+				print "Error: Invalid spectrum format"
 		else:
 			print "Error: File not found"
 		

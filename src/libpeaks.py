@@ -142,7 +142,7 @@ class PeakList:
 		npk = spec.Search(hist, 2.0, "goff", 0.01)
 		
 		if npk < 30:
-			npk = spec.Search(hist, 2.0, "goff", 0.005)	
+			npk = spec.Search(hist, 2.0, "goff", 0.003)	
 		
 		posx = spec.GetPositionX()
 		positions = []

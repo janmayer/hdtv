@@ -37,6 +37,12 @@ class GSFitter {
   inline void SetLeftTails(double t) { fLeftTails = t; }
   inline void SetRightTails(double t) { fRightTails = t; }
   
+  static double GetPeakPos(TF1 *func, int id);
+  static double GetPeakVol(TF1 *func, int id);
+  static double GetPeakFWHM(TF1 *func, int id);
+  static double GetPeakLT(TF1 *func, int id);
+  static double GetPeakRT(TF1 *func, int id);
+  
  private:
   double fMin, fMax;
   double fLeftTails, fRightTails;

@@ -9,8 +9,8 @@ class FitPanel:
 		layout = ROOT.TGMatrixLayout(self.fTailsFrame, 2, 3, 5, 2)
 		self.fTailsFrame.SetLayoutManager(layout)
 
-		self.fLTButton = ROOT.TGCheckButton(self.fTailsFrame, "Left tails")
-		self.fTailsFrame.AddFrame(self.fLTButton)
+		self.fLTEnable = ROOT.TGCheckButton(self.fTailsFrame, "Left tails")
+		self.fTailsFrame.AddFrame(self.fLTEnable)
 		
 		self.fLTValue = ROOT.TGTextEntry(self.fTailsFrame)
 		self.fTailsFrame.AddFrame(self.fLTValue)
@@ -18,9 +18,8 @@ class FitPanel:
 		self.fLTFit = ROOT.TGCheckButton(self.fTailsFrame, "Fit")
 		self.fTailsFrame.AddFrame(self.fLTFit)
 				
-		self.fRTButton = ROOT.TGCheckButton(self.fTailsFrame, "Right tails")
-		self.fRTButton.SetTextJustify(ROOT.kTextTop)
-		self.fTailsFrame.AddFrame(self.fRTButton)
+		self.fRTEnable = ROOT.TGCheckButton(self.fTailsFrame, "Right tails")
+		self.fTailsFrame.AddFrame(self.fRTEnable)
 		
 		self.fRTValue = ROOT.TGTextEntry(self.fTailsFrame)
 		self.fTailsFrame.AddFrame(self.fRTValue)
@@ -32,17 +31,18 @@ class FitPanel:
 				ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
 				
 		## Button frame ##
-		self.fButtonFrame = ROOT.TGHorizontalFrame(self.fMainFrame)
+		#self.fButtonFrame = ROOT.TGHorizontalFrame(self.fMainFrame)
 
-		self.fFitButton = ROOT.TGTextButton(self.fButtonFrame, "Fit")
-		self.fButtonFrame.AddFrame(self.fFitButton)
-		ROOT.TQObject.Connect(self.fFitButton, SIGNAL("Clicked()"), self.FitClicked)
-				
-		self.fClearButton = ROOT.TGTextButton(self.fButtonFrame, "Clear")
-		self.fButtonFrame.AddFrame(self.fClearButton)
+		#self.fFitButton = ROOT.TGTextButton(self.fButtonFrame, "Fit")
+		#self.fButtonFrame.AddFrame(self.fFitButton)
+		# At least, it won't work this way...
+		## ROOT.TQObject.Connect(self.fFitButton, SIGNAL("Clicked()"), self.FitClicked)
+						
+		#self.fClearButton = ROOT.TGTextButton(self.fButtonFrame, "Clear")
+		#self.fButtonFrame.AddFrame(self.fClearButton)
 		
-		self.fMainFrame.AddFrame(self.fButtonFrame,
-				ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
+		#self.fMainFrame.AddFrame(self.fButtonFrame,
+		#		ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
 				
 		## Fit info ##
 		self.fFitInfo = ROOT.TGTextView(self.fMainFrame, 400, 500)
@@ -54,10 +54,27 @@ class FitPanel:
 		self.fMainFrame.Resize(self.fMainFrame.GetDefaultSize())
 		self.fMainFrame.MapWindow()
 		
-	def FitClicked(self):
-		print "Hello test"
-		
 	def SetText(self, text):
-		#self.fFitInfo.LoadBuffer(text)
-		pass
+		self.fFitInfo.LoadBuffer(text)
+		
+	def GetLeftTails(self):
+		if self.fLTEnable.IsOn():
+			if self.fLTFit.IsOn():
+				return -1.0   # Fit it
+			else:
+				# This may throw an exception, but we leave it for the caller to handle
+				return float(self.fLTValue.GetText())
+		else:
+			return 100000.0   # Effectively disabled
+			
+	def GetRightTails(self):
+		if self.fRTEnable.IsOn():
+			if self.fRTFit.IsOn():
+				return -1.0   # Fit it
+			else:
+				# This may throw an exception, but we leave it for the caller to handle
+				return float(self.fRTValue.GetText())
+		else:
+			return 100000.0   # Effectively disabled
+	
 
