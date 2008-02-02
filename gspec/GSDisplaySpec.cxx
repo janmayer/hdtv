@@ -24,9 +24,9 @@
 #include <TROOT.h>
 #include <Riostream.h>
 
-GSDisplaySpec::GSDisplaySpec(const TH1I *spec, int col) : GSDisplayObj(col)
+GSDisplaySpec::GSDisplaySpec(const TH1D *spec, int col) : GSDisplayObj(col)
 {
-  fSpec = new TH1I(*spec);
+  fSpec = new TH1D(*spec);
  
   //cout << "GSDisplaySpec constructor" << endl;
 
@@ -46,13 +46,17 @@ GSDisplaySpec::~GSDisplaySpec(void)
    contains the most events */
 int GSDisplaySpec::GetRegionMaxBin(int b1, int b2)
 {
-  int bin, y, max_bin = -1, max_y = -1;
+  int bin, max_bin;
+  double y, max_y;
 
   if(b1 < 0) b1 = 0;
   if(b2 > fSpec->GetNbinsX() + 1) b2 = fSpec->GetNbinsX() + 1;
+  
+  max_y = fSpec->GetBinContent(b1);
+  max_bin = b1;
 
   for(bin = b1; bin <= b2; bin ++) {
-	y = (int) fSpec->GetBinContent(bin);
+	y = fSpec->GetBinContent(bin);
 	if(y > max_y) {
 	  max_y = y;
 	  max_bin = bin;
@@ -62,11 +66,12 @@ int GSDisplaySpec::GetRegionMaxBin(int b1, int b2)
   return max_bin;
 }
 
-int GSDisplaySpec::GetRegionMax(int b1, int b2)
+double GSDisplaySpec::GetRegionMax(int b1, int b2)
 {
   int max_bin = GetRegionMaxBin(b1, b2);
 
-  return max_bin == -1 ? -1 : (int) fSpec->GetBinContent(max_bin);
+  //return max_bin == -1 ? 0.0 : fSpec->GetBinContent(max_bin);
+  return fSpec->GetBinContent(max_bin);
 }
 
 /* Gets the maximum count between bin b1 and bin b2, inclusive.
@@ -75,10 +80,10 @@ int GSDisplaySpec::GetRegionMax(int b1, int b2)
    NOTE: For the caching to be effective, use this function ONLY for
    scrolling operations.
 */
-int GSDisplaySpec::GetMax_Cached(int b1, int b2)
+double GSDisplaySpec::GetMax_Cached(int b1, int b2)
 {
-  int max, bin;
-  int newMax=-1, newBin;
+  int bin, newBin;
+  double max, newMax=-1.0;
 
   if(b1 < 0) b1 = 0;
   if(b2 > GetNbinsX() + 1) b2 = GetNbinsX() + 1;
@@ -90,18 +95,18 @@ int GSDisplaySpec::GetMax_Cached(int b1, int b2)
 	fCachedB1 = b1;
 	fCachedB2 = b2;
 	fCachedMaxBin = GetRegionMaxBin(b1, b2);
-	fCachedMax = (int) GetBinContent(fCachedMaxBin);
+	fCachedMax = GetBinContent(fCachedMaxBin);
   } else {
 	if(b1 < fCachedB1) {
 	  newBin = GetRegionMaxBin(b1, fCachedB1);
-	  newMax = (int) GetBinContent(newBin);
+	  newMax = GetBinContent(newBin);
 
 	  fCachedB1 = b1;
 	}
 
 	if(b2 > fCachedB2) {
 	  bin = GetRegionMaxBin(fCachedB2, b2);
-	  max = (int) GetBinContent(bin);
+	  max = GetBinContent(bin);
 
 	  if(max > newMax) {
 		newMax = max;
@@ -118,7 +123,7 @@ int GSDisplaySpec::GetMax_Cached(int b1, int b2)
 	  bin = GetRegionMaxBin(b1 > fCachedB1 ? b1 : fCachedB1,
 			         	    b2 < fCachedB2 ? b2 : fCachedB2);
 
-	  max = (int) GetBinContent(bin);
+	  max = GetBinContent(bin);
 
 	  if(max > newMax) {
 		fCachedMax = max;

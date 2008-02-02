@@ -114,7 +114,7 @@ void GSFitter::AddPeak(double pos)
   while(iter != fPeaks.end() && *iter < pos)
     iter++;
   fPeaks.insert(iter, pos);
-  fNumPeaks++;  
+  fNumPeaks++;
 }
 
 void GSFitter::AddBgRegion(double p1, double p2)
@@ -192,30 +192,44 @@ TF1 *GSFitter::Fit(TH1 *hist, TF1 *bgFunc)
     func->SetParameter(5*i + 2 + 3, 1.0);
     /* Negative values for the tails means to fit them */
     if(fLeftTails < 0) {
-    	func->SetParameter(5*i + 3 + 3, 10.0);
+    	//func->SetParameter(5*i + 3 + 3, 10.0);
+    	func->FixParameter(5*i + 3 + 3, 10.0);
     } else {
         func->FixParameter(5*i + 3 + 3, fLeftTails);
     }
     if(fRightTails < 0) {
-    	func->SetParameter(5*i + 4 + 3, 10.0);
+    	//func->SetParameter(5*i + 4 + 3, 10.0);
+    	func->FixParameter(5*i + 4 + 3, 10.0);
     } else {
         func->FixParameter(5*i + 4 + 3, fRightTails);
     }
   }
   
-  hist->Fit(func, "RQNM");
+  hist->Fit(func, "RQN");
   
   /* Now, do the ''real'' fit */
-  /* for(i=0, iter = fPeaks.begin(); iter != fPeaks.end(); i++, iter++) {
+  for(i=0, iter = fPeaks.begin(); iter != fPeaks.end(); i++, iter++) {
     if(fLeftTails < 0)
-      func->SetParameter(5*i + 3 + 3, 6.0); //func->GetParameter(5*i + 2 + 3));
+      func->ReleaseParameter(5*i + 3 + 3);
     if(fRightTails < 0)
-      func->SetParameter(5*i + 4 + 3, func->GetParameter(5*i + 2 + 3));
+      func->ReleaseParameter(5*i + 4 + 3);
   }
    
-  hist->Fit(func, "RQNM"); */
+  hist->Fit(func, "RQNM");
      
   return func;
+}
+
+double GSFitter::Integrate(TH1 *hist)
+{
+  int b1 = hist->FindBin(fMin);
+  int b2 = hist->FindBin(fMax);
+  double integral = 0.0;
+  
+  if(b2 >= b1)
+    integral = hist->Integral(b1, b2);
+    
+  return integral;
 }
 
 double GSFitter::GetPeakPos(TF1 *func, int id)

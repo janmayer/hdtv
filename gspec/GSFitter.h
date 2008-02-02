@@ -33,6 +33,7 @@ class GSFitter {
   void AddPeak(double pos);
   void AddBgRegion(double p1, double p2);
   TF1 *Fit(TH1 *hist, TF1 *bgFunc=NULL);
+  double Integrate(TH1 *hist);
   TF1 *FitBackground(TH1 *hist);
   inline void SetLeftTails(double t) { fLeftTails = t; }
   inline void SetRightTails(double t) { fRightTails = t; }

@@ -149,7 +149,7 @@ int LC2Reader::Fill(TH1 *hist, int idx)
 	}
 	
 	for(i=0; i<header->columns; i++) {
-		hist->SetBinContent(i+1, spec[i]);
+		hist->SetBinContent(i+1, (double)spec[i]);
 	}
 	
 	free_cspec(cspec);

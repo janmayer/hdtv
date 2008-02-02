@@ -28,13 +28,20 @@
 GSViewer::GSViewer(UInt_t w, UInt_t h, const char *title)
   : TGMainFrame(gClient->GetRoot(), w, h)
 {
+  Int_t parts[2] = {20, 80};
+  
   fViewport = new GSViewport(this, w-4, h-4);
   AddFrame(fViewport, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0,0,0,0));
   
   fScrollbar = new TGHScrollBar(this, 10, kDefaultScrollBarWidth);
   AddFrame(fScrollbar, new TGLayoutHints(kLHintsExpandX, 0,0,0,0));
   
+  fStatusBar = new TGStatusBar(this, 10, 16);
+  fStatusBar->SetParts(parts, 2);
+  AddFrame(fStatusBar, new TGLayoutHints(kLHintsExpandX, 0,0,0,0));
+  
   fViewport->SetScrollbar(fScrollbar);
+  fViewport->SetStatusBar(fStatusBar);
 
   SetWindowName(title);
   MapSubwindows();
@@ -51,7 +58,7 @@ GSViewer::~GSViewer(void)
   Cleanup();
 }
 
-/* Python interface */
+/* Python interface (very, very UGLY) */
 void GSViewer::RegisterKeyHandler(const char *cmd)
 {
 	fKeyHandlerCmd.assign(cmd);
@@ -70,31 +77,6 @@ Bool_t GSViewer::HandleKey(Event_t *ev)
   }
 	
   return true;
-}
-
-void GSViewer::Layout(void)
-{
-  UInt_t sh = fScrollbar->GetDefaultHeight();
-  UInt_t ch = fHeight - sh - 6;
-
-  fViewport->MoveResize(2,2,fWidth-4,ch);
-  fScrollbar->MoveResize(2,ch+4,fWidth-4, sh);
-  //fViewport->UpdateScrollbarRange();
-}
-
-void GSViewer::MapSubwindows(void)
-{
-  if(fScrollbar) {
-	fScrollbar->MapSubwindows();
-	fScrollbar->MapWindow();
-  }
-
-  if(fViewport) {
-	fViewport->MapSubwindows();
-	fViewport->MapWindow();
-  }
-
-  Layout();
 }
 
 Bool_t GSViewer::ProcessMessage(Long_t msg, Long_t parm1, Long_t)

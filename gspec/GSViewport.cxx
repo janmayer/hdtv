@@ -31,7 +31,8 @@ GSViewport::GSViewport(const TGWindow *p, UInt_t w, UInt_t h)
   fXVisibleRegion = 100.0;
   fYMinVisibleRegion = 20.0;
   fYVisibleRegion = fYMinVisibleRegion;
-  fOffset = 0.0;
+  fYOffset = 0.0;
+  fXOffset = 0.0;
   fMinEnergy = 0.0;
   fMaxEnergy = 100.0;
   fYAutoScale = true;
@@ -41,6 +42,9 @@ GSViewport::GSViewport(const TGWindow *p, UInt_t w, UInt_t h)
   fRightBorder = 3;
   fTopBorder = 4;
   fBottomBorder = 30;
+  
+  fScrollbar = NULL;
+  fStatusBar = NULL;
 
   AddInput(kPointerMotionMask | kEnterWindowMask | kLeaveWindowMask
 		   | kButtonPressMask | kButtonReleaseMask);
@@ -51,6 +55,8 @@ GSViewport::GSViewport(const TGWindow *p, UInt_t w, UInt_t h)
   gval.fForeground = GetWhitePixel();
   fCursorGC = gClient->GetGCPool()->GetGC(&gval, true);
   fCursorVisible = false;
+  fCursorX = 0;
+  fCursorY = 0;
   fPainter = new GSPainter();
   fPainter->SetDrawable(GetId());
   fPainter->SetAxisGC(GetHilightGC().GetGC());
@@ -69,10 +75,19 @@ GSViewport::~GSViewport() {
   for(int i=0; i < fFunctions.size(); i++)
   	delete fFunctions[i];
 
-  for(int i=0; i < fMarkers.size(); i++)
-	delete fMarkers[i];
+  for(int i=0; i < fXMarkers.size(); i++)
+	delete fXMarkers[i];
+	
+  for(int i=0; i < fYMarkers.size(); i++)
+    delete fYMarkers[i];
 	
   delete fPainter;
+}
+
+void GSViewport::SetStatusBar(TGStatusBar *sb)
+{
+  fStatusBar = sb;
+  UpdateStatusScale();
 }
 
 template <class itemType>
@@ -109,11 +124,11 @@ void GSViewport::DeleteItem(std::vector<itemType> &items, int id)
 }
 
 /*** Object management functions ***/
-int GSViewport::AddMarker(double pos, int color, bool update)
+int GSViewport::AddXMarker(double pos, int color, bool update)
 {
-  int id = FindFreeId(fMarkers);
+  int id = FindFreeId(fXMarkers);
 
-  fMarkers[id] = new GSMarker(1, pos, 0.0, color);
+  fXMarkers[id] = new GSXMarker(1, pos, 0.0, color);
   
   if(update)
     Update(true);
@@ -121,28 +136,28 @@ int GSViewport::AddMarker(double pos, int color, bool update)
   return id;
 }
 
-GSMarker *GSViewport::GetMarker(int id)
+GSXMarker *GSViewport::GetXMarker(int id)
 {
-  if(id < 0 || id >= fMarkers.size())
+  if(id < 0 || id >= fXMarkers.size())
     return NULL;
-  return fMarkers[id];
+  return fXMarkers[id];
 }
 
-int GSViewport::FindNearestMarker(double e, double tol)
+int GSViewport::FindNearestXMarker(double e, double tol)
 {
   int id = -1;
   double minDist = 1e50;
   double dist;
 
-  for(int i=0; i < fMarkers.size(); i++) {
-  	dist = TMath::Abs(fMarkers[i]->GetE1() - e);
+  for(int i=0; i < fXMarkers.size(); i++) {
+  	dist = TMath::Abs(fXMarkers[i]->GetE1() - e);
   	if(dist < minDist) {
   		minDist = dist;
   		id = i << 1;
   	}
   	
-  	if(fMarkers[i]->GetN() > 1) {
-  		dist = TMath::Abs(fMarkers[i]->GetE1() - e);
+  	if(fXMarkers[i]->GetN() > 1) {
+  		dist = TMath::Abs(fXMarkers[i]->GetE1() - e);
   		if(dist < minDist) {
   			minDist = dist;
   			id = (i << 1) + 1;
@@ -156,31 +171,65 @@ int GSViewport::FindNearestMarker(double e, double tol)
   return id;
 }
 
-void GSViewport::DeleteMarker(int id, bool update)
+void GSViewport::DeleteXMarker(int id, bool update)
 {
-  DeleteItem(fMarkers, id);
+  DeleteItem(fXMarkers, id);
   if(update)
     Update(true);
 }
 
-void GSViewport::DeleteAllMarkers(bool update)
+void GSViewport::DeleteAllXMarkers(bool update)
 {
-  for(int i=0; i < fMarkers.size(); i++)
-    delete fMarkers[i];
+  for(int i=0; i < fXMarkers.size(); i++)
+    delete fXMarkers[i];
     
-  fMarkers.clear();
+  fXMarkers.clear();
   
   if(update)
   	Update(true);
 }
 
-int GSViewport::AddSpec(const TH1I *spec, int color, bool update)
+int GSViewport::AddYMarker(double pos, int color, bool update)
+{
+  int id = FindFreeId(fYMarkers);
+
+  fYMarkers[id] = new GSYMarker(1, pos, 0.0, color);
+  
+  if(update)
+    Update(true);
+  
+  return id;
+}
+
+GSYMarker *GSViewport::GetYMarker(int id)
+{
+  if(id < 0 || id >= fYMarkers.size())
+    return NULL;
+  return fYMarkers[id];
+}
+
+void GSViewport::DeleteYMarker(int id, bool update)
+{
+  DeleteItem(fYMarkers, id);
+  if(update)
+    Update(true);
+}
+
+void GSViewport::DeleteAllYMarkers(bool update)
+{
+  for(int i=0; i < fYMarkers.size(); i++)
+    delete fYMarkers[i];
+    
+  fYMarkers.clear();
+  
+  if(update)
+  	Update(true);
+}
+
+int GSViewport::AddSpec(const TH1D *spec, int color, bool update)
 {
   int id = FindFreeId(fSpectra);
   fSpectra[id] = new GSDisplaySpec(spec, color);
-  
-  fMinEnergy = fSpectra[0]->GetMinE();
-  fMaxEnergy = fSpectra[0]->GetMaxE();
   
   if(update)
 	Update(true);
@@ -275,6 +324,21 @@ void GSViewport::SetLogScale(Bool_t l)
   Update(true);
 }
 
+void GSViewport::YAutoScaleOnce(bool update)
+{
+  fYVisibleRegion = fYMinVisibleRegion;
+   
+  for(int i=0; i < fSpectra.size(); i++) {
+    if(fSpectra[i])
+	  fYVisibleRegion = TMath::Max(fYVisibleRegion, fPainter->GetYAutoZoom(fSpectra[i]));
+  }
+  
+  fYOffset = 0.0;
+  
+  if(update)
+  	Update();
+}
+
 void GSViewport::ShiftOffset(int dO)
 {
   Bool_t cv = fCursorVisible;
@@ -328,21 +392,35 @@ void GSViewport::SetViewMode(EViewMode vm)
   }
 }
 
-double GSViewport::GetCursorX(void)
+double GSViewport::GetCursorX()
 {
   return fPainter->XtoE(fCursorX);
 }
 
+double GSViewport::GetCursorY()
+{
+  return fPainter->YtoC(fCursorY);
+}
+
 int GSViewport::FindMarkerNearestCursor(int tol)
 {
-  return FindNearestMarker(fPainter->XtoE(fCursorX), fPainter->dXtodE(tol));
+  return FindNearestXMarker(fPainter->XtoE(fCursorX), fPainter->dXtodE(tol));
 }
 
 void GSViewport::XZoomAroundCursor(double f)
 {
-  fOffset += fPainter->dXtodE(fCursorX - fPainter->GetBaseX()) * (1.0 - 1.0/f);
+  fXOffset += fPainter->GetXOffsetDelta(fCursorX, f);
   fXVisibleRegion /= f;
 
+  Update(false);
+}
+
+void GSViewport::YZoomAroundCursor(double f)
+{
+  fYOffset += fPainter->GetYOffsetDelta(fCursorY, f);
+  fYVisibleRegion /= f;
+  fYAutoScale = false;
+  
   Update(false);
 }
 
@@ -353,7 +431,19 @@ void GSViewport::ToBegin(void)
 
 void GSViewport::ShowAll(void)
 {
-  fOffset = fMinEnergy;
+  fMinEnergy = 0.0;
+  fMaxEnergy = 0.0;
+  double minE, maxE;
+  
+  for(int i=0; i<fSpectra.size(); i++) {
+    minE = fSpectra[i]->GetMinE();
+    maxE = fSpectra[i]->GetMaxE();
+    
+    if(minE < fMinEnergy) fMinEnergy = minE;
+    if(maxE > fMaxEnergy) fMaxEnergy = maxE;
+  }
+
+  fXOffset = fMinEnergy;
   fXVisibleRegion = fMaxEnergy - fMinEnergy;
     
   Update(false);
@@ -380,23 +470,23 @@ void GSViewport::Update(bool redraw)
 	UpdateScrollbarRange();
   }
 
-  dO = fOffset - fPainter->GetOffset();
+  dO = fXOffset - fPainter->GetXOffset();
   if(TMath::Abs(dO) > 1e-5) {
-	fPainter->SetOffset(fOffset);
+	fPainter->SetXOffset(fXOffset);
   }
 
   if(fYAutoScale) {
-    fYVisibleRegion = fYMinVisibleRegion;
-    
-    for(int i=0; i < fSpectra.size(); i++) {
-      if(fSpectra[i])
-	    fYVisibleRegion = TMath::Max(fYVisibleRegion, fPainter->GetYAutoZoom(fSpectra[i]));
-	}
+    YAutoScaleOnce(false);
   }
 
   if(TMath::Abs(fYVisibleRegion - fPainter->GetYVisibleRegion()) > 1e-7) {
 	redraw = true;
 	fPainter->SetYVisibleRegion(fYVisibleRegion);
+  }
+  
+  if(TMath::Abs(fYOffset - fPainter->GetYOffset()) > 1e-5) {
+    redraw = true;
+    fPainter->SetYOffset(fYOffset);
   }
 
   // We can only use ShiftOffset if the shift is an integer number
@@ -415,6 +505,8 @@ void GSViewport::Update(bool redraw)
   }
 
   UpdateScrollbarRange();
+  UpdateStatusPos();
+  UpdateStatusScale();
 }
 
 void GSViewport::DrawRegion(UInt_t x1, UInt_t x2)
@@ -429,9 +521,14 @@ void GSViewport::DrawRegion(UInt_t x1, UInt_t x2)
       fPainter->DrawFunction(fFunctions[i], x1, x2);
   }
 
-  for(int i=0; i < fMarkers.size(); i++) {
-    if(fMarkers[i] != NULL)
-      fPainter->DrawMarker(fMarkers[i], x1, x2);
+  for(int i=0; i < fXMarkers.size(); i++) {
+    if(fXMarkers[i] != NULL)
+      fPainter->DrawXMarker(fXMarkers[i], x1, x2);
+  }
+  
+  for(int i=0; i < fYMarkers.size(); i++) {
+    if(fYMarkers[i] != NULL)
+      fPainter->DrawYMarker(fYMarkers[i], x1, x2);
   }
 }
 
@@ -444,14 +541,14 @@ void GSViewport::UpdateScrollbarRange(void)
 	as = fPainter->GetWidth();
 
 	minE = fMinEnergy;
-	minE = TMath::Min(minE, fPainter->GetOffset());
+	minE = TMath::Min(minE, fPainter->GetXOffset());
 	
 	maxE = fMaxEnergy;
-	maxE = TMath::Max(maxE, fPainter->GetOffset() + fXVisibleRegion);
+	maxE = TMath::Max(maxE, fPainter->GetXOffset() + fXVisibleRegion);
 
 	rs = (UInt_t) TMath::Ceil(fPainter->dEtodX(maxE - minE));
 
-	pos = (UInt_t) TMath::Ceil(fPainter->dEtodX(fPainter->GetOffset() - minE) - 0.5);
+	pos = (UInt_t) TMath::Ceil(fPainter->dEtodX(fPainter->GetXOffset() - minE) - 0.5);
 
 	fScrollbar->SetRange(rs, as);
 	fScrollbar->SetPosition(pos);
@@ -460,7 +557,30 @@ void GSViewport::UpdateScrollbarRange(void)
 
 void GSViewport::SetOffset(double offset, bool update)
 {
-  fOffset = offset;
+  fXOffset = offset;
+  if(update)
+    Update();
+}
+
+void GSViewport::SetYOffset(double offset, bool update)
+{
+  fYOffset = offset;
+  fYAutoScale = false;
+  if(update)
+    Update();
+}
+
+void GSViewport::ShiftYOffset(double f, bool update)
+{
+  fYOffset += f * fYVisibleRegion;
+  fYAutoScale = false;
+  if(update)
+    Update();
+}
+
+void GSViewport::SetYAutoScale(bool as, bool update)
+{
+  fYAutoScale = as;
   if(update)
     Update();
 }
@@ -468,6 +588,13 @@ void GSViewport::SetOffset(double offset, bool update)
 void GSViewport::SetXVisibleRegion(double region, bool update)
 {
   fXVisibleRegion = region;
+  if(update)
+    Update();
+}
+
+void GSViewport::SetYVisibleRegion(double region, bool update)
+{
+  fYVisibleRegion = region;
   if(update)
     Update();
 }
@@ -480,24 +607,54 @@ void GSViewport::HandleScrollbar(Long_t parm)
   if(parm < 0)
   	parm = 0;
 
-  if(fOffset < fMinEnergy)
-	fOffset += fPainter->dXtodE(parm);
+  if(fXOffset < fMinEnergy)
+	fXOffset += fPainter->dXtodE(parm);
   else
-	fOffset = fMinEnergy + fPainter->dXtodE(parm);
+	fXOffset = fMinEnergy + fPainter->dXtodE(parm);
 
   Update();
 }
 
+void GSViewport::UpdateStatusPos()
+{
+  char temp[32];
+  
+  if(fStatusBar) {
+    if(fPainter->IsWithin(fCursorX, fCursorY)) {
+      snprintf(temp, 32, "%.4g %.4g", fPainter->XtoE(fCursorX), fPainter->YtoC(fCursorY));
+      fStatusBar->SetText(temp, 0);
+    } else {
+      fStatusBar->SetText("", 0);
+    }
+  }
+}
+
+void GSViewport::UpdateStatusScale()
+{
+  if(fStatusBar) {
+    if(fYAutoScale)
+      fStatusBar->SetText("AUTO", 1);
+    else
+      fStatusBar->SetText("", 1);
+  }
+}
 
 Bool_t GSViewport::HandleMotion(Event_t *ev)
 {
   bool cv = fCursorVisible;
+  int dX = (int) fCursorX - ev->fX;
   if(cv) DrawCursor();
-  if(fDragging) {
-	SetOffset(fOffset + fPainter->dXtodE((int) fCursorX - ev->fX));
-  }
+  
   fCursorX = ev->fX;
   fCursorY = ev->fY;
+  
+  if(fDragging) {
+	SetOffset(fXOffset + fPainter->dXtodE(dX));
+  }
+    
+  // If we are dragging, Update() will update the statusbar
+  if(!fDragging)  UpdateStatusPos();
+  
   if(cv) DrawCursor();
 }
 
@@ -516,8 +673,10 @@ Bool_t GSViewport::HandleCrossing(Event_t *ev)
 	fCursorX = ev->fX;
 	fCursorY = ev->fY;
 	DrawCursor();
+	UpdateStatusPos();
   } else if(ev->fType == kLeaveNotify) {
 	if(fCursorVisible) DrawCursor();
+	if(fStatusBar) fStatusBar->SetText("", 0);
   }
 }
 
@@ -556,7 +715,8 @@ void GSViewport::DoRedraw(void)
 
   fPainter->SetXVisibleRegion(fXVisibleRegion);
   fPainter->SetYVisibleRegion(fYVisibleRegion);
-  fPainter->SetOffset(fOffset);
+  fPainter->SetXOffset(fXOffset);
+  fPainter->SetYOffset(fYOffset);
 
   cv = fCursorVisible;
   if(cv) DrawCursor();

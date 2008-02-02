@@ -26,20 +26,26 @@
 #include <vector>
 #include <TGFrame.h>
 #include <TGScrollBar.h>
+#include <TGStatusBar.h>
 #include "GSPainter.h"
 #include "GSDisplaySpec.h"
-#include "GSMarker.h"
+#include "GSXMarker.h"
+#include "GSYMarker.h"
 
 class GSViewport : public TGFrame { 
  public:
   GSViewport(const TGWindow *p, UInt_t w, UInt_t h);
   ~GSViewport(void);
   void SetOffset(double offset, bool update=true);
-  inline double GetOffset(void) { return fOffset; }
+  void SetYOffset(double offset, bool update=true);
+  void ShiftYOffset(double f, bool update=true);
+  inline double GetOffset(void) { return fXOffset; }
   void Update(bool redraw=false);
   void HandleScrollbar(Long_t parm);
   void SetXVisibleRegion(double region, bool update=true);
+  void SetYVisibleRegion(double region, bool update=true);
   void XZoomAroundCursor(double f);
+  void YZoomAroundCursor(double f);
   void ToBegin(void);
   void ShowAll(void);
   void SetViewMode(EViewMode vm);
@@ -47,23 +53,35 @@ class GSViewport : public TGFrame {
   void SetLogScale(Bool_t l);
   inline void ToggleLogScale(void) { SetLogScale(!GetLogScale()); }
   inline Bool_t GetLogScale(void) { return fPainter->GetLogScale(); }
+  void SetYAutoScale(bool as, bool update=true);
+  inline Bool_t GetYAutoScale(void) { return fYAutoScale; }
+  void YAutoScaleOnce(bool update=true);
   void Layout(void);
   void UpdateScrollbarRange(void);
   inline void SetScrollbar(TGHScrollBar *sb) { fScrollbar = sb; }
-  double GetCursorX(void);
+  void SetStatusBar(TGStatusBar *sb);
+  double GetCursorX();
+  double GetCursorY();
   int FindMarkerNearestCursor(int tol=3);
   
   /*** Object management functions ***/
-  int AddMarker(double pos, int color=defaultColor, bool update=true);
-  GSMarker *GetMarker(int id);
-  int FindNearestMarker(double e, double tol=-1.0);
-  void DeleteMarker(int id, bool update=true);
-  void DeleteAllMarkers(bool update=true);
-  int AddSpec(const TH1I *spec, int color=defaultColor, bool update=true);
+  int AddXMarker(double pos, int color=defaultColor, bool update=true);
+  GSXMarker *GetXMarker(int id);
+  int FindNearestXMarker(double e, double tol=-1.0);
+  void DeleteXMarker(int id, bool update=true);
+  void DeleteAllXMarkers(bool update=true);
+
+  int AddYMarker(double pos, int color=defaultColor, bool update=true);
+  GSYMarker *GetYMarker(int id);
+  void DeleteYMarker(int id, bool update=true);
+  void DeleteAllYMarkers(bool update=true);
+
+  int AddSpec(const TH1D *spec, int color=defaultColor, bool update=true);
   GSDisplaySpec *GetDisplaySpec(int id);
   //void SetSpecCal(int id, double cal0, double cal1, double cal2, double cal3, bool update);
   void DeleteSpec(int id, bool update=true);
   void DeleteAllSpecs(bool update=true);
+
   int AddFunc(const TF1 *func, int color=defaultColor, bool update=true);
   GSDisplayFunc *GetDisplayFunc(int id);
   //void SetFuncCal(int id, double cal0, double cal1, double cal2, double cal3, bool update);
@@ -84,15 +102,19 @@ class GSViewport : public TGFrame {
   int FindFreeId(std::vector<itemType> &items);
   template <class itemType>
   void DeleteItem(std::vector<itemType> &items, int id);
+  
+  void UpdateStatusPos();
+  void UpdateStatusScale();
  
  protected:
   double fXVisibleRegion, fYVisibleRegion;
   double fYMinVisibleRegion;
-  double fOffset;
+  double fXOffset, fYOffset;
   double fMinEnergy, fMaxEnergy;
   std::vector<GSDisplaySpec *> fSpectra;
   std::vector<GSDisplayFunc *> fFunctions;
-  std::vector<GSMarker *> fMarkers;
+  std::vector<GSXMarker *> fXMarkers;
+  std::vector<GSYMarker *> fYMarkers;
   Bool_t fYAutoScale;
   Bool_t fNeedClear;
   TGGC *fCursorGC;
@@ -102,6 +124,7 @@ class GSViewport : public TGFrame {
   UInt_t fLeftBorder, fRightBorder, fTopBorder, fBottomBorder;
   GSPainter *fPainter;
   TGHScrollBar *fScrollbar;
+  TGStatusBar *fStatusBar;
 
   //  ClassDef(ViewerFrame,0)
 };

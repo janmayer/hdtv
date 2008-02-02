@@ -31,7 +31,8 @@ GSPainter::GSPainter()
   SetBasePoint(0, 0);
   SetSize(0, 0);
   SetViewMode(kVMHollow);
-  SetOffset(0.0);
+  SetXOffset(0.0);
+  SetYOffset(0.0);
 
   fFont = gClient->GetResourcePool()->GetDefaultFont();
   fFontStruct = fFont->GetFontStruct();
@@ -47,6 +48,7 @@ void GSPainter::DrawFunction(GSDisplayFunc *dFunc, int x1, int x2)
   int y;
   int hClip = fYBase - fHeight;
   int lClip = fYBase;
+  double ch;
 
   /* Do x axis clipping */
   int minX = EtoX(dFunc->GetMinE());
@@ -56,10 +58,12 @@ void GSPainter::DrawFunction(GSDisplayFunc *dFunc, int x1, int x2)
   if(x2 > maxX)	x2 = maxX;
 
   int ly, cy;
-  ly = CtoY(dFunc->Eval(XtoE((double) x1 - 0.5)));
+  ch = dFunc->E2Ch(XtoE((double) x1 - 0.5));
+  ly = CtoY(dFunc->Eval(ch));
 
   for(x=x1; x<=x2; x++) {
-    y = cy = CtoY(dFunc->Eval(XtoE((double) x + 0.5)));
+    ch = dFunc->E2Ch(XtoE((double) x + 0.5));
+    y = cy = CtoY(dFunc->Eval(ch));
     
     if(TMath::Min(y, ly) <= lClip && TMath::Max(y, ly) >= hClip) {
       if(cy < hClip) cy = hClip;
@@ -79,7 +83,9 @@ void GSPainter::DrawSpectrum(GSDisplaySpec *dSpec, int x1, int x2)
 {
   int x;
   int y;
-  int clip = fYBase - fHeight;
+  int hClip = fYBase - fHeight;
+  int lClip = fYBase;
+  
 
   /* Do x axis clipping */
   int minX = EtoX(dSpec->GetMinE());
@@ -92,7 +98,8 @@ void GSPainter::DrawSpectrum(GSDisplaySpec *dSpec, int x1, int x2)
   case kVMSolid:
 	for(x=x1; x<=x2; x++) {
 	  y = GetYAtPixel(dSpec, x);
-	  if(y < clip) y = clip;
+	  if(y < hClip) y = hClip;
+	  if(y > lClip) y = lClip;
 	  gVirtualX->DrawLine(fDrawable, dSpec->GetGC()->GetGC(),
 						  x, fYBase, x, y);
 	}
@@ -101,35 +108,40 @@ void GSPainter::DrawSpectrum(GSDisplaySpec *dSpec, int x1, int x2)
   case kVMDotted:
 	for(x=x1; x<=x2; x++) {
 	  y = GetYAtPixel(dSpec, x);
-	  if(y >= clip)
+	  if(y >= hClip && y <= lClip)
 		gVirtualX->DrawRectangle(fDrawable, dSpec->GetGC()->GetGC(),
 								 x, y, 0, 0);
 	}
 	break;
 	
   case kVMHollow:
-	int ly, cy;
+	int ly, y1, y2;
 	ly = GetYAtPixel(dSpec, x1-1);
 
 	for(x=x1; x<=x2; x++) {
 	  y = GetYAtPixel(dSpec, x);
 	  
 	  if(y < ly) {
-		if(ly >= clip) {
-		  cy = y;
-		  if(cy < clip) cy = clip;
+		if(ly >= hClip && y <= lClip) {
+		  y1 = ly;
+		  if(y1 > lClip) y1 = lClip;
+		  y2 = y;
+		  if(y2 < hClip) y2 = hClip;
 		  gVirtualX->DrawLine(fDrawable, dSpec->GetGC()->GetGC(),
-							  x, ly, x, cy);
+							  x, y1, x, y2);
 		}
 	  } else {
-		if(y >= clip) {
-		  cy = ly;
-		  if(cy < clip) cy = clip;
+		if(y >= hClip && ly <= lClip) {
+		  y1 = ly;
+		  if(y1 < hClip) y1 = hClip;
+		  y2 = y;
+		  if(y2 > lClip) y2 = lClip;
 		  if(x > fXBase)
 			gVirtualX->DrawLine(fDrawable, dSpec->GetGC()->GetGC(),
-								x-1, cy, x-1, y);
-		  gVirtualX->DrawRectangle(fDrawable, dSpec->GetGC()->GetGC(),
-								   x, y, 0, 0);
+								x-1, y1, x-1, y2);
+		  if(y <= lClip)
+		    gVirtualX->DrawRectangle(fDrawable, dSpec->GetGC()->GetGC(),
+									 x, y2, 0, 0);
 		}
 	  }
 	  
@@ -139,7 +151,7 @@ void GSPainter::DrawSpectrum(GSDisplaySpec *dSpec, int x1, int x2)
   }
 }
 
-void GSPainter::DrawMarker(GSMarker *marker, int x1, int x2)
+void GSPainter::DrawXMarker(GSXMarker *marker, int x1, int x2)
 {
   int xm1, xm2;
 
@@ -167,12 +179,33 @@ void GSPainter::DrawMarker(GSMarker *marker, int x1, int x2)
   }
 }
 
+void GSPainter::DrawYMarker(GSYMarker *marker, int x1, int x2)
+{
+  int y;
+  
+  /* Draw first marker of the pair */
+  y = CtoY(marker->GetP1());
+  if(y <= fYBase && y >= (fYBase - fHeight)) {
+    gVirtualX->DrawLine(fDrawable, marker->GetGC_1()->GetGC(),
+                        x1, y, x2, y);
+  }
+  
+  /* Draw second marker of the pair */
+  if(marker->GetN() > 1) {
+    y = CtoY(marker->GetP2());
+    if(y <= fYBase && y >= (fYBase - fHeight)) {
+      gVirtualX->DrawLine(fDrawable, marker->GetGC_2()->GetGC(),
+                          x1, y, x2, y);
+    }
+  }
+}
+
 void GSPainter::UpdateYZoom(void)
 {
   double yRange = fYVisibleRegion;
 
   if(fLogScale)
-  	yRange = TMath::Log(yRange) + 1.0;
+  	yRange = ModLog(fYOffset + fYVisibleRegion) - ModLog(fYOffset);
 
   fYZoom = fHeight / yRange;
 }
@@ -185,7 +218,7 @@ void GSPainter::SetSize(int w, int h)
   UpdateYZoom();
 }
 
-int GSPainter::GetCountsAtPixel(GSDisplaySpec *dSpec, UInt_t x)
+double GSPainter::GetCountsAtPixel(GSDisplaySpec *dSpec, UInt_t x)
 {
   double c1, c2;
   int n1, n2;
@@ -207,14 +240,42 @@ int GSPainter::GetCountsAtPixel(GSDisplaySpec *dSpec, UInt_t x)
   return dSpec->GetRegionMax(n1, n2);
 }
 
+/* Modified log function:
+          = log(x) + 1,    1 <= x
+ModLog(x) = x,            -1 <  x <   1
+          = -log(-x) - 1,       x <= -1
+          
+This function is continous with a continous first derivative,
+positive monotonic, and goes from R to R  */
+double GSPainter::ModLog(double x)
+{
+  if(x > 1.0) {
+    return TMath::Log(x) + 1.0;
+  } else if(x > -1.0) {
+    return x;
+  } else {
+    return -TMath::Log(-x) - 1.0;
+  }
+}
+
+/* Inverse modified log (see definition above) */
+double GSPainter::InvModLog(double x)
+{
+  if(x > 1.0) {
+    return TMath::Exp(x - 1.0);
+  } else if(x > -1.0) {
+    return x;
+  } else {
+    return -TMath::Exp(-x - 1.0);
+  }
+}
+
 int GSPainter::CtoY(double c)
 {
-  if(fLogScale) {
-	if(c > 0.5)
-	  c = TMath::Log(c) + 1.0;
-	else
-	  c = 0.0;
-  }
+  if(fLogScale)
+	c = ModLog(c) - ModLog(fYOffset);
+  else
+    c = c - fYOffset;
 
   return fYBase - (int) TMath::Ceil(c * fYZoom - 0.5);
 }
@@ -224,13 +285,27 @@ double GSPainter::YtoC(int y)
   double c;
   c = (double) (fYBase - y) / fYZoom;
 
-  if(fLogScale) {
-	c = TMath::Exp(c - 1.0);
-	if(c < 0.5)
-	  c = 0.0;
-  }
+  if(fLogScale)
+	c = InvModLog(c + ModLog(fYOffset));
+  else
+    c = c + fYOffset;
 
   return c;
+}
+
+double GSPainter::GetXOffsetDelta(int x, double f)
+{
+  return dXtodE(x - fXBase) * (1.0 - 1.0/f);
+}
+
+double GSPainter::GetYOffsetDelta(int y, double f)
+{ 
+  if(fLogScale) {
+    // This case is presently unhandled...
+    return 0.0;
+  } else {
+    return (1.0 - 1.0/f) * (double)(fYBase - y) / fYZoom;
+  }
 }
 
 double GSPainter::GetYAutoZoom(GSDisplaySpec *dSpec)
@@ -384,17 +459,19 @@ void GSPainter::DrawYLinearScale(void)
   GetTicDistance((double) 50.0 / fYZoom, major_tic, minor_tic, n);
 
   // Draw the minor tics
+  i = (int) TMath::Ceil(YtoC(fYBase) / minor_tic);
   i2 = (int) TMath::Floor(YtoC(fYBase - fHeight) / minor_tic);
 
-  for(i=0; i<=i2; i++) {
+  for(i; i<=i2; i++) {
 	y = (UInt_t) CtoY((double) i * minor_tic);
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x-5, y, x, y);
   }
 
   // Draw the major tics
+  i = (int) TMath::Ceil(YtoC(fYBase) / major_tic);
   i2 = (int) TMath::Floor(YtoC(fYBase - fHeight) / major_tic);
 
-  for(i=0; i<=i2; i++) {
+  for(i; i<=i2; i++) {
 	y = (UInt_t) CtoY((double) i * major_tic);
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x-9, y, x, y);
   
@@ -412,23 +489,47 @@ void GSPainter::DrawYLogScale(void)
 
   UInt_t x = fXBase - 2;
   UInt_t y;
-  int yTop = fYBase - fHeight;
+  int yTop = fYBase - fHeight; 
   int minDist;
+  double cMin, cMax;
 
-  // The tic at 0.0 needs special treatment...
-  DrawYMajorTic(0.0);
+  cMin = YtoC(fYBase);
+  cMax = YtoC(yTop);
  
-  // Scale: 0, 1, 2, 3, ..., 9, 10, 20, ... without minor tics
-  // Check if the two closest labels drawn are more than 20 pixels
-  // apart.
-  if(YtoC(yTop) > 10.0)
+  // Calculate the distance (in pixels) between the closest tics
+  // (either 9 and 10 or the upmost tics drawn)
+  if(cMax > 10.0)
 	minDist = CtoY(9.0) - CtoY(10.0);
   else
 	minDist = CtoY(TMath::Floor(YtoC(yTop)) - 1.0) - CtoY(TMath::Floor(YtoC(yTop)));
 
+  if(cMax > 0.0)
+    _DrawYLogScale(minDist, +1, cMin, cMax);
+  
+  if(cMax >= 0.0 && cMin <= 0.0)
+    DrawYMajorTic(0.0);
+    
+  if(cMin < 0.0)
+    _DrawYLogScale(minDist, -1, -cMax, -cMin);
+}
+  
+void GSPainter::_DrawYLogScale(int minDist, int sgn, double cMin, double cMax)
+{
+  double exp = 1.0;
+  int c = 1;
+  
+  // Find out where to begin
+  while((10.0 * exp) < cMin) {
+    exp *= 10.0;
+  }
+  while((double)c * exp < cMin) {
+    c += 1;
+  }
+
+  // Scale: 0, 1, 2, 3, ..., 9, 10, 20, ... without minor tics
   if(minDist >= 20) {
-	while(CtoY(c) > yTop) {
-	  DrawYMajorTic((double)c * exp);
+	while((double)c*exp <= cMax) {
+	  DrawYMajorTic((double)sgn * c * exp);
 
 	  if(++c > 9) {
 		exp *= 10.0;
@@ -443,11 +544,11 @@ void GSPainter::DrawYLogScale(void)
   minDist = CtoY(1.0) - CtoY(3.0);
   
   if(minDist >= 30) {
-	while(CtoY((double)c * exp) > yTop) {
+	while((double)c*exp <= cMax) {
 	  if(c == 1 || c == 3) 
-		DrawYMajorTic((double)c * exp);
+		DrawYMajorTic((double)sgn * c * exp);
 	  else
-		DrawYMinorTic((double)c * exp);
+		DrawYMinorTic((double)sgn * c * exp);
 
 	  if(++c > 9) {
 		exp *= 10.0;
@@ -457,21 +558,21 @@ void GSPainter::DrawYLogScale(void)
 
 	// Label the last minor tic drawn, if appropriate
 	if(c == 1)
-	  DrawYMajorTic(0.9 * exp, false);
+	  DrawYMajorTic((double)sgn * 0.9 * exp, false);
 	else if(c > 5)
-	  DrawYMajorTic((c-1) * exp, false);
+	  DrawYMajorTic((double)sgn * (c-1) * exp, false);
 
 	return;
   }
 
   // Scale: 0, 1, 10, 100, ... with minor tics at 3, 30, ...
   if(minDist >= 5) {
-	while(CtoY((double)c * exp) > yTop) {
+	while((double)c*exp <= cMax) {
 	  if(c == 1) {
-		DrawYMajorTic((double)c * exp);
+		DrawYMajorTic((double)sgn * c * exp);
 		c = 3;
 	  } else {
-		DrawYMinorTic((double)c * exp);
+		DrawYMinorTic((double)sgn * c * exp);
 		c = 1;
 		exp *= 10.0;
 	  }
@@ -481,8 +582,8 @@ void GSPainter::DrawYLogScale(void)
   }
 
   // Scale: 0, 1, 10, 100 without minor tics
-  while(CtoY(exp) > yTop) {
-	DrawYMajorTic(exp);
+  while(exp <= cMax) {
+	DrawYMajorTic((double)sgn * exp);
 	exp *= 10.0;
   }
 }

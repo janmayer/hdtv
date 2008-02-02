@@ -34,16 +34,13 @@
 class GSMarker {
  public:
   GSMarker(int n, double p1, double p2=0.0, int col=5);
-  ~GSMarker(void);
+  ~GSMarker();
 
-  inline TGGC *GetGC_1(void) { return fDash1 ? fDashedGC : fGC; }
-  inline TGGC *GetGC_2(void) { return fDash2 ? fDashedGC : fGC; }
-  inline TGGC *GetGC_C(void) { return (fDash1 && fDash2) ? fDashedGC : fGC; }
-  inline int GetN(void) { return fN; }
-  inline double GetE1(void) { return fCal1 ? fCal1->Ch2E(fP1) : fP1; }
-  inline double GetE2(void) { return fCal2 ? fCal2->Ch2E(fP2) : fP2; }
-  inline double GetP1(void) { return fP1; }
-  inline double GetP2(void) { return fP2; }
+  inline TGGC *GetGC_1() { return fDash1 ? fDashedGC : fGC; }
+  inline TGGC *GetGC_2() { return fDash2 ? fDashedGC : fGC; }
+  inline int GetN() { return fN; }
+  inline double GetP1() { return fP1; }
+  inline double GetP2() { return fP2; }
   
   inline void SetN(int n)
     { fN = n; }
@@ -51,14 +48,8 @@ class GSMarker {
     { fP1 = p1; fP2 = p2; }
   inline void SetDash(bool dash1, bool dash2=false)
     { fDash1 = dash1; fDash2 = dash2; }
-  inline void SetCal(GSCalibration *cal1)
-    { fCal1 = cal1; fCal2 = cal1; }
-  inline void SetCal(GSCalibration *cal1, GSCalibration *cal2)
-    { fCal1 = cal1; fCal2 = cal2; }
-  
-
- private:
-  GSCalibration *fCal1, *fCal2;
+ 
+ protected:
   bool fDash1, fDash2;
   TGGC *fGC, *fDashedGC;
   double fP1, fP2;

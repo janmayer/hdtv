@@ -13,6 +13,9 @@ all: lc2reader.so conv
 
 conv: conv.c mfile-tiny.c mfile-tiny.h
 	$(CC) -o conv conv.c mfile-tiny.c
+	
+addup: addup.c mfile-tiny.c mfile-tiny.h
+	$(CC) -o addup addup.c mfile-tiny.c
 
 lc2reader.so: $(OBJ) lc2dict.o
 	$(CPP) -fpic $(CFLAGS) $(LFLAGS) -shared -o lc2reader.so $(OBJ) lc2dict.o

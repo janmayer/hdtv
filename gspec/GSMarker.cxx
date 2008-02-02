@@ -35,7 +35,6 @@ GSMarker::GSMarker(int n, double p1, double p2, int col)
 	fP2 = p1;
   }
   
-  SetCal(NULL);
   fDash1 = fDash2 = false;
 
   TColor *color = (TColor*) (gROOT->GetListOfColors()->At(col));

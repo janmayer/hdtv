@@ -7,14 +7,14 @@ class TextSpecReader:
 	def Probe(self):
 		probe = True
 	
-		self.f.seek(0)
+		self.f.seek(64)
 		chars = self.f.read(32)
 			
 		if(len(chars) == 0):
 			probe = False
 		else:
 			for c in chars:
-				if not(c.isspace() or c.isdigit() or c == "\n"):
+				if not(c.isspace() or c.isdigit() or c in ["+", "-", ".", "\n"]):
 					probe = False
 					break
 			
@@ -41,8 +41,8 @@ class TextSpecReader:
 		
 		for line in self.f:
 			line = line.strip()
-			if line != "":
-				hist.SetBinContent(n, int(line))
+			if line != "" and line[0] != "#":
+				hist.SetBinContent(n, float(line))
 				n += 1
 				
 class LC2SpecReader:
@@ -94,7 +94,7 @@ class SpecReader:
 			
 			if reader.Probe():
 				nbins = reader.GetNumBins()
-				hist = ROOT.TH1I(histname, histtitle, nbins, -0.5, nbins - 0.5)
+				hist = ROOT.TH1D(histname, histtitle, nbins, -0.5, nbins - 0.5)
 				reader.Fill(hist)
 				reader.Close()
 				ROOT.SetOwnership(hist, True)

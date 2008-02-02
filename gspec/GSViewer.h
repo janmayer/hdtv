@@ -29,6 +29,7 @@
 #include <TApplication.h>
 #include <TGFrame.h>
 #include <TGScrollBar.h>
+#include <TGStatusBar.h>
 #include <KeySymbols.h>
 #include "GSViewport.h"
 
@@ -42,8 +43,6 @@ class GSViewer : public TGMainFrame {
   ClassDef(GSViewer, 1)
 
  protected:
-  void MapSubwindows(void);
-  void Layout(void);
   void UpdateScrollbar(void);
   Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
   Bool_t HandleKey(Event_t *ev);
@@ -51,6 +50,7 @@ class GSViewer : public TGMainFrame {
  protected:
   GSViewport *fViewport;
   TGHScrollBar *fScrollbar;
+  TGStatusBar *fStatusBar;
   string fKeyHandlerCmd;
 };
 

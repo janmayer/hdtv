@@ -17,11 +17,11 @@ def s_list():
 def s_del(sid):
 	hdtv.SpecDel(sid)
     
-hdtv.RegisterKeyHandler("hdtv.KeyHandler")
+hdtv.RegisterKeyHandler("hdtv")
 
 ### Debug ###
-s_getn(108, 0)
-hdtv.fViewport.ShowAll()
+#s_getn(108, 0)
+#hdtv.fViewport.ShowAll()
 ### End Debug ###
 
 print "Welcome to HDTV"

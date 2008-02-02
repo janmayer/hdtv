@@ -39,7 +39,8 @@
 #include <TMath.h>
 #include "GSDisplaySpec.h"
 #include "GSDisplayFunc.h"
-#include "GSMarker.h"
+#include "GSXMarker.h"
+#include "GSYMarker.h"
 
 enum EViewMode {
   kVMSolid = 1,
@@ -85,23 +86,38 @@ class GSPainter {
   inline void SetDrawable(Drawable_t drawable) { fDrawable = drawable; }
   inline void SetAxisGC(GContext_t gc) { fAxisGC = gc; }
   inline void SetClearGC(GContext_t gc) { fClearGC = gc; }
-  inline void SetOffset(double offset) { fOffset = offset; }
-  inline double GetOffset(void) { return fOffset; }
+  inline void SetXOffset(double offset) { fXOffset = offset; }
+  inline void SetYOffset(double offset) { fYOffset = offset; UpdateYZoom(); }
+  inline double GetXOffset(void) { return fXOffset; }
+  inline double GetYOffset(void) { return fYOffset; }
+  
+  double GetXOffsetDelta(int x, double f);
+  double GetYOffsetDelta(int y, double f);
+  
+  double ModLog(double x);
+  double InvModLog(double x);
 
   inline double XtoE(UInt_t x)
-	{ return (double) (x - fXBase) / fXZoom + fOffset; }
+	{ return (double) (x - fXBase) / fXZoom + fXOffset; }
   inline int EtoX(double e) 
-	{ return (int) TMath::Ceil(((e - fOffset) * fXZoom) + fXBase - 0.5); }
+	{ return (int) TMath::Ceil(((e - fXOffset) * fXZoom) + fXBase - 0.5); }
   inline double XtoE(double x)
-	{ return (x - (double) fXBase) / fXZoom + fOffset; }
+	{ return (x - (double) fXBase) / fXZoom + fXOffset; }
   inline double dXtodE(int dX)
 	{ return ((double) dX / fXZoom); }
   inline double dEtodX(double dE)
 	{ return dE * fXZoom; }
+  int CtoY(double c);
+  double YtoC(int y);
+  
+  inline Bool_t IsWithin(UInt_t x, UInt_t y) {
+    return (x >= fXBase && x <= fXBase + fWidth && y >= fYBase - fHeight && y <= fYBase);
+  }
 
   void DrawSpectrum(GSDisplaySpec *dSpec, int x1, int x2);
   void DrawFunction(GSDisplayFunc *dFunc, int x1, int x2);
-  void DrawMarker(GSMarker *marker, int x1, int x2);
+  void DrawXMarker(GSXMarker *marker, int x1, int x2);
+  void DrawYMarker(GSYMarker *marker, int x1, int x2);
   double GetYAutoZoom(GSDisplaySpec *dSpec);
   void DrawXScale(UInt_t x1, UInt_t x2);
   void ClearXScale(void);
@@ -110,24 +126,23 @@ class GSPainter {
  protected:
   void DrawYLinearScale(void);
   void DrawYLogScale(void);
+  void _DrawYLogScale(int minDist, int sgn, double cMin, double cMax);
   void DrawYMajorTic(double c, bool drawLine=true);
   void DrawString(GContext_t gc, int x, int y, char *str, size_t len,
 				  EHTextAlign hAlign, EVTextAlign vAlign);
   inline void DrawYMinorTic(double c);
-  int GetCountsAtPixel(GSDisplaySpec *dSpec, UInt_t x);
+  double GetCountsAtPixel(GSDisplaySpec *dSpec, UInt_t x);
 
   inline int GetYAtPixel(GSDisplaySpec *dSpec, UInt_t x)
 	{ return CtoY(GetCountsAtPixel(dSpec, x)); }
 
-  int CtoY(double c);
-  double YtoC(int y);
   void GetTicDistance(double tic, double& major_tic, double& minor_tic, int& n);
   void UpdateYZoom(void);
 
  protected:
   double fXZoom, fYZoom;  // px / keV, px / count
   double fXVisibleRegion, fYVisibleRegion;
-  double fOffset;
+  double fXOffset, fYOffset;
   Bool_t fLogScale;
   UInt_t fXBase, fYBase;
   UInt_t fWidth, fHeight;
