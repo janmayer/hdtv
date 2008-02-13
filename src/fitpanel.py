@@ -30,6 +30,19 @@ class FitPanel:
 		self.fMainFrame.AddFrame(self.fTailsFrame,
 				ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
 				
+		self.fFormatFrame = ROOT.TGHorizontalFrame(self.fMainFrame)
+		
+		self.fFormatList = ROOT.TGComboBox(self.fFormatFrame)
+		self.fFormatList.AddEntry("Fit and Integral", 1)
+		self.fFormatList.AddEntry("fits.dat (fit only)", 2)
+		self.fFormatList.Select(1)
+		self.fFormatList.SetHeight(24)
+		self.fFormatFrame.AddFrame(self.fFormatList,
+				ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
+		
+		self.fMainFrame.AddFrame(self.fFormatFrame,
+				ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
+				
 		## Button frame ##
 		#self.fButtonFrame = ROOT.TGHorizontalFrame(self.fMainFrame)
 

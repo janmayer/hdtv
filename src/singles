@@ -2,4 +2,4 @@
 
 export PYTHONPATH="/home/braun/hdtv/pylib"
 
-python -i hdtv-twin.py $@
+python -i singles.py $@

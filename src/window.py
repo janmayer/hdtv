@@ -182,9 +182,9 @@ class Fit:
 		
 		panel.SetText(text)
 		
-	def VolumeReport(self, cor=1.0):
+	def GetVolume(self, cor=1.0):
 		vol = ROOT.GSFitter.GetPeakVol(self.peakFunc, 0)
-		return "%.1f %.1f\n" % (vol / cor, math.sqrt(vol) / cor)
+		return (vol * cor, math.sqrt(vol) * cor)
 		
 class View:
 	def __init__(self, title=None):
@@ -310,7 +310,10 @@ class Window:
 			hist = SpecReader().Get(fname, fname, "hist")
 			if hist:
 				spec = Spectrum(fname, hist, self.fDefaultCal)
-				view.AddSpec(spec, self.fViewport, update)
+				if view:
+					view.AddSpec(spec, self.fViewport, update)
+				else:
+					spec.Realize(self.fViewport, update)
 			else:
 				print "Error: Invalid spectrum format"
 		else:

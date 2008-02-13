@@ -17,12 +17,15 @@ class Cut:
 
 		tvcmds += "cut dir open 2 %s; " % tempdir
 		tvcmds += "cut matrix open 1 %s; " % matfile
+		
+		# Sub-channel resolution is really useless here,
+		# because TV cuts only with channel resolution anyway
 
-		tvcmds += "cut marker cut enter %d; " % int(r1)
-		tvcmds += "cut marker cut enter %d; " % int(r2)
+		tvcmds += "cut marker cut enter %.1f; " % r1
+		tvcmds += "cut marker cut enter %.1f; " % r2
 		
 		for bg in self.fBgRegions:
-			tvcmds += "cut marker bg-gate enter %d;" % int(bg)
+			tvcmds += "cut marker bg-gate enter %.1f;" % bg
 
 		tvcmds += "cut create cut; "
 

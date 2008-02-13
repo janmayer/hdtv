@@ -66,6 +66,26 @@ class SpecWindow(Window):
 		
 		self.fDefaultCal = ROOT.GSCalibration(0.0, 0.5)
 		
+#		self.effCorrFactors = [0.785688,
+#0.745455248704262,
+#0.502444879686626,
+#0.93919127899607,
+#0.591291421492722,
+#0.499565459300061,
+#0.588194701170672,
+#0.34784337619857,
+#0.369238722096309]
+
+#		self.effCorrFactors = [0.785688,
+#0.77240301378647,
+#0.732177281252548,
+#0.990677898114721,
+#0.854646374216652,
+#0.730806609148624,
+#0.856947935368043,
+#0.788743455497382,
+#0.840184387142353]
+		
 		self.SetTitle("Spectrum Window")
 		
 	def KeyHandler(self, key):
@@ -121,7 +141,7 @@ class SpecWindow(Window):
 						
 		self.fViewport.Update(True)
 		
-	def Integrate(self, spec, bgFunc=None):
+	def Integrate(self, spec, bgFunc=None, corr=1.0):
 		if not self.fPendingMarker and len(self.fRegionMarkers) == 1:
 			ch_1 = self.E2Ch(self.fRegionMarkers[0].e1)
 			ch_2 = self.E2Ch(self.fRegionMarkers[0].e2)
@@ -143,7 +163,10 @@ class SpecWindow(Window):
 			                          
 			#self.fFitPanel.SetText("%.2f %.2f %.2f" % (total_int, bg_int, total_int - bg_int))
 			
-			return total_int - bg_int
+			integral = total_int - bg_int
+			integral_error = math.sqrt(total_int + bg_int)
+			
+			return (integral * corr, integral_error * corr)
 			
 	def IntegrateAll(self):
 		self.Integrate(self.fViews[0].fSpectra[0])
@@ -154,7 +177,10 @@ class SpecWindow(Window):
 			if not self.fFitPanel:
 				self.fFitPanel = FitPanel()
 				
-			reportStr = ""
+			if self.fFitPanel.fFormatList.GetSelected() == 1:
+				reportStr = "Fit Error Int Error Mean Delta/2\n"
+			else:
+				reportStr = ""
 			i = 0
 			
 			for view in self.fViews:
@@ -186,7 +212,19 @@ class SpecWindow(Window):
 				                   self.fViewport)
 				                   
 				# view.fCurrentFit.Report(self.fFitPanel)
-				reportStr += view.fCurrentFit.VolumeReport(1.0) #self.effCorFactors[i])
+				fit_vol = view.fCurrentFit.GetVolume()
+				int_vol = self.Integrate(spec, bgFunc)
+				
+				if self.fFitPanel.fFormatList.GetSelected() == 1:
+					reportStr += "%.1f %.1f %.1f %.1f %.1f %.1f\n" % (fit_vol[0], fit_vol[1],
+																	  int_vol[0], int_vol[1],
+																	  (fit_vol[0] + int_vol[0]) / 2.0,
+																	  abs(fit_vol[0] - int_vol[0]) / 2.0)
+				else:
+					vol = (fit_vol[0] + int_vol[0]) / 2.0
+					error = max(abs(fit_vol[0] - int_vol[0]) / 2.0, int_vol[1])
+					reportStr += "%.1f %.1f\n" % (vol, error)
+				
 				i += 1
 				# reportStr += "%.2f %.2f\n" % (ROOT.GSFitter.GetPeakVol(view.fCurrentFit.peakFunc, 0),
 				#							  self.Integrate(view.fSpectra[0]))
@@ -204,10 +242,10 @@ class HDTV:
 		
 		## Init environment ##
 		view = self.fCutWindow.AddView()
-		self.fCutWindow.SpecGet("/mnt/omega/braun/full/mat/all/all.pry", view)
+		self.fCutWindow.SpecGet("/mnt/omega/braun/full_test/mat/all/all.pry", view)
 		self.fCutWindow.SetView(0)
 		self.fCutWindow.ShowFull()
-		self.fMatbase = "/mnt/omega/braun/full/mat"
+		self.fMatbase = "/mnt/omega/braun/full_test/mat"
 		
 		## Debug ##
 		#view = self.fSpecWindow.AddView("debug")

@@ -1,0 +1,12 @@
+#!/usr/bin/python
+from wiedenhoefer import WiedenhoeferEff
+
+E = 908.97
+
+for det in range(0, 16):
+	eff = WiedenhoeferEff()
+	eff.fromfile("/mnt/omega/braun/effcal/ge%d.sum.eff" % det,
+	             "/mnt/omega/braun/effcal/ge%d.sum.kovar" % det)
+	             
+	print "%f %f" % (eff.eff(E), eff.effErr(E))
+	

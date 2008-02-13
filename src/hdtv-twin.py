@@ -3,8 +3,11 @@ from __future__ import with_statement
 import ROOT
 import math
 import atexit
-from hdtv import HDTV
+from window import Window, XMarker
 from diploma import Horus88Zr
+
+if ROOT.gSystem.Load("../lib/gspec.so") < 0:
+	raise RuntimeError, "Library not found (gspec.so)"
 
 class Marker:
 	def __init__(self, pos, color=6):
@@ -16,27 +19,27 @@ class Marker:
 	def SetPos(self, viewport, pos):
 		self.pos = pos
 		if self.mid != None:
-			viewport.GetMarker(self.mid).SetPos(pos)
+			viewport.GetXMarker(self.mid).SetPos(pos)
 			viewport.Update(True)
 			
 	def SetDash(self, viewport, dash):
 		self.dash = dash
 		if self.mid != None:
-			viewport.GetMarker(self.mid).SetDash(self.dash)
+			viewport.GetXMarker(self.mid).SetDash(self.dash)
 			viewport.Update(True)
 		
 	def Realize(self, viewport, update=True):
 		if self.mid == None:
-			self.mid = viewport.AddMarker(self.pos, self.color, update)
+			self.mid = viewport.AddXMarker(self.pos, self.color, update)
 			
 	def Delete(self, viewport, update=True):
 		if self.mid != None:
-			viewport.DeleteMarker(self.mid, update)
+			viewport.DeleteXMarker(self.mid, update)
 			self.mid = None
 
-class TWin(HDTV):
+class TWin(Window):
 	def __init__(self):
-		HDTV.__init__(self)
+		Window.__init__(self)
 		self.experiment = Horus88Zr()
 		self.fCurN = 0
 		self.fSpecNames = []
@@ -98,7 +101,7 @@ class TWin(HDTV):
 		
 		self.fCurN += step
 		
-		HDTV.SpecGet(self, self.experiment.TWinFile(self.fCurN), 5, False)
+		self.SpecGet(self.experiment.TWinFile(self.fCurN), None, False)
 		for marker in self.fMarkers[self.fCurN]:
 			marker.Realize(self.fViewport, False)	
 		
@@ -133,7 +136,7 @@ class TWin(HDTV):
 				self.rightMarker.Delete(self.fViewport)
 						
 	def KeyHandler(self, key):
-		if HDTV.KeyHandler(self, key):
+		if Window.KeyHandler(self, key):
 			pass
 		elif key == ROOT.kKey_m:
 			if len(self.fMarkers[self.fCurN]) < 4:
