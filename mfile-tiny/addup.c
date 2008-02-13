@@ -102,7 +102,7 @@ int readShift(double *cal, char *fname)
   return 0;
 }
 
-int main()
+int main(int argc, char **argv)
 {
   double *sum;
   double cal[4];
@@ -110,6 +110,11 @@ int main()
   FILE *runFile;
   int run;
   char fileName[256];
+  
+  if(argc != 3) {
+    fprintf(stderr, "Usage: %s <det> <pr_det>\n", argv[0]);
+    return -1;
+  }
   
   sum = allocSum();
   
@@ -120,23 +125,24 @@ int main()
     return -1;
   }
   
-  if(readCal(cal, "ge5.cal") < 0) {
+  snprintf(fileName, 256, "/home/braun/Diplom/shiftfiles/%s.cal", argv[2]);
+  if(readCal(cal, fileName) < 0) {
     freeSum(sum);
     fclose(runFile);
     return -1;
   }
   
   while(fscanf(runFile, "%d", &run) != EOF) {
-    printf("Info: processing run %d\n", run);
+    //printf("Info: processing run %d\n", run);
     
-    snprintf(fileName, 256, "ge5.%04d_shd", run);
+    snprintf(fileName, 256, "/home/braun/Diplom/shiftfiles/%04d/%s.%04d_shd", run, argv[2], run);
     if(readShift(shift, fileName) < 0) {
       freeSum(sum);
       fclose(runFile);
       return -1;
     }
   
-    snprintf(fileName, 256, "ge5.%04d", run);
+    snprintf(fileName, 256, "/home/braun/Diplom/88Zr_angle_singles/%04d/%s.%04d", run, argv[1], run);
     if(readAndAddSpec(sum, fileName, shift, cal) < 0) {
       fclose(runFile);
       freeSum(sum);
@@ -144,7 +150,8 @@ int main()
     }
   }
   
-  if(writeSpec(sum, "sum.asc") < 0) {
+  snprintf(fileName, 256, "%s.sum", argv[1]);
+  if(writeSpec(sum, fileName) < 0) {
     fclose(runFile);
     freeSum(sum);
     return -1;
