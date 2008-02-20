@@ -11,7 +11,7 @@ void print_usage(char *progname)
 {
   fprintf(stderr, "%s -- Program to convert spectra from LC2 to ASCII\n", progname);
   fprintf(stderr, "This program contains code from the mfile library.\n\n");
-  fprintf(stderr, "Usage: %s [-f] [-h] <specfile> [<specfile>, ...]\n", progname);
+  fprintf(stderr, "Usage: %s [-f] [-q] [-h] <specfile> [<specfile>, ...]\n", progname);
   fprintf(stderr, "<specfile> is a spectrum in LC2 format.\nThe ASCII spectrum is named <specfile>.asc\n\n");
   fprintf(stderr, "-f: Overwrite ASCII file if it already exists\n");
   fprintf(stderr, "-q: Quiet operation\n");

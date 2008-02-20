@@ -9,10 +9,10 @@ OBJ= $(SOURCES:.cxx=.o)
 
 .PHONY: clean all
 
-all: lc2reader.so conv
+all: lc2reader.so lc2ascii addup
 
-conv: conv.c mfile-tiny.c mfile-tiny.h
-	$(CC) -o conv conv.c mfile-tiny.c
+lc2ascii: lc2ascii.c mfile-tiny.c mfile-tiny.h
+	$(CC) -o lc2ascii lc2ascii.c mfile-tiny.c
 	
 addup: addup.c mfile-tiny.c mfile-tiny.h
 	$(CC) -o addup addup.c mfile-tiny.c
@@ -30,4 +30,4 @@ clean:
 	rm -f lc2dict.cxx lc2dict.h
 	rm -f *.o
 	rm -f lc2reader.so
-	rm -f conv
+	rm -f lc2ascii
