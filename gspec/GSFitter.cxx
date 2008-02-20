@@ -188,7 +188,7 @@ TF1 *GSFitter::Fit(TH1 *hist, TF1 *bgFunc)
   
     val = (double) hist->GetBinContent((int) TMath::Ceil(*iter - 0.5));
     func->SetParameter(5*i + 0 + 3, val);
-    func->SetParameter(5*i + 1 + 3, *iter);
+    func->FixParameter(5*i + 1 + 3, *iter);
     func->SetParameter(5*i + 2 + 3, 1.0);
     /* Negative values for the tails means to fit them */
     if(fLeftTails < 0) {

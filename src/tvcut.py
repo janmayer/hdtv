@@ -8,7 +8,7 @@ class Cut:
 		self.fBgRegions = []
 		
 	def Cut(self, matfile, r1, r2):
-		tempdir = "/home/braun/temp"
+		tempdir = "/home/braun/Diplom/temp"
 		fname = "%032X.asc" % random.randint(0, 2**128)
 	
 		tvcmds  = "cut activate 0; "
@@ -36,7 +36,7 @@ class Cut:
 		os.spawnl(os.P_WAIT, "/usr/bin/xvfb-run", 
         		             "/usr/bin/xvfb-run",
         		             "-w", "0",
-        		             "/usr/local/bin/tv", "-src", "-rc", "-e", tvcmds)
+        		             "/ikp/bin/tv", "-src", "-rc", "-e", tvcmds)
         		             
 		time.sleep(0.5)
 

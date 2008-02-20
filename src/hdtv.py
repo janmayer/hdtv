@@ -66,26 +66,6 @@ class SpecWindow(Window):
 		
 		self.fDefaultCal = ROOT.GSCalibration(0.0, 0.5)
 		
-#		self.effCorrFactors = [0.785688,
-#0.745455248704262,
-#0.502444879686626,
-#0.93919127899607,
-#0.591291421492722,
-#0.499565459300061,
-#0.588194701170672,
-#0.34784337619857,
-#0.369238722096309]
-
-#		self.effCorrFactors = [0.785688,
-#0.77240301378647,
-#0.732177281252548,
-#0.990677898114721,
-#0.854646374216652,
-#0.730806609148624,
-#0.856947935368043,
-#0.788743455497382,
-#0.840184387142353]
-		
 		self.SetTitle("Spectrum Window")
 		
 	def KeyHandler(self, key):
@@ -221,8 +201,10 @@ class SpecWindow(Window):
 																	  (fit_vol[0] + int_vol[0]) / 2.0,
 																	  abs(fit_vol[0] - int_vol[0]) / 2.0)
 				else:
-					vol = (fit_vol[0] + int_vol[0]) / 2.0
-					error = max(abs(fit_vol[0] - int_vol[0]) / 2.0, int_vol[1])
+					#vol = (fit_vol[0] + int_vol[0]) / 2.0
+					#error = max(abs(fit_vol[0] - int_vol[0]) / 2.0, int_vol[1])
+					vol = fit_vol[0]
+					error = fit_vol[1]
 					reportStr += "%.1f %.1f\n" % (vol, error)
 				
 				i += 1
@@ -242,10 +224,10 @@ class HDTV:
 		
 		## Init environment ##
 		view = self.fCutWindow.AddView()
-		self.fCutWindow.SpecGet("/mnt/omega/braun/full_test/mat/all/all.pry", view)
+		self.fCutWindow.SpecGet("/data/braun/full_test/mat/all/all.pry", view)
 		self.fCutWindow.SetView(0)
 		self.fCutWindow.ShowFull()
-		self.fMatbase = "/mnt/omega/braun/full_test/mat"
+		self.fMatbase = "/data/braun/full_test/mat"
 		
 		## Debug ##
 		#view = self.fSpecWindow.AddView("debug")
