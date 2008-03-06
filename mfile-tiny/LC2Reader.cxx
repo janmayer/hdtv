@@ -83,9 +83,9 @@ int LC2Reader::Probe(void)
 		return 0;
 }
 
-int LC2Reader::GetNumBins(void)
+int LC2Reader::EnsureHeader(void)
 {
-	if(handle <= 0)
+    if(handle <= 0)
 		return kRuntimeError;
 
 	if(!header) {
@@ -97,7 +97,25 @@ int LC2Reader::GetNumBins(void)
 			return kIOError;
 	}
 	
+	return kSuccess;
+}
+
+int LC2Reader::GetNumBins(void)
+{
+	int hstat = EnsureHeader();
+	if(hstat != kSuccess)
+	    return hstat;
+	
 	return header->columns;
+}
+
+int LC2Reader::GetNumLines(void)
+{
+	int hstat = EnsureHeader();
+	if(hstat != kSuccess)
+	    return hstat;
+	
+	return header->lines;
 }
 
 int LC2Reader::Fill(TH1 *hist, int idx)
@@ -105,18 +123,10 @@ int LC2Reader::Fill(TH1 *hist, int idx)
 	char *cspec;
 	int *spec;
 	int i;
+	int hstat = EnsureHeader();
 	
-	if(handle <= 0)
-		return kRuntimeError;
-
-	if(!header) {
-		header = alloc_lc_header();
-		if(!header)
-			return kMemError;
-			
-		if(read_lc_header(handle, header) < 0)
-			return kIOError;
-	}
+	if(hstat != kSuccess)
+	    return hstat;
 	
 	if(!poslen_tbl) {
 		poslen_tbl = alloc_poslen_tbl(header);
@@ -154,4 +164,66 @@ int LC2Reader::Fill(TH1 *hist, int idx)
 	
 	free_cspec(cspec);
 	free_spec(spec);
+	
+	return kSuccess;
 }
+
+int LC2Reader::FillMatrix(TH2 *hist)
+{
+	char *cspec;
+	int *spec;
+	int i, idx;
+	int result;
+	
+	result = EnsureHeader();
+	if(result != kSuccess)
+	    return result;
+	
+	if(!poslen_tbl) {
+		poslen_tbl = alloc_poslen_tbl(header);
+		if(!poslen_tbl)
+			return kMemError;
+			
+		if(read_poslen_tbl(handle, header, poslen_tbl) < 0)
+			return kIOError;
+	}
+	
+	spec = alloc_spec(header->columns);
+	if(!spec) {
+		free_cspec(cspec);
+		return kMemError;
+	}
+	
+	result = kSuccess;
+	
+	for(idx=0; idx < header->lines;	idx++) {
+		cspec = alloc_cspec(idx, poslen_tbl);
+		if(!cspec) {
+			result = kMemError;
+			break;
+		}
+	
+		if(read_cspec(handle, idx, poslen_tbl, cspec) < 0) {
+			result = kIOError;
+			free_cspec(cspec);
+			break;
+		}
+	
+		if(lc2_uncompress(spec, cspec, header->columns) != header->columns) {
+			result = kRuntimeError;
+			free_cspec(cspec);
+			break;
+		}
+	
+		for(i=0; i<header->columns; i++) {
+			hist->SetBinContent(i+1, idx, (double)spec[i]);
+		}
+		
+		free_cspec(cspec);
+	}
+	
+	free_spec(spec);
+	
+	return result;
+}
+

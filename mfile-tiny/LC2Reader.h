@@ -1,4 +1,5 @@
 #include <TH1.h>
+#include <TH2.h>
 #include "mfile-tiny.h"
 
 enum EReadError {
@@ -16,9 +17,13 @@ class LC2Reader {
   int Close(void);
   int Probe(void);
   int GetNumBins(void);
+  int GetNumLines(void);
   int Fill(TH1 *hist, int idx=0);
+  int FillMatrix(TH2 *hist);
   
  private:
+  int EnsureHeader(void);
+ 
   int handle;
   lc_header *header;
   lc_poslen *poslen_tbl;

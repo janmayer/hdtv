@@ -79,8 +79,14 @@ class LC2SpecReader:
 	def GetNumBins(self):
 		return self._handle_error(self.reader.GetNumBins())
 		
+	def GetNumLines(self):
+		return self._handle_error(self.reader.GetNumLines())
+		
 	def Fill(self, hist):
 		self._handle_error(self.reader.Fill(hist))
+		
+	def FillMatrix(self, hist):
+		self._handle_error(self.reader.FillMatrix(hist))
 		
 class SpecReader:
 	def __init__(self):
@@ -104,3 +110,18 @@ class SpecReader:
 		
 		return hist
 		
+	def GetMatrix(self, filename, histname, histtitle):
+		hist = None
+	
+		reader = LC2SpecReader(filename)
+			
+		if reader.Probe():
+			nbins = reader.GetNumBins()
+			nlines = reader.GetNumLines()
+			hist = ROOT.TH2I(histname, histtitle, nbins, -0.5, nbins - 0.5, nlines, -0.5, nlines - 0.5)
+			reader.FillMatrix(hist)
+			ROOT.SetOwnership(hist, True)
+		
+		reader.Close()
+
+		return hist
