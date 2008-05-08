@@ -96,7 +96,7 @@ Bool_t MTView::HandleKey(Event_t *ev)
 	    fZVisibleRegion /= 2;
 	    Update();
 	    break;
-	  case kKey_y:
+	  case kKey_z:
 	    ZoomAroundCursor(2.0);
 	    break;
 	  case kKey_x:
