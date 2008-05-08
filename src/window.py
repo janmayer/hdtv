@@ -299,6 +299,8 @@ class Window:
 			return False
 			
 	def SpecGet(self, fname, view, update=True):
+		spec = None
+	
 		if self.FileExists(fname):
 			pass
 		elif self.fSpecPath and self.FileExists(self.fSpecPath + "/" + fname):
@@ -318,6 +320,8 @@ class Window:
 				print "Error: Invalid spectrum format"
 		else:
 			print "Error: File not found"
+			
+		return spec
 		
 	#def SpecList(self):
 	#	if len(self.fSpectra) == 0:

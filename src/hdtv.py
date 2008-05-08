@@ -224,10 +224,10 @@ class HDTV:
 		
 		## Init environment ##
 		view = self.fCutWindow.AddView()
-		self.fCutWindow.SpecGet("/data/braun/full_test/mat/all/all.pry", view)
+		self.fCutWindow.SpecGet("/home/braun/Diplom/final/mat/all/all.pry", view)
 		self.fCutWindow.SetView(0)
 		self.fCutWindow.ShowFull()
-		self.fMatbase = "/data/braun/full_test/mat"
+		self.fMatbase = "/home/braun/Diplom/final/mat"
 		
 		## Debug ##
 		#view = self.fSpecWindow.AddView("debug")

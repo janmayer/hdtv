@@ -111,14 +111,14 @@ int main(int argc, char **argv)
   int run;
   char fileName[256];
   
-  if(argc != 3) {
-    fprintf(stderr, "Usage: %s <det> <pr_det>\n", argv[0]);
+  if(argc != 4) {
+    fprintf(stderr, "Usage: %s <det> <pr_det> <runs>\n", argv[0]);
     return -1;
   }
   
   sum = allocSum();
   
-  runFile = fopen("runs", "r");
+  runFile = fopen(argv[3], "r");
   if(!runFile) {
     fprintf(stderr, "Error: failed to open runs file\n");
     freeSum(sum);

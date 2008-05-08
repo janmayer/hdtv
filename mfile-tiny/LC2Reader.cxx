@@ -6,8 +6,6 @@
 #include <unistd.h>
 #include <iostream>
 
-using namespace std;
-
 /* See root.cern.ch/root/Using.html for some info on adding classes to ROOT */
 
 LC2Reader::LC2Reader()
