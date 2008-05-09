@@ -12,6 +12,7 @@ HEADERS= $(EXPHEADERS) GSPainter.h
 OBJ= $(SOURCES:.cxx=.o)
 DESTDIR = ../../lib
 
+.PHONY: all build copy clean
 
 all: build copy
 

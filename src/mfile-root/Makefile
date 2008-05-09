@@ -10,8 +10,11 @@ LFLAGS=$(shell root-config --glibs) -L/ikpv2/lib -lmfile
 SOURCES= MFileHist.cxx
 HEADERS= MFileHist.h
 OBJ= $(SOURCES:.cxx=.o)
+DESTDIR= ../../lib
 
-.PHONY: build clean
+.PHONY: all build copy clean
+
+all: build copy
 
 build: mfile-root.so
 
@@ -29,3 +32,5 @@ mfdict.cxx:  Makefile $(HEADERS)
 %.o: %.cxx $(HEADERS) Makefile
 	$(CPP) $(CFLAGS) -fpic -c $<
 
+copy:
+	cp mfile-root.so $(DESTDIR)

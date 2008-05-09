@@ -298,7 +298,7 @@ class Window:
 		except OSError:
 			return False
 			
-	def SpecGet(self, fname, view, update=True):
+	def SpecGet(self, fname, view=None, update=True):
 		spec = None
 	
 		if self.FileExists(fname):
