@@ -10,7 +10,7 @@ SOURCES= GSDisplaySpec.cxx GSDisplayFunc.cxx GSDisplayObj.cxx GSViewport.cxx GSV
 EXPHEADERS= GSViewer.h GSViewport.h GSDisplaySpec.h GSDisplayFunc.h GSDisplayObj.h GSMarker.h GSXMarker.h GSYMarker.h GSCalibration.h GSFitter.h
 HEADERS= $(EXPHEADERS) GSPainter.h
 OBJ= $(SOURCES:.cxx=.o)
-DESTDIR = ../lib
+DESTDIR = ../../lib
 
 
 all: build copy

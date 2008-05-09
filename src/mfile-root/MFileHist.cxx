@@ -84,7 +84,7 @@ TH1 *MFileHist::FillTH1(TH1 *hist, int level, int line)
     }
     
 	for(int i=0; i < fInfo->columns; i++) {
-		hist->SetBinContent(i, buf[i]);
+		hist->SetBinContent(i+1, buf[i]);
 	}
 	
 	delete buf;
