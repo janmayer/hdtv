@@ -6,10 +6,11 @@ LFLAGS=$(shell root-config --glibs)
 SOURCES= LC2Reader.cxx mfile-tiny.c
 HEADERS= LC2Reader.h
 OBJ= $(SOURCES:.cxx=.o)
+DESTDIR = ../lib
 
 .PHONY: clean all
 
-all: lc2reader.so lc2ascii addup
+all: lc2reader.so lc2ascii addup copy
 
 lc2ascii: lc2ascii.c mfile-tiny.c mfile-tiny.h
 	$(CC) -o lc2ascii lc2ascii.c mfile-tiny.c
@@ -31,3 +32,6 @@ clean:
 	rm -f *.o
 	rm -f lc2reader.so
 	rm -f lc2ascii
+
+copy:
+	cp lc2reader.so $(DESTDIR)

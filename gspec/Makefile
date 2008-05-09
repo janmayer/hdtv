@@ -10,15 +10,12 @@ SOURCES= GSDisplaySpec.cxx GSDisplayFunc.cxx GSDisplayObj.cxx GSViewport.cxx GSV
 EXPHEADERS= GSViewer.h GSViewport.h GSDisplaySpec.h GSDisplayFunc.h GSDisplayObj.h GSMarker.h GSXMarker.h GSYMarker.h GSCalibration.h GSFitter.h
 HEADERS= $(EXPHEADERS) GSPainter.h
 OBJ= $(SOURCES:.cxx=.o)
+DESTDIR = ../lib
 
-.PHONY: build clean
+
+all: build copy
 
 build: gspec.so
-
-clean:
-	-/bin/rm -f gsdict.cxx gsdict.h gsdict.o
-	-/bin/rm -f *~
-	-/bin/rm -f $(OBJ)
 
 gspec.so: $(OBJ) gsdict.o Makefile
 	$(CPP) -fpic $(CFLAGS) $(LFLAGS) -shared -o gspec.so $(OBJ) gsdict.o
@@ -29,3 +26,10 @@ gsdict.cxx:  Makefile $(EXPHEADERS)
 %.o: %.cxx $(HEADERS) Makefile
 	$(CPP) $(CFLAGS) -fpic -c $<
 
+clean:
+	rm -f gsdict.cxx gsdict.h gsdict.o
+	rm -f *~
+	rm -f $(OBJ)
+
+copy:
+	cp gspec.so $(DESTDIR)
