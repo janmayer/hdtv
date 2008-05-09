@@ -110,6 +110,9 @@ class Fit:
 		self.fPeakMarkerIDs = []
 		
 	def Realize(self, viewport, update=True):
+		""" 
+		Display the resulting fit 
+		"""
 		if self.bgFunc and self.bgFuncId == None:
 			self.bgFuncId = viewport.AddFunc(self.bgFunc, 25, False)
 			if self.cal:
@@ -149,7 +152,11 @@ class Fit:
 		self.Delete(False)
 		self.Realize()
 		
-	def Report(self, panel):
+	def Report(self, panel=None):
+		"""
+		Report the results of a fit to the user either via a fitpanel or 
+	    if no panel is defined via stdout.
+		"""
 		if not self.peakFunc:
 			return
 	
@@ -157,30 +164,51 @@ class Fit:
 		func = self.peakFunc
 		numPeaks = int(func.GetParameter(0))
 		
+		# general information
 		text += "Chi^2: %.3f\n" % self.peakFunc.GetChisquare()
-		text += "Background: %.2f %.4f\n" % (func.GetParameter(1), func.GetParameter(2))
-		text += "pos        fwhm    vol      tl      tr\n"
+		text += "Background: %.2f %.4f\n" % (func.GetParameter(1),
+											 func.GetParameter(2))
 		
+		# information for each peak
 		for i in range(0, numPeaks):
-			text += "%10.3f "  % ROOT.GSFitter.GetPeakPos(func, i)
-			text += "%7.3f "  % ROOT.GSFitter.GetPeakFWHM(func, i)
-			text += "%8.1f "  % ROOT.GSFitter.GetPeakVol(func, i)
+			# position (uncalibrated or calibrated)
+			pos= ROOT.GSFitter.GetPeakPos(func, i)
+			if self.cal:
+				pos = self.cal.Ch2E(pos)
+			# fwhm (uncalibrated or calibrated)
+			fwhm = ROOT.GSFitter.GetPeakFWHM(func, i)
+			if self.cal:
+				fwhm = self.cal.Ch2E(pos+fwhm)-self.cal.Ch2E(pos-fwhm)
+			# volume
+			vol = ROOT.GSFitter.GetPeakVol(func, i)
 			
+			# create the output
+			text += "%10.3f "  % pos
+			text += "%7.3f "  % fwhm
+			text += "%8.1f "  % vol
+			
+			# left tail
 			lt = ROOT.GSFitter.GetPeakLT(func, i)
 			if lt > 1000:
 				text += "None   "
 			else:
 				text += "%7.3f "  % lt
 				
+			# right tail
 			rt = ROOT.GSFitter.GetPeakRT(func, i)
 			if rt > 1000:
 				text += "None   "
 			else:
 				text += "%7.3f "  % rt
-				
-			text += "\n"
 		
-		panel.SetText(text)
+			text += "\n"
+	
+		if panel:
+			# output to fitpanel 
+			panel.SetText(text)
+		else:
+			# or to stdout
+			print text
 		
 	def GetVolume(self, cor=1.0):
 		vol = ROOT.GSFitter.GetPeakVol(self.peakFunc, 0)
