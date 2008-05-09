@@ -1,3 +1,10 @@
+#!/usr/bin/python -i
+# -*- coding: utf-8 -*-
+
+# set the pythonpath
+import sys
+sys.path.append("../pylib")
+
 import ROOT
 from hdtv import HDTV
 

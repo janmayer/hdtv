@@ -1,5 +1,0 @@
-#!/bin/bash
-
-export PYTHONPATH="/home/braun/hdtv/pylib"
-
-python -i singles.py $@

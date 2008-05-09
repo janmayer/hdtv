@@ -1,4 +1,10 @@
+#!/usr/bin/python -i
+# -*- coding: utf-8 -*-
 from __future__ import with_statement
+
+# set the pythonpath
+import sys
+sys.path.append("/home/braun/hdtv/pylib")
 
 import ROOT
 import math
