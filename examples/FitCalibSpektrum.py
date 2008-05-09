@@ -12,7 +12,7 @@ sys.path.append("..")
 
 #import some modules
 import ROOT
-from hdtv.window import Window, Fit
+from hdtv.display import Window, Fit
 
 # load gspec library 
 ROOT.TH1.AddDirectory(ROOT.kFALSE)
