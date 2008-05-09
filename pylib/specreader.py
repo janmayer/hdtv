@@ -1,1 +1,0 @@
-../mfile-tiny/specreader.py
