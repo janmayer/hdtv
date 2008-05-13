@@ -7,8 +7,8 @@ ROOTCINT=rootcint
 INCL_PATH=-I/ikpv2/include
 CFLAGS=$(shell root-config --cflags) $(INCL_PATH)
 LFLAGS=$(shell root-config --glibs) -L/ikpv2/lib -lmfile
-SOURCES= MFileHist.cxx
-HEADERS= MFileHist.h
+SOURCES= MFileHist.cxx VMatrix.cxx
+HEADERS= MFileHist.h VMatrix.h
 OBJ= $(SOURCES:.cxx=.o)
 DESTDIR= ../../lib
 
@@ -32,5 +32,7 @@ mfdict.cxx:  Makefile $(HEADERS)
 %.o: %.cxx $(HEADERS) Makefile
 	$(CPP) $(CFLAGS) -fpic -c $<
 
-copy:
+copy: $(DESTDIR)/mfile-root.so
+
+$(DESTDIR)/mfile-root.so: mfile-root.so
 	cp mfile-root.so $(DESTDIR)
