@@ -1,6 +1,7 @@
 import ROOT
 import math
 import os
+import gspec
 from specreader import *
 
 class Spectrum:
@@ -288,6 +289,13 @@ class Window:
 		
 		self.fOverlayView.Realize(self.fViewport, False)
 		
+		self.fKeyDispatch = ROOT.TPyDispatcher(self._KeyHandler)
+		self.fViewer.Connect("KeyPressed()", "TPyDispatcher", self.fKeyDispatch,
+			"Dispatch()")
+			
+	def _KeyHandler(self):
+		self.KeyHandler(self.fViewer.fKeySym)
+		
 	def E2Ch(self, e):
 		if self.fDefaultCal:
 			return self.fDefaultCal.E2Ch(e)
@@ -300,9 +308,6 @@ class Window:
 		else:
 			return ch
 				
-	def RegisterKeyHandler(self, cmd):
-		self.fViewer.RegisterKeyHandler(cmd)
-		
 	def AddView(self, title=None):
 		view = View(title)
 		self.fViews.append(view)

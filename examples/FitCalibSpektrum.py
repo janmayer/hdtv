@@ -14,16 +14,11 @@ sys.path.append("..")
 import ROOT
 from hdtv.display import Window, Fit
 
-# load gspec library 
+# Don't add created spectra to the ROOT directory
 ROOT.TH1.AddDirectory(ROOT.kFALSE)
-if ROOT.gSystem.Load("../lib/gspec.so") < 0:
-	raise RuntimeError, "Library not found (gspec.so)"
-
 
 # create a standard window
 win = Window()
-# init key handling for that window
-win.RegisterKeyHandler("win.KeyHandler")
 # add a calibration
 win.fDefaultCal = ROOT.GSCalibration(-39.0135, 0.1705)
 # load the spectrum 

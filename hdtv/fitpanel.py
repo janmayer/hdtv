@@ -2,6 +2,8 @@ import ROOT
 
 class FitPanel:
 	def __init__(self):
+		self._dispatchers = []
+	
 		self.fMainFrame = ROOT.TGMainFrame(ROOT.gClient.GetRoot(), 300, 500)
 		
 		## Tails frame ##
@@ -30,32 +32,33 @@ class FitPanel:
 		self.fMainFrame.AddFrame(self.fTailsFrame,
 				ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
 				
-		self.fFormatFrame = ROOT.TGHorizontalFrame(self.fMainFrame)
+		#self.fFormatFrame = ROOT.TGHorizontalFrame(self.fMainFrame)
 		
-		self.fFormatList = ROOT.TGComboBox(self.fFormatFrame)
-		self.fFormatList.AddEntry("Fit and Integral", 1)
-		self.fFormatList.AddEntry("fits.dat (fit only)", 2)
-		self.fFormatList.Select(1)
-		self.fFormatList.SetHeight(24)
-		self.fFormatFrame.AddFrame(self.fFormatList,
-				ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
+		#self.fFormatList = ROOT.TGComboBox(self.fFormatFrame)
+		#self.fFormatList.AddEntry("Fit and Integral", 1)
+		#self.fFormatList.AddEntry("fits.dat (fit only)", 2)
+		#self.fFormatList.Select(1)
+		#self.fFormatList.SetHeight(24)
+		#self.fFormatFrame.AddFrame(self.fFormatList,
+	    #			ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
 		
-		self.fMainFrame.AddFrame(self.fFormatFrame,
-				ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
+		#self.fMainFrame.AddFrame(self.fFormatFrame,
+		#		ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
 				
 		## Button frame ##
-		#self.fButtonFrame = ROOT.TGHorizontalFrame(self.fMainFrame)
+		self.fButtonFrame = ROOT.TGHorizontalFrame(self.fMainFrame)
 
-		#self.fFitButton = ROOT.TGTextButton(self.fButtonFrame, "Fit")
-		#self.fButtonFrame.AddFrame(self.fFitButton)
-		# At least, it won't work this way...
-		## ROOT.TQObject.Connect(self.fFitButton, SIGNAL("Clicked()"), self.FitClicked)
+		self.fFitButton = ROOT.TGTextButton(self.fButtonFrame, "Fit")
+		disp = ROOT.TPyDispatcher(self.FitClicked)
+		self.fFitButton.Connect("Clicked()", "TPyDispatcher", disp, "Dispatch()")
+		self._dispatchers.append(disp)
+		self.fButtonFrame.AddFrame(self.fFitButton)
 						
-		#self.fClearButton = ROOT.TGTextButton(self.fButtonFrame, "Clear")
-		#self.fButtonFrame.AddFrame(self.fClearButton)
+		self.fClearButton = ROOT.TGTextButton(self.fButtonFrame, "Clear")
+		self.fButtonFrame.AddFrame(self.fClearButton)
 		
-		#self.fMainFrame.AddFrame(self.fButtonFrame,
-		#		ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
+		self.fMainFrame.AddFrame(self.fButtonFrame,
+				ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
 				
 		## Fit info ##
 		self.fFitInfo = ROOT.TGTextView(self.fMainFrame, 400, 500)
@@ -66,6 +69,9 @@ class FitPanel:
 		self.fMainFrame.MapSubwindows()
 		self.fMainFrame.Resize(self.fMainFrame.GetDefaultSize())
 		self.fMainFrame.MapWindow()
+		
+	def FitClicked(self):
+		self.fFitInfo.AddLine("Fit Clicked")
 		
 	def SetText(self, text):
 		self.fFitInfo.LoadBuffer(text)
@@ -89,5 +95,3 @@ class FitPanel:
 				return float(self.fRTValue.GetText())
 		else:
 			return 100000.0   # Effectively disabled
-	
-

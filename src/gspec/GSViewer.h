@@ -23,9 +23,6 @@
 #ifndef __GSViewer_h__
 #define __GSViewer_h__
 
-#include <string>
-#include <sstream>
-
 #include <TApplication.h>
 #include <TGFrame.h>
 #include <TGScrollBar.h>
@@ -33,12 +30,19 @@
 #include <KeySymbols.h>
 #include "GSViewport.h"
 
+#include <iostream>
+
+#include <RQ_OBJECT.h>
+
 class GSViewer : public TGMainFrame {
+  RQ_OBJECT("GSViewer")
  public:
   GSViewer(UInt_t w=800, UInt_t h=400, const char *title = "gSpec");
   ~GSViewer(void);
-  void RegisterKeyHandler(const char *cmd);
   inline const GSViewport *GetViewport(void) { return fViewport; }
+  void KeyPressed() {   Emit("KeyPressed()"); }  // *SIGNAL*
+  
+  UInt_t fKeySym; // temporary hack
   
   ClassDef(GSViewer, 1)
 
@@ -51,7 +55,6 @@ class GSViewer : public TGMainFrame {
   GSViewport *fViewport;
   TGHScrollBar *fScrollbar;
   TGStatusBar *fStatusBar;
-  string fKeyHandlerCmd;
 };
 
 #endif

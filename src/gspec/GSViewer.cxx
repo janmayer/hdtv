@@ -20,9 +20,6 @@
  * 
  */
 
-#include <Riostream.h>
-#include <TPython.h>
-
 #include "GSViewer.h"
 
 GSViewer::GSViewer(UInt_t w, UInt_t h, const char *title)
@@ -58,22 +55,15 @@ GSViewer::~GSViewer(void)
   Cleanup();
 }
 
-/* Python interface (very, very UGLY) */
-void GSViewer::RegisterKeyHandler(const char *cmd)
-{
-	fKeyHandlerCmd.assign(cmd);
-}
-
 Bool_t GSViewer::HandleKey(Event_t *ev)
 {
   char buf[16];
   UInt_t keysym;
-  ostringstream cmd;
     
-  if(ev->fType == kGKeyPress && fKeyHandlerCmd.size() > 0) {
+  if(ev->fType == kGKeyPress) {
 	gVirtualX->LookupString(ev, buf, 16, keysym);
-	cmd << fKeyHandlerCmd << "(" << keysym << ")";
-	TPython::Exec(cmd.str().c_str());
+	fKeySym = keysym;
+	KeyPressed();
   }
 	
   return true;

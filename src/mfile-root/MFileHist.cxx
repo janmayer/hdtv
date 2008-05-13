@@ -50,7 +50,7 @@ int MFileHist::Close()
 }
 
 template <class histType>
-histType *MFileHist::ToTH1(char *name, char *title, int level, int line)
+histType *MFileHist::ToTH1(const char *name, const char *title, int level, int line)
 {
 	histType *hist;
 
@@ -92,12 +92,82 @@ TH1 *MFileHist::FillTH1(TH1 *hist, int level, int line)
 	return hist;
 }
 
-TH1D *MFileHist::ToTH1D(char *name, char *title, int level, int line)
+TH1D *MFileHist::ToTH1D(const char *name, const char *title, int level, int line)
 {
 	return ToTH1<TH1D>(name, title, level, line);
 }
 
-TH1I *MFileHist::ToTH1I(char *name, char *title, int level, int line)
+TH1I *MFileHist::ToTH1I(const char *name, const char *title, int level, int line)
 {
 	return ToTH1<TH1I>(name, title, level, line);
+}
+
+double *MFileHist::FillBuf1D(double *buf, int level, int line)
+{
+	if(!fHist || !fInfo)
+		return NULL;
+	if(level >= fInfo->levels || line >= fInfo->lines)
+		return NULL;
+		
+	if(mgetdbl(fHist, buf, level, line, 0, fInfo->columns) != fInfo->columns)
+       	return NULL;
+    
+    return buf;
+}
+
+TH2 *MFileHist::FillTH2(TH2 *hist, int level)
+{
+	int line, col;
+
+	if(!fHist || !fInfo)
+		return NULL;
+	if(level >= fInfo->levels)
+		return NULL;
+		
+	double *buf = new double[fInfo->columns];
+
+	for(line=0; line < fInfo->lines; line++) {
+	    if(mgetdbl(fHist, buf, level, line, 0, fInfo->columns) != fInfo->columns)
+			break;
+    
+		for(col=0; col < fInfo->columns; col++) {
+			hist->SetBinContent(col+1, line+1, buf[col]);
+		}
+	}
+	
+	delete buf;
+	
+	return line == fInfo->lines ? hist : NULL;
+}
+
+template <class histType>
+histType *MFileHist::ToTH2(const char *name, const char *title, int level)
+{
+	histType *hist;
+
+	if(!fHist || !fInfo)
+		return NULL;
+	if(level >= fInfo->levels)
+		return NULL;
+		
+	hist = new histType(name, title,
+						fInfo->columns, -0.5, (double) fInfo->columns - 0.5,
+						fInfo->lines, -0.5, (double) fInfo->lines - 0.5);
+	
+	if(!FillTH2(hist, level)) {
+		delete hist;
+		return NULL;
+	}
+	
+	return hist;
+}
+
+TH2D *MFileHist::ToTH2D(const char *name, const char *title, int level)
+{
+	return ToTH2<TH2D>(name, title, level);
+}
+
+TH2I *MFileHist::ToTH2I(const char *name, const char *title, int level)
+{
+	return ToTH2<TH2I>(name, title, level);
 }

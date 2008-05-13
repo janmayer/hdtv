@@ -11,4 +11,6 @@ class SpecReader:
 		return mhist.ToTH1D(histname, histtitle, 0, 0)
 		
 	def GetMatrix(self, filename, histname, histtitle):
-		return None
+		mhist = ROOT.MFileHist()
+		mhist.Open(filename)
+		return mhist.ToTH2D(histname, histtitle, 0)

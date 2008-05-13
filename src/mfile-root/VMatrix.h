@@ -13,13 +13,13 @@ class VMatrix {
     inline void AddBgRegion(int c1, int c2) { AddRegion(fBgRegions, c1, c2); }
     void ResetRegions() { fCutRegions.clear(); fBgRegions.clear(); }
   
-    TH1 *Cut();
+    TH1D *Cut();
   
   private:
     void AddRegion(list<int> reglist, int c1, int c2)
  
     MFileHist *fMatrix;
-    list<int} fCutRegions, fBgRegions;
+    list<int> fCutRegions, fBgRegions;
 }
 
 #endif
