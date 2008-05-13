@@ -27,7 +27,7 @@ win.RegisterKeyHandler("win.KeyHandler")
 # add a calibration
 win.fDefaultCal = ROOT.GSCalibration(-39.0135, 0.1705)
 # load the spectrum 
-win.SpecGet("co60.lc2")
+win.SpecGet("spectra/60Co_gamma.lc2")
 # show everything to the user
 win.ShowFull()
 
