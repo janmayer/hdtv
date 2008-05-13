@@ -5,8 +5,7 @@ import gspec
 from specreader import *
 
 class Spectrum:
-	def __init__(self, fname=None, hist=None, cal=None):
-		self.fname = fname
+	def __init__(self, hist=None, cal=None):
 		self.hist = hist
 		self.cal = cal
 		self.sid = None
@@ -212,7 +211,15 @@ class Fit:
 		vol = ROOT.GSFitter.GetPeakVol(self.peakFunc, 0)
 		return (vol * cor, math.sqrt(vol) * cor)
 		
+
 class View:
+	""" 
+	Base class of a View object.
+	
+	A viwe is a selection of stuff that can be displayed in a window
+	There can be several views in one window. 
+	Every view can contain several spectra.
+	"""
 	def __init__(self, title=None):
 		self.fTitle = title
 		self.fSpectra = []
@@ -273,12 +280,18 @@ class View:
 			
 
 class Window:
+	"""
+	Base class of a window object 
+
+	This class provides a default key handling.
+	A window can contain several views, which again can contain several windows.
+	To change the currently displayed view, use the PAGEUP and the PAGEDOWN keys.
+	"""
 	def __init__(self):
 		self.fViewer = ROOT.GSViewer()
 		self.fViewport = self.fViewer.GetViewport()
 		self.fViews = []
-		self.fCurViewID = 0
-		self.fOverlayView = View()
+		self.fCurViewID = -1
 		#self.fSpectra = {}
 		self.fSpecPath = ""
 		self.fXZoomMarkers = []
@@ -286,8 +299,6 @@ class Window:
 		self.fPendingMarker = None
 		self.fCurrentFit = None
 		self.fDefaultCal = None
-		
-		self.fOverlayView.Realize(self.fViewport, False)
 		
 		self.fKeyDispatch = ROOT.TPyDispatcher(self._KeyHandler)
 		self.fViewer.Connect("KeyPressed()", "TPyDispatcher", self.fKeyDispatch,
@@ -328,29 +339,48 @@ class Window:
 		except OSError:
 			return False
 			
-	def SpecGet(self, fname, view=None, update=True):
-		spec = None
-	
+	def LoadSpec(self, fname, view=None, update=True):
+		"""
+		Load spectrum from file
+		
+		This function checks first if the file exists and then calles 
+		SpecReader to get the hist. Next it creates a spectrum object 
+		with that hist and adds this to the view. If no view is given,
+		the current view is used. If there has been no view defined in
+		this window so far, a new view is created and used.
+		The new spectrum object is returned if everything was successful.
+		"""
+		# check if file exists
 		if self.FileExists(fname):
 			pass
 		elif self.fSpecPath and self.FileExists(self.fSpecPath + "/" + fname):
 			fname = self.fSpecPath + "/" + fname
 		else:
-			fname = None
-	
-		if fname:
-			hist = SpecReader().Get(fname, fname, "hist")
-			if hist:
-				spec = Spectrum(fname, hist, self.fDefaultCal)
-				if view:
-					view.AddSpec(spec, self.fViewport, update)
-				else:
-					spec.Realize(self.fViewport, update)
-			else:
-				print "Error: Invalid spectrum format"
-		else:
 			print "Error: File not found"
-			
+			return None
+		
+		# call to SpecReader to get the hist
+		hist = SpecReader().Get(fname, fname, "hist")
+		if not hist:
+			print "Error: Invalid spectrum format"
+			return None
+
+		# create spectrum
+		spec = Spectrum(hist, self.fDefaultCal)
+		# figure out to what view this spectrum should belong
+		if not view:
+		# is there a current view defined?
+			if len(self.fViews) == 0:
+				# if not: create a new View and add it to the list
+				self.fViews.append(View(fname))
+				self.fCurViewID=0
+			# use the current view
+			view = self.fViews[self.fCurViewID]
+		# add the spectrum to view
+		view.AddSpec(spec, self.fViewport, update)
+		# display the view which we have just added a spectrum to
+		self.SetView(self.fViews.index(view))
+		# return the new spectrum
 		return spec
 		
 	#def SpecList(self):
@@ -397,17 +427,23 @@ class Window:
 	  		collection[-1].Realize(self.fViewport)
 	  		self.fPendingMarker = collection[-1]
 	  		
-  	def ShowFull(self):
-  		if len(self.fXZoomMarkers) == 1:
-  			zm = self.fXZoomMarkers[0]
-  			self.fViewport.SetOffset(min(zm.e1, zm.e2))
-  			self.fViewport.SetXVisibleRegion(abs(zm.e2 - zm.e1))
-  			self.fXZoomMarkers[0].Delete(self.fViewport)
-  			self.fXZoomMarkers = []
-  		else:
-  			self.fViewport.ShowAll()
-  			
-  	def ExpandY(self):
+	def ShowFull(self):
+		""" 
+		Show full range of spectrum
+		"""
+		if len(self.fXZoomMarkers) == 1:
+			zm = self.fXZoomMarkers[0]
+			self.fViewport.SetOffset(min(zm.e1, zm.e2))
+			self.fViewport.SetXVisibleRegion(abs(zm.e2 - zm.e1))
+			self.fXZoomMarkers[0].Delete(self.fViewport)
+			self.fXZoomMarkers = []
+		else:
+			self.fViewport.ShowAll()
+			
+	def ExpandY(self):
+		"""
+		Show full y-range of spectrum
+		"""
   		if len(self.fYZoomMarkers) == 1:
   			zm = self.fYZoomMarkers[0]
   			self.fViewport.SetYOffset(min(zm.p1, zm.p2))
@@ -427,16 +463,18 @@ class Window:
 		self.fViewport.SetYAutoScale(not self.fViewport.GetYAutoScale())
 		
 	def SetView(self, vid):
-		if vid != None and vid >= 0 and vid < len(self.fViews):
+		"""
+		define the currently active view
+		"""
+		if vid >= 0 and vid < len(self.fViews):
 			self.fViews[self.fCurViewID].Delete(self.fViewport, False)
 			self.fCurViewID = vid
 			self.fViews[self.fCurViewID].Realize(self.fViewport, True)
 			if self.fViews[self.fCurViewID].fTitle:
 				self.SetTitle(self.fViews[self.fCurViewID].fTitle)
-					
+		
 	def KeyHandler(self, key):
 		handled = True
-		
 		if key == ROOT.kKey_u:
 			self.fViewport.Update(True)
 		elif key == ROOT.kKey_z:
@@ -466,9 +504,9 @@ class Window:
 		elif key == ROOT.kKey_a:
 			self.ToggleYAutoScale()
 		elif key == ROOT.kKey_PageUp:
-			self.SetView(self.fCurViewID + 1)
-		elif key == ROOT.kKey_PageDown:
 			self.SetView(self.fCurViewID - 1)
+		elif key == ROOT.kKey_PageDown:
+			self.SetView(self.fCurViewID + 1)
 		else:
 			handled = False
 			

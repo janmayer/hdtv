@@ -107,7 +107,7 @@ class TWin(Window):
 		
 		self.fCurN += step
 		
-		self.SpecGet(self.experiment.TWinFile(self.fCurN), None, False)
+		self.LoadSpec(self.experiment.TWinFile(self.fCurN), None, False)
 		for marker in self.fMarkers[self.fCurN]:
 			marker.Realize(self.fViewport, False)	
 		

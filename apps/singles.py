@@ -41,9 +41,9 @@ for det in range(0,16):
 	# calfile = exp.CalFile(det)
 	# calfile = "/mnt/omega/braun/effcal/ge%d.sum.cal" % det
 	# win.fDefaultCal = ReadCal(calfile)
-	# win.SpecGet("/mnt/omega/braun/88Zr_angle_singles/0070/ge%d.0070" % det, view)
-	# win.SpecGet("/mnt/omega/braun/effcal/ge%d.sum" % det, view)
-	win.SpecGet("ge%d.sum" % det, view)
+	# win.LoadSpec("/mnt/omega/braun/88Zr_angle_singles/0070/ge%d.0070" % det, view)
+	# win.LoadSpec("/mnt/omega/braun/effcal/ge%d.sum" % det, view)
+	win.LoadSpec("ge%d.sum" % det, view)
 	
 win.SetView(0)
 win.ShowFull()

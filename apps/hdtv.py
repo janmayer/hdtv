@@ -224,14 +224,14 @@ class HDTV:
 		
 		## Init environment ##
 		view = self.fCutWindow.AddView()
-		self.fCutWindow.SpecGet("/home/braun/Diplom/final/mat/all/all.pry", view)
+		self.fCutWindow.LoadSpec("/home/braun/Diplom/final/mat/all/all.pry", view)
 		self.fCutWindow.SetView(0)
 		self.fCutWindow.ShowFull()
 		self.fMatbase = "/home/braun/Diplom/final/mat"
 		
 		## Debug ##
 		#view = self.fSpecWindow.AddView("debug")
-		#self.fSpecWindow.SpecGet("/home/braun/tv-remote/test.asc", view)
+		#self.fSpecWindow.LoadSpec("/home/braun/tv-remote/test.asc", view)
 		#self.fSpecWindow.SetView(0)
 		
 	# This is *very* ugly. We really should be using something
@@ -257,7 +257,7 @@ class HDTV:
 				        		cutwin.E2Ch(cutwin.fCutMarkers[0].e2))
 				        		
 				view = self.fSpecWindow.AddView("cor%d" % cor)				
-				self.fSpecWindow.SpecGet(fname, view)
+				self.fSpecWindow.LoadSpec(fname, view)
 				
 		self.fSpecWindow.SetView(0)
 		

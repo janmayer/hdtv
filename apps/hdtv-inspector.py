@@ -38,8 +38,8 @@ class Inspector(HDTV):
 			
 		return ROOT.GSCalibration(calPoly[0], calPoly[1], calPoly[2], calPoly[3])
 		
-	def SpecGet(self, n, det, color=5, update=True):
-		specID = HDTV.SpecGet(self, self.experiment.SpecFile(n, det), color, False)
+	def LoadSpec(self, n, det, color=5, update=True):
+		specID = HDTV.LoadSpec(self, self.experiment.SpecFile(n, det), color, False)
 		self.fViewport.GetDisplaySpec(specID).SetCal(self.cal[det])
 		self.fSpecIDs.append(specID)
 		
@@ -48,7 +48,7 @@ class Inspector(HDTV):
 		
 	def SpecsGet(self, n, update=True):
 		for det in range(0, self.experiment.fNumDetectors):
-			self.SpecGet(n, det, det+30, False)
+			self.LoadSpec(n, det, det+30, False)
 			
 		if update:
 			self.fViewport.Update(True)
@@ -68,7 +68,7 @@ class Inspector(HDTV):
 			self.SpecsGet(self.fCurRun)
 			self.SetTitle("Overview: Run #%d" % self.fCurRun)
 		else:
-			self.SpecGet(self.fCurRun, self.fCurDet)
+			self.LoadSpec(self.fCurRun, self.fCurDet)
 			self.SetTitle("ge%d: Run #%d" % (self.fCurDet, self.fCurRun))
 		
 	def KeyHandler(self, key):

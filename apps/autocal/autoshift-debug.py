@@ -51,7 +51,7 @@ class AutoshiftDebug(HDTV):
 		if self.fRefID != None:
 			self.fViewport.DeleteSpec(self.fRefID, False)
 	
-		self.fRefID = self.SpecGet(self.experiment.SpecFile(self.experiment.fRefRun, self.fCurDet),
+		self.fRefID = self.LoadSpec(self.experiment.SpecFile(self.experiment.fRefRun, self.fCurDet),
 								   6, False)
 		self.fViewport.GetDisplaySpec(self.fRefID).SetCal(self.fUnshiftCal)
 		self.fViewport.Update(True)
@@ -80,7 +80,7 @@ class AutoshiftDebug(HDTV):
 		if self.fSpecID != None:
 			self.fViewport.DeleteSpec(self.fSpecID, False)
 			
-		self.fSpecID = self.SpecGet(self.experiment.SpecFile(self.experiment.fGoodRuns[self.fCurRun],
+		self.fSpecID = self.LoadSpec(self.experiment.SpecFile(self.experiment.fGoodRuns[self.fCurRun],
 															 self.fCurDet), 5, False)
 		fCurrentSpec = self.fViewport.GetDisplaySpec(self.fSpecID)
 		self.SyncTitle()

@@ -23,8 +23,8 @@ win = Window()
 # add a calibration
 win.fDefaultCal = ROOT.GSCalibration(-39.0135, 0.1705)
 # load the spectrum 
-win.SpecGet("spectra/60Co_gamma.lc2")
-# show everything to the user
+win.LoadSpec("spectra/60Co_gamma.lc2")
+# show full range of spectrum
 win.ShowFull()
 
 

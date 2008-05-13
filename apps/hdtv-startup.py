@@ -13,7 +13,7 @@ ROOT.TH1.AddDirectory(ROOT.kFALSE)
 hdtv = HDTV()
 
 def s_get(fname):
-    hdtv.SpecGet(fname)
+    hdtv.LoadSpec(fname)
     
 def s_getn(n, det):
     s_get("/mnt/omega/braun/88Zr_angle_singles/%04d/ge%d.%04d" % (n, det, n))
