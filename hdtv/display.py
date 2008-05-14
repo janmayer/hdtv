@@ -33,60 +33,47 @@ class Spectrum:
 		else:
 			return ch
 		
-class XMarker:
-	def __init__(self, mtype, e1):
-		self.mtype = mtype
-		self.e1 = e1
-		self.e2 = None
-		self.mid = None
-		
-		if self.mtype == "BACKGROUND" or self.mtype == "CUT_BG":
-			self.color = 11
-		elif self.mtype == "REGION" or self.mtype == "CUT":
-			self.color = 38
-		elif self.mtype == "PEAK":
-			self.color = 50
-		elif self.mtype == "XZOOM":
-			self.color = 10
-			
-	def Realize(self, viewport, update=True):
-		if self.mid == None:
-			self.mid = viewport.AddXMarker(self.e1, self.color, update)
-			
-	def UpdatePos(self, viewport):
-		if self.mid != None:
-			marker = viewport.GetXMarker(self.mid)
-			if self.e2 != None:
-				marker.SetN(2)
-				marker.SetPos(self.e1, self.e2)
-			else:
-				marker.SetN(1)
-				marker.SetPos(self.e1)
-			viewport.Update(True)
-			
-	def Delete(self, viewport, update=True):
-		if self.mid != None:
-			viewport.DeleteXMarker(self.mid, update)
-			self.mid = None
-			
-class YMarker:
+
+class Marker:
+	""" 
+	Markers in X or in Y direction
+	
+	Currently there are the following kinds of markers available:
+	X: BACKGROUND", "CUT_BG", "REGION", "CUT", "PEAK", "XZOOM
+	Y: YZOOM
+	"""
 	def __init__(self, mtype, p1):
 		self.mtype = mtype
 		self.p1 = p1
 		self.p2 = None
 		self.mid = None
 		self.color = 0
-		
-		if self.mtype == "YZOOM":
+		# define the xytype of the marker
+		if mtype in ["BACKGROUND", "CUT_BG", "REGION", "CUT", "PEAK", "XZOOM"]:
+		    self.xytype = "X"
+		if mtype in ["YZOOM"]:
+		    self.xytype = "Y"
+		# define the color
+		if mtype in ["BACKGROUND","CUT_BG"]:
+			self.color = 11
+		elif mtype in ["REGION","CUT"]:
+			self.color = 38
+		elif mtype in ["PEAK"]:
+			self.color = 50
+		elif mtype in ["XZOOM", "YZOOM"]:
 			self.color = 10
 			
 	def Realize(self, viewport, update=True):
+		""" Realize the marker"""
 		if self.mid == None:
-			self.mid = viewport.AddYMarker(self.p1, self.color, update)
+			addMarker = getattr(viewport, "Add%sMarker" %self.xytype)
+			self.mid = addMarker(self.p1, self.color, update)
 			
 	def UpdatePos(self, viewport):
+		""" update the position of the marker"""
 		if self.mid != None:
-			marker = viewport.GetYMarker(self.mid)
+			getMarker = getattr(viewport, "Get%sMarker" % self.xytype)
+			marker = getMarker(self.mid)
 			if self.p2 != None:
 				marker.SetN(2)
 				marker.SetPos(self.p1, self.p2)
@@ -96,8 +83,10 @@ class YMarker:
 			viewport.Update(True)
 			
 	def Delete(self, viewport, update=True):
+		""" delete the marker"""
 		if self.mid != None:
-			viewport.DeleteYMarker(self.mid, update)
+			deleteMarker = getattr(viewport, "Delete%sMarker"  % self.xytype)
+			deleteMarker(self.mid, update)
 			self.mid = None
 			
 class Fit:
@@ -399,23 +388,80 @@ class Window:
 	#		print "WARNING: No spectrum with this id, no action taken."
 	
 	def SetTitle(self, title):
-		self.fViewer.SetWindowName(title)
+		""" 
+		Set title of window
 		
-	def PutPairedXMarker(self, mtype, collection, maxnum=None):
-		pos = self.fViewport.GetCursorX()
+		note: this is overwritten by the title of views.
+		"""	
+		self.fViewer.SetWindowName(title)
+
+		
+	def ExpandX(self):
+		"""
+		expand in X direction
+		"""
+		self._Expand("X")
+		
+	def ExpandY(self):
+		"""
+		expand in Y direction
+		"""
+		self._Expand("Y")	
+		
 			
-		if self.fPendingMarker:
-			if self.fPendingMarker.mtype == mtype:
-				self.fPendingMarker.e2 = pos
-				self.fPendingMarker.UpdatePos(self.fViewport)
-				self.fPendingMarker = None
-		elif not maxnum or len(collection) < maxnum:
-	  		collection.append(XMarker(mtype, pos))
-	  		collection[-1].Realize(self.fViewport)
-	  		self.fPendingMarker = collection[-1]
-	  		
-	def PutPairedYMarker(self, mtype, collection, maxnum=None):
-		pos = self.fViewport.GetCursorY()
+	def Expand(self):
+		"""
+		exapnd in X and in Y direction
+		"""
+		self._Expand("X")
+		self._Expand("Y")
+		
+  	
+  	def _Expand(self, xytype):
+  		"""
+  		expand the display to show the region between the zoom markers (X or Y),
+		or the full spectrum if not zoom markers are set.
+  		"""
+  		# check the input
+  		if xytype not in ["X","Y"]:
+  			print "invalid parameter %s to the private function _expand" % xytype
+  			return
+  		
+  		zoomMarkers = getattr(self,"f%sZoomMarkers" %xytype)
+  		if len(zoomMarkers) == 1:
+  			zm = zoomMarkers[0] 
+  			setOffset = getattr(self.fViewport, "Set%sOffset" % xytype)
+  			setOffset(min(zm.p1, zm.p2))
+  			setVisibleRegion = getattr(self.fViewport, "Set%sVisibleRegion" % xytype)
+  			setVisibleRegion(abs(zm.p2 - zm.p1))
+  			zm.Delete(self.fViewport)
+  			getattr(self,"f%sZoomMarkers" %xytype).pop()
+  		else:
+  			if xytype == "X":
+  				self.fViewport.ShowAll()
+  			elif xytype == "Y":
+  	 			self.fViewport.YAutoScaleOnce()
+
+	def PutXZoomMarker(self):
+  		"""
+  		set a X zoom marker
+  		"""
+		self._PutPairedMarker("XZOOM", self.fXZoomMarkers, 1)
+		
+	def PutYZoomMarker(self):
+		"""
+		set a Y zoom marker
+		"""
+		self._PutPairedMarker("YZOOM", self.fYZoomMarkers, 1)
+
+	def _PutPairedMarker(self, mtype, collection, maxnum=None):
+		"""
+		set paired markers (either X or Y direction)
+		"""
+		if mtype in ['XZOOM']:
+			pos = self.fViewport.GetCursorX()
+		if mtype in ['YZOOM']:
+			pos = self.fViewport.GetCursorY()
 			
 		if self.fPendingMarker:
 			if self.fPendingMarker.mtype == mtype:
@@ -423,48 +469,19 @@ class Window:
 				self.fPendingMarker.UpdatePos(self.fViewport)
 				self.fPendingMarker = None
 		elif not maxnum or len(collection) < maxnum:
-	  		collection.append(YMarker(mtype, pos))
+	  		collection.append(Marker(mtype, pos))
 	  		collection[-1].Realize(self.fViewport)
 	  		self.fPendingMarker = collection[-1]
-	  		
-	def ShowFull(self):
-		""" 
-		Show full range of spectrum
-		"""
-		if len(self.fXZoomMarkers) == 1:
-			zm = self.fXZoomMarkers[0]
-			self.fViewport.SetOffset(min(zm.e1, zm.e2))
-			self.fViewport.SetXVisibleRegion(abs(zm.e2 - zm.e1))
-			self.fXZoomMarkers[0].Delete(self.fViewport)
-			self.fXZoomMarkers = []
-		else:
-			self.fViewport.ShowAll()
-			
-	def ExpandY(self):
-		"""
-		Show full y-range of spectrum
-		"""
-  		if len(self.fYZoomMarkers) == 1:
-  			zm = self.fYZoomMarkers[0]
-  			self.fViewport.SetYOffset(min(zm.p1, zm.p2))
-  			self.fViewport.SetYVisibleRegion(abs(zm.p2 - zm.p1))
-  			self.fYZoomMarkers[0].Delete(self.fViewport)
-  			self.fYZoomMarkers = []
-  		else:
-  			self.fViewport.YAutoScaleOnce()
   			
-  	def PutXZoomMarker(self):
-		self.PutPairedXMarker("XZOOM", self.fXZoomMarkers, 1)
-		
-	def PutYZoomMarker(self):
-		self.PutPairedYMarker("YZOOM", self.fYZoomMarkers, 1)
-		
 	def ToggleYAutoScale(self):
+		"""
+		toggle if spectrum should automatically always be zoom to maximum Y value
+		"""
 		self.fViewport.SetYAutoScale(not self.fViewport.GetYAutoScale())
 		
 	def SetView(self, vid):
 		"""
-		define the currently active view
+		define the view, that should be currently displayed
 		"""
 		if vid >= 0 and vid < len(self.fViews):
 			self.fViews[self.fCurViewID].Delete(self.fViewport, False)
@@ -472,8 +489,12 @@ class Window:
 			self.fViews[self.fCurViewID].Realize(self.fViewport, True)
 			if self.fViews[self.fCurViewID].fTitle:
 				self.SetTitle(self.fViews[self.fCurViewID].fTitle)
+
 		
 	def KeyHandler(self, key):
+		""" 
+		Default Key Handler
+		"""
 		handled = True
 		if key == ROOT.kKey_u:
 			self.fViewport.Update(True)
@@ -483,12 +504,20 @@ class Window:
 			self.fViewport.XZoomAroundCursor(0.5)
 		elif key == ROOT.kKey_l:
 			self.fViewport.ToggleLogScale()
+		elif key == ROOT.kKey_a:
+			self.ToggleYAutoScale()
 		elif key == ROOT.kKey_0:
 			self.fViewport.ToBegin()
 		elif key == ROOT.kKey_Space:
 			self.PutXZoomMarker()
+		elif key == ROOT.kKey_y:
+			self.ExpandY()
 		elif key == ROOT.kKey_f:
-			self.ShowFull()
+			self.ExpandX()
+		elif key == ROOT.kKey_h:
+			self.PutYZoomMarker()
+		elif key == ROOT.kKey_e:
+			self.Expand()
 		elif key == ROOT.kKey_w:
 			self.fViewport.ShiftYOffset(0.1)
 		elif key == ROOT.kKey_s:
@@ -497,12 +526,6 @@ class Window:
 			self.fViewport.YZoomAroundCursor(2.0)
 		elif key == ROOT.kKey_X:
 			self.fViewport.YZoomAroundCursor(0.5)
-		elif key == ROOT.kKey_y:
-			self.PutYZoomMarker()
-		elif key == ROOT.kKey_e:
-			self.ExpandY()
-		elif key == ROOT.kKey_a:
-			self.ToggleYAutoScale()
 		elif key == ROOT.kKey_PageUp:
 			self.SetView(self.fCurViewID - 1)
 		elif key == ROOT.kKey_PageDown:

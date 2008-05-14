@@ -36,7 +36,7 @@ class GSViewport : public TGFrame {
  public:
   GSViewport(const TGWindow *p, UInt_t w, UInt_t h);
   ~GSViewport(void);
-  void SetOffset(double offset, bool update=true);
+  void SetXOffset(double offset, bool update=true);
   void SetYOffset(double offset, bool update=true);
   void ShiftYOffset(double f, bool update=true);
   inline double GetOffset(void) { return fXOffset; }

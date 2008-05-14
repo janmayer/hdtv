@@ -45,5 +45,5 @@ win.LoadSpec("spectra/231Th_45down.ascii", view=view3)
 ### which has been loaded with a spectrum is displayed. 
 win.SetView(0)
 ## show full range of spectrum
-win.ShowFull()
+win.Expand()
 

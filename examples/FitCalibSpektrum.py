@@ -24,7 +24,7 @@ win.fDefaultCal = ROOT.GSCalibration(-39.0135, 0.1705)
 # load the spectrum 
 spec = win.LoadSpec("spectra/60Co_gamma.lc2")
 # show full range of spectrum
-win.ShowFull()
+win.Expand()
 
 # define a fitter and a region
 fitter = ROOT.GSFitter(spec.E2Ch(1100.), spec.E2Ch(1400.))

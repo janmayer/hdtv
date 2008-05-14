@@ -426,7 +426,7 @@ void GSViewport::YZoomAroundCursor(double f)
 
 void GSViewport::ToBegin(void)
 {
-  SetOffset(fMinEnergy);
+  SetXOffset(fMinEnergy);
 }
 
 void GSViewport::ShowAll(void)
@@ -555,7 +555,7 @@ void GSViewport::UpdateScrollbarRange(void)
   }
 }
 
-void GSViewport::SetOffset(double offset, bool update)
+void GSViewport::SetXOffset(double offset, bool update)
 {
   fXOffset = offset;
   if(update)
@@ -649,7 +649,7 @@ Bool_t GSViewport::HandleMotion(Event_t *ev)
   fCursorY = ev->fY;
   
   if(fDragging) {
-	SetOffset(fXOffset + fPainter->dXtodE(dX));
+	SetXOffset(fXOffset + fPainter->dXtodE(dX));
   }
     
   // If we are dragging, Update() will update the statusbar
