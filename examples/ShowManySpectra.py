@@ -23,23 +23,32 @@ win = Window()
 #### show several superposed spectra
 # add a view
 view0=win.AddView("Several Spectra")
-win.LoadSpec("spectra/231Th_35down.ascii")
-win.LoadSpec("spectra/231Th_40down.ascii")
-win.LoadSpec("spectra/231Th_45down.ascii")
+# create a calibration
+cal1= ROOT.GSCalibration(-789.006, 0.698618, 4.8471e-05)
+# load first spectrum
+win.LoadSpec("spectra/231Th_35down.ascii", cal=cal1)
+# create a calibration
+cal2 = ROOT.GSCalibration(-319.27, 0.669421, 4.84477e-05 )
+# load second spectrum
+win.LoadSpec("spectra/231Th_40down.ascii", cal=cal2)
+# create a calibration
+cal3 = ROOT.GSCalibration(-303.644, 0.666922, 4.86769e-05)
+# load third spectrum
+win.LoadSpec("spectra/231Th_45down.ascii", cal=cal3)
 
 #### show each spectra in its own view
 ## add a view
 view1=win.AddView("35 down")
 ## load a spectrum
-win.LoadSpec("spectra/231Th_35down.ascii", view=view1)
-## add another view
+win.LoadSpec("spectra/231Th_35down.ascii", view=view1, cal=cal1)
+# add another view
 view2=win.AddView("40 down")
-## load a spectrum to the new view
-win.LoadSpec("spectra/231Th_40down.ascii", view=view2)
-## add another view
+# load a spectrum to the new view
+win.LoadSpec("spectra/231Th_40down.ascii", view=view2, cal=cal2)
+# add another view
 view3=win.AddView("45 down")
-## load a spectrum to the new view
-win.LoadSpec("spectra/231Th_45down.ascii", view=view3)
+# load a spectrum to the new view
+win.LoadSpec("spectra/231Th_45down.ascii", view=view3, cal=cal3)
 
 ### select a view to show, by default the last view 
 ### which has been loaded with a spectrum is displayed. 

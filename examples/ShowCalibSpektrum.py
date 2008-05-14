@@ -20,10 +20,11 @@ ROOT.TH1.AddDirectory(ROOT.kFALSE)
 # create a standard window
 win = Window()
 
-# add a calibration
-win.fDefaultCal = ROOT.GSCalibration(-39.0135, 0.1705)
+# create a calibration
+ROOT.GSCalibration(-39.0135, 0.1705)
 # load the spectrum 
 win.LoadSpec("spectra/60Co_gamma.lc2")
+
 # show full range of spectrum
 win.Expand()
 

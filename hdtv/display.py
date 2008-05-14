@@ -20,7 +20,7 @@ class Spectrum:
 		if self.sid != None:
 			viewport.DeleteSpec(self.sid, update)
 			self.sid = None
-			
+		
 	def E2Ch(self, e):
 		if self.cal:
 			return self.cal.E2Ch(e)
@@ -205,7 +205,7 @@ class View:
 	""" 
 	Base class of a View object.
 	
-	A viwe is a selection of stuff that can be displayed in a window
+	A view is a selection of stuff that can be displayed in a window
 	There can be several views in one window. 
 	Every view can contain several spectra.
 	"""
@@ -281,43 +281,35 @@ class Window:
 		self.fViewport = self.fViewer.GetViewport()
 		self.fViews = []
 		self.fCurViewID = -1
-		#self.fSpectra = {}
 		self.fSpecPath = ""
 		self.fXZoomMarkers = []
 		self.fYZoomMarkers = []
 		self.fPendingMarker = None
 		self.fCurrentFit = None
-		self.fDefaultCal = None
 		
 		self.fKeyDispatch = ROOT.TPyDispatcher(self._KeyHandler)
-		self.fViewer.Connect("KeyPressed()", "TPyDispatcher", self.fKeyDispatch,
-			"Dispatch()")
+		self.fViewer.Connect("KeyPressed()", "TPyDispatcher", 
+							 self.fKeyDispatch, "Dispatch()")
 			
 	def _KeyHandler(self):
 		self.KeyHandler(self.fViewer.fKeySym)
 		
-	def E2Ch(self, e):
-		if self.fDefaultCal:
-			return self.fDefaultCal.E2Ch(e)
-		else:
-			return e
-			
-	def Ch2E(self, ch):
-		if self.fDefaultCal:
-			return self.fDefaultCal.Ch2E(ch)
-		else:
-			return ch
 				
 	def AddView(self, title=None):
+		"""
+		Add a view to this window
+		"""
 		view = View(title)
 		self.fViews.append(view)
 		return view
 		
 	def DeleteAllViews(self, update=True):
+		"""
+		Delete all views
+		"""
 		for view in self.fViews:
 			view.Delete(self.fViewport, False)
 		self.fViews = []
-			
 		if update:
 			self.fViewport.Update(True)
 		
@@ -328,7 +320,7 @@ class Window:
 		except OSError:
 			return False
 			
-	def LoadSpec(self, fname, view=None, update=True):
+	def LoadSpec(self, fname, view=None, cal=None, update=True):
 		"""
 		Load spectrum from file
 		
@@ -355,7 +347,7 @@ class Window:
 			return None
 
 		# create spectrum
-		spec = Spectrum(hist, self.fDefaultCal)
+		spec = Spectrum(hist, cal)
 		# figure out to what view this spectrum should belong
 		if not view:
 		# is there a current view defined?
