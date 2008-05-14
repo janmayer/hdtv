@@ -281,7 +281,6 @@ class Window:
 		self.fViewport = self.fViewer.GetViewport()
 		self.fViews = []
 		self.fCurViewID = -1
-		self.fSpecPath = ""
 		self.fXZoomMarkers = []
 		self.fYZoomMarkers = []
 		self.fPendingMarker = None
@@ -291,10 +290,7 @@ class Window:
 		self.fViewer.Connect("KeyPressed()", "TPyDispatcher", 
 							 self.fKeyDispatch, "Dispatch()")
 			
-	def _KeyHandler(self):
-		self.KeyHandler(self.fViewer.fKeySym)
-		
-				
+
 	def AddView(self, title=None):
 		"""
 		Add a view to this window
@@ -312,13 +308,6 @@ class Window:
 		self.fViews = []
 		if update:
 			self.fViewport.Update(True)
-		
-	def FileExists(self, fname):
-		try:
-			os.stat(fname)
-			return True
-		except OSError:
-			return False
 			
 	def LoadSpec(self, fname, view=None, cal=None, update=True):
 		"""
@@ -332,11 +321,9 @@ class Window:
 		The new spectrum object is returned if everything was successful.
 		"""
 		# check if file exists
-		if self.FileExists(fname):
-			pass
-		elif self.fSpecPath and self.FileExists(self.fSpecPath + "/" + fname):
-			fname = self.fSpecPath + "/" + fname
-		else:
+		try:
+			os.stat(fname)
+		except OSError:
 			print "Error: File not found"
 			return None
 		
@@ -387,7 +374,6 @@ class Window:
 		"""	
 		self.fViewer.SetWindowName(title)
 
-		
 	def ExpandX(self):
 		"""
 		expand in X direction
@@ -400,7 +386,6 @@ class Window:
 		"""
 		self._Expand("Y")	
 		
-			
 	def Expand(self):
 		"""
 		exapnd in X and in Y direction
@@ -408,7 +393,6 @@ class Window:
 		self._Expand("X")
 		self._Expand("Y")
 		
-  	
   	def _Expand(self, xytype):
   		"""
   		expand the display to show the region between the zoom markers (X or Y),
@@ -482,6 +466,8 @@ class Window:
 			if self.fViews[self.fCurViewID].fTitle:
 				self.SetTitle(self.fViews[self.fCurViewID].fTitle)
 
+	def _KeyHandler(self):
+		self.KeyHandler(self.fViewer.fKeySym)
 		
 	def KeyHandler(self, key):
 		""" 
