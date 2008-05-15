@@ -1,4 +1,7 @@
 import ROOT
+import os
 
-if ROOT.gSystem.Load("../lib/gspec.so") < 0:
+
+path= os.path.dirname(os.path.abspath(__file__))
+if ROOT.gSystem.Load("%s/../lib/gspec.so" %path) < 0:
 	raise RuntimeError, "Library not found (gspec.so)"
