@@ -12,10 +12,20 @@ sys.path.append("..")
 
 #import some modules
 import ROOT
-from hdtv.display import Window
+import hdtv.color as color
+from hdtv.window import Window
 
 # Don't add created spectra to the ROOT directory
 ROOT.TH1.AddDirectory(ROOT.kFALSE)
+
+specfile1 = "spectra/231Th_35down.ascii"
+specfile2 = "spectra/231Th_40down.ascii"
+specfile3 = "spectra/231Th_45down.ascii"
+
+cal1 =  [-789.006, 0.698618, 4.8471e-05]
+cal2 = [-319.27, 0.669421, 4.84477e-05 ]
+cal3 = [-303.644, 0.666922, 4.86769e-05]
+
 
 # create a standard window
 win = Window()
@@ -23,36 +33,30 @@ win = Window()
 #### show several superposed spectra
 # add a view
 view0=win.AddView("Several Spectra")
-# create a calibration
-cal1= ROOT.GSCalibration(-789.006, 0.698618, 4.8471e-05)
 # load first spectrum
-win.LoadSpec("spectra/231Th_35down.ascii", cal=cal1)
-# create a calibration
-cal2 = ROOT.GSCalibration(-319.27, 0.669421, 4.84477e-05 )
+view0.AddSpec(specfile1, cal=cal1, color=color.kBlue, update=False)
 # load second spectrum
-win.LoadSpec("spectra/231Th_40down.ascii", cal=cal2)
-# create a calibration
-cal3 = ROOT.GSCalibration(-303.644, 0.666922, 4.86769e-05)
+view0.AddSpec(specfile2, cal=cal2, color=color.kYellow, update=False)
 # load third spectrum
-win.LoadSpec("spectra/231Th_45down.ascii", cal=cal3)
+view0.AddSpec(specfile3, cal=cal3, color=color.kGreen, update=False)
 
 #### show each spectra in its own view
-## add a view
+# add a view
 view1=win.AddView("35 down")
-## load a spectrum
-win.LoadSpec("spectra/231Th_35down.ascii", view=view1, cal=cal1)
+# load a spectrum
+view1.AddSpec(specfile1, cal=cal1, update=False)
 # add another view
 view2=win.AddView("40 down")
 # load a spectrum to the new view
-win.LoadSpec("spectra/231Th_40down.ascii", view=view2, cal=cal2)
+view2.AddSpec(specfile2, cal=cal2, update=False)
 # add another view
 view3=win.AddView("45 down")
 # load a spectrum to the new view
-win.LoadSpec("spectra/231Th_45down.ascii", view=view3, cal=cal3)
+view3.AddSpec(specfile3, cal=cal3, update=False)
 
 ### select a view to show, by default the last view 
 ### which has been loaded with a spectrum is displayed. 
-win.SetView(0)
+win.ShowView(0)
 ## show full range of spectrum
 win.Expand()
 

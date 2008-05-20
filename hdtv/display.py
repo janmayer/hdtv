@@ -4,6 +4,17 @@ import os
 import gspec
 from specreader import *
 
+print "------------------------------------------------------------------------"
+print "Warning: %s: is deprecated" % __file__
+print "Its content is now seperated in the following files:"
+print "		window.py"
+print "		view.py"
+print "		spectrum.py"
+print "		fit.py"
+print "		marker.py"
+print "Please use them instead!" 
+print "------------------------------------------------------------------------"
+
 class Spectrum:
 	def __init__(self, hist=None, cal=None):
 		self.hist = hist
