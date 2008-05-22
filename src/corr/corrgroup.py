@@ -1,18 +1,7 @@
 #!/usr/bin/python
-import math
+# -*- coding: utf-8 -*-
 
-# Angle between two detectors
-def alpha(d1, d2):
-	def sin(x):
-		return math.sin(x / 180.0 * math.pi)
-	def cos(x):
-		return math.cos(x / 180.0 * math.pi)
-	def acos(x):
-		return math.acos(x) * 180.0 / math.pi
-	
-	ca = sin(d1.theta)*sin(d2.theta)*cos(d1.phi - d2.phi) + cos(d1.theta)*cos(d2.theta)
-	
-	return acos(ca)
+import math
 
 class Detector:
 	def __init__(self, num, theta, phi):
@@ -32,6 +21,10 @@ class Detector:
 #
 # (*) Note that cos(n*x) = T_n(cos(x)), where T_n are the Chebyshev
 #   polynomials of the first kind
+#
+# Literature reference: L. Peter Ekström and Anders Nordlund,
+# Gamma-gamma correlations with detector arrays,
+# NIM A313 (1992) 421-428
 		
 def norm_angle(x):
 	x = x % 360.
