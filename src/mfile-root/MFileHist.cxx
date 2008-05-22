@@ -1,3 +1,4 @@
+#include <TArrayD.h>
 #include "MFileHist.h"
 
 MFileHist::MFileHist()
@@ -76,18 +77,14 @@ TH1 *MFileHist::FillTH1(TH1 *hist, int level, int line)
 	if(level >= fInfo->levels || line >= fInfo->lines)
 		return NULL;
 		
-	double *buf = new double[fInfo->columns];
+	TArrayD buf(fInfo->columns);
 
-    if(mgetdbl(fHist, buf, level, line, 0, fInfo->columns) != fInfo->columns) {
-    	delete buf;
+    if(mgetdbl(fHist, buf.GetArray(), level, line, 0, fInfo->columns) != fInfo->columns)
     	return NULL;
-    }
     
 	for(int i=0; i < fInfo->columns; i++) {
 		hist->SetBinContent(i+1, buf[i]);
 	}
-	
-	delete buf;
 	
 	return hist;
 }
@@ -124,18 +121,16 @@ TH2 *MFileHist::FillTH2(TH2 *hist, int level)
 	if(level >= fInfo->levels)
 		return NULL;
 		
-	double *buf = new double[fInfo->columns];
+	TArrayD buf(fInfo->columns);
 
 	for(line=0; line < fInfo->lines; line++) {
-	    if(mgetdbl(fHist, buf, level, line, 0, fInfo->columns) != fInfo->columns)
+	    if(mgetdbl(fHist, buf.GetArray(), level, line, 0, fInfo->columns) != fInfo->columns)
 			break;
     
 		for(col=0; col < fInfo->columns; col++) {
 			hist->SetBinContent(col+1, line+1, buf[col]);
 		}
 	}
-	
-	delete buf;
 	
 	return line == fInfo->lines ? hist : NULL;
 }

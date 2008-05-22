@@ -1,3 +1,4 @@
+#include <TArrayD.h>
 #include "VMatrix.h"
 
 VMatrix::VMatrix(MFileHist *hist, int level)
@@ -62,15 +63,15 @@ TH1 *VMatrix::Cut(const char *histname, const char *histtitle)
     return NULL;
   
   // Temporary buffer
-  double *buf = new double[cols];
+  TArrayD buf(cols);
   
   // Sum of cut lines
-  double *sum = new double[cols];
-  for(c=0; c<cols; c++) sum[c] = 0.0;
+  TArrayD sum(cols);
+  sum.Reset(0.0);
   
   // Sum of background lines
-  double *bg = new double[cols];
-  for(c=0; c<cols; c++) bg[c] = 0.0;
+  TArrayD bg(cols);
+  bg.Reset(0.0);
   
   try {
     // Add up all cut lines
@@ -79,11 +80,12 @@ TH1 *VMatrix::Cut(const char *histname, const char *histtitle)
       l1 = *iter++;
       l2 = *iter++;
       for(l=l1; l<=l2; l++) {
-        if(!fMatrix->FillBuf1D(buf, fLevel, l))
+        if(!fMatrix->FillBuf1D(buf.GetArray(), fLevel, l))
           throw MFileReadException();
 
         for(c=0; c<cols; c++) {
-           sum[c] += buf[c];
+          /* Bad for speed; overloaded operator[] checks array bounds */
+          sum[c] += buf[c];
         }
       
         nCut++;
@@ -96,10 +98,11 @@ TH1 *VMatrix::Cut(const char *histname, const char *histtitle)
       l1 = *iter++;
       l2 = *iter++;
       for(l=l1; l<=l2; l++) {
-        if(!fMatrix->FillBuf1D(buf, fLevel, l))
+        if(!fMatrix->FillBuf1D(buf.GetArray(), fLevel, l))
           throw MFileReadException();
 
         for(c=0; c<cols; c++) {
+          /* Bad for speed; overloaded operator[] checks array bounds */
           bg[c] += buf[c];
         }
       
@@ -108,7 +111,6 @@ TH1 *VMatrix::Cut(const char *histname, const char *histtitle)
     }
   }
   catch(MFileReadException&) {
-    delete buf, sum, bg;
     return NULL;
   }
   
@@ -118,7 +120,5 @@ TH1 *VMatrix::Cut(const char *histname, const char *histtitle)
     hist->SetBinContent(c+1, sum[c] - bg[c] * bgFac);
   }
   
-  delete buf, sum, bg;
-
   return hist; 
 }
