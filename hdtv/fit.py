@@ -19,7 +19,6 @@ class Fit:
 		self.leftTail = lTail
 		self.rightTail = rTail
 		self.fitter = None
-		self.fittedPeaks = []
 		self.peakFuncID = None
 		self.bgFuncID = None
 		self.viewport=None
@@ -37,8 +36,6 @@ class Fit:
 		if key in reset: 
 			# reset fitter as it is deprecated now
 			self.__dict__["fitter"] = None
-			# and clear the peaklist
-			self.__dict__["fittedPeaks"] = []
 		if key in ["region", "peaklist"]:
 			# convert to uncalibrated values
 			val = [self.spec.E2Ch(i) for i in val]
@@ -78,7 +75,6 @@ class Fit:
 		# check if there is already a fitter available
 		if not self.fitter:
 			self.InitFitter()
-		# TODO: without bg?
 		func = self.fitter.Fit(self.spec.fHist, bgfunc)
 		numPeaks = int(func.GetParameter(0))
 		# information for each peak
@@ -89,7 +85,7 @@ class Fit:
 			vol = ROOT.GSFitter.GetPeakVol(func, i)
 			lt=ROOT.GSFitter.GetPeakLT(func, i)
 			rt=ROOT.GSFitter.GetPeakRT(func, i)
-			peaks.append(Peak(mean, fwhm, vol))
+			peaks.append(Peak(mean, fwhm, vol, lt, rt, cal=self.spec.fCal))
 		# draw function to viewport
 		if self.viewport:
 			viewport = self.viewport
@@ -172,9 +168,4 @@ class Fit:
 		if not self.peakFuncID==None:
 			self.viewport.GetDisplayFunc(self.peakFuncID).SetCal(self.spec.fCal)
 
-	def Report(self, output=None):
-		"""
-		Print the results of the fit to output
-		If no output object is given use stdout.
-		"""
-		pass
+
