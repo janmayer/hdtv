@@ -2,8 +2,9 @@ import ROOT
 import os
 import gspec
 import color as c
-from fit import Fit
 from specreader import SpecReader
+from fit import Fit
+
 
 
 class Spectrum:
@@ -48,8 +49,7 @@ class Spectrum:
 		if color:
 			self.fColor = color
 		# update the display if needed
-		if self.fViewport:
-			self.Update()
+		self.Update(True)
 		
 	def SetCal(self, cal):
 		"""
@@ -59,26 +59,24 @@ class Spectrum:
 		The calibration polynom is of the form:
 		f(x) = cal[0] + cal[1]*x + cal[2]*x^2 + cal[3]*x^3
 		"""
-		if len(cal) >4:
-			print "Error: degree of calibration polynom is to big (>=4)"
-		while len(cal) <4: 
-			# fill the sequence with trivial entries
-			cal.append(0.0)
-		# create the calibration object
-		self.fCal=ROOT.GSCalibration(cal[0], cal[1], cal[2], cal[3])
+		if cal:
+			if len(cal) >4:
+				print "Error: degree of calibration polynom is to big (>=4)"
+			while len(cal) <4: 
+				# fill the sequence with trivial entries
+				cal.append(0.0)
+			# create the calibration object
+			self.fCal=ROOT.GSCalibration(cal[0], cal[1], cal[2], cal[3])
+		else:
+			self.fCal = None
 		# update the display if needed
-		if self.fViewport:
-			self.Update()
+		self.Update(True)
 
 	def UnsetCal(self):
 		"""
 		delete calibration
 		"""
-		# set calibration to None
-		self.fCal=None
-		# update the display if needed
-		if self.fViewport:
-			self.Update()
+		self.SetCal(cal=None)
 		
 	def E2Ch(self, e):
 		"""
@@ -98,13 +96,26 @@ class Spectrum:
 		else:
 			return ch
 
-#	def AddFit(self, fit, update=True):
-#		self.fFitlist.append(fit)
-#		if self.fViewport:
-#			fit.Realize(self.fViewport, update)
+	def AddFit(self, region=None, peaklist=None, 
+			   bglist=None, lTail=0, rTail=0, update=True):
+		"""
+		Add a new fit to the list of fits belonging to this spectrum
+		"""
+		fit = Fit(self, region, peaklist, bglist, lTail, rTail) 
+		self.fFitlist.append(fit)
+		if self.fViewport:
+			# update the display if this view is currently active
+			fit.Realize(self.fViewport, update)
+		return fit
 
-#	def DelFit(self, fid, update=True):
-#		pass
+	def DelFit(self, fid, update=True):
+		""" 
+		Delete Fit from Fitlist
+		"""
+		if fid>=0 and fid < len(self.fFitlist):
+			fit = self.fFitlist.pop(fid)
+			if self.fViewport:
+				fit.Delete(update)
 
 	def Realize(self, viewport, update=True):
 		"""
@@ -140,17 +151,32 @@ class Spectrum:
 			# delete all fits
 			for fit in self.fFitlist:
 				fit.Delete(False)
-			# finally update the viewport
+			# update the viewport
 			if update:
 				self.fViewport.Update(True)
-			# remove the viewport
+			# finally remove the viewport from this object
 			self.fViewport = None
 
 	def Update(self, update=True):
 		"""
-		Redraw this spectrum
+		Update screen
 		"""
-		viewport = self.fViewport
-		self.Delete(False)
-		self.Realize(viewport, True)
-		
+		if self.fViewport:
+			# delete old spectrum
+			if self.fSid!=None:
+				self.fViewport.DeleteSpec(self.fSid, False)
+			# if not color is set, use the default
+			if self.fColor==None:
+				self.fColor = c.kSpecDef
+			# create new spectrum
+			self.fSid = self.fViewport.AddSpec(self.fHist,self.fColor, False)
+			# add calibration
+			if self.fCal:
+				self.fViewport.GetDisplaySpec(self.fSid).SetCal(self.fCal)
+			# update all fits
+			for fit in self.fFitlist:
+				fit.Update(False)
+			# finally update the viewport
+			if update:
+				self.fViewport.Update(True)
+

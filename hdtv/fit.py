@@ -1,7 +1,6 @@
 import ROOT
 import gspec
-import spectrum
-import peak
+from peak import Peak
 
 class Fit:
 	"""
@@ -17,71 +16,70 @@ class Fit:
 		self.region = region
 		self.peaklist = peaklist
 		self.bglist = bglist
-		self.lTail = lTail
-		self.rTail = rTail
+		self.leftTail = lTail
+		self.rightTail = rTail
 		self.fitter = None
-		self.peakFunc = None
-		self.peakFuncID = None
-		self.bgFunc = None
-		self.bgFuncID = None
-		self.fPeakMarkerIDs = []
 		self.fittedPeaks = []
+		self.peakFuncID = None
+		self.bgFuncID = None
+		self.viewport=None
 
 	def __setattr__(self, key, val):
 		"""
-		set fit parameter (overwrites the normal set function!)
-
-		use calibration to calculate values in channels 
-		and reset fitter to None, because it must reinitialized 
-		before the next fit.
+		Set fit parameter (overwrites the normal set function!)
+		 
+		The fitter must be reinitilized before the next fit, if the value of 
+		spec, region, peaklist, bglist, leftTail or rightTail changed.
+		Moreover some values have to be transfered to uncalibrated ones,
+		before saving.
 		"""
-		if not key=="fitter":
+		reset = ["spec", "region", "peaklist", "bglist", "leftTail", "rightTail"]
+		if key in reset: 
 			# reset fitter as it is deprecated now
 			self.__dict__["fitter"] = None
+			# and clear the peaklist
+			self.__dict__["fittedPeaks"] = []
 		if key in ["region", "peaklist"]:
 			# convert to uncalibrated values
-			val = [spec.E2Ch(i) for i in val]
+			val = [self.spec.E2Ch(i) for i in val]
 			self.__dict__[key] = val 
 		elif key == "bglist":
 			# convert all paires to uncalibrated values
-			val = [[spec.E2Ch(i[0]), spec.E2Ch(i[1])] for i in bglist] 
+			val = [[self.spec.E2Ch(i[0]), self.spec.E2Ch(i[1])] for i in val] 
 			self.__dict__[key] = val
 		else:
 			# use all other values as they are
 			self.__dict__[key] = val
-		
-	def SetFromMarker(self, marker):
-		pass
 
 	def InitFitter(self):
 		"""
-		This initialized a new Fitter Object
+		Initialized a new Fitter Object
 		"""
 		# define a fitter and a region
-		fitter = ROOT.GSFitter(region[0], region[1])
+		fitter = ROOT.GSFitter(self.region[0],self.region[1])
 		# add all peaks
 		for peak in self.peaklist:
 			fitter.AddPeak(peak)
 		# add all background regions
 		for bg in self.bglist:
-			fitter.AddBgRegion(bg[0], bg[1])
+			fitter.AddBgRegion(bg[0],bg[1])
 		# add LeftTail
-		if leftTail:
+		if self.leftTail:
 			fitter.SetLeftTails(self.leftTail)
 		# add RightTail
-		if rightTail:
-			fitter.SetRightTail(self.rightTail)
-		self.fitter=fitter
+		if self.rightTail:
+			fitter.SetRightTails(self.rightTail)
+		self.fitter = fitter
 
-	def DoPeakFit(self, bgfunc=None):
+	def DoPeakFit(self, bgfunc=None, update=True):
 		""" 
 		Fit all peaks in the current region
 		"""
 		# check if there is already a fitter available
 		if not self.fitter:
-			self.fitter = InitFitter()
-		fitter = self.fitter
-		func = fitter.Fit(spec.hist, bgFunc)
+			self.InitFitter()
+		# TODO: without bg?
+		func = self.fitter.Fit(self.spec.fHist, bgfunc)
 		numPeaks = int(func.GetParameter(0))
 		# information for each peak
 		peaks = []
@@ -92,17 +90,32 @@ class Fit:
 			lt=ROOT.GSFitter.GetPeakLT(func, i)
 			rt=ROOT.GSFitter.GetPeakRT(func, i)
 			peaks.append(Peak(mean, fwhm, vol))
+		# draw function to viewport
+		if self.viewport:
+			viewport = self.viewport
+			self.peakFuncID = viewport.AddFunc(func, 10, False)
+			if self.spec.fCal:
+				viewport.GetDisplayFunc(self.peakFuncID).SetCal(self.spec.fCal)
+			if update:
+				viewport.Update(True)
 		return peaks
 
-	def DoBgFit(self):
+	def DoBgFit(self, update=True):
 		"""
 		Fit the background function in the current region
 		"""
 		# check if there is already a fitter available
 		if not self.fitter:
-			self.fitter = InitFitter()
-		fitter = self.fitter
-		bgFunc = fitter.FitBackground(self.spec)
+			self.InitFitter()
+		bgfunc = self.fitter.FitBackground(self.spec.fHist)
+		# draw function to viewport
+		if self.viewport:
+			viewport = self.viewport
+			self.bgFuncID = viewport.AddFunc(bgfunc, 25, False)
+			if self.spec.fCal:
+				viewport.GetDisplayFunc(self.bgFuncID).SetCal(self.spec.fCal)
+			if update:
+				viewport.Update(True)
 		return bgfunc
 
 	def DoFit(self):
@@ -110,57 +123,55 @@ class Fit:
 		Fit first the background and then the peaks
 		"""
 		if not self.fitter:
-			self.fitter = InitFitter()
-		fitter = self.fitter
+			self.InitFitter()
 		# fit the background
-		bgfunc = DoBgFit()
+		bgfunc = self.DoBgFit(update=False)
 		# fit the peaks
-		peaks = DoPeakFit(fitter)
+		peaks = self.DoPeakFit(bgfunc, update=True)
 		return peaks
 
 	def Realize(self, viewport, update=True):
-		# background function
-		if self.bgFunc:
-			self.bgFuncId = viewport.AddFunc(self.bgFunc, 25, False)
-			if self.spec.cal:
-				viewport.GetDisplayFunc(self.bgFuncId).SetCal(self.spec.cal)
-		# peak function
-		if self.peakFunc:
-			self.peakFuncId = viewport.AddFunc(self.peakFunc, 10, False)
-			if self.spec.cal:
-				viewport.GetDisplayFunc(self.peakFuncId).SetCal(self.spec.cal)
-		# peak markers
-		if self.fittedPeaks:
-			self.PeakMarkerIDs = []
-			for i in range(0, len(self.fittedPeaks)):
-				pos = self.spec.Ch2E(i.pos)
-				mid = viewport.AddXMarker(pos, 50, False)
-				self.PeakMarkerIDs.append(mid)
+		"""
+		Draw this spectrum to the window
+		"""
+		# save the viewport
+		self.viewport = viewport
+		# TODO: set all markers for this fit (remove old ones before)
+
 		# finally update the viewport
 		if update:
 			viewport.Update(True)
 			
-	def Delete(self, viewport, update=True):
-		# background function
-		if self.bgFuncId:
-			viewport.DeleteFunc(self.bgFuncId)
-			self.bgFuncId = None
-		# peak function
-		if self.peakFuncId:
-			viewport.DeleteFunc(self.peakFuncId)
-			self.peakFuncId = None
-		# peak markers
-		for mid in self.fPeakMarkerIDs:
-			viewport.DeleteXMarker(mid)
-		self.fPeakMarkerIDs = []
-		# finally update the viewport
-		if update:
-			viewport.Update(True)
-			
-	def Update(self, viewport):
-		self.Delete(False)
-		self.Realize()
-		
+	def Delete(self, update=True):
+		"""
+		Delete this fit from the window
+		"""
+		if self.viewport:
+			# TODO: markers?
+
+			# background function
+			if not self.bgFuncID==None:
+				self.viewport.DeleteFunc(self.bgFuncID)
+				self.bgFuncID = None
+			# peak function
+			if not self.peakFuncID==None:
+				self.viewport.DeleteFunc(self.peakFuncID)
+				self.peakFuncID = None
+			# update the viewport
+			if update:
+				self.viewport.Update(True)
+			# finally remove the viewport from this object
+			self.viewport = None
+
+	def Update(self, update=True):
+		""" 
+		Update the screen
+		"""
+		if not self.bgFuncID==None:
+			self.viewport.GetDisplayFunc(self.bgFuncID).SetCal(self.spec.fCal)
+		if not self.peakFuncID==None:
+			self.viewport.GetDisplayFunc(self.peakFuncID).SetCal(self.spec.fCal)
+
 	def Report(self, output=None):
 		"""
 		Print the results of the fit to output

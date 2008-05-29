@@ -75,11 +75,15 @@ class View:
 				self.fViewport.Update(True)
 			# remove the viewport from this view
 			self.fViewport = None
-	
+
 	def Update(self, update=True):
 		"""
-		Redraw this view
+		Update the screen
 		"""
-		viewport = self.fViewport
-		self.Delete(False)
-		self.Realize(viewport, True)
+		if self.fViewport:
+			for spec in self.fSpectra:
+				spec.Update(False)
+			# finally update the viewport
+			if update:
+				self.fViewport.Update(True)
+	
