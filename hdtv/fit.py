@@ -83,7 +83,8 @@ class Fit:
 		# check if there is already a fitter available
 		if not self.fitter:
 			self.InitFitter()
-		self.func = self.fitter.Fit(self.spec.fHist, bgfunc)
+		func = self.fitter.Fit(self.spec.fHist, bgfunc)
+		self.func = ROOT.TF1(func)
 		numPeaks = int(self.func.GetParameter(0))
 		# information for each peak
 		peaks = []
@@ -107,7 +108,10 @@ class Fit:
 		# check if there is already a fitter available
 		if not self.fitter:
 			self.InitFitter()
-		self.bgfunc = self.fitter.FitBackground(self.spec.fHist)
+		bgfunc = self.fitter.FitBackground(self.spec.fHist)
+		# FIXME: why is this needed? Possibly related to some
+		# subtle issue with PyROOT memory management
+		self.bgfunc =  ROOT.TF1(bgfunc)
 		# draw function to viewport
 		if update:
 			self.Update(True)
@@ -129,17 +133,14 @@ class Fit:
 		"""
 		Draw this spectrum to the window
 		"""
-		print "Realize %s" %self
 		# save the viewport
 		self.viewport = viewport
 		# TODO: set all markers for this fit (remove old ones before)
 		if self.bgfunc:
-			print "add bg function"
 			self.bgFuncID = viewport.AddFunc(self.bgfunc, 25, False)
 			if self.spec.fCal:
 				viewport.GetDisplayFunc(self.bgFuncID).SetCal(self.spec.fCal)
 		if self.func:
-			print "add peak function"
 			self.peakFuncID = viewport.AddFunc(self.func, 10, False)
 			if self.spec.fCal:
 				viewport.GetDisplayFunc(self.peakFuncID).SetCal(self.spec.fCal)
@@ -151,18 +152,15 @@ class Fit:
 		"""
 		Delete this fit from the window
 		"""
-		print "Delete %s" %self
 		if self.viewport:
 			# TODO: markers?
 
 			# background function
 			if not self.bgFuncID==None:
-				print "delete bg function"
 				self.viewport.DeleteFunc(self.bgFuncID)
 				self.bgFuncID = None
 			# peak function
 			if not self.peakFuncID==None:
-				print "delete peak function"
 				self.viewport.DeleteFunc(self.peakFuncID)
 				self.peakFuncID = None
 			# update the viewport
@@ -175,7 +173,6 @@ class Fit:
 		""" 
 		Update the screen
 		"""
-		print "Update: %s" %self
 		if self.viewport:
 			# Background
 			if not self.bgFuncID==None:
