@@ -12,7 +12,7 @@ class Peak:
 		if ltail and ltail < 1000:
 			self.ltail = ltail
 		else:
-			ltail = None
+			self.ltail = None
 		if rtail and rtail < 1000:
 			self.rtail = rtail
 		else:
@@ -28,7 +28,7 @@ class Peak:
 			pos = cal.Ch2E(self.pos)
 			fwhm = cal.Ch2E(self.pos+self.fwhm)-cal.Ch2E(self.pos-self.fwhm)
 
-		text = "\npos: %10.3f   fwhm: %7.3f   vol: %8.1f   \n" %(pos, fwhm, self.vol)
+		text = "pos: %10.3f   fwhm: %7.3f   vol: %8.1f   \n" %(pos, fwhm, self.vol)
 		
 		# Tails
 		if self.ltail:

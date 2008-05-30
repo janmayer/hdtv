@@ -97,11 +97,11 @@ class Spectrum:
 			return ch
 
 	def AddFit(self, region=None, peaklist=None, 
-			   bglist=None, lTail=0, rTail=0, update=True):
+			   bglist=None, ltail=0, rtail=0, update=True):
 		"""
 		Add a new fit to the list of fits belonging to this spectrum
 		"""
-		fit = Fit(self, region, peaklist, bglist, lTail, rTail) 
+		fit = Fit(self, region, peaklist, bglist, ltail, rtail) 
 		self.fFitlist.append(fit)
 		if self.fViewport:
 			# update the display if this view is currently active

@@ -19,6 +19,9 @@ class Fit:
 		self.leftTail = lTail
 		self.rightTail = rTail
 		self.fitter = None
+		self.bgfunc = None
+		self.func = None
+		self.resultPeaks = []
 		self.peakFuncID = None
 		self.bgFuncID = None
 		self.viewport=None
@@ -36,11 +39,16 @@ class Fit:
 		if key in reset: 
 			# reset fitter as it is deprecated now
 			self.__dict__["fitter"] = None
+			self.__dict__["bgfunc"] = None
+			self.__dict__["func"] = None
+			self.__dict__["resultPeaks"] = []
 		if key in ["region", "peaklist"]:
 			# convert to uncalibrated values
 			val = [self.spec.E2Ch(i) for i in val]
 			self.__dict__[key] = val 
 		elif key == "bglist":
+			if val==None:
+				val= []
 			# convert all paires to uncalibrated values
 			val = [[self.spec.E2Ch(i[0]), self.spec.E2Ch(i[1])] for i in val] 
 			self.__dict__[key] = val
@@ -75,25 +83,21 @@ class Fit:
 		# check if there is already a fitter available
 		if not self.fitter:
 			self.InitFitter()
-		func = self.fitter.Fit(self.spec.fHist, bgfunc)
-		numPeaks = int(func.GetParameter(0))
+		self.func = self.fitter.Fit(self.spec.fHist, bgfunc)
+		numPeaks = int(self.func.GetParameter(0))
 		# information for each peak
 		peaks = []
 		for i in range(0, numPeaks):
-			mean= ROOT.GSFitter.GetPeakPos(func, i)
-			fwhm = ROOT.GSFitter.GetPeakFWHM(func, i)
-			vol = ROOT.GSFitter.GetPeakVol(func, i)
-			lt=ROOT.GSFitter.GetPeakLT(func, i)
-			rt=ROOT.GSFitter.GetPeakRT(func, i)
+			mean= ROOT.GSFitter.GetPeakPos(self.func, i)
+			fwhm = ROOT.GSFitter.GetPeakFWHM(self.func, i)
+			vol = ROOT.GSFitter.GetPeakVol(self.func, i)
+			lt=ROOT.GSFitter.GetPeakLT(self.func, i)
+			rt=ROOT.GSFitter.GetPeakRT(self.func, i)
 			peaks.append(Peak(mean, fwhm, vol, lt, rt, cal=self.spec.fCal))
 		# draw function to viewport
-		if self.viewport:
-			viewport = self.viewport
-			self.peakFuncID = viewport.AddFunc(func, 10, False)
-			if self.spec.fCal:
-				viewport.GetDisplayFunc(self.peakFuncID).SetCal(self.spec.fCal)
-			if update:
-				viewport.Update(True)
+		if update:
+			self.Update(True)
+		self.resultPeaks = peaks
 		return peaks
 
 	def DoBgFit(self, update=True):
@@ -103,16 +107,11 @@ class Fit:
 		# check if there is already a fitter available
 		if not self.fitter:
 			self.InitFitter()
-		bgfunc = self.fitter.FitBackground(self.spec.fHist)
+		self.bgfunc = self.fitter.FitBackground(self.spec.fHist)
 		# draw function to viewport
-		if self.viewport:
-			viewport = self.viewport
-			self.bgFuncID = viewport.AddFunc(bgfunc, 25, False)
-			if self.spec.fCal:
-				viewport.GetDisplayFunc(self.bgFuncID).SetCal(self.spec.fCal)
-			if update:
-				viewport.Update(True)
-		return bgfunc
+		if update:
+			self.Update(True)
+		return self.bgfunc
 
 	def DoFit(self):
 		"""
@@ -130,10 +129,20 @@ class Fit:
 		"""
 		Draw this spectrum to the window
 		"""
+		print "Realize %s" %self
 		# save the viewport
 		self.viewport = viewport
 		# TODO: set all markers for this fit (remove old ones before)
-
+		if self.bgfunc:
+			print "add bg function"
+			self.bgFuncID = viewport.AddFunc(self.bgfunc, 25, False)
+			if self.spec.fCal:
+				viewport.GetDisplayFunc(self.bgFuncID).SetCal(self.spec.fCal)
+		if self.func:
+			print "add peak function"
+			self.peakFuncID = viewport.AddFunc(self.func, 10, False)
+			if self.spec.fCal:
+				viewport.GetDisplayFunc(self.peakFuncID).SetCal(self.spec.fCal)
 		# finally update the viewport
 		if update:
 			viewport.Update(True)
@@ -142,15 +151,18 @@ class Fit:
 		"""
 		Delete this fit from the window
 		"""
+		print "Delete %s" %self
 		if self.viewport:
 			# TODO: markers?
 
 			# background function
 			if not self.bgFuncID==None:
+				print "delete bg function"
 				self.viewport.DeleteFunc(self.bgFuncID)
 				self.bgFuncID = None
 			# peak function
 			if not self.peakFuncID==None:
+				print "delete peak function"
 				self.viewport.DeleteFunc(self.peakFuncID)
 				self.peakFuncID = None
 			# update the viewport
@@ -163,9 +175,23 @@ class Fit:
 		""" 
 		Update the screen
 		"""
-		if not self.bgFuncID==None:
-			self.viewport.GetDisplayFunc(self.bgFuncID).SetCal(self.spec.fCal)
-		if not self.peakFuncID==None:
-			self.viewport.GetDisplayFunc(self.peakFuncID).SetCal(self.spec.fCal)
-
+		print "Update: %s" %self
+		if self.viewport:
+			# Background
+			if not self.bgFuncID==None:
+				self.viewport.DeleteFunc(self.bgFuncID)
+			if self.bgfunc:
+				self.bgFuncID = self.viewport.AddFunc(self.bgfunc, 25, False)
+				if self.spec.fCal:
+					self.viewport.GetDisplayFunc(self.bgFuncID).SetCal(self.spec.fCal)
+			# Peak function
+			if not self.peakFuncID==None:
+				self.viewport.DeleteFunc(self.peakFuncID)
+			if self.func:
+				self.peakFuncID = self.viewport.AddFunc(self.func, 10, False)
+				if self.spec.fCal:
+					self.viewport.GetDisplayFunc(self.peakFuncID).SetCal(self.spec.fCal)
+			# finally update the viewport
+			if update:
+				self.viewport.Update(True)
 

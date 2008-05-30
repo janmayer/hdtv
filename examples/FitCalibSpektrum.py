@@ -35,7 +35,7 @@ win.ShowView(0)
 win.Expand()
 
 # add the fit to spectrum
-fit = spec.AddFit(region, peaks, backgrounds, lTail=-1, rTail=-1)
+fit = spec.AddFit(region, peaks, backgrounds, ltail=-1, rtail=-1)
 # Do the Fit
 peaks = fit.DoFit()
 
