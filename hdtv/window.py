@@ -194,38 +194,49 @@ class Window:
 		handled = True
 		if key == ROOT.kKey_u:
 			self.fViewport.Update(True)
-		elif key == ROOT.kKey_z:
-			self.fViewport.XZoomAroundCursor(2.0)
-		elif key == ROOT.kKey_x:
-			self.fViewport.XZoomAroundCursor(0.5)
+		# toggle spectrum display
 		elif key == ROOT.kKey_l:
 			self.fViewport.ToggleLogScale()
 		elif key == ROOT.kKey_a:
 			self.ToggleYAutoScale()
-		elif key == ROOT.kKey_0:
-			self.fViewport.ToBegin()
+		# x directions
 		elif key == ROOT.kKey_Space:
 			self.PutXZoomMarker()
-		elif key == ROOT.kKey_y:
-			self.ExpandY()
 		elif key == ROOT.kKey_f:
 			self.ExpandX()
+		elif key == ROOT.kKey_Left:
+			self.fViewport.ShiftXOffset(0.1)
+		elif key == ROOT.kKey_Right:
+			self.fViewport.ShiftXOffset(-0.1)
+		elif key == ROOT.kKey_z:
+			self.fViewport.XZoomAroundCursor(2.0)
+		elif key == ROOT.kKey_x:
+			self.fViewport.XZoomAroundCursor(0.5)
+		# Y direction
 		elif key == ROOT.kKey_h:
 			self.PutYZoomMarker()
-		elif key == ROOT.kKey_e:
-			self.Expand()
-		elif key == ROOT.kKey_w:
+		elif key == ROOT.kKey_y:
+			self.ExpandY()
+		elif key == ROOT.kKey_Up:
 			self.fViewport.ShiftYOffset(0.1)
-		elif key == ROOT.kKey_s:
+		elif key == ROOT.kKey_Down:
 			self.fViewport.ShiftYOffset(-0.1)
 		elif key == ROOT.kKey_Z:
 			self.fViewport.YZoomAroundCursor(2.0)
 		elif key == ROOT.kKey_X:
 			self.fViewport.YZoomAroundCursor(0.5)
+		# expand in all directions
+		elif key == ROOT.kKey_e:
+			self.Expand()
+		# switch between views
 		elif key == ROOT.kKey_PageUp:
 			self.ShowView(self.fCurViewID - 1)
 		elif key == ROOT.kKey_PageDown:
 			self.ShowView(self.fCurViewID + 1)
+		elif key== ROOT.kKey_Home:
+			self.ShowView(0)
+		elif key== ROOT.kKey_End:
+			self.ShowView(len(self.fViews)-1)
 		else:
 			handled = False
 			

@@ -570,6 +570,14 @@ void GSViewport::SetYOffset(double offset, bool update)
     Update();
 }
 
+void GSViewport::ShiftXOffset(double f, bool update)
+{
+  fXOffset += f * fXVisibleRegion;
+  if(update)
+    Update();
+}
+
+
 void GSViewport::ShiftYOffset(double f, bool update)
 {
   fYOffset += f * fYVisibleRegion;

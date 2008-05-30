@@ -1,7 +1,7 @@
 import ROOT
 import os
 import gspec
-import color as c
+from color import *
 from specreader import SpecReader
 from fit import Fit
 
@@ -19,7 +19,7 @@ class Spectrum:
 	def __init__(self, histfile, cal=None, color=None):
 		self.fCal = None
 		self.fHist = None
-		self.fColor = c.kSpecDef
+		self.fColor = kSpecDef
 		self.fFitlist = []
 		self.fSid = None
 		self.fViewport = None
@@ -127,7 +127,7 @@ class Spectrum:
 		if self.fSid == None and self.fHist != None:
 			if self.fColor==None:
 				# set to default color
-				self.fColor = c.kSpecDef
+				self.fColor = kSpecDef
 			self.fSid = viewport.AddSpec(self.fHist,self.fColor, False)
 			# add calibration
 			if self.fCal:
@@ -167,7 +167,7 @@ class Spectrum:
 				self.fViewport.DeleteSpec(self.fSid, False)
 			# if not color is set, use the default
 			if self.fColor==None:
-				self.fColor = c.kSpecDef
+				self.fColor = kSpecDef
 			# create new spectrum
 			self.fSid = self.fViewport.AddSpec(self.fHist,self.fColor, False)
 			# add calibration

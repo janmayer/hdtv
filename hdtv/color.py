@@ -21,4 +21,5 @@ kDarkGrey = 12
 
 # some default colors
 kSpecDef = 2
+kFitDef = 25
 

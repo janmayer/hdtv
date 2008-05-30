@@ -1,5 +1,6 @@
 import ROOT
 import gspec
+from color import *
 from peak import Peak
 
 class Fit:
@@ -137,11 +138,11 @@ class Fit:
 		self.viewport = viewport
 		# TODO: set all markers for this fit (remove old ones before)
 		if self.bgfunc:
-			self.bgFuncID = viewport.AddFunc(self.bgfunc, 25, False)
+			self.bgFuncID = viewport.AddFunc(self.bgfunc, kFitDef, False)
 			if self.spec.fCal:
 				viewport.GetDisplayFunc(self.bgFuncID).SetCal(self.spec.fCal)
 		if self.func:
-			self.peakFuncID = viewport.AddFunc(self.func, 10, False)
+			self.peakFuncID = viewport.AddFunc(self.func, kFitDef, False)
 			if self.spec.fCal:
 				viewport.GetDisplayFunc(self.peakFuncID).SetCal(self.spec.fCal)
 		# finally update the viewport
@@ -178,14 +179,14 @@ class Fit:
 			if not self.bgFuncID==None:
 				self.viewport.DeleteFunc(self.bgFuncID)
 			if self.bgfunc:
-				self.bgFuncID = self.viewport.AddFunc(self.bgfunc, 25, False)
+				self.bgFuncID = self.viewport.AddFunc(self.bgfunc, kFitDef, False)
 				if self.spec.fCal:
 					self.viewport.GetDisplayFunc(self.bgFuncID).SetCal(self.spec.fCal)
 			# Peak function
 			if not self.peakFuncID==None:
 				self.viewport.DeleteFunc(self.peakFuncID)
 			if self.func:
-				self.peakFuncID = self.viewport.AddFunc(self.func, 10, False)
+				self.peakFuncID = self.viewport.AddFunc(self.func, kFitDef, False)
 				if self.spec.fCal:
 					self.viewport.GetDisplayFunc(self.peakFuncID).SetCal(self.spec.fCal)
 			# finally update the viewport
