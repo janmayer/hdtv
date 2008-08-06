@@ -42,7 +42,7 @@ class View:
 		if this view is currently active. If the user wants to postpone the
 		update, because there are more things to change, that can be done
 		by setting update=False in the parameter list. The user is then 
-		responsible for initilizing the update later.
+		responsible for initializing the update later.
 		"""
 		if sid>=0 and sid < len(self.fSpectra):
 			spec = self.fSpectra.pop(sid)

@@ -57,7 +57,7 @@ class MTView : public TGFrame {
     inline int GetTileId(int pos)
        { return pos < 0 ? (pos / cTileSize) - 1 : pos / cTileSize; }
 
-    uint32_t ZtoRGB(int z);
+    void ZtoRGB(int z, int &r, int &g, int &b);
     int GetValueAtPixel(int xs, int ys);
     
   ClassDef(MTView, 1)

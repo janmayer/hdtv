@@ -42,7 +42,7 @@ class Window:
 		Delete a view from this window
 		
 		The parameter vid defines which view should be deleted, 
-		if no vid is given the current displayed view is deleted.
+		if no vid is given the currently displayed view is deleted.
 		"""
 		if not vid:
 			vid = self.fCurViewID
@@ -72,7 +72,7 @@ class Window:
 
 	def ShowView(self, vid):
 		"""
-		Diplay a special view 
+		Display a special view 
 
 		This clears the old view and updates the display 
 		to show the new one. It also sets the window title to 
@@ -123,7 +123,7 @@ class Window:
 		
 	def Expand(self):
 		"""
-		exapnd in X and in Y direction
+		expand in X and in Y direction
 		"""
 		self._Expand("X")
 		self._Expand("Y")

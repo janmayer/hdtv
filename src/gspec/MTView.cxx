@@ -196,10 +196,8 @@ void MTView::UpdateStatusBar()
   }
 }
 
-uint32_t MTView::ZtoRGB(int z)
+void MTView::ZtoRGB(int z, int &r, int &g, int &b)
 {
-  int r, g, b;
-
   if(z < 0) {
     r = 0;
     g = 0;
@@ -229,8 +227,6 @@ uint32_t MTView::ZtoRGB(int z)
     g = 0;
     b = 0;
   }
-  
-  return (r << 16) | (g << 8) | b;
 }
 
 int MTView::GetValueAtPixel(int x, int y)
@@ -251,36 +247,52 @@ int MTView::GetValueAtPixel(int x, int y)
 Pixmap_t MTView::RenderTile(int xoff, int yoff)
 {
   int x, y, z;
-  XImage xim;
+  int r, g, b;
   Pixmap_t pixmap;
-  uint32_t *imgData = new uint32_t[128*128];
+  Drawable_t img;
+  ULong_t pixel;
+  unsigned long r_mask, g_mask, b_mask;
+  int r_shift, g_shift, b_shift;
+
+  img = gVirtualX->CreateImage(cTileSize, cTileSize);
+  
+  /* Calculate shifts required for color channels. Positive shifts go to the left,
+     negative shifts go to the right.
+     
+     NOTE: This code only works as long as the bit mask for each color channel
+     contains only a single, continuous strings of 1s. Otherwise, much more
+     complicated and slow code would be needed, as a single shift would no
+     longer be sufficient.   */
+  r_mask = ((XImage*)img)->red_mask;
+  g_mask = ((XImage*)img)->green_mask;
+  b_mask = ((XImage*)img)->blue_mask;
+  
+  r_shift = g_shift = b_shift = 0;
+  while(r_mask) { r_mask >>= 1; r_shift++; }  r_shift -= 8;
+  while(g_mask) { g_mask >>= 1; g_shift++; }  g_shift -= 8;
+  while(b_mask) { b_mask >>= 1; b_shift++; }  b_shift -= 8;
+  
+  r_mask = ((XImage*)img)->red_mask;
+  g_mask = ((XImage*)img)->green_mask;
+  b_mask = ((XImage*)img)->blue_mask;
   
   for(y=0; y<cTileSize; y++) {
     for(x=0; x<cTileSize; x++) {
       z = GetValueAtPixel(x + xoff*cTileSize, -(y + yoff*cTileSize));
-      imgData[y * cTileSize + x] = ZtoRGB(z);
+      ZtoRGB(z, r, g, b);
+      
+      r = (r_shift > 0) ? (r << r_shift) : (r >> (-r_shift));
+      g = (g_shift > 0) ? (g << g_shift) : (g >> (-g_shift));
+      b = (b_shift > 0) ? (b << b_shift) : (b >> (-b_shift));
+      pixel = (r & r_mask) | (g & g_mask) | (b & b_mask);
+      gVirtualX->PutPixel(img, x, y, pixel);
     }
   }
   
-  xim.width = cTileSize;
-  xim.height = cTileSize;
-  xim.xoffset = 0;
-  xim.format = ZPixmap;
-  xim.data = (char *) imgData;
-  xim.byte_order = LSBFirst;
-  xim.bitmap_pad = 0;
-  xim.depth = 24;
-  xim.bytes_per_line = cTileSize * 4;
-  xim.bits_per_pixel = 32;
-  xim.red_mask = 0x00FF0000;
-  xim.green_mask = 0x0000FF00;
-  xim.blue_mask = 0x000000FF;
-  XInitImage(&xim);
-  
   pixmap = gVirtualX->CreatePixmap(GetId(), cTileSize, cTileSize);
-  XPutImage((Display*)gVirtualX->GetDisplay(), pixmap, (GC) GetWhiteGC()(), &xim,
+  gVirtualX->PutImage(pixmap, GetWhiteGC()(), img,
             0, 0, 0, 0, cTileSize, cTileSize);
-  delete imgData;
+  gVirtualX->DeleteImage(img);
   
   return pixmap;
 }
