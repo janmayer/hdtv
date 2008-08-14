@@ -2,6 +2,10 @@ import hdtv.cmdline
 import hdtv.window
 import hdtv.cmdhelper
 import hdtv.spectrum
+import hdtv.fitpanel
+import hdtv.marker
+import hdtv.peak
+from hdtv.color import *
 import os
 import glob
 import ROOT
@@ -16,6 +20,219 @@ class Spectrum(hdtv.spectrum.Spectrum):
 		
 	def IsVisible(self):
 		return self.fSid != None
+		
+class Fit:
+	def __init__(self, func, bgfunc, cal):
+		self.bgfunc = bgfunc
+		self.func = func
+		self.fCal = cal
+
+	def Realize(self, viewport, update=True):
+		"""
+		Draw this spectrum to the window
+		"""
+		# save the viewport
+		self.viewport = viewport
+		# TODO: set all markers for this fit (remove old ones before)
+		if self.bgfunc:
+			self.bgFuncID = viewport.AddFunc(self.bgfunc, kFitDef, False)
+			if self.fCal:
+				viewport.GetDisplayFunc(self.bgFuncID).SetCal(self.fCal)
+		if self.func:
+			self.peakFuncID = viewport.AddFunc(self.func, kFitDef, False)
+			if self.fCal:
+				viewport.GetDisplayFunc(self.peakFuncID).SetCal(self.fCal)
+		# finally update the viewport
+		if update:
+			viewport.Update(True)
+			
+	def Delete(self, update=True):
+		"""
+		Delete this fit from the window
+		"""
+		if self.viewport:
+			# TODO: markers?
+
+			# background function
+			if not self.bgFuncID==None:
+				self.viewport.DeleteFunc(self.bgFuncID)
+				self.bgFuncID = None
+			# peak function
+			if not self.peakFuncID==None:
+				self.viewport.DeleteFunc(self.peakFuncID)
+				self.peakFuncID = None
+			# update the viewport
+			if update:
+				self.viewport.Update(True)
+			# finally remove the viewport from this object
+			self.viewport = None
+
+	def Update(self, update=True):
+		""" 
+		Update the screen
+		"""
+		if self.viewport:
+			# Background
+			if not self.bgFuncID==None:
+				self.viewport.DeleteFunc(self.bgFuncID)
+			if self.bgfunc:
+				self.bgFuncID = self.viewport.AddFunc(self.bgfunc, kFitDef, False)
+				if self.fCal:
+					self.viewport.GetDisplayFunc(self.bgFuncID).SetCal(self.fCal)
+			# Peak function
+			if not self.peakFuncID==None:
+				self.viewport.DeleteFunc(self.peakFuncID)
+			if self.func:
+				self.peakFuncID = self.viewport.AddFunc(self.func, kFitDef, False)
+				if self.fCal:
+					self.viewport.GetDisplayFunc(self.peakFuncID).SetCal(self.fCal)
+			# finally update the viewport
+			if update:
+				self.viewport.Update(True)
+		
+class SpecWindow(hdtv.window.Window):
+	def __init__(self):
+		hdtv.window.Window.__init__(self)
+		
+		self.fPeakMarkers = []
+		self.fRegionMarkers = []
+		self.fBgMarkers = []
+		self.fFitPanel = hdtv.fitpanel.FitPanel()
+		self.fCurrentSpec = None
+		self.fCurrentFit = None
+		
+		self.fDefaultCal = ROOT.GSCalibration(0.0, 0.5)
+		
+		# self.SetTitle("No spectrum - hdtv")
+		
+	def KeyHandler(self, key):
+		handled = True
+	
+		if hdtv.window.Window.KeyHandler(self, key):
+			pass
+		elif key == ROOT.kKey_b:
+			self.PutBackgroundMarker()
+	  	elif key == ROOT.kKey_r:
+			self.PutRegionMarker()
+	  	elif key == ROOT.kKey_p:
+			self.PutPeakMarker()
+	  	elif key == ROOT.kKey_Escape:
+	  		self.DeleteFit()
+	  	elif key == ROOT.kKey_F:
+	  		self.Fit()
+	  	elif key == ROOT.kKey_I:
+	  		self.IntegrateAll()
+	  	else:
+	  		handled = False
+	  		
+	  	return handled
+		
+	def PutRegionMarker(self):
+		self.PutPairedMarker("X", "REGION", self.fRegionMarkers, 1)
+			
+	def PutBackgroundMarker(self):
+		self.PutPairedMarker("X", "BACKGROUND", self.fBgMarkers)
+		
+	def PutPeakMarker(self):
+		pos = self.fViewport.GetCursorX()
+  		self.fPeakMarkers.append(hdtv.marker.Marker("PEAK", pos))
+  		self.fPeakMarkers[-1].Realize(self.fViewport)
+  		
+  	def DeleteFit(self):
+		for marker in self.fPeakMarkers:
+  			marker.Delete(self.fViewport, False)
+		for marker in self.fBgMarkers:
+  			marker.Delete(self.fViewport, False)
+  		for marker in self.fRegionMarkers:
+  			marker.Delete(self.fViewport, False)
+	  			
+  		self.fPendingMarker = None
+  		self.fPeakMarkers = []
+  		self.fBgMarkers = []
+  		self.fRegionMarkers = []
+  		
+  		if self.fCurrentFit:
+			self.fCurrentFit.Delete(False)
+			self.fCurrentFit = None
+						
+		self.fViewport.Update(True)
+		
+	def Integrate(self, spec, bgFunc=None, corr=1.0):
+		if not self.fPendingMarker and len(self.fRegionMarkers) == 1:
+			ch_1 = self.E2Ch(self.fRegionMarkers[0].e1)
+			ch_2 = self.E2Ch(self.fRegionMarkers[0].e2)
+				
+			fitter = ROOT.GSFitter(ch_1, ch_2)
+			                       
+			for marker in self.fBgMarkers:
+				fitter.AddBgRegion(self.E2Ch(marker.e1), self.E2Ch(marker.e2))
+				
+			if not bgFunc and len(self.fBgMarkers) > 0:
+				bgFunc = fitter.FitBackground(spec.hist)
+			                       
+			total_int = fitter.Integrate(spec.hist)
+			if bgFunc:
+				bg_int = bgFunc.Integral(math.ceil(min(ch_1, ch_2) - 0.5) - 0.5,
+				                         math.ceil(max(ch_1, ch_2) - 0.5) + 0.5)
+			else:
+				bg_int = 0.0
+			                          
+			#self.fFitPanel.SetText("%.2f %.2f %.2f" % (total_int, bg_int, total_int - bg_int))
+			
+			integral = total_int - bg_int
+			integral_error = math.sqrt(total_int + bg_int)
+			
+			return (integral * corr, integral_error * corr)
+			
+	def IntegrateAll(self):
+		self.Integrate(self.fViews[0].fSpectra[0])
+		
+	def Fit(self):
+		if self.fCurrentFit:
+			self.fCurrentFit.Delete(self.fViewport)
+	
+	  	if self.fCurrentSpec and \
+	  		not self.fPendingMarker and \
+	  		len(self.fRegionMarkers) == 1 and \
+	  		len(self.fPeakMarkers) > 0:
+			# Make sure a fit panel is displayed
+			if not self.fFitPanel:
+				self.fFitPanel = FitPanel()
+				
+			reportStr = ""
+			i = 0
+			
+			spec = self.fCurrentSpec
+			fitter = ROOT.GSFitter(spec.E2Ch(self.fRegionMarkers[0].p1),
+			                       spec.E2Ch(self.fRegionMarkers[0].p2))
+				                       
+			for marker in self.fBgMarkers:
+				fitter.AddBgRegion(spec.E2Ch(marker.p1), spec.E2Ch(marker.p2))
+			
+			for marker in self.fPeakMarkers:
+				fitter.AddPeak(spec.E2Ch(marker.p1))
+				
+			bgFunc = None
+			if len(self.fBgMarkers) > 0:
+				bgFunc = fitter.FitBackground(spec.fHist)
+				
+			# Fit left tails
+			fitter.SetLeftTails(self.fFitPanel.GetLeftTails())
+			fitter.SetRightTails(self.fFitPanel.GetRightTails())
+			
+			func = fitter.Fit(spec.fHist, bgFunc)
+							
+			# FIXME: why is this needed? Possibly related to some
+			# subtle issue with PyROOT memory management
+			# Todo: At least a clean explaination, possibly a better
+			#   solution...
+			self.fCurrentFit = Fit(ROOT.TF1(func), ROOT.TF1(bgFunc), spec.fCal)
+			self.fCurrentFit.Realize(self.fViewport)
+			                   
+			self.fFitPanel.SetText(reportStr)	
+				
+			for marker in self.fPeakMarkers:
+				marker.Delete(self.fViewport)
 
 class SpectrumModule:
 	def __init__(self):
@@ -32,7 +249,7 @@ class SpectrumModule:
 		hdtv.cmdline.AddCommand("calibration position enter", self.EnterCal, nargs=4)
 		hdtv.cmdline.AddCommand("calibration position set", self.SetCal, maxargs=4)
 		
-		self.fMainWindow = hdtv.window.Window()
+		self.fMainWindow = SpecWindow()
 		self.fView = self.fMainWindow.AddView("hdtv")
 		self.fMainWindow.ShowView(0)
 		
@@ -115,6 +332,7 @@ class SpectrumModule:
 		
 		self.fSpectra[sid] = spec
 		self.fActiveID = sid
+		self.fMainWindow.fCurrentSpec = self.fSpectra[sid]
 		spec.Realize(self.fMainWindow.fViewport, False)
 
 		return True
@@ -160,6 +378,7 @@ class SpectrumModule:
 			
 		if sid in self.fSpectra:
 			self.fActiveID = sid
+			self.fMainWindow.fCurrentSpec = self.fSpectra[sid]
 		else:
 			print "Error: No such ID"
 		
@@ -194,4 +413,4 @@ class SpectrumModule:
 				print msg
 
 module = SpectrumModule()
-print "Loaded module spectrum (commands for 1-d histograms)"
+print "Loaded plugin spectrum (commands for 1-d histograms)"

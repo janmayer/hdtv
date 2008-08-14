@@ -157,22 +157,24 @@ class Window:
   		"""
   		set a X zoom marker
   		"""
-		self._PutPairedMarker("XZOOM", self.fXZoomMarkers, 1)
+		self.PutPairedMarker("X", "XZOOM", self.fXZoomMarkers, 1)
 		
 	def PutYZoomMarker(self):
 		"""
 		set a Y zoom marker
 		"""
-		self._PutPairedMarker("YZOOM", self.fYZoomMarkers, 1)
+		self.PutPairedMarker("Y", "YZOOM", self.fYZoomMarkers, 1)
 
-	def _PutPairedMarker(self, mtype, collection, maxnum=None):
+	def PutPairedMarker(self, xy, mtype, collection, maxnum=None):
 		"""
 		set paired markers (either X or Y direction)
 		"""
-		if mtype in ['XZOOM']:
+		if xy == "X" or xy == "x":
 			pos = self.fViewport.GetCursorX()
-		if mtype in ['YZOOM']:
+		elif xy == "Y" or xy == "y":
 			pos = self.fViewport.GetCursorY()
+		else:
+			raise RuntimeError, "Parameter xy must be either x or y"
 			
 		if self.fPendingMarker:
 			if self.fPendingMarker.mtype == mtype:
