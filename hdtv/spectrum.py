@@ -5,8 +5,6 @@ from color import *
 from specreader import SpecReader
 from fit import Fit
 
-
-
 class Spectrum:
 	"""
 	Spectrum object
@@ -23,6 +21,7 @@ class Spectrum:
 		self.fFitlist = []
 		self.fSid = None
 		self.fViewport = None
+		self.fZombie = True
 
 		# check if file exists
 		try:
@@ -41,6 +40,7 @@ class Spectrum:
 		# set color
 		if color:
 			self.SetColor(color)
+		self.fZombie = False
 
 	def SetColor(self, color):
 		"""

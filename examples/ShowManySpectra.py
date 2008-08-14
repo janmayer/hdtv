@@ -30,7 +30,7 @@ cal3 = [-303.644, 0.666922, 4.86769e-05]
 # create a standard window
 win = Window()
 
-#### show several superposed spectra
+#### show several superimposed spectra
 # add a view
 view0=win.AddView("Several Spectra")
 # load first spectrum
