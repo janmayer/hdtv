@@ -2,6 +2,10 @@
 import readline
 import os
 import sys
+import traceback
+
+class HDTVCommandError(Exception):
+	pass
 
 class HDTVCommandTree:
 	"""
@@ -59,7 +63,7 @@ class HDTVCommandTree:
 					if not next:
 						next = child
 					else:
-						raise RuntimeError, "Command is ambiguous"
+						raise HDTVCommandError, "Command is ambiguous"
 			if not next:
 				path.insert(0, elem)
 				break
@@ -87,10 +91,10 @@ class HDTVCommandTree:
 		(node, args) = self.FindNode(path)
 		
 		if not node.command:
-			raise RuntimeError, "Command not recognized"
+			raise HDTVCommandError, "Command not recognized"
 		
 		if not self.CheckNumParams(node, len(args)):
-			raise RuntimeError, "Wrong number of arguments to command"
+			raise HDTVCommandError, "Wrong number of arguments to command"
 		
 		node.command(args)
 		
@@ -257,8 +261,11 @@ def MainLoop():
 			command_tree.ExecCommand(s)
 		except KeyboardInterrupt:
 			print "Aborted"
-		#except:
-		#	print "Error:", sys.exc_info()[0]
+		except HDTVCommandError, msg:
+			print "Error: %s" % msg
+		except Exception:
+			print "Unhandled exception:"
+			traceback.print_exc()
 
 # Module-global variables initialization
 global keep_running, command_tree

@@ -5,9 +5,12 @@ import hdtv.spectrum
 import hdtv.fitpanel
 import hdtv.marker
 import hdtv.peak
+import hdtv.util
+import hdtv.fit
 from hdtv.color import *
 import os
 import glob
+import math
 import ROOT
 
 # Don't add created spectra to the ROOT directory
@@ -21,75 +24,6 @@ class Spectrum(hdtv.spectrum.Spectrum):
 	def IsVisible(self):
 		return self.fSid != None
 		
-class Fit:
-	def __init__(self, func, bgfunc, cal):
-		self.bgfunc = bgfunc
-		self.func = func
-		self.fCal = cal
-
-	def Realize(self, viewport, update=True):
-		"""
-		Draw this spectrum to the window
-		"""
-		# save the viewport
-		self.viewport = viewport
-		# TODO: set all markers for this fit (remove old ones before)
-		if self.bgfunc:
-			self.bgFuncID = viewport.AddFunc(self.bgfunc, kFitDef, False)
-			if self.fCal:
-				viewport.GetDisplayFunc(self.bgFuncID).SetCal(self.fCal)
-		if self.func:
-			self.peakFuncID = viewport.AddFunc(self.func, kFitDef, False)
-			if self.fCal:
-				viewport.GetDisplayFunc(self.peakFuncID).SetCal(self.fCal)
-		# finally update the viewport
-		if update:
-			viewport.Update(True)
-			
-	def Delete(self, update=True):
-		"""
-		Delete this fit from the window
-		"""
-		if self.viewport:
-			# TODO: markers?
-
-			# background function
-			if not self.bgFuncID==None:
-				self.viewport.DeleteFunc(self.bgFuncID)
-				self.bgFuncID = None
-			# peak function
-			if not self.peakFuncID==None:
-				self.viewport.DeleteFunc(self.peakFuncID)
-				self.peakFuncID = None
-			# update the viewport
-			if update:
-				self.viewport.Update(True)
-			# finally remove the viewport from this object
-			self.viewport = None
-
-	def Update(self, update=True):
-		""" 
-		Update the screen
-		"""
-		if self.viewport:
-			# Background
-			if not self.bgFuncID==None:
-				self.viewport.DeleteFunc(self.bgFuncID)
-			if self.bgfunc:
-				self.bgFuncID = self.viewport.AddFunc(self.bgfunc, kFitDef, False)
-				if self.fCal:
-					self.viewport.GetDisplayFunc(self.bgFuncID).SetCal(self.fCal)
-			# Peak function
-			if not self.peakFuncID==None:
-				self.viewport.DeleteFunc(self.peakFuncID)
-			if self.func:
-				self.peakFuncID = self.viewport.AddFunc(self.func, kFitDef, False)
-				if self.fCal:
-					self.viewport.GetDisplayFunc(self.peakFuncID).SetCal(self.fCal)
-			# finally update the viewport
-			if update:
-				self.viewport.Update(True)
-		
 class SpecWindow(hdtv.window.Window):
 	def __init__(self):
 		hdtv.window.Window.__init__(self)
@@ -97,13 +31,20 @@ class SpecWindow(hdtv.window.Window):
 		self.fPeakMarkers = []
 		self.fRegionMarkers = []
 		self.fBgMarkers = []
-		self.fFitPanel = hdtv.fitpanel.FitPanel()
 		self.fCurrentSpec = None
-		self.fCurrentFit = None
 		
 		self.fDefaultCal = ROOT.GSCalibration(0.0, 0.5)
+		self.fFitter = hdtv.fit.Fit()
 		
 		# self.SetTitle("No spectrum - hdtv")
+		
+		# Initialize and show the fit panel
+		self.fFitPanel = None
+		self.EnsureFitPanel()
+		
+	def SetCurrentSpec(self, spec):
+		self.fCurrentSpec = spec
+		self.fFitter.spec = spec
 		
 	def KeyHandler(self, key):
 		handled = True
@@ -118,10 +59,12 @@ class SpecWindow(hdtv.window.Window):
 			self.PutPeakMarker()
 	  	elif key == ROOT.kKey_Escape:
 	  		self.DeleteFit()
+	  	elif key == ROOT.kKey_B:
+	  		self.FitBackground()
 	  	elif key == ROOT.kKey_F:
 	  		self.Fit()
 	  	elif key == ROOT.kKey_I:
-	  		self.IntegrateAll()
+	  		self.Integrate()
 	  	else:
 	  		handled = False
 	  		
@@ -151,88 +94,97 @@ class SpecWindow(hdtv.window.Window):
   		self.fBgMarkers = []
   		self.fRegionMarkers = []
   		
-  		if self.fCurrentFit:
-			self.fCurrentFit.Delete(False)
-			self.fCurrentFit = None
+		self.fFitter.Reset()
+		self.fFitter.Delete(False)
+		if self.fFitPanel:
+			self.fFitPanel.SetText(" ")
 						
 		self.fViewport.Update(True)
 		
-	def Integrate(self, spec, bgFunc=None, corr=1.0):
+	def Integrate(self):
 		if not self.fPendingMarker and len(self.fRegionMarkers) == 1:
-			ch_1 = self.E2Ch(self.fRegionMarkers[0].e1)
-			ch_2 = self.E2Ch(self.fRegionMarkers[0].e2)
+			# Integrate histogram in requested region
+			spec = self.fFitter.spec
+			ch_1 = spec.E2Ch(self.fRegionMarkers[0].p1)
+			ch_2 = spec.E2Ch(self.fRegionMarkers[0].p2)
 				
 			fitter = ROOT.GSFitter(ch_1, ch_2)
+			total_int = fitter.Integrate(spec.fHist)
+			total_err = math.sqrt(total_int)
 			                       
-			for marker in self.fBgMarkers:
-				fitter.AddBgRegion(self.E2Ch(marker.e1), self.E2Ch(marker.e2))
-				
-			if not bgFunc and len(self.fBgMarkers) > 0:
-				bgFunc = fitter.FitBackground(spec.hist)
-			                       
-			total_int = fitter.Integrate(spec.hist)
-			if bgFunc:
-				bg_int = bgFunc.Integral(math.ceil(min(ch_1, ch_2) - 0.5) - 0.5,
+			# Integrate background function in requested region if it
+			# is available
+			if self.fFitter and self.fFitter.bgfunc:
+				bgfunc = self.fFitter.bgfunc
+				bg_int = bgfunc.Integral(math.ceil(min(ch_1, ch_2) - 0.5) - 0.5,
 				                         math.ceil(max(ch_1, ch_2) - 0.5) + 0.5)
+				bg_err = math.sqrt(bg_int)
 			else:
-				bg_int = 0.0
-			                          
-			#self.fFitPanel.SetText("%.2f %.2f %.2f" % (total_int, bg_int, total_int - bg_int))
+				bg_int = None
+
+			# Output results
+			if bg_int != None:
+				sum_int = total_int - bg_int
+				sum_err = math.sqrt(total_int + bg_int)
+
+				text  = "Total:      %10.1f +- %7.1f\n" % (total_int, total_err)
+				text += "Background: %10.1f +- %7.1f\n" % (bg_int, bg_err)
+				text += "Sub:        %10.1f +- %7.1f\n" % (sum_int, sum_err)
+			else:
+				text = "Integral: %.1f +- %.1f\n" % (total_int, total_err)
 			
-			integral = total_int - bg_int
-			integral_error = math.sqrt(total_int + bg_int)
+			self.EnsureFitPanel()
+			self.fFitPanel.SetText(text)
 			
-			return (integral * corr, integral_error * corr)
+	def SyncFitter(self):
+		self.fFitter.region = [self.fRegionMarkers[0].p1, self.fRegionMarkers[0].p2]
+		self.fFitter.peaklist = map(lambda m: m.p1, self.fPeakMarkers)
+		self.fFitter.leftTail = self.fFitPanel.GetLeftTails()
+		self.fFitter.rightTail = self.fFitPanel.GetRightTails()
+		
+	def EnsureFitPanel(self):
+		if not self.fFitPanel:
+			self.fFitPanel = hdtv.fitpanel.FitPanel()
+			self.fFitPanel.fFitHandler = self.Fit
+			self.fFitPanel.fClearHandler = self.DeleteFit
+		
+	def FitBackground(self):
+		self.fFitter.Delete()
+		
+		if not self.fPendingMarker and \
+			len(self.fBgMarkers) > 0:
 			
-	def IntegrateAll(self):
-		self.Integrate(self.fViews[0].fSpectra[0])
+			# Make sure a fit panel is displayed
+			self.EnsureFitPanel()
+			
+			self.fFitter.bglist = map(lambda m: [m.p1, m.p2], self.fBgMarkers)
+			self.fFitter.DoBgFit()
+			self.fFitter.Realize(self.fViewport)
+			
+			self.fFitPanel.SetText(str(self.fFitter))
 		
 	def Fit(self):
-		if self.fCurrentFit:
-			self.fCurrentFit.Delete(self.fViewport)
+		self.fFitter.Delete()
 	
-	  	if self.fCurrentSpec and \
-	  		not self.fPendingMarker and \
+	  	if not self.fPendingMarker and \
 	  		len(self.fRegionMarkers) == 1 and \
 	  		len(self.fPeakMarkers) > 0:
+
 			# Make sure a fit panel is displayed
-			if not self.fFitPanel:
-				self.fFitPanel = FitPanel()
+			self.EnsureFitPanel()
 				
-			reportStr = ""
-			i = 0
-			
-			spec = self.fCurrentSpec
-			fitter = ROOT.GSFitter(spec.E2Ch(self.fRegionMarkers[0].p1),
-			                       spec.E2Ch(self.fRegionMarkers[0].p2))
-				                       
-			for marker in self.fBgMarkers:
-				fitter.AddBgRegion(spec.E2Ch(marker.p1), spec.E2Ch(marker.p2))
-			
-			for marker in self.fPeakMarkers:
-				fitter.AddPeak(spec.E2Ch(marker.p1))
+			# Do the fit
+			self.SyncFitter()
+			self.fFitter.DoPeakFit()
+			self.fFitter.Realize(self.fViewport, False)
+						                   
+			self.fFitPanel.SetText(str(self.fFitter))
 				
-			bgFunc = None
-			if len(self.fBgMarkers) > 0:
-				bgFunc = fitter.FitBackground(spec.fHist)
+			for (marker, peak) in zip(self.fPeakMarkers, self.fFitter.resultPeaks):
+				marker.p1 = peak.GetPos()
+				marker.UpdatePos(self.fViewport, False)
 				
-			# Fit left tails
-			fitter.SetLeftTails(self.fFitPanel.GetLeftTails())
-			fitter.SetRightTails(self.fFitPanel.GetRightTails())
-			
-			func = fitter.Fit(spec.fHist, bgFunc)
-							
-			# FIXME: why is this needed? Possibly related to some
-			# subtle issue with PyROOT memory management
-			# Todo: At least a clean explaination, possibly a better
-			#   solution...
-			self.fCurrentFit = Fit(ROOT.TF1(func), ROOT.TF1(bgFunc), spec.fCal)
-			self.fCurrentFit.Realize(self.fViewport)
-			                   
-			self.fFitPanel.SetText(reportStr)	
-				
-			for marker in self.fPeakMarkers:
-				marker.Delete(self.fViewport)
+			self.fViewport.Update(True)
 
 class SpectrumModule:
 	def __init__(self):
@@ -243,7 +195,7 @@ class SpectrumModule:
 		hdtv.cmdline.AddCommand("spectrum activate", self.ActivateSpectrum, nargs=1)
 		hdtv.cmdline.AddCommand("spectrum show", self.ShowSpectra, minargs=1)
 			
-		hdtv.cmdline.AddCommand("cd", self.Cd, maxargs=1, dirargs=True)
+		hdtv.cmdline.AddCommand("dir", self.Cd, maxargs=1, dirargs=True)
 		
 		hdtv.cmdline.AddCommand("calibration position read", self.ReadCal, nargs=1, fileargs=True)
 		hdtv.cmdline.AddCommand("calibration position enter", self.EnterCal, nargs=4)
@@ -291,23 +243,107 @@ class SpectrumModule:
 		self.fSpectra[self.fActiveID].SetCal(calpoly)
 		
 	def EnterCal(self, args):
-		pass
+		# E = E(ch)
+		try:
+			p0 = [float(args[0]), float(args[1])]
+			p1 = [float(args[2]), float(args[3])]
+		except ValueError:
+			print "Usage: calibration position enter <ch0> <E0> <ch1> <E1>"
+			return False
+			
+		cal = hdtv.util.Linear.FromXYPairs(p0, p1)
+		self._SetCal([cal.p0, cal.p1])
 		
 	def SetCal(self, args):
-		calpoly = []
 		try:
 			for arg in args:
-				calpoly.append(float(arg))
+				calpoly = map(lambda s: float(s), args)
 		except ValueError:
 			print "Usage: calibration position set <p0> <p1> <p2> <p3>"
 			return False
 			
 		self._SetCal(calpoly)
+		
+	def HSV2RGB(self, hue, satur, value):
+		# This is a copy of the ROOT function TColor::HSV2RGB,
+		# which we cannot use because it uses references to return
+		# several values.
+		# TODO: Find a proper way to deal with C++ references from
+		# PyROOT, then replace this function by a call to
+		# TColor::HSV2RGB.
+		
+		
+		# Static method to compute RGB from HSV.
+		# - The hue value runs from 0 to 360.
+		# - The saturation is the degree of strength or purity and is from 0 to 1.
+		#   Purity is how much white is added to the color, so S=1 makes the purest
+		#   color (no white).
+		# - Brightness value also ranges from 0 to 1, where 0 is the black.
+		# The returned r,g,b triplet is between [0,1].
+
+		if satur==0.:
+			# Achromatic (grey)
+			r = g = b = value
+			return (r, g, b)
+
+		hue /= 60.;   # sector 0 to 5
+		i = int(math.floor(hue))
+		f = hue-i;   # factorial part of hue
+		p = value*(1-satur)
+		q = value*(1-satur*f )
+		t = value*(1-satur*(1-f))
+
+		if i==0:
+			r = value
+			g = t
+			b = p
+		elif i==1:
+			r = q
+			g = value
+			b = p
+		elif i==2:
+			r = p
+			g = value
+			b = t
+		elif i==3:
+			r = p
+			g = q
+			b = value
+		elif i==4:
+			r = t
+			g = p
+			b = value
+		else:
+			r = value
+			g = p
+			b = q
+
+		return (r,g,b)
+		
+	def ColorForID(self, sid, satur, value):
+		"""
+		Returns the color corresponding to a certain spectrum ID. The idea is to maximize the
+		hue difference between the spectra shown, without knowing beforehand how many spectra
+		there will be and without being able to change the color afterwards (that would confuse
+		the user). The saturation and value of the color can be set arbitrarily, for example
+		to indicate which spectrum is currently active.
+		"""
+		# Special case
+		if sid==0:
+			hue = 0.0
+		else:
+			p = math.floor(math.log(sid) / math.log(2))
+			q = sid - 2**p
+			hue = 2**(-p-1) + q*2**(-p)
+		
+		(r,g,b) = self.HSV2RGB(hue*360., satur, value)
+		return ROOT.TColor.GetColor(r,g,b)
 
 	def LoadSpectra(self, args):
 		nloaded = 0
 		for arg in args:
-			for fname in glob.glob(arg):
+			path = os.path.expanduser(arg)
+			for fname in glob.glob(path):
 				if self.LoadSpectrum(fname):
 					nloaded += 1
 				
@@ -326,13 +362,12 @@ class SpectrumModule:
 		while sid in self.fSpectra.keys():
 			sid += 1
 		
-		spec = Spectrum(fname, sid+2)
+		spec = Spectrum(fname, self.ColorForID(sid,1.,.5))
 		if spec.fZombie:
 			return False
 		
 		self.fSpectra[sid] = spec
-		self.fActiveID = sid
-		self.fMainWindow.fCurrentSpec = self.fSpectra[sid]
+		self._ActivateSpectrum(sid)
 		spec.Realize(self.fMainWindow.fViewport, False)
 
 		return True
@@ -358,8 +393,8 @@ class SpectrumModule:
 		if ids == "NONE":
 			return
 		elif ids == "ALL":
-			for spec in self.fSpectra.itervalues():
-				self.DeleteSpectrum(spec)
+			for sid in self.fSpectra.keys():
+				self.DeleteSpectrum(sid)
 		else:
 			for sid in ids:
 				try:
@@ -369,6 +404,15 @@ class SpectrumModule:
 					
 		self.fMainWindow.fViewport.Update(True)
 		
+	def _ActivateSpectrum(self, sid):
+		if self.fActiveID != None:
+			self.fSpectra[self.fActiveID].SetColor(self.ColorForID(self.fActiveID, 1., .5))
+		
+		self.fActiveID = sid
+		spec = self.fSpectra[sid]
+		spec.SetColor(self.ColorForID(sid, 1., 1.))
+		self.fMainWindow.SetCurrentSpec(spec)
+
 	def ActivateSpectrum(self, args):
 		try:
 			sid = int(args[0])
@@ -377,8 +421,7 @@ class SpectrumModule:
 			return
 			
 		if sid in self.fSpectra:
-			self.fActiveID = sid
-			self.fMainWindow.fCurrentSpec = self.fSpectra[sid]
+			self._ActivateSpectrum(sid)
 		else:
 			print "Error: No such ID"
 		

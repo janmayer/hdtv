@@ -11,7 +11,7 @@ class Fit:
 	if spec has a calibration then the values will be automatically converted
 	between channels and energies when interacting with the user (Input/Output).
 	"""
-	def __init__(self, spec, region=None, peaklist=None, bglist=None, 
+	def __init__(self, spec=None, region=[], peaklist=[], bglist=[], 
 							 lTail=0, rTail=0):
 		self.spec = spec
 		self.region = region
@@ -20,6 +20,7 @@ class Fit:
 		self.leftTail = lTail
 		self.rightTail = rTail
 		self.fitter = None
+		self.bgfitter = None
 		self.bgfunc = None
 		self.func = None
 		self.resultPeaks = []
@@ -31,18 +32,17 @@ class Fit:
 		"""
 		Set fit parameter (overwrites the normal set function!)
 		 
-		The fitter must be reinitilized before the next fit, if the value of 
+		The fitter must be reinitialized before the next fit, if the value of 
 		spec, region, peaklist, bglist, leftTail or rightTail changed.
-		Moreover some values have to be transfered to uncalibrated ones,
+		Moreover some values have to be transferred to uncalibrated ones,
 		before saving.
 		"""
-		reset = ["spec", "region", "peaklist", "bglist", "leftTail", "rightTail"]
-		if key in reset: 
+		if key in ["spec", "bglist"]:
+			# reset background fitter
+			self.ResetBackground()
+		if key in ["spec", "region", "peaklist", "leftTail", "rightTail"]: 
 			# reset fitter as it is deprecated now
-			self.__dict__["fitter"] = None
-			self.__dict__["bgfunc"] = None
-			self.__dict__["func"] = None
-			self.__dict__["resultPeaks"] = []
+			self.ResetPeak()
 		if key in ["region", "peaklist"]:
 			# convert to uncalibrated values
 			val = [self.spec.E2Ch(i) for i in val]
@@ -50,7 +50,7 @@ class Fit:
 		elif key == "bglist":
 			if val==None:
 				val= []
-			# convert all paires to uncalibrated values
+			# convert all pairs to uncalibrated values
 			val = [[self.spec.E2Ch(i[0]), self.spec.E2Ch(i[1])] for i in val] 
 			self.__dict__[key] = val
 		else:
@@ -59,7 +59,7 @@ class Fit:
 
 	def InitFitter(self):
 		"""
-		Initialized a new Fitter Object
+		Initialize a new Fitter Object
 		"""
 		# define a fitter and a region
 		fitter = ROOT.GSFitter(self.region[0],self.region[1])
@@ -76,17 +76,55 @@ class Fit:
 		if self.rightTail:
 			fitter.SetRightTails(self.rightTail)
 		self.fitter = fitter
-
+		
+	def InitBgFitter(self):
+		"""
+		Initialize a new background fitter
+		"""
+		bgfitter = ROOT.GSFitter(0., 0.)
+		for bg in self.bglist:
+			bgfitter.AddBgRegion(bg[0], bg[1])
+		self.bgfitter = bgfitter
+		
+	def ResetBackground(self):
+		"""
+		Reset the background fitter
+		"""
+		self.__dict__["bgfitter"] = None
+		self.__dict__["bgfunc"] = None
+		
+	def ResetPeak(self):
+		"""
+		Reset the peak fitter
+		"""
+		self.__dict__["fitter"] = None
+		self.__dict__["func"] = None
+		self.__dict__["resultPeaks"] = []
+		
+	def Reset(self):
+		"""
+		Resets the fitter to its original state
+		"""
+		self.ResetBackground()
+		self.ResetPeak()
+		
 	def DoPeakFit(self, bgfunc=None, update=True):
 		""" 
 		Fit all peaks in the current region
 		"""
+		# check if there is a spectrum available
+		if not self.spec:
+			raise RuntimeError, "No spectrum to fit"
 		# check if there is already a fitter available
 		if not self.fitter:
 			self.InitFitter()
+		# use internal background function if available
+		if not bgfunc:
+			bgfunc = self.bgfunc
 		func = self.fitter.Fit(self.spec.fHist, bgfunc)
 		self.func = ROOT.TF1(func)
 		numPeaks = int(self.func.GetParameter(0))
+		
 		# information for each peak
 		peaks = []
 		for i in range(0, numPeaks):
@@ -106,10 +144,13 @@ class Fit:
 		"""
 		Fit the background function in the current region
 		"""
+		# check if there is a spectrum available
+		if not self.spec:
+			raise RuntimeError, "No spectrum to fit"
 		# check if there is already a fitter available
-		if not self.fitter:
-			self.InitFitter()
-		bgfunc = self.fitter.FitBackground(self.spec.fHist)
+		if not self.bgfitter:
+			self.InitBgFitter()
+		bgfunc = self.bgfitter.FitBackground(self.spec.fHist)
 		# FIXME: why is this needed? Possibly related to some
 		# subtle issue with PyROOT memory management
 		self.bgfunc =  ROOT.TF1(bgfunc)
@@ -122,8 +163,6 @@ class Fit:
 		"""
 		Fit first the background and then the peaks
 		"""
-		if not self.fitter:
-			self.InitFitter()
 		# fit the background
 		bgfunc = self.DoBgFit(update=False)
 		# fit the peaks
@@ -192,4 +231,21 @@ class Fit:
 			# finally update the viewport
 			if update:
 				self.viewport.Update(True)
+				
+	def __str__(self):
+		text = ""
+		i = 1
+		if self.bgfunc:
+			text += "Background (seperate fit)\n"
+			text += "bg[0]: %.2f   bg[1]: %.3f\n\n" % (self.bgfunc.GetParameter(0), \
+			                                           self.bgfunc.GetParameter(1))
+		elif self.func:
+			text += "Background\n"
+			text += "bg[0]: %.2f   bg[1]: %.3f\n\n" % (ROOT.GSFitter.GetBg0(self.func), \
+			                                           ROOT.GSFitter.GetBg1(self.func))
+
+		for peak in self.resultPeaks:
+			text += "#%d: %s\n\n" % (i, str(peak))
+			
+		return text
 

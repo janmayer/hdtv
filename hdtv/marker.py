@@ -30,7 +30,7 @@ class Marker:
 		elif mtype in ["XZOOM", "YZOOM"]:
 			self.color = 10
 	
-	def UpdatePos(self, viewport):
+	def UpdatePos(self, viewport, update=True):
 		""" update the position of the marker"""
 		if self.mid != None:
 			getMarker = getattr(viewport, "Get%sMarker" % self.xytype)
@@ -41,7 +41,8 @@ class Marker:
 			else:
 				marker.SetN(1)
 				marker.SetPos(self.p1)
-			viewport.Update(True)
+			if update:
+				viewport.Update(True)
 		
 	def Realize(self, viewport, update=True):
 		""" Realize the marker"""

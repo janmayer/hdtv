@@ -3,6 +3,8 @@ import ROOT
 class FitPanel:
 	def __init__(self):
 		self._dispatchers = []
+		self.fFitHandler = None
+		self.fClearHandler = None
 	
 		self.fMainFrame = ROOT.TGMainFrame(ROOT.gClient.GetRoot(), 300, 500)
 		
@@ -55,6 +57,9 @@ class FitPanel:
 		self.fButtonFrame.AddFrame(self.fFitButton)
 						
 		self.fClearButton = ROOT.TGTextButton(self.fButtonFrame, "Clear")
+		disp = ROOT.TPyDispatcher(self.ClearClicked)
+		self.fClearButton.Connect("Clicked()", "TPyDispatcher", disp, "Dispatch()")
+		self._dispatchers.append(disp)
 		self.fButtonFrame.AddFrame(self.fClearButton)
 		
 		self.fMainFrame.AddFrame(self.fButtonFrame,
@@ -70,8 +75,14 @@ class FitPanel:
 		self.fMainFrame.Resize(self.fMainFrame.GetDefaultSize())
 		self.fMainFrame.MapWindow()
 		
+	# FIXME: This should *really* take advantage of signals and slots...
 	def FitClicked(self):
-		self.fFitInfo.AddLine("Fit Clicked")
+		if self.fFitHandler:
+			self.fFitHandler()
+			
+	def ClearClicked(self):
+		if self.fClearHandler:
+			self.fClearHandler()
 		
 	def SetText(self, text):
 		self.fFitInfo.LoadBuffer(text)

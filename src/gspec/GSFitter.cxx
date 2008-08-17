@@ -232,6 +232,16 @@ double GSFitter::Integrate(TH1 *hist)
   return integral;
 }
 
+double GSFitter::GetBg0(TF1 *func)
+{
+  return func->GetParameter(1);
+}
+
+double GSFitter::GetBg1(TF1 *func)
+{
+  return func->GetParameter(2);
+}
+
 double GSFitter::GetPeakPos(TF1 *func, int id)
 {
   if(id < 0 || id > int(func->GetParameter(0)))

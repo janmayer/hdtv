@@ -19,6 +19,12 @@ class Peak:
 			self.rtail = None
 		self.cal = cal
 		# TODO: Errors
+		
+	def GetPos(self):
+		if self.cal:
+			return self.cal.Ch2E(self.pos)
+		else:
+			return self.pos
 
 	def __str__(self):
 		pos = self.pos
@@ -28,7 +34,10 @@ class Peak:
 			pos = cal.Ch2E(self.pos)
 			fwhm = cal.Ch2E(self.pos+self.fwhm)-cal.Ch2E(self.pos-self.fwhm)
 
-		text = "pos: %10.3f   fwhm: %7.3f   vol: %8.1f   \n" %(pos, fwhm, self.vol)
+		text = "pos: %10.3f   fwhm: %7.3f   vol: %8.1f   " %(pos, fwhm, self.vol)
+		
+		if self.ltail or self.rtail:
+			text += "\n"
 		
 		# Tails
 		if self.ltail:
