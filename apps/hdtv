@@ -3,15 +3,16 @@
 #-------------------------------------------------------------------------------
 # This is the main HDTV application.
 #-------------------------------------------------------------------------------
-
 # Set the Pythonpath
 import sys
 sys.path.append("..")
 sys.path.append("../plugins")
 
+import ROOT
+
 # Import modules
 import hdtv.cmdline
-import spectrum
+# import spectrum
 
 # Go
-hdtv.cmdline.MainLoop()
+hdtv.cmdline.MainLoop(locals())

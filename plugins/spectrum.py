@@ -188,14 +188,14 @@ class SpecWindow(hdtv.window.Window):
 
 class SpectrumModule:
 	def __init__(self):
-		hdtv.cmdline.AddCommand("spectrum", self.LoadSpectra, minargs=1, fileargs=True)
-		hdtv.cmdline.AddCommand("spectrum get", self.LoadSpectra, minargs=1, fileargs=True)
+		hdtv.cmdline.command_tree.SetDefaultLevel(1)
+		hdtv.cmdline.AddCommand("spectrum get", self.LoadSpectra, level=0, minargs=1, fileargs=True)
 		hdtv.cmdline.AddCommand("spectrum list", self.ListSpectra, nargs=0)
 		hdtv.cmdline.AddCommand("spectrum delete", self.DeleteSpectra, minargs=1)
 		hdtv.cmdline.AddCommand("spectrum activate", self.ActivateSpectrum, nargs=1)
 		hdtv.cmdline.AddCommand("spectrum show", self.ShowSpectra, minargs=1)
 			
-		hdtv.cmdline.AddCommand("dir", self.Cd, maxargs=1, dirargs=True)
+		hdtv.cmdline.AddCommand("cd", self.Cd, level=2, maxargs=1, dirargs=True)
 		
 		hdtv.cmdline.AddCommand("calibration position read", self.ReadCal, nargs=1, fileargs=True)
 		hdtv.cmdline.AddCommand("calibration position enter", self.EnterCal, nargs=4)
@@ -387,6 +387,9 @@ class SpectrumModule:
 	def DeleteSpectrum(self, sid):
 		self.fSpectra[sid].Delete(False)
 		del self.fSpectra[sid]
+		if self.fActiveID == sid:
+			self.fActiveID = None
+			self.fMainWindow.SetCurrentSpec(None)
 		
 	def DeleteSpectra(self, args):
 		ids = hdtv.cmdhelper.ParseRange(args)

@@ -1,13 +1,74 @@
 #!/usr/bin/python
-import readline
 import os
 import sys
 import traceback
+import code
+
+import readline
+import ROOT
 
 class HDTVCommandError(Exception):
 	pass
+	
+class HDTVCommandTreeNode:
+	def __init__(self, parent, title, level):
+		self.parent = parent
+		self.title = title
+		self.level = level
+		self.command = None
+		self.params = None
+		self.childs = []
+		self.parent.childs.append(self)
 
-class HDTVCommandTree:
+	def FullTitle(self):
+		"""
+		Returns the full title of the node, i.e. all titles of all
+		nodes from the root to this one.
+		"""
+		titles = []
+		node = self
+		while node.parent:
+			titles.append(node.title)
+			node = node.parent
+
+		titles.reverse()
+		return " ".join(titles)
+		
+	def FindChild(self, title, use_levels=True):
+		"""
+		Find the nodes child whose title begins with title.	The use_levels
+		parameter decides whether to use the level of the node in resolving
+		ambiguities (node with lower level take precedence). Returns None
+		if there were unresolvable ambiguities or 0 if there were no matching
+		childs at all.
+		"""
+		l = len(title)
+		node = 0
+		for child in self.childs:
+			if child.title[0:l] == title:
+				if not node:
+					node = child
+				elif use_levels and node.level != child.level:
+					if node.level > child.level:
+						node = child
+				else:
+					return None
+		return node
+			
+	def PrimaryChild(self):
+		"""
+		Returns the child with the lowest level, if unambiguous,
+		or None otherwise.
+		"""
+		node = None
+		for child in self.childs:
+			if not node or child.level < node.level:
+				node = child
+			elif child.level == node.level:
+				return None
+		return node
+
+class HDTVCommandTree(HDTVCommandTreeNode):
 	"""
 	The HDTVCommandTree structure contains all commands understood by HDTV.
 	"""
@@ -16,55 +77,71 @@ class HDTVCommandTree:
 		self.parent = None
 		self.command = None
 		self.options = None
+		self.default_level = 1
+		
+	def SetDefaultLevel(self, level):
+		self.default_level = level
 		
 	def AddCommand(self, title, command, **opt):
 		"""
 		Adds a command, specified by title, to the command tree.
 		"""
-		if "overwrite" in opt and opt["overwrite"]:
-			overwrite = True
+		if "overwrite" in opt:
+			overwrite = bool(opt["overwrite"])
+			del opt["overwrite"]
 		else:
 			overwrite = False
+			
+		if "level" in opt:
+			level = opt["level"]
+			del opt["level"]
+		else:
+			level = self.default_level
+		
+		path = title.split()
 		
 		node = self
-		for elem in title.split():
-			next = None
-			newNode = False
-			for child in node.childs:
-				if child.title == elem:
-					next = child
-					break
-			if not next:
-				next = HDTVCommandTreeNode(node, elem)
-				newNode = True
-			node = next
+		# Move down the command tree until the level just above the new node,
+		#  creating nodes on the way if necessary
+		if len(path) > 1:
+			for elem in path[:-1]:
+				next = None
+				for child in node.childs:
+					if child.title == elem:
+						next = child
+						break
+				if not next:
+					next = HDTVCommandTreeNode(node, elem, self.default_level)
+				node = next
+				
+		# Check to see if the node we are trying to add already exists; if it
+		# does and we are not allowed to overwrite it, raise an error
+		if not overwrite:
+			if path[-1] in map(lambda n: n.title, node.childs):
+				raise RuntimeError, "Refusing to overwrite already existing command"
 		
-		if not newNode and not overwrite:
-			raise RuntimeError, "Refusing to overwrite already existing command"
-		
+		# Create the last node
+		node = HDTVCommandTreeNode(node, path[-1], level)
 		node.command = command
 		node.options = opt
 		
-	def FindNode(self, path):
+	def FindNode(self, path, use_levels=True):
 		"""
 		Finds the command node given by path, which should be a list
 		of path elements. All path elements may be abbreviated if
 		unambiguous. Returns a tuple consisting of the node found and
-		of the remaining elements in the path.
+		of the remaining elements in the path. The use_levels parameter
+		decides whether to use the level of the node in resolving
+		ambiguities (node with lower level take precedence).
 		"""
 		# Go down as far as possible in path
 		node = self
 		while path:
 			elem = path.pop(0)
-			l = len(elem)
-			next = None
-			for child in node.childs:
-				if child.title[0:l] == elem:
-					if not next:
-						next = child
-					else:
-						raise HDTVCommandError, "Command is ambiguous"
-			if not next:
+			next = node.FindChild(elem, use_levels)
+			if next == None:  # more than one node found
+				raise HDTVCommandError, "Command is ambiguous"
+			elif next == 0:   # no nodes found
 				path.insert(0, elem)
 				break
 			node = next
@@ -90,7 +167,10 @@ class HDTVCommandTree:
 		path = cmdline.split()
 		(node, args) = self.FindNode(path)
 		
-		if not node.command:
+		while node and not node.command:
+			node = node.PrimaryChild()
+
+		if not node or not node.command:
 			raise HDTVCommandError, "Command not recognized"
 		
 		if not self.CheckNumParams(node, len(args)):
@@ -148,7 +228,7 @@ class HDTVCommandTree:
 		# from path above, it now needs to be unambiguous. If is isn't, we
 		# cannot suggest any completions.
 		try:
-			(node, args) = self.FindNode(path)
+			(node, args) = self.FindNode(path, False)
 		except RuntimeError:
 			# Command is ambiguous
 			return []
@@ -187,7 +267,55 @@ class HDTVCommandTree:
 			options = []
 		
 		return options
+			
+class CommandLine:
+	"""
+	Class implementing the HDTV command line, including switching between
+	command and Python mode.
+	"""
+	def __init__(self, command_tree, python_completer=None):
+		self.fCommandTree = command_tree
+		self.fPythonCompleter = python_completer or (lambda: None)
 		
+	def PythonUnescape(self, s):
+		s = s.lstrip()
+		if len(s) == 0 or s[0] != '@':
+			return None
+		else:
+			return s[1:]
+			
+	def EnterPython(self, args=None):
+		self.fPyMode = True
+	
+	def ExitPython(self):
+		print ""
+		self.fPyMode = False
+		
+	def Exit(self, args=None):
+		self.fKeepRunning = False
+		
+	def EOFHandler(self):
+		print ""
+		self.Exit()
+		
+	def GetCompleteOptions(self, text):
+		if self.fPyMode or self.fPyMore or \
+		 self.PythonUnescape(readline.get_line_buffer()) != None:
+			opts = list()
+			state = 0
+			
+			while True:
+				opt = self.fPythonCompleter(text, state)
+				if opt != None:
+					opts.append(opt)
+				else:
+					break
+				state += 1
+					
+			return opts
+		else:
+			return self.fCommandTree.GetCompleteOptions(text)
+			
 	def Complete(self, text, state):
 		"""
 		Suggest completions for the current command line, whose last token
@@ -203,74 +331,101 @@ class HDTVCommandTree:
 		if state < len(self.fCompleteOptions):
 			return self.fCompleteOptions[state]
 		else:
-			return None	
-	
-class HDTVCommandTreeNode:
-	def __init__(self, parent, title):
-		self.parent = parent
-		self.title = title
-		self.command = None
-		self.params = None
-		self.childs = []
-		self.parent.childs.append(self)
+			return None
+			
+	def MainLoop(self, py_locals = {}):
+		self.fKeepRunning = True
 		
-	def FullTitle(self):
-		titles = []
-		node = self
-		while node.parent:
-			titles.append(node.title)
-			node = node.parent
+		py_console = code.InteractiveConsole(py_locals)
+		self.fPyMode = False
+		self.fPyMore = False
+			
+		readline.set_completer(self.Complete)
+		readline.set_completer_delims(readline.get_completer_delims() + os.sep)
+		readline.parse_and_bind("tab: complete")
+		
+		while(self.fKeepRunning):
+			# Read a command from the user
+			# Choose correct prompt for current mode
+			if self.fPyMore:
+				prompt = "... > "
+			elif self.fPyMode:
+				prompt = "py  > "
+			else:
+				prompt = "hdtv> "
+				
+			# Read the command
+			try:
+				s = raw_input(prompt)
+			except EOFError:
+				# Ctrl-D exits in command mode, and switches back to command mode
+				#  from Python mode
+				if self.fPyMode:
+					self.ExitPython()
+				else:
+					self.EOFHandler()
+				continue
+			except KeyboardInterrupt:
+				# Ctrl-C can be used to abort the entry of a (multi-line) command.
+				#  If no command is being entered, we assume the user wants to exit
+				#  and explain how to do that correctly.
+				if self.fPyMore:
+					py_console.resetbuffer()
+					self.fPyMore = False
+					print ""
+				elif readline.get_line_buffer() != "":
+					print ""
+				else:
+					print "\nKeyboardInterrupt: Use \'Ctrl-D\' to exit"
+				continue
+			
+			# Execute the command
+			try:
+				# In Python mode, all commands need to be Python commands, but
+				#  in command mode, we may still get escaped Python commands
+				if self.fPyMode or self.fPyMore:
+					pycmd = s
+				else:
+					pycmd = self.PythonUnescape(s)
+		
+				# Execute as either Python or HDTV
+				if pycmd != None:
+					# The push() function returns a boolean indicating
+					#  whether further input from the user is required.
+					#  We set the python mode accordingly.
+					self.fPyMore = py_console.push(pycmd)
+				else:							
+					self.fCommandTree.ExecCommand(s)
+			except KeyboardInterrupt:
+				print "Aborted"
+				if pycmd:
+					py_console.resetbuffer()
+					self.fPyMore = False
+			except HDTVCommandError, msg:
+				print "Error: %s" % msg
+			except SystemExit:
+				self.Exit()
+			except Exception:
+				print "Unhandled exception:"
+				traceback.print_exc()
 
-		titles.reverse()
-		return " ".join(titles)
-		
 def AddCommand(title, command, **opt):
 	global command_tree
 	command_tree.AddCommand(title, command, **opt)
-		
-def EOFHandler():
-	print ""
-	Exit()
 	
-def KeyboardInterruptHandler():
-	print "\nInterrupt: Use \'exit\' to exit."
-		
-def Exit(args=None):
-	global keep_running
-	keep_running = False
-
-def MainLoop():
-	global keep_running, command_tree
-	keep_running = True
-		
-	readline.set_completer(command_tree.Complete)
-	readline.set_completer_delims(r" /")
-	readline.parse_and_bind("tab: complete")
+def ExecCommand(cmdline):
+	global command_tree
+	command_tree.ExecCommand(cmdline)
 	
-	while(keep_running):
-		try:
-			s = raw_input("hdtv> ")
-		except EOFError:
-			EOFHandler()
-			continue
-		except KeyboardInterrupt:
-			KeyboardInterruptHandler()
-			continue
-		
-		try:
-			command_tree.ExecCommand(s)
-		except KeyboardInterrupt:
-			print "Aborted"
-		except HDTVCommandError, msg:
-			print "Error: %s" % msg
-		except Exception:
-			print "Unhandled exception:"
-			traceback.print_exc()
+def MainLoop(py_locals = {}):
+	global command_line
+	command_line.MainLoop(py_locals)
 
 # Module-global variables initialization
-global keep_running, command_tree
-keep_running = True
+global command_tree, command_line
 command_tree = HDTVCommandTree()
+command_line = CommandLine(command_tree, readline.get_completer())
 
-AddCommand("exit", Exit, nargs=0)
-AddCommand("quit", Exit, nargs=0)
+AddCommand("python", command_line.EnterPython, nargs=0)
+AddCommand("exit", command_line.Exit, nargs=0)
+AddCommand("quit", command_line.Exit, nargs=0)
