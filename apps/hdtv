@@ -12,7 +12,8 @@ import ROOT
 
 # Import modules
 import hdtv.cmdline
-# import spectrum
+hdtv.cmdline.SetInteractiveDict(locals())
+import spectrum
 
 # Go
-hdtv.cmdline.MainLoop(locals())
+hdtv.cmdline.MainLoop()

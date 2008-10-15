@@ -17,12 +17,56 @@ import ROOT
 ROOT.TH1.AddDirectory(ROOT.kFALSE)
 
 class Spectrum(hdtv.spectrum.Spectrum):
-	def __init__(self, fname, color):
-		self.fFilename = fname
-		hdtv.spectrum.Spectrum.__init__(self, fname, color=color)
+	#def __init__(self, hist, ):
+	#	self.fFilename = None
+	#	hdtv.spectrum.Spectrum.__init__(self, fname, color=color)
 		
 	def IsVisible(self):
 		return self.fSid != None
+		
+	def ReadCal(self, fname):
+		try:
+			f = open(fname)
+		except IOError, msg:
+			print msg
+			return False
+			
+		try:
+			calpoly = []
+			for line in f:
+				l = line.strip()
+				if l != "":
+					calpoly.append(float(l))
+
+		except ValueError:
+			f.close()
+			print "Malformed calibration parameter file."
+			return False
+		
+		f.close()
+
+		if len(calpoly) < 1 or len(calpoly) > 4:
+			print "Too many or too few parameters in calibration file"
+			return False
+			
+		return self.SetCal(calpoly)
+		
+	def CalFromPairs(pairs):
+	 	if len(pairs) != 2:
+	 		print "Pairs length must presently be exactly 2"
+	 		return False
+	 		
+	 	#c = []
+	 	#e = []
+	 	#for pair in pairs:
+	 	#	if len(pair) != 2:
+	 	#		raise RuntimeError, "Expected a channel/energy pair"
+	 	#	c.append(pair[0])
+	 	#	e.append(pair[1])
+	 		
+	 	cal = hdtv.util.Linear.FromXYPairs(pairs[0], pairs[1])
+		self.SetCal([cal.p0, cal.p1])
+
 		
 class SpecWindow(hdtv.window.Window):
 	def __init__(self):
@@ -35,6 +79,9 @@ class SpecWindow(hdtv.window.Window):
 		
 		self.fDefaultCal = ROOT.GSCalibration(0.0, 0.5)
 		self.fFitter = hdtv.fit.Fit()
+		
+		self.fSpectra = dict()
+		self.fActiveID = None
 		
 		# self.SetTitle("No spectrum - hdtv")
 		
@@ -185,85 +232,7 @@ class SpecWindow(hdtv.window.Window):
 				marker.UpdatePos(self.fViewport, False)
 				
 			self.fViewport.Update(True)
-
-class SpectrumModule:
-	def __init__(self):
-		hdtv.cmdline.command_tree.SetDefaultLevel(1)
-		hdtv.cmdline.AddCommand("spectrum get", self.LoadSpectra, level=0, minargs=1, fileargs=True)
-		hdtv.cmdline.AddCommand("spectrum list", self.ListSpectra, nargs=0)
-		hdtv.cmdline.AddCommand("spectrum delete", self.DeleteSpectra, minargs=1)
-		hdtv.cmdline.AddCommand("spectrum activate", self.ActivateSpectrum, nargs=1)
-		hdtv.cmdline.AddCommand("spectrum show", self.ShowSpectra, minargs=1)
 			
-		hdtv.cmdline.AddCommand("cd", self.Cd, level=2, maxargs=1, dirargs=True)
-		
-		hdtv.cmdline.AddCommand("calibration position read", self.ReadCal, nargs=1, fileargs=True)
-		hdtv.cmdline.AddCommand("calibration position enter", self.EnterCal, nargs=4)
-		hdtv.cmdline.AddCommand("calibration position set", self.SetCal, maxargs=4)
-		
-		self.fMainWindow = SpecWindow()
-		self.fView = self.fMainWindow.AddView("hdtv")
-		self.fMainWindow.ShowView(0)
-		
-		self.fSpectra = dict()
-		self.fActiveID = None
-		
-	def ReadCal(self, args):
-		try:
-			f = open(args[0])
-		except IOError, msg:
-			print msg
-			return False
-			
-		try:
-			calpoly = []
-			for line in f:
-				l = line.strip()
-				if l != "":
-					calpoly.append(float(l))
-
-		except ValueError:
-			f.close()
-			print "Malformed calibration parameter file."
-			return False
-		
-		f.close()
-
-		if len(calpoly) < 1 or len(calpoly) > 4:
-			print "Too many or too few parameters in calibration file"
-			return False
-			
-		return self._SetCal(calpoly)
-		
-	def _SetCal(self, calpoly):
-		if self.fActiveID == None:
-			print "Warning: No active spectrum, no action taken."
-			return False
-			
-		self.fSpectra[self.fActiveID].SetCal(calpoly)
-		
-	def EnterCal(self, args):
-		# E = E(ch)
-		try:
-			p0 = [float(args[0]), float(args[1])]
-			p1 = [float(args[2]), float(args[3])]
-		except ValueError:
-			print "Usage: calibration position enter <ch0> <E0> <ch1> <E1>"
-			return False
-			
-		cal = hdtv.util.Linear.FromXYPairs(p0, p1)
-		self._SetCal([cal.p0, cal.p1])
-		
-	def SetCal(self, args):
-		try:
-			for arg in args:
-				calpoly = map(lambda s: float(s), args)
-		except ValueError:
-			print "Usage: calibration position set <p0> <p1> <p2> <p3>"
-			return False
-			
-		self._SetCal(calpoly)
-		
 	def HSV2RGB(self, hue, satur, value):
 		# This is a copy of the ROOT function TColor::HSV2RGB,
 		# which we cannot use because it uses references to return
@@ -340,11 +309,14 @@ class SpectrumModule:
 		return ROOT.TColor.GetColor(r,g,b)
 
 	def LoadSpectra(self, args):
+		if type(args) == str or type(args) == unicode:
+			args = [args]
+	
 		nloaded = 0
 		for arg in args:
 			path = os.path.expanduser(arg)
 			for fname in glob.glob(path):
-				if self.LoadSpectrum(fname):
+				if self.LoadSpectrum(fname) != None:
 					nloaded += 1
 				
 		if nloaded == 0:
@@ -355,22 +327,53 @@ class SpectrumModule:
 			print "Loaded %d spectra" % nloaded
 			
 		if nloaded > 0:
-			self.fMainWindow.fViewport.Update(True)
+			self.fViewport.Update(True)
 
 	def LoadSpectrum(self, fname):
+		spec = Spectrum.FromFile(fname)
+		return self.AddSpectrum(spec)
+		
+	def AddSpectrum(self, spec):
+		"""
+		Adds a spectrum object to the window
+		"""
+		# No admission for zombies
+		if spec.fZombie:
+			return None
+		
+		# Find a free spectrum ID
 		sid = 0
 		while sid in self.fSpectra.keys():
 			sid += 1
-		
-		spec = Spectrum(fname, self.ColorForID(sid,1.,.5))
-		if spec.fZombie:
-			return False
-		
-		self.fSpectra[sid] = spec
-		self._ActivateSpectrum(sid)
-		spec.Realize(self.fMainWindow.fViewport, False)
 
-		return True
+		# Set correct color
+		spec.SetColor(self.ColorForID(sid,1.,.5))
+		
+		# Display it
+		self.fSpectra[sid] = spec
+		self.ActivateSpectrum(sid)
+		spec.Realize(self.fViewport, False)
+		
+		return sid
+		
+	def AddHistogram(self, hist):
+		"""
+		Adds a ROOT histogram to the window
+		"""
+		return self.AddSpectrum(Spectrum(hist))
+		
+	def ActivateSpectrum(self, sid):
+		if not sid in self.fSpectra:
+			print "Error: No such ID"
+			return
+	
+		if self.fActiveID != None:
+			self.fSpectra[self.fActiveID].SetColor(self.ColorForID(self.fActiveID, 1., .5))
+		
+		self.fActiveID = sid
+		spec = self.fSpectra[sid]
+		spec.SetColor(self.ColorForID(sid, 1., 1.))
+		self.SetCurrentSpec(spec)
 		
 	def ListSpectra(self, args=None):
 		for (sid, spec) in self.fSpectra.iteritems():
@@ -382,73 +385,138 @@ class SpectrumModule:
 				stat += "V"
 			else:
 				stat += " "
-			print "%d %s %s" % (sid, stat, spec.fFilename)
+			print "%d %s %s" % (sid, stat, spec.fHist.GetName())
 			
 	def DeleteSpectrum(self, sid):
 		self.fSpectra[sid].Delete(False)
 		del self.fSpectra[sid]
 		if self.fActiveID == sid:
 			self.fActiveID = None
-			self.fMainWindow.SetCurrentSpec(None)
+			self.SetCurrentSpec(None)
+			
+	def DeleteAllSpectra(self):
+		for sid in self.fSpectra.keys():
+			self.DeleteSpectrum(sid)
+		self.fViewport.Update(True)
 		
-	def DeleteSpectra(self, args):
+	def DeleteSpectra(self, ids):
+		for sid in ids:
+			try:
+				self.DeleteSpectrum(sid)
+			except KeyError:
+				print "Warning: ID %d not found" % sid
+					
+		self.fMainWindow.fViewport.Update(True)
+			
+	# Note that we may call Delete() on an already deleted
+	# spectrum, or Realize() on an already visible spectrum,
+	# with no ill effects.
+	def ShowNone(self):
+		for spec in self.fSpectra.itervalues():
+				spec.Delete(False)
+		self.fMainWindow.fViewport.Update(True)
+	
+	def ShowAll(self):
+		for spec in self.fSpectra.itervalues():
+				spec.Realize(self.fMainWindow.fViewport, False)
+		self.fMainWindow.fViewport.Update(True)
+	
+	def Show(self, ids):
+		for (sid, spec) in self.fSpectra.iteritems():
+			if sid in ids and not spec.IsVisible():
+				spec.Realize(self.fMainWindow.fViewport, False)
+			elif not sid in ids and spec.IsVisible():
+				spec.Delete(False)
+		self.fMainWindow.fViewport.Update(True)
+		
+	# Helper functions to process the active spectrum
+	def SetCal(self, calpoly):
+		if self.fActiveID == None:
+			print "Warning: No active spectrum, no action taken."
+			return False
+			
+		self.fSpectra[self.fActiveID].SetCal(calpoly)
+		
+	def ReadCal(self, fname):
+		if self.fActiveID == None:
+			print "Warning: No active spectrum, no action taken."
+			return False
+			
+		self.fSpectra[self.fActiveID].SetCal(calpoly)
+		
+	def CalFromPairs(self, pairs, *args):
+		if self.fActiveID == None:
+			print "Warning: No active spectrum, no action taken."
+			return False
+			
+		self.fSpectra[self.fActiveID].SetCal(calpoly)
+	
+
+class SpectrumModule:
+	def __init__(self):
+		hdtv.cmdline.command_tree.SetDefaultLevel(1)
+		hdtv.cmdline.AddCommand("spectrum get", self.SpectrumGet, level=0, minargs=1, fileargs=True)
+		hdtv.cmdline.AddCommand("spectrum list", self.SpectrumList, nargs=0)
+		hdtv.cmdline.AddCommand("spectrum delete", self.SpectrumDelete, minargs=1)
+		hdtv.cmdline.AddCommand("spectrum activate", self.SpectrumActivate, nargs=1)
+		hdtv.cmdline.AddCommand("spectrum show", self.SpectrumShow, minargs=1)
+		hdtv.cmdline.AddCommand("spectrum write", self.SpectrumWrite, minargs=1, maxargs=2)
+			
+		hdtv.cmdline.AddCommand("cd", self.Cd, level=2, maxargs=1, dirargs=True)
+		
+		hdtv.cmdline.AddCommand("calibration position read", self.CalPosRead, nargs=1, fileargs=True)
+		hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, nargs=4)
+		hdtv.cmdline.AddCommand("calibration position set", self.CalPosSet, maxargs=4)
+		
+		self.fMainWindow = SpecWindow()
+		self.fView = self.fMainWindow.AddView("hdtv")
+		self.fMainWindow.ShowView(0)
+		
+		hdtv.cmdline.RegisterInteractive("gSpectra", self.fMainWindow)
+		
+	def SpectrumGet(self, args):
+		self.fMainWindow.LoadSpectra(args)
+		
+	def SpectrumList(self, args):
+		self.fMainWindow.ListSpectra()
+		
+	def SpectrumDelete(self, args):
 		ids = hdtv.cmdhelper.ParseRange(args)
 		if ids == "NONE":
 			return
 		elif ids == "ALL":
-			for sid in self.fSpectra.keys():
-				self.DeleteSpectrum(sid)
+			self.fMainWindow.DeleteAddSpectra()
 		else:
-			for sid in ids:
-				try:
-					self.DeleteSpectrum(sid)
-				except KeyError:
-					print "Warning: ID %d not found" % sid
-					
-		self.fMainWindow.fViewport.Update(True)
+			self.fMainWindow.DeleteSpectra(ids)
 		
-	def _ActivateSpectrum(self, sid):
-		if self.fActiveID != None:
-			self.fSpectra[self.fActiveID].SetColor(self.ColorForID(self.fActiveID, 1., .5))
-		
-		self.fActiveID = sid
-		spec = self.fSpectra[sid]
-		spec.SetColor(self.ColorForID(sid, 1., 1.))
-		self.fMainWindow.SetCurrentSpec(spec)
-
-	def ActivateSpectrum(self, args):
+	def SpectrumActivate(self, args):
 		try:
 			sid = int(args[0])
 		except ValueError:
 			print "Usage: spectrum activate <id>"
 			return
-			
-		if sid in self.fSpectra:
-			self._ActivateSpectrum(sid)
-		else:
-			print "Error: No such ID"
+
+		self.fMainWindow.ActivateSpectrum(sid)
 		
-	def ShowSpectra(self, args):
+	def SpectrumShow(self, args):
 		ids = hdtv.cmdhelper.ParseRange(args)
 		
-		# Note that we may call Delete() on an already deleted
-		# spectrum, or Realize() on an already visible spectrum,
-		# with no ill effects.
 		if ids == "NONE":
-			for spec in self.fSpectra.itervalues():
-				spec.Delete(False)
+			self.fMainWindow.ShowNone()
 		elif ids == "ALL":
-			for spec in self.fSpectra.itervalues():
-				spec.Realize(self.fMainWindow.fViewport, False)
+			self.fMainWindow.ShowAll()
 		else:
-			for (sid, spec) in self.fSpectra.iteritems():
-				if sid in ids and not spec.IsVisible():
-					spec.Realize(self.fMainWindow.fViewport, False)
-				elif not sid in ids and spec.IsVisible():
-					spec.Delete(False)
-					
-		self.fMainWindow.fViewport.Update(True)
-						
+			self.fMainWindow.Show(ids)
+			
+	def SpectrumWrite(self, args):
+		pass
+		#try:
+		#	(fname, fmt) = 
+	
+		#if len(args) == 1:
+		#	self.fMainWindow.WriteSpectrum(args[0])
+		
+			
 	def Cd(self, args):
 		if len(args) == 0:
 			print os.getcwdu()
@@ -457,6 +525,29 @@ class SpectrumModule:
 				os.chdir(os.path.expanduser(args[0]))
 			except OSError, msg:
 				print msg
+
+	def CalPosRead(self, args):
+		self.fMainWindow.ReadCal(args[0])
+		
+	def CalPosEnter(self, args):
+		# E = E(ch)
+		try:
+			p0 = [float(args[0]), float(args[1])]
+			p1 = [float(args[2]), float(args[3])]
+		except ValueError:
+			print "Usage: calibration position enter <ch0> <E0> <ch1> <E1>"
+			return False
+		self.fMainWindow.CalFromPairs([p0, p1])
+	
+	def CalPosSet(self, args):
+		try:
+			for arg in args:
+				calpoly = map(lambda s: float(s), args)
+		except ValueError:
+			print "Usage: calibration position set <p0> <p1> <p2> <p3>"
+			return False
+			
+		self.fMainWindow.SetCal(calpoly)
 
 module = SpectrumModule()
 print "Loaded plugin spectrum (commands for 1-d histograms)"

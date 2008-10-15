@@ -2,45 +2,61 @@ import ROOT
 import os
 import gspec
 from color import *
-from specreader import SpecReader
+from specreader import SpecReader, SpecReaderError
 from fit import Fit
 
 class Spectrum:
 	"""
 	Spectrum object
+	
+	This class is hdtvs wrapper around a ROOT histogram. It adds a calibration,
+	plus some internal management for drawing the histogram	to the hdtv spectrum
+	viewer.
 
-	A spectrum is read from a file by using SpecReader. A calibration can be
+	Optionally, the class method ReadSpectrum can be used to read a spectrum
+	from a file, using the SpecReader class. A calibration can be
 	defined by supplying a sequence with max. 4 entries, that form the factors
 	of the calibration polynom. Moreover a color can be defined, which then
 	will be used when the spectrum is displayed. 
 	"""
-	def __init__(self, histfile, cal=None, color=None):
-		self.fCal = None
-		self.fHist = None
-		self.fColor = kSpecDef
+	def __init__(self, hist, cal=None, color=None):
+		self.fCal = cal
+		self.fHist = hist
 		self.fFitlist = []
 		self.fSid = None
 		self.fViewport = None
-		self.fZombie = True
+		self.fColor = color
+		if hist:
+			self.fZombie = False
+		else:
+			self.fZombie = True
 
+	@classmethod
+	def FromFile(cls, fname, fmt=None, cal=None, color=None):
 		# check if file exists
 		try:
-			os.path.exists(histfile)
+			os.path.exists(fname)
 		except OSError:
-			print "Error: File %s not found" % histfile
+			print "Error: File %s not found" % fname
 			return
+		
 		# call to SpecReader to get the hist
-		self.fHist = SpecReader().Get(histfile, histfile, "hist")
-		if not self.fHist:
-			print "Error: Invalid spectrum format (file: %s)" %histfile
+		try:
+			hist = SpecReader().GetSpectrum(fname)
+		except SpecReaderError, msg:
+			print "Error: Failed to load spectrum: %s (file: %s)" % msg, fname
 			return
+			
+		spec = cls(hist)
 		# set calibration 
 		if cal:
-			self.SetCal(cal)
+			spec.SetCal(cal)
 		# set color
 		if color:
-			self.SetColor(color)
-		self.fZombie = False
+			spec.SetColor(color)
+		spec.fZombie = False
+		
+		return spec
 
 	def SetColor(self, color):
 		"""

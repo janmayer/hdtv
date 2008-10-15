@@ -15,7 +15,7 @@ class MFileHist {
     MFileHist();
     ~MFileHist();
     
-    int Open(char *fname);
+    int Open(char *fname, char *fmt=NULL);
     int Close();
     
     inline int GetFileType()   { return fInfo ? fInfo->filetype : MAT_INVALID; }
@@ -40,14 +40,32 @@ class MFileHist {
     
     TH2D *ToTH2D(const char *name, const char *title, int level);
 	TH2I *ToTH2I(const char *name, const char *title, int level);
+	
+	static int WriteTH1(const TH1 *hist, char *fname, char *fmt);
+	static int WriteTH2(const TH2 *hist, char *fname, char *fmt);
+	
+	static const char *GetErrorMsg(int errno);
+	inline const char *GetErrorMsg() { return GetErrorMsg(fErrno); }
+	
+	static const int ERR_SUCCESS;
+	static const int ERR_READ_OPEN;
+	static const int ERR_READ_INFO;
+	static const int ERR_READ_NOTOPEN;
+	static const int ERR_READ_BADIDX;
+	static const int ERR_READ_GET;
+	static const int ERR_READ_CLOSE;
+	static const int ERR_WRITE_OPEN;
+	static const int ERR_WRITE_INFO;
+	static const int ERR_WRITE_PUT;
+	static const int ERR_WRITE_CLOSE;
+	static const int ERR_INVALID_FORMAT;
+	static const int ERR_UNKNOWN;
     
   private:
 #ifndef __CINT__
     MFILE *fHist;
     minfo *fInfo;
-    
-    static const int kSuccess = 0;
-    static const int kFailure = -1;
+    int fErrno;
 #endif
 };
 

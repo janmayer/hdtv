@@ -276,6 +276,10 @@ class CommandLine:
 	def __init__(self, command_tree, python_completer=None):
 		self.fCommandTree = command_tree
 		self.fPythonCompleter = python_completer or (lambda: None)
+		self.fInteractiveLocals = dict()
+		
+	def RegisterInteractive(self, name, ref):
+		self.fInteractiveLocals[name] = ref
 		
 	def PythonUnescape(self, s):
 		s = s.lstrip()
@@ -333,10 +337,10 @@ class CommandLine:
 		else:
 			return None
 			
-	def MainLoop(self, py_locals = {}):
+	def MainLoop(self):
 		self.fKeepRunning = True
 		
-		py_console = code.InteractiveConsole(py_locals)
+		py_console = code.InteractiveConsole(self.fInteractiveLocals)
 		self.fPyMode = False
 		self.fPyMore = False
 			
@@ -409,6 +413,14 @@ class CommandLine:
 				print "Unhandled exception:"
 				traceback.print_exc()
 
+def RegisterInteractive(name, ref):
+	global command_line
+	command_line.RegisterInteractive(name, ref)
+	
+def SetInteractiveDict(d):
+	global command_line
+	command_line.fInteractiveLocals = d
+
 def AddCommand(title, command, **opt):
 	global command_tree
 	command_tree.AddCommand(title, command, **opt)
@@ -417,9 +429,9 @@ def ExecCommand(cmdline):
 	global command_tree
 	command_tree.ExecCommand(cmdline)
 	
-def MainLoop(py_locals = {}):
+def MainLoop():
 	global command_line
-	command_line.MainLoop(py_locals)
+	command_line.MainLoop()
 
 # Module-global variables initialization
 global command_tree, command_line
