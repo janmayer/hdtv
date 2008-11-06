@@ -1,4 +1,8 @@
-#!/usr/bin/python
+#!/bin/false
+# -*- coding: utf-8 -*-
+#-------------------------------------------------------------------------------
+# HDTV command line
+#-------------------------------------------------------------------------------
 import os
 import sys
 import traceback
@@ -283,7 +287,7 @@ class CommandLine:
 		
 	def PythonUnescape(self, s):
 		s = s.lstrip()
-		if len(s) == 0 or s[0] != '@':
+		if len(s) == 0 or s[0] != ':':
 			return None
 		else:
 			return s[1:]

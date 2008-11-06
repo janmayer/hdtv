@@ -1,7 +1,4 @@
-import ROOT
-import os
+#!/bin/false
 
-
-path= os.path.dirname(os.path.abspath(__file__))
-if ROOT.gSystem.Load("%s/../lib/gspec.so" %path) < 0:
-	raise RuntimeError, "Library not found (gspec.so)"
+import hdtv.dlmgr
+hdtv.dlmgr.LoadLibrary("gspec")

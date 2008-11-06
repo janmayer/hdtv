@@ -24,17 +24,20 @@
 #include <TMath.h>
 #include <Riostream.h>
 
+const double GSViewport::DEFAULT_MAX_ENERGY = 1000.0;
+const double GSViewport::MIN_ENERGY_REGION = 1e-2;
+
 GSViewport::GSViewport(const TGWindow *p, UInt_t w, UInt_t h)
   : TGFrame(p, w, h)
 {
   SetBackgroundColor(GetBlackPixel());
-  fXVisibleRegion = 100.0;
+  fXVisibleRegion = DEFAULT_MAX_ENERGY;
   fYMinVisibleRegion = 20.0;
   fYVisibleRegion = fYMinVisibleRegion;
   fYOffset = 0.0;
   fXOffset = 0.0;
   fMinEnergy = 0.0;
-  fMaxEnergy = 100.0;
+  fMaxEnergy = DEFAULT_MAX_ENERGY;
   fYAutoScale = true;
   fNeedClear = false;
   fDragging = false;
@@ -226,7 +229,7 @@ void GSViewport::DeleteAllYMarkers(bool update)
   	Update(true);
 }
 
-int GSViewport::AddSpec(const TH1D *spec, int color, bool update)
+int GSViewport::AddSpec(const TH1 *spec, int color, bool update)
 {
   int id = FindFreeId(fSpectra);
   fSpectra[id] = new GSDisplaySpec(spec, color);
@@ -434,8 +437,9 @@ void GSViewport::ShowAll(void)
   fMinEnergy = 0.0;
   fMaxEnergy = 0.0;
   double minE, maxE;
+  int i;
   
-  for(int i=0; i<fSpectra.size(); i++) {
+  for(i=0; i<fSpectra.size(); i++) {
     minE = fSpectra[i]->GetMinE();
     maxE = fSpectra[i]->GetMaxE();
     
@@ -443,8 +447,12 @@ void GSViewport::ShowAll(void)
     if(maxE > fMaxEnergy) fMaxEnergy = maxE;
   }
 
+  if(i == 0)
+    fMaxEnergy = DEFAULT_MAX_ENERGY;
+  
   fXOffset = fMinEnergy;
-  fXVisibleRegion = fMaxEnergy - fMinEnergy;
+  fXVisibleRegion = TMath::Max(fMaxEnergy - fMinEnergy, MIN_ENERGY_REGION);
+  
     
   Update(false);
 }
@@ -645,6 +653,12 @@ void GSViewport::UpdateStatusScale()
     else
       fStatusBar->SetText("", 1);
   }
+}
+
+void GSViewport::SetStatusText(const char *text)
+{
+  if(fStatusBar)
+    fStatusBar->SetText(text, 2);
 }
 
 Bool_t GSViewport::HandleMotion(Event_t *ev)

@@ -24,9 +24,9 @@
 #include <TROOT.h>
 #include <Riostream.h>
 
-GSDisplaySpec::GSDisplaySpec(const TH1D *spec, int col) : GSDisplayObj(col)
+GSDisplaySpec::GSDisplaySpec(const TH1 *spec, int col) : GSDisplayObj(col)
 {
-  fSpec = new TH1D(*spec);
+  fSpec = (TH1*) spec->Clone();
  
   //cout << "GSDisplaySpec constructor" << endl;
 

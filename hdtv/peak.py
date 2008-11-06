@@ -32,7 +32,7 @@ class Peak:
 		if self.cal:
 			cal = self.cal
 			pos = cal.Ch2E(self.pos)
-			fwhm = cal.Ch2E(self.pos+self.fwhm)-cal.Ch2E(self.pos-self.fwhm)
+			fwhm = cal.Ch2E(self.pos+self.fwhm/2.)-cal.Ch2E(self.pos-self.fwhm/2.)
 
 		text = "pos: %10.3f   fwhm: %7.3f   vol: %8.1f   " %(pos, fwhm, self.vol)
 		

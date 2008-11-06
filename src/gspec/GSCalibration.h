@@ -23,20 +23,42 @@
 #ifndef __GSCalibration_h__
 #define __GSCalibration_h__
 
+#include <vector>
+#include <TAxis.h>
+
 class GSCalibration {
   public:
-  	GSCalibration(double cal0 = 0.0, double cal1 = 1.0, double cal2 = 0.0, double cal3 = 0.0);
-  	  	
-	void SetCal(double cal0 = 0.0, double cal1 = 1.0, double cal2 = 0.0, double cal3 = 0.0);
+   	GSCalibration(double cal0)
+  	  { SetCal(cal0); }
+
+   	GSCalibration(double cal0, double cal1)
+  	  { SetCal(cal0, cal1); }
+
+   	GSCalibration(double cal0, double cal1, double cal2)
+  	  { SetCal(cal0, cal1, cal2); }
+
+  	GSCalibration(double cal0, double cal1, double cal2, double cal3)
+  	  { SetCal(cal0, cal1, cal2, cal3); }
+
+  	GSCalibration(std::vector<double> cal)
+  	  { SetCal(cal); }
+  	
+	void SetCal(double cal0);
+	void SetCal(double cal0, double cal1);
+	void SetCal(double cal0, double cal1, double cal2);
+	void SetCal(double cal0, double cal1, double cal2, double cal3);
+	void SetCal(std::vector<double> cal);
+	
     double Ch2E(double ch);
+    double dEdCh(double ch);
     double E2Ch(double e);
     
-    inline void SetCenterCh(double ch)  { fCenterCh = ch; }
-    inline double GetCenterCh()  { return fCenterCh; }
+    void Apply(TAxis *axis, int nbins);
     
   private:
-    double fCal[4];
-    double fCenterCh;
+    std::vector<double> fCal;
+    std::vector<double> fCalDeriv;
+    void UpdateDerivative();
 };
 
 #endif

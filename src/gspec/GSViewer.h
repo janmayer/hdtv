@@ -42,7 +42,8 @@ class GSViewer : public TGMainFrame {
   inline const GSViewport *GetViewport(void) { return fViewport; }
   void KeyPressed() {   Emit("KeyPressed()"); }  // *SIGNAL*
   
-  UInt_t fKeySym; // temporary hack
+  UInt_t fKeySym;    // Key symbol
+  char fKeyStr[16];  // Key string
   
   ClassDef(GSViewer, 1)
 

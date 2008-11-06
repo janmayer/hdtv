@@ -1,19 +1,36 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
 # This is the main HDTV application.
 #-------------------------------------------------------------------------------
-# Set the Pythonpath
-import sys
-sys.path.append("..")
-sys.path.append("../plugins")
 
+# Load required modules
+import sys
+import os.path
 import ROOT
 
-# Import modules
+# Get ~/.hdtv directory
+hdtvpath = os.path.expanduser("~/.hdtv")
+if not os.path.exists(hdtvpath):
+	raise RuntimeError, "Failed to load core plugins: directory ~/.hdtv not found."
+
+# Set the python path
+sys.path.append(hdtvpath)
+sys.path.append(hdtvpath + "/plugins")
+
+# Import core modules
+import hdtv.dlmgr
+hdtv.dlmgr.path.append(hdtvpath + "/lib")
 import hdtv.cmdline
 hdtv.cmdline.SetInteractiveDict(locals())
-import spectrum
+# import hdtv.config
+
+# Execute startup script; we don't care if it does not exist
+try:
+	import startup
+except ImportError:
+	pass
 
 # Go
 hdtv.cmdline.MainLoop()
+

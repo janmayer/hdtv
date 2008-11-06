@@ -5,8 +5,13 @@ class FitPanel:
 		self._dispatchers = []
 		self.fFitHandler = None
 		self.fClearHandler = None
+		self.fVisible = False
 	
 		self.fMainFrame = ROOT.TGMainFrame(ROOT.gClient.GetRoot(), 300, 500)
+		self.fMainFrame.DontCallClose()
+		disp = ROOT.TPyDispatcher(self.Hide)
+		self.fMainFrame.Connect("CloseWindow()", "TPyDispatcher", disp, "Dispatch()")
+		self._dispatchers.append(disp)
 		
 		## Tails frame ##
 		self.fTailsFrame = ROOT.TGCompositeFrame(self.fMainFrame)
@@ -34,6 +39,7 @@ class FitPanel:
 		self.fMainFrame.AddFrame(self.fTailsFrame,
 				ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
 				
+		## Output format frame (currently disabled)
 		#self.fFormatFrame = ROOT.TGHorizontalFrame(self.fMainFrame)
 		
 		#self.fFormatList = ROOT.TGComboBox(self.fFormatFrame)
@@ -42,11 +48,11 @@ class FitPanel:
 		#self.fFormatList.Select(1)
 		#self.fFormatList.SetHeight(24)
 		#self.fFormatFrame.AddFrame(self.fFormatList,
-	    #			ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
+	    #		ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
 		
 		#self.fMainFrame.AddFrame(self.fFormatFrame,
 		#		ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
-				
+			
 		## Button frame ##
 		self.fButtonFrame = ROOT.TGHorizontalFrame(self.fMainFrame)
 
@@ -73,7 +79,21 @@ class FitPanel:
 		self.fMainFrame.SetWindowName("Fit")
 		self.fMainFrame.MapSubwindows()
 		self.fMainFrame.Resize(self.fMainFrame.GetDefaultSize())
-		self.fMainFrame.MapWindow()
+		
+	# Note that deleting the window on close, and recreating it when needed,
+	# causes a BadWindow (invalid Window parameter) error from time to time
+	# (the exact conditions are not completely understood).
+	# In addition, just hiding the window has the advantage that all settings
+	# (text entries, checkboxes, ...) are automatically remembered.
+	def Hide(self):
+		if self.fVisible:
+			self.fMainFrame.UnmapWindow()
+			self.fVisible = False
+			
+	def Show(self):
+		if not self.fVisible:
+			self.fMainFrame.MapWindow()
+			self.fVisible = True
 		
 	# FIXME: This should *really* take advantage of signals and slots...
 	def FitClicked(self):

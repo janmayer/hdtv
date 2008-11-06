@@ -3,6 +3,65 @@ import gspec
 from view import View
 from marker import Marker
 
+from types import *
+
+class KeyHandler:
+	"Class to handle multi-key hotkeys."
+	def __init__(self):
+		self.fKeyCmds = dict()
+		self.fCurNode = self.fKeyCmds
+		
+	def AddKey(self, key, cmd):
+		"""
+		Adds a hotkey to the hotkey table. If key is a list,
+		it is taken as a multi-key hotkey. The function refuses
+		to overwrite definitions that do not match exactly, i.e.
+		once you have defined hotkey x, you can no longer define
+		the multi-key combination xy (since that would have to
+		overwrite x). You can overwrite matching combinations,
+		though (i.e. redefine x in the example above).
+		"""
+		curNode = self.fKeyCmds
+		if type(key) == ListType:
+			for k in key[0:-1]:
+				try:
+					curNode = curNode[k]
+					if type(curNode) != DictType:
+						raise RuntimeError, "Refusing to non-matching hotkey"
+				except KeyError:
+					curNode[k] = dict()
+					curNode = curNode[k]
+			
+			key = key[-1]
+
+		curNode[key] = cmd
+		
+	def HandleKey(self, key):
+		"""
+		Handles a key press. Returns True if the input was a
+		valid hotkey, False if it was not, and None if further
+		input is needed (i.e. if the input could be part of a
+		multi-key hotkey)
+		"""
+		try:
+			node = self.fCurNode[key]
+			if type(node) == DictType:
+				self.fCurNode = node
+				return None
+			else:
+				node()
+				self.Reset()
+				return True
+		except KeyError:
+			self.Reset()
+			return False
+		
+	def Reset(self):
+		"""
+		Reset possible waiting state for a multi-key hotkey.
+		"""
+		self.fCurNode = self.fKeyCmds
+
 class Window:
 	"""
 	Base class of a window object 
@@ -20,9 +79,37 @@ class Window:
 		self.fYZoomMarkers = []
 		self.fPendingMarker = None
 		
-		self.fKeyDispatch = ROOT.TPyDispatcher(self._KeyHandler)
+		self.fKeyDispatch = ROOT.TPyDispatcher(self.KeyHandler)
 		self.fViewer.Connect("KeyPressed()", "TPyDispatcher", 
 							 self.fKeyDispatch, "Dispatch()")
+		
+		self.fKeyString = ""
+		self.fKeys = KeyHandler()
+		self.fKeys.AddKey(ROOT.kKey_u, lambda: self.fViewport.Update(True))
+		# toggle spectrum display
+		self.fKeys.AddKey(ROOT.kKey_l, self.fViewport.ToggleLogScale)
+		self.fKeys.AddKey(ROOT.kKey_a, self.ToggleYAutoScale)
+		# x directions
+		self.fKeys.AddKey(ROOT.kKey_Space, self.PutXZoomMarker)
+		self.fKeys.AddKey(ROOT.kKey_f, self.ExpandX)
+		self.fKeys.AddKey(ROOT.kKey_Greater, lambda: self.fViewport.ShiftXOffset(0.1))
+		self.fKeys.AddKey(ROOT.kKey_Less, lambda: self.fViewport.ShiftXOffset(-0.1))
+		self.fKeys.AddKey(ROOT.kKey_1, lambda: self.fViewport.XZoomAroundCursor(2.0))
+		self.fKeys.AddKey(ROOT.kKey_0, lambda: self.fViewport.XZoomAroundCursor(0.5))
+		# Y direction
+		self.fKeys.AddKey(ROOT.kKey_h, self.PutYZoomMarker)
+		self.fKeys.AddKey(ROOT.kKey_y, self.ExpandY)
+		# self.fKeys.AddKey(ROOT.kKey_Up, lambda: self.fViewport.ShiftYOffset(0.1))
+		# self.fKeys.AddKey(ROOT.kKey_Down, lambda: self.fViewport.ShiftYOffset(-0.1))
+		# self.fKeys.AddKey(ROOT.kKey_Z, lambda: self.fViewport.YZoomAroundCursor(2.0))
+		# self.fKeys.AddKey(ROOT.kKey_X, lambda: self.fViewport.YZoomAroundCursor(0.5))
+		# expand in all directions
+		self.fKeys.AddKey(ROOT.kKey_e, self.Expand)
+		# switch between views
+		self.fKeys.AddKey(ROOT.kKey_PageUp, lambda: self.ShowView(self.fCurViewID - 1))
+		self.fKeys.AddKey(ROOT.kKey_PageDown, lambda: self.ShowView(self.fCurViewID + 1))
+		self.fKeys.AddKey(ROOT.kKey_Home, lambda: self.ShowView(0))
+		self.fKeys.AddKey(ROOT.kKey_End, lambda: self.ShowView(len(self.fViews)-1))
 
 	def AddView(self, title=None):
 		"""
@@ -186,60 +273,31 @@ class Window:
 	  		collection[-1].Realize(self.fViewport)
 	  		self.fPendingMarker = collection[-1]
   			
-	def _KeyHandler(self):
-		self.KeyHandler(self.fViewer.fKeySym)
-		
-	def KeyHandler(self, key):
+	def KeyHandler(self):
 		""" 
 		Default Key Handler
 		"""
-		handled = True
-		if key == ROOT.kKey_u:
-			self.fViewport.Update(True)
-		# toggle spectrum display
-		elif key == ROOT.kKey_l:
-			self.fViewport.ToggleLogScale()
-		elif key == ROOT.kKey_a:
-			self.ToggleYAutoScale()
-		# x directions
-		elif key == ROOT.kKey_Space:
-			self.PutXZoomMarker()
-		elif key == ROOT.kKey_f:
-			self.ExpandX()
-		elif key == ROOT.kKey_Left:
-			self.fViewport.ShiftXOffset(0.1)
-		elif key == ROOT.kKey_Right:
-			self.fViewport.ShiftXOffset(-0.1)
-		elif key == ROOT.kKey_z:
-			self.fViewport.XZoomAroundCursor(2.0)
-		elif key == ROOT.kKey_x:
-			self.fViewport.XZoomAroundCursor(0.5)
-		# Y direction
-		elif key == ROOT.kKey_h:
-			self.PutYZoomMarker()
-		elif key == ROOT.kKey_y:
-			self.ExpandY()
-		elif key == ROOT.kKey_Up:
-			self.fViewport.ShiftYOffset(0.1)
-		elif key == ROOT.kKey_Down:
-			self.fViewport.ShiftYOffset(-0.1)
-		elif key == ROOT.kKey_Z:
-			self.fViewport.YZoomAroundCursor(2.0)
-		elif key == ROOT.kKey_X:
-			self.fViewport.YZoomAroundCursor(0.5)
-		# expand in all directions
-		elif key == ROOT.kKey_e:
-			self.Expand()
-		# switch between views
-		elif key == ROOT.kKey_PageUp:
-			self.ShowView(self.fCurViewID - 1)
-		elif key == ROOT.kKey_PageDown:
-			self.ShowView(self.fCurViewID + 1)
-		elif key== ROOT.kKey_Home:
-			self.ShowView(0)
-		elif key== ROOT.kKey_End:
-			self.ShowView(len(self.fViews)-1)
-		else:
-			handled = False
+		if self.fViewer.fKeySym == ROOT.kKey_Escape:
+			self.fKeys.Reset()
+			self.fKeyString = ""
+			self.fViewport.SetStatusText("")
+			return True
 			
+		# Do not handle keys like <Ctrl>, <Shift>, etc.
+		if not self.fViewer.fKeyStr:
+			return False
+		
+		handled = self.fKeys.HandleKey(self.fViewer.fKeySym)
+		
+		if handled == None:
+			self.fKeyString += self.fViewer.fKeyStr
+			self.fViewport.SetStatusText("Command: %s" % self.fKeyString)
+		elif handled == False:
+			self.fKeyString += self.fViewer.fKeyStr
+			self.fViewport.SetStatusText("Invalid hotkey %s" % self.fKeyString)
+			self.fKeyString = ""
+		else:
+			self.fViewport.SetStatusText("")
+			self.fKeyString = ""
+
 		return handled

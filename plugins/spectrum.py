@@ -17,10 +17,6 @@ import ROOT
 ROOT.TH1.AddDirectory(ROOT.kFALSE)
 
 class Spectrum(hdtv.spectrum.Spectrum):
-	#def __init__(self, hist, ):
-	#	self.fFilename = None
-	#	hdtv.spectrum.Spectrum.__init__(self, fname, color=color)
-		
 	def IsVisible(self):
 		return self.fSid != None
 		
@@ -51,7 +47,7 @@ class Spectrum(hdtv.spectrum.Spectrum):
 			
 		return self.SetCal(calpoly)
 		
-	def CalFromPairs(pairs):
+	def CalFromPairs(self, pairs, **args):
 	 	if len(pairs) != 2:
 	 		print "Pairs length must presently be exactly 2"
 	 		return False
@@ -66,7 +62,6 @@ class Spectrum(hdtv.spectrum.Spectrum):
 	 		
 	 	cal = hdtv.util.Linear.FromXYPairs(pairs[0], pairs[1])
 		self.SetCal([cal.p0, cal.p1])
-
 		
 class SpecWindow(hdtv.window.Window):
 	def __init__(self):
@@ -85,37 +80,23 @@ class SpecWindow(hdtv.window.Window):
 		
 		# self.SetTitle("No spectrum - hdtv")
 		
-		# Initialize and show the fit panel
-		self.fFitPanel = None
-		self.EnsureFitPanel()
+		# Create fit panel, but do not show it yet
+		self.fFitPanel = hdtv.fitpanel.FitPanel()
+		self.fFitPanel.fFitHandler = self.Fit
+		self.fFitPanel.fClearHandler = self.DeleteFit
+		
+		# Register hotkeys
+		self.fKeys.AddKey(ROOT.kKey_b, self.PutBackgroundMarker)
+		self.fKeys.AddKey(ROOT.kKey_r, self.PutRegionMarker)
+		self.fKeys.AddKey(ROOT.kKey_p, self.PutPeakMarker)
+	  	self.fKeys.AddKey([ROOT.kKey_Minus, ROOT.kKey_F], self.DeleteFit)
+	  	self.fKeys.AddKey(ROOT.kKey_B, self.FitBackground)
+	  	self.fKeys.AddKey(ROOT.kKey_F, self.Fit)
+	  	self.fKeys.AddKey(ROOT.kKey_I, self.Integrate)
 		
 	def SetCurrentSpec(self, spec):
 		self.fCurrentSpec = spec
 		self.fFitter.spec = spec
-		
-	def KeyHandler(self, key):
-		handled = True
-	
-		if hdtv.window.Window.KeyHandler(self, key):
-			pass
-		elif key == ROOT.kKey_b:
-			self.PutBackgroundMarker()
-	  	elif key == ROOT.kKey_r:
-			self.PutRegionMarker()
-	  	elif key == ROOT.kKey_p:
-			self.PutPeakMarker()
-	  	elif key == ROOT.kKey_Escape:
-	  		self.DeleteFit()
-	  	elif key == ROOT.kKey_B:
-	  		self.FitBackground()
-	  	elif key == ROOT.kKey_F:
-	  		self.Fit()
-	  	elif key == ROOT.kKey_I:
-	  		self.Integrate()
-	  	else:
-	  		handled = False
-	  		
-	  	return handled
 		
 	def PutRegionMarker(self):
 		self.PutPairedMarker("X", "REGION", self.fRegionMarkers, 1)
@@ -190,11 +171,8 @@ class SpecWindow(hdtv.window.Window):
 		self.fFitter.rightTail = self.fFitPanel.GetRightTails()
 		
 	def EnsureFitPanel(self):
-		if not self.fFitPanel:
-			self.fFitPanel = hdtv.fitpanel.FitPanel()
-			self.fFitPanel.fFitHandler = self.Fit
-			self.fFitPanel.fClearHandler = self.DeleteFit
-		
+		self.fFitPanel.Show()
+			
 	def FitBackground(self):
 		self.fFitter.Delete()
 		
@@ -414,20 +392,20 @@ class SpecWindow(hdtv.window.Window):
 	def ShowNone(self):
 		for spec in self.fSpectra.itervalues():
 				spec.Delete(False)
-		self.fMainWindow.fViewport.Update(True)
+		self.fViewport.Update(True)
 	
 	def ShowAll(self):
 		for spec in self.fSpectra.itervalues():
-				spec.Realize(self.fMainWindow.fViewport, False)
-		self.fMainWindow.fViewport.Update(True)
+				spec.Realize(self.fViewport, False)
+		self.fViewport.Update(True)
 	
 	def Show(self, ids):
 		for (sid, spec) in self.fSpectra.iteritems():
 			if sid in ids and not spec.IsVisible():
-				spec.Realize(self.fMainWindow.fViewport, False)
+				spec.Realize(self.fViewport, False)
 			elif not sid in ids and spec.IsVisible():
 				spec.Delete(False)
-		self.fMainWindow.fViewport.Update(True)
+		self.fViewport.Update(True)
 		
 	# Helper functions to process the active spectrum
 	def SetCal(self, calpoly):
@@ -442,14 +420,24 @@ class SpecWindow(hdtv.window.Window):
 			print "Warning: No active spectrum, no action taken."
 			return False
 			
-		self.fSpectra[self.fActiveID].SetCal(calpoly)
+		self.fSpectra[self.fActiveID].ReadCal(fname)
 		
-	def CalFromPairs(self, pairs, *args):
+	def CalFromPairs(self, pairs, **args):
 		if self.fActiveID == None:
 			print "Warning: No active spectrum, no action taken."
 			return False
 			
-		self.fSpectra[self.fActiveID].SetCal(calpoly)
+		self.fSpectra[self.fActiveID].CalFromPairs(pairs, **args)
+		
+	def WriteSpectrum(self, fname, fmt):
+		if self.fActiveID == None:
+			print "Warning: No active spectrum, no action taken."
+			return False
+			
+		self.fSpectra[self.fActiveID].WriteSpectrum(fname, fmt)
+		
+	def __getitem__(self, x):
+		return self.fSpectra[x]
 	
 
 class SpectrumModule:
@@ -485,7 +473,7 @@ class SpectrumModule:
 		if ids == "NONE":
 			return
 		elif ids == "ALL":
-			self.fMainWindow.DeleteAddSpectra()
+			self.fMainWindow.DeleteAllSpectra()
 		else:
 			self.fMainWindow.DeleteSpectra(ids)
 		
@@ -509,13 +497,22 @@ class SpectrumModule:
 			self.fMainWindow.Show(ids)
 			
 	def SpectrumWrite(self, args):
-		pass
-		#try:
-		#	(fname, fmt) = 
+		try:
+			(fname, fmt) = args[0].rsplit('\'', 1)
 	
-		#if len(args) == 1:
-		#	self.fMainWindow.WriteSpectrum(args[0])
+			if len(args) == 1:
+				self.fMainWindow.WriteSpectrum(fname, fmt)
+			else:
+				sid = int(args[1])
+				try:				
+					self.fMainWindow[sid].WriteSpectrum(fname, fmt)
+				except KeyError:
+					print "Error: ID %d not found" % sid
 		
+		except ValueError:
+			print "Usage: spectrum write <filename>'<format> [index]"
+		
+		return	
 			
 	def Cd(self, args):
 		if len(args) == 0:

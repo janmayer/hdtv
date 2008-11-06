@@ -44,7 +44,7 @@ class Spectrum:
 		try:
 			hist = SpecReader().GetSpectrum(fname)
 		except SpecReaderError, msg:
-			print "Error: Failed to load spectrum: %s (file: %s)" % msg, fname
+			print "Error: Failed to load spectrum: %s (file: %s)" % (msg, fname)
 			return
 			
 		spec = cls(hist)
@@ -57,6 +57,18 @@ class Spectrum:
 		spec.fZombie = False
 		
 		return spec
+		
+	def WriteSpectrum(self, fname, fmt):
+		if self.fZombie:
+			return False
+	
+		try:
+			SpecReader().WriteSpectrum(self.fHist, fname, fmt)
+		except SpecReaderError, msg:
+			print "Error: Failed to write spectrum: %s (file: %s)" % (msg, fname)
+			return False
+			
+		return True
 
 	def SetColor(self, color):
 		"""

@@ -1,26 +1,13 @@
 import ROOT
-import os
+import hdtv.dlmgr
 
 class SpecReaderError(Exception):
 	pass
 
 class SpecReader:
 	def __init__(self):
-		self.fHasMFile = False
-		self.fHasCracow = False
 		self.fDefaultFormat = "mfile"
 		
-	def EnsureMFile(self):
-		if not self.fHasMFile:
-			self.fHasMFile = True
-			path= os.path.dirname(os.path.abspath(__file__))
-			if ROOT.gSystem.Load("%s/../lib/mfile-root.so" %path) < 0:
-				raise RuntimeError, "Library not found (mfile-root.so)"
-				
-	def EnsureCracow(self):
-		if not self.fHasCracow:
-			self.fHasCracow = True
-
 	def GetSpectrum(self, fname, fmt=None, histname=None, histtitle=None):
 		"""
 		Reads a histogram from a non-ROOT file. fmt specifies the format.
@@ -37,14 +24,14 @@ class SpecReader:
 			histtitle = fname
 	
 		if fmt.lower() == 'cracow':
-			self.EnsureCracow()
+			hdtv.dlmgr.LoadLibrary("cracowio")
 			cio = ROOT.CracowIO()
 			hist = cio.GetCracowSpectrum(fname, histname, histtitle)
 			if not hist:
 				raise SpecReaderError, cio.GetErrorMsg()
 			return hist
 		else:
-			self.EnsureMFile()
+			hdtv.dlmgr.LoadLibrary("mfile-root")
 			mhist = ROOT.MFileHist()
 			if mhist.Open(fname) != ROOT.MFileHist.ERR_SUCCESS:
 				raise SpecReaderError, mhist.GetErrorMsg()
@@ -54,12 +41,13 @@ class SpecReader:
 			return hist
 		
 	def GetMatrix(self, filename, fmt, histname, histtitle):
+		hdtv.dlmgr.Loadlibrary("mfile-root")
 		mhist = ROOT.MFileHist()
 		mhist.Open(filename)
 		return mhist.ToTH2D(histname, histtitle, 0)
 		
-	def PutSpectrum(self, hist, fname, fmt):
-		self.EnsureMFile()
+	def WriteSpectrum(self, hist, fname, fmt):
+		hdtv.dlmgr.LoadLibrary("mfile-root")
 		result = ROOT.MFileHist.WriteTH1(hist, fname, fmt)
 		if result != ROOT.MFileHist.ERR_SUCCESS:
 			raise SpecReaderError, ROOT.MFileHist.GetErrorMsg(result)

@@ -25,7 +25,7 @@
 GSViewer::GSViewer(UInt_t w, UInt_t h, const char *title)
   : TGMainFrame(gClient->GetRoot(), w, h)
 {
-  Int_t parts[2] = {20, 80};
+  Int_t parts[3] = {20, 10, 70};
   
   fViewport = new GSViewport(this, w-4, h-4);
   AddFrame(fViewport, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0,0,0,0));
@@ -34,7 +34,7 @@ GSViewer::GSViewer(UInt_t w, UInt_t h, const char *title)
   AddFrame(fScrollbar, new TGLayoutHints(kLHintsExpandX, 0,0,0,0));
   
   fStatusBar = new TGStatusBar(this, 10, 16);
-  fStatusBar->SetParts(parts, 2);
+  fStatusBar->SetParts(parts, 3);
   AddFrame(fStatusBar, new TGLayoutHints(kLHintsExpandX, 0,0,0,0));
   
   fViewport->SetScrollbar(fScrollbar);
@@ -57,12 +57,8 @@ GSViewer::~GSViewer(void)
 
 Bool_t GSViewer::HandleKey(Event_t *ev)
 {
-  char buf[16];
-  UInt_t keysym;
-    
   if(ev->fType == kGKeyPress) {
-	gVirtualX->LookupString(ev, buf, 16, keysym);
-	fKeySym = keysym;
+	gVirtualX->LookupString(ev, fKeyStr, 16, fKeySym);
 	KeyPressed();
   }
 	

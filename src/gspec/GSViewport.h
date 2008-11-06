@@ -40,6 +40,7 @@ class GSViewport : public TGFrame {
   void SetYOffset(double offset, bool update=true);
   void ShiftXOffset(double f, bool update=true);
   void ShiftYOffset(double f, bool update=true);
+  void SetStatusText(const char *text);
   inline double GetOffset(void) { return fXOffset; }
   void Update(bool redraw=false);
   void HandleScrollbar(Long_t parm);
@@ -77,7 +78,7 @@ class GSViewport : public TGFrame {
   void DeleteYMarker(int id, bool update=true);
   void DeleteAllYMarkers(bool update=true);
 
-  int AddSpec(const TH1D *spec, int color=defaultColor, bool update=true);
+  int AddSpec(const TH1 *spec, int color=defaultColor, bool update=true);
   GSDisplaySpec *GetDisplaySpec(int id);
   //void SetSpecCal(int id, double cal0, double cal1, double cal2, double cal3, bool update);
   void DeleteSpec(int id, bool update=true);
@@ -88,6 +89,10 @@ class GSViewport : public TGFrame {
   //void SetFuncCal(int id, double cal0, double cal1, double cal2, double cal3, bool update);
   void DeleteFunc(int id, bool update=true);
   void DeleteAllFuncs(bool update=true);
+  
+  // Default parameters
+  static const double DEFAULT_MAX_ENERGY;
+  static const double MIN_ENERGY_REGION;
    
   ClassDef(GSViewport, 1)
   

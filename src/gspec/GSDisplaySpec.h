@@ -23,16 +23,16 @@
 #ifndef __GSDisplaySpec_h__
 #define __GSDisplaySpec_h__
 
-#include <TH1D.h>
+#include <TH1.h>
 
 #include "GSDisplayObj.h"
 
 class GSDisplaySpec : public GSDisplayObj {
  public:
-  GSDisplaySpec(const TH1D *spec, int col = defaultColor);
+  GSDisplaySpec(const TH1 *spec, int col = defaultColor);
   ~GSDisplaySpec();
   
-  inline TH1D *GetSpec()  { return fSpec; }
+  inline TH1 *GetSpec()  { return fSpec; }
 
   int GetRegionMaxBin(int b1, int b2);
   double GetRegionMax(int b1, int b2);
@@ -44,7 +44,7 @@ class GSDisplaySpec : public GSDisplayObj {
   double GetMax_Cached(int b1, int b2);
 
  private:
-  TH1D *fSpec;
+  TH1 *fSpec;
    
   int fCachedB1, fCachedB2, fCachedMaxBin;
   double fCachedMax;
