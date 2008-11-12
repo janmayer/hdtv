@@ -316,7 +316,10 @@ class SpecWindow(hdtv.window.Window):
 
 	def LoadSpectrum(self, fname, fmt=None):
 		spec = Spectrum.FromFile(fname, fmt)
-		return self.AddSpectrum(spec)
+		if spec == None:
+			return None
+		else:
+			return self.AddSpectrum(spec)
 		
 	def AddSpectrum(self, spec):
 		"""
