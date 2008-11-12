@@ -33,7 +33,11 @@ class SpecReader:
 		else:
 			hdtv.dlmgr.LoadLibrary("mfile-root")
 			mhist = ROOT.MFileHist()
-			if mhist.Open(fname) != ROOT.MFileHist.ERR_SUCCESS:
+
+			if fmt.lower() == 'mfile':
+				fmt = None
+			
+			if mhist.Open(fname, fmt) != ROOT.MFileHist.ERR_SUCCESS:
 				raise SpecReaderError, mhist.GetErrorMsg()
 			hist = mhist.ToTH1D(histname, histtitle, 0, 0)
 			if not hist:

@@ -42,7 +42,7 @@ class Spectrum:
 		
 		# call to SpecReader to get the hist
 		try:
-			hist = SpecReader().GetSpectrum(fname)
+			hist = SpecReader().GetSpectrum(fname, fmt)
 		except SpecReaderError, msg:
 			print "Error: Failed to load spectrum: %s (file: %s)" % (msg, fname)
 			return

@@ -292,9 +292,16 @@ class SpecWindow(hdtv.window.Window):
 	
 		nloaded = 0
 		for arg in args:
-			path = os.path.expanduser(arg)
+			# PUT FMT IF AVAILABLE
+			sparg = arg.rsplit("'", 1)
+			if len(sparg) == 1 or not sparg[1]:
+				(pat, fmt) = (sparg[0], None)
+			else:
+				(pat, fmt) = sparg
+			
+			path = os.path.expanduser(pat)
 			for fname in glob.glob(path):
-				if self.LoadSpectrum(fname) != None:
+				if self.LoadSpectrum(fname, fmt) != None:
 					nloaded += 1
 				
 		if nloaded == 0:
@@ -307,8 +314,8 @@ class SpecWindow(hdtv.window.Window):
 		if nloaded > 0:
 			self.fViewport.Update(True)
 
-	def LoadSpectrum(self, fname):
-		spec = Spectrum.FromFile(fname)
+	def LoadSpectrum(self, fname, fmt=None):
+		spec = Spectrum.FromFile(fname, fmt)
 		return self.AddSpectrum(spec)
 		
 	def AddSpectrum(self, spec):
