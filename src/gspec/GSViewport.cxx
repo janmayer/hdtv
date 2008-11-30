@@ -28,7 +28,7 @@ const double GSViewport::DEFAULT_MAX_ENERGY = 1000.0;
 const double GSViewport::MIN_ENERGY_REGION = 1e-2;
 
 GSViewport::GSViewport(const TGWindow *p, UInt_t w, UInt_t h)
-  : TGFrame(p, w, h)
+  : HDTV::Display::View(p, w, h)
 {
   SetBackgroundColor(GetBlackPixel());
   fXVisibleRegion = DEFAULT_MAX_ENERGY;
@@ -40,7 +40,7 @@ GSViewport::GSViewport(const TGWindow *p, UInt_t w, UInt_t h)
   fMaxEnergy = DEFAULT_MAX_ENERGY;
   fYAutoScale = true;
   fNeedClear = false;
-  fDragging = false;
+  
   fLeftBorder = 60;
   fRightBorder = 3;
   fTopBorder = 4;
@@ -49,18 +49,7 @@ GSViewport::GSViewport(const TGWindow *p, UInt_t w, UInt_t h)
   fScrollbar = NULL;
   fStatusBar = NULL;
 
-  AddInput(kPointerMotionMask | kEnterWindowMask | kLeaveWindowMask
-		   | kButtonPressMask | kButtonReleaseMask);
-
-  GCValues_t gval;
-  gval.fMask = kGCForeground | kGCFunction;
-  gval.fFunction = kGXxor;
-  gval.fForeground = GetWhitePixel();
-  fCursorGC = gClient->GetGCPool()->GetGC(&gval, true);
-  fCursorVisible = false;
-  fCursorX = 0;
-  fCursorY = 0;
-  fPainter = new GSPainter();
+  fPainter = new HDTV::Display::Painter();
   fPainter->SetDrawable(GetId());
   fPainter->SetAxisGC(GetHilightGC().GetGC());
   fPainter->SetClearGC(GetBlackGC().GetGC());
@@ -386,7 +375,7 @@ void GSViewport::ShiftOffset(int dO)
   if(cv) DrawCursor();
 }
 
-void GSViewport::SetViewMode(EViewMode vm)
+void GSViewport::SetViewMode(HDTV::Display::ViewMode vm)
 {
   if(vm != fPainter->GetViewMode()) {
 	fPainter->SetViewMode(vm);
@@ -682,31 +671,36 @@ Bool_t GSViewport::HandleMotion(Event_t *ev)
 
 Bool_t GSViewport::HandleButton(Event_t *ev)
 {
-  if(ev->fType == kButtonPress)
-	fDragging = true;
-  else
-	fDragging = false;
+  if(ev->fType == kButtonPress) {
+	switch(ev->fCode) {
+	  case 1:
+	    fDragging = true;
+	    break;
+	  case 4:
+	    XZoomAroundCursor(M_SQRT2);
+	    break;
+	  case 5:
+	    XZoomAroundCursor(M_SQRT1_2);
+	    break;
+	}
+  } else if(ev->fType == kButtonRelease) {
+  	if(ev->fCode == 1)
+      fDragging = false;
+  }
 }
 
 Bool_t GSViewport::HandleCrossing(Event_t *ev)
 {
   if(ev->fType == kEnterNotify) {
 	if(fCursorVisible) DrawCursor();
-	fCursorX = ev->fX;
-	fCursorY = ev->fY;
+	/* fCursorX = ev->fX;
+	fCursorY = ev->fY; */
 	DrawCursor();
 	UpdateStatusPos();
   } else if(ev->fType == kLeaveNotify) {
 	if(fCursorVisible) DrawCursor();
 	if(fStatusBar) fStatusBar->SetText("", 0);
   }
-}
-
-void GSViewport::DrawCursor(void)
-{
-  gVirtualX->DrawLine(GetId(), fCursorGC->GetGC(), 1, fCursorY, fWidth, fCursorY);
-  gVirtualX->DrawLine(GetId(), fCursorGC->GetGC(), fCursorX, 1, fCursorX, fHeight);
-  fCursorVisible = !fCursorVisible;
 }
 
 void GSViewport::Layout(void)

@@ -30,8 +30,8 @@
   fYZoom is in pixels per count
 */
 
-#ifndef __GSSpecPainter_h__
-#define __GSSpecPainter_h__
+#ifndef __Painter_h__
+#define __Painter_h__
 
 #include <TGResourcePool.h>
 #include <TGFont.h>
@@ -42,29 +42,32 @@
 #include "GSXMarker.h"
 #include "GSYMarker.h"
 
-enum EViewMode {
+namespace HDTV {
+namespace Display {
+
+enum ViewMode {
   kVMSolid = 1,
   kVMHollow = 2,
   kVMDotted = 3
 };
 
-enum EHTextAlign {
+enum HTextAlign {
   kLeft = 1,
   kCenter = 2,
   kRight = 3
 };
 
-enum EVTextAlign {
+enum VTextAlign {
   kBottom = 1,
   kBaseline = 2,
   kMiddle = 3,
   kTop = 4
 };
 
-class GSPainter { 
+class Painter { 
  public:
-  GSPainter(void);
-  ~GSPainter(void);
+  Painter(void);
+  ~Painter(void);
   inline void SetXVisibleRegion(double xv) 
 	{ fXVisibleRegion = xv; fXZoom = fWidth / fXVisibleRegion; }
   inline double GetXVisibleRegion(void) { return fXVisibleRegion; }
@@ -76,8 +79,8 @@ class GSPainter {
   inline void SetLogScale(Bool_t l) 
 	{ fLogScale = l; UpdateYZoom(); }
   inline Bool_t GetLogScale(void) { return fLogScale; }
-  inline void SetViewMode(EViewMode vm) { fViewMode = vm; }
-  inline EViewMode GetViewMode(void) { return fViewMode; }
+  inline void SetViewMode(ViewMode vm) { fViewMode = vm; }
+  inline ViewMode GetViewMode(void) { return fViewMode; }
   inline void SetBasePoint(int x, int y) { fXBase = x; fYBase = y; }
   inline UInt_t GetBaseX(void) { return fXBase; }
   void SetSize(int w, int h);
@@ -129,7 +132,7 @@ class GSPainter {
   void _DrawYLogScale(int minDist, int sgn, double cMin, double cMax);
   void DrawYMajorTic(double c, bool drawLine=true);
   void DrawString(GContext_t gc, int x, int y, char *str, size_t len,
-				  EHTextAlign hAlign, EVTextAlign vAlign);
+				  HTextAlign hAlign, VTextAlign vAlign);
   inline void DrawYMinorTic(double c);
   double GetCountsAtPixel(GSDisplaySpec *dSpec, UInt_t x);
 
@@ -146,7 +149,7 @@ class GSPainter {
   Bool_t fLogScale;
   UInt_t fXBase, fYBase;
   UInt_t fWidth, fHeight;
-  EViewMode fViewMode;
+  ViewMode fViewMode;
   Drawable_t fDrawable;
   GContext_t fAxisGC;
   GContext_t fClearGC;
@@ -155,5 +158,8 @@ class GSPainter {
 
   //  ClassDef(ViewerFrame,0)
 };
+
+} // end namespace Display
+} // end namespace HDTV
 
 #endif

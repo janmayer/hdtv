@@ -1,29 +1,32 @@
 /*
- * gSpec - a viewer for gamma spectra
- *  Copyright (C) 2006  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ * HDTV - A ROOT-based spectrum analysis software
+ *  Copyright (C) 2006-2008  Norbert Braun <n.braun@ikp.uni-koeln.de>
  *
- * This file is part of gSpec.
+ * This file is part of HDTV.
  *
- * gSpec is free software; you can redistribute it and/or modify it
+ * HDTV is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
- * gSpec is distributed in the hope that it will be useful, but WITHOUT
+ * HDTV is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with gSpec; if not, write to the Free Software Foundation,
+ * along with HDTV; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  * 
  */
 
-#include "GSPainter.h"
+#include "Painter.h"
 #include <Riostream.h>
 
-GSPainter::GSPainter()
+namespace HDTV {
+namespace Display {
+
+Painter::Painter()
 {
   SetXVisibleRegion(100.0);
   SetYVisibleRegion(100.0);
@@ -38,11 +41,11 @@ GSPainter::GSPainter()
   fFontStruct = fFont->GetFontStruct();
 }
 
-GSPainter::~GSPainter()
+Painter::~Painter()
 {
 }
 
-void GSPainter::DrawFunction(GSDisplayFunc *dFunc, int x1, int x2)
+void Painter::DrawFunction(GSDisplayFunc *dFunc, int x1, int x2)
 {
   int x;
   int y;
@@ -79,7 +82,7 @@ void GSPainter::DrawFunction(GSDisplayFunc *dFunc, int x1, int x2)
   }
 }
 
-void GSPainter::DrawSpectrum(GSDisplaySpec *dSpec, int x1, int x2)
+void Painter::DrawSpectrum(GSDisplaySpec *dSpec, int x1, int x2)
 {
   int x;
   int y;
@@ -151,7 +154,7 @@ void GSPainter::DrawSpectrum(GSDisplaySpec *dSpec, int x1, int x2)
   }
 }
 
-void GSPainter::DrawXMarker(GSXMarker *marker, int x1, int x2)
+void Painter::DrawXMarker(GSXMarker *marker, int x1, int x2)
 {
   int xm1, xm2;
 
@@ -179,7 +182,7 @@ void GSPainter::DrawXMarker(GSXMarker *marker, int x1, int x2)
   }
 }
 
-void GSPainter::DrawYMarker(GSYMarker *marker, int x1, int x2)
+void Painter::DrawYMarker(GSYMarker *marker, int x1, int x2)
 {
   int y;
   
@@ -200,7 +203,7 @@ void GSPainter::DrawYMarker(GSYMarker *marker, int x1, int x2)
   }
 }
 
-void GSPainter::UpdateYZoom(void)
+void Painter::UpdateYZoom(void)
 {
   double yRange = fYVisibleRegion;
 
@@ -210,7 +213,7 @@ void GSPainter::UpdateYZoom(void)
   fYZoom = fHeight / yRange;
 }
 
-void GSPainter::SetSize(int w, int h)
+void Painter::SetSize(int w, int h)
 {
   fWidth = w;
   fHeight = h;
@@ -218,7 +221,7 @@ void GSPainter::SetSize(int w, int h)
   UpdateYZoom();
 }
 
-double GSPainter::GetCountsAtPixel(GSDisplaySpec *dSpec, UInt_t x)
+double Painter::GetCountsAtPixel(GSDisplaySpec *dSpec, UInt_t x)
 {
   double c1, c2;
   int n1, n2;
@@ -247,7 +250,7 @@ ModLog(x) = x,            -1 <  x <   1
           
 This function is continous with a continous first derivative,
 positive monotonic, and goes from R to R  */
-double GSPainter::ModLog(double x)
+double Painter::ModLog(double x)
 {
   if(x > 1.0) {
     return TMath::Log(x) + 1.0;
@@ -259,7 +262,7 @@ double GSPainter::ModLog(double x)
 }
 
 /* Inverse modified log (see definition above) */
-double GSPainter::InvModLog(double x)
+double Painter::InvModLog(double x)
 {
   if(x > 1.0) {
     return TMath::Exp(x - 1.0);
@@ -270,7 +273,7 @@ double GSPainter::InvModLog(double x)
   }
 }
 
-int GSPainter::CtoY(double c)
+int Painter::CtoY(double c)
 {
   if(fLogScale)
 	c = ModLog(c) - ModLog(fYOffset);
@@ -280,7 +283,7 @@ int GSPainter::CtoY(double c)
   return fYBase - (int) TMath::Ceil(c * fYZoom - 0.5);
 }
 
-double GSPainter::YtoC(int y)
+double Painter::YtoC(int y)
 {
   double c;
   c = (double) (fYBase - y) / fYZoom;
@@ -293,12 +296,12 @@ double GSPainter::YtoC(int y)
   return c;
 }
 
-double GSPainter::GetXOffsetDelta(int x, double f)
+double Painter::GetXOffsetDelta(int x, double f)
 {
   return dXtodE(x - fXBase) * (1.0 - 1.0/f);
 }
 
-double GSPainter::GetYOffsetDelta(int y, double f)
+double Painter::GetYOffsetDelta(int y, double f)
 { 
   if(fLogScale) {
     // This case is presently unhandled...
@@ -308,7 +311,7 @@ double GSPainter::GetYOffsetDelta(int y, double f)
   }
 }
 
-double GSPainter::GetYAutoZoom(GSDisplaySpec *dSpec)
+double Painter::GetYAutoZoom(GSDisplaySpec *dSpec)
 {
   double e1, e2;
   int b1, b2;
@@ -321,7 +324,7 @@ double GSPainter::GetYAutoZoom(GSDisplaySpec *dSpec)
   return (double) dSpec->GetMax_Cached(b1, b2) * 1.02;
 }
 
-void GSPainter::ClearXScale(void)
+void Painter::ClearXScale(void)
 {
   // This function will clear the region containing the
   // X scale so that it can be redrawn with a different
@@ -335,7 +338,7 @@ void GSPainter::ClearXScale(void)
 						   fWidth+60, 20);
 }
 
-void GSPainter::GetTicDistance(double tic, double& major_tic, double& minor_tic, int& n)
+void Painter::GetTicDistance(double tic, double& major_tic, double& minor_tic, int& n)
 {
   double exp;
 
@@ -372,7 +375,7 @@ void GSPainter::GetTicDistance(double tic, double& major_tic, double& minor_tic,
   }
 }
 
-void GSPainter::DrawXScale(UInt_t x1, UInt_t x2)
+void Painter::DrawXScale(UInt_t x1, UInt_t x2)
 {
   UInt_t x;
   UInt_t y = fYBase + 2;
@@ -413,7 +416,7 @@ void GSPainter::DrawXScale(UInt_t x1, UInt_t x2)
   
 }
 
-void GSPainter::DrawYScale(void)
+void Painter::DrawYScale(void)
 {
   if(fLogScale)
 	DrawYLogScale();
@@ -421,8 +424,8 @@ void GSPainter::DrawYScale(void)
 	DrawYLinearScale();
 }
 
-void GSPainter::DrawString(GContext_t gc, int x, int y, char *str, size_t len,
-							   EHTextAlign hAlign, EVTextAlign vAlign)
+void Painter::DrawString(GContext_t gc, int x, int y, char *str, size_t len,
+							   HTextAlign hAlign, VTextAlign vAlign)
 {
   int max_ascent, max_descent;
   int width;
@@ -446,7 +449,7 @@ void GSPainter::DrawString(GContext_t gc, int x, int y, char *str, size_t len,
   gVirtualX->DrawString(fDrawable, gc, x, y, str, len);
 }
 
-void GSPainter::DrawYLinearScale(void)
+void Painter::DrawYLinearScale(void)
 {
   UInt_t x = fXBase - 2;
   UInt_t y;
@@ -482,7 +485,7 @@ void GSPainter::DrawYLinearScale(void)
   
 }
 
-void GSPainter::DrawYLogScale(void)
+void Painter::DrawYLogScale(void)
 {
   double exp = 1.0;
   int c = 1;
@@ -513,7 +516,7 @@ void GSPainter::DrawYLogScale(void)
     _DrawYLogScale(minDist, -1, -cMax, -cMin);
 }
   
-void GSPainter::_DrawYLogScale(int minDist, int sgn, double cMin, double cMax)
+void Painter::_DrawYLogScale(int minDist, int sgn, double cMin, double cMax)
 {
   double exp = 1.0;
   int c = 1;
@@ -588,7 +591,7 @@ void GSPainter::_DrawYLogScale(int minDist, int sgn, double cMin, double cMax)
   }
 }
 
-void GSPainter::DrawYMajorTic(double c, bool drawLine)
+void Painter::DrawYMajorTic(double c, bool drawLine)
 {
   UInt_t x = fXBase - 2;
   UInt_t y = (UInt_t) CtoY(c);
@@ -603,9 +606,12 @@ void GSPainter::DrawYMajorTic(double c, bool drawLine)
   DrawString(fAxisGC, x-12, y, tmp, len, kRight, kMiddle);
 }
 
-inline void GSPainter::DrawYMinorTic(double c)
+inline void Painter::DrawYMinorTic(double c)
 {
   UInt_t x = fXBase - 2;
   UInt_t y = (UInt_t) CtoY(c);
   gVirtualX->DrawLine(fDrawable, fAxisGC, x-5, y, x, y);
 }
+
+} // end namespace Display
+} // end namespace HDTV

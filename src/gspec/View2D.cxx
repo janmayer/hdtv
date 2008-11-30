@@ -1,13 +1,36 @@
-#include "MTView.h"
+/*
+ * HDTV - A ROOT-based spectrum analysis software
+ *  Copyright (C) 2006-2008  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ *
+ * This file is part of HDTV.
+ *
+ * HDTV is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * HDTV is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with HDTV; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+ * 
+ */
+
+#include "View2D.h"
 #include <X11/Xlib.h>
 #include <iostream>
 #include <complex>
 #include <KeySymbols.h>
 
-using namespace std;
+namespace HDTV {
+namespace Display {
 
-MTView::MTView(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
-  : TGFrame(p, w, h)
+View2D::View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
+  : View(p, w, h)
 {
   SetBackgroundColor(GetBlackPixel());
     
@@ -16,22 +39,6 @@ MTView::MTView(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
   
   fStatusBar = NULL;
   
-  /* Copied from GSViewport */
-  AddInput(kPointerMotionMask | kEnterWindowMask | kLeaveWindowMask
-		   | kButtonPressMask | kButtonReleaseMask);
-
-  GCValues_t gval;
-  gval.fMask = kGCForeground | kGCFunction;
-  gval.fFunction = kGXxor;
-  gval.fForeground = GetWhitePixel();
-  fCursorGC = gClient->GetGCPool()->GetGC(&gval, true);
-  fCursorVisible = false;
-  fCursorX = 0;
-  fCursorY = 0;
-  
-  fDragging = false;
-  /***/
-  
   ZoomFull(false);
   fZVisibleRegion = Log(fMatrixMax)+1.0;
   fLogScale = true;
@@ -39,12 +46,12 @@ MTView::MTView(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
   AddInput(kKeyPressMask);
 }
 
-MTView::~MTView()
+View2D::~View2D()
 {
   FlushTiles();
 }
 
-void MTView::ShiftOffset(int dX, int dY)
+void View2D::ShiftOffset(int dX, int dY)
 {
   fXTileOffset += dX;
   fYTileOffset += dY;
@@ -53,7 +60,7 @@ void MTView::ShiftOffset(int dX, int dY)
 }
 
 /* Copied from GSViewport: Merge? */
-Bool_t MTView::HandleMotion(Event_t *ev)
+Bool_t View2D::HandleMotion(Event_t *ev)
 {
   bool cv = fCursorVisible;
   int dX = (int) fCursorX - ev->fX;
@@ -72,7 +79,7 @@ Bool_t MTView::HandleMotion(Event_t *ev)
   UpdateStatusBar();
 }
 
-Bool_t MTView::HandleButton(Event_t *ev)
+Bool_t View2D::HandleButton(Event_t *ev)
 {
   if(ev->fType == kButtonPress)
 	fDragging = true;
@@ -80,7 +87,7 @@ Bool_t MTView::HandleButton(Event_t *ev)
 	fDragging = false;
 }
 
-Bool_t MTView::HandleKey(Event_t *ev)
+Bool_t View2D::HandleKey(Event_t *ev)
 {
   UInt_t keysym;
   char buf[16];
@@ -121,14 +128,14 @@ Bool_t MTView::HandleKey(Event_t *ev)
   return true;
 }
 
-void MTView::Update()
+void View2D::Update()
 {
   FlushTiles();
   gClient->NeedRedraw(this);
   UpdateStatusBar();
 }
 
-void MTView::ZoomAroundCursor(double f, Bool_t update)
+void View2D::ZoomAroundCursor(double f, Bool_t update)
 {
   fXTileOffset = (int)((1.0 - f) * (double) fCursorX + (double) fXTileOffset * f);
   fYTileOffset = (int)((1.0 - f) * (double) fCursorY + (double) fYTileOffset * f);
@@ -140,7 +147,7 @@ void MTView::ZoomAroundCursor(double f, Bool_t update)
     Update();
 }
 
-void MTView::ZoomFull(Bool_t update)
+void View2D::ZoomFull(Bool_t update)
 {
   fXZoom = (double) fWidth / fMatrix->GetNbinsX();
   fYZoom = (double) fHeight / fMatrix->GetNbinsY();
@@ -157,7 +164,7 @@ void MTView::ZoomFull(Bool_t update)
     Update();
 }
 
-double MTView::Log(double x)
+double View2D::Log(double x)
 {
   if(x < 0.0)
     return 0.0;
@@ -167,7 +174,7 @@ double MTView::Log(double x)
     return log(x) + 1.0;
 }
 
-Bool_t MTView::HandleCrossing(Event_t *ev)
+Bool_t View2D::HandleCrossing(Event_t *ev)
 {
   if(ev->fType == kEnterNotify) {
 	if(fCursorVisible) DrawCursor();
@@ -179,14 +186,7 @@ Bool_t MTView::HandleCrossing(Event_t *ev)
   }
 }
 
-void MTView::DrawCursor(void)
-{
-  gVirtualX->DrawLine(GetId(), fCursorGC->GetGC(), 1, fCursorY, fWidth, fCursorY);
-  gVirtualX->DrawLine(GetId(), fCursorGC->GetGC(), fCursorX, 1, fCursorX, fHeight);
-  fCursorVisible = !fCursorVisible;
-}
-
-void MTView::UpdateStatusBar()
+void View2D::UpdateStatusBar()
 {
   char tmp[32];
   if(fStatusBar) {
@@ -196,7 +196,7 @@ void MTView::UpdateStatusBar()
   }
 }
 
-void MTView::ZtoRGB(int z, int &r, int &g, int &b)
+void View2D::ZtoRGB(int z, int &r, int &g, int &b)
 {
   if(z < 0) {
     r = 0;
@@ -229,7 +229,7 @@ void MTView::ZtoRGB(int z, int &r, int &g, int &b)
   }
 }
 
-int MTView::GetValueAtPixel(int x, int y)
+int View2D::GetValueAtPixel(int x, int y)
 {
   double z;
  
@@ -244,7 +244,7 @@ int MTView::GetValueAtPixel(int x, int y)
   return ZCtsToScr(z);
 }
 
-Pixmap_t MTView::RenderTile(int xoff, int yoff)
+Pixmap_t View2D::RenderTile(int xoff, int yoff)
 {
   int x, y, z;
   int r, g, b;
@@ -297,7 +297,7 @@ Pixmap_t MTView::RenderTile(int xoff, int yoff)
   return pixmap;
 }
 
-void MTView::WeedTiles()
+void View2D::WeedTiles()
 {
   int16_t x, y;
   int xpos, ypos;
@@ -321,7 +321,7 @@ void MTView::WeedTiles()
   }
 }
 
-void MTView::FlushTiles()
+void View2D::FlushTiles()
 {
   std::map<uint32_t,Pixmap_t>::iterator iter;
   
@@ -331,7 +331,7 @@ void MTView::FlushTiles()
   fTiles.clear();
 }
 
-Pixmap_t MTView::GetTile(int x, int y)
+Pixmap_t View2D::GetTile(int x, int y)
 {
   uint32_t id = y << 16 | x & 0xFFFF;
   std::map<uint32_t, Pixmap_t>::iterator iter;
@@ -340,14 +340,14 @@ Pixmap_t MTView::GetTile(int x, int y)
   if(iter == fTiles.end()) {
     Pixmap_t tile = RenderTile(x, y);
     //cout << "Rendering Tile " << x << " " << y << endl;
-    fTiles.insert(make_pair(id, tile));
+    fTiles.insert(std::make_pair(id, tile));
     return tile;
   } else {
     return iter->second;
   }
 }
 
-void MTView::DoRedraw()
+void View2D::DoRedraw()
 {
   int x, y;
   int x1, y1, x2, y2;
@@ -378,3 +378,6 @@ void MTView::DoRedraw()
     WeedTiles();
   }
 }
+
+} // end namespace Display
+} // end namespace HDTV

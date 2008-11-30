@@ -10,6 +10,10 @@
 import sys
 sys.path.append("..")
 
+# Set the library search path
+import hdtv.dlmgr
+hdtv.dlmgr.path.append("../lib")
+
 #import some modules
 import ROOT
 import hdtv.gspec
@@ -18,6 +22,6 @@ from hdtv.specreader import SpecReader
 # Don't add created spectra to the ROOT directory
 ROOT.TH1.AddDirectory(ROOT.kFALSE)
 
-mat = SpecReader().GetMatrix("/home/braun/Diplom/full_test/mat/all/all.mtx", "all.mtx", "all.mtx")
+mat = SpecReader().GetMatrix("/home/braun/Diplom/full_test/mat/all/all.mtx", "mfile", "all.mtx", "all.mtx")
 	
 viewer = ROOT.MTViewer(400, 400, mat, "mattest")

@@ -27,12 +27,13 @@
 #include <TGFrame.h>
 #include <TGScrollBar.h>
 #include <TGStatusBar.h>
-#include "GSPainter.h"
+#include "Painter.h"
+#include "View.h"
 #include "GSDisplaySpec.h"
 #include "GSXMarker.h"
 #include "GSYMarker.h"
 
-class GSViewport : public TGFrame { 
+class GSViewport : public HDTV::Display::View { 
  public:
   GSViewport(const TGWindow *p, UInt_t w, UInt_t h);
   ~GSViewport(void);
@@ -50,8 +51,8 @@ class GSViewport : public TGFrame {
   void YZoomAroundCursor(double f);
   void ToBegin(void);
   void ShowAll(void);
-  void SetViewMode(EViewMode vm);
-  inline EViewMode GetViewMode(void) { return fPainter->GetViewMode(); }
+  void SetViewMode(HDTV::Display::ViewMode vm);
+  inline HDTV::Display::ViewMode GetViewMode(void) { return fPainter->GetViewMode(); }
   void SetLogScale(Bool_t l);
   inline void ToggleLogScale(void) { SetLogScale(!GetLogScale()); }
   inline Bool_t GetLogScale(void) { return fPainter->GetLogScale(); }
@@ -102,7 +103,6 @@ class GSViewport : public TGFrame {
   Bool_t HandleMotion(Event_t *ev);
   Bool_t HandleButton(Event_t *ev);
   Bool_t HandleCrossing(Event_t *ev);
-  void DrawCursor(void);
   void ShiftOffset(int dO);
   template <class itemType>
   int FindFreeId(std::vector<itemType> &items);
@@ -123,12 +123,8 @@ class GSViewport : public TGFrame {
   std::vector<GSYMarker *> fYMarkers;
   Bool_t fYAutoScale;
   Bool_t fNeedClear;
-  TGGC *fCursorGC;
-  UInt_t fCursorX, fCursorY;
-  Bool_t fCursorVisible;
-  Bool_t fDragging;
   UInt_t fLeftBorder, fRightBorder, fTopBorder, fBottomBorder;
-  GSPainter *fPainter;
+  HDTV::Display::Painter *fPainter;
   TGHScrollBar *fScrollbar;
   TGStatusBar *fStatusBar;
 

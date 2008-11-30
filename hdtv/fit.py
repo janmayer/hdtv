@@ -1,7 +1,10 @@
 import ROOT
 import gspec
+import dlmgr
 from color import *
 from peak import Peak
+
+dlmgr.LoadLibrary("fit")
 
 class Fit:
 	"""
@@ -12,7 +15,7 @@ class Fit:
 	between channels and energies when interacting with the user (Input/Output).
 	"""
 	def __init__(self, spec=None, region=[], peaklist=[], bglist=[], 
-							 lTail=0, rTail=0):
+							 lTail=None, rTail=None):
 		self.spec = spec
 		self.region = region
 		self.peaklist = peaklist
@@ -27,6 +30,10 @@ class Fit:
 		self.peakFuncID = None
 		self.bgFuncID = None
 		self.viewport=None
+		
+		self.fBgDeg = 0
+		self.fPeakModel = "ee"
+		
 
 	def __setattr__(self, key, val):
 		"""
@@ -61,29 +68,61 @@ class Fit:
 		"""
 		Initialize a new Fitter Object
 		"""
-		# define a fitter and a region
-		fitter = ROOT.GSFitter(self.region[0],self.region[1])
-		# add all peaks
-		for peak in self.peaklist:
-			fitter.AddPeak(peak)
-		# add all background regions
-		for bg in self.bglist:
-			fitter.AddBgRegion(bg[0],bg[1])
-		# add LeftTail
-		if self.leftTail:
-			fitter.SetLeftTails(self.leftTail)
-		# add RightTail
-		if self.rightTail:
-			fitter.SetRightTails(self.rightTail)
-		self.fitter = fitter
+		if self.fPeakModel.lower() == "theuerkauf":
+			# Define a fitter and a region
+			fitter = ROOT.HDTV.Fit.TheuerkaufFitter(self.region[0],self.region[1])
+			
+			# Add all peaks
+			# Like the original TV program, we use a common width and a common tail
+			# for all peaks
+			sigma = fitter.AllocParam()
+			
+			if self.leftTail.lower() == 'fit':
+				lt = fitter.AllocParam()
+			elif self.leftTail == None:
+				lt = False
+			else:
+				lt = ROOT.HDTV.Fit.Param.Fixed(self.leftTail)
+			
+			if self.rightTail.lower() == 'fit':
+				rt = fitter.AllocParam()
+			elif self.rightTail == None:
+				rt = False
+			else:
+				rt = ROOT.HDTV.Fit.Param.Fixed(self.rightTail)
+					
+			# Copy peaks to the fitter
+			for _pos in self.peaklist:
+				pos = fitter.AllocParam(_pos)
+				vol = fitter.AllocParam()
+				peak = ROOT.HDTV.Fit.TheuerkaufPeak(pos, vol, sigma, lt, rt)
+				fitter.AddPeak(peak)
+	
+			self.fitter = fitter
+		elif self.fPeakModel.lower() == "ee":
+			fitter = ROOT.HDTV.Fit.EEFitter(self.region[0], self.region[1])
+			
+			for _pos in self.peaklist:
+				pos = fitter.AllocParam(_pos)
+				amp = fitter.AllocParam()
+				sigma1 = fitter.AllocParam()
+				sigma2 = fitter.AllocParam()
+				eta = fitter.AllocParam()
+				gamma = fitter.AllocParam()
+				peak = ROOT.HDTV.Fit.EEPeak(pos, amp, sigma1, sigma2, eta, gamma)
+				fitter.AddPeak(peak)
+				
+			self.fitter = fitter
+		else:
+			raise RuntimeError, "Unknown peak model"
 		
-	def InitBgFitter(self):
+	def InitBgFitter(self, fittype = ROOT.HDTV.Fit.PolyBg):
 		"""
 		Initialize a new background fitter
 		"""
-		bgfitter = ROOT.GSFitter(0., 0.)
+		bgfitter = ROOT.HDTV.Fit.PolyBg()
 		for bg in self.bglist:
-			bgfitter.AddBgRegion(bg[0], bg[1])
+			bgfitter.AddRegion(bg[0], bg[1])
 		self.bgfitter = bgfitter
 		
 	def ResetBackground(self):
@@ -123,22 +162,32 @@ class Fit:
 			bgfunc = self.bgfunc
 		func = self.fitter.Fit(self.spec.fHist, bgfunc)
 		self.func = ROOT.TF1(func)
-		numPeaks = int(self.func.GetParameter(0))
+		#numPeaks = self.fitter.GetNumPeaks()
 		
 		# information for each peak
-		peaks = []
-		for i in range(0, numPeaks):
-			mean= ROOT.GSFitter.GetPeakPos(self.func, i)
-			fwhm = ROOT.GSFitter.GetPeakFWHM(self.func, i)
-			vol = ROOT.GSFitter.GetPeakVol(self.func, i)
-			lt=ROOT.GSFitter.GetPeakLT(self.func, i)
-			rt=ROOT.GSFitter.GetPeakRT(self.func, i)
-			peaks.append(Peak(mean, fwhm, vol, lt, rt, cal=self.spec.fCal))
+		#peaks = []
+		#for i in range(0, numPeaks):
+		#	peak = fitter.GetPeak(i)
+		#	pos = hdtv.util.ErrValue(peak.GetPos(), peak.GetPosError())
+		#	fwhm = hdtv.util.ErrValue(peak.GetFWHM(), peak.GetFWHMError())
+		#	vol = hdtv.util.ErrValue(peak.GetVol(), peak.GetVolError())
+			
+		#	if peak.HasLeftTail():
+		#		lt = hdtv.util.ErrValue(peak.GetLeftTail(), peak.GetLeftTailError())
+		#	else:
+		#		lt = None
+			
+		#	if peak.HasRightTail():
+		#		rt = hdtv.util.ErrValue(peak.GetRightTail(), peak.GetRightTailError())
+		#	else:
+		#		rt = None
+			
+		#	peaks.append(Peak(mean, fwhm, vol, lt, rt, cal=self.spec.fCal))
 		# draw function to viewport
 		if update:
 			self.Update(True)
-		self.resultPeaks = peaks
-		return peaks
+		#self.resultPeaks = peaks
+		#return peaks
 
 	def DoBgFit(self, update=True):
 		"""
@@ -150,10 +199,10 @@ class Fit:
 		# check if there is already a fitter available
 		if not self.bgfitter:
 			self.InitBgFitter()
-		bgfunc = self.bgfitter.FitBackground(self.spec.fHist)
+		bgfunc = self.bgfitter.Fit(self.spec.fHist)
 		# FIXME: why is this needed? Possibly related to some
 		# subtle issue with PyROOT memory management
-		self.bgfunc =  ROOT.TF1(bgfunc)
+		self.bgfunc = ROOT.TF1(bgfunc)
 		# draw function to viewport
 		if update:
 			self.Update(True)

@@ -1,6 +1,4 @@
 *.pyc
 *.so
-src/gspec/gsdict.cxx
-src/gspec/gsdict.h
-src/mfile-root/mfdict.cxx
-src/mfile-root/mfdict.h
+rootdict.cxx
+rootdict.h

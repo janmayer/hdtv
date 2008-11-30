@@ -4,7 +4,7 @@
 #include <TH2.h>
 #include <TGFrame.h>
 #include <TGStatusBar.h>
-#include "MTView.h"
+#include "View2D.h"
 
 class MTViewer : public TGMainFrame {
   public:
@@ -14,7 +14,7 @@ class MTViewer : public TGMainFrame {
     ClassDef(MTViewer, 1)
     
   private:
-    MTView *fView;
+    HDTV::Display::View2D *fView;
     TGStatusBar *fStatusBar;
 };
 

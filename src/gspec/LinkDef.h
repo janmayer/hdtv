@@ -1,0 +1,15 @@
+#pragma link C++ namespace HDTV;
+#pragma link C++ namespace HDTV::Display;
+#pragma link C++ class HDTV::Display::View;
+#pragma link C++ class HDTV::Display::View2D;
+#pragma link C++ class GSDisplaySpec;
+#pragma link C++ class GSDisplayFunc;
+#pragma link C++ class GSDisplayObj;
+#pragma link C++ class GSMarker;
+#pragma link C++ class GSXMarker;
+#pragma link C++ class GSYMarker;
+#pragma link C++ class GSCalibration;
+#pragma link C++ class GSFitter;
+#pragma link C++ class GSViewport;
+#pragma link C++ class MTViewer;
+#pragma link C++ class GSViewer;

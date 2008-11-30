@@ -47,7 +47,7 @@ class SpecReader:
 			return hist
 		
 	def GetMatrix(self, filename, fmt, histname, histtitle):
-		hdtv.dlmgr.Loadlibrary("mfile-root")
+		hdtv.dlmgr.LoadLibrary("mfile-root")
 		mhist = ROOT.MFileHist()
 		mhist.Open(filename)
 		return mhist.ToTH2D(histname, histtitle, 0)
