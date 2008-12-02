@@ -1,9 +1,11 @@
 import ROOT
-import gspec
+import dlmgr
 from view import View
 from marker import Marker
 
 from types import *
+
+dlmgr.LoadLibrary("display")
 
 class KeyHandler:
 	"Class to handle multi-key hotkeys."

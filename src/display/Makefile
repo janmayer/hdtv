@@ -10,26 +10,29 @@ EXPHEADERS= GSDisplaySpec.h GSDisplayFunc.h GSDisplayObj.h GSMarker.h GSXMarker.
 HEADERS= $(EXPHEADERS) Painter.h
 OBJ= $(SOURCES:.cxx=.o)
 DESTDIR = ../../lib
+MODNAME= display
 
 .PHONY: all build copy clean
 
 all: build copy
 
-build: gspec.so
+build: $(MODNAME).so
 
-gspec.so: $(OBJ) gsdict.o Makefile
-	$(CPP) -fpic $(CFLAGS) $(LFLAGS) -shared -o gspec.so $(OBJ) gsdict.o
+$(MODNAME).so: $(OBJ) rootdict-$(MODNAME).o Makefile
+	$(CPP) -fpic $(CFLAGS) $(LFLAGS) -shared -o $(MODNAME).so $(OBJ) rootdict-$(MODNAME).o
 
-gsdict.cxx:  Makefile $(EXPHEADERS) LinkDef.h
-	$(ROOTCINT) -f gsdict.cxx -c $(EXPHEADERS) LinkDef.h
+rootdict-$(MODNAME).cxx:  Makefile $(EXPHEADERS) LinkDef.h
+	$(ROOTCINT) -f rootdict-$(MODNAME).cxx -c $(EXPHEADERS) LinkDef.h
 
 %.o: %.cxx $(HEADERS) Makefile
 	$(CPP) $(CFLAGS) -fpic -c $<
 
 clean:
-	rm -f gsdict.cxx gsdict.h gsdict.o
-	rm -f *~
-	rm -f $(OBJ)
+	-/bin/rm -f rootdict-$(MODNAME).cxx rootdict-$(MODNAME).h rootdict-$(MODNAME).o
+	-/bin/rm -f *~
+	-/bin/rm -f $(OBJ)
 
-copy: build
-	cp gspec.so $(DESTDIR)
+copy: $(DESTDIR)/$(MODNAME).so
+
+$(DESTDIR)/$(MODNAME).so: $(MODNAME).so
+	cp $(MODNAME).so $(DESTDIR)

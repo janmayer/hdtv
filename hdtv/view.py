@@ -1,7 +1,9 @@
 import ROOT
-import gspec
+import dlmgr
 
 from spectrum import Spectrum
+
+dlmgr.LoadLibrary("display")
 
 class View:
 	""" 

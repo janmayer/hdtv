@@ -10,27 +10,29 @@ EXPHEADERS= PolyBg.h Param.h TheuerkaufFitter.h EEFitter.h
 HEADERS= $(EXPHEADERS)
 OBJ= $(SOURCES:.cxx=.o)
 DESTDIR= ../../lib
-MODNAME= fit.so
+MODNAME= fit
 
 .PHONY: all build copy clean
 
 all: build copy
 
-build: $(MODNAME)
+build: $(MODNAME).so
 
-$(MODNAME): $(OBJ) rootdict.o Makefile
-	$(CPP) -fpic $(CFLAGS) $(LFLAGS) -shared -o $(MODNAME) $(OBJ) rootdict.o
+$(MODNAME).so: $(OBJ) rootdict-$(MODNAME).o Makefile
+	$(CPP) -fpic $(CFLAGS) $(LFLAGS) -shared -o $(MODNAME).so $(OBJ) rootdict-$(MODNAME).o
 
-rootdict.cxx:  Makefile $(EXPHEADERS) LinkDef.h
-	$(ROOTCINT) -f rootdict.cxx -c $(EXPHEADERS) LinkDef.h
+rootdict-$(MODNAME).cxx:  Makefile $(EXPHEADERS) LinkDef.h
+	$(ROOTCINT) -f rootdict-$(MODNAME).cxx -c $(EXPHEADERS) LinkDef.h
 
 %.o: %.cxx $(HEADERS) Makefile
 	$(CPP) $(CFLAGS) -fpic -c $<
 
 clean:
-	rm -f rootdict.cxx rootdict.h rootdict.o
-	rm -f *~
-	rm -f $(OBJ)
+	-/bin/rm -f rootdict-$(MODNAME).cxx rootdict-$(MODNAME).h rootdict-$(MODNAME).o
+	-/bin/rm -f *~
+	-/bin/rm -f $(OBJ)
 
-copy: build
-	cp $(MODNAME) $(DESTDIR)
+copy: $(DESTDIR)/$(MODNAME).so
+
+$(DESTDIR)/$(MODNAME).so: $(MODNAME).so
+	cp $(MODNAME).so $(DESTDIR)

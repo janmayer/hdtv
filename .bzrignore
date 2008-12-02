@@ -1,4 +1,4 @@
 *.pyc
 *.so
-rootdict.cxx
-rootdict.h
+rootdict-*.cxx
+rootdict-*.h

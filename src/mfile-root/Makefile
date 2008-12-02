@@ -1,5 +1,4 @@
-# Makefile for 
-#
+# Makefile for mfile-root
 
 CPP=g++
 CC=gcc
@@ -11,28 +10,29 @@ SOURCES= MFileHist.cxx VMatrix.cxx
 HEADERS= MFileHist.h VMatrix.h
 OBJ= $(SOURCES:.cxx=.o)
 DESTDIR= ../../lib
+MODNAME= mfile-root
 
 .PHONY: all build copy clean
 
 all: build copy
 
-build: mfile-root.so
+build: $(MODNAME).so
 
-clean:
-	-/bin/rm -f mfdict.cxx mfdict.h mfdict.o
-	-/bin/rm -f *~
-	-/bin/rm -f $(OBJ)
+$(MODNAME).so: $(OBJ) rootdict-$(MODNAME).o Makefile
+	$(CPP) -fpic $(CFLAGS) $(LFLAGS) -shared -o $(MODNAME).so $(OBJ) rootdict-$(MODNAME).o
 
-mfile-root.so: $(OBJ) mfdict.o Makefile
-	$(CPP) -fpic $(CFLAGS) $(LFLAGS) -shared -o mfile-root.so $(OBJ) mfdict.o
-
-mfdict.cxx:  Makefile $(HEADERS)
-	$(ROOTCINT) -f mfdict.cxx -c $(INCL_PATH) $(HEADERS)
+rootdict-$(MODNAME).cxx:  Makefile $(HEADERS)
+	$(ROOTCINT) -f rootdict-$(MODNAME).cxx -c $(INCL_PATH) $(HEADERS)
 
 %.o: %.cxx $(HEADERS) Makefile
 	$(CPP) $(CFLAGS) -fpic -c $<
+	
+clean:
+	-/bin/rm -f rootdict-$(MODNAME).cxx rootdict-$(MODNAME).h rootdict-$(MODNAME).o
+	-/bin/rm -f *~
+	-/bin/rm -f $(OBJ)
 
-copy: $(DESTDIR)/mfile-root.so
+copy: $(DESTDIR)/$(MODNAME).so
 
-$(DESTDIR)/mfile-root.so: mfile-root.so
-	cp mfile-root.so $(DESTDIR)
+$(DESTDIR)/$(MODNAME).so: $(MODNAME).so
+	cp $(MODNAME).so $(DESTDIR)

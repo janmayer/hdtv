@@ -13,10 +13,10 @@ sys.path.append("..")
 # Set the library search path
 import hdtv.dlmgr
 hdtv.dlmgr.path.append("../lib")
+hdtv.dlmgr.LoadLibrary("display")
 
 #import some modules
 import ROOT
-import hdtv.gspec
 from hdtv.specreader import SpecReader
 
 # Don't add created spectra to the ROOT directory

@@ -1,5 +1,4 @@
 import ROOT
-import gspec
 import dlmgr
 from color import *
 from peak import Peak

@@ -1,9 +1,11 @@
 import ROOT
+import dlmgr
 import os
-import gspec
 from color import *
 from specreader import SpecReader, SpecReaderError
 from fit import Fit
+
+dlmgr.LoadLibrary("display")
 
 class Spectrum:
 	"""

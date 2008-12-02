@@ -9,7 +9,6 @@
 #pragma link C++ class GSXMarker;
 #pragma link C++ class GSYMarker;
 #pragma link C++ class GSCalibration;
-#pragma link C++ class GSFitter;
 #pragma link C++ class GSViewport;
 #pragma link C++ class MTViewer;
 #pragma link C++ class GSViewer;
