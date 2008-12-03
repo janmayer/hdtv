@@ -26,6 +26,8 @@
 #include <TF1.h>
 #include <TH1.h>
 #include <list>
+#include <vector>
+#include <iostream>
 
 #include "Param.h"
 
@@ -42,8 +44,21 @@ class EEPeak {
   
     double Eval(double x, double *p);
     
-    inline double GetPos()       { return fPos.Value(fFunc); };
-    inline double GetPosError()  { return fPos.Error(fFunc); };
+    inline double GetPos()          { return fPos.Value(fFunc); };
+    inline double GetPosError()     { return fPos.Error(fFunc); };
+    inline double GetAmp()          { return fAmp.Value(fFunc); };
+    inline double GetAmpError()     { return fAmp.Error(fFunc); };
+    inline double GetSigma1()       { return fSigma1.Value(fFunc); };
+    inline double GetSigma1Error()  { return fSigma1.Error(fFunc); };
+    inline double GetSigma2()       { return fSigma2.Value(fFunc); };
+    inline double GetSigma2Error()  { return fSigma2.Error(fFunc); };
+    inline double GetEta()          { return fEta.Value(fFunc); };
+    inline double GetEtaError()     { return fEta.Error(fFunc); };
+    inline double GetGamma()        { return fGamma.Value(fFunc); };
+    inline double GetGammaError()   { return fGamma.Error(fFunc); };
+    
+    double GetVol();
+    double GetVolError();
                                                 
     inline double SetFunc(TF1 *func) { fFunc = func; }
 
@@ -56,9 +71,11 @@ class EEFitter {
   public:
     EEFitter(double r1, double r2);
     Param AllocParam(double ival=0.0);
-    void AddPeak(EEPeak peak);
+    void AddPeak(const EEPeak& peak);
     TF1* Fit(TH1 *hist, TF1 *bgFunc);
     TF1* Fit(TH1 *hist, int intBgDeg=-1);
+    inline int GetNumPeaks() { return fNumPeaks; }
+    inline const EEPeak& GetPeak(int i) { return fPeaks[i]; }
   private:
     double Eval(double *x, double *p);
     TF1* _Fit(TH1 *hist);
@@ -66,7 +83,7 @@ class EEFitter {
     int fNumParams;
     int fIntBgDeg;
     double fMin, fMax;
-    std::list<EEPeak> fPeaks;
+    std::vector<EEPeak> fPeaks;
     TF1 *fBgFunc;
     int fNumPeaks;
 };

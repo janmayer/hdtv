@@ -167,8 +167,8 @@ class SpecWindow(hdtv.window.Window):
 	def SyncFitter(self):
 		self.fFitter.region = [self.fRegionMarkers[0].p1, self.fRegionMarkers[0].p2]
 		self.fFitter.peaklist = map(lambda m: m.p1, self.fPeakMarkers)
-		self.fFitter.leftTail = self.fFitPanel.GetLeftTails()
-		self.fFitter.rightTail = self.fFitPanel.GetRightTails()
+		# self.fFitter.leftTail = self.fFitPanel.GetLeftTails()
+		# self.fFitter.rightTail = self.fFitPanel.GetRightTails()
 		
 	def EnsureFitPanel(self):
 		self.fFitPanel.Show()
@@ -466,6 +466,8 @@ class SpectrumModule:
 		hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, nargs=4)
 		hdtv.cmdline.AddCommand("calibration position set", self.CalPosSet, maxargs=4)
 		
+		hdtv.cmdline.AddCommand("fit param background degree", self.FitParamBgDeg, nargs=1)
+		
 		self.fMainWindow = SpecWindow()
 		self.fView = self.fMainWindow.AddView("hdtv")
 		self.fMainWindow.ShowView(0)
@@ -555,6 +557,15 @@ class SpectrumModule:
 			return False
 			
 		self.fMainWindow.SetCal(calpoly)
+		
+	def FitParamBgDeg(self, args):
+		try:
+			bgdeg = int(args[0])
+		except ValueError:
+			print "Usage: fit parameter background degree <deg>"
+			return False
+			
+		self.fMainWindow.fFitter.SetBackgroundDegree(bgdeg)
 
 module = SpectrumModule()
 print "Loaded plugin spectrum (commands for 1-d histograms)"

@@ -26,9 +26,9 @@
 namespace HDTV {
 namespace Fit {
 
-PolyBg::PolyBg()
+PolyBg::PolyBg(int bgdeg)
 {
-  fBgDeg = 0;
+  fBgDeg = bgdeg;
 }
 
 TF1 *PolyBg::Fit(TH1 *hist)

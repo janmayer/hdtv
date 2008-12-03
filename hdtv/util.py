@@ -1,3 +1,14 @@
+class ErrValue:
+	"""
+	A value with an error
+	"""
+	def __init__(self, value, error):
+		self.value = value
+		self.error = error
+		
+	def fmt(self):
+		return "%f +- %f" % (self.value, self.error)
+
 class Linear:
 	"""
 	A linear relationship, i.e. y = p1 * x + p0

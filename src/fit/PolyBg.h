@@ -36,7 +36,7 @@ namespace Fit {
 
 class PolyBg {
   public:
-    PolyBg();
+    PolyBg(int bgDeg=0);
     TF1 *Fit(TH1 *hist);
     void AddRegion(double p1, double p2);
     double EvalRegion(double *x, double *p);

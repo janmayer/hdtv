@@ -3,7 +3,7 @@
 # WARNING: Recursive MAKEs can go very wrong if the different modules depend on each other.
 # This is not the case here, the modules are completely independent. If two modules depend
 # on each other, they should be built by a single Makefile.
-MODULES= corr display fit mfile-root
+MODULES= display fit mfile-root
 
 .PHONY: all clean $(MODULES)
 

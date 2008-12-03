@@ -14,30 +14,30 @@ class FitPanel:
 		self._dispatchers.append(disp)
 		
 		## Tails frame ##
-		self.fTailsFrame = ROOT.TGCompositeFrame(self.fMainFrame)
-		layout = ROOT.TGMatrixLayout(self.fTailsFrame, 2, 3, 5, 2)
-		self.fTailsFrame.SetLayoutManager(layout)
+		#self.fTailsFrame = ROOT.TGCompositeFrame(self.fMainFrame)
+		#layout = ROOT.TGMatrixLayout(self.fTailsFrame, 2, 3, 5, 2)
+		#self.fTailsFrame.SetLayoutManager(layout)
 
-		self.fLTEnable = ROOT.TGCheckButton(self.fTailsFrame, "Left tails")
-		self.fTailsFrame.AddFrame(self.fLTEnable)
+		#self.fLTEnable = ROOT.TGCheckButton(self.fTailsFrame, "Left tails")
+		#self.fTailsFrame.AddFrame(self.fLTEnable)
 		
-		self.fLTValue = ROOT.TGTextEntry(self.fTailsFrame)
-		self.fTailsFrame.AddFrame(self.fLTValue)
+		#self.fLTValue = ROOT.TGTextEntry(self.fTailsFrame)
+		#self.fTailsFrame.AddFrame(self.fLTValue)
 		
-		self.fLTFit = ROOT.TGCheckButton(self.fTailsFrame, "Fit")
-		self.fTailsFrame.AddFrame(self.fLTFit)
+		#self.fLTFit = ROOT.TGCheckButton(self.fTailsFrame, "Fit")
+		#self.fTailsFrame.AddFrame(self.fLTFit)
 				
-		self.fRTEnable = ROOT.TGCheckButton(self.fTailsFrame, "Right tails")
-		self.fTailsFrame.AddFrame(self.fRTEnable)
+		#self.fRTEnable = ROOT.TGCheckButton(self.fTailsFrame, "Right tails")
+		#self.fTailsFrame.AddFrame(self.fRTEnable)
 		
-		self.fRTValue = ROOT.TGTextEntry(self.fTailsFrame)
-		self.fTailsFrame.AddFrame(self.fRTValue)
+		#self.fRTValue = ROOT.TGTextEntry(self.fTailsFrame)
+		#self.fTailsFrame.AddFrame(self.fRTValue)
 		
-		self.fRTFit = ROOT.TGCheckButton(self.fTailsFrame, "Fit")
-		self.fTailsFrame.AddFrame(self.fRTFit)
+		#self.fRTFit = ROOT.TGCheckButton(self.fTailsFrame, "Fit")
+		#self.fTailsFrame.AddFrame(self.fRTFit)
 		
-		self.fMainFrame.AddFrame(self.fTailsFrame,
-				ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
+		#self.fMainFrame.AddFrame(self.fTailsFrame,
+		#		ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 2, 2, 2, 2))
 				
 		## Output format frame (currently disabled)
 		#self.fFormatFrame = ROOT.TGHorizontalFrame(self.fMainFrame)

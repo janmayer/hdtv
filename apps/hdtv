@@ -32,7 +32,7 @@ except ImportError:
 	pass
 	
 # Debug
-gSpectra.LoadSpectrum("/home/braun/projects/hdtv/spec/ee.dat")
+# gSpectra.LoadSpectrum("/home/braun/projects/hdtv/spec/ee.dat")
 
 # Go
 hdtv.cmdline.MainLoop()

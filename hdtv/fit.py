@@ -1,7 +1,7 @@
 import ROOT
 import dlmgr
+import peak
 from color import *
-from peak import Peak
 
 dlmgr.LoadLibrary("fit")
 
@@ -31,7 +31,7 @@ class Fit:
 		self.viewport=None
 		
 		self.fBgDeg = 0
-		self.fPeakModel = "ee"
+		self.fPeakModel = peak.PeakModelEE()
 		
 
 	def __setattr__(self, key, val):
@@ -62,14 +62,18 @@ class Fit:
 		else:
 			# use all other values as they are
 			self.__dict__[key] = val
+			
+	def SetBackgroundDegree(self, bgdeg):
+		self.fBgDeg = bgdeg
 
 	def InitFitter(self):
 		"""
 		Initialize a new Fitter Object
 		"""
-		if self.fPeakModel.lower() == "theuerkauf":
+		peakmodel = "ee"
+		if peakmodel == "theuerkauf":
 			# Define a fitter and a region
-			fitter = ROOT.HDTV.Fit.TheuerkaufFitter(self.region[0],self.region[1])
+			fitter = ROOT.HDTV.Fit.TheuerkaufFitter(self.region[0], self.region[1])
 			
 			# Add all peaks
 			# Like the original TV program, we use a common width and a common tail
@@ -98,7 +102,7 @@ class Fit:
 				fitter.AddPeak(peak)
 	
 			self.fitter = fitter
-		elif self.fPeakModel.lower() == "ee":
+		elif peakmodel == "ee":
 			fitter = ROOT.HDTV.Fit.EEFitter(self.region[0], self.region[1])
 			
 			for _pos in self.peaklist:
@@ -119,7 +123,7 @@ class Fit:
 		"""
 		Initialize a new background fitter
 		"""
-		bgfitter = ROOT.HDTV.Fit.PolyBg()
+		bgfitter = ROOT.HDTV.Fit.PolyBg(self.fBgDeg)
 		for bg in self.bglist:
 			bgfitter.AddRegion(bg[0], bg[1])
 		self.bgfitter = bgfitter
@@ -161,15 +165,12 @@ class Fit:
 			bgfunc = self.bgfunc
 		func = self.fitter.Fit(self.spec.fHist, bgfunc)
 		self.func = ROOT.TF1(func)
-		#numPeaks = self.fitter.GetNumPeaks()
+		numPeaks = self.fitter.GetNumPeaks()
 		
-		# information for each peak
-		#peaks = []
-		#for i in range(0, numPeaks):
-		#	peak = fitter.GetPeak(i)
-		#	pos = hdtv.util.ErrValue(peak.GetPos(), peak.GetPosError())
-		#	fwhm = hdtv.util.ErrValue(peak.GetFWHM(), peak.GetFWHMError())
-		#	vol = hdtv.util.ErrValue(peak.GetVol(), peak.GetVolError())
+		# Copy information for each peak
+		peaks = []
+		for i in range(0, numPeaks):
+			peaks.append(self.fPeakModel.CopyPeak(self.fitter.GetPeak(i)))
 			
 		#	if peak.HasLeftTail():
 		#		lt = hdtv.util.ErrValue(peak.GetLeftTail(), peak.GetLeftTailError())
@@ -185,7 +186,7 @@ class Fit:
 		# draw function to viewport
 		if update:
 			self.Update(True)
-		#self.resultPeaks = peaks
+		self.resultPeaks = peaks
 		#return peaks
 
 	def DoBgFit(self, update=True):
@@ -281,19 +282,19 @@ class Fit:
 				self.viewport.Update(True)
 				
 	def __str__(self):
-		text = ""
+		text = "Background degree: %d\n\n" % self.fBgDeg
 		i = 1
-		if self.bgfunc:
-			text += "Background (seperate fit)\n"
-			text += "bg[0]: %.2f   bg[1]: %.3f\n\n" % (self.bgfunc.GetParameter(0), \
-			                                           self.bgfunc.GetParameter(1))
-		elif self.func:
-			text += "Background\n"
-			text += "bg[0]: %.2f   bg[1]: %.3f\n\n" % (ROOT.GSFitter.GetBg0(self.func), \
-			                                           ROOT.GSFitter.GetBg1(self.func))
+		#if self.bgfunc:
+		#	text += "Background (seperate fit)\n"
+		#	text += "bg[0]: %.2f   bg[1]: %.3f\n\n" % (self.bgfunc.GetParameter(0), \
+		#	                                           self.bgfunc.GetParameter(1))
+		#elif self.func:
+		#	text += "Background\n"
+		#	text += "bg[0]: %.2f   bg[1]: %.3f\n\n" % (ROOT.GSFitter.GetBg0(self.func), \
+		#	                                           ROOT.GSFitter.GetBg1(self.func))
 
 		for peak in self.resultPeaks:
-			text += "#%d: %s\n\n" % (i, str(peak))
+			text += "Peak %d:\n%s\n" % (i, str(peak))
 			
 		return text
 

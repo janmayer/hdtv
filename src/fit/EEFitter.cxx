@@ -63,6 +63,35 @@ double EEPeak::Eval(double x, double* p)
   return fAmp.Value(p) * _y;
 }
 
+double EEPeak::GetVol()
+{
+  double sigma1 = fSigma1.Value(fFunc);
+  double sigma2 = fSigma2.Value(fFunc);
+  double eta = fEta.Value(fFunc);
+  double gamma = fGamma.Value(fFunc);
+  double vol; // normalized volume
+  
+  // Contribution from left half
+  vol = 0.5 * sqrt(M_PI/log(2.)) * sigma1;
+  
+  // Contribution from truncated right half
+  vol += 0.5 * sqrt(M_PI/log(2.)) * sigma2 * TMath::Erf(sqrt(log(2.)) * eta);
+  
+  // Contribution from tail
+  double B = (sigma2*gamma - 2.*sigma2*eta*eta*log(2.))/(2.*eta*log(2.));
+  double A = exp(-eta*eta*log(2.)) * exp(gamma * log(sigma2*eta + B));
+  vol += 1./(gamma - 1.) * A / pow(B + eta*sigma2, gamma - 1.);
+  
+  // Return real volume
+  return fAmp.Value(fFunc) * vol;
+}
+
+double EEPeak::GetVolError()
+{
+  // Not implemented yet...
+  return 0.0;
+}
+
 /*** EEFitter ***/
 EEFitter::EEFitter(double r1, double r2)
 {
@@ -80,12 +109,9 @@ Param EEFitter::AllocParam(double ival)
   return Param::Free(fNumParams++, ival);
 }
 
-void EEFitter::AddPeak(EEPeak peak)
+void EEFitter::AddPeak(const EEPeak& peak)
 {
-  std::list<EEPeak>::iterator iter = fPeaks.begin();
-  while(iter != fPeaks.end() && iter->fPos._Value() < peak.fPos._Value())
-    iter++;
-  fPeaks.insert(iter, peak);
+  fPeaks.push_back(peak);
   fNumPeaks++;
 }
 
@@ -105,7 +131,7 @@ double EEFitter::Eval(double *x, double *p)
   sum += bg;
   
   // Evaluate peaks
-  std::list<EEPeak>::iterator iter;
+  std::vector<EEPeak>::iterator iter;
   for(iter = fPeaks.begin(); iter != fPeaks.end(); iter++) {
     sum += iter->Eval(*x, p);
   }
@@ -140,7 +166,7 @@ TF1 *EEFitter::_Fit(TH1 *hist)
                       fNumParams, "EEFitter", "Eval");
   
   // Init fit parameters FIXME: this will not work properly for fixed parameters
-  std::list<EEPeak>::iterator iter;
+  std::vector<EEPeak>::iterator iter;
   double amp;
   for(iter = fPeaks.begin(); iter != fPeaks.end(); iter ++) {
     amp = (double) hist->GetBinContent((int) TMath::Ceil(iter->fPos._Value() - 0.5));
@@ -150,6 +176,8 @@ TF1 *EEFitter::_Fit(TH1 *hist)
 	func->SetParameter(iter->fSigma2._Id(), 1.0);
 	func->SetParameter(iter->fEta._Id(), 1.0);
 	func->SetParameter(iter->fGamma._Id(), 1.0);
+	
+	iter->SetFunc(func);
   }
   
   // Do the fit
