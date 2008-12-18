@@ -32,6 +32,9 @@ class Fit:
 		
 		self.fBgDeg = 0
 		self.fPeakModel = peak.PeakModelEE()
+		
+	def SetParameter(self, parname, status):
+		self.fPeakModel.SetParameter(parname, status)
 
 	def __setattr__(self, key, val):
 		"""
