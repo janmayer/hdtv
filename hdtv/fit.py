@@ -32,7 +32,6 @@ class Fit:
 		
 		self.fBgDeg = 0
 		self.fPeakModel = peak.PeakModelEE()
-		
 
 	def __setattr__(self, key, val):
 		"""
@@ -65,59 +64,31 @@ class Fit:
 			
 	def SetBackgroundDegree(self, bgdeg):
 		self.fBgDeg = bgdeg
+		
+	def ResetParamStatus(self):
+		self.fPeakModel.ResetParamStatus()
+		
+	def GetParams(self):
+		return self.fPeakModel.OrderedParamKeys()
+		
+	def PrintParamStatus(self):
+		for name in self.fPeakModel.OrderedParamKeys():
+			status = self.fPeakModel.fParStatus[name]
+			if status == "free":
+				print "%s: free" % name
+			elif status == "ifree":
+				print "%s: individually free" % name
+			else:
+				print "%s: fixed at %.3f" % (name, status)
 
 	def InitFitter(self):
 		"""
 		Initialize a new Fitter Object
 		"""
-		peakmodel = "ee"
-		if peakmodel == "theuerkauf":
-			# Define a fitter and a region
-			fitter = ROOT.HDTV.Fit.TheuerkaufFitter(self.region[0], self.region[1])
+		if not self.fPeakModel:
+			raise RuntimeError, "No peak model defined"
 			
-			# Add all peaks
-			# Like the original TV program, we use a common width and a common tail
-			# for all peaks
-			sigma = fitter.AllocParam()
-			
-			if self.leftTail.lower() == 'fit':
-				lt = fitter.AllocParam()
-			elif self.leftTail == None:
-				lt = False
-			else:
-				lt = ROOT.HDTV.Fit.Param.Fixed(self.leftTail)
-			
-			if self.rightTail.lower() == 'fit':
-				rt = fitter.AllocParam()
-			elif self.rightTail == None:
-				rt = False
-			else:
-				rt = ROOT.HDTV.Fit.Param.Fixed(self.rightTail)
-					
-			# Copy peaks to the fitter
-			for _pos in self.peaklist:
-				pos = fitter.AllocParam(_pos)
-				vol = fitter.AllocParam()
-				peak = ROOT.HDTV.Fit.TheuerkaufPeak(pos, vol, sigma, lt, rt)
-				fitter.AddPeak(peak)
-	
-			self.fitter = fitter
-		elif peakmodel == "ee":
-			fitter = ROOT.HDTV.Fit.EEFitter(self.region[0], self.region[1])
-			
-			for _pos in self.peaklist:
-				pos = fitter.AllocParam(_pos)
-				amp = fitter.AllocParam()
-				sigma1 = fitter.AllocParam()
-				sigma2 = fitter.AllocParam()
-				eta = fitter.AllocParam()
-				gamma = fitter.AllocParam()
-				peak = ROOT.HDTV.Fit.EEPeak(pos, amp, sigma1, sigma2, eta, gamma)
-				fitter.AddPeak(peak)
-				
-			self.fitter = fitter
-		else:
-			raise RuntimeError, "Unknown peak model"
+		self.fitter = self.fPeakModel.GetFitter(self.region, self.peaklist)
 		
 	def InitBgFitter(self, fittype = ROOT.HDTV.Fit.PolyBg):
 		"""
@@ -163,6 +134,7 @@ class Fit:
 		# use internal background function if available
 		if not bgfunc:
 			bgfunc = self.bgfunc
+		
 		func = self.fitter.Fit(self.spec.fHist, bgfunc)
 		self.func = ROOT.TF1(func)
 		numPeaks = self.fitter.GetNumPeaks()
@@ -295,6 +267,10 @@ class Fit:
 
 		for peak in self.resultPeaks:
 			text += "Peak %d:\n%s\n" % (i, str(peak))
+			
+        # For debugging only		
+		# text += "\n"
+		# text += "Volume: %.6f +- %.6f\n" % (self.fitter.GetVol(), self.fitter.GetVolError())
 			
 		return text
 

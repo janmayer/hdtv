@@ -30,20 +30,22 @@ namespace Fit {
 
 class Param {
   public:
-    static inline Param Fixed(double val) { return Param(-1, val, false); }
-    static inline Param Free(int id, double ival) { return Param(id, ival, true); }
+    static inline Param Fixed(double val) { return Param(-1, val, false, false); }
+    static inline Param Free(int id) { return Param(id, 0.0, true, false); }
+    static inline Param Free(int id, double ival) { return Param(id, ival, true, true); }
     inline Param() { }
     
-    inline bool IsFree() { return fFree; }
-    inline double Value(double *p) { return fFree ? p[fId] : fValue; }
-    double Value(TF1 *func);
-    double Error(TF1 *func);
-    int _Id() { return fId; }
-    double _Value() { return fValue; }
+    inline bool IsFree() const { return fFree; }
+    inline bool HasIVal() const { return fHasIVal; }
+    inline double Value(double *p) const { return fFree ? p[fId] : fValue; }
+    double Value(TF1 *func) const;
+    double Error(TF1 *func) const;
+    int _Id() const { return fId; }
+    double _Value() const { return fValue; }
     
   private:
-    Param(int id, double value, bool free);
-    bool fFree;
+    Param(int id, double value, bool free, bool hasIVal);
+    bool fFree, fHasIVal;
     int fId;
     double fValue;
 };

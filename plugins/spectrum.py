@@ -394,7 +394,7 @@ class SpecWindow(hdtv.window.Window):
 			except KeyError:
 				print "Warning: ID %d not found" % sid
 					
-		self.fMainWindow.fViewport.Update(True)
+		self.fViewport.Update(True)
 			
 	# Note that we may call Delete() on an already deleted
 	# spectrum, or Realize() on an already visible spectrum,
@@ -467,12 +467,24 @@ class SpectrumModule:
 		hdtv.cmdline.AddCommand("calibration position set", self.CalPosSet, maxargs=4)
 		
 		hdtv.cmdline.AddCommand("fit param background degree", self.FitParamBgDeg, nargs=1)
+		hdtv.cmdline.AddCommand("fit param status", self.FitParamStatus, nargs=0)
 		
 		self.fMainWindow = SpecWindow()
 		self.fView = self.fMainWindow.AddView("hdtv")
 		self.fMainWindow.ShowView(0)
 		
+		for param in self.fMainWindow.fFitter.GetParams():
+			hdtv.cmdline.AddCommand("fit param peak %s" % param, 
+			                        self.MakeParamCmd(param),
+			                        nargs=1)
+		
 		hdtv.cmdline.RegisterInteractive("gSpectra", self.fMainWindow)
+		
+	def MakeParamCmd(self, param):
+		return lambda args: self.FitParamPeak(param, args)
+		
+	def Test(self, param):
+		print param
 		
 	def SpectrumGet(self, args):
 		self.fMainWindow.LoadSpectra(args)
@@ -566,6 +578,16 @@ class SpectrumModule:
 			return False
 			
 		self.fMainWindow.fFitter.SetBackgroundDegree(bgdeg)
+		
+	def FitParamStatus(self, args):
+		self.fMainWindow.fFitter.PrintParamStatus()
+		
+	def FitParamPeak(self, parname, args):
+		try:
+			self.fMainWindow.fFitter.SetParameter(parname, args[0])
+		except ValueError:
+			print "Usage: fit parameter peak <parname> [free|ifree|<number>]"
+			return False
 
 module = SpectrumModule()
 print "Loaded plugin spectrum (commands for 1-d histograms)"

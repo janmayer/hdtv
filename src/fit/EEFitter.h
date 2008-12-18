@@ -57,12 +57,15 @@ class EEPeak {
     inline double GetGamma()        { return fGamma.Value(fFunc); };
     inline double GetGammaError()   { return fGamma.Error(fFunc); };
     
-    double GetVol();
-    double GetVolError();
+    inline double GetVol()          { return fVol; }
+    inline double GetVolError()     { return fVolError; }
                                                 
-    inline double SetFunc(TF1 *func) { fFunc = func; }
+    inline void SetFunc(TF1 *func) { fFunc = func; }
 
   private:
+    void StoreIntegral();
+    double fVol, fVolError;
+  
     Param fPos, fAmp, fSigma1, fSigma2, fEta, fGamma;
     TF1 *fFunc;
 };
@@ -70,12 +73,18 @@ class EEPeak {
 class EEFitter {
   public:
     EEFitter(double r1, double r2);
-    Param AllocParam(double ival=0.0);
+    Param AllocParam();
+    Param AllocParam(double ival);
     void AddPeak(const EEPeak& peak);
     TF1* Fit(TH1 *hist, TF1 *bgFunc);
     TF1* Fit(TH1 *hist, int intBgDeg=-1);
     inline int GetNumPeaks() { return fNumPeaks; }
     inline const EEPeak& GetPeak(int i) { return fPeaks[i]; }
+    
+    // For debugging only
+    //inline double GetVol()          { return fInt; }
+    //inline double GetVolError()     { return fIntError; }
+    
   private:
     double Eval(double *x, double *p);
     TF1* _Fit(TH1 *hist);
@@ -86,6 +95,12 @@ class EEFitter {
     std::vector<EEPeak> fPeaks;
     TF1 *fBgFunc;
     int fNumPeaks;
+    
+    // For debugging only
+    //double fInt, fIntError;
+    //void StoreIntegral(TF1 *func, double pos, double sigma1);
+    
+    void SetParameter(TF1 *func, const Param& param, double ival=0.0);
 };
 
 } // end namespace Fit

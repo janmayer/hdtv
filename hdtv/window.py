@@ -47,16 +47,18 @@ class KeyHandler:
 		"""
 		try:
 			node = self.fCurNode[key]
-			if type(node) == DictType:
-				self.fCurNode = node
-				return None
-			else:
-				node()
-				self.Reset()
-				return True
 		except KeyError:
 			self.Reset()
 			return False
+		
+		if type(node) == DictType:
+			self.fCurNode = node
+			return None
+		else:
+			node()
+			self.Reset()
+			return True
+		
 		
 	def Reset(self):
 		"""

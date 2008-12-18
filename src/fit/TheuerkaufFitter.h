@@ -74,7 +74,7 @@ class TheuerkaufPeak {
     inline double GetLeftRightError() { return fHasRightTail ? fTR.Error(fFunc) :
                                             std::numeric_limits<double>::quiet_NaN(); }
                                             
-    inline double SetFunc(TF1 *func) { fFunc = func; }
+    inline void SetFunc(TF1 *func) { fFunc = func; }
 
   private:
     double GetNorm(double sigma, double tl, double tr);

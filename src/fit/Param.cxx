@@ -21,18 +21,20 @@
  */
  
 #include "Param.h"
- 
+#include <limits>
+
 namespace HDTV {
 namespace Fit {
 
-Param::Param(int id, double value, bool free)
+Param::Param(int id, double value, bool free, bool hasIVal)
 {
   fId = id;
   fValue = value;
   fFree = free;
+  fHasIVal = hasIVal;
 }
 
-double Param::Value(TF1 *func)
+double Param::Value(TF1 *func) const
 {
   if(fFree)
     return func ? func->GetParameter(fId) : std::numeric_limits<double>::quiet_NaN();
@@ -40,7 +42,7 @@ double Param::Value(TF1 *func)
   	return fValue;
 }
 
-double Param::Error(TF1 *func)
+double Param::Error(TF1 *func) const
 {
   // Fixed parameters do not have a fit error
   if(fFree)

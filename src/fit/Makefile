@@ -1,7 +1,7 @@
 # Makefile for HDTV::Fit
 
-CPP=g++ -g
-CC=gcc -g
+CPP=g++ -g -Wall
+CC=gcc -g -Wall
 ROOTCINT=rootcint
 CFLAGS=$(shell root-config --cflags)
 LFLAGS=$(shell root-config --glibs)
