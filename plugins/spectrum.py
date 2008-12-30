@@ -167,8 +167,6 @@ class SpecWindow(hdtv.window.Window):
 	def SyncFitter(self):
 		self.fFitter.region = [self.fRegionMarkers[0].p1, self.fRegionMarkers[0].p2]
 		self.fFitter.peaklist = map(lambda m: m.p1, self.fPeakMarkers)
-		# self.fFitter.leftTail = self.fFitPanel.GetLeftTails()
-		# self.fFitter.rightTail = self.fFitPanel.GetRightTails()
 		
 	def EnsureFitPanel(self):
 		self.fFitPanel.Show()
@@ -469,23 +467,20 @@ class SpectrumModule:
 		hdtv.cmdline.AddCommand("fit param background degree", self.FitParamBgDeg, nargs=1)
 		hdtv.cmdline.AddCommand("fit param status", self.FitParamStatus, nargs=0)
 		
+		for name in hdtv.fit.gPeakModels.iterkeys():
+			hdtv.cmdline.AddCommand("fit function peak activate %s" % name,
+			                        self.MakePeakModelCmd(name), nargs=0)
+		
 		self.fMainWindow = SpecWindow()
 		self.fView = self.fMainWindow.AddView("hdtv")
 		self.fMainWindow.ShowView(0)
-		
-		for param in self.fMainWindow.fFitter.GetParams():
-			hdtv.cmdline.AddCommand("fit param peak %s" % param, 
-			                        self.MakeParamCmd(param),
-			                        nargs=1)
+		self.FitSetPeakModel("theuerkauf")
 		
 		hdtv.cmdline.RegisterInteractive("gSpectra", self.fMainWindow)
 		
-	def MakeParamCmd(self, param):
-		return lambda args: self.FitParamPeak(param, args)
-		
-	def Test(self, param):
-		print param
-		
+	def MakePeakModelCmd(self, name):
+		return lambda args: self.FitSetPeakModel(name)
+	
 	def SpectrumGet(self, args):
 		self.fMainWindow.LoadSpectra(args)
 		
@@ -584,10 +579,30 @@ class SpectrumModule:
 		
 	def FitParamPeak(self, parname, args):
 		try:
-			self.fMainWindow.fFitter.SetParameter(parname, args[0])
+			self.fMainWindow.fFitter.SetParameter(parname, " ".join(args))
 		except ValueError:
-			print "Usage: fit parameter peak <parname> [free|ifree|<number>]"
+			print "Usage: fit parameter <parname> [free|ifree|hold|disable|<number>]"
 			return False
+		except RuntimeError, e:
+			print e
+			return False
+			
+	def MakeParamCmd(self, param):
+		return lambda args: self.FitParamPeak(param, args)
+			
+	def FitSetPeakModel(self, name):
+		# Unregister old parameters
+		for param in self.fMainWindow.fFitter.GetParams():
+			hdtv.cmdline.RemoveCommand("fit param %s" % param)
+		
+		# Set new peak model
+		self.fMainWindow.fFitter.SetPeakModel(name.lower())
+		
+		# Register new parameters
+		for param in self.fMainWindow.fFitter.GetParams():
+			hdtv.cmdline.AddCommand("fit param %s" % param, 
+			                        self.MakeParamCmd(param),
+			                        minargs=1)
 
 module = SpectrumModule()
 print "Loaded plugin spectrum (commands for 1-d histograms)"

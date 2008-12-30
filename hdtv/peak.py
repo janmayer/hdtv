@@ -29,6 +29,39 @@ class EEPeak:
 		text += "Volume: " + self.vol.fmt() + "\n"
 		
 		return text
+		
+class TheuerkaufPeak:
+	"""
+	Peak object for the Theuerkauf (classic TV) fitter
+	"""
+	def __init__(self, pos, vol, fwhm, tl, tr):
+		self.pos = pos
+		self.vol = vol
+		self.fwhm = fwhm
+		self.tl = tl
+		self.tr = tr
+		
+	def GetPos(self):
+		return self.pos.value
+		
+	def __str__(self):
+		text = ""
+
+		text += "Pos:        " + self.pos.fmt() + "\n"
+		text += "Volume:     " + self.vol.fmt() + "\n"
+		text += "FWHM:       " + self.fwhm.fmt() + "\n"
+		
+		if self.tl != None:
+			text += "Left Tail:  " + self.tl.fmt() + "\n"
+		else:
+			text += "Left Tail:  None\n"
+			
+		if self.tr != None:
+			text += "Right Tail: " + self.tr.fmt() + "\n"
+		else:
+			text += "Right Tail: None\n"
+			
+		return text
 
 # For each model implemented on the C++ side, we have a corresponding Python
 # class to handle fitter setup and data transfer to the Python side
@@ -39,62 +72,172 @@ class PeakModel:
 		self.fGlobalParams = dict()
 		
 	def ResetGlobalParams(self):
-		self.fGlobalParams = dict()
+		self.fGlobalParams.clear()
 		
-	def GetParam(self, name, ival=None):
-		if self.fParStatus[name] == "free":
+	def CheckParStatusLen(self, minlen):
+		"""
+		Checks if each parameter status provided on a peak-by-peak basis
+		has at least minlen entires. Raises a RuntimeError with an appropriate
+		error message if the check fails.
+		"""
+		for (parname, status) in self.fParStatus.iteritems():
+			if type(status) == list and len(status) < minlen:
+				raise RuntimeError, "Not enough values for status of %s" % parname
+		
+	def ParseParamStatus(self, parname, status):
+		"""
+		Parse a parameter status specification string
+		"""
+		# Case-insensitive matching
+		status = status.strip().lower()
+	
+		# Check to see if status corresponds, possibly abbreviated,
+		#  to a number of special keywords
+		stat = None
+		if len(status) < 1:
+			raise ValueError
+		elif "free"[0:len(status)] == status:
+			stat = "free"
+		elif "ifree"[0:len(status)] == status:
+			stat = "ifree"
+		elif "disabled"[0:len(status)] == status:
+			stat = "disabled"
+		elif "hold"[0:len(status)] == status:
+			stat = "hold"
+	
+		# If status was a keyword, see if this setting is legal for the
+		#  parameter in question
+		if stat != None:
+			if stat in self.fValidParStatus[parname]:
+				return stat
+			else:
+				raise RuntimeError, "Invalid status %s for parameter %s" % (stat, parname)
+		# If status was not a keyword, try to parse it as a string
+		else:
+			return float(status)
+		
+	def SetParameter(self, parname, status):
+		"""
+		Set status for a certain parameter
+		"""
+		parname = parname.strip().lower()
+		
+		if not parname in self.fValidParStatus.keys():
+			raise RuntimeError, "Invalid parameter name"
+			
+		if "," in status:
+			self.fParStatus[parname] = map(lambda s: self.ParseParamStatus(parname, s),
+			                               status.split(","))
+		else:
+			self.fParStatus[parname] = self.ParseParamStatus(parname, status)
+		
+	def GetParam(self, name, pk, ival=None):
+		"""
+		Return an appropriate HDTV.Fit.Param object for the specified parameter
+		"""
+		# See if the parameter status has been specified for each peak
+		# individually, or for all peaks at once
+		if type(self.fParStatus[name]) == list:
+			parStatus = self.fParStatus[name][pk]
+		else:
+			parStatus = self.fParStatus[name]
+			
+		# Switch according to parameter status
+		if parStatus == "free":
 			if not name in self.fGlobalParams:
 				if ival == None:
 					self.fGlobalParams[name] = self.fFitter.AllocParam()
 				else:
 					self.fGlobalParams[name] = self.fFitter.AllocParam(ival)
 			return self.fGlobalParams[name]
-		elif self.fParStatus[name] == "ifree":
+		elif parStatus == "ifree":
 			if ival == None:
 				return self.fFitter.AllocParam()
 			else:
 				return self.fFitter.AllocParam(ival)
-		elif self.fParStatus[name] == "fixed":
-			return ROOT.HDTV.Fit.Param.Fixed(ival)
+		elif parStatus == "hold":
+			if ival == None:
+				return ROOT.HDTV.Fit.Param.Fixed()
+			else:
+				return ROOT.HDTV.Fit.Param.Fixed(ival)
+		elif parStatus == "disabled":
+			return False
+		elif type(parStatus) == float:
+			return ROOT.HDTV.Fit.Param.Fixed(parStatus)
 		else:
-			return ROOT.HDTV.Fit.Param.Fixed(float(self.fParStatus[name]))
+			raise RuntimeError, "Invalid parameter status"
 			
 # TVs classic peak model
 class PeakModelTheuerkauf(PeakModel):
 	def __init__(self):
-		pass
+		PeakModel.__init__(self)
+		self.fOrderedParamKeys = ["pos", "vol", "sigma", "tl", "tr"]
+		self.fParStatus = { "pos": None, "vol": None, "sigma": None,
+		                    "tl": None, "tr": None }
+		self.fValidParStatus = { "pos":   [ float, "ifree", "hold" ],
+		                         "vol":   [ float, "ifree", "hold" ],
+		                         "sigma": [ float, "ifree", "free" ],
+		                         "tl":    [ float, "ifree", "free", "disabled" ],
+		                         "tr":    [ float, "ifree", "free", "disabled" ] }
+		                         
+		self.ResetParamStatus()
 		
-	def attic(self):
+	def Name(self):
+		return "theuerkauf"
+		
+	def OrderedParamKeys(self):
+		"""
+		Return the names of all peak parameters in the preferred ordering
+		"""
+		return self.fOrderedParamKeys
+		
+	def CopyPeak(self, cpeak):
+		pos = util.ErrValue(cpeak.GetPos(), cpeak.GetPosError())
+		vol = util.ErrValue(cpeak.GetVol(), cpeak.GetVolError())
+		fwhm = util.ErrValue(cpeak.GetFWHM(), cpeak.GetFWHMError())
+		
+		if cpeak.HasLeftTail():
+			tl = util.ErrValue(cpeak.GetLeftTail(), cpeak.GetLeftTailError())
+		else:
+			tl = None
+			
+		if cpeak.HasRightTail():
+			tr = util.ErrValue(cpeak.GetRightTail(), cpeak.GetRightTailError())
+		else:
+			tr = None
+			
+		return TheuerkaufPeak(pos, vol, fwhm, tl, tr)
+		
+	def ResetParamStatus(self):
+		"""
+		Reset parameter status to defaults
+		"""
+		self.fParStatus["pos"] = "ifree"
+		self.fParStatus["vol"] = "ifree"
+		self.fParStatus["sigma"] = "free"
+		self.fParStatus["tl"] = "disabled"
+		self.fParStatus["tr"] = "disabled"
+		
+	def GetFitter(self, region, peaklist):
 		# Define a fitter and a region
-		fitter = ROOT.HDTV.Fit.TheuerkaufFitter(self.region[0], self.region[1])
-			
-		# Add all peaks
-		# Like the original TV program, we use a common width and a common tail
-		# for all peaks
-		sigma = fitter.AllocParam()
-			
-		if self.leftTail.lower() == 'fit':
-			lt = fitter.AllocParam()
-		elif self.leftTail == None:
-			lt = False
-		else:
-			lt = ROOT.HDTV.Fit.Param.Fixed(self.leftTail)
+		self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(region[0], region[1])
+		self.ResetGlobalParams()
 		
-		if self.rightTail.lower() == 'fit':
-			rt = fitter.AllocParam()
-		elif self.rightTail == None:
-			rt = False
-		else:
-			rt = ROOT.HDTV.Fit.Param.Fixed(self.rightTail)
-				
+		# Check if enough values are provided in case of per-peak parameters
+		#  (the function raises a RuntimeError if the check fails)
+		self.CheckParStatusLen(len(peaklist))
+		
 		# Copy peaks to the fitter
-		for _pos in self.peaklist:
-			pos = fitter.AllocParam(_pos)
-			vol = fitter.AllocParam()
-			peak = ROOT.HDTV.Fit.TheuerkaufPeak(pos, vol, sigma, lt, rt)
-			fitter.AddPeak(peak)
-
-		self.fitter = fitter
+		for pid in range(0, len(peaklist)):
+			pos = self.GetParam("pos", pid, peaklist[pid])
+			vol = self.GetParam("vol", pid)
+			sigma = self.GetParam("sigma", pid)
+			tl = self.GetParam("tl", pid)
+			tr = self.GetParam("tr", pid)
+			peak = ROOT.HDTV.Fit.TheuerkaufPeak(pos, vol, sigma, tl, tr)
+			self.fFitter.AddPeak(peak)
+			
+		return self.fFitter
 
 # Peak model for electron-electron scattering
 # Implementation requested by Oleksiy Burda <burda@ikp.tu-darmstadt.de>
@@ -103,10 +246,20 @@ class PeakModelEE(PeakModel):
 	ee scattering peak model
 	"""
 	def __init__(self):
+		PeakModel.__init__(self)
 		self.fOrderedParamKeys = ["pos", "amp", "sigma1", "sigma2", "eta", "gamma"]
 		self.fParStatus = { "pos": None, "amp": None, "sigma1": None, "sigma2": None,
 		                    "eta": None, "gamma": None }
+		self.fValidParStatus = { "pos":    [ float, "ifree", "hold" ],
+		                         "amp":    [ float, "ifree", "hold" ],
+		                         "sigma1": [ float, "free", "ifree" ],
+		                         "sigma2": [ float, "free", "ifree" ],
+		                         "eta":    [ float, "free", "ifree" ],
+		                         "gamma":  [ float, "free", "ifree" ] }
 		self.ResetParamStatus()
+		
+	def Name(self):
+		return "ee"
 		
 	def CopyPeak(self, cpeak):
 		"""
@@ -121,20 +274,6 @@ class PeakModelEE(PeakModel):
 		vol = util.ErrValue(cpeak.GetVol(), cpeak.GetVolError())
 
 		return EEPeak(pos, amp, sigma1, sigma2, eta, gamma, vol)
-		
-	def SetParameter(self, parname, status):
-		"""
-		Set status for a certain parameter
-		"""
-		parname = parname.lower()
-		status = status.lower()
-		
-		if status in ("free", "ifree"):
-			if status == "free" and parname in ("pos", "amp"):
-				raise RuntimeError, "pos and amp must be ifree, not free" 
-			self.fParStatus[parname] = status
-		else:
-			self.fParStatus[parname] = float(status)
 		
 	def OrderedParamKeys(self):
 		"""
@@ -156,19 +295,24 @@ class PeakModelEE(PeakModel):
 	def GetFitter(self, region, peaklist):
 		self.fFitter = ROOT.HDTV.Fit.EEFitter(region[0], region[1])
 		self.ResetGlobalParams()
+		
+		# Check if enough values are provided in case of per-peak parameters
+		#  (the function raises a RuntimeError if the check fails)
+		self.CheckParStatusLen(len(peaklist))
 			
-		for _pos in peaklist:
-			pos = self.GetParam("pos", _pos)
-			amp = self.GetParam("amp")
-			sigma1 = self.GetParam("sigma1")
-			sigma2 = self.GetParam("sigma2")
-			eta = self.GetParam("eta")
-			gamma = self.GetParam("gamma")
+		for pid in range(0, len(peaklist)):
+			pos = self.GetParam("pos", pid, peaklist[pid])
+			amp = self.GetParam("amp", pid)
+			sigma1 = self.GetParam("sigma1", pid)
+			sigma2 = self.GetParam("sigma2", pid)
+			eta = self.GetParam("eta", pid)
+			gamma = self.GetParam("gamma", pid)
 			peak = ROOT.HDTV.Fit.EEPeak(pos, amp, sigma1, sigma2, eta, gamma)
 			self.fFitter.AddPeak(peak)
 			
 		return self.fFitter
 
+# Obsolete
 class Peak:
 	"""
 	Peak object

@@ -143,27 +143,19 @@ double TheuerkaufPeak::GetNorm(double sigma, double tl, double tr)
 
 // *** TheuerkaufFitter ***
 TheuerkaufFitter::TheuerkaufFitter(double r1, double r2)
+ : Fitter()
 {
   fMin = TMath::Min(r1, r2);
   fMax = TMath::Max(r1, r2);
   fBgFunc = NULL;
   
   fNumPeaks = 0;
-  fNumParams = 0;
   fIntBgDeg = -1;
 }
 
-Param TheuerkaufFitter::AllocParam(double ival)
+void TheuerkaufFitter::AddPeak(const TheuerkaufPeak& peak)
 {
-  return Param::Free(fNumParams++, ival);
-}
-
-void TheuerkaufFitter::AddPeak(TheuerkaufPeak peak)
-{
-  std::list<TheuerkaufPeak>::iterator iter = fPeaks.begin();
-  while(iter != fPeaks.end() && iter->fPos._Value() < peak.fPos._Value())
-    iter++;
-  fPeaks.insert(iter, peak);
+  fPeaks.push_back(peak);
   fNumPeaks++;
 }
 
@@ -183,7 +175,7 @@ double TheuerkaufFitter::Eval(double *x, double *p)
   sum += bg;
   
   // Evaluate peaks
-  std::list<TheuerkaufPeak>::iterator iter;
+  std::vector<TheuerkaufPeak>::iterator iter;
   for(iter = fPeaks.begin(); iter != fPeaks.end(); iter++) {
     sum += iter->Eval(*x, p);
   }
@@ -220,7 +212,7 @@ TF1 *TheuerkaufFitter::_Fit(TH1 *hist)
   // Check if there are any peaks with tails.
   //   If so, we do a preliminary fit with all tails fixed.
   bool needPreFit = false;
-  std::list<TheuerkaufPeak>::iterator iter;
+  std::vector<TheuerkaufPeak>::iterator iter;
   
   for(iter = fPeaks.begin(); iter != fPeaks.end(); iter ++) {
     if (iter->fTL.IsFree() || iter->fTR.IsFree())
@@ -232,9 +224,9 @@ TF1 *TheuerkaufFitter::_Fit(TH1 *hist)
   
   // Init fit parameters
   for(iter = fPeaks.begin(); iter != fPeaks.end(); iter ++) {
-	func->SetParameter(iter->fPos._Id(), iter->fPos._Value());
-	func->SetParameter(iter->fVol._Id(), avgVol);
-	func->SetParameter(iter->fSigma._Id(), 1.0);
+	SetParameter(func, iter->fPos);
+	SetParameter(func, iter->fVol, avgVol);
+	SetParameter(func, iter->fSigma, 1.0);
 	if(iter->fTL.IsFree()) {
 	  func->FixParameter(iter->fTL._Id(), 10.0);
 	  needPreFit = true;
@@ -243,11 +235,13 @@ TF1 *TheuerkaufFitter::_Fit(TH1 *hist)
 	  func->FixParameter(iter->fTR._Id(), 10.0);
 	  needPreFit = true;
 	}
+	
+	iter->SetFunc(func);
   }
   
   if(needPreFit) {
     // Do the preliminary fit
-    hist->Fit("RQN");
+    hist->Fit(func, "RQN");
     
     // Release tail parameters
     for(iter = fPeaks.begin(); iter != fPeaks.end(); iter ++) {

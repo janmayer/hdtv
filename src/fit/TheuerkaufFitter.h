@@ -37,9 +37,10 @@
 
 #include <math.h>
 #include <limits>
-#include <list>
+#include <vector>
 
 #include "Param.h"
+#include "Fitter.h"
 
 namespace HDTV {
 namespace Fit {
@@ -87,21 +88,21 @@ class TheuerkaufPeak {
     double fCachedSigma, fCachedTL, fCachedTR;
 };
 
-class TheuerkaufFitter {
+class TheuerkaufFitter : public Fitter {
   public:
     TheuerkaufFitter(double r1, double r2);
-    Param AllocParam(double ival=0.0);
-    void AddPeak(TheuerkaufPeak peak);
+    void AddPeak(const TheuerkaufPeak& peak);
     TF1* Fit(TH1 *hist, TF1 *bgFunc);
     TF1* Fit(TH1 *hist, int intBgDeg=-1);
+    inline int GetNumPeaks() { return fNumPeaks; }
+    inline const TheuerkaufPeak& GetPeak(int i) { return fPeaks[i]; }
   private:
     double Eval(double *x, double *p);
     TF1* _Fit(TH1 *hist);
-  
-    int fNumParams;
+
     int fIntBgDeg;
     double fMin, fMax;
-    std::list<TheuerkaufPeak> fPeaks;
+    std::vector<TheuerkaufPeak> fPeaks;
     TF1 *fBgFunc;
     int fNumPeaks;
 };

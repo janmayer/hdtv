@@ -20,37 +20,26 @@
  * 
  */
  
-#ifndef __Param_h__
-#define __Param_h__
+#ifndef __Fitter_h__
+#define __Fitter_h__
 
-#include <TF1.h>
+#include "Param.h"
 
 namespace HDTV {
 namespace Fit {
 
-class Param {
+// Common base class for all different fitters
+// Right now, it only handles parameter management
+class Fitter {
   public:
-    static inline Param Fixed(double val) { return Param(-1, val, false, true); }
-    static inline Param Fixed()  { return Param(-1, 0.0, false, false); }
-    static inline Param Free(int id) { return Param(id, 0.0, true, false); }
-    static inline Param Free(int id, double ival) { return Param(id, ival, true, true); }
-    inline Param() { }
+    Fitter();
+    Param AllocParam();
+    Param AllocParam(double ival);
     
-    inline bool IsFree() const { return fFree; }
-    inline bool HasIVal() const { return fHasIVal; }
-    inline double Value(double *p) const { return fFree ? p[fId] : fValue; }
-    double Value(TF1 *func) const;
-    double Error(TF1 *func) const;
-    int _Id() const { return fId; }
-    double _Value() const { return fValue; }
+  protected:
+    int fNumParams;
     
-    inline void SetValue(double val) { fValue = val; }
-    
-  private:
-    Param(int id, double value, bool free, bool hasIVal);
-    bool fFree, fHasIVal;
-    int fId;
-    double fValue;
+    void SetParameter(TF1 *func, Param& param, double ival=0.0);
 };
 
 } // end namespace Fit

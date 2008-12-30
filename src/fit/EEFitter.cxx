@@ -177,24 +177,14 @@ void EEPeak::StoreIntegral()
 
 /*** EEFitter ***/
 EEFitter::EEFitter(double r1, double r2)
+  : Fitter()
 {
   fMin = TMath::Min(r1, r2);
   fMax = TMath::Max(r1, r2);
   fBgFunc = NULL;
   
   fNumPeaks = 0;
-  fNumParams = 0;
   fIntBgDeg = -1;
-}
-
-Param EEFitter::AllocParam()
-{
-  return Param::Free(fNumParams++);
-}
-
-Param EEFitter::AllocParam(double ival)
-{
-  return Param::Free(fNumParams++, ival);
 }
 
 void EEFitter::AddPeak(const EEPeak& peak)
@@ -285,17 +275,6 @@ TF1 *EEFitter::_Fit(TH1 *hist)
   } */
      
   return func;
-}
-
-void EEFitter::SetParameter(TF1 *func, const Param& param, double ival)
-{
-  if(!param.IsFree())
-    return;
-    
-  if(param.HasIVal())
-    func->SetParameter(param._Id(), param._Value());
-  else
-    func->SetParameter(param._Id(), ival);
 }
 
 /* void EEFitter::StoreIntegral(TF1 *func, double pos, double sigma1)

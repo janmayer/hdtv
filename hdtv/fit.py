@@ -31,10 +31,20 @@ class Fit:
 		self.viewport=None
 		
 		self.fBgDeg = 0
-		self.fPeakModel = peak.PeakModelEE()
+		self.fPeakModel = None
 		
 	def SetParameter(self, parname, status):
 		self.fPeakModel.SetParameter(parname, status)
+		
+	def SetPeakModel(self, model):
+		global gPeakModels
+		
+		if type(model) == str:
+			model = gPeakModels[model]
+			
+		self.fPeakModel = model()
+		self.Delete()
+		self.Reset()
 
 	def __setattr__(self, key, val):
 		"""
@@ -72,17 +82,51 @@ class Fit:
 		self.fPeakModel.ResetParamStatus()
 		
 	def GetParams(self):
-		return self.fPeakModel.OrderedParamKeys()
-		
+		if self.fPeakModel:
+			return self.fPeakModel.OrderedParamKeys()
+		else:
+			return []
+			
 	def PrintParamStatus(self):
+		print self.StatStr()
+		
+	def StatStr(self):
+		statstr = str()
+	
+		statstr += "Background model: polynomial, deg=%d\n" % self.fBgDeg
+		statstr += "Peak model: %s\n" % self.fPeakModel.Name()
+		statstr += "\n"
+	
 		for name in self.fPeakModel.OrderedParamKeys():
 			status = self.fPeakModel.fParStatus[name]
-			if status == "free":
-				print "%s: free" % name
-			elif status == "ifree":
-				print "%s: individually free" % name
+
+			# Short format for multiple values...
+			if type(status) == list:
+				statstr += "%s: " % name
+				sep = ""
+				for stat in status:
+					statstr += sep
+					if stat in ("free", "ifree", "hold", "disabled"):
+						statstr += stat
+					else:
+						statstr += "%.3f" % stat
+					sep = ", "
+				statstr += "\n"
+
+			# ... long format for a single value
 			else:
-				print "%s: fixed at %.3f" % (name, status)
+				if status == "free":
+					statstr += "%s: free\n" % name
+				elif status == "ifree":
+					statstr += "%s: individually free\n" % name
+				elif status == "hold":
+					statstr += "%s: held at default value\n" % name
+				elif status == "disabled":
+					statstr += "%s: disabled\n" % name
+				else:
+					statstr += "%s: fixed at %.3f\n" % (name, status)
+					
+		return statstr
 
 	def InitFitter(self):
 		"""
@@ -147,18 +191,7 @@ class Fit:
 		for i in range(0, numPeaks):
 			peaks.append(self.fPeakModel.CopyPeak(self.fitter.GetPeak(i)))
 			
-		#	if peak.HasLeftTail():
-		#		lt = hdtv.util.ErrValue(peak.GetLeftTail(), peak.GetLeftTailError())
-		#	else:
-		#		lt = None
-			
-		#	if peak.HasRightTail():
-		#		rt = hdtv.util.ErrValue(peak.GetRightTail(), peak.GetRightTailError())
-		#	else:
-		#		rt = None
-			
-		#	peaks.append(Peak(mean, fwhm, vol, lt, rt, cal=self.spec.fCal))
-		# draw function to viewport
+		# Draw function to viewport
 		if update:
 			self.Update(True)
 		self.resultPeaks = peaks
@@ -270,6 +303,7 @@ class Fit:
 
 		for peak in self.resultPeaks:
 			text += "Peak %d:\n%s\n" % (i, str(peak))
+			i += 1
 			
         # For debugging only		
 		# text += "\n"
@@ -277,3 +311,10 @@ class Fit:
 			
 		return text
 
+def RegisterPeakModel(name, model):
+	gPeakModels[name] = model
+	
+gPeakModels = dict()
+
+RegisterPeakModel("theuerkauf", peak.PeakModelTheuerkauf)
+RegisterPeakModel("ee", peak.PeakModelEE)

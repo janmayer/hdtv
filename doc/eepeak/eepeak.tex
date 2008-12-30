@@ -1,0 +1,168 @@
+\documentclass[a4paper]{article}
+\newcommand{\erf}{\mathrm{erf}}
+\newcommand{\D}[2]{\frac{\partial #1}{\partial #2}}
+\begin{document}
+\title{The $(e,e^\prime)$ peak shape in HDTV}
+\author{Norbert Braun\thanks{\texttt{n.braun@ikp.uni-koeln.de}}}
+\maketitle
+\section{Definition}
+The definition of the peak shape used is
+\begin{equation}
+y = y_0 \left\{ 
+\begin{array}{ll}
+\exp(-\ln 2 \cdot x^2/\sigma_1^2) & x \le 0\\
+\exp(-\ln 2 \cdot x^2/\sigma_2^2) & 0 < x \le \eta\sigma_2\\
+A / (B + x)^\gamma                & x > \eta\sigma_2
+\end{array}
+\right.
+\end{equation}
+where $x$ is the distance to the center of the peak and the parameters $A$ and $B$ are defined by
+\begin{eqnarray}
+B = \frac{\sigma_2\gamma - 2\sigma_2 \eta^2 \ln 2}{2 \eta \ln 2}\\
+A = 2^{-\eta^2} (\sigma_2\eta + B)^\gamma
+\end{eqnarray}
+Assuming that $\eta > 1$, we have $y(\sigma_1) = y(\sigma_2) = \frac{1}{2}$.
+
+\section{Volume of the peak}
+The volume of the peak is defined as the integral
+\begin{equation}
+V = \int_{-\infty}^{5\sigma_1} \mathrm{d}x\; y(x)
+\end{equation}
+In the following, we will usually consider the normalized volume
+\begin{equation}
+v = \frac{V}{y_0}
+\end{equation}
+
+We need to consider two cases:
+\begin{itemize}
+\item $5\sigma_1 > \eta\sigma_2$
+
+The normalized volume is then given by
+\begin{equation}
+v = \int_{-\infty}^0 \mathrm{d}x\;e^{-\ln 2 \frac{x^2}{\sigma_1^2}}
++ \int_0^{\eta\sigma_2}\mathrm{d}x\;e^{-\ln 2 \frac{x^2}{\sigma_2^2}}
++ \int_{\eta\sigma_2}^{5 \sigma_1}\mathrm{d}x\;\frac{A}{(B + x)^\gamma}
+\end{equation}
+\item $5\sigma_1 \le \eta\sigma_2$
+
+The normalized volume is then given by
+\begin{equation}
+v = \int_{-\infty}^0 \mathrm{d}x\;e^{-\ln 2 \frac{x^2}{\sigma_1^2}}
++ \int_0^{5\sigma_1}\mathrm{d}x\;e^{-\ln 2 \frac{x^2}{\sigma_2^2}}
+\end{equation}
+\end{itemize}
+
+We define the \textit{error function} $\erf(x)$ as
+\begin{equation}
+\erf(x) := \frac{2}{\sqrt{\pi}}\int_0^{x}\mathrm{d}t\;e^{-t^2}
+\end{equation}
+It has the special values $\erf(-\infty) = -1$, $\erf(0) = 0$ and $\erf(\infty) = 1$. Furthermore, $\erf(-x) = -\erf(x)$.
+
+From the definition, it follows that
+\begin{equation}
+\int_{0}^{z}\mathrm{d}x\; e^{-cx^2} = \frac{1}{\sqrt{c}} \frac{\sqrt{\pi}}{2} \erf(\sqrt{c} x)
+\end{equation}
+and
+\begin{equation}
+\frac{\mathrm{d}}{\mathrm{d}z}\erf(z) = \frac{2}{\sqrt{\pi}} e^{-z^2}
+\end{equation}
+
+We now evaluate the integrals needed for the above volume calculation
+\begin{eqnarray}
+v_L &:=& \int_{-\infty}^0 \mathrm{d}x\; e^{-\ln 2 \frac{x^2}{\sigma_1^2}} = \sigma_1 \cdot \frac{\sqrt{\pi}}{2 \sqrt{\ln(2)}}\\
+v_R^{(1)} &:=& \int_0^{\eta\sigma_2}\mathrm{d}x\;e^{-\ln 2 \frac{x^2}{\sigma_2^2}}
+= \sigma_2 \frac{\sqrt{\pi}}{2 \sqrt{\ln(2)}} \erf(\sqrt{\ln(2)}\cdot\eta)\\
+v_R^{(2)} &:=& \int_0^{5\sigma_1}\mathrm{d}x\;e^{-\ln 2 \frac{x^2}{\sigma_2^2}}
+= \sigma_2 \frac{\sqrt{\pi}}{2 \sqrt{\ln(2)}} \erf(5\sqrt{\ln(2)}\frac{\sigma_1}{\sigma_2})\\
+v_T &:=& \int_{\eta\sigma_2}^{5 \sigma_1}\mathrm{d}x\;\frac{A}{(B + x)^\gamma}
+= \frac{A}{1-\gamma}\left((B + 5\sigma_1)^{1-\gamma} - (B + \eta\sigma_2)^{1-\gamma}\right)
+\end{eqnarray}
+and get the volume as
+\begin{equation}
+\begin{array}{ll}
+V = y_0 v = y_0 (v_L + v_R^{(1)} + v_T) & 5\sigma_1 > \eta\sigma_2\\
+V = y_0 v = y_0 (v_L + v_R^{(2)}) & 5\sigma_1 \le \eta\sigma_2
+\end{array}
+\end{equation}
+
+\section{Error of the volume}
+We estimate the error of the volume by the following standard method: consider variables $x_i$ with covariances $\mathrm{covar}(x_i, x_j)$. The error of some function $f = f(x_0, x_1, \ldots, x_n)$ is then approximately\footnote{The derivation of the formula employs a truncated Taylor expansion of $f$ around $(x_0, \ldots, x_n)$.} given by
+\begin{equation}
+\Delta f = \left( \sum_{i=0}^n \sum_{j=0}^n \D{f}{x_i} \D{f}{x_j} \mathrm{covar}(x_i, x_j) \right)^{1/2}
+\end{equation}
+
+\subsection{Normalized volume for $5\sigma_1 > \eta\sigma_2$}
+We begin by considering the three components of the normalized volume $v = v_L + v_R^{(1)} + v_T$.
+For the left Gaussian part, we get
+\begin{eqnarray}
+\D{v_L}{\sigma_1} &=& \frac{\sqrt{\pi}}{2 \sqrt{\ln(2)}}\\
+\D{v_L}{\sigma_2} &=& \D{v_L}{\eta} = \D{v_L}{\gamma} = 0
+\end{eqnarray}
+
+For the right Gaussian part, we get
+\begin{eqnarray}
+\D{v_R^{(1)}}{\sigma_2} &=& \frac{v_R^{(1)}}{\sigma_2}\\
+\D{v_R^{(1)}}{\eta} &=& \sigma_2 \exp(-\ln(2) \eta^2)\\
+\D{v_R^{(1)}}{\sigma_1} &=& \D{v_R^{(1)}}{\gamma} = 0
+\end{eqnarray}
+
+For the radiative tail, we have
+\begin{eqnarray}
+\D{v_T}{\sigma_1} &=& 5A (B + 5\sigma_1)^{-\gamma}\\
+\D{v_T}{\sigma_2} &=& \D{v_T}{A} \D{A}{\sigma_2} + \D{v_T}{B} \D{B}{\sigma_2} - A(B + \eta\sigma_2)^{-\gamma} \eta\\
+\D{v_T}{\eta} &=& \D{v_T}{A} \D{A}{\eta} + \D{v_T}{B} \D{B}{\eta} - A(B + \eta\sigma_2)^{-\gamma} \sigma_2\\
+\D{v_T}{\gamma} &=& \D{v_T}{A} \D{A}{\gamma} + \D{v_T}{B} \D{B}{\gamma}
++ \frac{v_T}{1-\gamma} -\frac{A}{1-\gamma}\left(\ln(B + 5\sigma_1)(B + 5\sigma_1)^{1-\gamma}
+\right.\nonumber\\&&\left.- \ln(B + \eta\sigma_2)(B + \eta\sigma_2)^{1-\gamma}\right)
+\end{eqnarray}
+where
+\begin{eqnarray}
+\D{v_T}{A} &=& \frac{v_T}{A}\\
+\D{v_T}{B} &=& A \left( (B + 5\sigma_1)^{-\gamma} - (B + \eta\sigma_2)^{-\gamma} \right)
+\end{eqnarray}
+and the derivatives of $A$ and $B$ with respect to the parameters are given by
+\begin{eqnarray}
+\D{B}{\sigma_2} &=& \frac{B}{\sigma_2}\\
+\D{B}{\eta} &=& -\left(2 \sigma_2 + \frac{B}{\eta}\right)\\
+\D{B}{\gamma} &=& \frac{\sigma_2}{2 \eta \ln(2)}
+\end{eqnarray}
+and
+\begin{eqnarray}
+\D{A}{\sigma_2} &=& \frac{\gamma^2}{2 \eta \ln(2)} \frac{A}{\sigma_2 \eta + B}\\
+\D{A}{\eta} &=& -\left(2 \ln(2) \eta + \frac{\gamma}{\eta}\right) A\\
+\D{A}{\gamma} &=& A \left(\ln(\sigma_2\eta + B) + \frac{\gamma}{\sigma_2 \eta + B}\D{B}{\gamma}\right)
+\end{eqnarray}
+
+\subsection{Normalized volume for $5\sigma_1 \le \eta\sigma_2$}
+We now have $v = v_L + v_R^{(2)}$ for the normalized volume. Just as above, for the left Gaussian part,
+\begin{eqnarray}
+\D{v_L}{\sigma_1} &=& \frac{\sqrt{\pi}}{2 \sqrt{\ln(2)}}\\
+\D{v_L}{\sigma_2} &=& \D{v_L}{\eta} = \D{v_L}{\gamma} = 0
+\end{eqnarray}
+
+For the right Gaussian part, we now have
+\begin{eqnarray}
+\D{v_R^{(2)}}{\sigma_1} &=& 5 \exp\left(-25 \ln(2) \frac{\sigma_1^2}{\sigma_2^2}\right)\\
+\D{v_R^{(2)}}{\sigma_2} &=& \frac{v_R^{(2)}}{\sigma_2} - 5 \exp\left(-25 \ln(2) \frac{\sigma_1^2}{\sigma_2^2}\right) \frac{\sigma_1}{\sigma_2}\\
+\D{v_R^{(2)}}{\eta} &=& \D{v_R^{(2)}}{\gamma} = 0
+\end{eqnarray}
+
+\subsection{(Non-normalized) volume}
+The actual peak volume is given by $V = y_0 v$. From this, it follows that
+\begin{equation}
+\D{V}{y_0} = v
+\end{equation}
+and
+\begin{equation}
+\D{V}{\sigma_1} = y_0 \D{v}{\sigma_1}\;,\;\;
+\D{V}{\sigma_2} = y_0 \D{v}{\sigma_2}\;,\;\;
+\D{V}{\eta} = y_0 \D{v}{\eta}\;,\;\;
+\D{V}{\gamma} = y_0 \D{v}{\gamma}
+\end{equation}
+
+In addition, the peak position $x_0$ is usually fitted. However, the volume does not depend on it: $\D{V}{x_0} = 0$.
+
+\section{Implementation}
+The above is implemented in \texttt{HDTV::Fit::EEPeak::StoreIntegral()}, in the file \texttt{src/fit/EEFitter.cxx}.
+
+\end{document}

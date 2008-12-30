@@ -1,21 +1,21 @@
 /*
- * gSpec - a viewer for gamma spectra
- *  Copyright (C) 2006  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ * HDTV - A ROOT-based spectrum analysis software
+ *  Copyright (C) 2006-2008  Norbert Braun <n.braun@ikp.uni-koeln.de>
  *
- * This file is part of gSpec.
+ * This file is part of HDTV.
  *
- * gSpec is free software; you can redistribute it and/or modify it
+ * HDTV is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
- * gSpec is distributed in the hope that it will be useful, but WITHOUT
+ * HDTV is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with gSpec; if not, write to the Free Software Foundation,
+ * along with HDTV; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  * 
  */
@@ -30,6 +30,7 @@
 #include <iostream>
 
 #include "Param.h"
+#include "Fitter.h"
 
 namespace HDTV {
 namespace Fit {
@@ -70,11 +71,9 @@ class EEPeak {
     TF1 *fFunc;
 };
 
-class EEFitter {
+class EEFitter : public Fitter {
   public:
     EEFitter(double r1, double r2);
-    Param AllocParam();
-    Param AllocParam(double ival);
     void AddPeak(const EEPeak& peak);
     TF1* Fit(TH1 *hist, TF1 *bgFunc);
     TF1* Fit(TH1 *hist, int intBgDeg=-1);
@@ -89,7 +88,6 @@ class EEFitter {
     double Eval(double *x, double *p);
     TF1* _Fit(TH1 *hist);
   
-    int fNumParams;
     int fIntBgDeg;
     double fMin, fMax;
     std::vector<EEPeak> fPeaks;
@@ -99,8 +97,6 @@ class EEFitter {
     // For debugging only
     //double fInt, fIntError;
     //void StoreIntegral(TF1 *func, double pos, double sigma1);
-    
-    void SetParameter(TF1 *func, const Param& param, double ival=0.0);
 };
 
 } // end namespace Fit

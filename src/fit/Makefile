@@ -5,8 +5,8 @@ CC=gcc -g -Wall
 ROOTCINT=rootcint
 CFLAGS=$(shell root-config --cflags)
 LFLAGS=$(shell root-config --glibs)
-SOURCES= PolyBg.cxx Param.cxx TheuerkaufFitter.cxx EEFitter.cxx
-EXPHEADERS= PolyBg.h Param.h TheuerkaufFitter.h EEFitter.h
+SOURCES= PolyBg.cxx Param.cxx Fitter.cxx TheuerkaufFitter.cxx EEFitter.cxx
+EXPHEADERS= PolyBg.h Param.h Fitter.h TheuerkaufFitter.h EEFitter.h
 HEADERS= $(EXPHEADERS)
 OBJ= $(SOURCES:.cxx=.o)
 DESTDIR= ../../lib

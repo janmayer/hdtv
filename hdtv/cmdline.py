@@ -71,6 +71,18 @@ class HDTVCommandTreeNode:
 			elif child.level == node.level:
 				return None
 		return node
+		
+	def HasChildren(self):
+		"""
+		Checks if the node has child nodes
+		"""
+		return (len(self.childs) != 0)
+		
+	def RemoveChild(self, child):
+		"""
+		Deletes the child node child
+		"""
+		del self.childs[self.childs.index(child)]
 
 class HDTVCommandTree(HDTVCommandTreeNode):
 	"""
@@ -181,6 +193,18 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 			raise HDTVCommandError, "Wrong number of arguments to command"
 		
 		node.command(args)
+		
+	def RemoveCommand(self, title):
+		"""
+		Removes the command node specified by the string title.
+		"""
+		(node, args) = self.FindNode(title.split(), False)
+		if len(args) != 0 or not node.command:
+			raise RuntimeError, "No valid command node specified"
+			
+		while not node.HasChildren() and node.parent != None:
+			node.parent.RemoveChild(node)
+			node = node.parent
 		
 	def GetFileCompleteOptions(self, directory, text, dirs_only=False):
 		"""
@@ -433,6 +457,10 @@ def ExecCommand(cmdline):
 	global command_tree
 	command_tree.ExecCommand(cmdline)
 	
+def RemoveCommand(title):
+	global command_tree
+	command_tree.RemoveCommand(title)
+	
 def MainLoop():
 	global command_line
 	command_line.MainLoop()
@@ -441,6 +469,7 @@ def MainLoop():
 global command_tree, command_line
 command_tree = HDTVCommandTree()
 command_line = CommandLine(command_tree, readline.get_completer())
+RegisterInteractive("gCmd", command_tree)
 
 AddCommand("python", command_line.EnterPython, nargs=0)
 AddCommand("exit", command_line.Exit, nargs=0)
