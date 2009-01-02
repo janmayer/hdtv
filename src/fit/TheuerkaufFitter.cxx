@@ -130,7 +130,7 @@ double TheuerkaufPeak::GetNorm(double sigma, double tl, double tr)
     vol += (sigma * sigma) / tr * exp(-(tr*tr)/(2.0*sigma*sigma));
     vol += sqrt(M_PI / 2.0) * sigma * TMath::Erf(tr / (sqrt(2.0)*sigma));
   } else {
-    vol += sqrt(M_PI / 2.0);
+    vol += sqrt(M_PI / 2.0) * sigma;
   }
   
   fCachedSigma = sigma;
@@ -138,7 +138,7 @@ double TheuerkaufPeak::GetNorm(double sigma, double tl, double tr)
   fCachedTR = tr;
   fCachedNorm = 1./vol;
  
-  return fCachedNorm;  
+  return fCachedNorm;
 }
 
 // *** TheuerkaufFitter ***

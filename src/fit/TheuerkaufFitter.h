@@ -72,7 +72,7 @@ class TheuerkaufPeak {
     inline bool HasRightTail()        { return fHasRightTail; }
     inline double GetRightTail()      { return fHasRightTail ? fTR.Value(fFunc) : 
                                             std::numeric_limits<double>::infinity(); }
-    inline double GetLeftRightError() { return fHasRightTail ? fTR.Error(fFunc) :
+    inline double GetRightTailError() { return fHasRightTail ? fTR.Error(fFunc) :
                                             std::numeric_limits<double>::quiet_NaN(); }
                                             
     inline void SetFunc(TF1 *func) { fFunc = func; }
