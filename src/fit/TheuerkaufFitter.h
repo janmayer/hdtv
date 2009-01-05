@@ -56,12 +56,12 @@ class TheuerkaufPeak {
 	TheuerkaufPeak(const Param& pos, const Param& vol, const Param& sigma, const Param& tl, const Param& tr);
     double Eval(double x, double *p);
     
-    inline double GetPos()       { return fPos.Value(fFunc); };
-    inline double GetPosError()  { return fPos.Error(fFunc); };
-    inline double GetVol()       { return fVol.Value(fFunc); };
-    inline double GetVolError()  { return fVol.Error(fFunc); };
-    inline double GetFWHM()      { return 2.0 * sqrt(2.0 * log(2.0)) * fSigma.Value(fFunc); }
-    inline double GetFWHMError() { return 2.0 * sqrt(2.0 * log(2.0)) * fSigma.Error(fFunc); }
+    inline double GetPos()        { return fPos.Value(fFunc); }
+    inline double GetPosError()   { return fPos.Error(fFunc); }
+    inline double GetVol()        { return fVol.Value(fFunc); }
+    inline double GetVolError()   { return fVol.Error(fFunc); }
+    inline double GetSigma()      { return fSigma.Value(fFunc); }
+    inline double GetSigmaError() { return fSigma.Error(fFunc); }
     
     inline bool HasLeftTail()         { return fHasLeftTail; }
     inline double GetLeftTail()       { return fHasLeftTail ? fTL.Value(fFunc) : 

@@ -89,6 +89,7 @@ class Spectrum:
 		The calibration polynom is of the form:
 		f(x) = cal[0] + cal[1]*x + cal[2]*x^2 + cal[3]*x^3
 		"""
+		# FIXME: limitation is obsolete
 		if cal:
 			if len(cal) >4:
 				print "Error: degree of calibration polynom is to big (>=4)"

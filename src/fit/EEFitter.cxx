@@ -248,7 +248,7 @@ TF1 *EEFitter::_Fit(TH1 *hist)
   std::vector<EEPeak>::iterator iter;
   double amp;
   for(iter = fPeaks.begin(); iter != fPeaks.end(); iter ++) {
-    amp = (double) hist->GetBinContent((int) TMath::Ceil(iter->fPos._Value() - 0.5));
+    amp = (double) hist->GetBinContent(((int)TMath::Ceil(iter->fPos._Value() - 0.5)) + 1);
 	SetParameter(func, iter->fPos);
 	SetParameter(func, iter->fAmp, amp);
 	SetParameter(func, iter->fSigma1, 1.0);

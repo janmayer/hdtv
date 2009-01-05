@@ -58,7 +58,7 @@ class Fit:
 		if key in ["spec", "bglist"]:
 			# reset background fitter
 			self.ResetBackground()
-		if key in ["spec", "region", "peaklist", "leftTail", "rightTail"]: 
+		if key in ["spec", "region", "peaklist"]: 
 			# reset fitter as it is deprecated now
 			self.ResetPeak()
 		if key in ["region", "peaklist"]:
@@ -106,7 +106,7 @@ class Fit:
 				sep = ""
 				for stat in status:
 					statstr += sep
-					if stat in ("free", "ifree", "hold", "disabled"):
+					if stat in ("free", "equal", "hold", "none"):
 						statstr += stat
 					else:
 						statstr += "%.3f" % stat
@@ -116,13 +116,13 @@ class Fit:
 			# ... long format for a single value
 			else:
 				if status == "free":
-					statstr += "%s: free\n" % name
-				elif status == "ifree":
-					statstr += "%s: individually free\n" % name
+					statstr += "%s: (individually) free\n" % name
+				elif status == "equal":
+					statstr += "%s: free and equal\n" % name
 				elif status == "hold":
 					statstr += "%s: held at default value\n" % name
-				elif status == "disabled":
-					statstr += "%s: disabled\n" % name
+				elif status == "none":
+					statstr += "%s: none (disabled)\n" % name
 				else:
 					statstr += "%s: fixed at %.3f\n" % (name, status)
 					
@@ -134,7 +134,9 @@ class Fit:
 		"""
 		if not self.fPeakModel:
 			raise RuntimeError, "No peak model defined"
-			
+		
+		self.fPeakModel.fCal = self.spec.fCal
+		self.peaklist.sort()
 		self.fitter = self.fPeakModel.GetFitter(self.region, self.peaklist)
 		
 	def InitBgFitter(self, fittype = ROOT.HDTV.Fit.PolyBg):
