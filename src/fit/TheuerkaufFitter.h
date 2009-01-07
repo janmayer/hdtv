@@ -50,38 +50,56 @@ class TheuerkaufFitter;
 class TheuerkaufPeak {
   friend class TheuerkaufFitter;
   public:
-    TheuerkaufPeak(const Param& pos, const Param& vol, const Param& sigma, bool tl, bool tr);
-	TheuerkaufPeak(const Param& pos, const Param& vol, const Param& sigma, const Param& tl, bool tr);
-	TheuerkaufPeak(const Param& pos, const Param& vol, const Param& sigma, bool tl, const Param& tr);
-	TheuerkaufPeak(const Param& pos, const Param& vol, const Param& sigma, const Param& tl, const Param& tr);
+    TheuerkaufPeak(const Param& pos, const Param& vol, const Param& sigma,
+                   const Param& tl = Param::None(),
+                   const Param& tr = Param::None(),
+                   const Param& sh = Param::None(),
+                   const Param& sw = Param::None());
+
     double Eval(double x, double *p);
     
-    inline double GetPos()        { return fPos.Value(fFunc); }
-    inline double GetPosError()   { return fPos.Error(fFunc); }
-    inline double GetVol()        { return fVol.Value(fFunc); }
-    inline double GetVolError()   { return fVol.Error(fFunc); }
-    inline double GetSigma()      { return fSigma.Value(fFunc); }
-    inline double GetSigmaError() { return fSigma.Error(fFunc); }
+    inline double GetPos() const        { return fPos.Value(fFunc); }
+    inline double GetPosError() const   { return fPos.Error(fFunc); }
+    inline bool   PosIsFree() const     { return fPos.IsFree(); }
+    inline double GetVol() const        { return fVol.Value(fFunc); }
+    inline double GetVolError() const   { return fVol.Error(fFunc); }
+    inline bool   VolIsFree() const     { return fVol.IsFree(); }
+    inline double GetSigma() const      { return fSigma.Value(fFunc); }
+    inline double GetSigmaError() const { return fSigma.Error(fFunc); }
+    inline bool   SigmaIsFree() const     { return fSigma.IsFree(); }
     
-    inline bool HasLeftTail()         { return fHasLeftTail; }
-    inline double GetLeftTail()       { return fHasLeftTail ? fTL.Value(fFunc) : 
-                                            std::numeric_limits<double>::infinity(); }
-    inline double GetLeftTailError()  { return fHasLeftTail ? fTL.Error(fFunc) :
-                                            std::numeric_limits<double>::quiet_NaN(); }
+    inline bool HasLeftTail() const        { return fHasLeftTail; }
+    inline double GetLeftTail() const      { return fHasLeftTail ? fTL.Value(fFunc) : 
+                                               std::numeric_limits<double>::infinity(); }
+    inline double GetLeftTailError() const { return fHasLeftTail ? fTL.Error(fFunc) :
+                                               std::numeric_limits<double>::quiet_NaN(); }
+    inline bool LeftTailIsFree() const     { return fHasLeftTail ? fTL.IsFree() : false; }
 
-    inline bool HasRightTail()        { return fHasRightTail; }
-    inline double GetRightTail()      { return fHasRightTail ? fTR.Value(fFunc) : 
-                                            std::numeric_limits<double>::infinity(); }
-    inline double GetRightTailError() { return fHasRightTail ? fTR.Error(fFunc) :
-                                            std::numeric_limits<double>::quiet_NaN(); }
+    inline bool HasRightTail() const        { return fHasRightTail; }
+    inline double GetRightTail() const      { return fHasRightTail ? fTR.Value(fFunc) : 
+                                                std::numeric_limits<double>::infinity(); }
+    inline double GetRightTailError() const { return fHasRightTail ? fTR.Error(fFunc) :
+                                                std::numeric_limits<double>::quiet_NaN(); }
+    inline bool RightTailIsFree() const     { return fHasRightTail ? fTR.IsFree() : false; }
+                                            
+    inline bool HasStep() const              { return fHasStep; }
+    inline double GetStepHeight() const      { return fHasStep ? fSH.Value(fFunc) : 0.0; }
+    inline double GetStepHeightError() const { return fHasStep ? fSH.Error(fFunc) :
+                                                std::numeric_limits<double>::quiet_NaN(); }
+    inline bool StepHeightIsFree() const     { return fHasStep ? fSH.IsFree() : false; }
+    inline double GetStepWidth() const       { return fHasStep ? fSW.Value(fFunc) : 
+                                                std::numeric_limits<double>::quiet_NaN(); }
+    inline double GetStepWidthError() const  { return fHasStep ? fSW.Error(fFunc) :
+                                                std::numeric_limits<double>::quiet_NaN(); }
+    inline bool StepWidthIsFree() const      { return fHasStep ? fSW.IsFree() : false; }
                                             
     inline void SetFunc(TF1 *func) { fFunc = func; }
 
   private:
     double GetNorm(double sigma, double tl, double tr);
     
-    Param fPos, fVol, fSigma, fTL, fTR;
-    bool fHasLeftTail, fHasRightTail;
+    Param fPos, fVol, fSigma, fTL, fTR, fSH, fSW;
+    bool fHasLeftTail, fHasRightTail, fHasStep;
     TF1 *fFunc;
     
     double fCachedNorm;
@@ -96,6 +114,8 @@ class TheuerkaufFitter : public Fitter {
     TF1* Fit(TH1 *hist, int intBgDeg=-1);
     inline int GetNumPeaks() { return fNumPeaks; }
     inline const TheuerkaufPeak& GetPeak(int i) { return fPeaks[i]; }
+    inline double GetChisquare() { return fChisquare; }
+    
   private:
     double Eval(double *x, double *p);
     TF1* _Fit(TH1 *hist);
@@ -105,6 +125,7 @@ class TheuerkaufFitter : public Fitter {
     std::vector<TheuerkaufPeak> fPeaks;
     TF1 *fBgFunc;
     int fNumPeaks;
+    double fChisquare;
 };
 
 } // end namespace Fit

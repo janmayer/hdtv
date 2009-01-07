@@ -2,6 +2,17 @@ import util
 import math
 import ROOT
 
+class FitValue(util.ErrValue):
+	def __init__(self, value, error, free):
+		util.ErrValue.__init__(self, value, error)
+		self.free = free
+		
+	def fmt(self):
+		if self.free:
+			return util.ErrValue.fmt(self)
+		else:
+			return util.ErrValue.fmt_no_error(self) + " (HOLD)"
+
 class EEPeak:
 	"""
 	Peak object for the ee fitter
@@ -35,12 +46,14 @@ class TheuerkaufPeak:
 	"""
 	Peak object for the Theuerkauf (classic TV) fitter
 	"""
-	def __init__(self, pos, vol, fwhm, tl, tr):
+	def __init__(self, pos, vol, fwhm, tl, tr, sh, sw):
 		self.pos = pos
 		self.vol = vol
 		self.fwhm = fwhm
 		self.tl = tl
 		self.tr = tr
+		self.sh = sh
+		self.sw = sw
 		
 	def GetPos(self):
 		return self.pos.value
@@ -48,19 +61,25 @@ class TheuerkaufPeak:
 	def __str__(self):
 		text = ""
 
-		text += "Pos:        " + self.pos.fmt() + "\n"
-		text += "Volume:     " + self.vol.fmt() + "\n"
-		text += "FWHM:       " + self.fwhm.fmt() + "\n"
+		text += "Pos:         " + self.pos.fmt() + "\n"
+		text += "Volume:      " + self.vol.fmt() + "\n"
+		text += "FWHM:        " + self.fwhm.fmt() + "\n"
 		
 		if self.tl != None:
-			text += "Left Tail:  " + self.tl.fmt() + "\n"
+			text += "Left Tail:   " + self.tl.fmt() + "\n"
 		else:
-			text += "Left Tail:  None\n"
+			text += "Left Tail:   None\n"
 			
 		if self.tr != None:
-			text += "Right Tail: " + self.tr.fmt() + "\n"
+			text += "Right Tail:  " + self.tr.fmt() + "\n"
 		else:
-			text += "Right Tail: None\n"
+			text += "Right Tail:  None\n"
+			
+		if self.sh != None:
+			text += "Step height: " + self.sh.fmt() + "\n"
+			text += "Step width:  " + self.sw.fmt() + "\n"
+		else:
+			text += "Step: None\n"
 			
 		return text
 
@@ -181,7 +200,7 @@ class PeakModel:
 			else:
 				return ROOT.HDTV.Fit.Param.Fixed(ival)
 		elif parStatus == "none":
-			return False
+			return ROOT.HDTV.Fit.Param.None()
 		elif type(parStatus) == float:
 			return ROOT.HDTV.Fit.Param.Fixed(self.SpecToFitter(name, parStatus, pos_uncal))
 		else:
@@ -191,14 +210,16 @@ class PeakModel:
 class PeakModelTheuerkauf(PeakModel):
 	def __init__(self):
 		PeakModel.__init__(self)
-		self.fOrderedParamKeys = ["pos", "vol", "width", "tl", "tr"]
+		self.fOrderedParamKeys = ["pos", "vol", "width", "tl", "tr", "sh", "sw"]
 		self.fParStatus = { "pos": None, "vol": None, "sigma": None,
-		                    "tl": None, "tr": None }
+		                    "tl": None, "tr": None, "sh": None, "sw": None }
 		self.fValidParStatus = { "pos":   [ float, "free", "hold" ],
 		                         "vol":   [ float, "free", "hold" ],
 		                         "width": [ float, "free", "equal" ],
 		                         "tl":    [ float, "free", "equal", "none" ],
-		                         "tr":    [ float, "free", "equal", "none" ] }
+		                         "tr":    [ float, "free", "equal", "none" ],
+		                         "sh":    [ float, "free", "equal", "none" ],
+		                         "sw":    [ float, "free", "equal", "hold" ] }
 		                         
 		self.ResetParamStatus()
 		
@@ -226,21 +247,31 @@ class PeakModelTheuerkauf(PeakModel):
 		fwhm_err_cal = abs( (self.dEdCh(pos_uncal + hwhm_uncal) / 2. + 
                              self.dEdCh(pos_uncal - hwhm_uncal) / 2.   ) * fwhm_err_uncal)
 	
-		pos = util.ErrValue(pos_cal, pos_err_cal)
-		vol = util.ErrValue(cpeak.GetVol(), cpeak.GetVolError())
-		fwhm = util.ErrValue(fwhm_cal, fwhm_err_cal)
+		pos = FitValue(pos_cal, pos_err_cal, cpeak.PosIsFree())
+		vol = FitValue(cpeak.GetVol(), cpeak.GetVolError(), cpeak.VolIsFree())
+		fwhm = FitValue(fwhm_cal, fwhm_err_cal, cpeak.SigmaIsFree())
 		
 		if cpeak.HasLeftTail():
-			tl = util.ErrValue(cpeak.GetLeftTail(), cpeak.GetLeftTailError())
+			tl = FitValue(cpeak.GetLeftTail(), cpeak.GetLeftTailError(), 
+			              cpeak.LeftTailIsFree())
 		else:
 			tl = None
 			
 		if cpeak.HasRightTail():
-			tr = util.ErrValue(cpeak.GetRightTail(), cpeak.GetRightTailError())
+			tr = FitValue(cpeak.GetRightTail(), cpeak.GetRightTailError(),
+			              cpeak.RightTailIsFree())
 		else:
 			tr = None
 			
-		return TheuerkaufPeak(pos, vol, fwhm, tl, tr)
+		if cpeak.HasStep():
+			sh = FitValue(cpeak.GetStepHeight(), cpeak.GetStepHeightError(),
+			                   cpeak.StepHeightIsFree())
+			sw = FitValue(cpeak.GetStepWidth(), cpeak.GetStepWidthError(),
+			                   cpeak.StepWidthIsFree())
+		else:
+			sh = sw = None
+			
+		return TheuerkaufPeak(pos, vol, fwhm, tl, tr, sh, sw)
 		
 	def ResetParamStatus(self):
 		"""
@@ -251,6 +282,8 @@ class PeakModelTheuerkauf(PeakModel):
 		self.fParStatus["width"] = "equal"
 		self.fParStatus["tl"] = "none"
 		self.fParStatus["tr"] = "none"
+		self.fParStatus["sh"] = "none"
+		self.fParStatus["sw"] = "hold"
 		
 	def SpecToFitter(self, parname, value, pos_uncal):
 		"""
@@ -264,7 +297,7 @@ class PeakModelTheuerkauf(PeakModel):
 			# Note that the underlying fitter uses ``sigma'' as a parameter
 			#  (see HDTV technical documentation in the wiki)
 			return width_uncal / (2. * math.sqrt(2. * math.log(2.)))
-		elif parname in ("vol", "tl", "tr"):
+		elif parname in ("vol", "tl", "tr", "sh", "sw"):
 			return value
 		else:
 			raise RuntimeError, "Unexpected parameter name"
@@ -287,7 +320,10 @@ class PeakModelTheuerkauf(PeakModel):
 			sigma = self.GetParam("width", pid, pos_uncal)
 			tl = self.GetParam("tl", pid, pos_uncal)
 			tr = self.GetParam("tr", pid, pos_uncal)
-			peak = ROOT.HDTV.Fit.TheuerkaufPeak(pos, vol, sigma, tl, tr)
+			sh = self.GetParam("sh", pid, pos_uncal)
+			sw = self.GetParam("sw", pid, pos_uncal)
+			
+			peak = ROOT.HDTV.Fit.TheuerkaufPeak(pos, vol, sigma, tl, tr, sh, sw)
 			self.fFitter.AddPeak(peak)
 			
 		return self.fFitter

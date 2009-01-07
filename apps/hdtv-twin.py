@@ -1,19 +1,35 @@
 #!/usr/bin/python -i
 # -*- coding: utf-8 -*-
-from __future__ import with_statement
-
-# set the pythonpath
+import os
 import sys
-sys.path.append("/home/braun/hdtv/pylib")
+
+### Begin program configuration ###
+runpros_dir = "/home/braun/Diplom/full_test/runpros/015/"
+
+### End program configuration ###
+
+# Get ~/.hdtv directory
+hdtvpath = os.path.expanduser("~/.hdtv")
+if not os.path.exists(hdtvpath):
+	raise RuntimeError, "Failed to load core plugins: directory ~/.hdtv not found."
+	
+# Set the python path
+sys.path.append(hdtvpath)
+sys.path.append(hdtvpath+"/plugins")
+
+# Import core modules
+import hdtv.dlmgr
+hdtv.dlmgr.path.append(hdtvpath + "/lib")
 
 import ROOT
 import math
 import atexit
-from window import Window, XMarker
-from diploma import Horus88Zr
+from spectrum import SpecWindow
 
-if ROOT.gSystem.Load("../lib/gspec.so") < 0:
-	raise RuntimeError, "Library not found (gspec.so)"
+def TWinFile(n):
+	global runpros_dir
+	
+	return "%s/%02d" % (runpros_dir, n)
 
 class Marker:
 	def __init__(self, pos, color=6):
@@ -43,10 +59,9 @@ class Marker:
 			viewport.DeleteXMarker(self.mid, update)
 			self.mid = None
 
-class TWin(Window):
+class TWin(SpecWindow):
 	def __init__(self):
-		Window.__init__(self)
-		self.experiment = Horus88Zr()
+		SpecWindow.__init__(self)
 		self.fCurN = 0
 		self.fSpecNames = []
 		self.GenSpecNames()
@@ -60,36 +75,39 @@ class TWin(Window):
 		atexit.register(self.ExitHandler)
 			
 	def ExitHandler(self):
-		with open("twin.dat", "w") as f:
-			for markers in self.fMarkers:
-				f.write(" ".join(map(lambda m: "%d" % int(m.pos), markers)))
-				f.write("\n")
+		f = open("twin.dat", "w")
+		for markers in self.fMarkers:
+			f.write(" ".join(map(lambda m: "%d" % int(m.pos), markers)))
+			f.write("\n")
+		f.close()
 				
-		with open("time.win", "w") as f:
-			for markers in self.fMarkers:
-				if len(markers) == 4:
-					markers.sort(None, lambda x: x.pos)
+		f = open("time.win", "w")
+		for markers in self.fMarkers:
+			if len(markers) == 4:
+				markers.sort(None, lambda x: x.pos)
 				
-					peakArea = int(markers[2].pos - markers[1].pos)
-					bg1Area = int(peakArea / 2)
-					bg2Area = peakArea - bg1Area
+				peakArea = int(markers[2].pos - markers[1].pos)
+				bg1Area = int(peakArea / 2)
+				bg2Area = peakArea - bg1Area
 					
-					f.write("%d " % (int(markers[0].pos) - bg1Area))
-					f.write("%d " % int(markers[0].pos))
-					f.write("%d " % int(markers[1].pos))
-					f.write("%d " % int(markers[2].pos))
-					f.write("%d " % int(markers[3].pos))
-					f.write("%d\n" % (int(markers[3].pos) + bg2Area))
-				else:
-					f.write("200 1000 1200 2800 3000 3800\n")
-					print "Warning: defaults used in time.win"
+				f.write("%d " % (int(markers[0].pos) - bg1Area))
+				f.write("%d " % int(markers[0].pos))
+				f.write("%d " % int(markers[1].pos))
+				f.write("%d " % int(markers[2].pos))
+				f.write("%d " % int(markers[3].pos))
+				f.write("%d\n" % (int(markers[3].pos) + bg2Area))
+			else:
+				f.write("200 1000 1200 2800 3000 3800\n")
+				print "Warning: defaults used in time.win"
+		f.close()
 			
 	def ReadPos(self):
 		try:
-			with open("twin.dat") as f:
-				for l in f:
-					markers = map(lambda x: Marker(int(x)), l.split())
-					self.fMarkers.append(markers)
+			f = open("twin.dat")
+			for l in f:
+				markers = map(lambda x: Marker(int(x)), l.split())
+				self.fMarkers.append(markers)
+			f.close()
 	
 		except IOError:
 			for i in range(0,120):
@@ -107,7 +125,7 @@ class TWin(Window):
 		
 		self.fCurN += step
 		
-		self.LoadSpec(self.experiment.TWinFile(self.fCurN), None, False)
+		self.LoadSpec(TWinFile(self.fCurN), None, False)
 		for marker in self.fMarkers[self.fCurN]:
 			marker.Realize(self.fViewport, False)	
 		
@@ -176,6 +194,5 @@ class TWin(Window):
 				self.SyncSpec(-1)
 		
 fTWin = TWin()
-fTWin.RegisterKeyHandler("fTWin.KeyHandler")
 fTWin.SyncSpec(0)
 fTWin.fViewport.ShowAll()

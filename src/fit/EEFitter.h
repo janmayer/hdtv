@@ -79,6 +79,7 @@ class EEFitter : public Fitter {
     TF1* Fit(TH1 *hist, int intBgDeg=-1);
     inline int GetNumPeaks() { return fNumPeaks; }
     inline const EEPeak& GetPeak(int i) { return fPeaks[i]; }
+    inline double GetChisquare() { return fChisquare; }
     
     // For debugging only
     //inline double GetVol()          { return fInt; }
@@ -93,6 +94,7 @@ class EEFitter : public Fitter {
     std::vector<EEPeak> fPeaks;
     TF1 *fBgFunc;
     int fNumPeaks;
+    double fChisquare;
     
     // For debugging only
     //double fInt, fIntError;

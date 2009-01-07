@@ -36,6 +36,9 @@ class Fit:
 	def SetParameter(self, parname, status):
 		self.fPeakModel.SetParameter(parname, status)
 		
+	def ResetParameters(self):
+		self.fPeakModel.ResetParamStatus()
+		
 	def SetPeakModel(self, model):
 		global gPeakModels
 		
@@ -88,9 +91,9 @@ class Fit:
 			return []
 			
 	def PrintParamStatus(self):
-		print self.StatStr()
+		print self.OptionsStr()
 		
-	def StatStr(self):
+	def OptionsStr(self):
 		statstr = str()
 	
 		statstr += "Background model: polynomial, deg=%d\n" % self.fBgDeg
@@ -291,21 +294,24 @@ class Fit:
 			if update:
 				self.viewport.Update(True)
 				
-	def __str__(self):
-		text = "Background degree: %d\n\n" % self.fBgDeg
+	def DataStr(self):
+		text = str()
+		# text = "Background degree: %d\n\n" % self.fBgDeg
 		i = 1
-		#if self.bgfunc:
-		#	text += "Background (seperate fit)\n"
-		#	text += "bg[0]: %.2f   bg[1]: %.3f\n\n" % (self.bgfunc.GetParameter(0), \
-		#	                                           self.bgfunc.GetParameter(1))
+#		if self.bgfunc:
+#			text += "Background (seperate fit)\n"
+#			text += "bg[0]: %.2f   bg[1]: %.3f\n\n" % (self.bgfunc.GetParameter(0), \
+#			                                           self.bgfunc.GetParameter(1))
 		#elif self.func:
 		#	text += "Background\n"
 		#	text += "bg[0]: %.2f   bg[1]: %.3f\n\n" % (ROOT.GSFitter.GetBg0(self.func), \
 		#	                                           ROOT.GSFitter.GetBg1(self.func))
 
-		for peak in self.resultPeaks:
-			text += "Peak %d:\n%s\n" % (i, str(peak))
-			i += 1
+		if self.fitter:
+			text += "Fit chisquare: %.2f\n" % self.fitter.GetChisquare()
+			for peak in self.resultPeaks:
+				text += "Peak %d:\n%s\n" % (i, str(peak))
+				i += 1
 			
         # For debugging only		
 		# text += "\n"

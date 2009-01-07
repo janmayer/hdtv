@@ -26,12 +26,13 @@
 namespace HDTV {
 namespace Fit {
 
-Param::Param(int id, double value, bool free, bool hasIVal)
+Param::Param(int id, double value, bool free, bool hasIVal, bool valid)
 {
   fId = id;
   fValue = value;
   fFree = free;
   fHasIVal = hasIVal;
+  fValid = valid;
 }
 
 double Param::Value(TF1 *func) const

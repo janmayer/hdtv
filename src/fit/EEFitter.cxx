@@ -273,6 +273,9 @@ TF1 *EEFitter::_Fit(TH1 *hist)
     fInt = fIntError = std::numeric_limits<double>::quiet_NaN();
     fIntError = fIntError = std::numeric_limits<double>::quiet_NaN();
   } */
+  
+  // Store Chi^2
+  fChisquare = func->GetChisquare();
      
   return func;
 }

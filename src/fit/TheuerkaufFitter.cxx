@@ -22,12 +22,13 @@
  
 #include "TheuerkaufFitter.h"
 #include <TMath.h>
+#include <iostream>
 
 namespace HDTV {
 namespace Fit {
 
 // *** TheuerkaufPeak ***
-TheuerkaufPeak::TheuerkaufPeak(const Param& pos, const Param& vol, const Param& sigma, bool tl, bool tr)
+TheuerkaufPeak::TheuerkaufPeak(const Param& pos, const Param& vol, const Param& sigma, const Param& tl, const Param& tr, const Param& sh, const Param& sw)
 {
   fPos = pos;
   fVol = vol;
@@ -37,54 +38,35 @@ TheuerkaufPeak::TheuerkaufPeak(const Param& pos, const Param& vol, const Param& 
   // member functions are supposed to check fHasLeftTail and fHasRightTail and
   // then ignore the tail parameters. We only need to have some definite value to
   // not interfere with norm caching.
-  fTL = Param::Fixed(0.0);
-  fTR = Param::Fixed(0.0);
-  fHasLeftTail = false;
-  fHasRightTail = false;
+  if(!tl) {
+    fTL = Param::Fixed(0.0);
+    fHasLeftTail = false;
+  } else {
+    fTL = tl;
+    fHasLeftTail = true;
+  }
   
-  fFunc = NULL;
-}
-
-TheuerkaufPeak::TheuerkaufPeak(const Param& pos, const Param& vol, const Param& sigma, const Param& tl, bool tr)
-{
-  fPos = pos;
-  fVol = vol;
-  fSigma = sigma;
+  if(!tr) {
+    fTR = Param::Fixed(0.0);
+    fHasRightTail = false;
+  } else {
+    fTR = tr;
+    fHasRightTail = true;
+  }
   
-  // See comment above
-  fTL = tl;
-  fTR = Param::Fixed(0.0);
-  fHasLeftTail = true;
-  fHasRightTail = false;
+  if(!sh) {
+    fSH = Param::Fixed(0.0);
+    fHasStep = false;
+  } else {
+    fSH = sh;
+    fHasStep = true;
+  }
   
-  fFunc = NULL;
-}
-
-TheuerkaufPeak::TheuerkaufPeak(const Param& pos, const Param& vol, const Param& sigma, bool tl, const Param& tr)
-{
-  fPos = pos;
-  fVol = vol;
-  fSigma = sigma;
-  
-  // See comment above
-  fTL = Param::Fixed(0.0);
-  fTR = tr;
-  fHasLeftTail = false;
-  fHasRightTail = true;
-  
-  fFunc = NULL;
-}
-
-TheuerkaufPeak::TheuerkaufPeak(const Param& pos, const Param& vol, const Param& sigma, const Param& tl, const Param& tr)
-{
-  fPos = pos;
-  fVol = vol;
-  fSigma = sigma;
-  
-  fTL = tl;
-  fTR = tr;
-  fHasLeftTail = true;
-  fHasRightTail = true;
+  if(!sw) {
+    fSW = Param::Fixed(1.0);
+  } else {
+    fSW = sw;
+  }
   
   fFunc = NULL;
 }
@@ -99,6 +81,7 @@ double TheuerkaufPeak::Eval(double x, double *p)
   double norm = GetNorm(sigma, tl, tr);
   double _x;
   
+  // Peak function
   if(dx < -tl && fHasLeftTail) {
     _x = tl / (sigma * sigma) * (dx + tl / 2.0);
   } else if(dx < tr || !fHasRightTail) {
@@ -107,7 +90,16 @@ double TheuerkaufPeak::Eval(double x, double *p)
     _x = - tr / (sigma * sigma) * (dx - tr / 2.0);
   }
   
-  return vol * norm * exp(_x);
+  // Step function
+  double stepval = 0.0;
+  if(fHasStep) {
+    double sh = fSH.Value(p);
+    double sw = fSW.Value(p);
+    
+    stepval = sh * (M_PI/2. + atan(sw * dx / (sqrt(2.) * sigma)));
+  }
+  
+  return vol * norm * exp(_x) + stepval;
 }
 
 double TheuerkaufPeak::GetNorm(double sigma, double tl, double tr)
@@ -220,13 +212,15 @@ TF1 *TheuerkaufFitter::_Fit(TH1 *hist)
   }
   
   // FIXME
-  double avgVol = 100.0;
+  double avgVol = 1e2;
   
   // Init fit parameters
   for(iter = fPeaks.begin(); iter != fPeaks.end(); iter ++) {
 	SetParameter(func, iter->fPos);
 	SetParameter(func, iter->fVol, avgVol);
 	SetParameter(func, iter->fSigma, 1.0);
+	SetParameter(func, iter->fSH, 1.0);
+	SetParameter(func, iter->fSW, 1.0);
 	if(iter->fTL.IsFree()) {
 	  func->FixParameter(iter->fTL._Id(), 10.0);
 	  needPreFit = true;
@@ -254,6 +248,9 @@ TF1 *TheuerkaufFitter::_Fit(TH1 *hist)
 
   // Now, do the ''real'' fit
   hist->Fit(func, "RQNM");
+  
+  // Store Chi^2
+  fChisquare = func->GetChisquare();
      
   return func;
 }

@@ -66,7 +66,7 @@ class KeyHandler:
 		"""
 		self.fCurNode = self.fKeyCmds
 
-class Window:
+class Window(KeyHandler):
 	"""
 	Base class of a window object 
 
@@ -75,6 +75,8 @@ class Window:
 	To change the currently displayed view, use the PAGEUP and the PAGEDOWN keys.
 	"""
 	def __init__(self):
+		KeyHandler.__init__(self)
+	
 		self.fViewer = ROOT.GSViewer()
 		self.fViewport = self.fViewer.GetViewport()
 		self.fViews = []
@@ -88,33 +90,36 @@ class Window:
 							 self.fKeyDispatch, "Dispatch()")
 		
 		self.fKeyString = ""
-		self.fKeys = KeyHandler()
-		self.fKeys.AddKey(ROOT.kKey_u, lambda: self.fViewport.Update(True))
+		self.AddKey(ROOT.kKey_u, lambda: self.fViewport.Update(True))
 		# toggle spectrum display
-		self.fKeys.AddKey(ROOT.kKey_l, self.fViewport.ToggleLogScale)
-		self.fKeys.AddKey(ROOT.kKey_a, self.ToggleYAutoScale)
+		self.AddKey(ROOT.kKey_l, self.fViewport.ToggleLogScale)
+		self.AddKey(ROOT.kKey_a, self.ToggleYAutoScale)
 		# x directions
-		self.fKeys.AddKey(ROOT.kKey_Space, self.PutXZoomMarker)
-		self.fKeys.AddKey(ROOT.kKey_f, self.ExpandX)
-		self.fKeys.AddKey(ROOT.kKey_Greater, lambda: self.fViewport.ShiftXOffset(0.1))
-		self.fKeys.AddKey(ROOT.kKey_Less, lambda: self.fViewport.ShiftXOffset(-0.1))
-		self.fKeys.AddKey(ROOT.kKey_1, lambda: self.fViewport.XZoomAroundCursor(2.0))
-		self.fKeys.AddKey(ROOT.kKey_0, lambda: self.fViewport.XZoomAroundCursor(0.5))
+		self.AddKey(ROOT.kKey_Space, self.PutXZoomMarker)
+		self.AddKey(ROOT.kKey_f, self.ExpandX)
+		self.AddKey(ROOT.kKey_Greater, lambda: self.fViewport.ShiftXOffset(0.1))
+		self.AddKey(ROOT.kKey_Less, lambda: self.fViewport.ShiftXOffset(-0.1))
+		self.AddKey(ROOT.kKey_1, lambda: self.fViewport.XZoomAroundCursor(2.0))
+		self.AddKey(ROOT.kKey_0, lambda: self.fViewport.XZoomAroundCursor(0.5))
 		# Y direction
-		self.fKeys.AddKey(ROOT.kKey_h, self.PutYZoomMarker)
-		self.fKeys.AddKey(ROOT.kKey_y, self.ExpandY)
+		self.AddKey(ROOT.kKey_h, self.PutYZoomMarker)
+		self.AddKey(ROOT.kKey_y, self.ExpandY)
 		# self.fKeys.AddKey(ROOT.kKey_Up, lambda: self.fViewport.ShiftYOffset(0.1))
 		# self.fKeys.AddKey(ROOT.kKey_Down, lambda: self.fViewport.ShiftYOffset(-0.1))
 		# self.fKeys.AddKey(ROOT.kKey_Z, lambda: self.fViewport.YZoomAroundCursor(2.0))
 		# self.fKeys.AddKey(ROOT.kKey_X, lambda: self.fViewport.YZoomAroundCursor(0.5))
 		# expand in all directions
-		self.fKeys.AddKey(ROOT.kKey_e, self.Expand)
+		self.AddKey(ROOT.kKey_e, self.Expand)
 		# switch between views
-		self.fKeys.AddKey(ROOT.kKey_PageUp, lambda: self.ShowView(self.fCurViewID - 1))
-		self.fKeys.AddKey(ROOT.kKey_PageDown, lambda: self.ShowView(self.fCurViewID + 1))
-		self.fKeys.AddKey(ROOT.kKey_Home, lambda: self.ShowView(0))
-		self.fKeys.AddKey(ROOT.kKey_End, lambda: self.ShowView(len(self.fViews)-1))
-
+		self.AddKey(ROOT.kKey_PageUp, lambda: self.ShowView(self.fCurViewID - 1))
+		self.AddKey(ROOT.kKey_PageDown, lambda: self.ShowView(self.fCurViewID + 1))
+		self.AddKey(ROOT.kKey_Home, lambda: self.ShowView(0))
+		self.AddKey(ROOT.kKey_End, lambda: self.ShowView(len(self.fViews)-1))
+		
+	def SetTitle(self, title):
+		"Set the window title"
+		pass # FIXME
+		
 	def AddView(self, title=None):
 		"""
 		Add a view to this window
@@ -291,7 +296,7 @@ class Window:
 		if not self.fViewer.fKeyStr:
 			return False
 		
-		handled = self.fKeys.HandleKey(self.fViewer.fKeySym)
+		handled = self.HandleKey(self.fViewer.fKeySym)
 		
 		if handled == None:
 			self.fKeyString += self.fViewer.fKeyStr
