@@ -22,6 +22,7 @@ sys.path.append(hdtvpath + "/plugins")
 import hdtv.dlmgr
 hdtv.dlmgr.path.append(hdtvpath + "/lib")
 import hdtv.cmdline
+hdtv.cmdline.SetReadlineHistory(hdtvpath + "/hdtv_history")
 hdtv.cmdline.SetInteractiveDict(locals())
 # import hdtv.config
 

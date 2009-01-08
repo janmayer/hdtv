@@ -7,6 +7,7 @@ import os
 import sys
 import traceback
 import code
+import atexit
 
 import readline
 import ROOT
@@ -306,6 +307,23 @@ class CommandLine:
 		self.fPythonCompleter = python_completer or (lambda: None)
 		self.fInteractiveLocals = dict()
 		
+		self.fReadlineHistory = None
+		self.fReadlineExitHandler = False
+		
+	def SetReadlineHistory(self, filename):
+		self.fReadlineHistory = filename
+		
+		readline.clear_history()
+		if os.path.isfile(self.fReadlineHistory):
+			readline.read_history_file(self.fReadlineHistory)
+			
+		if not self.fReadlineExitHandler:
+			atexit.register(self.WriteReadlineHistory)
+			self.fReadlineExitHandler = True
+			
+	def WriteReadlineHistory(self):
+		readline.write_history_file(self.fReadlineHistory)
+		
 	def RegisterInteractive(self, name, ref):
 		self.fInteractiveLocals[name] = ref
 		
@@ -460,6 +478,10 @@ def ExecCommand(cmdline):
 def RemoveCommand(title):
 	global command_tree
 	command_tree.RemoveCommand(title)
+	
+def SetReadlineHistory(filename):
+	global command_line
+	command_line.SetReadlineHistory(filename)
 	
 def MainLoop():
 	global command_line
