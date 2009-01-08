@@ -20,35 +20,39 @@
  * 
  */
 
-#include "MTViewer.h"
+#ifndef __DisplaySpec_h__
+#define __DisplaySpec_h__
+
+#include <TH1.h>
+#include "DisplayObj.h"
 
 namespace HDTV {
 namespace Display {
 
-MTViewer::MTViewer(UInt_t w, UInt_t h, TH2 *mat, const char *title)
-  : TGMainFrame(gClient->GetRoot(), w, h)
-{
-  fView = new HDTV::Display::View2D(this, w-4, h-4, mat);
-  AddFrame(fView, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0,0,0,0));
+class DisplaySpec : public DisplayObj {
+ public:
+   DisplaySpec(const TH1 *spec, int col = DEFAULT_COLOR);
+   ~DisplaySpec();
   
-  fStatusBar = new TGStatusBar(this, 10, 16);
-  AddFrame(fStatusBar, new TGLayoutHints(kLHintsExpandX, 0,0,0,0));
-  
-  fView->SetStatusBar(fStatusBar);
+   inline TH1 *GetSpec()  { return fSpec; }
 
-  SetWindowName(title);
-  MapSubwindows();
-  Resize(GetDefaultSize());
-  MapWindow();
-}
+   int GetRegionMaxBin(int b1, int b2);
+   double GetRegionMax(int b1, int b2);
 
-MTViewer::~MTViewer()
-{
-  Cleanup();
-}
+   inline double GetMinCh(void) { return 0.0; }
+   inline double GetMaxCh(void) { return (double) fSpec->GetNbinsX(); }
+   inline double GetBinContent(Int_t bin) { return fSpec->GetBinContent(bin); }
+   inline Int_t GetNbinsX(void) { return fSpec->GetNbinsX(); }
+   double GetMax_Cached(int b1, int b2);
+
+ private:
+   TH1 *fSpec;
+   
+   int fCachedB1, fCachedB2, fCachedMaxBin;
+   double fCachedMax;
+};
 
 } // end namespace Display
 } // end namespace HDTV
 
-int main()
-{ return 0; }
+#endif

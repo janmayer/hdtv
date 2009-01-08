@@ -24,4 +24,4 @@ ROOT.TH1.AddDirectory(ROOT.kFALSE)
 
 mat = SpecReader().GetMatrix("/home/braun/Diplom/full_test/mat/all/all.mtx", "mfile", "all.mtx", "all.mtx")
 	
-viewer = ROOT.MTViewer(400, 400, mat, "mattest")
+viewer = ROOT.HDTV.Display.MTViewer(400, 400, mat, "mattest")

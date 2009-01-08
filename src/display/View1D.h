@@ -1,27 +1,27 @@
 /*
- * gSpec - a viewer for gamma spectra
- *  Copyright (C) 2006  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ * HDTV - A ROOT-based spectrum analysis software
+ *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
  *
- * This file is part of gSpec.
+ * This file is part of HDTV.
  *
- * gSpec is free software; you can redistribute it and/or modify it
+ * HDTV is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
- * gSpec is distributed in the hope that it will be useful, but WITHOUT
+ * HDTV is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with gSpec; if not, write to the Free Software Foundation,
+ * along with HDTV; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  * 
  */
 
-#ifndef __GSViewport_h__
-#define __GSViewport_h__
+#ifndef __View1D_h__
+#define __View1D_h__
 
 #include <vector>
 #include <TGFrame.h>
@@ -29,14 +29,17 @@
 #include <TGStatusBar.h>
 #include "Painter.h"
 #include "View.h"
-#include "GSDisplaySpec.h"
-#include "GSXMarker.h"
-#include "GSYMarker.h"
+#include "DisplaySpec.h"
+#include "XMarker.h"
+#include "YMarker.h"
 
-class GSViewport : public HDTV::Display::View { 
+namespace HDTV {
+namespace Display {
+
+class View1D : public View { 
  public:
-  GSViewport(const TGWindow *p, UInt_t w, UInt_t h);
-  ~GSViewport(void);
+  View1D(const TGWindow *p, UInt_t w, UInt_t h);
+  ~View1D(void);
   void SetXOffset(double offset, bool update=true);
   void SetYOffset(double offset, bool update=true);
   void ShiftXOffset(double f, bool update=true);
@@ -51,8 +54,8 @@ class GSViewport : public HDTV::Display::View {
   void YZoomAroundCursor(double f);
   void ToBegin(void);
   void ShowAll(void);
-  void SetViewMode(HDTV::Display::ViewMode vm);
-  inline HDTV::Display::ViewMode GetViewMode(void) { return fPainter->GetViewMode(); }
+  void SetViewMode(ViewMode vm);
+  inline ViewMode GetViewMode(void) { return fPainter->GetViewMode(); }
   void SetLogScale(Bool_t l);
   inline void ToggleLogScale(void) { SetLogScale(!GetLogScale()); }
   inline Bool_t GetLogScale(void) { return fPainter->GetLogScale(); }
@@ -68,25 +71,25 @@ class GSViewport : public HDTV::Display::View {
   int FindMarkerNearestCursor(int tol=3);
   
   /*** Object management functions ***/
-  int AddXMarker(double pos, int color=defaultColor, bool update=true);
-  GSXMarker *GetXMarker(int id);
+  int AddXMarker(double pos, int color=DisplayObj::DEFAULT_COLOR, bool update=true);
+  XMarker *GetXMarker(int id);
   int FindNearestXMarker(double e, double tol=-1.0);
   void DeleteXMarker(int id, bool update=true);
   void DeleteAllXMarkers(bool update=true);
 
-  int AddYMarker(double pos, int color=defaultColor, bool update=true);
-  GSYMarker *GetYMarker(int id);
+  int AddYMarker(double pos, int color=DisplayObj::DEFAULT_COLOR, bool update=true);
+  YMarker *GetYMarker(int id);
   void DeleteYMarker(int id, bool update=true);
   void DeleteAllYMarkers(bool update=true);
 
-  int AddSpec(const TH1 *spec, int color=defaultColor, bool update=true);
-  GSDisplaySpec *GetDisplaySpec(int id);
+  int AddSpec(const TH1 *spec, int color=DisplayObj::DEFAULT_COLOR, bool update=true);
+  DisplaySpec *GetDisplaySpec(int id);
   //void SetSpecCal(int id, double cal0, double cal1, double cal2, double cal3, bool update);
   void DeleteSpec(int id, bool update=true);
   void DeleteAllSpecs(bool update=true);
 
-  int AddFunc(const TF1 *func, int color=defaultColor, bool update=true);
-  GSDisplayFunc *GetDisplayFunc(int id);
+  int AddFunc(const TF1 *func, int color=DisplayObj::DEFAULT_COLOR, bool update=true);
+  DisplayFunc *GetDisplayFunc(int id);
   //void SetFuncCal(int id, double cal0, double cal1, double cal2, double cal3, bool update);
   void DeleteFunc(int id, bool update=true);
   void DeleteAllFuncs(bool update=true);
@@ -95,7 +98,7 @@ class GSViewport : public HDTV::Display::View {
   static const double DEFAULT_MAX_ENERGY;
   static const double MIN_ENERGY_REGION;
    
-  ClassDef(GSViewport, 1)
+  ClassDef(View1D, 1)
   
  protected:
   void DoRedraw(void);
@@ -117,18 +120,19 @@ class GSViewport : public HDTV::Display::View {
   double fYMinVisibleRegion;
   double fXOffset, fYOffset;
   double fMinEnergy, fMaxEnergy;
-  std::vector<GSDisplaySpec *> fSpectra;
-  std::vector<GSDisplayFunc *> fFunctions;
-  std::vector<GSXMarker *> fXMarkers;
-  std::vector<GSYMarker *> fYMarkers;
+  std::vector<DisplaySpec *> fSpectra;
+  std::vector<DisplayFunc *> fFunctions;
+  std::vector<XMarker *> fXMarkers;
+  std::vector<YMarker *> fYMarkers;
   Bool_t fYAutoScale;
   Bool_t fNeedClear;
   UInt_t fLeftBorder, fRightBorder, fTopBorder, fBottomBorder;
-  HDTV::Display::Painter *fPainter;
+  Painter *fPainter;
   TGHScrollBar *fScrollbar;
   TGStatusBar *fStatusBar;
-
-  //  ClassDef(ViewerFrame,0)
 };
+
+} // end namespace Display
+} // end namespace HDTV
 
 #endif

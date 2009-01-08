@@ -5,8 +5,10 @@ CC=gcc
 ROOTCINT=rootcint
 CFLAGS=$(shell root-config --cflags)
 LFLAGS=$(shell root-config --glibs)
-SOURCES= GSDisplaySpec.cxx GSDisplayFunc.cxx GSDisplayObj.cxx GSViewport.cxx GSViewer.cxx Painter.cxx GSMarker.cxx GSXMarker.cxx GSYMarker.cxx GSCalibration.cxx View.cxx View2D.cxx MTViewer.cxx
-EXPHEADERS= GSDisplaySpec.h GSDisplayFunc.h GSDisplayObj.h GSMarker.h GSXMarker.h GSYMarker.h GSCalibration.h  View2D.h GSViewport.h View.h MTViewer.h GSViewer.h
+SOURCES= DisplaySpec.cxx DisplayFunc.cxx DisplayObj.cxx Viewer.cxx Painter.cxx Marker.cxx XMarker.cxx YMarker.cxx Calibration.cxx View.cxx View1D.cxx View2D.cxx MTViewer.cxx
+# The ordering matters here: rootcint will complain on (some) different orderings.
+# The reason for this is unclear.
+EXPHEADERS= Calibration.h View.h View1D.h View2D.h MTViewer.h Viewer.h DisplaySpec.h DisplayFunc.h DisplayObj.h Marker.h XMarker.h YMarker.h
 HEADERS= $(EXPHEADERS) Painter.h
 OBJ= $(SOURCES:.cxx=.o)
 DESTDIR = ../../lib

@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2008  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
  *
  * This file is part of HDTV.
  *

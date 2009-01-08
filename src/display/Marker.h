@@ -1,21 +1,21 @@
 /*
- * gSpec - a viewer for gamma spectra
- *  Copyright (C) 2006  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ * HDTV - A ROOT-based spectrum analysis software
+ *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
  *
- * This file is part of gSpec.
+ * This file is part of HDTV.
  *
- * gSpec is free software; you can redistribute it and/or modify it
+ * HDTV is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
- * gSpec is distributed in the hope that it will be useful, but WITHOUT
+ * HDTV is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with gSpec; if not, write to the Free Software Foundation,
+ * along with HDTV; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  * 
  */
@@ -23,18 +23,21 @@
 /* The position of a marker is considered to be in energy units if
    no calibration is given, and in channel units otherwise. */
 
-#ifndef __GSMarker_h__
-#define __GSMarker_h__
+#ifndef __Marker_h__
+#define __Marker_h__
 
 #include <TGFrame.h>
 #include <TColor.h>
 
-#include "GSCalibration.h"
+#include "Calibration.h"
 
-class GSMarker {
+namespace HDTV {
+namespace Display {
+
+class Marker {
  public:
-  GSMarker(int n, double p1, double p2=0.0, int col=5);
-  ~GSMarker();
+  Marker(int n, double p1, double p2=0.0, int col=5);
+  ~Marker();
 
   inline TGGC *GetGC_1() { return fDash1 ? fDashedGC : fGC; }
   inline TGGC *GetGC_2() { return fDash2 ? fDashedGC : fGC; }
@@ -55,5 +58,8 @@ class GSMarker {
   double fP1, fP2;
   int fN;
 };
+
+} // end namespace Display
+} // end namespace HDTV
 
 #endif

@@ -1,30 +1,33 @@
 /*
- * gSpec - a viewer for gamma spectra
- *  Copyright (C) 2006  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ * HDTV - A ROOT-based spectrum analysis software
+ *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
  *
- * This file is part of gSpec.
+ * This file is part of HDTV.
  *
- * gSpec is free software; you can redistribute it and/or modify it
+ * HDTV is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
- * gSpec is distributed in the hope that it will be useful, but WITHOUT
+ * HDTV is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with gSpec; if not, write to the Free Software Foundation,
+ * along with HDTV; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  * 
  */
 
-#include "GSDisplaySpec.h"
+#include "DisplaySpec.h"
 #include <TROOT.h>
 #include <Riostream.h>
 
-GSDisplaySpec::GSDisplaySpec(const TH1 *spec, int col) : GSDisplayObj(col)
+namespace HDTV {
+namespace Display {
+
+DisplaySpec::DisplaySpec(const TH1 *spec, int col) : DisplayObj(col)
 {
   fSpec = (TH1*) spec->Clone();
  
@@ -36,7 +39,7 @@ GSDisplaySpec::GSDisplaySpec(const TH1 *spec, int col) : GSDisplayObj(col)
   fCachedB2 = 0;
 }
 
-GSDisplaySpec::~GSDisplaySpec(void)
+DisplaySpec::~DisplaySpec(void)
 {
   delete fSpec;
   //cout << "GSDisplaySpec destructor" << endl;
@@ -44,7 +47,7 @@ GSDisplaySpec::~GSDisplaySpec(void)
 
 /* Find the bin number of the bin between b1 and b2 (inclusive) which
    contains the most events */
-int GSDisplaySpec::GetRegionMaxBin(int b1, int b2)
+int DisplaySpec::GetRegionMaxBin(int b1, int b2)
 {
   int bin, max_bin;
   double y, max_y;
@@ -66,7 +69,7 @@ int GSDisplaySpec::GetRegionMaxBin(int b1, int b2)
   return max_bin;
 }
 
-double GSDisplaySpec::GetRegionMax(int b1, int b2)
+double DisplaySpec::GetRegionMax(int b1, int b2)
 {
   int max_bin = GetRegionMaxBin(b1, b2);
 
@@ -80,7 +83,7 @@ double GSDisplaySpec::GetRegionMax(int b1, int b2)
    NOTE: For the caching to be effective, use this function ONLY for
    scrolling operations.
 */
-double GSDisplaySpec::GetMax_Cached(int b1, int b2)
+double DisplaySpec::GetMax_Cached(int b1, int b2)
 {
   int bin, newBin;
   double max, newMax=-1.0;
@@ -140,3 +143,6 @@ double GSDisplaySpec::GetMax_Cached(int b1, int b2)
 
   return fCachedMax;
 }
+
+} // end namespace Display
+} // end namespace HDTV

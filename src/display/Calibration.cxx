@@ -1,49 +1,51 @@
 /*
- * gSpec - a viewer for gamma spectra
- *  Copyright (C) 2006  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ * HDTV - A ROOT-based spectrum analysis software
+ *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
  *
- * This file is part of gSpec.
+ * This file is part of HDTV.
  *
- * gSpec is free software; you can redistribute it and/or modify it
+ * HDTV is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
- * gSpec is distributed in the hope that it will be useful, but WITHOUT
+ * HDTV is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with gSpec; if not, write to the Free Software Foundation,
+ * along with HDTV; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  * 
  */
  
 /*
- * For compatibility with the original TV program, the GSCalibration class uses
+ * For compatibility with the original TV program, the Calibration class uses
  * a different bin numbering convention than ROOT: the center of the first visible
  * bin (bin number 1 in ROOT) is assumed to lie at E(0.0) = cal0.
  */
 
-#include "GSCalibration.h"
+#include "Calibration.h"
 #include <TMath.h>
 #include <Riostream.h>
 
-void GSCalibration::SetCal(std::vector<double> cal)
+namespace HDTV {
+
+void Calibration::SetCal(std::vector<double> cal)
 {
   fCal = cal;
   UpdateDerivative();
 }
 
-void GSCalibration::SetCal(double cal0)
+void Calibration::SetCal(double cal0)
 {
   fCal.clear();
   fCal.push_back(cal0);
   UpdateDerivative();
 }
 
-void GSCalibration::SetCal(double cal0, double cal1)
+void Calibration::SetCal(double cal0, double cal1)
 {
   fCal.clear();
   fCal.push_back(cal0);
@@ -51,7 +53,7 @@ void GSCalibration::SetCal(double cal0, double cal1)
   UpdateDerivative();
 }
 
-void GSCalibration::SetCal(double cal0, double cal1, double cal2)
+void Calibration::SetCal(double cal0, double cal1, double cal2)
 {
   fCal.clear();
   fCal.push_back(cal0);
@@ -60,7 +62,7 @@ void GSCalibration::SetCal(double cal0, double cal1, double cal2)
   UpdateDerivative();
 }
 
-void GSCalibration::SetCal(double cal0, double cal1, double cal2, double cal3)
+void Calibration::SetCal(double cal0, double cal1, double cal2, double cal3)
 {
   fCal.clear();
   fCal.push_back(cal0);
@@ -70,7 +72,7 @@ void GSCalibration::SetCal(double cal0, double cal1, double cal2, double cal3)
   UpdateDerivative();
 }
 
-void GSCalibration::UpdateDerivative()
+void Calibration::UpdateDerivative()
 {
   std::vector<double>::iterator c = fCal.begin();
   c++;
@@ -83,7 +85,7 @@ void GSCalibration::UpdateDerivative()
   }
 }
 
-double GSCalibration::Ch2E(double ch)
+double Calibration::Ch2E(double ch)
 {
   // Convert a channel to an energy, using the chosen energy
   // calibration.
@@ -96,7 +98,7 @@ double GSCalibration::Ch2E(double ch)
   return E;
 }
 
-double GSCalibration::dEdCh(double ch)
+double Calibration::dEdCh(double ch)
 {
   std::vector<double>::reverse_iterator c = fCalDeriv.rbegin();
   double slope = *c++;
@@ -110,7 +112,7 @@ double GSCalibration::dEdCh(double ch)
 // Convert an energy to a channel, using the chosen energy
 // calibration.
 // TODO: deal with slope == 0.0
-double GSCalibration::E2Ch(double e)
+double Calibration::E2Ch(double e)
 {
   double ch = 1.0;
   double de = Ch2E(ch) - e;
@@ -139,7 +141,7 @@ double GSCalibration::E2Ch(double e)
   return ch;
 }
 
-void GSCalibration::Apply(TAxis *axis, int nbins)
+void Calibration::Apply(TAxis *axis, int nbins)
 {
   double *centers = new double[nbins];
   
@@ -151,3 +153,5 @@ void GSCalibration::Apply(TAxis *axis, int nbins)
   
   delete[] centers;
 }
+
+} // end namespace HDTV

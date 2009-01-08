@@ -70,8 +70,6 @@ class SpecWindow(hdtv.window.Window, hdtv.fitgui.FitGUI):
 		
 		self.fCurrentSpec = None
 		
-		self.fDefaultCal = ROOT.GSCalibration(0.0, 0.5)
-		
 		self.fSpectra = dict()
 		self.fActiveID = None
 		

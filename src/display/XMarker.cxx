@@ -20,35 +20,15 @@
  * 
  */
 
-#include "MTViewer.h"
+#include "XMarker.h"
 
 namespace HDTV {
 namespace Display {
 
-MTViewer::MTViewer(UInt_t w, UInt_t h, TH2 *mat, const char *title)
-  : TGMainFrame(gClient->GetRoot(), w, h)
+XMarker::XMarker(int n, double p1, double p2, int col) : Marker(n, p1, p2, col)
 {
-  fView = new HDTV::Display::View2D(this, w-4, h-4, mat);
-  AddFrame(fView, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0,0,0,0));
-  
-  fStatusBar = new TGStatusBar(this, 10, 16);
-  AddFrame(fStatusBar, new TGLayoutHints(kLHintsExpandX, 0,0,0,0));
-  
-  fView->SetStatusBar(fStatusBar);
-
-  SetWindowName(title);
-  MapSubwindows();
-  Resize(GetDefaultSize());
-  MapWindow();
-}
-
-MTViewer::~MTViewer()
-{
-  Cleanup();
+  SetCal(NULL);
 }
 
 } // end namespace Display
 } // end namespace HDTV
-
-int main()
-{ return 0; }

@@ -1,41 +1,42 @@
 /*
- * gSpec - a viewer for gamma spectra
- *  Copyright (C) 2006  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ * HDTV - A ROOT-based spectrum analysis software
+ *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
  *
- * This file is part of gSpec.
+ * This file is part of HDTV.
  *
- * gSpec is free software; you can redistribute it and/or modify it
+ * HDTV is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
- * gSpec is distributed in the hope that it will be useful, but WITHOUT
+ * HDTV is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with gSpec; if not, write to the Free Software Foundation,
+ * along with HDTV; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  * 
  */
 
-#ifndef __GSDisplayObj_h__
-#define __GSDisplayObj_h__
-
-const int defaultColor = 3;   // green
+#ifndef __DisplayObj_h__
+#define __DisplayObj_h__
 
 #include <TGGC.h>
-#include "GSCalibration.h"
+#include "Calibration.h"
 
-class GSDisplayObj {
+namespace HDTV {
+namespace Display {
+
+class DisplayObj {
   public:
-  	GSDisplayObj(int col);
-  	~GSDisplayObj();
+  	DisplayObj(int col);
+  	~DisplayObj();
   	
     inline TGGC *GetGC() { return fGC; }
   	
-	void SetCal(GSCalibration *cal) { fCal = cal; };
+	void SetCal(Calibration *cal) { fCal = cal; };
     inline double Ch2E(double ch) { return fCal ? fCal->Ch2E(ch) : ch; }
     inline double E2Ch(double e) { return fCal ? fCal->E2Ch(e) : e; }
     
@@ -45,11 +46,15 @@ class GSDisplayObj {
     virtual inline double GetMinCh() { return 0.0; }
     virtual inline double GetMaxCh() { return 0.0; }
     inline double GetCenterCh() { return (GetMinCh() + GetMaxCh()) / 2.0; }
+    
+    static const int DEFAULT_COLOR;
   	
   private:
-    GSCalibration *fCal;
+    Calibration *fCal;
     TGGC *fGC;   
 };
 
-#endif
+} // end namespace Display
+} // end namespace HDTV
 
+#endif

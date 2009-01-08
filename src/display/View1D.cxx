@@ -1,33 +1,36 @@
 /*
- * gSpec - a viewer for gamma spectra
- *  Copyright (C) 2006  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ * HDTV - A ROOT-based spectrum analysis software
+ *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
  *
- * This file is part of gSpec.
+ * This file is part of HDTV.
  *
- * gSpec is free software; you can redistribute it and/or modify it
+ * HDTV is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
- * gSpec is distributed in the hope that it will be useful, but WITHOUT
+ * HDTV is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with gSpec; if not, write to the Free Software Foundation,
+ * along with HDTV; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  * 
  */
 
-#include "GSViewport.h"
+#include "View1D.h"
 #include <TMath.h>
 #include <Riostream.h>
 
-const double GSViewport::DEFAULT_MAX_ENERGY = 1000.0;
-const double GSViewport::MIN_ENERGY_REGION = 1e-2;
+namespace HDTV {
+namespace Display {
 
-GSViewport::GSViewport(const TGWindow *p, UInt_t w, UInt_t h)
+const double View1D::DEFAULT_MAX_ENERGY = 1000.0;
+const double View1D::MIN_ENERGY_REGION = 1e-2;
+
+View1D::View1D(const TGWindow *p, UInt_t w, UInt_t h)
   : HDTV::Display::View(p, w, h)
 {
   SetBackgroundColor(GetBlackPixel());
@@ -58,7 +61,7 @@ GSViewport::GSViewport(const TGWindow *p, UInt_t w, UInt_t h)
   fPainter->SetYVisibleRegion(fYVisibleRegion);
 }
 
-GSViewport::~GSViewport() {
+View1D::~View1D() {
   //cout << "viewport destructor" << endl;
   fClient->GetGCPool()->FreeGC(fCursorGC);   //?
   for(int i=0; i < fSpectra.size(); i++)
@@ -76,14 +79,14 @@ GSViewport::~GSViewport() {
   delete fPainter;
 }
 
-void GSViewport::SetStatusBar(TGStatusBar *sb)
+void View1D::SetStatusBar(TGStatusBar *sb)
 {
   fStatusBar = sb;
   UpdateStatusScale();
 }
 
 template <class itemType>
-int GSViewport::FindFreeId(std::vector<itemType> &items)
+int View1D::FindFreeId(std::vector<itemType> &items)
 {
   int id = -1;
   
@@ -103,7 +106,7 @@ int GSViewport::FindFreeId(std::vector<itemType> &items)
 }
 
 template <class itemType>
-void GSViewport::DeleteItem(std::vector<itemType> &items, int id)
+void View1D::DeleteItem(std::vector<itemType> &items, int id)
 {
   if(id < 0 || id >= items.size())
   	return;
@@ -116,11 +119,11 @@ void GSViewport::DeleteItem(std::vector<itemType> &items, int id)
 }
 
 /*** Object management functions ***/
-int GSViewport::AddXMarker(double pos, int color, bool update)
+int View1D::AddXMarker(double pos, int color, bool update)
 {
   int id = FindFreeId(fXMarkers);
 
-  fXMarkers[id] = new GSXMarker(1, pos, 0.0, color);
+  fXMarkers[id] = new XMarker(1, pos, 0.0, color);
   
   if(update)
     Update(true);
@@ -128,14 +131,14 @@ int GSViewport::AddXMarker(double pos, int color, bool update)
   return id;
 }
 
-GSXMarker *GSViewport::GetXMarker(int id)
+XMarker *View1D::GetXMarker(int id)
 {
   if(id < 0 || id >= fXMarkers.size())
     return NULL;
   return fXMarkers[id];
 }
 
-int GSViewport::FindNearestXMarker(double e, double tol)
+int View1D::FindNearestXMarker(double e, double tol)
 {
   int id = -1;
   double minDist = 1e50;
@@ -163,14 +166,14 @@ int GSViewport::FindNearestXMarker(double e, double tol)
   return id;
 }
 
-void GSViewport::DeleteXMarker(int id, bool update)
+void View1D::DeleteXMarker(int id, bool update)
 {
   DeleteItem(fXMarkers, id);
   if(update)
     Update(true);
 }
 
-void GSViewport::DeleteAllXMarkers(bool update)
+void View1D::DeleteAllXMarkers(bool update)
 {
   for(int i=0; i < fXMarkers.size(); i++)
     delete fXMarkers[i];
@@ -181,11 +184,11 @@ void GSViewport::DeleteAllXMarkers(bool update)
   	Update(true);
 }
 
-int GSViewport::AddYMarker(double pos, int color, bool update)
+int View1D::AddYMarker(double pos, int color, bool update)
 {
   int id = FindFreeId(fYMarkers);
 
-  fYMarkers[id] = new GSYMarker(1, pos, 0.0, color);
+  fYMarkers[id] = new YMarker(1, pos, 0.0, color);
   
   if(update)
     Update(true);
@@ -193,21 +196,21 @@ int GSViewport::AddYMarker(double pos, int color, bool update)
   return id;
 }
 
-GSYMarker *GSViewport::GetYMarker(int id)
+YMarker *View1D::GetYMarker(int id)
 {
   if(id < 0 || id >= fYMarkers.size())
     return NULL;
   return fYMarkers[id];
 }
 
-void GSViewport::DeleteYMarker(int id, bool update)
+void View1D::DeleteYMarker(int id, bool update)
 {
   DeleteItem(fYMarkers, id);
   if(update)
     Update(true);
 }
 
-void GSViewport::DeleteAllYMarkers(bool update)
+void View1D::DeleteAllYMarkers(bool update)
 {
   for(int i=0; i < fYMarkers.size(); i++)
     delete fYMarkers[i];
@@ -218,10 +221,10 @@ void GSViewport::DeleteAllYMarkers(bool update)
   	Update(true);
 }
 
-int GSViewport::AddSpec(const TH1 *spec, int color, bool update)
+int View1D::AddSpec(const TH1 *spec, int color, bool update)
 {
   int id = FindFreeId(fSpectra);
-  fSpectra[id] = new GSDisplaySpec(spec, color);
+  fSpectra[id] = new DisplaySpec(spec, color);
   
   if(update)
 	Update(true);
@@ -229,14 +232,14 @@ int GSViewport::AddSpec(const TH1 *spec, int color, bool update)
   return id;
 }
 
-GSDisplaySpec *GSViewport::GetDisplaySpec(int id)
+DisplaySpec *View1D::GetDisplaySpec(int id)
 {
   if(id < 0 || id >= fSpectra.size())
   	return NULL;
   return fSpectra[id];
 }
 
-/* void GSViewport::SetSpecCal(int id, double cal0, double cal1, double cal2, double cal3, bool update)
+/* void View1D::SetSpecCal(int id, double cal0, double cal1, double cal2, double cal3, bool update)
 {
 	GSDisplaySpec *ds = GetDisplaySpec(id);
 	if(ds)
@@ -246,14 +249,14 @@ GSDisplaySpec *GSViewport::GetDisplaySpec(int id)
 	  Update(true);
 } */
 
-void GSViewport::DeleteSpec(int id, bool update)
+void View1D::DeleteSpec(int id, bool update)
 {
   DeleteItem(fSpectra, id);
   if(update)
     Update(true);
 }
 
-void GSViewport::DeleteAllSpecs(bool update)
+void View1D::DeleteAllSpecs(bool update)
 {
   for(int i=0; i < fSpectra.size(); i++)
     delete fSpectra[i];
@@ -264,10 +267,10 @@ void GSViewport::DeleteAllSpecs(bool update)
   	Update(true);
 }
 
-int GSViewport::AddFunc(const TF1 *func, int color, bool update)
+int View1D::AddFunc(const TF1 *func, int color, bool update)
 {
   int id = FindFreeId(fFunctions);
-  fFunctions[id] = new GSDisplayFunc(func, color);
+  fFunctions[id] = new DisplayFunc(func, color);
   
   if(update)
     Update(true);
@@ -275,14 +278,14 @@ int GSViewport::AddFunc(const TF1 *func, int color, bool update)
   return id;
 }
 
-GSDisplayFunc *GSViewport::GetDisplayFunc(int id)
+DisplayFunc *View1D::GetDisplayFunc(int id)
 {
   if(id < 0 || id >= fFunctions.size())
   	return NULL;
   return fFunctions[id];
 }
 
-/* void GSViewport::SetFuncCal(int id, double cal0, double cal1, double cal2, double cal3, bool update)
+/* void View1D::SetFuncCal(int id, double cal0, double cal1, double cal2, double cal3, bool update)
 {
 	GSDisplayFunc *df = GetDisplayFunc(id);
 	if(df)
@@ -292,14 +295,14 @@ GSDisplayFunc *GSViewport::GetDisplayFunc(int id)
 	  Update(true);
 } */
 
-void GSViewport::DeleteFunc(int id, bool update)
+void View1D::DeleteFunc(int id, bool update)
 {
   DeleteItem(fFunctions, id);
   if(update)
     Update(true);
 }
 
-void GSViewport::DeleteAllFuncs(bool update)
+void View1D::DeleteAllFuncs(bool update)
 {
   for(int i=0; i < fFunctions.size(); i++)
     delete fFunctions[i];
@@ -310,13 +313,13 @@ void GSViewport::DeleteAllFuncs(bool update)
   	Update(true);
 }
 
-void GSViewport::SetLogScale(Bool_t l)
+void View1D::SetLogScale(Bool_t l)
 {
   fPainter->SetLogScale(l);
   Update(true);
 }
 
-void GSViewport::YAutoScaleOnce(bool update)
+void View1D::YAutoScaleOnce(bool update)
 {
   fYVisibleRegion = fYMinVisibleRegion;
    
@@ -331,7 +334,7 @@ void GSViewport::YAutoScaleOnce(bool update)
   	Update();
 }
 
-void GSViewport::ShiftOffset(int dO)
+void View1D::ShiftOffset(int dO)
 {
   Bool_t cv = fCursorVisible;
   UInt_t x, y, w, h;
@@ -375,7 +378,7 @@ void GSViewport::ShiftOffset(int dO)
   if(cv) DrawCursor();
 }
 
-void GSViewport::SetViewMode(HDTV::Display::ViewMode vm)
+void View1D::SetViewMode(HDTV::Display::ViewMode vm)
 {
   if(vm != fPainter->GetViewMode()) {
 	fPainter->SetViewMode(vm);
@@ -384,22 +387,22 @@ void GSViewport::SetViewMode(HDTV::Display::ViewMode vm)
   }
 }
 
-double GSViewport::GetCursorX()
+double View1D::GetCursorX()
 {
   return fPainter->XtoE(fCursorX);
 }
 
-double GSViewport::GetCursorY()
+double View1D::GetCursorY()
 {
   return fPainter->YtoC(fCursorY);
 }
 
-int GSViewport::FindMarkerNearestCursor(int tol)
+int View1D::FindMarkerNearestCursor(int tol)
 {
   return FindNearestXMarker(fPainter->XtoE(fCursorX), fPainter->dXtodE(tol));
 }
 
-void GSViewport::XZoomAroundCursor(double f)
+void View1D::XZoomAroundCursor(double f)
 {
   fXOffset += fPainter->GetXOffsetDelta(fCursorX, f);
   fXVisibleRegion /= f;
@@ -407,7 +410,7 @@ void GSViewport::XZoomAroundCursor(double f)
   Update(false);
 }
 
-void GSViewport::YZoomAroundCursor(double f)
+void View1D::YZoomAroundCursor(double f)
 {
   fYOffset += fPainter->GetYOffsetDelta(fCursorY, f);
   fYVisibleRegion /= f;
@@ -416,12 +419,12 @@ void GSViewport::YZoomAroundCursor(double f)
   Update(false);
 }
 
-void GSViewport::ToBegin(void)
+void View1D::ToBegin(void)
 {
   SetXOffset(fMinEnergy);
 }
 
-void GSViewport::ShowAll(void)
+void View1D::ShowAll(void)
 {
   fMinEnergy = 0.0;
   fMaxEnergy = 0.0;
@@ -446,13 +449,13 @@ void GSViewport::ShowAll(void)
   Update(false);
 }
 
-/* GSViewport::Update
+/* View1D::Update
 
    This function brings the viewport up-to-date after a change in any
    relevant parameters. It tries to do so with minimal effort,
    i.e. not by redrawing unconditionally.
 */
-void GSViewport::Update(bool redraw)
+void View1D::Update(bool redraw)
 {
   double az;
   double dO, dOPix;
@@ -506,7 +509,7 @@ void GSViewport::Update(bool redraw)
   UpdateStatusScale();
 }
 
-void GSViewport::DrawRegion(UInt_t x1, UInt_t x2)
+void View1D::DrawRegion(UInt_t x1, UInt_t x2)
 {
   for(int i=0; i < fSpectra.size(); i++) {
     if(fSpectra[i] != NULL)
@@ -529,7 +532,7 @@ void GSViewport::DrawRegion(UInt_t x1, UInt_t x2)
   }
 }
 
-void GSViewport::UpdateScrollbarRange(void)
+void View1D::UpdateScrollbarRange(void)
 {
   if(fScrollbar) {
 	UInt_t as, rs, pos;
@@ -552,14 +555,14 @@ void GSViewport::UpdateScrollbarRange(void)
   }
 }
 
-void GSViewport::SetXOffset(double offset, bool update)
+void View1D::SetXOffset(double offset, bool update)
 {
   fXOffset = offset;
   if(update)
     Update();
 }
 
-void GSViewport::SetYOffset(double offset, bool update)
+void View1D::SetYOffset(double offset, bool update)
 {
   fYOffset = offset;
   fYAutoScale = false;
@@ -567,7 +570,7 @@ void GSViewport::SetYOffset(double offset, bool update)
     Update();
 }
 
-void GSViewport::ShiftXOffset(double f, bool update)
+void View1D::ShiftXOffset(double f, bool update)
 {
   fXOffset += f * fXVisibleRegion;
   if(update)
@@ -575,7 +578,7 @@ void GSViewport::ShiftXOffset(double f, bool update)
 }
 
 
-void GSViewport::ShiftYOffset(double f, bool update)
+void View1D::ShiftYOffset(double f, bool update)
 {
   fYOffset += f * fYVisibleRegion;
   fYAutoScale = false;
@@ -583,28 +586,28 @@ void GSViewport::ShiftYOffset(double f, bool update)
     Update();
 }
 
-void GSViewport::SetYAutoScale(bool as, bool update)
+void View1D::SetYAutoScale(bool as, bool update)
 {
   fYAutoScale = as;
   if(update)
     Update();
 }
 
-void GSViewport::SetXVisibleRegion(double region, bool update)
+void View1D::SetXVisibleRegion(double region, bool update)
 {
   fXVisibleRegion = region;
   if(update)
     Update();
 }
 
-void GSViewport::SetYVisibleRegion(double region, bool update)
+void View1D::SetYVisibleRegion(double region, bool update)
 {
   fYVisibleRegion = region;
   if(update)
     Update();
 }
 
-void GSViewport::HandleScrollbar(Long_t parm)
+void View1D::HandleScrollbar(Long_t parm)
 {
   // Callback for scrollbar motion
 
@@ -620,7 +623,7 @@ void GSViewport::HandleScrollbar(Long_t parm)
   Update();
 }
 
-void GSViewport::UpdateStatusPos()
+void View1D::UpdateStatusPos()
 {
   char temp[32];
   
@@ -634,7 +637,7 @@ void GSViewport::UpdateStatusPos()
   }
 }
 
-void GSViewport::UpdateStatusScale()
+void View1D::UpdateStatusScale()
 {
   if(fStatusBar) {
     if(fYAutoScale)
@@ -644,13 +647,13 @@ void GSViewport::UpdateStatusScale()
   }
 }
 
-void GSViewport::SetStatusText(const char *text)
+void View1D::SetStatusText(const char *text)
 {
   if(fStatusBar)
     fStatusBar->SetText(text, 2);
 }
 
-Bool_t GSViewport::HandleMotion(Event_t *ev)
+Bool_t View1D::HandleMotion(Event_t *ev)
 {
   bool cv = fCursorVisible;
   int dX = (int) fCursorX - ev->fX;
@@ -669,7 +672,7 @@ Bool_t GSViewport::HandleMotion(Event_t *ev)
   if(cv) DrawCursor();
 }
 
-Bool_t GSViewport::HandleButton(Event_t *ev)
+Bool_t View1D::HandleButton(Event_t *ev)
 {
   if(ev->fType == kButtonPress) {
 	switch(ev->fCode) {
@@ -689,7 +692,7 @@ Bool_t GSViewport::HandleButton(Event_t *ev)
   }
 }
 
-Bool_t GSViewport::HandleCrossing(Event_t *ev)
+Bool_t View1D::HandleCrossing(Event_t *ev)
 {
   if(ev->fType == kEnterNotify) {
 	if(fCursorVisible) DrawCursor();
@@ -703,21 +706,21 @@ Bool_t GSViewport::HandleCrossing(Event_t *ev)
   }
 }
 
-void GSViewport::Layout(void)
+void View1D::Layout(void)
 { 
   fPainter->SetBasePoint(fLeftBorder + 2, fHeight - fBottomBorder - 2);
   fPainter->SetSize(fWidth - fLeftBorder - fRightBorder - 4,
 						fHeight - fTopBorder - fBottomBorder - 4);
 }
 
-/* GSViewport::DoRedraw
+/* View1D::DoRedraw
 
    Redraws the Viewport completely.  If fNeedClear is set, it is
    cleared first, otherwise it is just redrawn. This is a callback for
    the windowing system. It should not be called directly, but via 
    gClient->NeedRedraw() .
 */
-void GSViewport::DoRedraw(void)
+void View1D::DoRedraw(void)
 {
   Bool_t cv;
   UInt_t x, y, w, h;
@@ -752,3 +755,6 @@ void GSViewport::DoRedraw(void)
   
   if(cv) DrawCursor();
 }
+
+} // end namespace Display
+} // end namespace HDTV

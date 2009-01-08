@@ -41,11 +41,7 @@ Painter::Painter()
   fFontStruct = fFont->GetFontStruct();
 }
 
-Painter::~Painter()
-{
-}
-
-void Painter::DrawFunction(GSDisplayFunc *dFunc, int x1, int x2)
+void Painter::DrawFunction(DisplayFunc *dFunc, int x1, int x2)
 {
   int x;
   int y;
@@ -82,7 +78,7 @@ void Painter::DrawFunction(GSDisplayFunc *dFunc, int x1, int x2)
   }
 }
 
-void Painter::DrawSpectrum(GSDisplaySpec *dSpec, int x1, int x2)
+void Painter::DrawSpectrum(DisplaySpec *dSpec, int x1, int x2)
 {
   int x;
   int y;
@@ -154,7 +150,7 @@ void Painter::DrawSpectrum(GSDisplaySpec *dSpec, int x1, int x2)
   }
 }
 
-void Painter::DrawXMarker(GSXMarker *marker, int x1, int x2)
+void Painter::DrawXMarker(XMarker *marker, int x1, int x2)
 {
   int xm1, xm2;
 
@@ -182,7 +178,7 @@ void Painter::DrawXMarker(GSXMarker *marker, int x1, int x2)
   }
 }
 
-void Painter::DrawYMarker(GSYMarker *marker, int x1, int x2)
+void Painter::DrawYMarker(YMarker *marker, int x1, int x2)
 {
   int y;
   
@@ -203,7 +199,7 @@ void Painter::DrawYMarker(GSYMarker *marker, int x1, int x2)
   }
 }
 
-void Painter::UpdateYZoom(void)
+void Painter::UpdateYZoom()
 {
   double yRange = fYVisibleRegion;
 
@@ -221,7 +217,7 @@ void Painter::SetSize(int w, int h)
   UpdateYZoom();
 }
 
-double Painter::GetCountsAtPixel(GSDisplaySpec *dSpec, UInt_t x)
+double Painter::GetCountsAtPixel(DisplaySpec *dSpec, UInt_t x)
 {
   double c1, c2;
   int n1, n2;
@@ -311,7 +307,7 @@ double Painter::GetYOffsetDelta(int y, double f)
   }
 }
 
-double Painter::GetYAutoZoom(GSDisplaySpec *dSpec)
+double Painter::GetYAutoZoom(DisplaySpec *dSpec)
 {
   double e1, e2;
   int b1, b2;
@@ -324,7 +320,7 @@ double Painter::GetYAutoZoom(GSDisplaySpec *dSpec)
   return (double) dSpec->GetMax_Cached(b1, b2) * 1.02;
 }
 
-void Painter::ClearXScale(void)
+void Painter::ClearXScale()
 {
   // This function will clear the region containing the
   // X scale so that it can be redrawn with a different
@@ -416,7 +412,7 @@ void Painter::DrawXScale(UInt_t x1, UInt_t x2)
   
 }
 
-void Painter::DrawYScale(void)
+void Painter::DrawYScale()
 {
   if(fLogScale)
 	DrawYLogScale();
@@ -449,7 +445,7 @@ void Painter::DrawString(GContext_t gc, int x, int y, char *str, size_t len,
   gVirtualX->DrawString(fDrawable, gc, x, y, str, len);
 }
 
-void Painter::DrawYLinearScale(void)
+void Painter::DrawYLinearScale()
 {
   UInt_t x = fXBase - 2;
   UInt_t y;
@@ -485,7 +481,7 @@ void Painter::DrawYLinearScale(void)
   
 }
 
-void Painter::DrawYLogScale(void)
+void Painter::DrawYLogScale()
 {
   double exp = 1.0;
   int c = 1;

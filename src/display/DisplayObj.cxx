@@ -1,26 +1,26 @@
 /*
- * gSpec - a viewer for gamma spectra
- *  Copyright (C) 2006  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ * HDTV - A ROOT-based spectrum analysis software
+ *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
  *
- * This file is part of gSpec.
+ * This file is part of HDTV.
  *
- * gSpec is free software; you can redistribute it and/or modify it
+ * HDTV is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
- * gSpec is distributed in the hope that it will be useful, but WITHOUT
+ * HDTV is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with gSpec; if not, write to the Free Software Foundation,
+ * along with HDTV; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  * 
  */
 
-#include "GSDisplayObj.h"
+#include "DisplayObj.h"
 
 #include <TMath.h>
 #include <TGFrame.h>
@@ -29,7 +29,12 @@
 
 #include <Riostream.h>
 
-GSDisplayObj::GSDisplayObj(int col)
+namespace HDTV {
+namespace Display {
+
+const int DisplayObj::DEFAULT_COLOR = 3;
+
+DisplayObj::DisplayObj(int col)
 {
   // Set a trivial calibration
   SetCal(NULL);
@@ -42,13 +47,13 @@ GSDisplayObj::GSDisplayObj(int col)
   fGC = gClient->GetGCPool()->GetGC(&gval, true);
 }
 
-GSDisplayObj::~GSDisplayObj()
+DisplayObj::~DisplayObj()
 {
   gClient->GetGCPool()->FreeGC(fGC); 
   //cout << "GSDisplayObj destructor" << endl;
 }
 
-double GSDisplayObj::GetMinE()
+double DisplayObj::GetMinE()
 {
   // Return the spectrums lower endpoint in energy units
 
@@ -56,7 +61,7 @@ double GSDisplayObj::GetMinE()
 					Ch2E((double) GetMaxCh()));
 }
 
-double GSDisplayObj::GetMaxE()
+double DisplayObj::GetMaxE()
 {
   // Return the spectrums upper endpoint in energy units
 
@@ -64,10 +69,13 @@ double GSDisplayObj::GetMaxE()
 					Ch2E((double) GetMaxCh()));
 }
 
-double GSDisplayObj::GetERange()
+double DisplayObj::GetERange()
 {
   // Returns the width of the spectrum in energy units
 
   return TMath::Abs(Ch2E((double) GetMinCh())
 					- Ch2E((double) GetMaxCh()));
 }
+
+} // end namespace Display
+} // end namespace HDTV

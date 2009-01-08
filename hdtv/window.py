@@ -77,7 +77,7 @@ class Window(KeyHandler):
 	def __init__(self):
 		KeyHandler.__init__(self)
 	
-		self.fViewer = ROOT.GSViewer()
+		self.fViewer = ROOT.HDTV.Display.Viewer()
 		self.fViewport = self.fViewer.GetViewport()
 		self.fViews = []
 		self.fCurViewID = -1

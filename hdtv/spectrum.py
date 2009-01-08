@@ -97,7 +97,7 @@ class Spectrum:
 				# fill the sequence with trivial entries
 				cal.append(0.0)
 			# create the calibration object
-			self.fCal=ROOT.GSCalibration(cal[0], cal[1], cal[2], cal[3])
+			self.fCal=ROOT.HDTV.Calibration(cal[0], cal[1], cal[2], cal[3])
 		else:
 			self.fCal = None
 		# update the display if needed
