@@ -24,6 +24,8 @@
 #include <TROOT.h>
 #include <Riostream.h>
 
+#include "DisplayStack.h"
+
 namespace HDTV {
 namespace Display {
 
@@ -45,10 +47,11 @@ DisplaySpec::~DisplaySpec(void)
   //cout << "GSDisplaySpec destructor" << endl;
 }
 
-/* Find the bin number of the bin between b1 and b2 (inclusive) which
-   contains the most events */
 int DisplaySpec::GetRegionMaxBin(int b1, int b2)
 {
+  // Find the bin number of the bin between b1 and b2 (inclusive) which
+  // contains the most events
+
   int bin, max_bin;
   double y, max_y;
 
@@ -67,6 +70,13 @@ int DisplaySpec::GetRegionMaxBin(int b1, int b2)
   }
   
   return max_bin;
+}
+
+DisplayStack::ObjList& DisplaySpec::GetList(DisplayStack *stack)
+{
+  // Return the stacks object list where this kind of object should be inserted
+
+  return stack->fSpectra;
 }
 
 double DisplaySpec::GetRegionMax(int b1, int b2)

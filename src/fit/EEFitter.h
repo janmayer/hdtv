@@ -31,6 +31,7 @@
 
 #include "Param.h"
 #include "Fitter.h"
+#include "Background.h"
 
 namespace HDTV {
 namespace Fit {
@@ -75,11 +76,12 @@ class EEFitter : public Fitter {
   public:
     EEFitter(double r1, double r2);
     void AddPeak(const EEPeak& peak);
-    TF1* Fit(TH1 *hist, TF1 *bgFunc);
-    TF1* Fit(TH1 *hist, int intBgDeg=-1);
+    void Fit(TH1& hist, const Background& bg);
+    void Fit(TH1& hist, int intBgDeg=-1);
     inline int GetNumPeaks() { return fNumPeaks; }
     inline const EEPeak& GetPeak(int i) { return fPeaks[i]; }
     inline double GetChisquare() { return fChisquare; }
+    inline TF1* GetSumFunc() { return fSumFunc.get(); }
     
     // For debugging only
     //inline double GetVol()          { return fInt; }
@@ -87,12 +89,13 @@ class EEFitter : public Fitter {
     
   private:
     double Eval(double *x, double *p);
-    TF1* _Fit(TH1 *hist);
+    void _Fit(TH1& hist);
   
     int fIntBgDeg;
     double fMin, fMax;
     std::vector<EEPeak> fPeaks;
-    TF1 *fBgFunc;
+    std::auto_ptr<Background> fBackground;
+    std::auto_ptr<TF1> fSumFunc;
     int fNumPeaks;
     double fChisquare;
     

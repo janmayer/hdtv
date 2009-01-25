@@ -30,33 +30,47 @@
 #include <TColor.h>
 
 #include "Calibration.h"
+#include "Painter.h"
 
 namespace HDTV {
 namespace Display {
 
-class Marker {
- public:
-  Marker(int n, double p1, double p2=0.0, int col=5);
-  ~Marker();
+class DisplayStack;
+class View1D;
 
-  inline TGGC *GetGC_1() { return fDash1 ? fDashedGC : fGC; }
-  inline TGGC *GetGC_2() { return fDash2 ? fDashedGC : fGC; }
-  inline int GetN() { return fN; }
-  inline double GetP1() { return fP1; }
-  inline double GetP2() { return fP2; }
+class Marker {
+  friend class Painter;
+  friend class DisplayStack;
+
+  public:
+    Marker(View1D *view, int n, double p1, double p2=0.0, int col=5);
+    ~Marker();
+
+    inline TGGC *GetGC_1() { return fDash1 ? fDashedGC : fGC; }
+    inline TGGC *GetGC_2() { return fDash2 ? fDashedGC : fGC; }
+    inline int GetN() { return fN; }
+    inline double GetP1() { return fP1; }
+    inline double GetP2() { return fP2; }
   
-  inline void SetN(int n)
-    { fN = n; }
-  inline void SetPos(double p1, double p2=0.0)
-    { fP1 = p1; fP2 = p2; }
-  inline void SetDash(bool dash1, bool dash2=false)
-    { fDash1 = dash1; fDash2 = dash2; }
- 
- protected:
-  bool fDash1, fDash2;
-  TGGC *fGC, *fDashedGC;
-  double fP1, fP2;
-  int fN;
+    inline void SetN(int n)
+      { fN = n; Update(); }
+    inline void SetPos(double p1, double p2=0.0)
+      { fP1 = p1; fP2 = p2; Update(); }
+    inline void SetDash(bool dash1, bool dash2=false)
+      { fDash1 = dash1; fDash2 = dash2; Update(); }
+    void Update();
+
+    virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter) { }
+
+  protected:
+    inline void MakeZombie()  { fDisplayStack = NULL; }
+  
+  protected:
+    bool fDash1, fDash2;
+    TGGC *fGC, *fDashedGC;
+    double fP1, fP2;
+    int fN;
+    DisplayStack *fDisplayStack;
 };
 
 } // end namespace Display

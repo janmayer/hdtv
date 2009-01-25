@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ *  Copyright (C) 2006-2008  Norbert Braun <n.braun@ikp.uni-koeln.de>
  *
  * This file is part of HDTV.
  *
@@ -19,26 +19,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  * 
  */
+ 
+/*
+ * This is the ``standard'' peak shape used by the original ``TV'' program.
+ * It is described in appendix B of 
+ * Jürgen Theuerkauf: Die Analyse von zwei- und mehrdimensionalen
+ * γγ-Koinzidenzspektren an Beispielen aus Hochspinexperimenten in der
+ * Massengegend um 146Gd (PhD thesis, IKP Cologne, 1994).
+ *
+ */
 
-#ifndef __YMarker_h__
-#define __YMarker_h__
+#ifndef __Util_h__
+#define __Util_h__
 
-#include "Marker.h"
-#include "Calibration.h"
+#include <string>
 
 namespace HDTV {
-namespace Display {
 
-class View1D;
+std::string GetFuncUniqueName(const char *prefix, void *ptr);
 
-class YMarker : public Marker {
-  public:
-    YMarker(View1D *view, int n, double p1, double p2=0.0, int col=5);
-    virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter)
-      { painter.DrawYMarker(this, x1, x2); }
-};
-
-} // end namespace Display
 } // end namespace HDTV
 
 #endif

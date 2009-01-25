@@ -66,7 +66,7 @@ class Spectrum(hdtv.spectrum.Spectrum):
 class SpecWindow(hdtv.window.Window, hdtv.fitgui.FitGUI):
 	def __init__(self):
 		hdtv.window.Window.__init__(self)
-		hdtv.fitgui.FitGUI.__init__(self, self)
+		hdtv.fitgui.FitGUI.__init__(self, self, show_panel=True)
 		
 		self.fCurrentSpec = None
 		
@@ -101,6 +101,12 @@ class SpecWindow(hdtv.window.Window, hdtv.fitgui.FitGUI):
 		return ROOT.TColor.GetColor(r,g,b)
 
 	def LoadSpectra(self, args):
+		"""
+		Load multiple spectra
+		"""
+		# Avoid multiple updates
+		self.fViewport.LockUpdate()
+	
 		if type(args) == str or type(args) == unicode:
 			args = [args]
 	
@@ -125,8 +131,8 @@ class SpecWindow(hdtv.window.Window, hdtv.fitgui.FitGUI):
 		else:
 			print "Loaded %d spectra" % nloaded
 			
-		if nloaded > 0:
-			self.fViewport.Update(True)
+		# Update viewport if required
+		self.fViewport.UnlockUpdate()
 
 	def LoadSpectrum(self, fname, fmt=None):
 		spec = Spectrum.FromFile(fname, fmt)
@@ -154,7 +160,7 @@ class SpecWindow(hdtv.window.Window, hdtv.fitgui.FitGUI):
 		# Display it
 		self.fSpectra[sid] = spec
 		self.ActivateSpectrum(sid)
-		spec.Realize(self.fViewport, False)
+		spec.Draw(self.fViewport)
 		
 		return sid
 		
@@ -175,6 +181,7 @@ class SpecWindow(hdtv.window.Window, hdtv.fitgui.FitGUI):
 		self.fActiveID = sid
 		spec = self.fSpectra[sid]
 		spec.SetColor(self.ColorForID(sid, 1., 1.))
+		spec.ToTop()
 		self.SetCurrentSpec(spec)
 		
 	def ListSpectra(self, args=None):
@@ -197,39 +204,44 @@ class SpecWindow(hdtv.window.Window, hdtv.fitgui.FitGUI):
 			self.SetCurrentSpec(None)
 			
 	def DeleteAllSpectra(self):
+		self.fViewport.LockUpdate()
 		for sid in self.fSpectra.keys():
 			self.DeleteSpectrum(sid)
-		self.fViewport.Update(True)
+		self.fViewport.UnlockUpdate()
 		
 	def DeleteSpectra(self, ids):
+		self.fViewport.LockUpdate()
 		for sid in ids:
 			try:
 				self.DeleteSpectrum(sid)
 			except KeyError:
 				print "Warning: ID %d not found" % sid
 					
-		self.fViewport.Update(True)
+		self.fViewport.UnlockUpdate()
 			
-	# Note that we may call Delete() on an already deleted
-	# spectrum, or Realize() on an already visible spectrum,
+	# Note that we may call Hide() on an already hidden
+	# spectrum, or Show() on an already visible spectrum,
 	# with no ill effects.
 	def ShowNone(self):
+		self.fViewport.LockUpdate()
 		for spec in self.fSpectra.itervalues():
-				spec.Delete(False)
-		self.fViewport.Update(True)
+			spec.Hide()
+		self.fViewport.UnlockUpdate()
 	
 	def ShowAll(self):
+		self.fViewport.LockUpdate()
 		for spec in self.fSpectra.itervalues():
-				spec.Realize(self.fViewport, False)
-		self.fViewport.Update(True)
+			spec.Show()
+		self.fViewport.UnlockUpdate()
 	
 	def Show(self, ids):
+		self.fViewport.LockUpdate()
 		for (sid, spec) in self.fSpectra.iteritems():
 			if sid in ids and not spec.IsVisible():
-				spec.Realize(self.fViewport, False)
+				spec.Show()
 			elif not sid in ids and spec.IsVisible():
-				spec.Delete(False)
-		self.fViewport.Update(True)
+				spec.Hide()
+		self.fViewport.UnlockUpdate()
 		
 	# Helper functions to process the active spectrum
 	def SetCal(self, calpoly):
@@ -389,10 +401,11 @@ class PluginSpectrum:
 			print "Usage: fit parameter background degree <deg>"
 			return False
 			
-		self.fMainWindow.fFitter.SetBackgroundDegree(bgdeg)
+		self.fMainWindow.fFitter.bgdeg = bgdeg
 
 		# Update options
 		self.fMainWindow.FitUpdateOptions()
+		self.fMainWindow.FitUpdateData()
 		
 	def FitParamStatus(self, args):
 		self.fMainWindow.fFitter.PrintParamStatus()
@@ -409,6 +422,7 @@ class PluginSpectrum:
 			
 		# Update options
 		self.fMainWindow.FitUpdateOptions()
+		self.fMainWindow.FitUpdateData()
 		
 	def FitParamReset(self, args):
 		self.fMainWindow.ResetFitParameters()
@@ -418,20 +432,21 @@ class PluginSpectrum:
 			
 	def FitSetPeakModel(self, name):
 		# Unregister old parameters
-		for param in self.fMainWindow.fFitter.GetParams():
+		for param in self.fMainWindow.fFitter.GetParameters():
 			hdtv.cmdline.RemoveCommand("fit param %s" % param)
 		
 		# Set new peak model
 		self.fMainWindow.fFitter.SetPeakModel(name.lower())
 		
 		# Register new parameters
-		for param in self.fMainWindow.fFitter.GetParams():
+		for param in self.fMainWindow.fFitter.GetParameters():
 			hdtv.cmdline.AddCommand("fit param %s" % param, 
 			                        self.MakeParamCmd(param),
 			                        minargs=1)
 			                        
 		# Update options
 		self.fMainWindow.FitUpdateOptions()
+		self.fMainWindow.FitUpdateData()
 
 plugin = PluginSpectrum()
 print "Loaded plugin spectrum (commands for 1-d histograms)"

@@ -12,7 +12,7 @@ class Marker:
 		self.mtype = mtype
 		self.p1 = p1
 		self.p2 = None
-		self.mid = None
+		self.fDisplayMarker = None
 		self.color = 0
 		# define the xytype of the marker
 		if mtype in ["BACKGROUND", "CUT_BG", "REGION", "CUT", "PEAK", "XZOOM"]:
@@ -29,29 +29,36 @@ class Marker:
 		elif mtype in ["XZOOM", "YZOOM"]:
 			self.color = 10
 	
-	def UpdatePos(self, viewport, update=True):
+	def UpdatePos(self, viewport):
 		""" update the position of the marker"""
-		if self.mid != None:
-			getMarker = getattr(viewport, "Get%sMarker" % self.xytype)
-			marker = getMarker(self.mid)
+		if self.fDisplayMarker != None:
 			if self.p2 != None:
-				marker.SetN(2)
-				marker.SetPos(self.p1, self.p2)
+				self.fDisplayMarker.SetN(2)
+				self.fDisplayMarker.SetPos(self.p1, self.p2)
 			else:
-				marker.SetN(1)
-				marker.SetPos(self.p1)
-			if update:
-				viewport.Update(True)
+				self.fDisplayMarker.SetN(1)
+				self.fDisplayMarker.SetPos(self.p1)
 		
-	def Realize(self, viewport, update=True):
+	def Realize(self, viewport):
 		""" Realize the marker"""
-		if self.mid == None:
-			addMarker = getattr(viewport, "Add%sMarker" %self.xytype)
-			self.mid = addMarker(self.p1, self.color, update)
+		if self.fDisplayMarker != None:
+			raise RuntimeError, "Marker cannot be realized on multiple viewports"
+		
+		if self.p2 == None:
+			n = 1
+			p2 = 0.0
+		else:
+			n = 2
+			p2 = self.p2
+		
+		if self.xytype == "X":
+			constructor = ROOT.HDTV.Display.XMarker
+		elif self.xytype == "Y":
+			constructor = ROOT.HDTV.Display.YMarker
 			
-	def Delete(self, viewport, update=True):
-		""" delete the marker"""
-		if self.mid != None:
-			deleteMarker = getattr(viewport, "Delete%sMarker"  % self.xytype)
-			deleteMarker(self.mid, update)
-			self.mid = None
+		self.fDisplayMarker = constructor(viewport, n, self.p1, p2, self.color)
+			
+	def Delete(self):
+		"""Delete the marker"""
+		del self.fDisplayMarker
+		self.fDisplayMarker = None

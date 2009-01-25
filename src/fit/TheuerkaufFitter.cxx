@@ -21,8 +21,9 @@
  */
  
 #include "TheuerkaufFitter.h"
+#include "Util.h"
 #include <TMath.h>
-#include <iostream>
+#include <Riostream.h>
 
 namespace HDTV {
 namespace Fit {
@@ -30,6 +31,8 @@ namespace Fit {
 // *** TheuerkaufPeak ***
 TheuerkaufPeak::TheuerkaufPeak(const Param& pos, const Param& vol, const Param& sigma, const Param& tl, const Param& tr, const Param& sh, const Param& sw)
 {
+  // Constructor
+
   fPos = pos;
   fVol = vol;
   fSigma = sigma;
@@ -71,9 +74,79 @@ TheuerkaufPeak::TheuerkaufPeak(const Param& pos, const Param& vol, const Param& 
   fFunc = NULL;
 }
 
-double TheuerkaufPeak::Eval(double x, double *p)
+TheuerkaufPeak::TheuerkaufPeak(const TheuerkaufPeak& src)
 {
-  double dx = x - fPos.Value(p);
+  // Copy constructor
+
+  fPos = src.fPos;
+  fVol = src.fVol;
+  fSigma = src.fSigma;
+  fTL = src.fTL;
+  fTR = src.fTR;
+  fSH = src.fSH;
+  fSW = src.fSW;
+  fHasLeftTail = src.fHasLeftTail;
+  fHasRightTail = src.fHasRightTail;
+  fHasStep = src.fHasStep;
+  fFunc = src.fFunc;
+  
+  // Do not copy the fPeakFunc pointer, it will be generated when needed.
+}
+
+TheuerkaufPeak& TheuerkaufPeak::operator= (const TheuerkaufPeak& src)
+{
+  // Assignment operator (handles self-assignment implicitly)
+
+  fPos = src.fPos;
+  fVol = src.fVol;
+  fSigma = src.fSigma;
+  fTL = src.fTL;
+  fTR = src.fTR;
+  fSH = src.fSH;
+  fSW = src.fSW;
+  fHasLeftTail = src.fHasLeftTail;
+  fHasRightTail = src.fHasRightTail;
+  fHasStep = src.fHasStep;
+  fFunc = src.fFunc;
+  
+  // Do not copy the fPeakFunc pointer, it will be generated when needed.
+  
+  return *this;
+}
+
+const double TheuerkaufPeak::DECOMP_FUNC_WIDTH = 5.0;
+
+TF1 *TheuerkaufPeak::GetFunc()
+{
+  if(fPeakFunc.get() != 0)
+    return fPeakFunc.get();
+    
+  if(fFunc == NULL)
+    return NULL;
+    
+  double min = fPos.Value(fFunc) - DECOMP_FUNC_WIDTH * fSigma.Value(fFunc);
+  double max = fPos.Value(fFunc) + DECOMP_FUNC_WIDTH * fSigma.Value(fFunc);
+  int numParams = fFunc->GetNpar();
+    
+  fPeakFunc.reset(new TF1(GetFuncUniqueName("peak", this).c_str(),
+                          this, &TheuerkaufPeak::EvalNoStep, min, max,
+                          numParams, "TheuerkaufPeak", "EvalNoStep"));
+                          
+  for(int i=0; i<numParams; i++) {
+    fPeakFunc->SetParameter(i, fFunc->GetParameter(i));
+  }
+  
+  return fPeakFunc.get();
+}
+
+double TheuerkaufPeak::Eval(double *x, double *p)
+{
+  return EvalNoStep(x, p) + EvalStep(x, p);
+}
+
+double TheuerkaufPeak::EvalNoStep(double *x, double *p)
+{
+  double dx = *x - fPos.Value(p);
   double vol = fVol.Value(p);
   double sigma = fSigma.Value(p);
   double tl = fTL.Value(p);
@@ -90,16 +163,24 @@ double TheuerkaufPeak::Eval(double x, double *p)
     _x = - tr / (sigma * sigma) * (dx - tr / 2.0);
   }
   
+  return vol * norm * exp(_x);
+}
+  
+double TheuerkaufPeak::EvalStep(double *x, double *p)
+{
   // Step function
   double stepval = 0.0;
+
   if(fHasStep) {
+    double dx = *x - fPos.Value(p);
+    double sigma = fSigma.Value(p);
     double sh = fSH.Value(p);
     double sw = fSW.Value(p);
     
     stepval = sh * (M_PI/2. + atan(sw * dx / (sqrt(2.) * sigma)));
   }
   
-  return vol * norm * exp(_x) + stepval;
+  return stepval;
 }
 
 double TheuerkaufPeak::GetNorm(double sigma, double tl, double tr)
@@ -137,27 +218,37 @@ double TheuerkaufPeak::GetNorm(double sigma, double tl, double tr)
 TheuerkaufFitter::TheuerkaufFitter(double r1, double r2)
  : Fitter()
 {
+  // Constructor
+
   fMin = TMath::Min(r1, r2);
   fMax = TMath::Max(r1, r2);
-  fBgFunc = NULL;
   
   fNumPeaks = 0;
   fIntBgDeg = -1;
+  
+  fChisquare = std::numeric_limits<double>::quiet_NaN();
 }
 
 void TheuerkaufFitter::AddPeak(const TheuerkaufPeak& peak)
 {
+  // Adds a peak to the peak list
+  
+  if(IsFinal())
+    return;
+
   fPeaks.push_back(peak);
   fNumPeaks++;
 }
 
 double TheuerkaufFitter::Eval(double *x, double *p)
 {
+  // Private: evaluation function for fit
+  
   double sum = 0.0;
   
   // Evaluate background function, if it has been given
-  if(fBgFunc)
-    sum = fBgFunc->Eval(*x);
+  if(fBackground.get() != 0)
+    sum = fBackground->Eval(*x);
     
   // Evaluate internal background
   double bg = 0.0;
@@ -169,28 +260,103 @@ double TheuerkaufFitter::Eval(double *x, double *p)
   // Evaluate peaks
   std::vector<TheuerkaufPeak>::iterator iter;
   for(iter = fPeaks.begin(); iter != fPeaks.end(); iter++) {
-    sum += iter->Eval(*x, p);
+    sum += iter->Eval(x, p);
   }
   
   return sum;
 }
 
-TF1 *TheuerkaufFitter::Fit(TH1 *hist, TF1 *bgFunc)
+double TheuerkaufFitter::EvalBg(double *x, double *p)
 {
-  fBgFunc = bgFunc;
+  // Private: evaluation function for background
+  
+  double sum = 0.0;
+  
+  // Evaluate background function, if it has been given
+  if(fBackground.get() != 0)
+    sum = fBackground->Eval(*x);
+    
+  // Evaluate internal background
+  double bg = 0.0;
+  for(int i=fNumParams-1; i >= (fNumParams-fIntBgDeg-1); i--) {
+    bg = bg * *x + p[i];
+  }
+  sum += bg;
+  
+  // Evaluate steps in peaks
+  std::vector<TheuerkaufPeak>::iterator iter;
+  for(iter = fPeaks.begin(); iter != fPeaks.end(); iter++) {
+    sum += iter->EvalStep(x, p);
+  }
+  
+  return sum;
+}
+
+TF1* TheuerkaufFitter::GetBgFunc()
+{
+  // Return a pointer to a function describing this fits background, including
+  // any steps in peaks.
+  // The function remains owned by the TheuerkaufFitter and is only valid as long
+  // as the TheuerkaufFitter is.
+  
+  if(fBgFunc.get() != 0)
+    return fBgFunc.get();
+    
+  if(fSumFunc.get() == 0)
+    return 0;
+    
+  double min, max;
+  if(fBackground.get() != 0) {
+    min = TMath::Min(fMin, fBackground->GetMin());
+    max = TMath::Max(fMax, fBackground->GetMax());
+  } else {
+    min = fMin;
+    max = fMax;
+  }
+    
+  fBgFunc.reset(new TF1(GetFuncUniqueName("fitbg", this).c_str(),
+                        this, &TheuerkaufFitter::EvalBg, min, max,
+                        fNumParams, "TheuerkaufFitter", "EvalBg"));
+                        
+  for(int i=0; i<fNumParams; i++) {
+    fBgFunc->SetParameter(i, fSumFunc->GetParameter(i));
+    fBgFunc->SetParError(i, fSumFunc->GetParError(i));
+  }
+                         
+  return fBgFunc.get();
+}
+
+void TheuerkaufFitter::Fit(TH1& hist, const Background& bg)
+{
+  // Do the fit, using the given background function
+  
+  // Refuse to fit twice
+  if(IsFinal())
+    return;
+
+  fBackground.reset(bg.Clone());
   fIntBgDeg = -1;
-  return _Fit(hist);
+  _Fit(hist);
 }
 
-TF1 *TheuerkaufFitter::Fit(TH1 *hist, int intBgDeg)
+void TheuerkaufFitter::Fit(TH1& hist, int intBgDeg)
 {
-  fBgFunc = NULL;
+  // Do the fit, fitting a polynomial of degree intBgDeg for the background
+  // at the same time. Set intBgDeg to -1 to disable background completely.
+  
+  // Refuse to fit twice
+  if(IsFinal())
+    return;
+
+  fBackground.reset();
   fIntBgDeg = intBgDeg;
-  return _Fit(hist);
+  _Fit(hist);
 }
 
-TF1 *TheuerkaufFitter::_Fit(TH1 *hist)
+void TheuerkaufFitter::_Fit(TH1& hist)
 {
+  // Private: worker function to actually do the fit
+  
   // Allocate additional parameters for internal polynomial background
   // Note that a polynomial of degree n has n+1 parameters!
   if(fIntBgDeg >= 0) {
@@ -198,8 +364,9 @@ TF1 *TheuerkaufFitter::_Fit(TH1 *hist)
   }
   
   // Create fit function
-  TF1 *func = new TF1("f", this, &TheuerkaufFitter::Eval, fMin, fMax,
-                      fNumParams, "TheuerkaufFitter", "Eval");
+  fSumFunc.reset(new TF1(GetFuncUniqueName("f", this).c_str(),
+                         this, &TheuerkaufFitter::Eval, fMin, fMax,
+                         fNumParams, "TheuerkaufFitter", "Eval"));
   
   // Check if there are any peaks with tails.
   //   If so, we do a preliminary fit with all tails fixed.
@@ -216,43 +383,44 @@ TF1 *TheuerkaufFitter::_Fit(TH1 *hist)
   
   // Init fit parameters
   for(iter = fPeaks.begin(); iter != fPeaks.end(); iter ++) {
-	SetParameter(func, iter->fPos);
-	SetParameter(func, iter->fVol, avgVol);
-	SetParameter(func, iter->fSigma, 1.0);
-	SetParameter(func, iter->fSH, 1.0);
-	SetParameter(func, iter->fSW, 1.0);
+	SetParameter(*fSumFunc, iter->fPos);
+	SetParameter(*fSumFunc, iter->fVol, avgVol);
+	SetParameter(*fSumFunc, iter->fSigma, 1.0);
+	SetParameter(*fSumFunc, iter->fSH, 1.0);
+	SetParameter(*fSumFunc, iter->fSW, 1.0);
 	if(iter->fTL.IsFree()) {
-	  func->FixParameter(iter->fTL._Id(), 10.0);
+	  fSumFunc->FixParameter(iter->fTL._Id(), 10.0);
 	  needPreFit = true;
 	}
 	if(iter->fTR.IsFree()) {
-	  func->FixParameter(iter->fTR._Id(), 10.0);
+	  fSumFunc->FixParameter(iter->fTR._Id(), 10.0);
 	  needPreFit = true;
 	}
 	
-	iter->SetFunc(func);
+	iter->SetFunc(fSumFunc.get());
   }
   
   if(needPreFit) {
     // Do the preliminary fit
-    hist->Fit(func, "RQN");
+    hist.Fit(fSumFunc.get(), "RQN");
     
     // Release tail parameters
     for(iter = fPeaks.begin(); iter != fPeaks.end(); iter ++) {
 	  if(iter->fTL.IsFree())
-	    func->ReleaseParameter(iter->fTL._Id());
+	    fSumFunc->ReleaseParameter(iter->fTL._Id());
       if(iter->fTR.IsFree())
-	    func->ReleaseParameter(iter->fTR._Id());
+	    fSumFunc->ReleaseParameter(iter->fTR._Id());
   	}
   }
 
   // Now, do the ''real'' fit
-  hist->Fit(func, "RQNM");
+  hist.Fit(fSumFunc.get(), "RQNM");
   
   // Store Chi^2
-  fChisquare = func->GetChisquare();
-     
-  return func;
+  fChisquare = fSumFunc->GetChisquare();
+  
+  // Finalize fitter
+  fFinal = true;
 }
 
 } // end namespace Fit

@@ -8,8 +8,9 @@ class FitGUI:
 	def __init__(self, window, show_panel=False):
 		self.fWindow = window
 		
-		# Create fitter object
+		# Create fitter object to hold the graphical representation of the fit
 		self.fFitter = hdtv.fit.Fit()
+		self.fFitter.Realize(self.fWindow.fViewport)
 		
 		# Internal markers
 		self.fPeakMarkers = []
@@ -21,6 +22,7 @@ class FitGUI:
 		self.fFitPanel.fFitHandler = self.Fit
 		self.fFitPanel.fClearHandler = self.DeleteFit
 		self.fFitPanel.fResetHandler = self.ResetFitParameters
+		self.fFitPanel.fDecompHandler = self.fFitter.SetDecomp
 		
 		if show_panel:
 			self.fFitPanel.Show()
@@ -33,6 +35,12 @@ class FitGUI:
 	  	self.fWindow.AddKey(ROOT.kKey_B, self.FitBackground)
 	  	self.fWindow.AddKey(ROOT.kKey_F, self.Fit)
 	  	self.fWindow.AddKey(ROOT.kKey_I, self.Integrate)
+	  	self.fWindow.AddKey(ROOT.kKey_D, lambda: self.SetDecomp(True))
+	  	self.fWindow.AddKey([ROOT.kKey_Minus, ROOT.kKey_D], lambda: self.SetDecomp(False))
+	  	
+	def SetDecomp(self, stat):
+		self.fFitPanel.SetDecomp(stat)
+		self.fFitter.SetDecomp(stat)
 		
 	def PutRegionMarker(self):
 		"Put a region marker at the current cursor position (internal use only)"
@@ -47,10 +55,6 @@ class FitGUI:
 		pos = self.fWindow.fViewport.GetCursorX()
   		self.fPeakMarkers.append(hdtv.marker.Marker("PEAK", pos))
   		self.fPeakMarkers[-1].Realize(self.fWindow.fViewport)
-  		
-  	def SyncFitter(self):
-		self.fFitter.region = [self.fRegionMarkers[0].p1, self.fRegionMarkers[0].p2]
-		self.fFitter.peaklist = map(lambda m: m.p1, self.fPeakMarkers)
 		
 	def ResetFitParameters(self):
 		self.fFitter.ResetParameters()
@@ -63,8 +67,6 @@ class FitGUI:
 		self.fFitPanel.SetData(self.fFitter.DataStr())
 		
 	def FitBackground(self):
-		self.fFitter.Delete()
-		
 		# Make sure a fit panel is displayed
 		self.fFitPanel.Show()
 		
@@ -73,40 +75,41 @@ class FitGUI:
 			
 			self.fFitter.bglist = map(lambda m: [m.p1, m.p2], self.fBgMarkers)
 			self.fFitter.DoBgFit()
-			self.fFitter.Realize(self.fWindow.fViewport)
 			
 			self.FitUpdateData()
 		
 	def Fit(self):
-		self.fFitter.Delete()
-		
 		# Make sure a fit panel is displayed
 		self.fFitPanel.Show()
+		
+		# Lock updates
+		self.fWindow.fViewport.LockUpdate()
 	
 	  	if not self.fWindow.fPendingMarker and \
 	  		len(self.fRegionMarkers) == 1 and \
 	  		len(self.fPeakMarkers) > 0:
 
 			# Do the fit
-			self.SyncFitter()
+			self.fFitter.region = [self.fRegionMarkers[0].p1, self.fRegionMarkers[0].p2]
+			self.fFitter.peaklist = map(lambda m: m.p1, self.fPeakMarkers)
 			self.fFitter.DoPeakFit()
-			self.fFitter.Realize(self.fWindow.fViewport, False)
 						                   
 			self.FitUpdateData()
 				
 			for (marker, peak) in zip(self.fPeakMarkers, self.fFitter.resultPeaks):
 				marker.p1 = peak.GetPos()
-				marker.UpdatePos(self.fWindow.fViewport, False)
-				
-			self.fWindow.fViewport.Update(True)
+				marker.UpdatePos(self.fWindow.fViewport)
+
+		# Update viewport if required
+		self.fWindow.fViewport.UnlockUpdate()
   		
   	def DeleteFit(self):
 		for marker in self.fPeakMarkers:
-  			marker.Delete(self.fViewport, False)
+  			marker.Delete()
 		for marker in self.fBgMarkers:
-  			marker.Delete(self.fViewport, False)
+  			marker.Delete()
   		for marker in self.fRegionMarkers:
-  			marker.Delete(self.fViewport, False)
+  			marker.Delete()
 	  			
   		self.fWindow.fPendingMarker = None
   		self.fPeakMarkers = []
@@ -114,11 +117,9 @@ class FitGUI:
   		self.fRegionMarkers = []
   		
 		self.fFitter.Reset()
-		self.fFitter.Delete(False)
+
 		if self.fFitPanel:
 			self.fFitPanel.SetData("")
-						
-		self.fWindow.fViewport.Update(True)
 		
 	# FIXME: This function needs rework
 	def Integrate(self):
@@ -162,6 +163,7 @@ class FitPanel:
 		self.fFitHandler = None
 		self.fClearHandler = None
 		self.fResetHandler = None
+		self.fDecompHandler = None
 		self.fVisible = False
 	
 		self.fMainFrame = ROOT.TGMainFrame(ROOT.gClient.GetRoot(), 300, 500)
@@ -197,51 +199,31 @@ class FitPanel:
 		self._dispatchers.append(disp)
 		self.fButtonFrame.AddFrame(self.fHideButton)
 		
-		lh = ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 10, 5, 10, 10)
-		self.fMainFrame.AddFrame(self.fButtonFrame, lh)
-		del lh
-
-		## Display Frame ##
-		self.fDisplayFrame = ROOT.TGHorizontalFrame(self.fMainFrame)
+		self.fDecompButton = ROOT.TGCheckButton(self.fButtonFrame, "Show decomposition")
+		disp = ROOT.TPyDispatcher(self.DecompClicked)
+		self.fDecompButton.Connect("Clicked()", "TPyDispatcher", disp, "Dispatch()")
+		self._dispatchers.append(disp)
+		self.fButtonFrame.AddFrame(self.fDecompButton,
+		       ROOT.TGLayoutHints(ROOT.kLHintsLeft, 10, 0, 0, 0))
 		
-		self.fFormatLabel = ROOT.TGLabel(self.fDisplayFrame, "Output: ")
-		self.fDisplayFrame.AddFrame(self.fFormatLabel)
-		
-		self.fFormatList = ROOT.TGComboBox(self.fDisplayFrame)
-		self.fFormatList.AddEntry("Verbose", 1)
-		self.fFormatList.AddEntry("Table", 2)
-		self.fFormatList.Select(1)
-		self.fFormatList.SetHeight(20)
-		self.fFormatList.SetWidth(100)
-		lh = ROOT.TGLayoutHints(ROOT.kLHintsNormal, 0, 20, 0, 0)
-		self.fDisplayFrame.AddFrame(self.fFormatList, lh)
-		del lh
-		
-		self.fDecompButton = ROOT.TGCheckButton(self.fDisplayFrame, "Show decomposition")
-		self.fDisplayFrame.AddFrame(self.fDecompButton)
-
-		lh = ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 10, 0, 0, 10)
-		self.fMainFrame.AddFrame(self.fDisplayFrame, lh)
-		del lh
+		self.fMainFrame.AddFrame(self.fButtonFrame,
+		       ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 10, 5, 10, 10))
 				
 		## Fit info ##
 		self.fFitInfo = ROOT.TGTab(self.fMainFrame)
-		lh = ROOT.TGLayoutHints(ROOT.kLHintsExpandX | ROOT.kLHintsExpandY)
-		self.fMainFrame.AddFrame(self.fFitInfo, lh)
-		del lh
+		self.fMainFrame.AddFrame(self.fFitInfo,
+		       ROOT.TGLayoutHints(ROOT.kLHintsExpandX | ROOT.kLHintsExpandY))
 
 		optionsFrame = self.fFitInfo.AddTab("Options")
 		fitFrame = self.fFitInfo.AddTab("Fit")
 		
 		self.fOptionsText = ROOT.TGTextView(optionsFrame, 400, 500)
-		lh = ROOT.TGLayoutHints(ROOT.kLHintsExpandX | ROOT.kLHintsExpandY)
-		optionsFrame.AddFrame(self.fOptionsText, lh)
-		del lh
+		optionsFrame.AddFrame(self.fOptionsText,
+		       ROOT.TGLayoutHints(ROOT.kLHintsExpandX | ROOT.kLHintsExpandY))
 	
 		self.fFitText = ROOT.TGTextView(fitFrame, 400, 500)
-		lh = ROOT.TGLayoutHints(ROOT.kLHintsExpandX | ROOT.kLHintsExpandY)
-		fitFrame.AddFrame(self.fFitText, lh)
-		del lh
+		fitFrame.AddFrame(self.fFitText,
+		       ROOT.TGLayoutHints(ROOT.kLHintsExpandX | ROOT.kLHintsExpandY))
 			
 		self.fMainFrame.SetWindowName("Fit")
 		self.fMainFrame.MapSubwindows()
@@ -278,8 +260,24 @@ class FitPanel:
 	def HideClicked(self):
 		self.Hide()
 		
+	def DecompClicked(self):
+		if self.fDecompHandler:
+			self.fDecompHandler(bool(self.fDecompButton.IsOn()))
+			
+	def SetDecomp(self, stat):
+		if stat:
+			self.fDecompButton.SetState(ROOT.kButtonDown)
+		else:
+			self.fDecompButton.SetState(ROOT.kButtonUp)
+		
 	def SetData(self, text):
-		self.fFitText.LoadBuffer(text)
+		if not text:
+			self.fFitText.Clear()
+		else:
+			self.fFitText.LoadBuffer(text)
 		
 	def SetOptions(self, text):
-		self.fOptionsText.LoadBuffer(text)
+		if not text:
+			self.fOptionsText.Clear()
+		else:
+			self.fOptionsText.LoadBuffer(text)

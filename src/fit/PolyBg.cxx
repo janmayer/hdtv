@@ -21,6 +21,7 @@
  */
  
 #include "PolyBg.h"
+#include "Util.h"
 #include <iostream>
  
 namespace HDTV {
@@ -28,40 +29,95 @@ namespace Fit {
 
 PolyBg::PolyBg(int bgdeg)
 {
+  // Constructor
+
   fBgDeg = bgdeg;
+  fChisquare = std::numeric_limits<double>::quiet_NaN();
 }
 
-TF1 *PolyBg::Fit(TH1 *hist)
+PolyBg::PolyBg(const PolyBg& src)
+ : fBgRegions(src.fBgRegions),
+   fBgDeg(src.fBgDeg),
+   fChisquare(src.fChisquare)
 {
+  // Copy constructor
+
+  if(src.fFunc.get() != 0) {
+    fFunc.reset(new TF1(GetFuncUniqueName("b", this).c_str(),
+                        this, &PolyBg::_Eval,
+                        src.fFunc->GetXmin(), src.fFunc->GetXmax(),
+                        fBgDeg+1, "PolyBg", "_Eval"));
+  
+    for(int i=0; i<=fBgDeg; i++) {
+      fFunc->SetParameter(i, src.fFunc->GetParameter(i));
+      fFunc->SetParError(i, src.fFunc->GetParError(i));
+    }
+  }
+}
+
+PolyBg& PolyBg::operator= (const PolyBg& src)
+{
+  // Assignment operator
+
+  // Handle self assignment
+  if(this == &src)
+    return *this;
+
+  fBgRegions = src.fBgRegions;
+  fBgDeg = src.fBgDeg;
+  fChisquare = src.fChisquare;
+  
+  fFunc.reset(new TF1(GetFuncUniqueName("b", this).c_str(),
+                      this, &PolyBg::_Eval,
+                      src.fFunc->GetXmin(), src.fFunc->GetXmax(),
+                      fBgDeg+1, "PolyBg", "_Eval"));
+                      
+  for(int i=0; i<=fBgDeg; i++) {
+    fFunc->SetParameter(i, src.fFunc->GetParameter(i));
+    fFunc->SetParError(i, src.fFunc->GetParError(i));
+  }
+    
+  return *this;
+}
+
+void PolyBg::Fit(TH1& hist)
+{
+  // Fit the background function to the histogram hist
+
   // Create function to be used for fitting
   // Note that a polynomial of degree N has N+1 parameters
-  TF1 *fitFunc = new TF1("b_fit", this, &PolyBg::EvalRegion,
-                         *(fBgRegions.begin()), *(fBgRegions.rbegin()),
-                         fBgDeg+1, "PolyBg", "EvalRegion");
+  TF1 fitFunc(GetFuncUniqueName("b_fit", this).c_str(),
+              this, &PolyBg::_EvalRegion,
+              GetMin(), GetMax(),
+              fBgDeg+1, "PolyBg", "_EvalRegion");
   
   for(int i=0; i<=fBgDeg; i++)
-    fitFunc->SetParameter(i, 0.0);
+    fitFunc.SetParameter(i, 0.0);
   
   // Fit
-  hist->Fit(fitFunc, "RQN");
+  hist.Fit(&fitFunc, "RQN");
+  
+  // Copy chisquare
+  fChisquare = fitFunc.GetChisquare();
   
   // Copy parameters to new function
-  TF1 *func = new TF1("b", this, &PolyBg::Eval,
-                      *(fBgRegions.begin()), *(fBgRegions.rbegin()),
-                      fBgDeg+1, "PolyBg", "Eval");
-  for(int i=0; i<=fBgDeg; i++)
-    func->SetParameter(i, fitFunc->GetParameter(i));
-  
-  delete fitFunc;
-
-  return func;
+  fFunc.reset(new TF1(GetFuncUniqueName("b", this).c_str(),
+                      this, &PolyBg::_Eval,
+                      GetMin(), GetMax(),
+                      fBgDeg+1, "PolyBg", "_Eval"));
+   
+  for(int i=0; i<=fBgDeg; i++) {
+    fFunc->SetParameter(i, fitFunc.GetParameter(i));
+    fFunc->SetParError(i, fitFunc.GetParError(i));
+  }
 }
 
-// Adds a histogram region to be considered while fitting the
-// background. If regions overlap, the values covered by two or
-// more regions are still only considered once in the fit.
 void PolyBg::AddRegion(double p1, double p2)
 {
+  // Adds a histogram region to be considered while fitting the
+  // background. If regions overlap, the values covered by two or
+  // more regions are still only considered once in the fit.
+
   std::list<double>::iterator iter, next;
   bool inside = false;
   double min, max;
@@ -92,10 +148,11 @@ void PolyBg::AddRegion(double p1, double p2)
   }
 }
 
-// Evaluate background function at position x, calling TH1::RejectPoint()
-// if x lies outside the defined background region
-double PolyBg::EvalRegion(double *x, double *p)
+double PolyBg::_EvalRegion(double *x, double *p)
 {
+  // Evaluate background function at position x, calling TH1::RejectPoint()
+  // if x lies outside the defined background region
+
   std::list<double>::iterator iter;
 
   bool reject = true;
@@ -114,9 +171,10 @@ double PolyBg::EvalRegion(double *x, double *p)
   }
 }
 
-// Evaluate background function at position x
-double PolyBg::Eval(double *x, double *p)
+double PolyBg::_Eval(double *x, double *p)
 {
+  // Evaluate background function at position x
+
   double bg;
   
   bg = p[fBgDeg];
@@ -125,7 +183,6 @@ double PolyBg::Eval(double *x, double *p)
     
   return bg;
 }
-
 
 } // end namespace Fit
 } // end namespace HDTV

@@ -37,10 +37,7 @@
 #include <TGFont.h>
 #include <TGFrame.h>
 #include <TMath.h>
-#include "DisplaySpec.h"
-#include "DisplayFunc.h"
-#include "XMarker.h"
-#include "YMarker.h"
+#include "Calibration.h"
 
 namespace HDTV {
 namespace Display {
@@ -63,6 +60,11 @@ enum VTextAlign {
   kMiddle = 3,
   kTop = 4
 };
+
+class DisplaySpec;
+class DisplayFunc;
+class XMarker;
+class YMarker;
 
 class Painter { 
  public:
@@ -122,7 +124,9 @@ class Painter {
   void DrawYMarker(YMarker *marker, int x1, int x2);
   double GetYAutoZoom(DisplaySpec *dSpec);
   void DrawXScale(UInt_t x1, UInt_t x2);
-  void ClearXScale();
+  void DrawXNonlinearScale(UInt_t x1, UInt_t x2, bool top, const Calibration& cal);
+  void ClearTopXScale();
+  void ClearBottomXScale();
   void DrawYScale();
   
   //ClassDef(Painter, 1)

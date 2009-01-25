@@ -25,8 +25,9 @@ class Spectrum:
 		self.fCal = cal
 		self.fHist = hist
 		self.fFitlist = []
-		self.fSid = None
+		self.fSid = 42
 		self.fViewport = None
+		self.fDisplaySpec = None
 		self.fColor = color
 		if hist:
 			self.fZombie = False
@@ -78,8 +79,10 @@ class Spectrum:
 		"""
 		if color:
 			self.fColor = color
+			
 		# update the display if needed
-		self.Update(True)
+		if self.fDisplaySpec != None:
+			self.fDisplaySpec.SetColor(color)
 		
 	def SetCal(self, cal):
 		"""
@@ -100,9 +103,11 @@ class Spectrum:
 			self.fCal=ROOT.HDTV.Calibration(cal[0], cal[1], cal[2], cal[3])
 		else:
 			self.fCal = None
-		# update the display if needed
-		self.Update(True)
 
+		# update the display if needed
+		if self.fDisplaySpec != None:
+			self.fDisplaySpec.SetCal(self.fCal)
+		
 	def UnsetCal(self):
 		"""
 		delete calibration
@@ -147,67 +152,73 @@ class Spectrum:
 			fit = self.fFitlist.pop(fid)
 			if self.fViewport:
 				fit.Delete(update)
-
+				
+	def ToTop(self):
+		if self.fDisplaySpec:
+			self.fDisplaySpec.ToTop()
+				
 	def Realize(self, viewport, update=True):
+		print "WARNING: Deprecated function Spectrum.Realize() called."
+		self.Draw(viewport)
+
+	def Draw(self, viewport):
 		"""
-		Draw this spectrum to the window
+		Draw this spectrum to the viewport
 		"""
-		# save the viewport
+		# Unlike the DisplaySpec object of the underlying implementation,
+		# Spectrum() objects can only be drawn on a single viewport
+		if self.fViewport != None:
+			raise RuntimeError, "Spectrum can only be drawn on a single viewport"
+		
+		# Save the viewport
 		self.fViewport = viewport
-		# show spectrum
-		if self.fSid == None and self.fHist != None:
+		
+		# Lock updates
+		self.fViewport.LockUpdate()
+		
+		# Show spectrum
+		if self.fDisplaySpec == None and self.fHist != None:
 			if self.fColor==None:
 				# set to default color
 				self.fColor = kSpecDef
-			self.fSid = viewport.AddSpec(self.fHist,self.fColor, False)
+			self.fDisplaySpec = ROOT.HDTV.Display.DisplaySpec(self.fHist, self.fColor)
+			self.fDisplaySpec.Draw(self.fViewport)
+			
 			# add calibration
 			if self.fCal:
-				viewport.GetDisplaySpec(self.fSid).SetCal(self.fCal)
+				self.fDisplaySpec.SetCal(self.fCal)
+		
 		# show fits
 		for fit in self.fFitlist:
-			fit.Realize(viewport, False)
+			fit.Realize(viewport)
+		
 		# finally update the viewport
-		if update:
-			viewport.Update(True)
+		self.fViewport.UnlockUpdate()
 
-	def Delete(self, update=True):
+	def Delete(self):
 		"""
 		Delete this spectrum from the window.
 		"""
 		if self.fViewport:
-			# delete this spectrum from viewport
-			if self.fSid!=None:
-				self.fViewport.DeleteSpec(self.fSid, False)
-				self.fSid = None
-			# delete all fits
-			for fit in self.fFitlist:
-				fit.Delete(False)
-			# update the viewport
-			if update:
-				self.fViewport.Update(True)
-			# finally remove the viewport from this object
-			self.fViewport = None
+			self.fViewport.LockUpdates()
+		
+		# Delete this spectrum
+		del self.fDisplaySpec
+		self.fDisplaySpec = None
+			
+		# delete all fits
+		# for fit in self.fFitlist:
+		#	fit.Delete(False)
+		
+		# update the viewport
+		if self.fViewport:
+			self.fViewport.UnlockUpdates()
+
+		# finally remove the viewport from this object
+		self.fViewport = None
 
 	def Update(self, update=True):
 		"""
 		Update screen
 		"""
-		if self.fViewport:
-			# delete old spectrum
-			if self.fSid!=None:
-				self.fViewport.DeleteSpec(self.fSid, False)
-			# if not color is set, use the default
-			if self.fColor==None:
-				self.fColor = kSpecDef
-			# create new spectrum
-			self.fSid = self.fViewport.AddSpec(self.fHist,self.fColor, False)
-			# add calibration
-			if self.fCal:
-				self.fViewport.GetDisplaySpec(self.fSid).SetCal(self.fCal)
-			# update all fits
-			for fit in self.fFitlist:
-				fit.Update(False)
-			# finally update the viewport
-			if update:
-				self.fViewport.Update(True)
-
+		print "Called deprecated function Spectrum.Update()"

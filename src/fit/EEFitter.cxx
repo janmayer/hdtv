@@ -181,7 +181,6 @@ EEFitter::EEFitter(double r1, double r2)
 {
   fMin = TMath::Min(r1, r2);
   fMax = TMath::Max(r1, r2);
-  fBgFunc = NULL;
   
   fNumPeaks = 0;
   fIntBgDeg = -1;
@@ -198,8 +197,8 @@ double EEFitter::Eval(double *x, double *p)
   double sum = 0.0;
   
   // Evaluate background function, if it has been given
-  if(fBgFunc)
-    sum = fBgFunc->Eval(*x);
+  if(fBackground.get() != 0)
+    sum = fBackground->Eval(*x);
     
   // Evaluate internal background
   double bg = 0.0;
@@ -217,21 +216,34 @@ double EEFitter::Eval(double *x, double *p)
   return sum;
 }
 
-TF1 *EEFitter::Fit(TH1 *hist, TF1 *bgFunc)
+void EEFitter::Fit(TH1& hist, const Background& bg)
 {
-  fBgFunc = bgFunc;
+  // Do the fit, using the given background function
+  
+  // Refuse to fit twice
+  if(IsFinal())
+    return;
+
+  fBackground.reset(bg.Clone());
   fIntBgDeg = -1;
-  return _Fit(hist);
+  _Fit(hist);
 }
 
-TF1 *EEFitter::Fit(TH1 *hist, int intBgDeg)
+void EEFitter::Fit(TH1& hist, int intBgDeg)
 {
-  fBgFunc = NULL;
+  // Do the fit, fitting a polynomial of degree intBgDeg for the background
+  // at the same time. Set intBgDeg to -1 to disable background completely.
+  
+  // Refuse to fit twice
+  if(IsFinal())
+    return;
+
+  fBackground.reset();
   fIntBgDeg = intBgDeg;
-  return _Fit(hist);
+  _Fit(hist);
 }
 
-TF1 *EEFitter::_Fit(TH1 *hist)
+void EEFitter::_Fit(TH1& hist)
 {
   // Allocate additional parameters for internal polynomial background
   // Note that a polynomial of degree n has n+1 parameters!
@@ -240,27 +252,28 @@ TF1 *EEFitter::_Fit(TH1 *hist)
   }
   
   // Create fit function
-  TF1 *func = new TF1("f", this, &EEFitter::Eval, fMin, fMax,
-                      fNumParams, "EEFitter", "Eval");
+  fSumFunc.reset(new TF1("f", this, &EEFitter::Eval, fMin, fMax,
+                         fNumParams, "EEFitter", "Eval"));
   
   // Init fit parameters
   // Note: this may set parameters several times, but that should not matter
   std::vector<EEPeak>::iterator iter;
   double amp;
   for(iter = fPeaks.begin(); iter != fPeaks.end(); iter ++) {
-    amp = (double) hist->GetBinContent(((int)TMath::Ceil(iter->fPos._Value() - 0.5)) + 1);
-	SetParameter(func, iter->fPos);
-	SetParameter(func, iter->fAmp, amp);
-	SetParameter(func, iter->fSigma1, 1.0);
-	SetParameter(func, iter->fSigma2, 1.0);
-	SetParameter(func, iter->fEta, 1.0);
-	SetParameter(func, iter->fGamma, 1.0);
+    // FIXME: use FindBin()
+    amp = (double) hist.GetBinContent(((int)TMath::Ceil(iter->fPos._Value() - 0.5)) + 1);
+	SetParameter(*fSumFunc, iter->fPos);
+	SetParameter(*fSumFunc, iter->fAmp, amp);
+	SetParameter(*fSumFunc, iter->fSigma1, 1.0);
+	SetParameter(*fSumFunc, iter->fSigma2, 1.0);
+	SetParameter(*fSumFunc, iter->fEta, 1.0);
+	SetParameter(*fSumFunc, iter->fGamma, 1.0);
 	
-	iter->SetFunc(func);
+	iter->SetFunc(fSumFunc.get());
   }
   
   // Do the fit
-  hist->Fit(func, "RQNM");
+  hist.Fit(fSumFunc.get(), "RQNM");
   
   // Calculate the peak volumes while the covariance matrix is still available
   for(iter = fPeaks.begin(); iter != fPeaks.end(); iter ++)
@@ -275,9 +288,10 @@ TF1 *EEFitter::_Fit(TH1 *hist)
   } */
   
   // Store Chi^2
-  fChisquare = func->GetChisquare();
-     
-  return func;
+  fChisquare = fSumFunc->GetChisquare();
+  
+  // Finalize fitter
+  fFinal = true;
 }
 
 /* void EEFitter::StoreIntegral(TF1 *func, double pos, double sigma1)

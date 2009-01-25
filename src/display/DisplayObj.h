@@ -23,22 +23,27 @@
 #ifndef __DisplayObj_h__
 #define __DisplayObj_h__
 
+#include <list>
 #include <TGGC.h>
 #include "Calibration.h"
+#include "Painter.h"
 
 namespace HDTV {
 namespace Display {
 
+class DisplayStack;
+class View1D;
+
 class DisplayObj {
+  friend class Painter;
+
   public:
   	DisplayObj(int col);
-  	~DisplayObj();
+  	virtual ~DisplayObj();
   	
-    inline TGGC *GetGC() { return fGC; }
-  	
-	void SetCal(Calibration *cal) { fCal = cal; };
-    inline double Ch2E(double ch) { return fCal ? fCal->Ch2E(ch) : ch; }
-    inline double E2Ch(double e) { return fCal ? fCal->E2Ch(e) : e; }
+	void SetCal(const Calibration& cal) { fCal = cal; Update(); };
+    inline double Ch2E(double ch) { return fCal ? fCal.Ch2E(ch) : ch; }
+    inline double E2Ch(double e) { return fCal ? fCal.E2Ch(e) : e; }
     
     double GetMaxE();
     double GetMinE();
@@ -47,11 +52,45 @@ class DisplayObj {
     virtual inline double GetMaxCh() { return 0.0; }
     inline double GetCenterCh() { return (GetMinCh() + GetMaxCh()) / 2.0; }
     
+    inline bool IsVisible() { return fVisible; }
+    inline void Show() { fVisible = true; Update(); }
+    inline void Hide() { fVisible = false; Update(); }
+    
+    void SetColor(int col);
+    
+    /* Management functions */
+    void Draw(View1D *view);
+    void Remove(View1D *view);
+    void ToTop(View1D *view);
+    void ToBottom(View1D *view);
+    
+    void Draw(DisplayStack *stack);
+    void Remove(DisplayStack *stack);
+    void ToTop(DisplayStack *stack);
+    void ToBottom(DisplayStack *stack);
+
+    void Remove();
+    void ToTop();
+    void ToBottom();
+    
+    virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter) { }
+    
+    // HDTV::Display:: required for CINT
+    virtual std::list<HDTV::Display::DisplayObj *>& GetList(DisplayStack *stack);
+    
     static const int DEFAULT_COLOR;
+    
+  protected:
+    inline TGGC *GetGC() { return fGC; }
+    void Update();
   	
   private:
-    Calibration *fCal;
-    TGGC *fGC;   
+    void InitGC(int col);
+  
+    Calibration fCal;
+    TGGC *fGC;
+    std::list<DisplayStack*> fStacks;
+    bool fVisible;
 };
 
 } // end namespace Display

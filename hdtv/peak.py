@@ -302,14 +302,17 @@ class PeakModelTheuerkauf(PeakModel):
 		else:
 			raise RuntimeError, "Unexpected parameter name"
 		
-	def GetFitter(self, region_uncal, peaklist_uncal):
+	def GetFitter(self, region_cal, peaklist_cal):
 		# Define a fitter and a region
-		self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(region_uncal[0], region_uncal[1])
+		self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(self.E2Ch(region_cal[0]),
+		                                              self.E2Ch(region_cal[1]))
 		self.ResetGlobalParams()
 		
 		# Check if enough values are provided in case of per-peak parameters
 		#  (the function raises a RuntimeError if the check fails)
-		self.CheckParStatusLen(len(peaklist_uncal))
+		self.CheckParStatusLen(len(peaklist_cal))
+		
+		peaklist_uncal = [self.E2Ch(x) for x in peaklist_cal]
 		
 		# Copy peaks to the fitter
 		for pid in range(0, len(peaklist_uncal)):

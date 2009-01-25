@@ -21,7 +21,13 @@
  */
 
 #include "Painter.h"
+#include "DisplaySpec.h"
+#include "DisplayFunc.h"
+#include "XMarker.h"
+#include "YMarker.h"
+
 #include <Riostream.h>
+
 
 namespace HDTV {
 namespace Display {
@@ -320,10 +326,24 @@ double Painter::GetYAutoZoom(DisplaySpec *dSpec)
   return (double) dSpec->GetMax_Cached(b1, b2) * 1.02;
 }
 
-void Painter::ClearXScale()
+void Painter::ClearTopXScale()
 {
   // This function will clear the region containing the
-  // X scale so that it can be redrawn with a different
+  // bottom X scale so that it can be redrawn with a different
+  // offset. We need to be careful not to affect the y scale,
+  // since it is not necessarily redrawn as well.
+  gVirtualX->FillRectangle(fDrawable, fClearGC,
+						   fXBase-2, fYBase-fHeight-11,
+						   fWidth+4, 9);
+  gVirtualX->FillRectangle(fDrawable, fClearGC,
+						   fXBase-40, fYBase-fHeight-32,
+						   fWidth+60, 20);
+}
+
+void Painter::ClearBottomXScale()
+{
+  // This function will clear the region containing the
+  // bottom X scale so that it can be redrawn with a different
   // offset. We need to be careful not to affect the y scale,
   // since it is not necessarily redrawn as well.
   gVirtualX->FillRectangle(fDrawable, fClearGC,
@@ -369,6 +389,53 @@ void Painter::GetTicDistance(double tic, double& major_tic, double& minor_tic, i
 	major_tic = 2.0 * exp;
 	minor_tic = 1.0 * exp;
   }
+}
+
+void Painter::DrawXNonlinearScale(UInt_t x1, UInt_t x2, bool top, const Calibration& cal)
+{
+  int x;
+  int y = top ? fYBase - fHeight - 2 : fYBase + 2;
+  int sgn = top ? -1 : 1;
+  char tmp[16];
+  char fmt[5] = "%.0f";
+  size_t len;
+  int i, i2;
+  double major_tic, minor_tic;
+  int n=0;
+
+  //GetTicDistance(cal.E2Ch(XtoE(x1)) - cal.E2Ch(XtoE(x2)), major_tic, minor_tic, n);
+  minor_tic = 10.0;
+  major_tic = 50.0;
+
+  // Set the required precision
+  //if(n < 0)
+  //  fmt[2] = '0' - n;
+
+  // Draw the minor tics
+  i = (int) TMath::Ceil(cal.E2Ch(XtoE(x1)) / minor_tic);
+  i2 = (int) TMath::Floor(cal.E2Ch(XtoE(x2)) / minor_tic);
+
+  for(i; i<=i2; i++) {
+	x = (UInt_t) EtoX(cal.Ch2E((double) i * minor_tic));
+	gVirtualX->DrawLine(fDrawable, fAxisGC, x, y, x, y+5*sgn);
+  }
+
+  // Draw the major tics
+  i = (int) TMath::Ceil(cal.E2Ch(XtoE(x1)) / major_tic);
+  i2 = (int) TMath::Floor(cal.E2Ch(XtoE(x2)) / major_tic);
+
+  for(i; i<=i2; i++) {
+	x = (UInt_t) EtoX(cal.Ch2E((double) i * major_tic));
+	gVirtualX->DrawLine(fDrawable, fAxisGC, x, y, x, y+9*sgn);
+  
+	// TODO: handle len > 16
+	len = snprintf(tmp, 16, fmt, (double) major_tic * i);
+	if(top)
+      DrawString(fAxisGC, x, y-12, tmp, len, kCenter, kBottom);
+    else
+      DrawString(fAxisGC, x, y+12, tmp, len, kCenter, kTop);
+  }
+  
 }
 
 void Painter::DrawXScale(UInt_t x1, UInt_t x2)

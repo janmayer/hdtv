@@ -35,11 +35,13 @@ class Fitter {
     Fitter();
     Param AllocParam();
     Param AllocParam(double ival);
+    inline bool IsFinal() { return fFinal; }
     
   protected:
     int fNumParams;
+    bool fFinal;
     
-    void SetParameter(TF1 *func, Param& param, double ival=0.0);
+    void SetParameter(TF1& func, Param& param, double ival=0.0);
 };
 
 } // end namespace Fit

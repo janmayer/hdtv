@@ -19,23 +19,41 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  * 
  */
+ 
+#ifndef __DisplayStack_h__
+#define __DisplayStack_h__
 
-#ifndef __YMarker_h__
-#define __YMarker_h__
-
+#include <list>
+#include "DisplayObj.h"
 #include "Marker.h"
-#include "Calibration.h"
+#include "Painter.h"
 
 namespace HDTV {
 namespace Display {
 
 class View1D;
 
-class YMarker : public Marker {
+class DisplayStack {
   public:
-    YMarker(View1D *view, int n, double p1, double p2=0.0, int col=5);
-    virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter)
-      { painter.DrawYMarker(this, x1, x2); }
+    DisplayStack(View1D *view) { fView = view; }
+    ~DisplayStack();
+    void Update();
+    inline void LockUpdate();
+    inline void UnlockUpdate();
+    void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter);
+    
+    typedef std::list<DisplayObj *> ObjList;
+    typedef std::list<Marker *> MarkerList;
+    
+    ObjList fSpectra;
+    ObjList fFunctions;
+    ObjList fMisc;   // junk drawer
+    MarkerList fMarkers;
+    
+    View1D* fView;
+    
+  private:
+    void PaintList(ObjList& objects, UInt_t x1, UInt_t x2, Painter& painter);
 };
 
 } // end namespace Display

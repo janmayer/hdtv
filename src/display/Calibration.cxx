@@ -74,6 +74,9 @@ void Calibration::SetCal(double cal0, double cal1, double cal2, double cal3)
 
 void Calibration::UpdateDerivative()
 {
+  // Update the coefficients of the derivative polynomial.
+  // (Internal use only.)
+
   std::vector<double>::iterator c = fCal.begin();
   c++;
   double a = 1.0;
@@ -85,11 +88,16 @@ void Calibration::UpdateDerivative()
   }
 }
 
-double Calibration::Ch2E(double ch)
+double Calibration::Ch2E(double ch) const
 {
   // Convert a channel to an energy, using the chosen energy
   // calibration.
-  std::vector<double>::reverse_iterator c = fCal.rbegin();
+  
+  // Catch special case of a trivial calibration
+  if(fCal.empty())
+    return ch;
+  
+  std::vector<double>::const_reverse_iterator c = fCal.rbegin();
   double E = *c++;
   
   while(c != fCal.rend())
@@ -98,9 +106,16 @@ double Calibration::Ch2E(double ch)
   return E;
 }
 
-double Calibration::dEdCh(double ch)
+double Calibration::dEdCh(double ch) const
 {
-  std::vector<double>::reverse_iterator c = fCalDeriv.rbegin();
+  // Calculate the slope of the calibration function, \frac{dE}{dCh},
+  // at position ch .
+
+  // Catch special case of a trivial calibration
+  if(fCal.empty())
+    return 1.0;
+
+  std::vector<double>::const_reverse_iterator c = fCalDeriv.rbegin();
   double slope = *c++;
   
   while(c != fCalDeriv.rend())
@@ -109,21 +124,26 @@ double Calibration::dEdCh(double ch)
   return slope;
 }
 
-// Convert an energy to a channel, using the chosen energy
-// calibration.
-// TODO: deal with slope == 0.0
-double Calibration::E2Ch(double e)
+double Calibration::E2Ch(double e) const
 {
+  // Convert an energy to a channel, using the chosen energy
+  // calibration.
+  // TODO: deal with slope == 0.0
+  
+  // Catch special case of a trivial calibration
+  if(fCal.empty())
+    return e;
+
   double ch = 1.0;
   double de = Ch2E(ch) - e;
   double slope;
   double _e = TMath::Abs(e);
-  std::vector<double>::reverse_iterator c;
+  std::vector<double>::const_reverse_iterator c;
   
   if(_e < 1.0) _e = 1.0;
   
   for(int i=0; i<10 && TMath::Abs(de / _e) > 1e-10; i++) {
-    /* Calculate slope */
+    // Calculate slope
     c = fCalDeriv.rbegin();
     slope = *c++;
     while(c != fCalDeriv.rend()) {
@@ -135,7 +155,7 @@ double Calibration::E2Ch(double e)
   }
   
   if(TMath::Abs(de / _e) > 1e-10) {
-    cout << "Warning: Solver failed to converge in GSCalibration::E2Ch()." << endl;
+    cout << "Warning: Solver failed to converge in Calibration::E2Ch()." << endl;
   } 
   
   return ch;

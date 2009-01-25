@@ -28,6 +28,7 @@ namespace Fit {
 Fitter::Fitter()
 {
   fNumParams = 0;
+  fFinal = false;
 }
 
 Param Fitter::AllocParam()
@@ -40,13 +41,13 @@ Param Fitter::AllocParam(double ival)
   return Param::Free(fNumParams++, ival);
 }
 
-void Fitter::SetParameter(TF1 *func, Param& param, double ival)
+void Fitter::SetParameter(TF1& func, Param& param, double ival)
 {
   if(!param.HasIVal())
     param.SetValue(ival);
   
   if(param.IsFree())
-    func->SetParameter(param._Id(), param._Value());
+    func.SetParameter(param._Id(), param._Value());
 }
 
 } // end namespace Fit

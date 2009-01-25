@@ -38,9 +38,13 @@
 #include <math.h>
 #include <limits>
 #include <vector>
+#include <memory>
 
 #include "Param.h"
 #include "Fitter.h"
+#include "Background.h"
+
+#include <Riostream.h>
 
 namespace HDTV {
 namespace Fit {
@@ -55,8 +59,12 @@ class TheuerkaufPeak {
                    const Param& tr = Param::None(),
                    const Param& sh = Param::None(),
                    const Param& sw = Param::None());
+    TheuerkaufPeak(const TheuerkaufPeak& src);
+    TheuerkaufPeak& operator=(const TheuerkaufPeak& src);
 
-    double Eval(double x, double *p);
+    double Eval(double *x, double *p);
+    double EvalNoStep(double *x, double *p);
+    double EvalStep(double *x, double *p);
     
     inline double GetPos() const        { return fPos.Value(fFunc); }
     inline double GetPosError() const   { return fPos.Error(fFunc); }
@@ -94,6 +102,8 @@ class TheuerkaufPeak {
     inline bool StepWidthIsFree() const      { return fHasStep ? fSW.IsFree() : false; }
                                             
     inline void SetFunc(TF1 *func) { fFunc = func; }
+    
+    TF1* GetFunc();
 
   private:
     double GetNorm(double sigma, double tl, double tr);
@@ -101,29 +111,38 @@ class TheuerkaufPeak {
     Param fPos, fVol, fSigma, fTL, fTR, fSH, fSW;
     bool fHasLeftTail, fHasRightTail, fHasStep;
     TF1 *fFunc;
+    std::auto_ptr<TF1> fPeakFunc;
     
     double fCachedNorm;
     double fCachedSigma, fCachedTL, fCachedTR;
+    
+    static const double DECOMP_FUNC_WIDTH;
 };
 
 class TheuerkaufFitter : public Fitter {
   public:
     TheuerkaufFitter(double r1, double r2);
+
     void AddPeak(const TheuerkaufPeak& peak);
-    TF1* Fit(TH1 *hist, TF1 *bgFunc);
-    TF1* Fit(TH1 *hist, int intBgDeg=-1);
+    void Fit(TH1& hist, const Background& bg);
+    void Fit(TH1& hist, int intBgDeg=-1);
     inline int GetNumPeaks() { return fNumPeaks; }
     inline const TheuerkaufPeak& GetPeak(int i) { return fPeaks[i]; }
     inline double GetChisquare() { return fChisquare; }
+    inline TF1* GetSumFunc() { return fSumFunc.get(); }
+    TF1* GetBgFunc();
     
   private:
     double Eval(double *x, double *p);
-    TF1* _Fit(TH1 *hist);
+    double EvalBg(double *x, double *p);
+    void _Fit(TH1& hist);
 
     int fIntBgDeg;
     double fMin, fMax;
     std::vector<TheuerkaufPeak> fPeaks;
-    TF1 *fBgFunc;
+    std::auto_ptr<Background> fBackground;
+    std::auto_ptr<TF1> fSumFunc;
+    std::auto_ptr<TF1> fBgFunc;
     int fNumPeaks;
     double fChisquare;
 };

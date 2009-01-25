@@ -21,13 +21,17 @@
  */
 
 #include "Marker.h"
+#include "DisplayStack.h"
+#include "View1D.h"
+
 #include <TROOT.h>
 
 namespace HDTV {
 namespace Display {
 
-Marker::Marker(int n, double p1, double p2, int col)
+Marker::Marker(View1D *view, int n, double p1, double p2, int col)
 {
+  fDisplayStack = view->GetDisplayStack();
   fN = n;
 
   if(n <= 1 || p1 <= p2) {
@@ -50,12 +54,24 @@ Marker::Marker(int n, double p1, double p2, int col)
   gval.fForeground = color->GetPixel();
   gval.fLineStyle = kLineOnOffDash;
   fDashedGC = gClient->GetGCPool()->GetGC(&gval, true);
+  
+  fDisplayStack->fMarkers.insert(fDisplayStack->fMarkers.end(), this);
+  fDisplayStack->Update();
 }
 
 Marker::~Marker(void)
 {
+  fDisplayStack->fMarkers.remove(this);
+  fDisplayStack->Update();
+
   gClient->GetGCPool()->FreeGC(fGC);
   gClient->GetGCPool()->FreeGC(fDashedGC);
+}
+
+void Marker::Update()
+{
+  if(fDisplayStack)
+    fDisplayStack->Update();
 }
 
 } // end namespace Display

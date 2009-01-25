@@ -30,21 +30,53 @@
 #include <TF1.h>
 #include <TH1.h>
 #include <list>
+#include <memory>
+#include <Riostream.h>
+
+#include "Background.h"
 
 namespace HDTV {
 namespace Fit {
 
-class PolyBg {
+class PolyBg: public Background {
   public:
     PolyBg(int bgDeg=0);
-    TF1 *Fit(TH1 *hist);
+    PolyBg(const PolyBg& src);
+    PolyBg& operator= (const PolyBg& src);
+    
+    double GetCoeff(int i)
+      { return fFunc.get() != 0 ? fFunc->GetParameter(i) :
+              std::numeric_limits<double>::quiet_NaN(); }
+    double GetCoeffError(int i)
+      { return fFunc.get() != 0 ? fFunc->GetParError(i) :
+              std::numeric_limits<double>::quiet_NaN(); }
+    inline int GetDegree()        { return fBgDeg; }
+    inline double GetChisquare()  { return fChisquare; }
+    virtual double GetMin()
+      { return fBgRegions.empty() ? std::numeric_limits<double>::quiet_NaN() :
+                  *(fBgRegions.begin()); }
+    virtual double GetMax()
+      { return fBgRegions.empty() ? std::numeric_limits<double>::quiet_NaN() :
+                  *(fBgRegions.rbegin()); }
+    
+    void Fit(TH1& hist);
     void AddRegion(double p1, double p2);
-    double EvalRegion(double *x, double *p);
-    double Eval(double *x, double *p);
+    virtual PolyBg* Clone() const
+      { return new PolyBg(*this); }    
+    virtual double Eval(double x)
+      { return fFunc.get() != 0 ? fFunc->Eval(x) : 0.0; }
+    virtual TF1* GetFunc()
+      { return fFunc.get(); }
 
   private:
+    double _EvalRegion(double *x, double *p);
+    double _Eval(double *x, double *p);
+  
     std::list<double> fBgRegions;
     int fBgDeg;
+    
+    std::auto_ptr<TF1> fFunc;
+    double fChisquare;
 };
 
 } // end namespace Fit

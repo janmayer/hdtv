@@ -62,7 +62,7 @@ class View:
 			spec.Realize(viewport, False)
 		# finally update the viewport
 		if update:
-			viewport.Update(True)
+			viewport.Update()
 		
 	def Delete(self, update=True):
 		"""

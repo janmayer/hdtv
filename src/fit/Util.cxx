@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ *  Copyright (C) 2006-2008  Norbert Braun <n.braun@ikp.uni-koeln.de>
  *
  * This file is part of HDTV.
  *
@@ -19,26 +19,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  * 
  */
+ 
+#include "Util.h"
 
-#ifndef __YMarker_h__
-#define __YMarker_h__
-
-#include "Marker.h"
-#include "Calibration.h"
+#include <sstream>
 
 namespace HDTV {
-namespace Display {
 
-class View1D;
+std::string GetFuncUniqueName(const char *prefix, void *ptr)
+{
+  // Constructs a unique name for a function by concatenation of an instance-unique prefix
+  // and a textual representation of this .
+  
+  std::ostringstream name;
+  name << prefix << "_" << ptr;
+  
+  return name.str();
+}
 
-class YMarker : public Marker {
-  public:
-    YMarker(View1D *view, int n, double p1, double p2=0.0, int col=5);
-    virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter)
-      { painter.DrawYMarker(this, x1, x2); }
-};
-
-} // end namespace Display
 } // end namespace HDTV
-
-#endif

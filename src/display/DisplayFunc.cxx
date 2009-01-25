@@ -22,17 +22,23 @@
 
 #include "DisplayFunc.h"
 
+#include "DisplayStack.h"
+
+#include <iostream>
+
 namespace HDTV {
 namespace Display {
 
 DisplayFunc::DisplayFunc(const TF1 *func, int col) : DisplayObj(col)
 {
-  fFunc = new TF1(*func);
+  fFunc = func;
 }
 
-DisplayFunc::~DisplayFunc()
+DisplayStack::ObjList& DisplayFunc::GetList(DisplayStack *stack)
 {
-  delete fFunc;
+  // Return the stacks object list where this kind of object should be inserted
+
+  return stack->fFunctions;
 }
 
 } // end namespace Display

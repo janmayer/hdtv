@@ -44,6 +44,12 @@ class DisplaySpec : public DisplayObj {
    inline double GetBinContent(Int_t bin) { return fSpec->GetBinContent(bin); }
    inline Int_t GetNbinsX(void) { return fSpec->GetNbinsX(); }
    double GetMax_Cached(int b1, int b2);
+   
+   // HDTV::Display:: required for CINT
+   virtual std::list<HDTV::Display::DisplayObj *>& GetList(DisplayStack *stack);
+   
+   virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter)
+      { if (IsVisible()) painter.DrawSpectrum(this, x1, x2); }
 
  private:
    TH1 *fSpec;

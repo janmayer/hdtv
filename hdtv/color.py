@@ -1,25 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import ROOT
  
 """
-Color definitions
+Default colors for HDTV
 """
 
-# ROOT palette
-kBlack = 1
-kRed = 2
-kGreen = 3
-kBlue = 4
-kYellow = 5
-kMagenta = 6
-kCyan = 7
-kMint = 8
-kPurple = 9
-kWhite = 10
-kGrey = 11
-kDarkGrey = 12
-
-# some default colors
+# some default colors: OBSOLETE
 kSpecDef = 2
 kFitDef = 25
+
+# Default colors for fit functions
+FIT_SUM_FUNC = ROOT.kOrange - 3
+FIT_BG_FUNC = ROOT.kGreen
+FIT_DECOMP_FUNC = ROOT.kMagenta + 1
 

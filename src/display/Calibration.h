@@ -30,6 +30,8 @@ namespace HDTV {
 
 class Calibration {
   public:
+    Calibration() { }
+  
    	Calibration(double cal0)
   	  { SetCal(cal0); }
 
@@ -51,9 +53,11 @@ class Calibration {
 	void SetCal(double cal0, double cal1, double cal2, double cal3);
 	void SetCal(std::vector<double> cal);
 	
-    double Ch2E(double ch);
-    double dEdCh(double ch);
-    double E2Ch(double e);
+    inline operator bool() const { return !fCal.empty(); }
+	
+    double Ch2E(double ch) const;
+    double dEdCh(double ch) const;
+    double E2Ch(double e) const;
     
     void Apply(TAxis *axis, int nbins);
     
