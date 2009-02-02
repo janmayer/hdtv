@@ -216,6 +216,7 @@ class FitPanel:
 
 		optionsFrame = self.fFitInfo.AddTab("Options")
 		fitFrame = self.fFitInfo.AddTab("Fit")
+		# listFrame = self.fFitInfo.AddTab("Peak list")
 		
 		self.fOptionsText = ROOT.TGTextView(optionsFrame, 400, 500)
 		optionsFrame.AddFrame(self.fOptionsText,

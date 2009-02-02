@@ -79,7 +79,10 @@ class SpecWindow(hdtv.window.Window, hdtv.fitgui.FitGUI):
 		self.fCurrentSpec = spec
 		self.fFitter.spec = spec
 		
-		self.SetTitle(self.fCurrentSpec.fHist.GetTitle())
+		if self.fCurrentSpec:
+			self.SetTitle(self.fCurrentSpec.fHist.GetTitle())
+		else:
+			self.SetTitle("No spectrum")
 		
 	def ColorForID(self, sid, satur, value):
 		"""
@@ -197,7 +200,7 @@ class SpecWindow(hdtv.window.Window, hdtv.fitgui.FitGUI):
 			print "%d %s %s" % (sid, stat, spec.fHist.GetName())
 			
 	def DeleteSpectrum(self, sid):
-		self.fSpectra[sid].Delete(False)
+		self.fSpectra[sid].Delete()
 		del self.fSpectra[sid]
 		if self.fActiveID == sid:
 			self.fActiveID = None

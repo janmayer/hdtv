@@ -287,7 +287,7 @@ class Fit:
 			
 		if self.showDecomp and self.fitter:
 			for i in range(0, self.fitter.GetNumPeaks()):
-				func = self.fitter.GetPeak(i).GetFunc()
+				func = self.fitter.GetPeak(i).GetPeakFunc()
 				dispFunc = ROOT.HDTV.Display.DisplayFunc(func, color.FIT_DECOMP_FUNC)
 				if self.spec.fCal:
 					dispFunc.SetCal(self.spec.fCal)
@@ -311,7 +311,7 @@ class Fit:
 		if not self.showDecomp and stat:
 			if self.viewport and self.fitter:
 				for i in range(0, self.fitter.GetNumPeaks()):
-					func = self.fitter.GetPeak(i).GetFunc()
+					func = self.fitter.GetPeak(i).GetPeakFunc()
 					dispFunc = ROOT.HDTV.Display.DisplayFunc(func, color.FIT_DECOMP_FUNC)
 					if self.spec.fCal:
 						dispFunc.SetCal(self.spec.fCal)

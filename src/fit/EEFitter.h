@@ -43,8 +43,10 @@ class EEPeak {
   public:
     EEPeak(const Param& pos, const Param& amp, const Param& sigma1, const Param& sigma2,
            const Param& eta, const Param& gamma);
+    EEPeak(const EEPeak& src);
+    EEPeak& operator=(const EEPeak& src);
   
-    double Eval(double x, double *p);
+    double Eval(double *x, double *p);
     
     inline double GetPos()          { return fPos.Value(fFunc); };
     inline double GetPosError()     { return fPos.Error(fFunc); };
@@ -62,14 +64,19 @@ class EEPeak {
     inline double GetVol()          { return fVol; }
     inline double GetVolError()     { return fVolError; }
                                                 
-    inline void SetFunc(TF1 *func) { fFunc = func; }
+    inline void SetSumFunc(TF1 *func) { fFunc = func; }
+    
+    TF1* GetPeakFunc();
 
   private:
     void StoreIntegral();
-    double fVol, fVolError;
   
     Param fPos, fAmp, fSigma1, fSigma2, fEta, fGamma;
+    double fVol, fVolError;
     TF1 *fFunc;
+    std::auto_ptr<TF1> fPeakFunc;
+    
+    static const double DECOMP_FUNC_WIDTH;
 };
 
 class EEFitter : public Fitter {
@@ -82,13 +89,19 @@ class EEFitter : public Fitter {
     inline const EEPeak& GetPeak(int i) { return fPeaks[i]; }
     inline double GetChisquare() { return fChisquare; }
     inline TF1* GetSumFunc() { return fSumFunc.get(); }
+    TF1* GetBgFunc();
     
     // For debugging only
     //inline double GetVol()          { return fInt; }
     //inline double GetVolError()     { return fIntError; }
     
   private:
+    // Copying the fitter is not supported
+    EEFitter(const EEFitter& src) { }
+    EEFitter& operator=(const EEFitter& src) { return *this; }
+  
     double Eval(double *x, double *p);
+    double EvalBg(double *x, double *p);
     void _Fit(TH1& hist);
   
     int fIntBgDeg;
@@ -96,6 +109,7 @@ class EEFitter : public Fitter {
     std::vector<EEPeak> fPeaks;
     std::auto_ptr<Background> fBackground;
     std::auto_ptr<TF1> fSumFunc;
+    std::auto_ptr<TF1> fBgFunc;
     int fNumPeaks;
     double fChisquare;
     

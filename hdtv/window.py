@@ -29,7 +29,7 @@ class KeyHandler:
 				try:
 					curNode = curNode[k]
 					if type(curNode) != DictType:
-						raise RuntimeError, "Refusing to non-matching hotkey"
+						raise RuntimeError, "Refusing to delete non-matching hotkey"
 				except KeyError:
 					curNode[k] = dict()
 					curNode = curNode[k]
@@ -118,7 +118,7 @@ class Window(KeyHandler):
 		
 	def SetTitle(self, title):
 		"Set the window title"
-		pass # FIXME
+		self.fViewer.SetWindowName(title)
 		
 	def AddView(self, title=None):
 		"""
@@ -241,7 +241,7 @@ class Window(KeyHandler):
   			setOffset(min(zm.p1, zm.p2))
   			setVisibleRegion = getattr(self.fViewport, "Set%sVisibleRegion" % xytype)
   			setVisibleRegion(abs(zm.p2 - zm.p1))
-  			zm.Delete(self.fViewport)
+  			zm.Delete()
   			getattr(self,"f%sZoomMarkers" %xytype).pop()
   		else:
   			if xytype == "X":

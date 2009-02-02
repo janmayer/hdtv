@@ -101,9 +101,9 @@ class TheuerkaufPeak {
                                                 std::numeric_limits<double>::quiet_NaN(); }
     inline bool StepWidthIsFree() const      { return fHasStep ? fSW.IsFree() : false; }
                                             
-    inline void SetFunc(TF1 *func) { fFunc = func; }
+    inline void SetSumFunc(TF1 *func) { fFunc = func; }
     
-    TF1* GetFunc();
+    TF1* GetPeakFunc();
 
   private:
     double GetNorm(double sigma, double tl, double tr);
@@ -133,6 +133,10 @@ class TheuerkaufFitter : public Fitter {
     TF1* GetBgFunc();
     
   private:
+    // Copying the fitter is not supported
+    TheuerkaufFitter(const TheuerkaufFitter& src) { }
+    TheuerkaufFitter& operator=(const TheuerkaufFitter& src) { return *this; }
+  
     double Eval(double *x, double *p);
     double EvalBg(double *x, double *p);
     void _Fit(TH1& hist);

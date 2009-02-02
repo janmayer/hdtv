@@ -21,6 +21,7 @@
  */
  
 #include "EEFitter.h"
+#include "Util.h"
 #include <TMath.h>
 #include <TVirtualFitter.h>
 #include <TError.h>
@@ -32,20 +33,54 @@ namespace Fit {
 
 EEPeak::EEPeak(const Param& pos, const Param& amp, const Param& sigma1, const Param& sigma2,
                const Param& eta, const Param& gamma)
+  : fPos(pos),
+    fAmp(amp),
+    fSigma1(sigma1),
+    fSigma2(sigma2),
+    fEta(eta),
+    fGamma(gamma),
+    fVol(std::numeric_limits<double>::quiet_NaN()),
+    fVolError(std::numeric_limits<double>::quiet_NaN()),
+    fFunc(NULL),
+    fPeakFunc(0)
+{ }
+
+EEPeak::EEPeak(const EEPeak& src)
+  : fPos(src.fPos),
+    fAmp(src.fAmp),
+    fSigma1(src.fSigma1),
+    fSigma2(src.fSigma2),
+    fEta(src.fEta),
+    fGamma(src.fGamma),
+    fVol(src.fVol),
+    fVolError(src.fVolError),
+    fFunc(src.fFunc),
+    fPeakFunc(0)    // Do not copy the fPeakFunc pointer, it will be generated when needed.
+{ }
+
+EEPeak& EEPeak::operator=(const EEPeak& src)
 {
-  fPos = pos;
-  fAmp = amp;
-  fSigma1 = sigma1;
-  fSigma2 = sigma2;
-  fEta = eta;
-  fGamma = gamma;
+  fPos = src.fPos;
+  fAmp = src.fAmp;
+  fSigma1 = src.fSigma1;
+  fSigma2 = src.fSigma2;
+  fEta = src.fEta;
+  fGamma = src.fGamma;
   
-  fFunc = NULL;
+  fVol = src.fVol;
+  fVolError = src.fVolError;
+  
+  fFunc = src.fFunc;
+  
+  // Do not copy the fPeakFunc pointer, it will be generated when needed.
+  fPeakFunc.reset(0);
+  
+  return *this;
 }
 
-double EEPeak::Eval(double x, double* p)
+double EEPeak::Eval(double *x, double* p)
 {
-  double dx = x - fPos.Value(p);
+  double dx = *x - fPos.Value(p);
   double sigma1 = fSigma1.Value(p);
   double sigma2 = fSigma2.Value(p);
   double eta = fEta.Value(p);
@@ -63,6 +98,31 @@ double EEPeak::Eval(double x, double* p)
   }
   
   return fAmp.Value(p) * _y;
+}
+
+const double EEPeak::DECOMP_FUNC_WIDTH = 4.0;
+
+TF1 *EEPeak::GetPeakFunc()
+{
+  if(fPeakFunc.get() != 0)
+    return fPeakFunc.get();
+    
+  if(fFunc == NULL)
+    return NULL;
+    
+  double min = fPos.Value(fFunc) - DECOMP_FUNC_WIDTH * fSigma1.Value(fFunc);
+  double max = fPos.Value(fFunc) + DECOMP_FUNC_WIDTH * fSigma2.Value(fFunc);
+  int numParams = fFunc->GetNpar();
+    
+  fPeakFunc.reset(new TF1(GetFuncUniqueName("eepeak", this).c_str(),
+                          this, &EEPeak::Eval, min, max,
+                          numParams, "EEPeak", "Eval"));
+                          
+  for(int i=0; i<numParams; i++) {
+    fPeakFunc->SetParameter(i, fFunc->GetParameter(i));
+  }
+  
+  return fPeakFunc.get();
 }
 
 // Initialize fVol and fVolError
@@ -194,6 +254,8 @@ void EEFitter::AddPeak(const EEPeak& peak)
 
 double EEFitter::Eval(double *x, double *p)
 {
+  // Private: evaluation function for fit
+  
   double sum = 0.0;
   
   // Evaluate background function, if it has been given
@@ -210,10 +272,63 @@ double EEFitter::Eval(double *x, double *p)
   // Evaluate peaks
   std::vector<EEPeak>::iterator iter;
   for(iter = fPeaks.begin(); iter != fPeaks.end(); iter++) {
-    sum += iter->Eval(*x, p);
+    sum += iter->Eval(x, p);
   }
   
   return sum;
+}
+
+double EEFitter::EvalBg(double *x, double *p)
+{
+  // Private: evaluation function for background
+  
+  double sum = 0.0;
+  
+  // Evaluate background function, if it has been given
+  if(fBackground.get() != 0)
+    sum = fBackground->Eval(*x);
+    
+  // Evaluate internal background
+  double bg = 0.0;
+  for(int i=fNumParams-1; i >= (fNumParams-fIntBgDeg-1); i--) {
+    bg = bg * *x + p[i];
+  }
+  sum += bg;
+  
+  return sum;
+}
+
+TF1* EEFitter::GetBgFunc()
+{
+  // Return a pointer to a function describing this fits background.
+  // The function remains owned by the EEFitter and is only valid as long
+  // as the EEFitter is.
+  
+  if(fBgFunc.get() != 0)
+    return fBgFunc.get();
+    
+  if(fSumFunc.get() == 0)
+    return 0;
+    
+  double min, max;
+  if(fBackground.get() != 0) {
+    min = TMath::Min(fMin, fBackground->GetMin());
+    max = TMath::Max(fMax, fBackground->GetMax());
+  } else {
+    min = fMin;
+    max = fMax;
+  }
+    
+  fBgFunc.reset(new TF1(GetFuncUniqueName("fitbg_ee", this).c_str(),
+                        this, &EEFitter::EvalBg, min, max,
+                        fNumParams, "EEFitter", "EvalBg"));
+                        
+  for(int i=0; i<fNumParams; i++) {
+    fBgFunc->SetParameter(i, fSumFunc->GetParameter(i));
+    fBgFunc->SetParError(i, fSumFunc->GetParError(i));
+  }
+                         
+  return fBgFunc.get();
 }
 
 void EEFitter::Fit(TH1& hist, const Background& bg)
@@ -269,7 +384,7 @@ void EEFitter::_Fit(TH1& hist)
 	SetParameter(*fSumFunc, iter->fEta, 1.0);
 	SetParameter(*fSumFunc, iter->fGamma, 1.0);
 	
-	iter->SetFunc(fSumFunc.get());
+	iter->SetSumFunc(fSumFunc.get());
   }
   
   // Do the fit

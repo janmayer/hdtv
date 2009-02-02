@@ -200,10 +200,10 @@ class Spectrum:
 		Delete this spectrum from the window.
 		"""
 		if self.fViewport:
-			self.fViewport.LockUpdates()
+			self.fViewport.LockUpdate()
 		
 		# Delete this spectrum
-		del self.fDisplaySpec
+		self.fDisplaySpec.Remove()
 		self.fDisplaySpec = None
 			
 		# delete all fits
@@ -212,7 +212,7 @@ class Spectrum:
 		
 		# update the viewport
 		if self.fViewport:
-			self.fViewport.UnlockUpdates()
+			self.fViewport.UnlockUpdate()
 
 		# finally remove the viewport from this object
 		self.fViewport = None

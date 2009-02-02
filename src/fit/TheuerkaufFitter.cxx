@@ -75,22 +75,20 @@ TheuerkaufPeak::TheuerkaufPeak(const Param& pos, const Param& vol, const Param& 
 }
 
 TheuerkaufPeak::TheuerkaufPeak(const TheuerkaufPeak& src)
+  : fPos(src.fPos),
+    fVol(src.fVol),
+    fSigma(src.fSigma),
+    fTL(src.fTL),
+    fTR(src.fTR),
+    fSH(src.fSH),
+    fSW(src.fSW),
+    fHasLeftTail(src.fHasLeftTail),
+    fHasRightTail(src.fHasRightTail),
+    fHasStep(src.fHasStep),
+    fFunc(src.fFunc),
+    fPeakFunc(0)   // Do not copy the fPeakFunc pointer, it will be generated when needed.
 {
   // Copy constructor
-
-  fPos = src.fPos;
-  fVol = src.fVol;
-  fSigma = src.fSigma;
-  fTL = src.fTL;
-  fTR = src.fTR;
-  fSH = src.fSH;
-  fSW = src.fSW;
-  fHasLeftTail = src.fHasLeftTail;
-  fHasRightTail = src.fHasRightTail;
-  fHasStep = src.fHasStep;
-  fFunc = src.fFunc;
-  
-  // Do not copy the fPeakFunc pointer, it will be generated when needed.
 }
 
 TheuerkaufPeak& TheuerkaufPeak::operator= (const TheuerkaufPeak& src)
@@ -110,13 +108,14 @@ TheuerkaufPeak& TheuerkaufPeak::operator= (const TheuerkaufPeak& src)
   fFunc = src.fFunc;
   
   // Do not copy the fPeakFunc pointer, it will be generated when needed.
+  fPeakFunc.reset(0);
   
   return *this;
 }
 
 const double TheuerkaufPeak::DECOMP_FUNC_WIDTH = 5.0;
 
-TF1 *TheuerkaufPeak::GetFunc()
+TF1 *TheuerkaufPeak::GetPeakFunc()
 {
   if(fPeakFunc.get() != 0)
     return fPeakFunc.get();
@@ -397,7 +396,7 @@ void TheuerkaufFitter::_Fit(TH1& hist)
 	  needPreFit = true;
 	}
 	
-	iter->SetFunc(fSumFunc.get());
+	iter->SetSumFunc(fSumFunc.get());
   }
   
   if(needPreFit) {
