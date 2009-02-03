@@ -1,11 +1,10 @@
 import ROOT
-import dlmgr
-from view import View
-from marker import Marker
+import hdtv.dlmgr
+from hdtv.marker import Marker
 
 from types import *
 
-dlmgr.LoadLibrary("display")
+hdtv.dlmgr.LoadLibrary("display")
 
 class KeyHandler:
 	"Class to handle multi-key hotkeys."
@@ -29,7 +28,7 @@ class KeyHandler:
 				try:
 					curNode = curNode[k]
 					if type(curNode) != DictType:
-						raise RuntimeError, "Refusing to delete non-matching hotkey"
+						raise RuntimeError, "Refusing to non-matching hotkey"
 				except KeyError:
 					curNode[k] = dict()
 					curNode = curNode[k]
@@ -70,140 +69,45 @@ class Window(KeyHandler):
 	"""
 	Base class of a window object 
 
-	This class provides a default key handling.
-	A window can contain several views, which again can contain several spectra.
-	To change the currently displayed view, use the PAGEUP and the PAGEDOWN keys.
+	This class provides a basic key handling for zooming and scrolling.
 	"""
 	def __init__(self):
 		KeyHandler.__init__(self)
 	
 		self.fViewer = ROOT.HDTV.Display.Viewer()
 		self.fViewport = self.fViewer.GetViewport()
-		self.fViews = []
-		self.fCurViewID = -1
+	
 		self.fXZoomMarkers = []
 		self.fYZoomMarkers = []
 		self.fPendingMarker = None
-		
+
+		# Key Handling
 		self.fKeyDispatch = ROOT.TPyDispatcher(self.KeyHandler)
 		self.fViewer.Connect("KeyPressed()", "TPyDispatcher", 
 							 self.fKeyDispatch, "Dispatch()")
 		
 		self.fKeyString = ""
-		self.AddKey(ROOT.kKey_u, lambda: self.fViewport.Update(True))
+		self.AddKey(ROOT.kKey_u, lambda: self.fViewport.Update())
 		# toggle spectrum display
 		self.AddKey(ROOT.kKey_l, self.fViewport.ToggleLogScale)
-		self.AddKey(ROOT.kKey_a, self.ToggleYAutoScale)
+		self.AddKey(ROOT.kKey_a, self.fViewport.ToggleYAutoScale)
 		# x directions
 		self.AddKey(ROOT.kKey_Space, self.PutXZoomMarker)
 		self.AddKey(ROOT.kKey_f, self.ExpandX)
-		self.AddKey(ROOT.kKey_Greater, lambda: self.fViewport.ShiftXOffset(0.1))
-		self.AddKey(ROOT.kKey_Less, lambda: self.fViewport.ShiftXOffset(-0.1))
+		self.AddKey(ROOT.kKey_Right, lambda: self.fViewport.ShiftXOffset(0.1))
+		self.AddKey(ROOT.kKey_Left, lambda: self.fViewport.ShiftXOffset(-0.1))
 		self.AddKey(ROOT.kKey_1, lambda: self.fViewport.XZoomAroundCursor(2.0))
 		self.AddKey(ROOT.kKey_0, lambda: self.fViewport.XZoomAroundCursor(0.5))
-		# Y direction
+		# y direction
 		self.AddKey(ROOT.kKey_h, self.PutYZoomMarker)
 		self.AddKey(ROOT.kKey_y, self.ExpandY)
-		# self.fKeys.AddKey(ROOT.kKey_Up, lambda: self.fViewport.ShiftYOffset(0.1))
-		# self.fKeys.AddKey(ROOT.kKey_Down, lambda: self.fViewport.ShiftYOffset(-0.1))
-		# self.fKeys.AddKey(ROOT.kKey_Z, lambda: self.fViewport.YZoomAroundCursor(2.0))
-		# self.fKeys.AddKey(ROOT.kKey_X, lambda: self.fViewport.YZoomAroundCursor(0.5))
+		self.AddKey(ROOT.kKey_Up, lambda: self.fViewport.ShiftYOffset(0.1))
+		self.AddKey(ROOT.kKey_Down, lambda: self.fViewport.ShiftYOffset(-0.1))
+		self.AddKey(ROOT.kKey_Z, lambda: self.fViewport.YZoomAroundCursor(2.0))
+		self.AddKey(ROOT.kKey_X, lambda: self.fViewport.YZoomAroundCursor(0.5))
 		# expand in all directions
 		self.AddKey(ROOT.kKey_e, self.Expand)
-		# switch between views
-		self.AddKey(ROOT.kKey_PageUp, lambda: self.ShowView(self.fCurViewID - 1))
-		self.AddKey(ROOT.kKey_PageDown, lambda: self.ShowView(self.fCurViewID + 1))
-		self.AddKey(ROOT.kKey_Home, lambda: self.ShowView(0))
-		self.AddKey(ROOT.kKey_End, lambda: self.ShowView(len(self.fViews)-1))
 		
-	def SetTitle(self, title):
-		"Set the window title"
-		self.fViewer.SetWindowName(title)
-		
-	def AddView(self, title=None):
-		"""
-		Add a view to this window
-
-		As an empty view without any ingredients is not very 
-		interesting, we do not update the display. The user should do that,
-		with ShowView when everything is ready.
-		"""
-		view = View(title)
-		vid = len(self.fViews)
-		self.fViews.append(view)
-		return view
-
-	def DelView(self, vid=None):
-		"""
-		Delete a view from this window
-		
-		The parameter vid defines which view should be deleted, 
-		if no vid is given the currently displayed view is deleted.
-		"""
-		if not vid:
-			vid = self.fCurViewID
-		if vid >= 0 and vid < len(self.fViews):
-			oldview = self.fViews.pop(vid)
-			# do some housekeeping, if needed
-			if vid >= self.fCurViewID :
-				if not len(self.fViews):
-					# this has been the only view
-					oldview.Delete(True)
-					self.fViewer.SetWindowName("gspec")
-					self.fCurViewID=-1
-				else:
-					oldview.Delete(False)
-					if vid==0:
-						# show the next view if the first one is deleted
-						self.fCurViewID = vid
-					else:
-						# otherwise show the previous view
-						self.fCurViewID = vid-1
-					# update the display, to show the current view
-					self.fViews[self.fCurViewID].Realize(self.fViewport, True)
-					# set title of window to the title of the new view
-					if self.fViews[self.fCurViewID].fTitle:
-						title= self.fViews[self.fCurViewID].fTitle
-						self.fViewer.SetWindowName(title)
-
-	def ShowView(self, vid):
-		"""
-		Display a special view 
-
-		This clears the old view and updates the display 
-		to show the new one. It also sets the window title to 
-		the title of the new view.
-		"""
-		if vid >= 0 and vid < len(self.fViews):
-			# hide old view
-			self.fViews[self.fCurViewID].Delete(False)
-			# show new view
-			self.fCurViewID = vid
-			self.fViews[self.fCurViewID].Realize(self.fViewport, True)
-			# set title of window to the title of the current view
-			if self.fViews[self.fCurViewID].fTitle:
-				title= self.fViews[self.fCurViewID].fTitle
-				self.fViewer.SetWindowName(title)
-			else:
-				# the view has not tite, use default title instead
-				self.fViewer.SetWindowName("gspec")
-	
-	def ClearWindow(self):
-		""" 
-		Delete everything from the window
-		"""
-		# clear the display
-		self.fViews[self.fCurViewID].Delete(True)
-		# delete all views
-		self.fViews = []
-		self.fCurViewID = -1
-		# TODO: delete all markers
-		
-	def ToggleYAutoScale(self):
-		"""
-		toggle if spectrum should automatically always be zoom to maximum Y value
-		"""
-		self.fViewport.SetYAutoScale(not self.fViewport.GetYAutoScale())
 
 	def ExpandX(self):
 		"""
@@ -281,7 +185,7 @@ class Window(KeyHandler):
 	  		collection.append(Marker(mtype, pos))
 	  		collection[-1].Realize(self.fViewport)
 	  		self.fPendingMarker = collection[-1]
-  			
+
 	def KeyHandler(self):
 		""" 
 		Default Key Handler
@@ -310,3 +214,4 @@ class Window(KeyHandler):
 			self.fKeyString = ""
 
 		return handled
+

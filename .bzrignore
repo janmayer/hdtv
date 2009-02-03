@@ -2,3 +2,6 @@
 *.so
 rootdict-*.cxx
 rootdict-*.h
+test/spectra/*
+test/spectra
+hdtv_history
