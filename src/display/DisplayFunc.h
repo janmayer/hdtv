@@ -32,7 +32,7 @@ namespace Display {
 
 class DisplayFunc : public DisplayObj {
   public:
-  	DisplayFunc(const TF1 *func, int col = DEFAULT_COLOR);
+  	DisplayFunc(TF1 *func, int col = DEFAULT_COLOR);
   	  	
   	inline TF1 *GetFunc()  { return fFunc; }
   	inline double Eval(double x)  { return fFunc->Eval(x); }
