@@ -58,6 +58,12 @@ class ObjectManager(UserDict.DictMixin):
 		return self.fObjects.keys()
 
 
+	def Add(self, obj):
+		ID = self.GetFreeID()
+		self[ID] = obj
+		return ID
+
+
 	def GetFreeID(self):
 		"""
 		Adds an object to the first free index in the manager's dict.

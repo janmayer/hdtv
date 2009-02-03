@@ -2,12 +2,12 @@ import ROOT
 import os
 import hdtv.dlmgr
 from hdtv.color import *
+from hdtv.drawable import drawable
 from hdtv.specreader import SpecReader, SpecReaderError
-from hdtv.fit import Fit
 
 hdtv.dlmgr.LoadLibrary("display")
 
-class Spectrum:
+class Spectrum(Drawable):
 	"""
 	Spectrum object
 	
@@ -22,20 +22,19 @@ class Spectrum:
 	will be used when the spectrum is displayed. 
 	"""
 	def __init__(self, hist, cal=None, color=None):
+		Drawable.__init__(self, color)
 		self.fCal = cal
 		self.fHist = hist
-#		self.fFitlist = []
-		self.fViewport = None
-		self.fDisplaySpec = None
-		self.fColor = color
 		if hist:
 			self.fZombie = False
 		else:
 			self.fZombie = True
 
+
 	def __str__(self):
 		if self.fHist:
 			return self.fHist.GetName()
+
 
 	def Draw(self, viewport):
 		"""
@@ -49,68 +48,17 @@ class Spectrum:
 		# Lock updates
 		self.fViewport.LockUpdate()
 		# Show spectrum
-		if self.fDisplaySpec == None and self.fHist != None:
+		if self.fDisplayObj == None and self.fHist != None:
 			if self.fColor==None:
 				# set to default color
 				self.fColor = kSpecDef
-			self.fDisplaySpec = ROOT.HDTV.Display.DisplaySpec(self.fHist, self.fColor)
-			self.fDisplaySpec.Draw(self.fViewport)
+			self.fDisplayObj = ROOT.HDTV.Display.DisplaySpec(self.fHist, self.fColor)
+			self.fDisplayObj.Draw(self.fViewport)
 			# add calibration
 			if self.fCal:
-				self.fDisplaySpec.SetCal(self.fCal)
+				self.fDisplayObj.SetCal(self.fCal)
 		# finally update the viewport
 		self.fViewport.UnlockUpdate()
-
-
-	def Remove(self):
-		"""
-		Remove the spectrum
-		"""
-		if not self.fViewport:
-			return
-		self.fViewport.LockUpdate()
-		# Delete this spectrum
-		self.fDisplaySpec.Remove()
-		self.fDisplaySpec = None
-		# delete all fits
-		# update the viewport
-		self.fViewport.UnlockUpdate()
-		# finally remove the viewport from this object
-		self.fViewport = None
-
-
-	def Show(self):
-		"""
-		Show the spectrum
-		"""
-		if not self.fViewport:
-			return
-		self.fViewport.LockUpdate()
-		self.fDisplaySpec.Show()
-		self.fViewport.UnlockUpdate()
-
-
-	def Hide(self):
-		"""
-		Hide the spectrum
-		"""
-		if not self.fViewport:
-			return
-		self.fViewport.LockUpdate()
-		self.fDisplaySpec.Hide()
-		self.fViewport.UnlockUpdate()
-
-
-	def SetColor(self, color):
-		"""
-		set color
-		"""
-		if color:
-			self.fColor = color
-		# update the display if needed
-		if self.fDisplaySpec != None:
-			self.fDisplaySpec.SetColor(color)
-
 
 	@classmethod
 	def FromFile(cls, fname, fmt=None, cal=None, color=None):
@@ -139,6 +87,7 @@ class Spectrum:
 		spec.fZombie = False
 		return spec
 		
+
 	def WriteSpectrum(self, fname, fmt):
 		"""
 		Write the spectrum to file
@@ -210,8 +159,8 @@ class Spectrum:
 		else:
 			self.fCal = None
 		# update the display if needed
-		if self.fDisplaySpec != None:
-			self.fDisplaySpec.SetCal(self.fCal)
+		if self.fDisplayObj != None:
+			self.fDisplayObj.SetCal(self.fCal)
 		
 	def UnsetCal(self):
 		"""
@@ -240,9 +189,8 @@ class Spectrum:
 	def ToTop(self):
 		"""
 		"""
-		if self.fDisplaySpec:
-			self.fDisplaySpec.ToTop()
-				
+		if self.fDisplayObj:
+			self.fDisplayObj.ToTop()
 
 
 	def Update(self, update=True):
