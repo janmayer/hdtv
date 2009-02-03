@@ -70,6 +70,7 @@ class TVSpecInterface(ObjectManager):
 			ID = self.GetFreeID()
 			spec.SetColor(self.ColorForID(ID, 1., 1.))
 			self[ID] = spec
+			self.fFitGui.fFitter.spec = spec
 			return ID
 
 
@@ -141,6 +142,7 @@ class TVSpecInterface(ObjectManager):
 			print "Usage: spectrum activate <id>"
 			return
 		self.ActivateObject(sid)
+		self.fFitGui.fFitter.spec = self[self.fActiveID]
 		
 		
 	def SpectrumShow(self, args):

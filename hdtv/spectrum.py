@@ -2,7 +2,7 @@ import ROOT
 import os
 import hdtv.dlmgr
 from hdtv.color import *
-from hdtv.drawable import drawable
+from hdtv.drawable import Drawable
 from hdtv.specreader import SpecReader, SpecReaderError
 
 hdtv.dlmgr.LoadLibrary("display")

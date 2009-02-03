@@ -5,10 +5,10 @@ from hdtv.color import *
 
 hdtv.dlmgr.LoadLibrary("display")
 
-class Drawable():
+class Drawable:
 	def __init__(self, color=None):
 		self.fViewport = None
-		self.fDisplayObject = None
+		self.fDisplayObj = None
 		self.fColor = color
 		self.fZombie = True
 
@@ -23,7 +23,6 @@ class Drawable():
 		python objects can only be drawn on a single viewport
 		"""
 		pass
-
 
 	def Remove(self):
 		"""

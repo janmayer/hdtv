@@ -58,7 +58,7 @@ class Marker(Drawable):
 			constructor = ROOT.HDTV.Display.XMarker
 		elif self.xytype == "Y":
 			constructor = ROOT.HDTV.Display.YMarker
-		self.fDisplayObj = constructor(self.viewport, n, self.p1, p2, self.color)
+		self.fDisplayObj = constructor(self.fViewport, n, self.p1, p2, self.color)
 		# finally update the viewport
 		self.fViewport.UnlockUpdate()
 

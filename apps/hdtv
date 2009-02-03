@@ -26,12 +26,9 @@ hdtv.cmdline.SetReadlineHistory(hdtvpath + "/hdtv_history")
 hdtv.cmdline.SetInteractiveDict(locals())
 # import hdtv.config
 
-# Execute startup script; we don't care if it does not exist
-try:
-	import startup
-except ImportError:
-	pass
-	
+# Execute startup script
+import startup
+
 
 ## Debug
 #from hdtv.manager import ObjectManager

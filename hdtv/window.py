@@ -197,7 +197,7 @@ class Window(KeyHandler):
 			return True
 			
 		keyStr = self.fViewer.fKeyStr
-		# Handle keys like <Ctrl>, <Shift>, etc.
+		# FIXME: Handle keys like <Ctrl>, <Shift>, etc.
 		if not keyStr:
 			keyStr = "??"
 		

@@ -54,7 +54,7 @@ class FitGUI:
 		"Put a peak marker at the current cursor position (internal use only)"
 		pos = self.fWindow.fViewport.GetCursorX()
   		self.fPeakMarkers.append(hdtv.marker.Marker("PEAK", pos))
-  		self.fPeakMarkers[-1].Realize(self.fWindow.fViewport)
+  		self.fPeakMarkers[-1].Draw(self.fWindow.fViewport)
 		
 	def ResetFitParameters(self):
 		self.fFitter.ResetParameters()
@@ -98,7 +98,7 @@ class FitGUI:
 				
 			for (marker, peak) in zip(self.fPeakMarkers, self.fFitter.resultPeaks):
 				marker.p1 = peak.GetPos()
-				marker.UpdatePos(self.fWindow.fViewport)
+				marker.UpdatePos()
 
 		# Update viewport if required
 		self.fWindow.fViewport.UnlockUpdate()
