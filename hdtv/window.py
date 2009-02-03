@@ -179,11 +179,11 @@ class Window(KeyHandler):
 		if self.fPendingMarker:
 			if self.fPendingMarker.mtype == mtype:
 				self.fPendingMarker.p2 = pos
-				self.fPendingMarker.UpdatePos(self.fViewport)
+				self.fPendingMarker.UpdatePos()
 				self.fPendingMarker = None
 		elif not maxnum or len(collection) < maxnum:
-	  		collection.append(Marker(mtype, pos))
-	  		collection[-1].Realize(self.fViewport)
+	  		collection.append(Marker(mtype, pos, color=None))
+	  		collection[-1].Draw(self.fViewport)
 	  		self.fPendingMarker = collection[-1]
 
 	def KeyHandler(self):
@@ -196,17 +196,18 @@ class Window(KeyHandler):
 			self.fViewport.SetStatusText("")
 			return True
 			
-		# Do not handle keys like <Ctrl>, <Shift>, etc.
-		if not self.fViewer.fKeyStr:
-			return False
+		keyStr = self.fViewer.fKeyStr
+		# Handle keys like <Ctrl>, <Shift>, etc.
+		if not keyStr:
+			keyStr = "??"
 		
 		handled = self.HandleKey(self.fViewer.fKeySym)
 		
 		if handled == None:
-			self.fKeyString += self.fViewer.fKeyStr
+			self.fKeyString += keyStr
 			self.fViewport.SetStatusText("Command: %s" % self.fKeyString)
 		elif handled == False:
-			self.fKeyString += self.fViewer.fKeyStr
+			self.fKeyString += keyStr
 			self.fViewport.SetStatusText("Invalid hotkey %s" % self.fKeyString)
 			self.fKeyString = ""
 		else:
