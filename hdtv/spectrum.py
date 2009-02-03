@@ -1,11 +1,11 @@
 import ROOT
-import dlmgr
 import os
-from color import *
-from specreader import SpecReader, SpecReaderError
-from fit import Fit
+import hdtv.dlmgr
+from hdtv.color import *
+from hdtv.specreader import SpecReader, SpecReaderError
+from hdtv.fit import Fit
 
-dlmgr.LoadLibrary("display")
+hdtv.dlmgr.LoadLibrary("display")
 
 class Spectrum:
 	"""
@@ -24,8 +24,7 @@ class Spectrum:
 	def __init__(self, hist, cal=None, color=None):
 		self.fCal = cal
 		self.fHist = hist
-		self.fFitlist = []
-		self.fSid = 42
+#		self.fFitlist = []
 		self.fViewport = None
 		self.fDisplaySpec = None
 		self.fColor = color
@@ -34,22 +33,27 @@ class Spectrum:
 		else:
 			self.fZombie = True
 
+	def __str__(self):
+		if self.fHist:
+			return self.fHist.GetName()
+
+
 	@classmethod
 	def FromFile(cls, fname, fmt=None, cal=None, color=None):
+		"""
+		"""
 		# check if file exists
 		try:
 			os.path.exists(fname)
 		except OSError:
 			print "Error: File %s not found" % fname
 			return
-		
 		# call to SpecReader to get the hist
 		try:
 			hist = SpecReader().GetSpectrum(fname, fmt)
 		except SpecReaderError, msg:
 			print "Error: Failed to load spectrum: %s (file: %s)" % (msg, fname)
 			return
-			
 		spec = cls(hist)
 		# set calibration 
 		if cal:
@@ -58,20 +62,55 @@ class Spectrum:
 		if color:
 			spec.SetColor(color)
 		spec.fZombie = False
-		
 		return spec
 		
 	def WriteSpectrum(self, fname, fmt):
+		"""
+		"""
 		if self.fZombie:
 			return False
-	
 		try:
 			SpecReader().WriteSpectrum(self.fHist, fname, fmt)
 		except SpecReaderError, msg:
 			print "Error: Failed to write spectrum: %s (file: %s)" % (msg, fname)
 			return False
-			
 		return True
+
+
+	def ReadCal(self, fname):
+		"""
+		"""
+		try:
+			f = open(fname)
+		except IOError, msg:
+			print msg
+			return False
+		try:
+			calpoly = []
+			for line in f:
+				l = line.strip()
+				if l != "":
+					calpoly.append(float(l))
+		except ValueError:
+			f.close()
+			print "Malformed calibration parameter file."
+			return False
+		f.close()
+		if len(calpoly) < 1 or len(calpoly) > 4:
+			print "Too many or too few parameters in calibration file"
+			return False
+		return self.SetCal(calpoly)
+
+		
+	def CalFromPairs(self, pairs):
+		"""
+		"""
+	 	if len(pairs) != 2:
+	 		print "Pairs length must presently be exactly 2"
+	 		return False
+	 	cal = hdtv.util.Linear.FromXYPairs(pairs[0], pairs[1])
+		self.SetCal([cal.p0, cal.p1])
+
 
 	def SetColor(self, color):
 		"""
@@ -79,7 +118,6 @@ class Spectrum:
 		"""
 		if color:
 			self.fColor = color
-			
 		# update the display if needed
 		if self.fDisplaySpec != None:
 			self.fDisplaySpec.SetColor(color)
@@ -103,7 +141,6 @@ class Spectrum:
 			self.fCal=ROOT.HDTV.Calibration(cal[0], cal[1], cal[2], cal[3])
 		else:
 			self.fCal = None
-
 		# update the display if needed
 		if self.fDisplaySpec != None:
 			self.fDisplaySpec.SetCal(self.fCal)
@@ -132,35 +169,33 @@ class Spectrum:
 		else:
 			return ch
 
-	def AddFit(self, region=None, peaklist=None, 
-			   bglist=None, ltail=0, rtail=0, update=True):
-		"""
-		Add a new fit to the list of fits belonging to this spectrum
-		"""
-		fit = Fit(self, region, peaklist, bglist, ltail, rtail) 
-		self.fFitlist.append(fit)
-		if self.fViewport:
-			# update the display if this view is currently active
-			fit.Realize(self.fViewport, update)
-		return fit
+#	def AddFit(self, region=None, peaklist=None, 
+#			   bglist=None, ltail=0, rtail=0, update=True):
+#		"""
+#		Add a new fit to the list of fits belonging to this spectrum
+#		"""
+#		fit = Fit(self, region, peaklist, bglist, ltail, rtail) 
+#		self.fFitlist.append(fit)
+#		if self.fViewport:
+#			# update the display if this view is currently active
+#			fit.Realize(self.fViewport, update)
+#		return fit
 
-	def DelFit(self, fid, update=True):
-		""" 
-		Delete Fit from Fitlist
-		"""
-		if fid>=0 and fid < len(self.fFitlist):
-			fit = self.fFitlist.pop(fid)
-			if self.fViewport:
-				fit.Delete(update)
+#	def DelFit(self, fid, update=True):
+#		""" 
+#		Delete Fit from Fitlist
+#		"""
+#		if fid>=0 and fid < len(self.fFitlist):
+#			fit = self.fFitlist.pop(fid)
+#			if self.fViewport:
+#				fit.Delete(update)
 				
 	def ToTop(self):
+		"""
+		"""
 		if self.fDisplaySpec:
 			self.fDisplaySpec.ToTop()
 				
-	def Realize(self, viewport, update=True):
-		print "WARNING: Deprecated function Spectrum.Realize() called."
-		self.Draw(viewport)
-
 	def Draw(self, viewport):
 		"""
 		Draw this spectrum to the viewport
@@ -169,13 +204,9 @@ class Spectrum:
 		# Spectrum() objects can only be drawn on a single viewport
 		if self.fViewport != None:
 			raise RuntimeError, "Spectrum can only be drawn on a single viewport"
-		
-		# Save the viewport
 		self.fViewport = viewport
-		
 		# Lock updates
 		self.fViewport.LockUpdate()
-		
 		# Show spectrum
 		if self.fDisplaySpec == None and self.fHist != None:
 			if self.fColor==None:
@@ -183,42 +214,58 @@ class Spectrum:
 				self.fColor = kSpecDef
 			self.fDisplaySpec = ROOT.HDTV.Display.DisplaySpec(self.fHist, self.fColor)
 			self.fDisplaySpec.Draw(self.fViewport)
-			
 			# add calibration
 			if self.fCal:
 				self.fDisplaySpec.SetCal(self.fCal)
-		
-		# show fits
-		for fit in self.fFitlist:
-			fit.Realize(viewport)
-		
+#		# show fits
+#		for fit in self.fFitlist:
+#			fit.Realize(viewport)
 		# finally update the viewport
 		self.fViewport.UnlockUpdate()
 
-	def Delete(self):
+
+	def Remove(self):
 		"""
-		Delete this spectrum from the window.
+		Remove the spectrum
 		"""
-		if self.fViewport:
-			self.fViewport.LockUpdate()
-		
+		if not self.fViewport:
+			return
+		self.fViewport.LockUpdate()
 		# Delete this spectrum
 		self.fDisplaySpec.Remove()
 		self.fDisplaySpec = None
-			
 		# delete all fits
 		# for fit in self.fFitlist:
 		#	fit.Delete(False)
-		
 		# update the viewport
-		if self.fViewport:
-			self.fViewport.UnlockUpdate()
-
+		self.fViewport.UnlockUpdate()
 		# finally remove the viewport from this object
 		self.fViewport = None
 
+
+	def Show(self):
+		"""
+		"""
+		if not self.fViewport:
+			return
+		self.fViewport.LockUpdate()
+		self.fDisplaySpec.Show()
+		self.fViewport.UnlockUpdate()
+
+
+	def Hide(self):
+		"""
+		"""
+		if not self.fViewport:
+			return
+		self.fViewport.LockUpdate()
+		self.fDisplaySpec.Hide()
+		self.fViewport.UnlockUpdate()
+
+
 	def Update(self, update=True):
-		"""
-		Update screen
-		"""
-		print "Called deprecated function Spectrum.Update()"
+		print "Called deprecated function Spectrum.Update()"	
+
+	def Realize(self, viewport, update=True):
+		print "WARNING: Deprecated function Spectrum.Realize() called."
+		self.Draw(viewport)

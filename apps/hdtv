@@ -32,8 +32,23 @@ try:
 except ImportError:
 	pass
 	
-# Debug
-# gSpectra.LoadSpectrum("/home/braun/projects/hdtv/spec/ee.dat")
+
+## Debug
+#from hdtv.manager import ObjectManager
+#mn = ObjectManager()
+
+#import hdtv.spectrum
+## Don't add created spectra to the ROOT directory
+#ROOT.TH1.AddDirectory(ROOT.kFALSE)
+#spec0 = hdtv.spectrum.Spectrum.FromFile("/home/tanja/hdtv/test/tanja/spectra/231Th_7up.ascii")
+#spec1 = hdtv.spectrum.Spectrum.FromFile("/home/tanja/hdtv/test/tanja/spectra/231Th_7down.ascii")
+#spec2 = hdtv.spectrum.Spectrum.FromFile("/home/tanja/hdtv/test/tanja/spectra/231Th_20up.ascii")
+#spec3 = hdtv.spectrum.Spectrum.FromFile("/home/tanja/hdtv/test/tanja/spectra/231Th_20down.ascii")
+#mn[0]=spec0
+#mn[1]=spec1
+#mn[2]=spec2
+#mn[3]=spec3
+
 
 # Go
 hdtv.cmdline.MainLoop()
