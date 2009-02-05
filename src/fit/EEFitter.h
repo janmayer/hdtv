@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2008  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ *  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
  *
  * This file is part of HDTV.
  *
@@ -25,6 +25,7 @@
 
 #include <TF1.h>
 #include <TH1.h>
+#include <memory>
 #include <list>
 #include <vector>
 #include <iostream>

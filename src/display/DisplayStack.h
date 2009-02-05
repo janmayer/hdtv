@@ -43,16 +43,16 @@ class DisplayStack {
     void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter);
     
     typedef std::list<DisplayObj *> ObjList;
-    typedef std::list<Marker *> MarkerList;
     
     ObjList fSpectra;
     ObjList fFunctions;
+    ObjList fMarkers;
     ObjList fMisc;   // junk drawer
-    MarkerList fMarkers;
     
     View1D* fView;
     
   private:
+    void RemoveList(ObjList& objects);
     void PaintList(ObjList& objects, UInt_t x1, UInt_t x2, Painter& painter);
 };
 

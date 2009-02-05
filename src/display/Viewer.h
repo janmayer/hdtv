@@ -45,6 +45,7 @@ class Viewer : public TGMainFrame {
   
   UInt_t fKeySym;    // Key symbol
   char fKeyStr[16];  // Key string
+  UInt_t fKeyState;  // Key mask
   
   ClassDef(Viewer, 1)
 

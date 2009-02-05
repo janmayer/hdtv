@@ -6,6 +6,7 @@
 #pragma link C++ class HDTV::Display::View2D;
 #pragma link C++ class HDTV::Display::DisplaySpec;
 #pragma link C++ class HDTV::Display::DisplayFunc;
+#pragma link C++ class HDTV::Display::DisplayBlock;
 #pragma link C++ class HDTV::Display::DisplayObj;
 #pragma link C++ class HDTV::Display::Marker;
 #pragma link C++ class HDTV::Display::XMarker;

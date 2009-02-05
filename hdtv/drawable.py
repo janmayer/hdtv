@@ -23,6 +23,12 @@ class Drawable:
 		python objects can only be drawn on a single viewport
 		"""
 		pass
+		
+	def Refresh(self):
+		"""
+		Refresh the objects data (e.g. reload a Spectrum from disk)
+		"""
+		pass
 
 	def Remove(self):
 		"""

@@ -59,33 +59,21 @@ class Spectrum(Drawable):
 				self.fDisplayObj.SetCal(self.fCal)
 		# finally update the viewport
 		self.fViewport.UnlockUpdate()
-
-	@classmethod
-	def FromFile(cls, fname, fmt=None, cal=None, color=None):
+		
+	
+	def Refresh(self):
 		"""
-		Read a spectrum from file
+		Refresh the spectrum, i.e. reload the data inside it
 		"""
-		# check if file exists
-		try:
-			os.path.exists(fname)
-		except OSError:
-			print "Error: File %s not found" % fname
-			return
-		# call to SpecReader to get the hist
-		try:
-			hist = SpecReader().GetSpectrum(fname, fmt)
-		except SpecReaderError, msg:
-			print "Error: Failed to load spectrum: %s (file: %s)" % (msg, fname)
-			return
-		spec = cls(hist)
-		# set calibration 
-		if cal:
-			spec.SetCal(cal)
-		# set color
-		if color:
-			spec.SetColor(color)
-		spec.fZombie = False
-		return spec
+		# The generic spectrum class does not know about the origin of its
+		# bin data and thus cannot reload anything.
+		pass
+		
+	
+	def SetHist(self, hist):
+		self.fHist = hist
+		if self.fDisplayObj:
+			self.fDisplayObj.SetHist(self.fHist)
 		
 
 	def WriteSpectrum(self, fname, fmt):
@@ -143,31 +131,30 @@ class Spectrum(Drawable):
 		"""
 		set calibration
 
-		The Parameter cal is a sequence with not more than 4 entries.
-		The calibration polynom is of the form:
-		f(x) = cal[0] + cal[1]*x + cal[2]*x^2 + cal[3]*x^3
+		The Parameter cal is a sequence with the coefficients of the
+		calibration polynom:
+		f(x) = cal[0] + cal[1]*x + cal[2]*x^2 + cal[3]*x^3 + ...
 		"""
-		# FIXME: limitation is obsolete
 		if cal:
-			if len(cal) >4:
-				print "Error: degree of calibration polynom is to big (>=4)"
-			while len(cal) <4: 
-				# fill the sequence with trivial entries
-				cal.append(0.0)
+			calarray = ROOT.TArrayD(len(cal))
+			for (i,c) in zip(range(0,len(cal)),cal):
+				calarray[i] = c
 			# create the calibration object
-			self.fCal=ROOT.HDTV.Calibration(cal[0], cal[1], cal[2], cal[3])
+			self.fCal = ROOT.HDTV.Calibration(calarray)
 		else:
 			self.fCal = None
 		# update the display if needed
 		if self.fDisplayObj != None:
 			self.fDisplayObj.SetCal(self.fCal)
 		
+	
 	def UnsetCal(self):
 		"""
 		delete calibration
 		"""
 		self.SetCal(cal=None)
 		
+	
 	def E2Ch(self, e):
 		"""
 		calculate channel values to energies
@@ -177,6 +164,7 @@ class Spectrum(Drawable):
 		else:
 			return e
 			
+
 	def Ch2E(self, ch):
 		"""
 		calculate energies to channels
@@ -186,22 +174,76 @@ class Spectrum(Drawable):
 		else:
 			return ch
 
+
 	def ToTop(self):
 		"""
+		Move the spectrum to the top of its draw stack
 		"""
 		if self.fDisplayObj:
 			self.fDisplayObj.ToTop()
+			
+
+	def ToBottom(self):
+		"""
+		Move the spectrum to the top of its draw stack
+		"""
+		if self.fDisplayObj:
+			self.fDisplayObj.ToBottom()
 
 
-	def Update(self, update=True):
+		
+class FileSpectrum(Spectrum):
+	"""
+	File spectrum object
+	
+	A spectrum that comes from a file in any of the formats supported by hdtv.
+	"""
+	def __init__(self, fname, fmt=None, cal=None, color=None):
 		"""
-		DEPRECATED
+		Read a spectrum from file
 		"""
-		print "Called deprecated function Spectrum.Update()"	
-
-	def Realize(self, viewport, update=True):
+		# check if file exists
+		try:
+			os.path.exists(fname)
+		except OSError:
+			print "Error: File %s not found" % fname
+			return
+		# call to SpecReader to get the hist
+		try:
+			hist = SpecReader().GetSpectrum(fname, fmt)
+		except SpecReaderError, msg:
+			print "Error: Failed to load spectrum: %s (file: %s)" % (msg, fname)
+			return
+			
+		self.fFilename = fname
+		self.fFmt = fmt
+		Spectrum.__init__(self, hist)
+		# set calibration 
+		if cal:
+			self.SetCal(cal)
+		# set color
+		if color:
+			self.SetColor(color)
+		self.fZombie = False
+		
+	
+	def Refresh(self):
 		"""
-		DEPRECATED
+		Reload the spectrum from disk
 		"""
-		print "WARNING: Deprecated function Spectrum.Realize() called."
-		self.Draw(viewport)
+		if not self.fZombie:
+			# check if file exists
+			try:
+				os.path.exists(self.fFilename)
+			except OSError:
+				print "Warning: File %s not found, keeping previous data" % self.fFilename
+				return
+			# call to SpecReader to get the hist
+			try:
+				hist = SpecReader().GetSpectrum(self.fFilename, self.fFmt)
+			except SpecReaderError, msg:
+				print "Warning: Failed to load spectrum: %s (file: %s), keeping previous data" \
+				      % (msg, self.fFilename)
+				return
+			
+		self.SetHist(hist)

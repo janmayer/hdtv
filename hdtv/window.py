@@ -108,6 +108,14 @@ class Window(KeyHandler):
 		# expand in all directions
 		self.AddKey(ROOT.kKey_e, self.Expand)
 		
+		# Modifier keys
+		self.MODIFIER_KEYS = (ROOT.kKey_Shift,
+                              ROOT.kKey_Control,
+                              ROOT.kKey_Meta,
+                              ROOT.kKey_Alt,
+                              ROOT.kKey_CapsLock,
+                              ROOT.kKey_NumLock,
+                              ROOT.kKey_ScrollLock)		
 
 	def ExpandX(self):
 		"""
@@ -190,6 +198,11 @@ class Window(KeyHandler):
 		""" 
 		Default Key Handler
 		"""
+		# Filter unknown and modifier keys
+		if self.fViewer.fKeySym in self.MODIFIER_KEYS or \
+		   self.fViewer.fKeySym == ROOT.kKey_Unknown:
+			return
+		
 		if self.fViewer.fKeySym == ROOT.kKey_Escape:
 			self.fKeys.Reset()
 			self.fKeyString = ""
@@ -197,9 +210,9 @@ class Window(KeyHandler):
 			return True
 			
 		keyStr = self.fViewer.fKeyStr
-		# FIXME: Handle keys like <Ctrl>, <Shift>, etc.
+		
 		if not keyStr:
-			keyStr = "??"
+			keyStr = "<?>"
 		
 		handled = self.HandleKey(self.fViewer.fKeySym)
 		

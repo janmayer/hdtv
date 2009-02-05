@@ -31,32 +31,12 @@ namespace Display {
 DisplayStack::~DisplayStack()
 {
   // Destructor
-  // Removes all display objects from the stack, and turns all markers
-  // into zombies.
+  // Removes all display objects from the stack
 
-  for(ObjList::iterator obj = fSpectra.begin();
-      obj != fSpectra.end();
-      ++obj) {
-    (*obj)->Remove(this);
-  }
-  
-  for(ObjList::iterator obj = fFunctions.begin();
-      obj != fFunctions.end();
-      ++obj) {
-    (*obj)->Remove(this);
-  }
-  
-  for(ObjList::iterator obj = fMisc.begin();
-      obj != fMisc.end();
-      ++obj) {
-    (*obj)->Remove(this);
-  }
-  
-  for(MarkerList::iterator marker = fMarkers.begin();
-      marker != fMarkers.end();
-      ++marker) {
-    (*marker)->MakeZombie();
-  }
+  RemoveList(fSpectra);
+  RemoveList(fFunctions);
+  RemoveList(fMarkers);
+  RemoveList(fMisc);
 }
 
 void DisplayStack::Update()
@@ -80,6 +60,17 @@ void DisplayStack::UnlockUpdate()
   fView->UnlockUpdate();
 }
 
+inline void DisplayStack::RemoveList(ObjList& objects)
+{
+  // Paints all objects in the list given (internal use only)
+  
+  for(ObjList::iterator obj = objects.begin();
+      obj != objects.end();
+      ++obj) {
+    (*obj)->Remove(this);
+  }
+}
+
 inline void DisplayStack::PaintList(ObjList& objects, UInt_t x1, UInt_t x2, Painter& painter)
 {
   // Paints all objects in the list given (internal use only)
@@ -97,13 +88,8 @@ void DisplayStack::PaintRegion(UInt_t x1, UInt_t x2, Painter& painter)
   
   PaintList(fSpectra, x1, x2, painter);
   PaintList(fFunctions, x1, x2, painter);
+  PaintList(fMarkers, x1, x2, painter);
   PaintList(fMisc, x1, x2, painter);
-  
-  for(MarkerList::iterator marker = fMarkers.begin();
-      marker != fMarkers.end();
-      ++marker) {
-    (*marker)->PaintRegion(x1, x2, painter);
-  }
 }
 
 } // end namespace Display

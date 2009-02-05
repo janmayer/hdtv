@@ -25,8 +25,8 @@
 namespace HDTV {
 namespace Display {
 
-XMarker::XMarker(View1D *view, int n, double p1, double p2, int col)
-   : Marker(view, n, p1, p2, col),
+XMarker::XMarker(int n, double p1, double p2, int col)
+   : Marker(n, p1, p2, col),
      fCal1(),
      fCal2()
 { }

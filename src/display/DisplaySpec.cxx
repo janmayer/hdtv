@@ -29,9 +29,12 @@
 namespace HDTV {
 namespace Display {
 
-DisplaySpec::DisplaySpec(const TH1 *spec, int col) : DisplayObj(col)
+DisplaySpec::DisplaySpec(const TH1* hist, int col)
+   : DisplayBlock(col)
 {
-  fSpec = (TH1*) spec->Clone();
+  // Constructor
+
+  fHist.reset(dynamic_cast<TH1*>(hist->Clone()));
  
   //cout << "GSDisplaySpec constructor" << endl;
 
@@ -41,10 +44,12 @@ DisplaySpec::DisplaySpec(const TH1 *spec, int col) : DisplayObj(col)
   fCachedB2 = 0;
 }
 
-DisplaySpec::~DisplaySpec(void)
+void DisplaySpec::SetHist(const TH1* hist)
 {
-  delete fSpec;
-  //cout << "GSDisplaySpec destructor" << endl;
+  // Set the histogram owned by this object to a copy of hist
+
+  fHist.reset(dynamic_cast<TH1*>(hist->Clone()));
+  Update();
 }
 
 int DisplaySpec::GetRegionMaxBin(int b1, int b2)
@@ -56,13 +61,13 @@ int DisplaySpec::GetRegionMaxBin(int b1, int b2)
   double y, max_y;
 
   if(b1 < 0) b1 = 0;
-  if(b2 > fSpec->GetNbinsX() + 1) b2 = fSpec->GetNbinsX() + 1;
+  if(b2 > fHist->GetNbinsX() + 1) b2 = fHist->GetNbinsX() + 1;
   
-  max_y = fSpec->GetBinContent(b1);
+  max_y = fHist->GetBinContent(b1);
   max_bin = b1;
 
   for(bin = b1; bin <= b2; bin ++) {
-	y = fSpec->GetBinContent(bin);
+	y = fHist->GetBinContent(bin);
 	if(y > max_y) {
 	  max_y = y;
 	  max_bin = bin;
@@ -83,8 +88,8 @@ double DisplaySpec::GetRegionMax(int b1, int b2)
 {
   int max_bin = GetRegionMaxBin(b1, b2);
 
-  //return max_bin == -1 ? 0.0 : fSpec->GetBinContent(max_bin);
-  return fSpec->GetBinContent(max_bin);
+  //return max_bin == -1 ? 0.0 : fHist->GetBinContent(max_bin);
+  return fHist->GetBinContent(max_bin);
 }
 
 /* Gets the maximum count between bin b1 and bin b2, inclusive.

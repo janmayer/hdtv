@@ -6,7 +6,7 @@ import hdtv.cmdline
 import hdtv.cmdhelper
 from hdtv.window import Window
 from hdtv.manager import ObjectManager
-from hdtv.spectrum import Spectrum
+from hdtv.spectrum import Spectrum, FileSpectrum
 from hdtv.fitgui import FitGUI
 
 # Don't add created spectra to the ROOT directory
@@ -27,6 +27,8 @@ class TVSpecInterface(ObjectManager):
 		self.fWindow.AddKey([ROOT.kKey_N, ROOT.kKey_n], self.ShowNext)
 		self.fWindow.AddKey(ROOT.kKey_Greater, lambda: self.fWindow.fViewport.ShiftXOffset(0.1))
 		self.fWindow.AddKey(ROOT.kKey_Less, lambda: self.fWindow.fViewport.ShiftXOffset(-0.1))
+		self.fWindow.AddKey(ROOT.kKey_Equal, self.RefreshAll)
+		self.fWindow.AddKey(ROOT.kKey_t, self.RefreshVisible)
 		
 		# register tv commands
 		hdtv.cmdline.command_tree.SetDefaultLevel(1)
@@ -35,13 +37,14 @@ class TVSpecInterface(ObjectManager):
 		hdtv.cmdline.AddCommand("spectrum delete", self.SpectrumDelete, minargs=1)
 		hdtv.cmdline.AddCommand("spectrum activate", self.SpectrumActivate, nargs=1)
 		hdtv.cmdline.AddCommand("spectrum show", self.SpectrumShow, minargs=1)
+		hdtv.cmdline.AddCommand("spectrum update", self.SpectrumUpdate, minargs=1)
 		hdtv.cmdline.AddCommand("spectrum write", self.SpectrumWrite, minargs=1, maxargs=2)
 			
 		hdtv.cmdline.AddCommand("cd", self.Cd, level=2, maxargs=1, dirargs=True)
 		
 		hdtv.cmdline.AddCommand("calibration position read", self.CalPosRead, nargs=1, fileargs=True)
 		hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, nargs=4)
-		hdtv.cmdline.AddCommand("calibration position set", self.CalPosSet, maxargs=4)
+		hdtv.cmdline.AddCommand("calibration position set", self.CalPosSet, minargs=2)
 		
 		hdtv.cmdline.AddCommand("fit param background degree", self.FitParamBgDeg, nargs=1)
 		hdtv.cmdline.AddCommand("fit param status", self.FitParamStatus, nargs=0)
@@ -63,7 +66,7 @@ class TVSpecInterface(ObjectManager):
 		
 		The spectrum is shown in an appropriate color.
 		"""
-		spec = Spectrum.FromFile(fname, fmt)
+		spec = FileSpectrum(fname, fmt)
 		if spec == None:
 			return None
 		else:
@@ -160,6 +163,16 @@ class TVSpecInterface(ObjectManager):
 		else:
 			self.Show(ids)
 			
+	
+	def SpectrumUpdate(self, args):
+		ids = hdtv.cmdhelper.ParseRange(args, ["all", "shown"])
+		if ids == "ALL":
+			self.RefreshAll()
+		elif ids == "SHOWN":
+			self.RefreshVisible()
+		else:
+			self.Refresh(ids)
+			
 			
 	def SpectrumWrite(self, args):
 		"""
@@ -239,7 +252,7 @@ class TVSpecInterface(ObjectManager):
 			for arg in args:
 				calpoly = map(lambda s: float(s), args)
 		except ValueError:
-			print "Usage: calibration position set <p0> <p1> <p2> <p3>"
+			print "Usage: calibration position set <p0> <p1> <p2> ..."
 			return False
 		self[self.fActiveID].SetCal(calpoly)
 		

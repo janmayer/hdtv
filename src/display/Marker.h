@@ -31,6 +31,7 @@
 
 #include "Calibration.h"
 #include "Painter.h"
+#include "DisplayObj.h"
 
 namespace HDTV {
 namespace Display {
@@ -38,12 +39,12 @@ namespace Display {
 class DisplayStack;
 class View1D;
 
-class Marker {
+class Marker: public DisplayObj {
   friend class Painter;
   friend class DisplayStack;
 
   public:
-    Marker(View1D *view, int n, double p1, double p2=0.0, int col=5);
+    Marker(int n, double p1, double p2=0.0, int col=5);
     ~Marker();
 
     inline TGGC *GetGC_1() { return fDash1 ? fDashedGC : fGC; }
@@ -58,19 +59,15 @@ class Marker {
       { fP1 = p1; fP2 = p2; Update(); }
     inline void SetDash(bool dash1, bool dash2=false)
       { fDash1 = dash1; fDash2 = dash2; Update(); }
-    void Update();
-
-    virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter) { }
-
-  protected:
-    inline void MakeZombie()  { fDisplayStack = NULL; }
+      
+    // HDTV::Display:: required for CINT
+    virtual std::list<HDTV::Display::DisplayObj *>& GetList(DisplayStack *stack);
   
   protected:
     bool fDash1, fDash2;
     TGGC *fGC, *fDashedGC;
     double fP1, fP2;
     int fN;
-    DisplayStack *fDisplayStack;
 };
 
 } // end namespace Display

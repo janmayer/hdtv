@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ *  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
  *
  * This file is part of HDTV.
  *
@@ -24,8 +24,6 @@
 #define __DisplayObj_h__
 
 #include <list>
-#include <TGGC.h>
-#include "Calibration.h"
 #include "Painter.h"
 
 namespace HDTV {
@@ -35,43 +33,22 @@ class DisplayStack;
 class View1D;
 
 class DisplayObj {
-  friend class Painter;
-
   public:
-  	DisplayObj(int col);
+    DisplayObj() : fVisible(true) { }
   	virtual ~DisplayObj();
   	
-	void SetCal(const Calibration& cal) { fCal = cal; Update(); };
-    inline double Ch2E(double ch) { return fCal ? fCal.Ch2E(ch) : ch; }
-    inline double E2Ch(double e) { return fCal ? fCal.E2Ch(e) : e; }
-    
-    double GetMaxE();
-    double GetMinE();
-    double GetERange();
-    virtual inline double GetMinCh() { return 0.0; }
-    virtual inline double GetMaxCh() { return 0.0; }
-    inline double GetCenterCh() { return (GetMinCh() + GetMaxCh()) / 2.0; }
-    
     inline bool IsVisible() { return fVisible; }
-    inline void Show() { fVisible = true; Update(); }
-    inline void Hide() { fVisible = false; Update(); }
-    
-    void SetColor(int col);
+    inline void Show() { fVisible = true; Update(true); }
+    inline void Hide() { fVisible = false; Update(true); }
     
     /* Management functions */
     void Draw(View1D *view);
     void Remove(View1D *view);
-    void ToTop(View1D *view);
-    void ToBottom(View1D *view);
     
     void Draw(DisplayStack *stack);
     void Remove(DisplayStack *stack);
-    void ToTop(DisplayStack *stack);
-    void ToBottom(DisplayStack *stack);
 
     void Remove();
-    void ToTop();
-    void ToBottom();
     
     virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter) { }
     
@@ -81,15 +58,10 @@ class DisplayObj {
     static const int DEFAULT_COLOR;
     
   protected:
-    inline TGGC *GetGC() { return fGC; }
-    void Update();
+    void Update(bool force=false);
+  	std::list<DisplayStack*> fStacks;
   	
   private:
-    void InitGC(int col);
-  
-    Calibration fCal;
-    TGGC *fGC;
-    std::list<DisplayStack*> fStacks;
     bool fVisible;
 };
 

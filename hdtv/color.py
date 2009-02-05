@@ -14,4 +14,3 @@ kFitDef = 25
 FIT_SUM_FUNC = ROOT.kOrange - 3
 FIT_BG_FUNC = ROOT.kGreen
 FIT_DECOMP_FUNC = ROOT.kMagenta + 1
-

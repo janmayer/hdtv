@@ -598,10 +598,16 @@ Bool_t View1D::HandleButton(Event_t *ev)
 	    fDragging = true;
 	    break;
 	  case 4:
-	    XZoomAroundCursor(M_SQRT2);
+        if(ev->fState & kKeyShiftMask)
+          YZoomAroundCursor(M_SQRT2);
+        else
+          XZoomAroundCursor(M_SQRT2);
 	    break;
 	  case 5:
-	    XZoomAroundCursor(M_SQRT1_2);
+        if(ev->fState & kKeyShiftMask)
+          YZoomAroundCursor(M_SQRT1_2);
+        else
+          XZoomAroundCursor(M_SQRT1_2);
 	    break;
 	}
   } else if(ev->fType == kButtonRelease) {

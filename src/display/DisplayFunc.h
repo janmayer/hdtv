@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ *  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
  *
  * This file is part of HDTV.
  *
@@ -25,12 +25,12 @@
 
 #include <TF1.h>
 #include "Painter.h"
-#include "DisplayObj.h"
+#include "DisplayBlock.h"
 
 namespace HDTV {
 namespace Display {
 
-class DisplayFunc : public DisplayObj {
+class DisplayFunc : public DisplayBlock {
   public:
   	DisplayFunc(TF1 *func, int col = DEFAULT_COLOR);
   	  	

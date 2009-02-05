@@ -49,7 +49,7 @@ namespace Display {
 
 class View1D : public View {
   friend class DisplayObj;
-  friend class Marker;
+  friend class DisplayBlock;
 
  public:
   View1D(const TGWindow *p, UInt_t w, UInt_t h);
@@ -83,7 +83,7 @@ class View1D : public View {
   void SetStatusBar(TGStatusBar *sb);
   double GetCursorX();
   double GetCursorY();
-  int FindMarkerNearestCursor(int tol=3);
+  // int FindMarkerNearestCursor(int tol=3);
   
   void LockUpdate();
   void UnlockUpdate();
@@ -94,7 +94,7 @@ class View1D : public View {
   void ClearXScales();
   
   /*** Display object helper functions ***/
-  XMarker* FindNearestXMarker(double e, double tol=-1.0);
+  // XMarker* FindNearestXMarker(double e, double tol=-1.0);
     
   // Default parameters
   static const double DEFAULT_MAX_ENERGY;

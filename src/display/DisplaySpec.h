@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ *  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
  *
  * This file is part of HDTV.
  *
@@ -24,25 +24,26 @@
 #define __DisplaySpec_h__
 
 #include <TH1.h>
-#include "DisplayObj.h"
+#include <memory>
+#include "DisplayBlock.h"
 
 namespace HDTV {
 namespace Display {
 
-class DisplaySpec : public DisplayObj {
+class DisplaySpec : public DisplayBlock {
  public:
-   DisplaySpec(const TH1 *spec, int col = DEFAULT_COLOR);
-   ~DisplaySpec();
+   DisplaySpec(const TH1 *hist, int col = DEFAULT_COLOR);
   
-   inline TH1 *GetSpec()  { return fSpec; }
+   void SetHist(const TH1* hist);
+   inline TH1* GetHist()  { return fHist.get(); }
 
    int GetRegionMaxBin(int b1, int b2);
    double GetRegionMax(int b1, int b2);
 
    inline double GetMinCh(void) { return 0.0; }
-   inline double GetMaxCh(void) { return (double) fSpec->GetNbinsX(); }
-   inline double GetBinContent(Int_t bin) { return fSpec->GetBinContent(bin); }
-   inline Int_t GetNbinsX(void) { return fSpec->GetNbinsX(); }
+   inline double GetMaxCh(void) { return (double) fHist->GetNbinsX(); }
+   inline double GetBinContent(Int_t bin) { return fHist->GetBinContent(bin); }
+   inline Int_t GetNbinsX(void) { return fHist->GetNbinsX(); }
    double GetMax_Cached(int b1, int b2);
    
    // HDTV::Display:: required for CINT
@@ -52,7 +53,7 @@ class DisplaySpec : public DisplayObj {
       { if (IsVisible()) painter.DrawSpectrum(this, x1, x2); }
 
  private:
-   TH1 *fSpec;
+   std::auto_ptr<TH1> fHist;
    
    int fCachedB1, fCachedB2, fCachedMaxBin;
    double fCachedMax;

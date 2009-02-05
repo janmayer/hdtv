@@ -105,11 +105,11 @@ class FitGUI:
   		
   	def DeleteFit(self):
 		for marker in self.fPeakMarkers:
-  			marker.Delete()
+  			marker.Remove()
 		for marker in self.fBgMarkers:
-  			marker.Delete()
+  			marker.Remove()
   		for marker in self.fRegionMarkers:
-  			marker.Delete()
+  			marker.Remove()
 	  			
   		self.fWindow.fPendingMarker = None
   		self.fPeakMarkers = []

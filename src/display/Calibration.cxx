@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ *  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
  *
  * This file is part of HDTV.
  *
@@ -32,9 +32,18 @@
 
 namespace HDTV {
 
-void Calibration::SetCal(std::vector<double> cal)
+void Calibration::SetCal(const std::vector<double>& cal)
 {
   fCal = cal;
+  UpdateDerivative();
+}
+
+void Calibration::SetCal(const TArrayD& cal)
+{
+  fCal.clear();
+  for(int i=0; i<cal.GetSize(); i++)
+    fCal.push_back(cal[i]);
+  
   UpdateDerivative();
 }
 
@@ -78,10 +87,13 @@ void Calibration::UpdateDerivative()
   // (Internal use only.)
 
   std::vector<double>::iterator c = fCal.begin();
-  c++;
   double a = 1.0;
   
   fCalDeriv.clear();
+  
+  if(c != fCal.end())
+    ++c;
+  
   while(c != fCal.end()) {
     fCalDeriv.push_back(a * *c++);
     a += 1.;

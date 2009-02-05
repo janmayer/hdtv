@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ *  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
  *
  * This file is part of HDTV.
  *
@@ -26,12 +26,14 @@
 
 #include <TROOT.h>
 
+#include <Riostream.h>
+
 namespace HDTV {
 namespace Display {
 
-Marker::Marker(View1D *view, int n, double p1, double p2, int col)
+Marker::Marker(int n, double p1, double p2, int col)
+   : DisplayObj()
 {
-  fDisplayStack = view->GetDisplayStack();
   fN = n;
 
   if(n <= 1 || p1 <= p2) {
@@ -44,7 +46,7 @@ Marker::Marker(View1D *view, int n, double p1, double p2, int col)
   
   fDash1 = fDash2 = false;
 
-  TColor *color = (TColor*) (gROOT->GetListOfColors()->At(col));
+  TColor *color = dynamic_cast<TColor*>(gROOT->GetListOfColors()->At(col));
   GCValues_t gval;
   gval.fMask = kGCForeground | kGCLineStyle;
   gval.fForeground = color->GetPixel();
@@ -54,24 +56,19 @@ Marker::Marker(View1D *view, int n, double p1, double p2, int col)
   gval.fForeground = color->GetPixel();
   gval.fLineStyle = kLineOnOffDash;
   fDashedGC = gClient->GetGCPool()->GetGC(&gval, true);
-  
-  fDisplayStack->fMarkers.insert(fDisplayStack->fMarkers.end(), this);
-  fDisplayStack->Update();
 }
 
 Marker::~Marker(void)
 {
-  fDisplayStack->fMarkers.remove(this);
-  fDisplayStack->Update();
-
   gClient->GetGCPool()->FreeGC(fGC);
   gClient->GetGCPool()->FreeGC(fDashedGC);
 }
 
-void Marker::Update()
+DisplayStack::ObjList& Marker::GetList(DisplayStack *stack)
 {
-  if(fDisplayStack)
-    fDisplayStack->Update();
+  // Return the stacks object list where this kind of object should be inserted
+
+  return stack->fMarkers;
 }
 
 } // end namespace Display

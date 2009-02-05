@@ -33,9 +33,9 @@ class View1D;
 
 class YMarker : public Marker {
   public:
-    YMarker(View1D *view, int n, double p1, double p2=0.0, int col=5);
+    YMarker(int n, double p1, double p2=0.0, int col=5);
     virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter)
-      { painter.DrawYMarker(this, x1, x2); }
+      { if(IsVisible()) painter.DrawYMarker(this, x1, x2); }
 };
 
 } // end namespace Display

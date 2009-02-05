@@ -131,6 +131,29 @@ class ObjectManager(UserDict.DictMixin):
 			print "Error: No such ID"
 			return
 		self.fActiveID = ID
+		
+	
+	def Refresh(self, ids):
+		"""
+		Refresh objects with ids
+		"""
+		for ID in ids:
+			self[ID].Refresh()
+	
+		
+	def RefreshAll(self):
+		"""
+		Refresh all objects
+		"""
+		for obj in self.fObjects.itervalues():
+			obj.Refresh()
+			
+	
+	def RefreshVisible(self):
+		"""
+		Refresh visible objects
+		"""
+		self.Refresh(self.fVisible)
 	
 
 	def Hide(self, ids):
