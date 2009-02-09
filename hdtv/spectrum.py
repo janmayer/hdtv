@@ -25,25 +25,24 @@ class Spectrum(Drawable):
 		Drawable.__init__(self, color)
 		self.fCal = cal
 		self.fHist = hist
-		if hist:
-			self.fZombie = False
-		else:
-			self.fZombie = True
-
 
 	def __str__(self):
 		if self.fHist:
 			return self.fHist.GetName()
 
-
 	def Draw(self, viewport):
 		"""
 		Draw this spectrum to the viewport
 		"""
-		# Unlike the DisplaySpec object of the underlying implementation,
-		# Spectrum() objects can only be drawn on a single viewport
-		if self.fViewport != None:
-			raise RuntimeError, "Spectrum can only be drawn on a single viewport"
+		if self.fViewport:
+			if self.fViewport=viewport:
+				# this spectrum has already been drawn
+				self.Show()
+				return
+			else:
+				# Unlike the DisplaySpec object of the underlying implementation,
+				# Spectrum() objects can only be drawn on a single viewport
+				raise RuntimeError, "Spectrum can only be drawn on a single viewport"
 		self.fViewport = viewport
 		# Lock updates
 		self.fViewport.LockUpdate()
@@ -80,8 +79,6 @@ class Spectrum(Drawable):
 		"""
 		Write the spectrum to file
 		"""
-		if self.fZombie:
-			return False
 		try:
 			SpecReader().WriteSpectrum(self.fHist, fname, fmt)
 		except SpecReaderError, msg:
@@ -214,7 +211,6 @@ class FileSpectrum(Spectrum):
 		except SpecReaderError, msg:
 			print "Error: Failed to load spectrum: %s (file: %s)" % (msg, fname)
 			return
-			
 		self.fFilename = fname
 		self.fFmt = fmt
 		Spectrum.__init__(self, hist)
@@ -224,26 +220,23 @@ class FileSpectrum(Spectrum):
 		# set color
 		if color:
 			self.SetColor(color)
-		self.fZombie = False
 		
 	
 	def Refresh(self):
 		"""
 		Reload the spectrum from disk
 		"""
-		if not self.fZombie:
-			# check if file exists
-			try:
-				os.path.exists(self.fFilename)
-			except OSError:
-				print "Warning: File %s not found, keeping previous data" % self.fFilename
-				return
-			# call to SpecReader to get the hist
-			try:
-				hist = SpecReader().GetSpectrum(self.fFilename, self.fFmt)
-			except SpecReaderError, msg:
-				print "Warning: Failed to load spectrum: %s (file: %s), keeping previous data" \
-				      % (msg, self.fFilename)
-				return
-			
+		try:
+			os.path.exists(self.fFilename)
+		except OSError:
+			print "Warning: File %s not found, keeping previous data" % self.fFilename
+			return
+		# call to SpecReader to get the hist
+		try:
+			hist = SpecReader().GetSpectrum(self.fFilename, self.fFmt)
+		except SpecReaderError, msg:
+			print "Warning: Failed to load spectrum: %s (file: %s), keeping previous data" \
+			      % (msg, self.fFilename)
+			return
 		self.SetHist(hist)
+		
