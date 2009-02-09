@@ -41,11 +41,15 @@ class Marker(Drawable):
 		""" 
 		Draw the marker
 		"""
-		# Marker can only be drawn to a single viewport
-		if self.fViewport != None:
-			raise RuntimeError, "Marker cannot be realized on multiple viewports"
+		if self.fViewport:
+			if self.fViewport=viewport
+				# this marker has already been drawn
+				self.Show()
+				return
+			else:
+				# Marker can only be drawn to a single viewport
+				raise RuntimeError, "Marker cannot be realized on multiple viewports"
 		self.fViewport = viewport
-		
 		if self.p2 == None:
 			n = 1
 			p2 = 0.0

@@ -10,7 +10,6 @@ class Drawable:
 		self.fViewport = None
 		self.fDisplayObj = None
 		self.fColor = color
-		self.fZombie = True
 
 	def __str__(self):
 		return 'drawable object'

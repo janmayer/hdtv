@@ -79,7 +79,6 @@ class Window(KeyHandler):
 	
 		self.fXZoomMarkers = []
 		self.fYZoomMarkers = []
-		self.fPendingMarker = None
 
 		# Key Handling
 		self.fKeyDispatch = ROOT.TPyDispatcher(self.KeyHandler)
@@ -153,7 +152,7 @@ class Window(KeyHandler):
   			setOffset(min(zm.p1, zm.p2))
   			setVisibleRegion = getattr(self.fViewport, "Set%sVisibleRegion" % xytype)
   			setVisibleRegion(abs(zm.p2 - zm.p1))
-  			zm.Delete()
+  			zm.Remove()
   			getattr(self,"f%sZoomMarkers" %xytype).pop()
   		else:
   			if xytype == "X":
@@ -183,16 +182,21 @@ class Window(KeyHandler):
 			pos = self.fViewport.GetCursorY()
 		else:
 			raise RuntimeError, "Parameter xy must be either x or y"
-			
-		if self.fPendingMarker:
-			if self.fPendingMarker.mtype == mtype:
-				self.fPendingMarker.p2 = pos
-				self.fPendingMarker.UpdatePos()
-				self.fPendingMarker = None
-		elif not maxnum or len(collection) < maxnum:
-	  		collection.append(Marker(mtype, pos, color=None))
-	  		collection[-1].Draw(self.fViewport)
-	  		self.fPendingMarker = collection[-1]
+		
+		if len(collection)>0 and collection[-1].p2==None:
+			pending = collection[-1]
+			pending.p2 = pos
+			pending.UpdatePos()
+		elif maxnum and len(collection)== maxnum:
+			pending = collection.pop(0)
+			pending.p1 = pos
+			pending.p2 = None
+			pending.UpdatePos()
+			collection.append(pending)
+		else:
+			pending = Marker(mtype, pos, color=None)
+			collection.append(pending)
+			pending.Draw(self.fViewport)
 
 	def KeyHandler(self):
 		""" 
