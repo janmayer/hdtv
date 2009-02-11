@@ -35,12 +35,11 @@ class Drawable:
 		"""
 		if not self.fViewport:
 			return
-		self.fViewport.LockUpdate()
-		# Delete this spectrum
+
+		# Delete this object
 		self.fDisplayObj.Remove()
 		self.fDisplayObj = None
-		# update the viewport
-		self.fViewport.UnlockUpdate()
+
 		# finally remove the viewport from this object
 		self.fViewport = None
 

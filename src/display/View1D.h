@@ -54,8 +54,9 @@ class View1D : public View {
  public:
   View1D(const TGWindow *p, UInt_t w, UInt_t h);
   ~View1D();
-  void SetXOffset(double offset, bool update=true);
-  void SetYOffset(double offset, bool update=true);
+  void SetXOffset(double offset);
+  void SetXCenter(double center);
+  void SetYOffset(double offset);
   void ShiftXOffset(double f, bool update=true);
   void ShiftYOffset(double f, bool update=true);
   void SetStatusText(const char *text);

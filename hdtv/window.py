@@ -6,13 +6,13 @@ from types import *
 
 hdtv.dlmgr.LoadLibrary("display")
 
-class KeyHandler:
+class HotkeyList:
 	"Class to handle multi-key hotkeys."
 	def __init__(self):
 		self.fKeyCmds = dict()
 		self.fCurNode = self.fKeyCmds
 		
-	def AddKey(self, key, cmd):
+	def AddHotkey(self, key, cmd):
 		"""
 		Adds a hotkey to the hotkey table. If key is a list,
 		it is taken as a multi-key hotkey. The function refuses
@@ -28,7 +28,7 @@ class KeyHandler:
 				try:
 					curNode = curNode[k]
 					if type(curNode) != DictType:
-						raise RuntimeError, "Refusing to non-matching hotkey"
+						raise RuntimeError, "Refusing to overwrite non-matching hotkey"
 				except KeyError:
 					curNode[k] = dict()
 					curNode = curNode[k]
@@ -37,7 +37,7 @@ class KeyHandler:
 
 		curNode[key] = cmd
 		
-	def HandleKey(self, key):
+	def HandleHotkey(self, key):
 		"""
 		Handles a key press. Returns True if the input was a
 		valid hotkey, False if it was not, and None if further
@@ -47,7 +47,7 @@ class KeyHandler:
 		try:
 			node = self.fCurNode[key]
 		except KeyError:
-			self.Reset()
+			self.ResetHotkeyState()
 			return False
 		
 		if type(node) == DictType:
@@ -55,15 +55,114 @@ class KeyHandler:
 			return None
 		else:
 			node()
-			self.Reset()
+			self.ResetHotkeyState()
 			return True
 		
 		
-	def Reset(self):
+	def ResetHotkeyState(self):
 		"""
 		Reset possible waiting state for a multi-key hotkey.
 		"""
 		self.fCurNode = self.fKeyCmds
+		
+
+class KeyHandler(HotkeyList):
+	"""
+	Hotkey handler, adding support for a status line (that can be (ab)used as
+	a text entry)
+	"""
+	def __init__(self):
+		HotkeyList.__init__(self)
+	
+		self.fEditMode = False   # Status bar currently used as text entry
+		# Modifier keys
+		self.MODIFIER_KEYS = (ROOT.kKey_Shift,
+                              ROOT.kKey_Control,
+                              ROOT.kKey_Meta,
+                              ROOT.kKey_Alt,
+                              ROOT.kKey_CapsLock,
+                              ROOT.kKey_NumLock,
+                              ROOT.kKey_ScrollLock)
+
+		# Parent class must provide self.fViewer and self.fViewport!
+		
+	
+	def EnterEditMode(self, prompt, handler):
+		"""
+		Enter edit mode (mode where the status line is used as a text entry)
+		"""
+		self.fEditMode = True
+		self.fEditStr = ""
+		self.fEditPrompt = prompt
+		self.fEditHandler = handler
+		self.fViewport.SetStatusText(self.fEditPrompt)
+
+		
+	def EditKeyHandler(self):
+		"""
+		Key handler in edit mode
+		"""
+		if self.fViewer.fKeySym == ROOT.kKey_Backspace:
+			self.fEditStr = self.fEditStr[0:-1]
+			self.fViewport.SetStatusText(self.fEditPrompt + self.fEditStr)
+		elif self.fViewer.fKeySym == ROOT.kKey_Return:
+			self.fEditMode = False
+			self.fViewport.SetStatusText("")
+			self.fEditHandler(self.fEditStr)
+		elif self.fViewer.fKeyStr != "":
+			self.fEditStr += self.fViewer.fKeyStr
+			self.fViewport.SetStatusText(self.fEditPrompt + self.fEditStr)
+		else:
+			return False
+			
+		return True
+	
+
+	def KeyHandler(self):
+		""" 
+		Key handler (handles hotkeys and calls EditKeyHandler in edit mode)
+		"""
+		# Filter unknown and modifier keys
+		if self.fViewer.fKeySym in self.MODIFIER_KEYS or \
+		   self.fViewer.fKeySym == ROOT.kKey_Unknown:
+			return
+			
+		# ESC aborts
+		if self.fViewer.fKeySym == ROOT.kKey_Escape:
+			self.ResetHotkeyState()
+			self.fEditMode = False
+			self.fKeyString = ""
+			self.fViewport.SetStatusText("")
+			return True
+			
+		# There are two modes: the ``edit'' mode, in which the status
+		# bar is abused as a text entry, and the normal mode, in which
+		# the keys act as hotkeys.
+		if self.fEditMode:
+			handled = self.EditKeyHandler()
+		else:
+			keyStr = self.fViewer.fKeyStr
+		
+			if not keyStr:
+				keyStr = "<?>"
+		
+			handled = self.HandleHotkey(self.fViewer.fKeySym)
+			
+			if handled == None:
+				self.fKeyString += keyStr
+				self.fViewport.SetStatusText("Command: %s" % self.fKeyString)
+			elif handled == False:
+				self.fKeyString += keyStr
+				self.fViewport.SetStatusText("Invalid hotkey %s" % self.fKeyString)
+				self.fKeyString = ""
+			else:
+				if not self.fEditMode:
+					self.fViewport.SetStatusText("")
+				self.fKeyString = ""
+
+		return handled
+
+
 
 class Window(KeyHandler):
 	"""
@@ -76,7 +175,7 @@ class Window(KeyHandler):
 	
 		self.fViewer = ROOT.HDTV.Display.Viewer()
 		self.fViewport = self.fViewer.GetViewport()
-	
+		
 		self.fXZoomMarkers = []
 		self.fYZoomMarkers = []
 
@@ -86,35 +185,47 @@ class Window(KeyHandler):
 							 self.fKeyDispatch, "Dispatch()")
 		
 		self.fKeyString = ""
-		self.AddKey(ROOT.kKey_u, lambda: self.fViewport.Update())
+		self.AddHotkey(ROOT.kKey_u, lambda: self.fViewport.Update())
 		# toggle spectrum display
-		self.AddKey(ROOT.kKey_l, self.fViewport.ToggleLogScale)
-		self.AddKey(ROOT.kKey_a, self.fViewport.ToggleYAutoScale)
+		self.AddHotkey(ROOT.kKey_l, self.fViewport.ToggleLogScale)
+		self.AddHotkey(ROOT.kKey_a, self.fViewport.ToggleYAutoScale)
 		# x directions
-		self.AddKey(ROOT.kKey_Space, self.PutXZoomMarker)
-		self.AddKey(ROOT.kKey_f, self.ExpandX)
-		self.AddKey(ROOT.kKey_Right, lambda: self.fViewport.ShiftXOffset(0.1))
-		self.AddKey(ROOT.kKey_Left, lambda: self.fViewport.ShiftXOffset(-0.1))
-		self.AddKey(ROOT.kKey_1, lambda: self.fViewport.XZoomAroundCursor(2.0))
-		self.AddKey(ROOT.kKey_0, lambda: self.fViewport.XZoomAroundCursor(0.5))
+		self.AddHotkey(ROOT.kKey_Space, self.PutXZoomMarker)
+		self.AddHotkey(ROOT.kKey_f, self.ExpandX)
+		self.AddHotkey(ROOT.kKey_Right, lambda: self.fViewport.ShiftXOffset(0.1))
+		self.AddHotkey(ROOT.kKey_Left, lambda: self.fViewport.ShiftXOffset(-0.1))
+		self.AddHotkey(ROOT.kKey_1, lambda: self.fViewport.XZoomAroundCursor(2.0))
+		self.AddHotkey(ROOT.kKey_0, lambda: self.fViewport.XZoomAroundCursor(0.5))
 		# y direction
-		self.AddKey(ROOT.kKey_h, self.PutYZoomMarker)
-		self.AddKey(ROOT.kKey_y, self.ExpandY)
-		self.AddKey(ROOT.kKey_Up, lambda: self.fViewport.ShiftYOffset(0.1))
-		self.AddKey(ROOT.kKey_Down, lambda: self.fViewport.ShiftYOffset(-0.1))
-		self.AddKey(ROOT.kKey_Z, lambda: self.fViewport.YZoomAroundCursor(2.0))
-		self.AddKey(ROOT.kKey_X, lambda: self.fViewport.YZoomAroundCursor(0.5))
+		self.AddHotkey(ROOT.kKey_h, self.PutYZoomMarker)
+		self.AddHotkey(ROOT.kKey_y, self.ExpandY)
+		self.AddHotkey(ROOT.kKey_Up, lambda: self.fViewport.ShiftYOffset(0.1))
+		self.AddHotkey(ROOT.kKey_Down, lambda: self.fViewport.ShiftYOffset(-0.1))
+		self.AddHotkey(ROOT.kKey_Z, lambda: self.fViewport.YZoomAroundCursor(2.0))
+		self.AddHotkey(ROOT.kKey_X, lambda: self.fViewport.YZoomAroundCursor(0.5))
 		# expand in all directions
-		self.AddKey(ROOT.kKey_e, self.Expand)
+		self.AddHotkey(ROOT.kKey_e, self.Expand)
+
+		self.AddHotkey(ROOT.kKey_i, lambda: self.EnterEditMode(prompt="Position: ",
+		                                                    handler=self.GoToPosition))
+		self.AddHotkey(ROOT.kKey_n, lambda: self.EnterEditMode(prompt="Show spectrum: ",
+		                                                    handler=self.ShowSpectra))
+
+	
+	def GoToPosition(self, arg):
+		try:
+			center = float(arg)
+		except ValueError:
+			self.fViewport.SetStatusText("Invalid position: %s" % arg)
+			return
 		
-		# Modifier keys
-		self.MODIFIER_KEYS = (ROOT.kKey_Shift,
-                              ROOT.kKey_Control,
-                              ROOT.kKey_Meta,
-                              ROOT.kKey_Alt,
-                              ROOT.kKey_CapsLock,
-                              ROOT.kKey_NumLock,
-                              ROOT.kKey_ScrollLock)		
+		self.fViewport.SetXVisibleRegion(100.)
+		self.fViewport.SetXCenter(center)
+		
+	
+	def ShowSpectra(self, arg):
+		print arg
+	
 
 	def ExpandX(self):
 		"""
@@ -182,7 +293,7 @@ class Window(KeyHandler):
 			pos = self.fViewport.GetCursorY()
 		else:
 			raise RuntimeError, "Parameter xy must be either x or y"
-		
+
 		if len(collection)>0 and collection[-1].p2==None:
 			pending = collection[-1]
 			pending.p2 = pos
@@ -197,39 +308,3 @@ class Window(KeyHandler):
 			pending = Marker(mtype, pos, color=None)
 			collection.append(pending)
 			pending.Draw(self.fViewport)
-
-	def KeyHandler(self):
-		""" 
-		Default Key Handler
-		"""
-		# Filter unknown and modifier keys
-		if self.fViewer.fKeySym in self.MODIFIER_KEYS or \
-		   self.fViewer.fKeySym == ROOT.kKey_Unknown:
-			return
-		
-		if self.fViewer.fKeySym == ROOT.kKey_Escape:
-			self.fKeys.Reset()
-			self.fKeyString = ""
-			self.fViewport.SetStatusText("")
-			return True
-			
-		keyStr = self.fViewer.fKeyStr
-		
-		if not keyStr:
-			keyStr = "<?>"
-		
-		handled = self.HandleKey(self.fViewer.fKeySym)
-		
-		if handled == None:
-			self.fKeyString += keyStr
-			self.fViewport.SetStatusText("Command: %s" % self.fKeyString)
-		elif handled == False:
-			self.fKeyString += keyStr
-			self.fViewport.SetStatusText("Invalid hotkey %s" % self.fKeyString)
-			self.fKeyString = ""
-		else:
-			self.fViewport.SetStatusText("")
-			self.fKeyString = ""
-
-		return handled
-

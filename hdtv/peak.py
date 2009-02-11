@@ -296,7 +296,7 @@ class PeakModelTheuerkauf(PeakModel):
 			fwhm_uncal = self.E2Ch(pos_cal + value/2.) - self.E2Ch(pos_cal - value/2.)
 			# Note that the underlying fitter uses ``sigma'' as a parameter
 			#  (see HDTV technical documentation in the wiki)
-			return width_uncal / (2. * math.sqrt(2. * math.log(2.)))
+			return fwhm_uncal / (2. * math.sqrt(2. * math.log(2.)))
 		elif parname in ("vol", "tl", "tr", "sh", "sw"):
 			return value
 		else:

@@ -28,10 +28,10 @@ class ObjectManager(UserDict.DictMixin):
 		self.fActiveID = None
 
 		# Register hotkeys
-		self.fWindow.AddKey(ROOT.kKey_PageDown, self.ShowNext)
-		self.fWindow.AddKey(ROOT.kKey_PageUp, self.ShowPrev)
-		self.fWindow.AddKey(ROOT.kKey_Home, self.ShowFirst)
-		self.fWindow.AddKey(ROOT.kKey_End, self.ShowLast)
+		self.fWindow.AddHotkey(ROOT.kKey_PageDown, self.ShowNext)
+		self.fWindow.AddHotkey(ROOT.kKey_PageUp, self.ShowPrev)
+		self.fWindow.AddHotkey(ROOT.kKey_Home, self.ShowFirst)
+		self.fWindow.AddHotkey(ROOT.kKey_End, self.ShowLast)
 
 	def __getitem__(self, ID):
 		return self.fObjects.__getitem__(ID)

@@ -23,9 +23,9 @@ class Marker(Drawable):
 		if color:
 			self.color = color
 		else: # set to default color
-			if mtype in ["BACKGROUND","CUT_BG"]:
+			if mtype in ["BACKGROUND", "CUT_BG"]:
 				self.color = 11
-			elif mtype in ["REGION","CUT"]:
+			elif mtype in ["REGION", "CUT"]:
 				self.color = 38
 			elif mtype in ["PEAK"]:
 				self.color = 50

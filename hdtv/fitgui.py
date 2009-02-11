@@ -28,15 +28,15 @@ class FitGUI:
 			self.fFitPanel.Show()
 			
 		# Register hotkeys
-		self.fWindow.AddKey(ROOT.kKey_b, self.PutBackgroundMarker)
-		self.fWindow.AddKey(ROOT.kKey_r, self.PutRegionMarker)
-		self.fWindow.AddKey(ROOT.kKey_p, self.PutPeakMarker)
-	  	self.fWindow.AddKey([ROOT.kKey_Minus, ROOT.kKey_F], self.DeleteFit)
-	  	self.fWindow.AddKey(ROOT.kKey_B, self.FitBackground)
-	  	self.fWindow.AddKey(ROOT.kKey_F, self.Fit)
-	  	self.fWindow.AddKey(ROOT.kKey_I, self.Integrate)
-	  	self.fWindow.AddKey(ROOT.kKey_D, lambda: self.SetDecomp(True))
-	  	self.fWindow.AddKey([ROOT.kKey_Minus, ROOT.kKey_D], lambda: self.SetDecomp(False))
+		self.fWindow.AddHotkey(ROOT.kKey_b, self.PutBackgroundMarker)
+		self.fWindow.AddHotkey(ROOT.kKey_r, self.PutRegionMarker)
+		self.fWindow.AddHotkey(ROOT.kKey_p, self.PutPeakMarker)
+	  	self.fWindow.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], self.DeleteFit)
+	  	self.fWindow.AddHotkey(ROOT.kKey_B, self.FitBackground)
+	  	self.fWindow.AddHotkey(ROOT.kKey_F, self.Fit)
+	  	self.fWindow.AddHotkey(ROOT.kKey_I, self.Integrate)
+	  	self.fWindow.AddHotkey(ROOT.kKey_D, lambda: self.SetDecomp(True))
+	  	self.fWindow.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_D], lambda: self.SetDecomp(False))
 	  	
 	def SetDecomp(self, stat):
 		self.fFitPanel.SetDecomp(stat)

@@ -23,12 +23,13 @@ class TVSpecInterface(ObjectManager):
 		self.FitSetPeakModel("theuerkauf")
 		
 		# register common tv hotkeys
-		self.fWindow.AddKey([ROOT.kKey_N, ROOT.kKey_p], self.ShowPrev)
-		self.fWindow.AddKey([ROOT.kKey_N, ROOT.kKey_n], self.ShowNext)
-		self.fWindow.AddKey(ROOT.kKey_Greater, lambda: self.fWindow.fViewport.ShiftXOffset(0.1))
-		self.fWindow.AddKey(ROOT.kKey_Less, lambda: self.fWindow.fViewport.ShiftXOffset(-0.1))
-		self.fWindow.AddKey(ROOT.kKey_Equal, self.RefreshAll)
-		self.fWindow.AddKey(ROOT.kKey_t, self.RefreshVisible)
+		self.fWindow.AddHotkey([ROOT.kKey_N, ROOT.kKey_p], self.ShowPrev)
+		self.fWindow.AddHotkey([ROOT.kKey_N, ROOT.kKey_n], self.ShowNext)
+		self.fWindow.AddHotkey(ROOT.kKey_Greater, lambda: self.fWindow.fViewport.ShiftXOffset(0.1))
+		self.fWindow.AddHotkey(ROOT.kKey_Less, lambda: self.fWindow.fViewport.ShiftXOffset(-0.1))
+		self.fWindow.AddHotkey(ROOT.kKey_Equal, self.RefreshAll)
+		self.fWindow.AddHotkey(ROOT.kKey_t, self.RefreshVisible)
+		self.fWindow.AddHotkey(ROOT.kKey_Bar, self.CenterXOnCursor)
 		
 		# register tv commands
 		hdtv.cmdline.command_tree.SetDefaultLevel(1)
@@ -50,15 +51,18 @@ class TVSpecInterface(ObjectManager):
 		hdtv.cmdline.AddCommand("fit param status", self.FitParamStatus, nargs=0)
 		hdtv.cmdline.AddCommand("fit param reset", self.FitParamReset, nargs=0)
 		
+		def MakePeakModelCmd(name):
+			return lambda args: self.FitSetPeakModel(name)
 		for name in hdtv.fit.gPeakModels.iterkeys():
 			hdtv.cmdline.AddCommand("fit function peak activate %s" % name,
-			                        self.MakePeakModelCmd(name), nargs=0)
+			                        MakePeakModelCmd(name), nargs=0)
 				
 		hdtv.cmdline.RegisterInteractive("gSpectra", self.fWindow)
 		
-	def MakePeakModelCmd(self, name):
-		return lambda args: self.FitSetPeakModel(name)
 	
+	def CenterXOnCursor(self):
+		self.fWindow.fViewport.SetXCenter(self.fWindow.fViewport.GetCursorX())
+		
 	
 	def LoadSpectrum(self, fname, fmt=None):
 		"""
@@ -290,9 +294,6 @@ class TVSpecInterface(ObjectManager):
 	def FitParamReset(self, args):
 		self.fFitGui.ResetFitParameters()
 			
-	def MakeParamCmd(self, param):
-		return lambda args: self.FitParamPeak(param, args)
-			
 	def FitSetPeakModel(self, name):
 		# Unregister old parameters
 		for param in self.fFitGui.fFitter.GetParameters():
@@ -302,9 +303,11 @@ class TVSpecInterface(ObjectManager):
 		self.fFitGui.fFitter.SetPeakModel(name.lower())
 		
 		# Register new parameters
+		def MakeParamCmd(param):
+			return lambda args: self.FitParamPeak(param, args)
 		for param in self.fFitGui.fFitter.GetParameters():
 			hdtv.cmdline.AddCommand("fit param %s" % param, 
-			                        self.MakeParamCmd(param),
+			                        MakeParamCmd(param),
 			                        minargs=1)
 			                        
 		# Update options

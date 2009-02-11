@@ -445,23 +445,28 @@ void View1D::UpdateScrollbarRange(void)
   }
 }
 
-void View1D::SetXOffset(double offset, bool update)
+void View1D::SetXOffset(double offset)
 {
   // Sets the offset of the X (energy) axis, in units of energy (??? FIXME).
 
   fXOffset = offset;
-  if(update)
-    Update();
+  Update();
 }
 
-void View1D::SetYOffset(double offset, bool update)
+void View1D::SetXCenter(double center)
+{
+   // Convenience function to set the center of the X (energy) axis
+   
+   SetXOffset(center - fXVisibleRegion/2.);
+}
+
+void View1D::SetYOffset(double offset)
 {
   // Sets the offset of the Y (counts) axis, in units of counts.
 
   fYOffset = offset;
   fYAutoScale = false;
-  if(update)
-    Update();
+  Update();
 }
 
 void View1D::ShiftXOffset(double f, bool update)
