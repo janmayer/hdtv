@@ -9,6 +9,8 @@ from hdtv.manager import ObjectManager
 from hdtv.spectrum import Spectrum, FileSpectrum
 from hdtv.fitgui import FitGUI
 
+import config
+
 # Don't add created spectra to the ROOT directory
 ROOT.TH1.AddDirectory(ROOT.kFALSE)
 
@@ -30,6 +32,14 @@ class TVSpecInterface(ObjectManager):
 		self.fWindow.AddHotkey(ROOT.kKey_Equal, self.RefreshAll)
 		self.fWindow.AddHotkey(ROOT.kKey_t, self.RefreshVisible)
 		self.fWindow.AddHotkey(ROOT.kKey_Bar, self.CenterXOnCursor)
+		self.fWindow.AddHotkey(ROOT.kKey_Return, lambda: self.fWindow.fViewport.Update(True))
+		
+		self.fWindow.AddHotkey(ROOT.kKey_n,
+		        lambda: self.fWindow.EnterEditMode(prompt="Show spectrum: ",
+		                                   handler=self.HotkeyShow))
+		self.fWindow.AddHotkey(ROOT.kKey_a,
+		        lambda: self.fWindow.EnterEditMode(prompt="Activate spectrum: ",
+		                                   handler=self.HotkeyActivate))
 		
 		# register tv commands
 		hdtv.cmdline.command_tree.SetDefaultLevel(1)
@@ -56,13 +66,59 @@ class TVSpecInterface(ObjectManager):
 		for name in hdtv.fit.gPeakModels.iterkeys():
 			hdtv.cmdline.AddCommand("fit function peak activate %s" % name,
 			                        MakePeakModelCmd(name), nargs=0)
-				
-		hdtv.cmdline.RegisterInteractive("gSpectra", self.fWindow)
+
+		# Register configuration variables
+		opt = hdtv.options.Option(default = self.fWindow.fViewport.GetYMinVisibleRegion(),
+                                  parse = lambda(x): float(x),
+                                  changeCallback = self.YMinVisibleRegionChanged)
+		config.RegisterOption("display.YMinVisibleRegion", opt)
+
+		# Register variables for interactive use
+		hdtv.cmdline.RegisterInteractive("gSpectra", self)
 		
+		
+	def YMinVisibleRegionChanged(self, opt):
+		self.fWindow.fViewport.SetYMinVisibleRegion(opt.Get())
+	
+	
+	def HotkeyShow(self, arg):
+		try:
+			self.SpectrumShow(arg.split())
+		except ValueError:
+			self.fWindow.fViewport.SetStatusText("Invalid spectrum identifier: %s" % arg)
+		
+	
+	def HotkeyActivate(self, arg):
+		try:
+			ID = int(arg)
+		except ValueError:
+			self.fWindow.fViewport.SetStatusText("Invalid id: %s" % arg)
+			return
+		
+		try:
+			self.ActivateObject(ID)
+		except KeyError:
+			self.fWindow.fViewport.SetStatusText("No such id: %d" % ID)
+	
 	
 	def CenterXOnCursor(self):
 		self.fWindow.fViewport.SetXCenter(self.fWindow.fViewport.GetCursorX())
 		
+	
+	def ActivateObject(self, ID):
+		"""
+		Activates the object with id ID, while also highlighting it
+		"""
+		self.fWindow.fViewport.LockUpdate()
+		if self.fActiveID != None:
+			self[self.fActiveID].SetColor(self.ColorForID(self.fActiveID, 1., .5))
+		self[ID].SetColor(self.ColorForID(ID, 1., 1.))
+		self[ID].ToTop()
+		ObjectManager.ActivateObject(self, ID)
+		self.fFitGui.fFitter.spec = self[ID]
+		self.fWindow.fViewport.UnlockUpdate()
+		
+	
 	
 	def LoadSpectrum(self, fname, fmt=None):
 		"""
@@ -77,7 +133,7 @@ class TVSpecInterface(ObjectManager):
 			ID = self.GetFreeID()
 			spec.SetColor(self.ColorForID(ID, 1., 1.))
 			self[ID] = spec
-			self.fFitGui.fFitter.spec = spec
+			self.ActivateObject(ID)
 			return ID
 
 

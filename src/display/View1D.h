@@ -64,6 +64,10 @@ class View1D : public View {
   void HandleScrollbar(Long_t parm);
   void SetXVisibleRegion(double region, bool update=true);
   void SetYVisibleRegion(double region, bool update=true);
+  inline double GetYMinVisibleRegion()
+     { return fYMinVisibleRegion; }
+  inline void SetYMinVisibleRegion(double minRegion)
+     { fYMinVisibleRegion = minRegion; Update(); }
   void XZoomAroundCursor(double f);
   void YZoomAroundCursor(double f);
   void ToBegin(void);
@@ -88,7 +92,7 @@ class View1D : public View {
   
   void LockUpdate();
   void UnlockUpdate();
-  void Update();
+  void Update(bool forceRedraw=false);
   
   /*** Helper functions to draw scales ***/
   void DrawXScales(UInt_t x1, UInt_t x2);
@@ -104,7 +108,7 @@ class View1D : public View {
  protected:
   DisplayStack* GetDisplayStack() { return &fDisplayStack; }
   void DoRedraw();
-  void DoUpdate(bool redraw=false);
+  void DoUpdate();
   Bool_t HandleMotion(Event_t *ev);
   Bool_t HandleButton(Event_t *ev);
   Bool_t HandleCrossing(Event_t *ev);
@@ -133,6 +137,7 @@ class View1D : public View {
   
   int fUpdateLocked;
   bool fNeedsUpdate;
+  bool fForceRedraw;
   
   ClassDef(View1D, 1)
 };

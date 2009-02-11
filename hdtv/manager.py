@@ -200,7 +200,7 @@ class ObjectManager(UserDict.DictMixin):
 				except KeyError:
 					print "Warning: ID %d not found" % ID
 		self.fWindow.fViewport.UnlockUpdate()
-		self.fWindow.Expand()
+		# self.fWindow.Expand() ?????
 
 
 	def ShowAll(self):

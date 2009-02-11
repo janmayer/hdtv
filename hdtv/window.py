@@ -188,7 +188,7 @@ class Window(KeyHandler):
 		self.AddHotkey(ROOT.kKey_u, lambda: self.fViewport.Update())
 		# toggle spectrum display
 		self.AddHotkey(ROOT.kKey_l, self.fViewport.ToggleLogScale)
-		self.AddHotkey(ROOT.kKey_a, self.fViewport.ToggleYAutoScale)
+		self.AddHotkey(ROOT.kKey_A, self.fViewport.ToggleYAutoScale)
 		# x directions
 		self.AddHotkey(ROOT.kKey_Space, self.PutXZoomMarker)
 		self.AddHotkey(ROOT.kKey_f, self.ExpandX)
@@ -208,8 +208,6 @@ class Window(KeyHandler):
 
 		self.AddHotkey(ROOT.kKey_i, lambda: self.EnterEditMode(prompt="Position: ",
 		                                                    handler=self.GoToPosition))
-		self.AddHotkey(ROOT.kKey_n, lambda: self.EnterEditMode(prompt="Show spectrum: ",
-		                                                    handler=self.ShowSpectra))
 
 	
 	def GoToPosition(self, arg):
@@ -221,12 +219,8 @@ class Window(KeyHandler):
 		
 		self.fViewport.SetXVisibleRegion(100.)
 		self.fViewport.SetXCenter(center)
-		
 	
-	def ShowSpectra(self, arg):
-		print arg
 	
-
 	def ExpandX(self):
 		"""
 		expand in X direction

@@ -111,6 +111,8 @@ class Painter {
 	{ return ((double) dX / fXZoom); }
   inline double dEtodX(double dE)
 	{ return dE * fXZoom; }
+  inline double dYtodC(int dY)
+    { return -((double) dY / fYZoom); }   // FIXME: only works for linear Y scale
   int CtoY(double c);
   double YtoC(int y);
   

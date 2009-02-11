@@ -43,7 +43,7 @@ void DisplayStack::Update()
 {
   // Call Update() of corresponding view
   
-  fView->Update();
+  fView->Update(true);
 }
 
 void DisplayStack::LockUpdate()

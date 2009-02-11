@@ -71,6 +71,7 @@ View1D::View1D(const TGWindow *p, UInt_t w, UInt_t h)
   
   fUpdateLocked = 0;
   fNeedsUpdate = false;
+  fForceRedraw = false;
 }
 
 View1D::~View1D() {
@@ -124,7 +125,7 @@ void View1D::SetLogScale(Bool_t l)
   // Sets Y (counts) scale to logarithmic or linear
 
   fPainter.SetLogScale(l);
-  Update();
+  Update(true);
 }
 
 void View1D::YAutoScaleOnce(bool update)
@@ -347,22 +348,24 @@ void View1D::UnlockUpdate()
     fUpdateLocked--;
 
   if(fUpdateLocked <= 0 && fNeedsUpdate)
-    DoUpdate(true);
+    DoUpdate();
 }
 
-void View1D::Update()
+void View1D::Update(bool forceRedraw)
 {
   // Do an update if possible, or remember to do it once it becomes possible again.
   
   //cout << "View1D::Update() called, fUpdateLocked=" << fUpdateLocked << endl;
 
+  fForceRedraw = (fForceRedraw || forceRedraw);
+  
   if(fUpdateLocked <= 0)
-    DoUpdate(true);
+    DoUpdate();
   else
     fNeedsUpdate = true;
 }
 
-void View1D::DoUpdate(bool redraw)
+void View1D::DoUpdate()
 {
   // This function brings the viewport up-to-date after a change in any
   // relevant parameters. It tries to do so with minimal effort,
@@ -370,8 +373,10 @@ void View1D::DoUpdate(bool redraw)
   
   double az;
   double dO, dOPix;
-
-  //cout << "Update() called" << endl;
+  
+  bool redraw = fForceRedraw;  // Do we need a full redraw?
+  
+  //cout << "Update() called " << redraw << endl;
 
   // Remember not to compare floating point values
   // for equality directly (rouding error problems)
@@ -420,6 +425,7 @@ void View1D::DoUpdate(bool redraw)
   UpdateStatusScale();
   
   fNeedsUpdate = false;
+  fForceRedraw = false;
 }
 
 void View1D::UpdateScrollbarRange(void)
@@ -577,7 +583,9 @@ Bool_t View1D::HandleMotion(Event_t *ev)
   // Callback for mouse motion
 
   bool cv = fCursorVisible;
-  int dX = (int) fCursorX - ev->fX;
+  int accel = (ev->fState & kKeyControlMask) ? 10 : 1;
+  int dX = accel * ((int) fCursorX - ev->fX);
+  int dY = accel * ((int) fCursorY - ev->fY);
   if(cv) DrawCursor();
   
   fCursorX = ev->fX;
@@ -585,6 +593,8 @@ Bool_t View1D::HandleMotion(Event_t *ev)
   
   if(fDragging) {
 	SetXOffset(fXOffset + fPainter.dXtodE(dX));
+	if(ev->fState & kKeyShiftMask)
+	   SetYOffset(fYOffset + fPainter.dYtodC(dY));
   }
     
   // If we are dragging, Update() will update the statusbar
