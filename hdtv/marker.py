@@ -42,7 +42,7 @@ class Marker(Drawable):
 		Draw the marker
 		"""
 		if self.fViewport:
-			if self.fViewport=viewport
+			if self.fViewport == viewport:
 				# this marker has already been drawn
 				self.Show()
 				return

@@ -35,7 +35,7 @@ class Spectrum(Drawable):
 		Draw this spectrum to the viewport
 		"""
 		if self.fViewport:
-			if self.fViewport=viewport:
+			if self.fViewport == viewport:
 				# this spectrum has already been drawn
 				self.Show()
 				return

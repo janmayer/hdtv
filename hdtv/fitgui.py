@@ -70,7 +70,7 @@ class FitGUI:
 		# Make sure a fit panel is displayed
 		self.fFitPanel.Show()
 		
-		if not self.fWindow.fPendingMarker and \
+		if self.fBgMarkers[-1].p2 != None and \
 			len(self.fBgMarkers) > 0:
 			
 			self.fFitter.bglist = map(lambda m: [m.p1, m.p2], self.fBgMarkers)
@@ -85,7 +85,7 @@ class FitGUI:
 		# Lock updates
 		self.fWindow.fViewport.LockUpdate()
 	
-	  	if not self.fWindow.fPendingMarker and \
+	  	if self.fRegionMarkers[-1].p2 != None and \
 	  		len(self.fRegionMarkers) == 1 and \
 	  		len(self.fPeakMarkers) > 0:
 

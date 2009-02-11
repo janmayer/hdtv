@@ -33,14 +33,12 @@ class ObjectManager(UserDict.DictMixin):
 		self.fWindow.AddHotkey(ROOT.kKey_Home, self.ShowFirst)
 		self.fWindow.AddHotkey(ROOT.kKey_End, self.ShowLast)
 
+	
 	def __getitem__(self, ID):
 		return self.fObjects.__getitem__(ID)
 
 
 	def __setitem__(self, ID, obj):
-		# No admission for zombies
-		if obj.fZombie:
-			return None
 		self.fObjects.__setitem__(ID, obj)
 		obj.Draw(self.fWindow.fViewport)
 		self.fWindow.Expand()
