@@ -65,7 +65,7 @@ class Marker(Drawable):
 		self.fDisplayObj.Draw(self.fViewport)
 		
 
-	def UpdatePos(self):
+	def Refresh(self):
 		""" 
 		Update the position of the marker
 		"""
@@ -77,4 +77,6 @@ class Marker(Drawable):
 				self.fDisplayObj.SetN(1)
 				self.fDisplayObj.SetPos(self.p1)
 
-
+	def UpdatePos(self):
+		print 'Marker.UpdatePos is deprecated, use Refresh instead.'
+		self.Refresh()

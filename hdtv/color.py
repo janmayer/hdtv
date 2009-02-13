@@ -6,7 +6,6 @@ import ROOT
 Default colors for HDTV
 """
 
-# some default colors: OBSOLETE
 kSpecDef = 2
 kFitDef = 25
 
