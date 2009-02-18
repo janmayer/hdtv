@@ -78,10 +78,16 @@ Bool_t Viewer::HandleKey(Event_t *ev)
 
 Bool_t Viewer::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
 {
+  int handled = false;
+  
   if(GET_MSG(msg) == kC_HSCROLL) {
-	if(GET_SUBMSG(msg) == kSB_SLIDERTRACK)
+	if(GET_SUBMSG(msg) == kSB_SLIDERTRACK) {
 	  fView->HandleScrollbar(parm1);
+	  handled = true;
+	}
   }
+  
+  return handled;
 }
 
 } // end namespace Display

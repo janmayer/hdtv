@@ -30,7 +30,9 @@ namespace HDTV {
 namespace Display {
 
 DisplaySpec::DisplaySpec(const TH1* hist, int col)
-   : DisplayBlock(col)
+   : DisplayBlock(col),
+     fDrawUnderflowBin(false),
+     fDrawOverflowBin(false)
 {
   // Constructor
 
@@ -56,12 +58,14 @@ int DisplaySpec::GetRegionMaxBin(int b1, int b2)
 {
   // Find the bin number of the bin between b1 and b2 (inclusive) which
   // contains the most events
+  // b1 and b2 are raw bin numbers
+  // The region is clipped according to fDrawUnderflowBin and fDrawOverflowBin
 
   int bin, max_bin;
   double y, max_y;
 
-  if(b1 < 0) b1 = 0;
-  if(b2 > fHist->GetNbinsX() + 1) b2 = fHist->GetNbinsX() + 1;
+  b1 = ClipBin(b1);
+  b2 = ClipBin(b2);
   
   max_y = fHist->GetBinContent(b1);
   max_bin = b1;
@@ -86,6 +90,9 @@ DisplayStack::ObjList& DisplaySpec::GetList(DisplayStack *stack)
 
 double DisplaySpec::GetRegionMax(int b1, int b2)
 {
+  // Get the maximum counts in the region between bin b1 and bin b2 (inclusive)
+  // b1 and b2 are raw bin numbers
+
   int max_bin = GetRegionMaxBin(b1, b2);
 
   //return max_bin == -1 ? 0.0 : fHist->GetBinContent(max_bin);

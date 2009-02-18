@@ -122,6 +122,9 @@ class View1D : public View {
   double fYMinVisibleRegion;
   double fXOffset, fYOffset;
   double fMinEnergy, fMaxEnergy;
+  
+  Calibration fCurrentCal;
+  DisplayStack fDisplayStack;
 
   Bool_t fYAutoScale;
   Bool_t fNeedClear;
@@ -131,9 +134,6 @@ class View1D : public View {
   TGStatusBar *fStatusBar;
   XScaleType fTopScale, fBottomScale;
   YScaleType fLeftScale;
-  DisplayStack fDisplayStack;
-  
-  Calibration fCurrentCal;
   
   int fUpdateLocked;
   bool fNeedsUpdate;

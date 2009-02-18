@@ -1,5 +1,24 @@
-#!/bin/false
 # -*- coding: utf-8 -*-
+
+# HDTV - A ROOT-based spectrum analysis software
+#  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+#
+# This file is part of HDTV.
+#
+# HDTV is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# HDTV is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with HDTV; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+
 #-------------------------------------------------------------------------------
 # HDTV command line
 #-------------------------------------------------------------------------------
@@ -271,7 +290,10 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 			for child in node.childs:
 				if child.title[0:l] == text:
 					options.append(child.title + " ")
-		# ... if not, we suggest files, but only if the command will
+		# ... if not, we use the nodes registered autocomplete handler ...
+		elif "completer" in node.options and callable(node.options["completer"]):
+			options = node.options["completer"](text)
+		# ... if that fails as well, we suggest files, but only if the command will
 		# take files or directories as arguments.
 		elif ("fileargs" in node.options and node.options["fileargs"]) or \
 		     ("dirargs" in node.options and node.options["dirargs"]):

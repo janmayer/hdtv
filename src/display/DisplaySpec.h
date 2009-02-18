@@ -40,10 +40,40 @@ class DisplaySpec : public DisplayBlock {
    int GetRegionMaxBin(int b1, int b2);
    double GetRegionMax(int b1, int b2);
 
-   inline double GetMinCh(void) { return 0.0; }
-   inline double GetMaxCh(void) { return (double) fHist->GetNbinsX(); }
+   // Convenience functions to access the underlying histogram object and its x axis
    inline double GetBinContent(Int_t bin) { return fHist->GetBinContent(bin); }
+   inline double GetBinCenter(Int_t bin) { return fHist->GetXaxis()->GetBinCenter(bin); }
+   inline Int_t FindBin(double x) { return fHist->GetXaxis()->FindBin(x); }
    inline Int_t GetNbinsX(void) { return fHist->GetNbinsX(); }
+   
+   inline void SetDrawUnderflowBin(bool x)  { fDrawUnderflowBin = x; }
+   inline void SetDrawOverflowBin(bool x)   { fDrawOverflowBin = x; }
+   inline bool GetDrawUnderflowBin() { return fDrawUnderflowBin; }
+   inline bool GetDrawOverflowBin()  { return fDrawOverflowBin; }
+   
+   inline double GetMinCh(void) { return (double) fHist->GetXaxis()->GetXmin(); }
+   inline double GetMaxCh(void) { return (double) fHist->GetXaxis()->GetXmax(); }
+   
+   inline Int_t ClipBin(Int_t bin) {
+     if(fDrawUnderflowBin) {
+       if(bin < 0) bin = 0;
+     } else {
+       if(bin < 1) bin = 1;
+     }
+       
+     if(fDrawOverflowBin) {
+       if(bin > GetNbinsX()+1) bin = GetNbinsX()+1;
+     } else {
+       if(bin > GetNbinsX()) bin = GetNbinsX();
+     }
+     
+     return bin;
+   }
+   
+   inline double GetClippedBinContent(Int_t bin) {
+     return GetBinContent(ClipBin(bin));
+   }
+   
    double GetMax_Cached(int b1, int b2);
    
    // HDTV::Display:: required for CINT
@@ -57,6 +87,7 @@ class DisplaySpec : public DisplayBlock {
    
    int fCachedB1, fCachedB2, fCachedMaxBin;
    double fCachedMax;
+   bool fDrawUnderflowBin, fDrawOverflowBin;
 };
 
 } // end namespace Display

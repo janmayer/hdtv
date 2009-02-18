@@ -77,6 +77,8 @@ Bool_t View2D::HandleMotion(Event_t *ev)
   if(cv) DrawCursor();
   
   UpdateStatusBar();
+  
+  return true;
 }
 
 Bool_t View2D::HandleButton(Event_t *ev)
@@ -85,6 +87,8 @@ Bool_t View2D::HandleButton(Event_t *ev)
 	fDragging = true;
   else
 	fDragging = false;
+	
+  return true;
 }
 
 Bool_t View2D::HandleKey(Event_t *ev)
@@ -184,6 +188,8 @@ Bool_t View2D::HandleCrossing(Event_t *ev)
   } else if(ev->fType == kLeaveNotify) {
 	if(fCursorVisible) DrawCursor();
   }
+  
+  return true;
 }
 
 void View2D::UpdateStatusBar()
@@ -353,7 +359,7 @@ void View2D::DoRedraw()
   int x1, y1, x2, y2;
   bool cv = fCursorVisible;
   Pixmap_t tile;
-  int NTiles;
+  unsigned int NTiles;
   
   x1 = GetTileId(-fXTileOffset);
   x2 = GetTileId(fWidth - fXTileOffset);

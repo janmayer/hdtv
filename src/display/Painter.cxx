@@ -225,24 +225,48 @@ void Painter::SetSize(int w, int h)
 
 double Painter::GetCountsAtPixel(DisplaySpec *dSpec, UInt_t x)
 {
-  double c1, c2;
-  int n1, n2;
+  // Get counts at screen X position x
+  // FIXME: this could be significantly optimized...
   
-  c1 = dSpec->E2Ch(XtoE((double) x - 0.5));
-  c2 = dSpec->E2Ch(XtoE((double) x + 0.5));
-
-  if(c1 < c2) {
-	n1 = (int) TMath::Ceil(c1 + 0.5);
-	n2 = (int) TMath::Ceil(c2 - 0.5);
-  } else {
-	n1 = (int) TMath::Ceil(c2 + 0.5);
-	n2 = (int) TMath::Ceil(c1 - 0.5);
+  // Calculate the lower and upper edge of the screen bin in fractional
+  // histogram channels, applying the calibration if specified
+  double c1 = dSpec->E2Ch(XtoE((double) x - 0.5));
+  double c2 = dSpec->E2Ch(XtoE((double) x + 0.5));
+  
+  // Our calibration may have a negative slope...
+  if(c1 > c2) {
+    double ct = c1;
+    c1 = c2;
+    c2 = ct;
   }
+  
+  // In "zoomed out" mode (many histogram bins per screen bin), each screen
+  // bin is set to the maximum counts of all histogram bin whose center
+  // lies within the screen bin. This ensures that peaks stay visible, but
+  // avoids artificial broadening of peaks (as every histogram bin counts
+  // towards exactly one screen bin).
+  // In "zoomed in" mode (many screen bins per histogram bin), each screen
+  // bin is set to the value of the histogram bin it lies in.
+  Int_t b1 = dSpec->FindBin(c1);
+  Int_t b2 = dSpec->FindBin(c2);
+  
+  // Shortcut for "zoomed in" mode
+  if(b1 == b2)
+    return dSpec->GetClippedBinContent(b1);
 
-  if(n2 < n1)
-	n2 = n1;
-
-  return dSpec->GetRegionMax(n1, n2);
+  // Get bins to consider for maximum: b1..b2 (inclusive)
+  if(dSpec->GetBinCenter(b1) < c1) b1++;
+  if(dSpec->GetBinCenter(b2) >= c2) b2 --;
+  
+  if(b2 >= b1) {
+    // "Zoomed out" mode
+    return dSpec->GetRegionMax(b1, b2);
+  } else {
+    // "Zoomed in" mode, special case
+    double c = dSpec->E2Ch(XtoE((double) x));
+    Int_t b = dSpec->FindBin(c);
+    return dSpec->GetClippedBinContent(b);
+  }
 }
 
 /* Modified log function:
@@ -320,8 +344,8 @@ double Painter::GetYAutoZoom(DisplaySpec *dSpec)
   
   e1 = XtoE(fXBase);
   e2 = XtoE(fXBase + fWidth);
-  b1 = (int) TMath::Floor(dSpec->E2Ch(e1) + 1.5);
-  b2 = (int) TMath::Ceil(dSpec->E2Ch(e2) + 0.5);
+  b1 = dSpec->FindBin(dSpec->E2Ch(e1));
+  b2 = dSpec->FindBin(dSpec->E2Ch(e2));
 
   return (double) dSpec->GetMax_Cached(b1, b2) * 1.02;
 }
@@ -401,7 +425,6 @@ void Painter::DrawXNonlinearScale(UInt_t x1, UInt_t x2, bool top, const Calibrat
   size_t len;
   int i, i2;
   double major_tic, minor_tic;
-  int n=0;
 
   //GetTicDistance(cal.E2Ch(XtoE(x1)) - cal.E2Ch(XtoE(x2)), major_tic, minor_tic, n);
   minor_tic = 10.0;
@@ -415,7 +438,7 @@ void Painter::DrawXNonlinearScale(UInt_t x1, UInt_t x2, bool top, const Calibrat
   i = (int) TMath::Ceil(cal.E2Ch(XtoE(x1)) / minor_tic);
   i2 = (int) TMath::Floor(cal.E2Ch(XtoE(x2)) / minor_tic);
 
-  for(i; i<=i2; i++) {
+  for(; i<=i2; ++i) {
 	x = (UInt_t) EtoX(cal.Ch2E((double) i * minor_tic));
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x, y, x, y+5*sgn);
   }
@@ -424,7 +447,7 @@ void Painter::DrawXNonlinearScale(UInt_t x1, UInt_t x2, bool top, const Calibrat
   i = (int) TMath::Ceil(cal.E2Ch(XtoE(x1)) / major_tic);
   i2 = (int) TMath::Floor(cal.E2Ch(XtoE(x2)) / major_tic);
 
-  for(i; i<=i2; i++) {
+  for(; i<=i2; ++i) {
 	x = (UInt_t) EtoX(cal.Ch2E((double) i * major_tic));
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x, y, x, y+9*sgn);
   
@@ -459,7 +482,7 @@ void Painter::DrawXScale(UInt_t x1, UInt_t x2)
   i = (int) TMath::Ceil(XtoE(x1) / minor_tic);
   i2 = (int) TMath::Floor(XtoE(x2) / minor_tic);
 
-  for(i; i<=i2; i++) {
+  for(; i<=i2; ++i) {
 	x = (UInt_t) EtoX((double) i * minor_tic);
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x, y, x, y+5);
   }
@@ -468,7 +491,7 @@ void Painter::DrawXScale(UInt_t x1, UInt_t x2)
   i = (int) TMath::Ceil(XtoE(x1) / major_tic);
   i2 = (int) TMath::Floor(XtoE(x2) / major_tic);
 
-  for(i; i<=i2; i++) {
+  for(; i<=i2; ++i) {
 	x = (UInt_t) EtoX((double) i * major_tic);
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x, y, x, y+9);
   
@@ -528,7 +551,7 @@ void Painter::DrawYLinearScale()
   i = (int) TMath::Ceil(YtoC(fYBase) / minor_tic);
   i2 = (int) TMath::Floor(YtoC(fYBase - fHeight) / minor_tic);
 
-  for(i; i<=i2; i++) {
+  for(; i<=i2; ++i) {
 	y = (UInt_t) CtoY((double) i * minor_tic);
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x-5, y, x, y);
   }
@@ -537,7 +560,7 @@ void Painter::DrawYLinearScale()
   i = (int) TMath::Ceil(YtoC(fYBase) / major_tic);
   i2 = (int) TMath::Floor(YtoC(fYBase - fHeight) / major_tic);
 
-  for(i; i<=i2; i++) {
+  for(; i<=i2; ++i) {
 	y = (UInt_t) CtoY((double) i * major_tic);
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x-9, y, x, y);
   
@@ -550,11 +573,6 @@ void Painter::DrawYLinearScale()
 
 void Painter::DrawYLogScale()
 {
-  double exp = 1.0;
-  int c = 1;
-
-  UInt_t x = fXBase - 2;
-  UInt_t y;
   int yTop = fYBase - fHeight; 
   int minDist;
   double cMin, cMax;
