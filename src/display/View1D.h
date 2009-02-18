@@ -77,6 +77,9 @@ class View1D : public View {
   void SetLogScale(Bool_t l);
   inline void ToggleLogScale() { SetLogScale(!GetLogScale()); }
   inline Bool_t GetLogScale() { return fPainter.GetLogScale(); }
+  void SetUseNorm(Bool_t n);
+  inline void ToggleUseNorm() { SetUseNorm(!GetUseNorm()); }
+  inline Bool_t GetUseNorm() { return fPainter.GetUseNorm(); }
   inline void ToggleYAutoScale() { SetYAutoScale(!GetYAutoScale()); }
   void SetYAutoScale(bool as, bool update=true);
   inline Bool_t GetYAutoScale() { return fYAutoScale; }

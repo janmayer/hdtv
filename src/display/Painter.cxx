@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2008  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ *  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
  *
  * This file is part of HDTV.
  *
@@ -37,6 +37,7 @@ Painter::Painter()
   SetXVisibleRegion(100.0);
   SetYVisibleRegion(100.0);
   SetLogScale(false);
+  SetUseNorm(false);
   SetBasePoint(0, 0);
   SetSize(0, 0);
   SetViewMode(kVMHollow);
@@ -54,6 +55,7 @@ void Painter::DrawFunction(DisplayFunc *dFunc, int x1, int x2)
   int hClip = fYBase - fHeight;
   int lClip = fYBase;
   double ch;
+  double norm = fUseNorm ? dFunc->GetNorm() : 1.0;
 
   /* Do x axis clipping */
   int minX = EtoX(dFunc->GetMinE());
@@ -64,11 +66,11 @@ void Painter::DrawFunction(DisplayFunc *dFunc, int x1, int x2)
 
   int ly, cy;
   ch = dFunc->E2Ch(XtoE((double) x1 - 0.5));
-  ly = CtoY(dFunc->Eval(ch));
+  ly = CtoY(norm * dFunc->Eval(ch));
 
   for(x=x1; x<=x2; x++) {
     ch = dFunc->E2Ch(XtoE((double) x + 0.5));
-    y = cy = CtoY(dFunc->Eval(ch));
+    y = cy = CtoY(norm * dFunc->Eval(ch));
     
     if(TMath::Min(y, ly) <= lClip && TMath::Max(y, ly) >= hClip) {
       if(cy < hClip) cy = hClip;
@@ -223,6 +225,15 @@ void Painter::SetSize(int w, int h)
   UpdateYZoom();
 }
 
+int Painter::GetYAtPixel(DisplaySpec *dSpec, UInt_t x)
+{
+  if(fUseNorm) {
+    return CtoY(dSpec->GetNorm() * GetCountsAtPixel(dSpec, x));
+  } else {
+    return CtoY(GetCountsAtPixel(dSpec, x));
+  }
+}
+
 double Painter::GetCountsAtPixel(DisplaySpec *dSpec, UInt_t x)
 {
   // Get counts at screen X position x
@@ -341,13 +352,14 @@ double Painter::GetYAutoZoom(DisplaySpec *dSpec)
 {
   double e1, e2;
   int b1, b2;
+  double norm = fUseNorm ? dSpec->GetNorm() * 1.02 : 1.02;
   
   e1 = XtoE(fXBase);
   e2 = XtoE(fXBase + fWidth);
   b1 = dSpec->FindBin(dSpec->E2Ch(e1));
   b2 = dSpec->FindBin(dSpec->E2Ch(e2));
 
-  return (double) dSpec->GetMax_Cached(b1, b2) * 1.02;
+  return (double) dSpec->GetMax_Cached(b1, b2) * norm;
 }
 
 void Painter::ClearTopXScale()

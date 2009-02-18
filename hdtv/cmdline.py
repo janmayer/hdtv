@@ -276,7 +276,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 		# from path above, it now needs to be unambiguous. If is isn't, we
 		# cannot suggest any completions.
 		try:
-			(node, args) = self.FindNode(path, False)
+			(node, args) = self.FindNode(path)
 		except RuntimeError:
 			# Command is ambiguous
 			return []

@@ -28,7 +28,7 @@ namespace Display {
 Viewer::Viewer(UInt_t w, UInt_t h, const char *title)
   : TGMainFrame(gClient->GetRoot(), w, h)
 {
-  Int_t parts[3] = {20, 10, 70};
+  Int_t parts[3] = {20, 15, 65};
   
   // FIXME: how is the memory for TGLayoutHints supposed to be handled correctly???
   

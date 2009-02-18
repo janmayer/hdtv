@@ -52,6 +52,9 @@ class DisplayBlock: public DisplayObj
     
     void SetColor(int col);
     
+    void SetNorm(double norm)  { fNorm = norm; Update(); }
+    double GetNorm() { return fNorm; }
+    
     void ToTop(View1D *view);
     void ToBottom(View1D *view);
     
@@ -69,6 +72,7 @@ class DisplayBlock: public DisplayObj
   
     Calibration fCal;
     TGGC *fGC;
+    double fNorm;  // normalization factor
 };
 
 } // end namespace Display

@@ -29,6 +29,7 @@ from hdtv.window import Window
 from hdtv.manager import ObjectManager
 from hdtv.spectrum import Spectrum, FileSpectrum
 from hdtv.fitgui import FitGUI
+from hdtv.specreader import SpecReaderError
 
 import config
 
@@ -147,15 +148,16 @@ class TVSpecInterface(ObjectManager):
 		
 		The spectrum is shown in an appropriate color.
 		"""
-		spec = FileSpectrum(fname, fmt)
-		if spec == None:
+		try:
+			spec = FileSpectrum(fname, fmt)
+		except (OSError, SpecReaderError):
 			return None
-		else:
-			ID = self.GetFreeID()
-			spec.SetColor(self.ColorForID(ID, 1., 1.))
-			self[ID] = spec
-			self.ActivateObject(ID)
-			return ID
+				
+		ID = self.GetFreeID()
+		spec.SetColor(self.ColorForID(ID, 1., 1.))
+		self[ID] = spec
+		self.ActivateObject(ID)
+		return ID
 
 
 	def SpectrumGet(self, args):

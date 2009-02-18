@@ -128,6 +128,14 @@ void View1D::SetLogScale(Bool_t l)
   Update(true);
 }
 
+void View1D::SetUseNorm(Bool_t n)
+{
+  // Sets whether to use normalization information included in histograms
+  
+  fPainter.SetUseNorm(n);
+  Update(true);
+}
+
 void View1D::YAutoScaleOnce(bool update)
 {
   // Sets the Y (counts) scale according to the autoscale rules, but does
@@ -140,7 +148,7 @@ void View1D::YAutoScaleOnce(bool update)
       obj != fDisplayStack.fSpectra.end();
       ++obj) {
     spec = dynamic_cast<DisplaySpec *> (*obj);
-    if(spec)
+    if(spec && spec->IsVisible())
 	  fYVisibleRegion = TMath::Max(fYVisibleRegion, fPainter.GetYAutoZoom(spec));
   }
   
@@ -561,8 +569,12 @@ void View1D::UpdateStatusScale()
   // Update Y autoscale status in the status bar
 
   if(fStatusBar) {
-    if(fYAutoScale)
+    if(fYAutoScale && fPainter.GetUseNorm())
+      fStatusBar->SetText("AUTO NORM", 1);
+    else if(fYAutoScale && !fPainter.GetUseNorm())
       fStatusBar->SetText("AUTO", 1);
+    else if(!fYAutoScale && fPainter.GetUseNorm())
+      fStatusBar->SetText("NORM", 1);
     else
       fStatusBar->SetText("", 1);
   }

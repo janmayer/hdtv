@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ *  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
  *
  * This file is part of HDTV.
  *
@@ -80,6 +80,8 @@ class Painter {
   inline void SetLogScale(Bool_t l) 
 	{ fLogScale = l; UpdateYZoom(); }
   inline Bool_t GetLogScale() { return fLogScale; }
+  inline void SetUseNorm(Bool_t n) { fUseNorm = n; }
+  inline Bool_t GetUseNorm() { return fUseNorm; }
   inline void SetViewMode(ViewMode vm) { fViewMode = vm; }
   inline ViewMode GetViewMode() { return fViewMode; }
   inline void SetBasePoint(int x, int y) { fXBase = x; fYBase = y; }
@@ -142,9 +144,7 @@ class Painter {
 				  HTextAlign hAlign, VTextAlign vAlign);
   inline void DrawYMinorTic(double c);
   double GetCountsAtPixel(DisplaySpec *dSpec, UInt_t x);
-
-  inline int GetYAtPixel(DisplaySpec *dSpec, UInt_t x)
-	{ return CtoY(GetCountsAtPixel(dSpec, x)); }
+  int GetYAtPixel(DisplaySpec *dSpec, UInt_t x);
 
   void GetTicDistance(double tic, double& major_tic, double& minor_tic, int& n);
   void UpdateYZoom();
@@ -154,6 +154,7 @@ class Painter {
   double fXVisibleRegion, fYVisibleRegion;
   double fXOffset, fYOffset;
   Bool_t fLogScale;
+  Bool_t fUseNorm;
   UInt_t fXBase, fYBase;
   UInt_t fWidth, fHeight;
   ViewMode fViewMode;
