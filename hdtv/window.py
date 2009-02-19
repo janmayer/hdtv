@@ -282,6 +282,8 @@ class Window(KeyHandler):
 		"""
 		set paired markers (either X or Y direction)
 		"""
+		# FIXME: I am not sure, if this belongs here. It maybe better 
+		#        to include it into the marker class
 		if xy == "X" or xy == "x":
 			pos = self.fViewport.GetCursorX()
 		elif xy == "Y" or xy == "y":
@@ -292,12 +294,12 @@ class Window(KeyHandler):
 		if len(collection)>0 and collection[-1].p2==None:
 			pending = collection[-1]
 			pending.p2 = pos
-			pending.UpdatePos()
+			pending.Refresh()
 		elif maxnum and len(collection)== maxnum:
 			pending = collection.pop(0)
 			pending.p1 = pos
 			pending.p2 = None
-			pending.UpdatePos()
+			pending.Refresh()
 			collection.append(pending)
 		else:
 			pending = Marker(mtype, pos, color=None)

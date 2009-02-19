@@ -1,394 +1,159 @@
+# -*- coding: utf-8 -*-
+
+# HDTV - A ROOT-based spectrum analysis software
+#  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+#
+# This file is part of HDTV.
+#
+# HDTV is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# HDTV is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with HDTV; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 import ROOT
-import dlmgr
-import peak
-import color
-import sys
-import hdtv.util
 
-dlmgr.LoadLibrary("fit")
+from hdtv.color import *
+from hdtv.drawable import Drawable
 
-class Fit:
+hdtv.dlmgr.LoadLibrary("display")
+
+class Fit(Drawable):
 	"""
 	Fit object
 	
-	A Fit object is the graphical representation of a fit in HDTV. It contains the
-	actual fitter as well as the DisplayFunctions and markers for displaying its
-	results.
-	
-	All values (fit parameters, fit region, peak list) are in calibrated units.
-	If spec has a calibration, they will automatically be converted into uncalibrated
-	units before passing them to the C++ fitter.
+	This Fit object is the graphical representation of a fit in HDTV. 
+	It contains the marker lists and the functions. The actual interface to
+	the C++ fitting routines is the class Fitter.
 	"""
-	
-	def __init__(self, spec=None, region=[], peaklist=[], bglist=[]):
-		self.__dict__["spec"] = spec          # Associated Spectrum() object
-		self.__dict__["region"] = region      # Tuple containing region considered in peak fit
-		self.__dict__["peaklist"] = peaklist  # List of peak positions
-		self.__dict__["bglist"] = bglist      # List of regions considered in background fit
-		self.__dict__["fitter"] = None        # C++ peak fitter
-		self.__dict__["bgfitter"] = None      # C++ background fitter
-		self.__dict__["resultPeaks"] = []     # Positions of peaks
-		self.__dict__["dispFunc"] = None      # DisplayFunc for sum
-		self.__dict__["dispBgFunc"] = None    # DisplayFunc for background
-		self.__dict__["dispDecompFuncs"] = list()  # List of DisplayFunc s for peak decomposition
-		self.__dict__["viewport"] = None      # View on which fit is being displayed
-		self.__dict__["bgdeg"] = 0            # Degree of background polynomial
-		
-		self.__dict__["showDecomp"] = False   # Show decomposition of fit
-		
-		self.fPeakModel = None
-		
-	def SetParameter(self, parname, status):
-		"""
-		Sets a parameter of the underlying peak model
-		"""
-		self.fPeakModel.SetParameter(parname, status)
-		self.ResetPeak()
-		
-	def ResetParameters(self):
-		"""
-		Resets all parameters of the underlying peak model to their default values
-		"""
-		self.fPeakModel.ResetParamStatus()
-		self.ResetPeak()
-		
-	def SetPeakModel(self, model):
-		"""
-		Sets the peak model to be used for fitting. model can be either a string, in
-		which case it is used as a key into the gPeakModels dictionary, or a PeakModel
-		object.
-		"""
-		global gPeakModels
-		
-		if type(model) == str:
-			model = gPeakModels[model]
-			
-		self.fPeakModel = model()
-		self.ResetPeak()
-		
-	def GetParameters(self):
-		"Return a list of parameter names of the peak model, in the preferred ordering"
-		if self.fPeakModel:
-			return self.fPeakModel.OrderedParamKeys()
-		else:
-			return []
+	def __init__(self, fitter, region=[], peaks=[], backgrounds=[], color=None):
+		Drawable.__init__(self, color)
+		self.regionMarkers = region
+		self.peakMarkers = peaks
+		self.bgMarkers = backgrounds
+		self.fitter = fitter
+		self.showDecomp = False
+		self.fDisplayObj = []
 
-	def __setattr__(self, key, val):
-		"""
-		Set fit parameter (overwrites the normal set function!)
-		 
-		The fitter must be reinitialized before the next fit, if the value of 
-		spec, region, peaklist, bglist, leftTail or rightTail changed.
-		"""
-		if key in ["spec", "bglist", "bgdeg"]:
-			self.ResetBackground()
-		if key in ["spec", "region", "peaklist"]: 
-			self.ResetPeak()
 
-		if key == "bglist":
-			if val==None:
-				val= []
-		
-		self.__dict__[key] = val
+	def __str__(self):
+		 return "Fit peaks in region from %s to %s" %(self.region[0], self.region[1])
 
-	def ResetParamStatus(self):
-		print "WARNING: Used deprecated function ResetParamStatus"
-		self.ResetParameters()
 
-	def InitFitter(self):
-		"""
-		Initialize a new C++ Fitter Object
-		"""
-		if not self.fPeakModel:
-			raise RuntimeError, "No peak model defined"
-		
-		self.fPeakModel.fCal = self.spec.fCal
-		self.peaklist.sort()
-		self.fitter = self.fPeakModel.GetFitter(self.region, self.peaklist)
-		
-	def InitBgFitter(self, fittype = ROOT.HDTV.Fit.PolyBg):
-		"""
-		Initialize a new background fitter
-		"""
-		bgfitter = ROOT.HDTV.Fit.PolyBg(self.bgdeg)
-		for bg in self.bglist:
-			bgfitter.AddRegion(self.spec.E2Ch(bg[0]), self.spec.E2Ch(bg[1]))
-		self.bgfitter = bgfitter
-		
-	def ResetBackground(self):
-		"""
-		Reset the background fitter
-		"""
-		if self.dispBgFunc:
-			self.dispBgFunc.Remove()
-			self.dispBgFunc = None
-		
-		self.__dict__["bgfitter"] = None
-		
-	def ResetPeak(self):
-		"""
-		Reset the peak fitter
-		"""
-		# Delete all functions dependent on the fitter
-		if self.fitter and self.dispBgFunc:
-			self.dispBgFunc.Remove()
-			self.dispBgFunc = None
-			
-		if self.dispFunc:
-			self.dispFunc.Remove()
-			self.dispFunc = None
-			
-		for dispFunc in self.dispDecompFuncs:
-			dispFunc.Remove()
-		self.dispDecompFuncs = list()
-			
-		self.__dict__["fitter"] = None
-		self.__dict__["resultPeaks"] = []
-		
-	def Reset(self):
-		"""
-		Resets the fitter to its original state
-		"""
-		self.ResetBackground()
-		self.ResetPeak()
-	
-	def DoPeakFit(self, update=True):
-		""" 
-		Fit all peaks in the current region
-		"""
-		# Check if there is a spectrum available
-		if not self.spec:
-			raise RuntimeError, "No spectrum to fit"
-		
-		# Check if there is already a fitter available
-		if not self.fitter:
-			self.InitFitter()
-		
-		# Do the fit
-		if self.bgfitter:
-			self.fitter.Fit(self.spec.fHist, self.bgfitter)
-		else:
-			self.fitter.Fit(self.spec.fHist)
-		
-		numPeaks = self.fitter.GetNumPeaks()
-		
-		# Copy information for each peak
-		peaks = []
-		for i in range(0, numPeaks):
-			peaks.append(self.fPeakModel.CopyPeak(self.fitter.GetPeak(i)))
-		self.resultPeaks = peaks
-			
-		# Draw function to viewport
-		if(update):
-			self.Update()
-
-	def DoBgFit(self, update=True):
-		"""
-		Fit the background function in the current region
-		"""
-		# Check if there is a spectrum available
-		if not self.spec:
-			raise RuntimeError, "No spectrum to fit"
-		
-		# Check if there is already a fitter available
-		if not self.bgfitter:
-			self.InitBgFitter()
-			
-		# Reset possible peak fit
-		self.ResetPeak()
-		
-		# Do the fit
-		self.bgfitter.Fit(self.spec.fHist)
-
-		# Draw function to viewport
-		if(update):
-			self.Update()
-
-	def DoFit(self):
-		"""
-		Fit first the background and then the peaks
-		"""
-		# Fit the background
-		self.DoBgFit(update=False)
-		# Fit the peaks
-		self.DoPeakFit(update=True)
-
-	def Realize(self, viewport):
-		"""
-		Display this fit in the viewport given
-		"""
-		if self.viewport:
-			raise RuntimeError, "Fit is already realized"
-			
-		if not viewport:
-			raise RuntimeError, "Called Realize() with invalid viewport"
-		
-		# Save the viewport
-		self.viewport = viewport
-		
-		# Draw everything we have to the viewport
-		self.Update()
-			
-	def Delete(self):
-		"""
-		Delete this fit from its viewport
-		"""
-		# Remove the viewport from this object
-		self.viewport = None
-		
-		# Delete everything drawn
-		self.Update()
-
-	def Update(self):
-		""" 
-		Update the screen
-		"""
+	def Draw(self, viewport):
+		if self.fViewport:
+			if self.fViewport == viewport:
+				# this fit has already been drawn
+				self.Refresh()
+				return
+			else:
+				# Unlike the Display object of the underlying implementation,
+				# python objects can only be drawn on a single viewport
+				raise RuntimeError, "Object can only be drawn on a single viewport"
+		self.fViewport = viewport
 		# Lock updates
-		if self.viewport:
-			self.viewport.LockUpdate()
-			
-		# Delete old display functions
-		if self.dispBgFunc:
-			self.dispBgFunc.Remove()
-			self.dispBgFunc = None
-			
+		self.fViewport.LockUpdate()
+			# do the fit and draw the functions 
+			# this also updates the peak markers
+			self._DrawFitFuncs()
+			# draw the remaining markers
+			for marker in self.regionMarker+self.bgMarkers:
+				marker.Draw(self.fViewport)
+				self.fDisplayObj.append(marker)
+		self.fViewport.UnlockUpdate()
+		
+
+	def Refresh(self):
+		self.fViewport.LockUpdate()
+		# remove old fit functions
 		if self.dispFunc:
+			self.fDisplayObj.remove(self.dispFunc)
 			self.dispFunc.Remove()
 			self.dispFunc = None
-			
-		for dispFunc in self.dispDecompFuncs:
-			dispFunc.Remove()
-		self.dispDecompFuncs = list()
-			
-		# Nothing more to do if there is no viewport
-		if not self.viewport:
-			return
-		
-		# Create new display functions
-		if self.bgfitter and not self.fitter:
-			func = self.bgfitter.GetFunc()
+		if self.dispBgFunc:
+			self.fDisplayObj.remove(self.dispBgFunc):
+			self.dispBgFunc.Remove()
+			self.dispBgFunc = None
+		for func in self.dispDecompFuncs:
+			self.fDisplayObj.remove(func)
+			func.Remove()
+		self.dispDecompFuncs = []
+		# Repeat the fit and draw the functions
+		# this also updates the peak markers
+		self._DrawFitFuncs()
+		# Draw the remaining markers
+		for marker in self.regionMarker+self.bgMarker:
+			marker.Refresh()
+		self.fViewport.UnlockUpdate()
+
+
+	def _DrawFitFuncs(self):
+		"""
+		Internal function that calls the fit functions of the Fitter and 
+		afterwards extracs the functions to display them
+		"""
+		if not self.fViewport:
+			raise RuntimeError, "No viewport defined."
+		self.fViewport.LockUpdate()
+		# fit background and draw it
+		if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
+			backgrounds =  map(lambda m: [m.p1, m.p2], self.bgMarkers)
+			self.fitter.FitBackground(backgrounds)
+			func = self.fitter.bgfitter.GetFunc()
 			self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, color.FIT_BG_FUNC)
 			if self.spec.fCal:
 				self.dispBgFunc.SetCal(self.spec.fCal)
-			self.dispBgFunc.Draw(self.viewport)
-		
-		if self.fitter:
-			func = self.fitter.GetBgFunc()
-			self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, color.FIT_BG_FUNC)
-			if self.spec.fCal:
-				self.dispBgFunc.SetCal(self.spec.fCal)
-			self.dispBgFunc.Draw(self.viewport)
-		
+			self.dispBgFunc.Draw(self.fViewport)
+			self.fDisplayObj.append(self.dispBgFunc)
+		# fit peaks and draw it
+		if len(self.peaks)>0 and len(self.region)==1 and self.region[-1].p2:
+			region = [self.regionMarkers[0].p1, self.regionMarkers[0].p2]
+			peaks = map(lambda m: m.p1, self.peakMarkers)
+			self.fitter.FitPeaks(region, peaks)
 			func = self.fitter.GetSumFunc()
 			self.dispFunc = ROOT.HDTV.Display.DisplayFunc(func, color.FIT_SUM_FUNC)
 			if self.spec.fCal:
 				self.dispFunc.SetCal(self.spec.fCal)
-			self.dispFunc.Draw(self.viewport)
-			
-		if self.showDecomp and self.fitter:
+			self.dispFunc.Draw(self.fViewport)
+			self.fDisplayObj.append(self.dispFunc)
+			# update peak markers
+			for (marker, peak) in zip(self.peakMarkers, self.fitter.resultPeaks):
+				marker.p1 = peak.GetPos()
+				marker.Refresh()
+			# draw function for each peak (decomposition)
 			for i in range(0, self.fitter.GetNumPeaks()):
 				func = self.fitter.GetPeak(i).GetPeakFunc()
 				dispFunc = ROOT.HDTV.Display.DisplayFunc(func, color.FIT_DECOMP_FUNC)
 				if self.spec.fCal:
 					dispFunc.SetCal(self.spec.fCal)
-				dispFunc.Draw(self.viewport)
+				dispFunc.Draw(self.fViewport)
+				if not self.showDecomp:
+					# hide it directly, it showDecomp==False
+					dispFunc.Hide()
 				self.dispDecompFuncs.append(dispFunc)
-		
-		# finally update the viewport
-		self.viewport.UnlockUpdate()
-		
-	def SetDecomp(self, stat):
+			self.fDisplayObj = self.fDisplayObj+self.dispDecompFuncs
+		self.fViewport.UnlockUpdate()
+
+	
+	def SetDecomp(self, stat=True):
 		"""
 		Sets whether to display a decomposition of the fit
 		"""
-		# Transition True -> False
-		if self.showDecomp and not stat:
-			for dispFunc in self.dispDecompFuncs:
-				dispFunc.Remove()
-			self.dispDecompFuncs = list()
-		
-		# Transition False -> True
-		if not self.showDecomp and stat:
-			if self.viewport and self.fitter:
-				for i in range(0, self.fitter.GetNumPeaks()):
-					func = self.fitter.GetPeak(i).GetPeakFunc()
-					dispFunc = ROOT.HDTV.Display.DisplayFunc(func, color.FIT_DECOMP_FUNC)
-					if self.spec.fCal:
-						dispFunc.SetCal(self.spec.fCal)
-					dispFunc.Draw(self.viewport)
-					self.dispDecompFuncs.append(dispFunc)
-					
-		self.showDecomp = stat
-			
-	def OptionsStr(self):
-		"Returns a string describing the currently set fit parameters"
-		statstr = str()
-	
-		statstr += "Background model: polynomial, deg=%d\n" % self.bgdeg
-		statstr += "Peak model: %s\n" % self.fPeakModel.Name()
-		statstr += "\n"
-	
-		for name in self.fPeakModel.OrderedParamKeys():
-			status = self.fPeakModel.fParStatus[name]
-
-			# Short format for multiple values...
-			if type(status) == list:
-				statstr += "%s: " % name
-				sep = ""
-				for stat in status:
-					statstr += sep
-					if stat in ("free", "equal", "hold", "none"):
-						statstr += stat
-					else:
-						statstr += "%.3f" % stat
-					sep = ", "
-				statstr += "\n"
-
-			# ... long format for a single value
+		if self.showDecomp == stat:
+			# this is already the situation, thus nothing to be done here
+			return
+		else:
+			self.showDecomp =  stat
+			if stat:
+				self.dispDecompFuncs.Show()
 			else:
-				if status == "free":
-					statstr += "%s: (individually) free\n" % name
-				elif status == "equal":
-					statstr += "%s: free and equal\n" % name
-				elif status == "hold":
-					statstr += "%s: held at default value\n" % name
-				elif status == "none":
-					statstr += "%s: none (disabled)\n" % name
-				else:
-					statstr += "%s: fixed at %.3f\n" % (name, status)
-					
-		return statstr
-			
-	def DataStr(self):
-		text = str()
+				self.dispDecompFuncs.Hide()
+		
 
-		if self.bgfitter:
-			deg = self.bgfitter.GetDegree()
-			chisquare = self.bgfitter.GetChisquare()
-			text += "Background (seperate fit): degree = %d   chi^2 = %.2f\n" % (deg, chisquare)
-			for i in range(0,deg+1):
-				value = hdtv.util.ErrValue(self.bgfitter.GetCoeff(i),
-				                           self.bgfitter.GetCoeffError(i))
-				text += "bg[%d]: %s   " % (i, value.fmt())
-			text += "\n\n"
-
-		i = 1
-		if self.fitter:
-			text += "Peak fit: chi^2 = %.2f\n" % self.fitter.GetChisquare()
-			for peak in self.resultPeaks:
-				text += "Peak %d:\n%s\n" % (i, str(peak))
-				i += 1
-			
-        # For debugging only		
-		# text += "\n"
-		# text += "Volume: %.6f +- %.6f\n" % (self.fitter.GetVol(), self.fitter.GetVolError())
-			
-		return text
-
-def RegisterPeakModel(name, model):
-	gPeakModels[name] = model
-	
-gPeakModels = dict()
-
-RegisterPeakModel("theuerkauf", peak.PeakModelTheuerkauf)
-RegisterPeakModel("ee", peak.PeakModelEE)

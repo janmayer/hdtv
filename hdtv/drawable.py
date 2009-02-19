@@ -31,40 +31,58 @@ class Drawable:
 
 	def Remove(self):
 		"""
-		Remove the object
+		Remove the object (or objects if fDisplayObj is a list)
 		"""
 		if not self.fViewport:
 			return
-
-		# Delete this object
-		self.fDisplayObj.Remove()
+		self.fViewport.LockUpdate()
+		if not isinstance(self.fDisplayObj,list):
+			self.fDisplayObj= [self.fDisplayObj]
+		for i in self.fDisplayObj:
+			# Delete this object
+			i.Remove()
 		self.fDisplayObj = None
-
+		self.fViewport.UnlockUpdate()
 		# finally remove the viewport from this object
 		self.fViewport = None
 
 
 	def Show(self):
 		"""
-		Show the object
+		Show the object (or objects if fDisplayObj is a list)
 		"""
-		self.fDisplayObj.Show()
-
+		self.fViewport.LockUpdate()
+		if not isinstance(self.fDisplayObj,list):
+			self.fDisplayObj= [self.fDisplayObj]
+		for i in self.fDisplayObj:
+			i.Show()
+		self.fViewport.UnlockUpdate()
+		
 
 	def Hide(self):
 		"""
-		Hide the object
+		Hide the object (or objects if fDisplayObj is a list)
 		"""
-		self.fDisplayObj.Hide()
+		self.fViewport.LockUpdate()
+		if not isinstance(self.fDisplayObj,list):
+			self.fDisplayObj= [self.fDisplayObj]
+		for i in self.fDisplayObj:
+			i.Hide()
+		self.fViewport.UnlockUpdate()
 
 
 	def SetColor(self, color):
 		"""
-		set color
+		set color of the object (or objects if fDisplayObj is a list)
 		"""
 		if color:
 			self.fColor = color
 		# update the display if needed
-		if self.fDisplayObj != None:
-			self.fDisplayObj.SetColor(color)
+		self.fViewport.LockUpdate()
+		if not isinstance(self.fDisplayObj,list):
+			self.fDisplayObj= [self.fDisplayObj]
+		for i in self.fDisplayObj:
+			i.SetColor(color)
+		self.fViewport.UnlockUpdate()
+
 
