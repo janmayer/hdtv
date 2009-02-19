@@ -77,6 +77,9 @@ class View1D : public View {
   void SetLogScale(Bool_t l);
   inline void ToggleLogScale() { SetLogScale(!GetLogScale()); }
   inline Bool_t GetLogScale() { return fPainter.GetLogScale(); }
+  void SetUseNorm(Bool_t n);
+  inline void ToggleUseNorm() { SetUseNorm(!GetUseNorm()); }
+  inline Bool_t GetUseNorm() { return fPainter.GetUseNorm(); }
   inline void ToggleYAutoScale() { SetYAutoScale(!GetYAutoScale()); }
   void SetYAutoScale(bool as, bool update=true);
   inline Bool_t GetYAutoScale() { return fYAutoScale; }
@@ -122,6 +125,9 @@ class View1D : public View {
   double fYMinVisibleRegion;
   double fXOffset, fYOffset;
   double fMinEnergy, fMaxEnergy;
+  
+  Calibration fCurrentCal;
+  DisplayStack fDisplayStack;
 
   Bool_t fYAutoScale;
   Bool_t fNeedClear;
@@ -131,9 +137,6 @@ class View1D : public View {
   TGStatusBar *fStatusBar;
   XScaleType fTopScale, fBottomScale;
   YScaleType fLeftScale;
-  DisplayStack fDisplayStack;
-  
-  Calibration fCurrentCal;
   
   int fUpdateLocked;
   bool fNeedsUpdate;

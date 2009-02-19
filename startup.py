@@ -7,3 +7,4 @@
 # Import any plugins you want to use.
 import tvSpecInterface
 import ls
+import rootfile

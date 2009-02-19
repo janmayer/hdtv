@@ -1,9 +1,8 @@
 # Makefile for HDTV::Display
 
-CPP=g++ -g
-CC=gcc -g
+CPP=g++
 ROOTCINT=rootcint
-CFLAGS=$(shell root-config --cflags)
+CFLAGS=$(shell root-config --cflags) -g -Wall
 LFLAGS=$(shell root-config --glibs)
 SOURCES= DisplaySpec.cxx DisplayFunc.cxx DisplayBlock.cxx DisplayObj.cxx DisplayStack.cxx Viewer.cxx Painter.cxx Marker.cxx XMarker.cxx YMarker.cxx Calibration.cxx View.cxx View1D.cxx View2D.cxx MTViewer.cxx
 # The ordering matters here: rootcint will complain on (some) different orderings.

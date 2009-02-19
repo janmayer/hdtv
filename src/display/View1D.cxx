@@ -33,8 +33,8 @@ const double View1D::MIN_ENERGY_REGION = 1e-2;
 View1D::View1D(const TGWindow *p, UInt_t w, UInt_t h)
   : HDTV::Display::View(p, w, h),
     fCurrentCal(),
-    fPainter(),
-    fDisplayStack(this)
+    fDisplayStack(this),
+    fPainter()
 {
   // Constructor
 
@@ -128,6 +128,14 @@ void View1D::SetLogScale(Bool_t l)
   Update(true);
 }
 
+void View1D::SetUseNorm(Bool_t n)
+{
+  // Sets whether to use normalization information included in histograms
+  
+  fPainter.SetUseNorm(n);
+  Update(true);
+}
+
 void View1D::YAutoScaleOnce(bool update)
 {
   // Sets the Y (counts) scale according to the autoscale rules, but does
@@ -140,7 +148,7 @@ void View1D::YAutoScaleOnce(bool update)
       obj != fDisplayStack.fSpectra.end();
       ++obj) {
     spec = dynamic_cast<DisplaySpec *> (*obj);
-    if(spec)
+    if(spec && spec->IsVisible())
 	  fYVisibleRegion = TMath::Max(fYVisibleRegion, fPainter.GetYAutoZoom(spec));
   }
   
@@ -154,7 +162,6 @@ void View1D::ShiftOffset(int dO)
 {
   Bool_t cv = fCursorVisible;
   UInt_t x, y, w, h;
-  double az;
 
   x = fLeftBorder + 2;
   y = fTopBorder + 2;
@@ -371,7 +378,6 @@ void View1D::DoUpdate()
   // relevant parameters. It tries to do so with minimal effort,
   // i.e. not by redrawing unconditionally.
   
-  double az;
   double dO, dOPix;
   
   bool redraw = fForceRedraw;  // Do we need a full redraw?
@@ -563,8 +569,12 @@ void View1D::UpdateStatusScale()
   // Update Y autoscale status in the status bar
 
   if(fStatusBar) {
-    if(fYAutoScale)
+    if(fYAutoScale && fPainter.GetUseNorm())
+      fStatusBar->SetText("AUTO NORM", 1);
+    else if(fYAutoScale && !fPainter.GetUseNorm())
       fStatusBar->SetText("AUTO", 1);
+    else if(!fYAutoScale && fPainter.GetUseNorm())
+      fStatusBar->SetText("NORM", 1);
     else
       fStatusBar->SetText("", 1);
   }
@@ -601,6 +611,8 @@ Bool_t View1D::HandleMotion(Event_t *ev)
   if(!fDragging)  UpdateStatusPos();
   
   if(cv) DrawCursor();
+  
+  return true;
 }
 
 Bool_t View1D::HandleButton(Event_t *ev)
@@ -629,6 +641,8 @@ Bool_t View1D::HandleButton(Event_t *ev)
   	if(ev->fCode == 1)
       fDragging = false;
   }
+  
+  return true;
 }
 
 Bool_t View1D::HandleCrossing(Event_t *ev)
@@ -645,6 +659,8 @@ Bool_t View1D::HandleCrossing(Event_t *ev)
 	if(fCursorVisible) DrawCursor();
 	if(fStatusBar) fStatusBar->SetText("", 0);
   }
+  
+  return true;
 }
 
 void View1D::Layout(void)

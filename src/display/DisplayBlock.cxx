@@ -35,7 +35,8 @@ namespace Display {
 
 DisplayBlock::DisplayBlock(int col)
   : DisplayObj(),
-    fCal()
+    fCal(),
+    fNorm(1.0)
 {
   // Constructor
   

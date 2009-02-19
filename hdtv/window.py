@@ -189,6 +189,7 @@ class Window(KeyHandler):
 		# toggle spectrum display
 		self.AddHotkey(ROOT.kKey_l, self.fViewport.ToggleLogScale)
 		self.AddHotkey(ROOT.kKey_A, self.fViewport.ToggleYAutoScale)
+		self.AddHotkey(ROOT.kKey_Exclam, self.fViewport.ToggleUseNorm)
 		# x directions
 		self.AddHotkey(ROOT.kKey_Space, self.PutXZoomMarker)
 		self.AddHotkey(ROOT.kKey_f, self.ExpandX)

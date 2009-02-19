@@ -204,13 +204,13 @@ class FileSpectrum(Spectrum):
 			os.path.exists(fname)
 		except OSError:
 			print "Error: File %s not found" % fname
-			return
+			raise
 		# call to SpecReader to get the hist
 		try:
 			hist = SpecReader().GetSpectrum(fname, fmt)
 		except SpecReaderError, msg:
 			print "Error: Failed to load spectrum: %s (file: %s)" % (msg, fname)
-			return
+			raise
 		self.fFilename = fname
 		self.fFmt = fmt
 		Spectrum.__init__(self, hist)

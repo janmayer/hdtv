@@ -28,7 +28,7 @@ namespace Display {
 Viewer::Viewer(UInt_t w, UInt_t h, const char *title)
   : TGMainFrame(gClient->GetRoot(), w, h)
 {
-  Int_t parts[3] = {20, 10, 70};
+  Int_t parts[3] = {20, 15, 65};
   
   // FIXME: how is the memory for TGLayoutHints supposed to be handled correctly???
   
@@ -78,10 +78,16 @@ Bool_t Viewer::HandleKey(Event_t *ev)
 
 Bool_t Viewer::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
 {
+  int handled = false;
+  
   if(GET_MSG(msg) == kC_HSCROLL) {
-	if(GET_SUBMSG(msg) == kSB_SLIDERTRACK)
+	if(GET_SUBMSG(msg) == kSB_SLIDERTRACK) {
 	  fView->HandleScrollbar(parm1);
+	  handled = true;
+	}
   }
+  
+  return handled;
 }
 
 } // end namespace Display

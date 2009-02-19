@@ -13,8 +13,8 @@ class ObjectManager(UserDict.DictMixin):
 
 	The Manager keeps track of which objects are currently known to the 
 	display and which are visible, active or selected.
-	A drawable object must have at least the following functions.
-	Draw(), Show(), Remove(), Hide(), __repr__() and the member fZombie.
+	A drawable object must have at least the following functions:
+	Draw(), Show(), Remove(), Hide() and __repr__().
 	It should also be possible to construct compound objects from more
 	elementary objects, as long as these functions are provided. 
 	"""
@@ -49,6 +49,8 @@ class ObjectManager(UserDict.DictMixin):
 		self.fObjects[ID].Remove()
 		if ID in self.fVisible:
 			self.fVisible.discard(ID)
+		if ID == self.fActiveID:
+			self.fActiveID = None
 		self.fObjects.__delitem__(ID)
 
 
@@ -57,6 +59,9 @@ class ObjectManager(UserDict.DictMixin):
 
 
 	def Add(self, obj):
+		"""
+		Adds an object to the first free index in the managers dict.
+		"""
 		ID = self.GetFreeID()
 		self[ID] = obj
 		return ID
@@ -64,7 +69,7 @@ class ObjectManager(UserDict.DictMixin):
 
 	def GetFreeID(self):
 		"""
-		Adds an object to the first free index in the manager's dict.
+		Finds the first free index in the managers dict
 		"""
 		# Find a free ID
 		ID = 0
@@ -277,7 +282,3 @@ class ObjectManager(UserDict.DictMixin):
 		ids.sort()
 		ids = ids[len(ids)-nb:]
 		self.Show(ids, clear=True)
-
-
-
-
