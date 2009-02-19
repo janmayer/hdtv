@@ -40,7 +40,7 @@ class Fit(Drawable):
 		self.bgMarkers = backgrounds
 		self.fitter = fitter
 		self.showDecomp = False
-		self.fDisplayObj = []
+		self.displayObjs = []
 
 
 	def __str__(self):
@@ -48,8 +48,8 @@ class Fit(Drawable):
 
 
 	def Draw(self, viewport):
-		if self.fViewport:
-			if self.fViewport == viewport:
+		if self.viewport:
+			if self.viewport == viewport:
 				# this fit has already been drawn
 				self.Refresh()
 				return
@@ -57,32 +57,32 @@ class Fit(Drawable):
 				# Unlike the Display object of the underlying implementation,
 				# python objects can only be drawn on a single viewport
 				raise RuntimeError, "Object can only be drawn on a single viewport"
-		self.fViewport = viewport
+		self.viewport = viewport
 		# Lock updates
-		self.fViewport.LockUpdate()
+		self.viewport.LockUpdate()
 			# do the fit and draw the functions 
 			# this also updates the peak markers
 			self._DrawFitFuncs()
 			# draw the remaining markers
 			for marker in self.regionMarker+self.bgMarkers:
-				marker.Draw(self.fViewport)
-				self.fDisplayObj.append(marker)
-		self.fViewport.UnlockUpdate()
+				marker.Draw(self.viewport)
+				self.displayObjs.append(marker)
+		self.viewport.UnlockUpdate()
 		
 
 	def Refresh(self):
-		self.fViewport.LockUpdate()
+		self.viewport.LockUpdate()
 		# remove old fit functions
 		if self.dispFunc:
-			self.fDisplayObj.remove(self.dispFunc)
+			self.displayObjs.remove(self.dispFunc)
 			self.dispFunc.Remove()
 			self.dispFunc = None
 		if self.dispBgFunc:
-			self.fDisplayObj.remove(self.dispBgFunc):
+			self.displayObjs.remove(self.dispBgFunc):
 			self.dispBgFunc.Remove()
 			self.dispBgFunc = None
 		for func in self.dispDecompFuncs:
-			self.fDisplayObj.remove(func)
+			self.displayObjs.remove(func)
 			func.Remove()
 		self.dispDecompFuncs = []
 		# Repeat the fit and draw the functions
@@ -91,7 +91,7 @@ class Fit(Drawable):
 		# Draw the remaining markers
 		for marker in self.regionMarker+self.bgMarker:
 			marker.Refresh()
-		self.fViewport.UnlockUpdate()
+		self.viewport.UnlockUpdate()
 
 
 	def _DrawFitFuncs(self):
@@ -99,19 +99,19 @@ class Fit(Drawable):
 		Internal function that calls the fit functions of the Fitter and 
 		afterwards extracs the functions to display them
 		"""
-		if not self.fViewport:
+		if not self.viewport:
 			raise RuntimeError, "No viewport defined."
-		self.fViewport.LockUpdate()
+		self.viewport.LockUpdate()
 		# fit background and draw it
 		if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
 			backgrounds =  map(lambda m: [m.p1, m.p2], self.bgMarkers)
 			self.fitter.FitBackground(backgrounds)
 			func = self.fitter.bgfitter.GetFunc()
 			self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, color.FIT_BG_FUNC)
-			if self.spec.fCal:
-				self.dispBgFunc.SetCal(self.spec.fCal)
+			if self.spec.cal:
+				self.dispBgFunc.SetCal(self.spec.cal)
 			self.dispBgFunc.Draw(self.fViewport)
-			self.fDisplayObj.append(self.dispBgFunc)
+			self.displayObjs.append(self.dispBgFunc)
 		# fit peaks and draw it
 		if len(self.peaks)>0 and len(self.region)==1 and self.region[-1].p2:
 			region = [self.regionMarkers[0].p1, self.regionMarkers[0].p2]
@@ -119,10 +119,10 @@ class Fit(Drawable):
 			self.fitter.FitPeaks(region, peaks)
 			func = self.fitter.GetSumFunc()
 			self.dispFunc = ROOT.HDTV.Display.DisplayFunc(func, color.FIT_SUM_FUNC)
-			if self.spec.fCal:
+			if self.spec.cal:
 				self.dispFunc.SetCal(self.spec.fCal)
-			self.dispFunc.Draw(self.fViewport)
-			self.fDisplayObj.append(self.dispFunc)
+			self.dispFunc.Draw(self.viewport)
+			self.displayObj.append(self.dispFunc)
 			# update peak markers
 			for (marker, peak) in zip(self.peakMarkers, self.fitter.resultPeaks):
 				marker.p1 = peak.GetPos()
@@ -131,16 +131,39 @@ class Fit(Drawable):
 			for i in range(0, self.fitter.GetNumPeaks()):
 				func = self.fitter.GetPeak(i).GetPeakFunc()
 				dispFunc = ROOT.HDTV.Display.DisplayFunc(func, color.FIT_DECOMP_FUNC)
-				if self.spec.fCal:
-					dispFunc.SetCal(self.spec.fCal)
-				dispFunc.Draw(self.fViewport)
+				if self.spec.cal:
+					dispFunc.SetCal(self.spec.cal)
+				dispFunc.Draw(self.viewport)
 				if not self.showDecomp:
 					# hide it directly, it showDecomp==False
 					dispFunc.Hide()
 				self.dispDecompFuncs.append(dispFunc)
-			self.fDisplayObj = self.fDisplayObj+self.dispDecompFuncs
-		self.fViewport.UnlockUpdate()
+			self.displayObj = self.displayObj+self.dispDecompFuncs
+		self.viewport.UnlockUpdate()
 
+
+	def Show(self):
+		self.viewport.LockUpdate()
+		for obj in self.displayObjs:
+			obj.Show()
+		self.viewport.UnlockUpdate()
+		
+	def Hide(self):
+		self.viewport.LockUpdate()
+		for obj in self.displayObjs:
+			obj.Hide()
+		self.viewport.UnlockUpdate()
+		
+	def Remove(self):
+		self.viewport.LockUpdate()
+		for obj in self.displayObjs:
+			obj.Remove()
+		self.viewport.UnlockUpdate()
+
+	def SetColor(self, color):
+		#FIXME: colors of markers according to some color scheme
+		pass
+		
 	
 	def SetDecomp(self, stat=True):
 		"""
@@ -152,8 +175,10 @@ class Fit(Drawable):
 		else:
 			self.showDecomp =  stat
 			if stat:
-				self.dispDecompFuncs.Show()
+				for func in self.dispDecompFuncs:
+					func.Show()
 			else:
-				self.dispDecompFuncs.Hide()
+				for func in self.dispDecompFuncs:
+					func.Hide()
 		
 

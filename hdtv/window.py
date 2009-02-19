@@ -192,7 +192,7 @@ class Window(KeyHandler):
 		self.AddHotkey(ROOT.kKey_Exclam, self.fViewport.ToggleUseNorm)
 		# x directions
 		self.AddHotkey(ROOT.kKey_Space, self.PutXZoomMarker)
-		self.AddHotkey(ROOT.kKey_f, self.ExpandX)
+		self.AddHotkey(ROOT.kKey_x, self.ExpandX)
 		self.AddHotkey(ROOT.kKey_Right, lambda: self.fViewport.ShiftXOffset(0.1))
 		self.AddHotkey(ROOT.kKey_Left, lambda: self.fViewport.ShiftXOffset(-0.1))
 		self.AddHotkey(ROOT.kKey_1, lambda: self.fViewport.XZoomAroundCursor(2.0))
@@ -282,7 +282,7 @@ class Window(KeyHandler):
 		"""
 		set paired markers (either X or Y direction)
 		"""
-		# FIXME: I am not sure, if this belongs here. It maybe better 
+		# FIXME: I am not sure, if this belongs here. It may be better 
 		#        to include it into the marker class
 		if xy == "X" or xy == "x":
 			pos = self.fViewport.GetCursorX()

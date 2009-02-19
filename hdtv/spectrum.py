@@ -23,7 +23,7 @@ class Spectrum(Drawable):
 	"""
 	def __init__(self, hist, cal=None, color=None):
 		Drawable.__init__(self, color)
-		self.fCal = cal
+		self.cal = cal
 		self.fHist = hist
 
 	def __str__(self):
@@ -34,8 +34,8 @@ class Spectrum(Drawable):
 		"""
 		Draw this spectrum to the viewport
 		"""
-		if self.fViewport:
-			if self.fViewport == viewport:
+		if self.viewport:
+			if self.viewport == viewport:
 				# this spectrum has already been drawn
 				self.Show()
 				return
@@ -43,21 +43,21 @@ class Spectrum(Drawable):
 				# Unlike the DisplaySpec object of the underlying implementation,
 				# Spectrum() objects can only be drawn on a single viewport
 				raise RuntimeError, "Spectrum can only be drawn on a single viewport"
-		self.fViewport = viewport
+		self.viewport = viewport
 		# Lock updates
-		self.fViewport.LockUpdate()
+		self.viewport.LockUpdate()
 		# Show spectrum
-		if self.fDisplayObj == None and self.fHist != None:
-			if self.fColor==None:
+		if self.displayObj == None and self.fHist != None:
+			if self.color==None:
 				# set to default color
-				self.fColor = kSpecDef
-			self.fDisplayObj = ROOT.HDTV.Display.DisplaySpec(self.fHist, self.fColor)
-			self.fDisplayObj.Draw(self.fViewport)
+				self.color = kSpecDef
+			self.displayObj = ROOT.HDTV.Display.DisplaySpec(self.fHist, self.color)
+			self.displayObj.Draw(self.viewport)
 			# add calibration
-			if self.fCal:
-				self.fDisplayObj.SetCal(self.fCal)
+			if self.cal:
+				self.displayObj.SetCal(self.cal)
 		# finally update the viewport
-		self.fViewport.UnlockUpdate()
+		self.viewport.UnlockUpdate()
 		
 	
 	def Refresh(self):
@@ -71,8 +71,8 @@ class Spectrum(Drawable):
 	
 	def SetHist(self, hist):
 		self.fHist = hist
-		if self.fDisplayObj:
-			self.fDisplayObj.SetHist(self.fHist)
+		if self.displayObj:
+			self.displayObj.SetHist(self.fHist)
 		
 
 	def WriteSpectrum(self, fname, fmt):
@@ -137,12 +137,12 @@ class Spectrum(Drawable):
 			for (i,c) in zip(range(0,len(cal)),cal):
 				calarray[i] = c
 			# create the calibration object
-			self.fCal = ROOT.HDTV.Calibration(calarray)
+			self.cal = ROOT.HDTV.Calibration(calarray)
 		else:
-			self.fCal = None
+			self.cal = None
 		# update the display if needed
-		if self.fDisplayObj != None:
-			self.fDisplayObj.SetCal(self.fCal)
+		if self.displayObj != None:
+			self.displayObj.SetCal(self.cal)
 		
 	
 	def UnsetCal(self):
@@ -156,8 +156,8 @@ class Spectrum(Drawable):
 		"""
 		calculate channel values to energies
 		"""
-		if self.fCal:
-			return self.fCal.E2Ch(e)
+		if self.cal:
+			return self.cal.E2Ch(e)
 		else:
 			return e
 			
@@ -166,8 +166,8 @@ class Spectrum(Drawable):
 		"""
 		calculate energies to channels
 		"""
-		if self.fCal:
-			return self.fCal.Ch2E(ch)
+		if self.cal:
+			return self.cal.Ch2E(ch)
 		else:
 			return ch
 
@@ -176,16 +176,16 @@ class Spectrum(Drawable):
 		"""
 		Move the spectrum to the top of its draw stack
 		"""
-		if self.fDisplayObj:
-			self.fDisplayObj.ToTop()
+		if self.displayObj:
+			self.displayObj.ToTop()
 			
 
 	def ToBottom(self):
 		"""
 		Move the spectrum to the top of its draw stack
 		"""
-		if self.fDisplayObj:
-			self.fDisplayObj.ToBottom()
+		if self.displayObj:
+			self.displayObj.ToBottom()
 
 
 		
@@ -210,7 +210,7 @@ class FileSpectrum(Spectrum):
 			hist = SpecReader().GetSpectrum(fname, fmt)
 		except SpecReaderError, msg:
 			print "Error: Failed to load spectrum: %s (file: %s)" % (msg, fname)
-			raise
+			raise 
 		self.fFilename = fname
 		self.fFmt = fmt
 		Spectrum.__init__(self, hist)

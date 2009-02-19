@@ -41,15 +41,15 @@ class Marker(Drawable):
 		""" 
 		Draw the marker
 		"""
-		if self.fViewport:
-			if self.fViewport == viewport:
+		if self.viewport:
+			if self.viewport == viewport:
 				# this marker has already been drawn
 				self.Refresh()
 				return
 			else:
 				# Marker can only be drawn to a single viewport
 				raise RuntimeError, "Marker cannot be realized on multiple viewports"
-		self.fViewport = viewport
+		self.viewport = viewport
 		if self.p2 == None:
 			n = 1
 			p2 = 0.0
@@ -61,21 +61,21 @@ class Marker(Drawable):
 			constructor = ROOT.HDTV.Display.XMarker
 		elif self.xytype == "Y":
 			constructor = ROOT.HDTV.Display.YMarker
-		self.fDisplayObj = constructor(n, self.p1, p2, self.color)
-		self.fDisplayObj.Draw(self.fViewport)
+		self.displayObj = constructor(n, self.p1, p2, self.color)
+		self.displayObj.Draw(self.viewport)
 		
 
 	def Refresh(self):
 		""" 
 		Update the position of the marker
 		"""
-		if self.fDisplayObj:
+		if self.displayObj:
 			if self.p2:
-				self.fDisplayObj.SetN(2)
-				self.fDisplayObj.SetPos(self.p1, self.p2)
+				self.displayObj.SetN(2)
+				self.displayObj.SetPos(self.p1, self.p2)
 			else:
-				self.fDisplayObj.SetN(1)
-				self.fDisplayObj.SetPos(self.p1)
+				self.displayObj.SetN(1)
+				self.displayObj.SetPos(self.p1)
 
 	def UpdatePos(self):
 		print 'Marker.UpdatePos is deprecated, use Refresh instead.'

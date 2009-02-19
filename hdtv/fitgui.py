@@ -26,28 +26,67 @@ from hdtv.drawable import DrawableCollection
 hdtv.dlmgr.LoadLibrary("display")
 
 class FitGui():
-	def __init__(self, window, peakModel="Teuerkauf", bgdeg=1, color=None):
-		Drawable.__init__(self, color)
-		self.spec = spec
-		self.fits = []
-		self.dispObj=[spec]
+	def __init__(self, manager, window, peakModel="Teuerkauf", bgdeg=1):
 		
-		self.activeFitter = Fitter(peakModel, bgdeg)
+		
+		self.peakModel=peakModel
+		self.bgDegree = bgdeg
+		self.activeFitter = 
 		self.activePeakMarkers = []
 		self.activeRegionMarkers = []
 		self.activeBgMarkers = []
 
 		
-class FitCompound(DrawableCollection)
+class FitCompound(Drawable, UserDict.DictMixin)
 	def __init__(self, spec)
-		Drawable.__init__(self, color)
-		
+		Drawable.__init__(self, spec, color)
 		self.spec = spec
-		self.fits = []
-		self.dispObj=[spec]
+		self.fits = dict()
+		self.visible = set()
+		
+	def __setitem__(self, ID, obj):
+		pass
+		
+	def __getitem__(self, ID):
+		pass
+		
+	def __delitem__(self, ID):
+		pass
+		
+	def Add(self, fit)
+		pass
+		
+	def GetFreeID(self)
+		pass
 		
 	def Draw(self, viewport):
-		pass
+		if self.fViewport:
+			if self.fViewport == viewport:
+				# this fit has already been drawn
+				self.Refresh()
+				return
+			else:
+				# Unlike the Display object of the underlying implementation,
+				# python objects can only be drawn on a single viewport
+				raise RuntimeError, "Object can only be drawn on a single viewport"
+		self.fViewport = viewport
+		# Lock updates
+		self.fViewport.LockUpdate()
+		for obj in self.dispObj:
+			obj.Draw()
+		# Unlock updates
+		self.fViewport.UnlockUpdate()
 		
-	def Refresh(self, viewport):
-		pass
+		
+	def Refresh(self):
+		# Lock updates
+		self.fViewport.LockUpdate()
+		for obj in self.dispObj:
+			obj.Refresh()
+		# Unlock updates
+		self.fViewport.UnlockUpdate()
+		
+	
+	def AddFit(self):
+		
+		
