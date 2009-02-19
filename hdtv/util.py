@@ -1,5 +1,9 @@
 import math
 
+def GetCompleteOptions(begin, options):
+	l = len(begin)
+	return [o + " " for o in options if o[0:l] == begin]
+
 class ErrValue:
 	"""
 	A value with an error

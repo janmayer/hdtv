@@ -135,6 +135,13 @@ class ObjectManager(UserDict.DictMixin):
 			return
 		self.fActiveID = ID
 		
+		
+	def GetActiveItem(self):
+		"Returns the presently active item"
+		if self.fActiveID == None:
+			return None
+		return self[self.fActiveID]
+		
 	
 	def Refresh(self, ids):
 		"""

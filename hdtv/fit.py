@@ -15,7 +15,7 @@ class Fit:
 	actual fitter as well as the DisplayFunctions and markers for displaying its
 	results.
 	
-	All values (fit parameters, fit region, peak list) are in calibrated units.
+	All values (fit parameters, fit region, peak list) are in uncalibrated units.
 	If spec has a calibration, they will automatically be converted into uncalibrated
 	units before passing them to the C++ fitter.
 	"""
@@ -32,47 +32,11 @@ class Fit:
 		self.__dict__["dispBgFunc"] = None    # DisplayFunc for background
 		self.__dict__["dispDecompFuncs"] = list()  # List of DisplayFunc s for peak decomposition
 		self.__dict__["viewport"] = None      # View on which fit is being displayed
-		self.__dict__["bgdeg"] = 0            # Degree of background polynomial
+		self.__dict__["bgdeg"] = None         # Degree of background polynomial
+		self.__dict__["peakmodel"] = None     # Peak model
 		
 		self.__dict__["showDecomp"] = False   # Show decomposition of fit
 		
-		self.fPeakModel = None
-		
-	def SetParameter(self, parname, status):
-		"""
-		Sets a parameter of the underlying peak model
-		"""
-		self.fPeakModel.SetParameter(parname, status)
-		self.ResetPeak()
-		
-	def ResetParameters(self):
-		"""
-		Resets all parameters of the underlying peak model to their default values
-		"""
-		self.fPeakModel.ResetParamStatus()
-		self.ResetPeak()
-		
-	def SetPeakModel(self, model):
-		"""
-		Sets the peak model to be used for fitting. model can be either a string, in
-		which case it is used as a key into the gPeakModels dictionary, or a PeakModel
-		object.
-		"""
-		global gPeakModels
-		
-		if type(model) == str:
-			model = gPeakModels[model]
-			
-		self.fPeakModel = model()
-		self.ResetPeak()
-		
-	def GetParameters(self):
-		"Return a list of parameter names of the peak model, in the preferred ordering"
-		if self.fPeakModel:
-			return self.fPeakModel.OrderedParamKeys()
-		else:
-			return []
-
 	def __setattr__(self, key, val):
 		"""
 		Set fit parameter (overwrites the normal set function!)
@@ -80,9 +44,13 @@ class Fit:
 		The fitter must be reinitialized before the next fit, if the value of 
 		spec, region, peaklist, bglist, leftTail or rightTail changed.
 		"""
+		# Allow doing a set with no effect without reset
+		if key in self.__dict__ and self.__dict__[key] == val:
+			return
+		
 		if key in ["spec", "bglist", "bgdeg"]:
 			self.ResetBackground()
-		if key in ["spec", "region", "peaklist"]: 
+		if key in ["peakmodel", "spec", "region", "peaklist"]: 
 			self.ResetPeak()
 
 		if key == "bglist":
@@ -90,21 +58,35 @@ class Fit:
 				val= []
 		
 		self.__dict__[key] = val
-
-	def ResetParamStatus(self):
-		print "WARNING: Used deprecated function ResetParamStatus"
-		self.ResetParameters()
+		
+	def E2Ch(self, e):
+		if self.spec.fCal:
+			return self.spec.fCal.E2Ch(e)
+		else:
+			return e
+			
+	def Ch2E(self, ch):
+		if self.spec.fCal:
+			return self.spec.fCal.Ch2E(ch)
+		else:
+			return ch
+			
+	def dEdCh(self, ch):
+		if self.spec.fCal:
+			return self.spec.fCal.dEdCh(ch)
+		else:
+			return 1.0
 
 	def InitFitter(self):
 		"""
 		Initialize a new C++ Fitter Object
 		"""
-		if not self.fPeakModel:
+		if not self.peakmodel:
 			raise RuntimeError, "No peak model defined"
 		
-		self.fPeakModel.fCal = self.spec.fCal
+		self.peakmodel.fCal = self.spec.fCal
 		self.peaklist.sort()
-		self.fitter = self.fPeakModel.GetFitter(self.region, self.peaklist)
+		self.fitter = self.peakmodel.GetFitter(self.region, self.peaklist)
 		
 	def InitBgFitter(self, fittype = ROOT.HDTV.Fit.PolyBg):
 		"""
@@ -151,6 +133,7 @@ class Fit:
 		"""
 		self.ResetBackground()
 		self.ResetPeak()
+		self.__dict__["spec"] = None
 	
 	def DoPeakFit(self, update=True):
 		""" 
@@ -175,7 +158,7 @@ class Fit:
 		# Copy information for each peak
 		peaks = []
 		for i in range(0, numPeaks):
-			peaks.append(self.fPeakModel.CopyPeak(self.fitter.GetPeak(i)))
+			peaks.append(self.peakmodel.CopyPeak(fit=self, cpeak=self.fitter.GetPeak(i)))
 		self.resultPeaks = peaks
 			
 		# Draw function to viewport
@@ -213,7 +196,7 @@ class Fit:
 		# Fit the peaks
 		self.DoPeakFit(update=True)
 
-	def Realize(self, viewport):
+	def Draw(self, viewport):
 		"""
 		Display this fit in the viewport given
 		"""
@@ -221,7 +204,7 @@ class Fit:
 			raise RuntimeError, "Fit is already realized"
 			
 		if not viewport:
-			raise RuntimeError, "Called Realize() with invalid viewport"
+			raise RuntimeError, "Called Draw() with invalid viewport"
 		
 		# Save the viewport
 		self.viewport = viewport
@@ -229,7 +212,7 @@ class Fit:
 		# Draw everything we have to the viewport
 		self.Update()
 			
-	def Delete(self):
+	def Remove(self):
 		"""
 		Delete this fit from its viewport
 		"""
@@ -238,6 +221,23 @@ class Fit:
 		
 		# Delete everything drawn
 		self.Update()
+		
+	def CalibrationChanged(self):
+		"""
+		Called when the calibration of the associated spectrum changes
+		"""
+		if self.viewport:
+			self.viewport.LockUpdate()
+		
+		if self.dispBgFunc:
+			self.dispBgFunc.SetCal(self.spec.fCal)
+		if self.dispFunc:
+			self.dispFunc.SetCal(self.spec.fCal)
+		for func in self.dispDecompFuncs:
+			func.SetCal(self.spec.fCal)
+			
+		if self.viewport:
+			self.viewport.UnlockUpdate()
 
 	def Update(self):
 		""" 
@@ -319,45 +319,6 @@ class Fit:
 					self.dispDecompFuncs.append(dispFunc)
 					
 		self.showDecomp = stat
-			
-	def OptionsStr(self):
-		"Returns a string describing the currently set fit parameters"
-		statstr = str()
-	
-		statstr += "Background model: polynomial, deg=%d\n" % self.bgdeg
-		statstr += "Peak model: %s\n" % self.fPeakModel.Name()
-		statstr += "\n"
-	
-		for name in self.fPeakModel.OrderedParamKeys():
-			status = self.fPeakModel.fParStatus[name]
-
-			# Short format for multiple values...
-			if type(status) == list:
-				statstr += "%s: " % name
-				sep = ""
-				for stat in status:
-					statstr += sep
-					if stat in ("free", "equal", "hold", "none"):
-						statstr += stat
-					else:
-						statstr += "%.3f" % stat
-					sep = ", "
-				statstr += "\n"
-
-			# ... long format for a single value
-			else:
-				if status == "free":
-					statstr += "%s: (individually) free\n" % name
-				elif status == "equal":
-					statstr += "%s: free and equal\n" % name
-				elif status == "hold":
-					statstr += "%s: held at default value\n" % name
-				elif status == "none":
-					statstr += "%s: none (disabled)\n" % name
-				else:
-					statstr += "%s: fixed at %.3f\n" % (name, status)
-					
-		return statstr
 			
 	def DataStr(self):
 		text = str()

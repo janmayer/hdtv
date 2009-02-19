@@ -8,9 +8,13 @@ class FitGUI:
 	def __init__(self, window, show_panel=False):
 		self.fWindow = window
 		
+		# Create peak model to hold fit parameter settings
+		self.fPeakModel = None
+		self.fBgDeg = 0
+		
 		# Create fitter object to hold the graphical representation of the fit
-		self.fFitter = hdtv.fit.Fit()
-		self.fFitter.Realize(self.fWindow.fViewport)
+		self.fCurrentFit = hdtv.fit.Fit()
+		self.fCurrentFit.Draw(self.fWindow.fViewport)
 		
 		# Internal markers
 		self.fPeakMarkers = []
@@ -22,7 +26,7 @@ class FitGUI:
 		self.fFitPanel.fFitHandler = self.Fit
 		self.fFitPanel.fClearHandler = self.DeleteFit
 		self.fFitPanel.fResetHandler = self.ResetFitParameters
-		self.fFitPanel.fDecompHandler = self.fFitter.SetDecomp
+		self.fFitPanel.fDecompHandler = lambda(stat): self.fCurrentFit.SetDecomp(stat)
 		
 		if show_panel:
 			self.fFitPanel.Show()
@@ -32,15 +36,28 @@ class FitGUI:
 		self.fWindow.AddHotkey(ROOT.kKey_r, self.PutRegionMarker)
 		self.fWindow.AddHotkey(ROOT.kKey_p, self.PutPeakMarker)
 	  	self.fWindow.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], self.DeleteFit)
+	  	self.fWindow.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_F], self.StoreFit)
 	  	self.fWindow.AddHotkey(ROOT.kKey_B, self.FitBackground)
 	  	self.fWindow.AddHotkey(ROOT.kKey_F, self.Fit)
 	  	self.fWindow.AddHotkey(ROOT.kKey_I, self.Integrate)
 	  	self.fWindow.AddHotkey(ROOT.kKey_D, lambda: self.SetDecomp(True))
 	  	self.fWindow.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_D], lambda: self.SetDecomp(False))
 	  	
+	def SetPeakModel(self, model):
+		"""
+		Sets the peak model to be used for fitting. model can be either a string, in
+		which case it is used as a key into the gPeakModels dictionary, or a PeakModel
+		object.
+		"""
+		if type(model) == str:
+			model = hdtv.fit.gPeakModels[model]
+			
+		self.fPeakModel = model()
+		#self.ResetPeak()
+	  	
 	def SetDecomp(self, stat):
 		self.fFitPanel.SetDecomp(stat)
-		self.fFitter.SetDecomp(stat)
+		self.fCurrentFit.SetDecomp(stat)
 		
 	def PutRegionMarker(self):
 		"Put a region marker at the current cursor position (internal use only)"
@@ -57,14 +74,46 @@ class FitGUI:
   		self.fPeakMarkers[-1].Draw(self.fWindow.fViewport)
 		
 	def ResetFitParameters(self):
-		self.fFitter.ResetParameters()
-		self.FitUpdateOptions()	
+		"""
+		Resets all parameters of the underlying peak model to their default values
+		"""
+		self.fPeakModel.ResetParamStatus()
+		self.fCurrentFit.ResetPeak()
+		self.FitUpdateOptions()
+		
+	def GetParameters(self):
+		"Return a list of parameter names of the peak model, in the preferred ordering"
+		if self.fPeakModel:
+			return self.fPeakModel.OrderedParamKeys()
+		else:
+			return []
+			
+	def SetParameter(self, parname, status):
+		"""
+		Sets a parameter of the underlying peak model
+		"""
+		self.fPeakModel.SetParameter(parname, status)
+		self.fCurrentFit.ResetPeak()
+		
+	def OptionsStr(self):
+		"""
+		Returns a string describing the currently set fit parameters
+		"""
+		statstr = str()
+	
+		statstr += "Background model: polynomial, deg=%d\n" % self.fBgDeg
+		statstr += "Peak model: %s\n" % self.fPeakModel.Name()
+		statstr += "\n"
+		
+		statstr += self.fPeakModel.OptionsStr()
+		
+		return statstr
 	
 	def FitUpdateOptions(self):
-		self.fFitPanel.SetOptions(self.fFitter.OptionsStr())
+		self.fFitPanel.SetOptions(self.OptionsStr())
 		
 	def FitUpdateData(self):
-		self.fFitPanel.SetData(self.fFitter.DataStr())
+		self.fFitPanel.SetData(self.fCurrentFit.DataStr())
 		
 	def FitBackground(self):
 		# Make sure a fit panel is displayed
@@ -73,8 +122,10 @@ class FitGUI:
 		if self.fBgMarkers[-1].p2 != None and \
 			len(self.fBgMarkers) > 0:
 			
-			self.fFitter.bglist = map(lambda m: [m.p1, m.p2], self.fBgMarkers)
-			self.fFitter.DoBgFit()
+			self.fCurrentFit.spec = self.fSpec
+			self.fCurrentFit.bgdeg = self.fBgDeg
+			self.fCurrentFit.bglist = map(lambda m: [m.p1, m.p2], self.fBgMarkers)
+			self.fCurrentFit.DoBgFit()
 			
 			self.FitUpdateData()
 		
@@ -90,14 +141,16 @@ class FitGUI:
 	  		len(self.fPeakMarkers) > 0:
 
 			# Do the fit
-			self.fFitter.region = [self.fRegionMarkers[0].p1, self.fRegionMarkers[0].p2]
-			self.fFitter.peaklist = map(lambda m: m.p1, self.fPeakMarkers)
-			self.fFitter.DoPeakFit()
-						                   
+			self.fCurrentFit.spec = self.fSpec
+			self.fCurrentFit.peakmodel = self.fPeakModel
+			self.fCurrentFit.region = [self.fRegionMarkers[0].p1, self.fRegionMarkers[0].p2]
+			self.fCurrentFit.peaklist = map(lambda m: m.p1, self.fPeakMarkers)
+			self.fCurrentFit.DoPeakFit()
+
 			self.FitUpdateData()
 				
-			for (marker, peak) in zip(self.fPeakMarkers, self.fFitter.resultPeaks):
-				marker.p1 = peak.GetPos()
+			for (marker, peak) in zip(self.fPeakMarkers, self.fCurrentFit.resultPeaks):
+				marker.p1 = peak.pos_cal.value
 				marker.UpdatePos()
 
 		# Update viewport if required
@@ -116,10 +169,16 @@ class FitGUI:
   		self.fBgMarkers = []
   		self.fRegionMarkers = []
   		
-		self.fFitter.Reset()
+		self.fCurrentFit.Reset()
 
 		if self.fFitPanel:
 			self.fFitPanel.SetData("")
+			
+	def StoreFit(self):
+		self.fSpec.fFits.append(self.fCurrentFit)
+		self.fCurrentFit = hdtv.fit.Fit()
+		self.DeleteFit()
+		self.fCurrentFit.Draw(self.fWindow.fViewport)
 		
 	# FIXME: This function needs rework
 	def Integrate(self):

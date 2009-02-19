@@ -30,6 +30,7 @@ from hdtv.manager import ObjectManager
 from hdtv.spectrum import Spectrum, FileSpectrum
 from hdtv.fitgui import FitGUI
 from hdtv.specreader import SpecReaderError
+import hdtv.util
 
 import config
 
@@ -44,7 +45,7 @@ class TVSpecInterface(ObjectManager):
 	def __init__(self):
 		ObjectManager.__init__(self)
 		self.fFitGui = FitGUI(self.fWindow, show_panel=True)
-		self.FitSetPeakModel("theuerkauf")
+		self.FitSetPeakModel(["theuerkauf"])
 		
 		# register common tv hotkeys
 		self.fWindow.AddHotkey([ROOT.kKey_N, ROOT.kKey_p], self.ShowPrev)
@@ -78,16 +79,15 @@ class TVSpecInterface(ObjectManager):
 		hdtv.cmdline.AddCommand("calibration position read", self.CalPosRead, nargs=1, fileargs=True)
 		hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, nargs=4)
 		hdtv.cmdline.AddCommand("calibration position set", self.CalPosSet, minargs=2)
+		hdtv.cmdline.AddCommand("calibration position assign", self.CalPosAssign, minargs=2)
 		
 		hdtv.cmdline.AddCommand("fit param background degree", self.FitParamBgDeg, nargs=1)
 		hdtv.cmdline.AddCommand("fit param status", self.FitParamStatus, nargs=0)
 		hdtv.cmdline.AddCommand("fit param reset", self.FitParamReset, nargs=0)
+		hdtv.cmdline.AddCommand("fit list", self.FitList, nargs=0)
 		
-		def MakePeakModelCmd(name):
-			return lambda args: self.FitSetPeakModel(name)
-		for name in hdtv.fit.gPeakModels.iterkeys():
-			hdtv.cmdline.AddCommand("fit function peak activate %s" % name,
-			                        MakePeakModelCmd(name), nargs=0)
+		hdtv.cmdline.AddCommand("fit function peak activate", self.FitSetPeakModel,
+								completer=self.PeakModelCompleter, nargs=1)
 
 		# Register configuration variables
 		opt = hdtv.options.Option(default = self.fWindow.fViewport.GetYMinVisibleRegion(),
@@ -101,7 +101,6 @@ class TVSpecInterface(ObjectManager):
 		
 	def YMinVisibleRegionChanged(self, opt):
 		self.fWindow.fViewport.SetYMinVisibleRegion(opt.Get())
-	
 	
 	def HotkeyShow(self, arg):
 		try:
@@ -137,7 +136,7 @@ class TVSpecInterface(ObjectManager):
 		self[ID].SetColor(self.ColorForID(ID, 1., 1.))
 		self[ID].ToTop()
 		ObjectManager.ActivateObject(self, ID)
-		self.fFitGui.fFitter.spec = self[ID]
+		self.fFitGui.fSpec = self[ID]
 		self.fWindow.fViewport.UnlockUpdate()
 		
 	
@@ -228,7 +227,7 @@ class TVSpecInterface(ObjectManager):
 			print "Usage: spectrum activate <id>"
 			return
 		self.ActivateObject(sid)
-		self.fFitGui.fFitter.spec = self[self.fActiveID]
+		self.fFitGui.fSpec = self[self.fActiveID]
 		
 		
 	def SpectrumShow(self, args):
@@ -332,12 +331,35 @@ class TVSpecInterface(ObjectManager):
 			print "Warning: No active spectrum, no action taken."
 			return False
 		try:
-			for arg in args:
-				calpoly = map(lambda s: float(s), args)
+			calpoly = map(lambda s: float(s), args)
 		except ValueError:
 			print "Usage: calibration position set <p0> <p1> <p2> ..."
 			return False
 		self[self.fActiveID].SetCal(calpoly)
+		
+	def CalPosAssign(self, args):
+		"""
+		Assign energies to peaks from fit and create a calibration
+		"""
+		if self.fActiveID == None:
+			print "Warning: No active spectrum, no action taken."
+			return False
+		
+		try:
+			energies = [float(s) for s in args]
+		except ValueError:
+			print "Usage: calibration position assign <E0> <E1> ..."
+			return False
+			
+		peaks = self[self.fActiveID].GetPeakList()
+		if len(peaks) != len(energies):
+			print "Error: %d peaks in fit list, but %d energies given." % \
+			   (len(peaks), len(energies))
+			return false
+		
+		pairs = [[peaks[i].pos_uncal.value, energies[i]] for i in range(0, len(peaks))]
+		
+		self[self.fActiveID].CalFromPairs(pairs)
 		
 		
 	def FitParamBgDeg(self, args):
@@ -347,18 +369,18 @@ class TVSpecInterface(ObjectManager):
 			print "Usage: fit parameter background degree <deg>"
 			return False
 			
-		self.fFitGui.fFitter.bgdeg = bgdeg
+		self.fFitGui.fBgDeg = bgdeg
 
 		# Update options
 		self.fFitGui.FitUpdateOptions()
 		self.fFitGui.FitUpdateData()
 		
 	def FitParamStatus(self, args):
-		self.fFitGui.fFitter.PrintParamStatus()
+		print self.fFitGui.OptionsStr()
 		
 	def FitParamPeak(self, parname, args):
 		try:
-			self.fFitGui.fFitter.SetParameter(parname, " ".join(args))
+			self.fFitGui.SetParameter(parname, " ".join(args))
 		except ValueError:
 			print "Usage: fit parameter <parname> [free|ifree|hold|disable|<number>]"
 			return False
@@ -372,26 +394,39 @@ class TVSpecInterface(ObjectManager):
 		
 	def FitParamReset(self, args):
 		self.fFitGui.ResetFitParameters()
-			
-	def FitSetPeakModel(self, name):
-		# Unregister old parameters
-		for param in self.fFitGui.fFitter.GetParameters():
-			hdtv.cmdline.RemoveCommand("fit param %s" % param)
 		
+	def PeakModelCompleter(self, text):
+		return hdtv.util.GetCompleteOptions(text, hdtv.fit.gPeakModels.iterkeys())
+			
+	def FitSetPeakModel(self, args):
+		"""
+		Set the peak model (function used for fitting peaks)
+		"""
+		# Unregister old parameters
+		for param in self.fFitGui.GetParameters():
+			hdtv.cmdline.RemoveCommand("fit param %s" % param)
+
 		# Set new peak model
-		self.fFitGui.fFitter.SetPeakModel(name.lower())
+		self.fFitGui.SetPeakModel(args[0].lower())
 		
 		# Register new parameters
 		def MakeParamCmd(param):
 			return lambda args: self.FitParamPeak(param, args)
-		for param in self.fFitGui.fFitter.GetParameters():
-			hdtv.cmdline.AddCommand("fit param %s" % param, 
+		for param in self.fFitGui.GetParameters():
+			hdtv.cmdline.AddCommand("fit param %s" % param,
 			                        MakeParamCmd(param),
 			                        minargs=1)
-			                        
+		
 		# Update options
 		self.fFitGui.FitUpdateOptions()
 		self.fFitGui.FitUpdateData()
+		
+	def FitList(self, args):
+		if self.GetActiveItem() == None:
+			return
+		
+		for fit in self.GetActiveItem().fFits:
+			print fit.DataStr()
 
 plugin = TVSpecInterface()
 print "Loaded plugin spectrum (commands for 1-d histograms)"

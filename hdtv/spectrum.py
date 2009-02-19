@@ -17,14 +17,28 @@ class Spectrum(Drawable):
 
 	Optionally, the class method FromFile can be used to read a spectrum
 	from a file, using the SpecReader class. A calibration can be
-	defined by supplying a sequence with max. 4 entries, that form the factors
-	of the calibration polynom. Moreover a color can be defined, which then
-	will be used when the spectrum is displayed. 
+	defined by supplying a sequence that form the factors of the calibration
+	polynom. Moreover a color can be defined, which then will be used when the
+	spectrum is displayed. 
+	
+	A spectrum object can contain a number of fits.
 	"""
 	def __init__(self, hist, cal=None, color=None):
 		Drawable.__init__(self, color)
-		self.fCal = cal
 		self.fHist = hist
+		self.fFits = list()
+		self.fCal = cal
+		
+	def __setattr__(self, key, value):
+		self.__dict__[key] = value
+
+		if key == "fCal":
+			if self.fViewport:
+				self.fViewport.LockUpdate()
+			for fit in self.fFits:
+				fit.CalibrationChanged()
+			if self.fViewport:
+				self.fViewport.UnlockUpdate()
 
 	def __str__(self):
 		if self.fHist:
@@ -150,6 +164,14 @@ class Spectrum(Drawable):
 		delete calibration
 		"""
 		self.SetCal(cal=None)
+		
+
+	def GetPeakList(self):
+		"Returns a list of all fitted peaks in this spectrum"
+		peaks = []
+		for fit in self.fFits:
+			peaks += fit.resultPeaks
+		return peaks
 		
 	
 	def E2Ch(self, e):

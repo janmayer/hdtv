@@ -17,7 +17,7 @@ class Drawable:
 	def Draw(self, viewport):
 		"""
 		This function must create the appropriate object from the underlying
-		C++ Sisplay code and call its draw function.
+		C++ display code and call its draw function.
 		Attention: Unlike the Display object of the underlying implementation,
 		python objects can only be drawn on a single viewport
 		"""

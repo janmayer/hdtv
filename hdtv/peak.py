@@ -17,7 +17,8 @@ class EEPeak:
 	"""
 	Peak object for the ee fitter
 	"""
-	def __init__(self, pos, amp, sigma1, sigma2, eta, gamma, vol):
+	def __init__(self, fit, pos, amp, sigma1, sigma2, eta, gamma, vol):
+		self.fit = fit
 		self.pos = pos
 		self.amp = amp
 		self.sigma1 = sigma1
@@ -25,6 +26,9 @@ class EEPeak:
 		self.eta = eta
 		self.gamma = gamma
 		self.vol = vol
+		
+	#def __getattr__(self, key):
+	#	if key in ("fit", "pos", "amp"
 		
 	def GetPos(self):
 		return self.pos.value
@@ -46,24 +50,42 @@ class TheuerkaufPeak:
 	"""
 	Peak object for the Theuerkauf (classic TV) fitter
 	"""
-	def __init__(self, pos, vol, fwhm, tl, tr, sh, sw):
-		self.pos = pos
+	def __init__(self, fit, pos_uncal, vol, fwhm_uncal, tl, tr, sh, sw):
+		self.fit = fit
+		self.pos_uncal = pos_uncal
 		self.vol = vol
-		self.fwhm = fwhm
+		self.fwhm_uncal = fwhm_uncal
 		self.tl = tl
 		self.tr = tr
 		self.sh = sh
 		self.sw = sw
 		
-	def GetPos(self):
-		return self.pos.value
+	
+	def __getattr__(self, key):
+		if key == "pos_cal":
+			pos_cal_value = self.fit.Ch2E(self.pos_uncal.value)
+			pos_cal_error = abs(self.fit.dEdCh(self.pos_uncal.value) * self.pos_uncal.error)
+			return FitValue(pos_cal_value, pos_cal_error, self.pos_uncal.free)
+		elif key == "fwhm_cal":
+			hwhm_uncal_value = self.fwhm_uncal.value / 2.
+			fwhm_cal_value = self.fit.Ch2E(self.pos_uncal.value + hwhm_uncal_value) \
+			                   - self.fit.Ch2E(self.pos_uncal.value - hwhm_uncal_value)
+			# This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
+			#  (which is true for Ch2E \approx linear)
+			fwhm_cal_error = abs( (self.fit.dEdCh(self.pos_uncal.value + hwhm_uncal_value) / 2. \
+			                        + self.fit.dEdCh(self.pos_uncal.value - hwhm_uncal_value) / 2. ) \
+			                      * self.fwhm_uncal.error)
+			return FitValue(fwhm_cal_value, fwhm_cal_error, self.fwhm_uncal.free)
+		else:
+			return self.__dict__[key]
 		
+	
 	def __str__(self):
 		text = ""
 
-		text += "Pos:         " + self.pos.fmt() + "\n"
+		text += "Pos:         " + self.pos_cal.fmt() + "\n"
 		text += "Volume:      " + self.vol.fmt() + "\n"
-		text += "FWHM:        " + self.fwhm.fmt() + "\n"
+		text += "FWHM:        " + self.fwhm_cal.fmt() + "\n"
 		
 		if self.tl != None:
 			text += "Left Tail:   " + self.tl.fmt() + "\n"
@@ -88,6 +110,11 @@ class TheuerkaufPeak:
 
 # Base class for all peak models
 class PeakModel:
+	"""
+	A peak model is a function used to fit peaks. The user can choose how to fit
+	its parameters (and whether to include them at all, i.e. for tails). After
+	everything has been configured, the peak model produces a C++ fitter object.
+	"""
 	def __init__(self):
 		self.fGlobalParams = dict()
 		self.fCal = None
@@ -112,6 +139,43 @@ class PeakModel:
 		
 	def ResetGlobalParams(self):
 		self.fGlobalParams.clear()
+		
+	def OptionsStr(self):
+		"""
+		Returns a string describing the currently set parameters of the model
+		"""
+		statstr = ""
+		
+		for name in self.OrderedParamKeys():
+			status = self.fParStatus[name]
+
+			# Short format for multiple values...
+			if type(status) == list:
+				statstr += "%s: " % name
+				sep = ""
+				for stat in status:
+					statstr += sep
+					if stat in ("free", "equal", "hold", "none"):
+						statstr += stat
+					else:
+						statstr += "%.3f" % stat
+					sep = ", "
+				statstr += "\n"
+
+			# ... long format for a single value
+			else:
+				if status == "free":
+					statstr += "%s: (individually) free\n" % name
+				elif status == "equal":
+					statstr += "%s: free and equal\n" % name
+				elif status == "hold":
+					statstr += "%s: held at default value\n" % name
+				elif status == "none":
+					statstr += "%s: none (disabled)\n" % name
+				else:
+					statstr += "%s: fixed at %.3f\n" % (name, status)
+					
+		return statstr
 		
 	def CheckParStatusLen(self, minlen):
 		"""
@@ -232,24 +296,13 @@ class PeakModelTheuerkauf(PeakModel):
 		"""
 		return self.fOrderedParamKeys
 		
-	def CopyPeak(self, cpeak):
-		pos_uncal = cpeak.GetPos()
-		pos_err_uncal = cpeak.GetPosError()
-		hwhm_uncal = cpeak.GetSigma() * math.sqrt(2. * math.log(2.))
-		fwhm_err_uncal = cpeak.GetSigmaError() * 2. * math.sqrt(2. * math.log(2.))
+	def CopyPeak(self, fit, cpeak):
+		fwhm_uncal_value = cpeak.GetSigma() * 2. * math.sqrt(2. * math.log(2.))
+		fwhm_uncal_error = cpeak.GetSigmaError() * 2. * math.sqrt(2. * math.log(2.))
 		
-		pos_cal = self.Ch2E(pos_uncal)
-		pos_err_cal = abs(self.dEdCh(pos_uncal) * pos_err_uncal)
-		
-		fwhm_cal = self.Ch2E(pos_uncal + hwhm_uncal) - self.Ch2E(pos_uncal - hwhm_uncal)
-		# This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
-		#  (which is true for Ch2E \approx linear)
-		fwhm_err_cal = abs( (self.dEdCh(pos_uncal + hwhm_uncal) / 2. + 
-                             self.dEdCh(pos_uncal - hwhm_uncal) / 2.   ) * fwhm_err_uncal)
-	
-		pos = FitValue(pos_cal, pos_err_cal, cpeak.PosIsFree())
+		pos_uncal = FitValue(cpeak.GetPos(), cpeak.GetPosError(), cpeak.PosIsFree())
 		vol = FitValue(cpeak.GetVol(), cpeak.GetVolError(), cpeak.VolIsFree())
-		fwhm = FitValue(fwhm_cal, fwhm_err_cal, cpeak.SigmaIsFree())
+		fwhm_uncal = FitValue(fwhm_uncal_value, fwhm_uncal_error, cpeak.SigmaIsFree())
 		
 		if cpeak.HasLeftTail():
 			tl = FitValue(cpeak.GetLeftTail(), cpeak.GetLeftTailError(), 
@@ -271,7 +324,7 @@ class PeakModelTheuerkauf(PeakModel):
 		else:
 			sh = sw = None
 			
-		return TheuerkaufPeak(pos, vol, fwhm, tl, tr, sh, sw)
+		return TheuerkaufPeak(fit, pos_uncal, vol, fwhm_uncal, tl, tr, sh, sw)
 		
 	def ResetParamStatus(self):
 		"""
