@@ -65,6 +65,26 @@ class Drawable:
 		if self.displayObj != None:
 			self.displayObj.SetColor(color)
 		
+	def ToTop(self):
+		"""
+		Move the spectrum to the top of its draw stack
+		"""
+		if self.displayObj:
+			try:
+				self.displayObj.ToTop()
+			except: # does not matter
+				pass
+			
+
+	def ToBottom(self):
+		"""
+		Move the spectrum to the top of its draw stack
+		"""
+		if self.displayObj:
+			try:
+				self.displayObj.ToBottom()
+			except: # does not matter
+				pass
 
 
 class DrawableCompound(UserDict.DictMixin):
@@ -130,10 +150,27 @@ class DrawableCompound(UserDict.DictMixin):
 			print "%d %s %s" % (ID, stat, obj)
 
 	def ActivateObject(self, ID):
+		"""
+		Activates the object with id ID, while also highlighting it
+		"""
 		if not ID in self.keys():
 			print "Error: No such ID"
 			return
+		self.viewport.LockUpdate()
+		if self.activeID != None:
+			c = hdtv.color.ColorForID(self.activeID, 1., .5)
+			self[self.activeID].SetColor(c)
+		self[ID].SetColor(hdtv.color.ColorForID(ID, 1., 1.))
+		self[ID].ToTop()
 		self.activeID = ID
+		self.viewport.UnlockUpdate()
+	
+		
+	def GetActiveObject(self):
+		if not self.activeID:
+			return None
+		else:
+			return self[self.activeID]
 		
 	def Draw(self, viewport):
 		"""
@@ -225,10 +262,10 @@ class DrawableCompound(UserDict.DictMixin):
 		if clear:
 			self.HideAll()
 		for ID in ids:
-			if ID not in self.fVisible:
+			if ID not in self.visible:
 				try:
-					self.fObjects[ID].Show()
-					self.fVisible.add(ID)
+					self.objects[ID].Show()
+					self.visible.add(ID)
 				except KeyError:
 					print "Warning: ID %d not found" % ID
 		self.viewport.UnlockUpdate()
@@ -246,15 +283,15 @@ class DrawableCompound(UserDict.DictMixin):
 		With the parameter nb, the user can choose how many new spectra
 		there should be displayed.
 		"""
-		if nb > len(self.fObjects):
+		if nb > len(self.objects):
 			self.ShowAll()
 			return
-		if len(self.fVisible)==0 or len(self.fVisible)==len(self.fObjects):
+		if len(self.visible)==0 or len(self.visible)==len(self.objects):
 			self.ShowFirst(nb)
 			return
 		ids = self.keys()
 		ids.sort()
-		index = ids.index(max(self.fVisible))
+		index = ids.index(max(self.visible))
 		ids = ids[index+1:index+nb+1]
 		self.Show(ids, clear=True)
 
@@ -265,15 +302,15 @@ class DrawableCompound(UserDict.DictMixin):
 		With the parameter nb, the user can choose how many new spectra
 		there should be displayed.
 		"""
-		if nb > len(self.fObjects):
+		if nb > len(self.objects):
 			self.ShowAll()
 			return
-		if len(self.fVisible)==0 or len(self.fVisible)==len(self.fObjects):
+		if len(self.visible)==0 or len(self.visible)==len(self.objects):
 			self.ShowLast(nb)
 			return
 		ids = self.keys()
 		ids.sort()
-		index = ids.index(min(self.fVisible))
+		index = ids.index(min(self.visible))
 		if nb > index:
 			ids = ids[0:index]
 		else:
@@ -284,7 +321,7 @@ class DrawableCompound(UserDict.DictMixin):
 		"""
 		Show the first nb objects
 		"""
-		if nb > len(self.fObjects):
+		if nb > len(self.objects):
 			self.ShowAll()
 			return
 		ids = self.keys()
@@ -296,7 +333,7 @@ class DrawableCompound(UserDict.DictMixin):
 		"""
 		Show the last nb objects
 		"""
-		if nb > len(self.fObjects):
+		if nb > len(self.objects):
 			self.ShowAll()
 			return
 		ids = self.keys()
@@ -309,5 +346,5 @@ class DrawableCompound(UserDict.DictMixin):
 		Set color of all objects to the same color,
 		no idea if this is useful ... ?
 		"""
-		for obj in self.fObjects.itervalues():
+		for obj in self.objects.itervalues():
 			obj.Refresh()

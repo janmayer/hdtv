@@ -40,10 +40,11 @@ class TVSpecInterface():
 	This class tries to model an interface to hdtv that is a close to the good 
 	old tv as possible. 
 	"""
-	def __init__(self, window, spectra, fits):
+	def __init__(self, window, spectra):
+		print "Loaded commands for 1-d histograms"
+	
 		self.window = window
 		self.spectra= spectra
-		self.fits = fits
 		
 		# register common tv hotkeys
 		self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_p], self.spectra.ShowPrev)
@@ -78,15 +79,6 @@ class TVSpecInterface():
 		hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, nargs=4)
 		hdtv.cmdline.AddCommand("calibration position set", self.CalPosSet, minargs=2)
 		
-#		hdtv.cmdline.AddCommand("fit param background degree", self.FitParamBgDeg, nargs=1)
-#		hdtv.cmdline.AddCommand("fit param status", self.FitParamStatus, nargs=0)
-#		hdtv.cmdline.AddCommand("fit param reset", self.FitParamReset, nargs=0)
-		
-#		def MakePeakModelCmd(name):
-#			return lambda args: self.FitSetPeakModel(name)
-#		for name in hdtv.fit.gPeakModels.iterkeys():
-#			hdtv.cmdline.AddCommand("fit function peak activate %s" % name,
-#			                        MakePeakModelCmd(name), nargs=0)
 
 #		# Register configuration variables
 #		opt = hdtv.options.Option(default = self.fWindow.fViewport.GetYMinVisibleRegion(),
@@ -102,13 +94,18 @@ class TVSpecInterface():
 #		self.fWindow.fViewport.SetYMinVisibleRegion(opt.Get())
 	
 	
+#	def CenterXOnCursor(self):
+#		self.window.fViewport.SetXCenter(self.window.fViewport.GetCursorX())
+#		
+			
+	
 	def HotkeyShow(self, arg):
 		try:
 			self.SpectrumShow(arg.split())
 		except ValueError:
 			self.window.fViewport.SetStatusText("Invalid spectrum identifier: %s" % arg)
+
 		
-	
 	def HotkeyActivate(self, arg):
 		try:
 			ID = int(arg)
@@ -116,30 +113,23 @@ class TVSpecInterface():
 			self.window.fViewport.SetStatusText("Invalid id: %s" % arg)
 			return
 		try:
-			self.ActivateObject(ID)
+			self.spectra.ActivateObject(ID)
 		except KeyError:
 			self.window.fViewport.SetStatusText("No such id: %d" % ID)
+
 	
-#	
-#	def CenterXOnCursor(self):
-#		self.window.fViewport.SetXCenter(self.window.fViewport.GetCursorX())
-#		
-	
-	def ActivateObject(self, ID):
+	def Cd(self, args):
 		"""
-		Activates the object with id ID, while also highlighting it
+		Change current working directory
 		"""
-		# FIXME: Why is this not in DrawableCompound
-		self.window.fViewport.LockUpdate()
-		if self.spectra.activeID != None:
-			c = hdtv.color.ColorForID(self.spectra.activeID, 1., .5)
-			self.spectra[self.spectra.activeID].SetColor(c)
-		self.spectra[ID].SetColor(hdtv.color.ColorForID(ID, 1., 1.))
-		self.spectra[ID].ToTop()
-		self.spectra.ActivateObject(ID)
-#		self.fFitGui.fFitter.spec = self[ID]
-		self.window.fViewport.UnlockUpdate()
-	
+		if len(args) == 0:
+			print os.getcwdu()
+		else:
+			try:
+				os.chdir(os.path.expanduser(args[0]))
+			except OSError, msg:
+				print msg
+
 	
 	def LoadSpectrum(self, fname, fmt=None):
 		"""
@@ -154,7 +144,7 @@ class TVSpecInterface():
 		ID = self.spectra.GetFreeID()
 		spec.SetColor(hdtv.color.ColorForID(ID, 1., 1.))
 		self.spectra[ID] = spec
-		self.ActivateObject(ID)
+		self.spectra.ActivateObject(ID)
 		return ID
 
 
@@ -187,9 +177,10 @@ class TVSpecInterface():
 		else:
 			print "Loaded %d spectra" % nloaded
 		# Update viewport if required
+		self.window.Expand()
 		self.window.fViewport.UnlockUpdate()
 
-	
+
 	def SpectrumList(self, args):
 		"""
 		Show all loaded spectra and their status
@@ -209,7 +200,7 @@ class TVSpecInterface():
 			return
 		elif ids == "ALL":
 			ids = self.spectra.keys()
-		self.spectra.Remoce(ids)
+		self.spectra.Remove(ids)
 		
 		
 	def SpectrumActivate(self, args):
@@ -226,7 +217,6 @@ class TVSpecInterface():
 			print "Usage: spectrum activate <id>"
 			return
 		self.spectra.ActivateObject(sid)
-		#self.fFitGui.fFitter.spec = self[self.fActiveID]
 		
 		
 	def SpectrumShow(self, args):
@@ -266,10 +256,11 @@ class TVSpecInterface():
 			(fname, fmt) = args[0].rsplit("'", 1)
 			fname = os.path.expanduser(fname)
 			if len(args) == 1:
-				if self.spectra.fActiveID == None:
+				if self.spectra.activeID == None:
 					print "Warning: No active spectrum, no action taken."
 					return False
-				self.spectra[self.fActiveID].WriteSpectrum(fname, fmt)
+				spec = self.spectra.GetActiveObject()
+				spec.WriteSpectrum(fname, fmt)
 			else:
 				sid = int(args[1])
 				try:				
@@ -280,35 +271,23 @@ class TVSpecInterface():
 			print "Usage: spectrum write <filename>'<format> [index]"
 		return
 
-		
-	def Cd(self, args):
-		"""
-		Change current working directory
-		"""
-		if len(args) == 0:
-			print os.getcwdu()
-		else:
-			try:
-				os.chdir(os.path.expanduser(args[0]))
-			except OSError, msg:
-				print msg
-
 
 	def CalPosRead(self, args):
 		"""
 		Read calibration from file
 		"""
-		if self.spectra.fActiveID == None:
+		if self.spectra.activeID == None:
 			print "Warning: No active spectrum, no action taken."
 			return False
-		self.spectra[self.spectra.fActiveID].ReadCal(args[0])
+		spec = self.spectra.GetActiveObject()
+		spec.ReadCal(args[0])
 
 		
 	def CalPosEnter(self, args):
 		"""
 		Create calibration from two pairs of channel and energy
 		"""
-		if self.spectra.fActiveID == None:
+		if self.spectra.activeID == None:
 			print "Warning: No active spectrum, no action taken."
 			return False
 		try:
@@ -317,7 +296,8 @@ class TVSpecInterface():
 		except ValueError:
 			print "Usage: calibration position enter <ch0> <E0> <ch1> <E1>"
 			return False
-		self.spectra[self.spectra.fActiveID].CalFromPairs([p0, p1])
+		spec = self.spectra.GetActiveObject()
+		spec.CalFromPairs([p0, p1])
 	
 	
 	def CalPosSet(self, args):
@@ -326,7 +306,7 @@ class TVSpecInterface():
 		
 		Coefficients are ordered from lowest exponent to highes.
 		"""
-		if self.spectra.fActiveID == None:
+		if self.spectra.activeID == None:
 			print "Warning: No active spectrum, no action taken."
 			return False
 		try:
@@ -335,61 +315,7 @@ class TVSpecInterface():
 		except ValueError:
 			print "Usage: calibration position set <p0> <p1> <p2> ..."
 			return False
-		self.spectra[self.spectra.fActiveID].SetCal(calpoly)
+		spec = self.spectra.GetActiveObject()
+		spec.SetCal(calpoly)
 		
-		
-#	def FitParamBgDeg(self, args):
-#		try:
-#			bgdeg = int(args[0])
-#		except ValueError:
-#			print "Usage: fit parameter background degree <deg>"
-#			return False
-#			
-#		self.fFitGui.fFitter.bgdeg = bgdeg
 
-#		# Update options
-#		self.fFitGui.FitUpdateOptions()
-#		self.fFitGui.FitUpdateData()
-#		
-#	def FitParamStatus(self, args):
-#		self.fFitGui.fFitter.PrintParamStatus()
-#		
-#	def FitParamPeak(self, parname, args):
-#		try:
-#			self.fFitGui.fFitter.SetParameter(parname, " ".join(args))
-#		except ValueError:
-#			print "Usage: fit parameter <parname> [free|ifree|hold|disable|<number>]"
-#			return False
-#		except RuntimeError, e:
-#			print e
-#			return False
-#			
-#		# Update options
-#		self.fFitGui.FitUpdateOptions()
-#		self.fFitGui.FitUpdateData()
-#		
-#	def FitParamReset(self, args):
-#		self.fFitGui.ResetFitParameters()
-#			
-#	def FitSetPeakModel(self, name):
-#		# Unregister old parameters
-#		for param in self.fFitGui.fFitter.GetParameters():
-#			hdtv.cmdline.RemoveCommand("fit param %s" % param)
-#		
-#		# Set new peak model
-#		self.fFitGui.fFitter.SetPeakModel(name.lower())
-#		
-#		# Register new parameters
-#		def MakeParamCmd(param):
-#			return lambda args: self.FitParamPeak(param, args)
-#		for param in self.fFitGui.fFitter.GetParameters():
-#			hdtv.cmdline.AddCommand("fit param %s" % param, 
-#			                        MakeParamCmd(param),
-#			                        minargs=1)
-#			                        
-#		# Update options
-#		self.fFitGui.FitUpdateOptions()
-#		self.fFitGui.FitUpdateData()
-
-#plugin = TVSpecInterface()
-#print "Loaded plugin spectrum (commands for 1-d histograms)"
