@@ -30,13 +30,15 @@ from hdtv.window import Window
 from hdtv.drawable import DrawableCompound
 
 from tvSpecInterface import TVSpecInterface
+from tvFitInterface import TVFitInterface
 
 window = Window() 
 spectra = DrawableCompound(window.fViewport)
 
+s = TVSpecInterface(window, spectra)
 
-plugin = TVSpecInterface(window, spectra, fits=None)
-print "Loaded plugin spectrum (commands for 1-d histograms)"
+f = TVFitInterface(window, spectra)
+
 
 
 

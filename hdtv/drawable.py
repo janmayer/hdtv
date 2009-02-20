@@ -4,8 +4,6 @@ import UserDict
 
 import hdtv.dlmgr
 
-from hdtv.color import *
-
 hdtv.dlmgr.LoadLibrary("display")
 
 class Drawable:
@@ -182,7 +180,10 @@ class DrawableCompound(UserDict.DictMixin):
 			# Unlike the Display object of the underlying implementation,
 			# python objects can only be drawn on a single viewport
 			raise RuntimeError, "Object can only be drawn on a single viewport"
+		self.viewport.LockUpdate()
 		self.Refresh()
+		self.Show()
+		self.viewport.UnlockUpdate()
 
 	def Remove(self, ids=None):
 		"""

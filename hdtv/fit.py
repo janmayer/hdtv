@@ -20,7 +20,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 import ROOT
 
-from hdtv.color import *
+import hdtv.color
 from hdtv.drawable import Drawable
 
 hdtv.dlmgr.LoadLibrary("display")
@@ -40,6 +40,9 @@ class Fit(Drawable):
 		self.bgMarkers = backgrounds
 		self.fitter = fitter
 		self.showDecomp = False
+		self.dispFunc = None
+		self.dispBgFunc = None
+		self.dispDecompFuncs = []
 		self.displayObjs = []
 
 
@@ -60,13 +63,15 @@ class Fit(Drawable):
 		self.viewport = viewport
 		# Lock updates
 		self.viewport.LockUpdate()
-			# do the fit and draw the functions 
-			# this also updates the peak markers
-			self._DrawFitFuncs()
-			# draw the remaining markers
-			for marker in self.regionMarker+self.bgMarkers:
-				marker.Draw(self.viewport)
-				self.displayObjs.append(marker)
+		# do the fit and draw the functions 
+		# this also updates the peak markers
+		self.DrawBgFunc(self.viewport)
+		self.DrawPeakFunc(self.viewport)
+		self.DrawDecompFunc(self.viewport)
+		# draw the remaining markers
+		for marker in self.regionMarker+self.bgMarkers:
+			marker.Draw(self.viewport)
+			self.displayObjs.append(marker)
 		self.viewport.UnlockUpdate()
 		
 
@@ -78,7 +83,7 @@ class Fit(Drawable):
 			self.dispFunc.Remove()
 			self.dispFunc = None
 		if self.dispBgFunc:
-			self.displayObjs.remove(self.dispBgFunc):
+			self.displayObjs.remove(self.dispBgFunc)
 			self.dispBgFunc.Remove()
 			self.dispBgFunc = None
 		for func in self.dispDecompFuncs:
@@ -87,39 +92,56 @@ class Fit(Drawable):
 		self.dispDecompFuncs = []
 		# Repeat the fit and draw the functions
 		# this also updates the peak markers
-		self._DrawFitFuncs()
+		self.viewport.LockUpdate()
+		self.DrawBgFunc(self.viewport)
+		self.DrawPeakFunc(self.viewport)
+		self.DrawDecompFunc(self.viewport)
+		self.viewport.UnlockUpdate()
 		# Draw the remaining markers
 		for marker in self.regionMarker+self.bgMarker:
 			marker.Refresh()
 		self.viewport.UnlockUpdate()
 
 
-	def _DrawFitFuncs(self):
-		"""
-		Internal function that calls the fit functions of the Fitter and 
-		afterwards extracs the functions to display them
-		"""
-		if not self.viewport:
-			raise RuntimeError, "No viewport defined."
+	def DrawBgFunc(self, viewport):
+		if self.dispBgFunc:
+			self.displayObjs.remove(self.dispBgFunc)
+			self.dispBgFunc.Remove()
+			self.dispBgFunc = None
+		self.viewport = viewport
 		self.viewport.LockUpdate()
 		# fit background and draw it
 		if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
 			backgrounds =  map(lambda m: [m.p1, m.p2], self.bgMarkers)
 			self.fitter.FitBackground(backgrounds)
 			func = self.fitter.bgfitter.GetFunc()
-			self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, color.FIT_BG_FUNC)
-			if self.spec.cal:
+			self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.FIT_BG_FUNC)
+			if self.fitter.spec.cal:
 				self.dispBgFunc.SetCal(self.spec.cal)
-			self.dispBgFunc.Draw(self.fViewport)
+			self.dispBgFunc.Draw(self.viewport)
 			self.displayObjs.append(self.dispBgFunc)
+		self.viewport.UnlockUpdate()
+	
+	def DrawPeakFunc(self, viewport):
+		if self.viewport:
+			if self.viewport == viewport:
+				# this fit has already been drawn
+				self.Refresh()
+				return
+			else:
+				# Unlike the Display object of the underlying implementation,
+				# python objects can only be drawn on a single viewport
+				raise RuntimeError, "Object can only be drawn on a single viewport"
+		self.viewport = viewport
+		self.viewport.LockUpdate()
 		# fit peaks and draw it
-		if len(self.peaks)>0 and len(self.region)==1 and self.region[-1].p2:
+		if len(self.peakMarkers)>0 and len(self.regionMarkers)==1 and self.regionMarkers[-1].p2:
 			region = [self.regionMarkers[0].p1, self.regionMarkers[0].p2]
 			peaks = map(lambda m: m.p1, self.peakMarkers)
 			self.fitter.FitPeaks(region, peaks)
 			func = self.fitter.GetSumFunc()
-			self.dispFunc = ROOT.HDTV.Display.DisplayFunc(func, color.FIT_SUM_FUNC)
-			if self.spec.cal:
+			self.dispFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.FIT_SUM_FUNC)
+			if self.fitter.spec.cal:
 				self.dispFunc.SetCal(self.spec.fCal)
 			self.dispFunc.Draw(self.viewport)
 			self.displayObj.append(self.dispFunc)
@@ -127,20 +149,33 @@ class Fit(Drawable):
 			for (marker, peak) in zip(self.peakMarkers, self.fitter.resultPeaks):
 				marker.p1 = peak.GetPos()
 				marker.Refresh()
-			# draw function for each peak (decomposition)
-			for i in range(0, self.fitter.GetNumPeaks()):
-				func = self.fitter.GetPeak(i).GetPeakFunc()
-				dispFunc = ROOT.HDTV.Display.DisplayFunc(func, color.FIT_DECOMP_FUNC)
-				if self.spec.cal:
-					dispFunc.SetCal(self.spec.cal)
-				dispFunc.Draw(self.viewport)
-				if not self.showDecomp:
-					# hide it directly, it showDecomp==False
-					dispFunc.Hide()
-				self.dispDecompFuncs.append(dispFunc)
-			self.displayObj = self.displayObj+self.dispDecompFuncs
 		self.viewport.UnlockUpdate()
-
+	
+	def DrawDecompFuncs(self, viewport):
+		if self.viewport:
+			if self.viewport == viewport:
+				# this fit has already been drawn
+				self.Refresh()
+				return
+			else:
+				# Unlike the Display object of the underlying implementation,
+				# python objects can only be drawn on a single viewport
+				raise RuntimeError, "Object can only be drawn on a single viewport"
+		self.viewport = viewport
+		self.viewport.LockUpdate()
+		# draw function for each peak (decomposition)
+		for i in range(0, self.fitter.GetNumPeaks()):
+			func = self.fitter.GetPeak(i).GetPeakFunc()
+			dispFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.FIT_DECOMP_FUNC)
+			if self.fitter.spec.cal:
+				dispFunc.SetCal(self.spec.cal)
+			dispFunc.Draw(self.viewport)
+			if not self.showDecomp:
+				# hide it directly, it showDecomp==False
+				dispFunc.Hide()
+			self.dispDecompFuncs.append(dispFunc)
+		self.displayObj = self.displayObj+self.dispDecompFuncs
+		self.viewport.UnlockUpdate()
 
 	def Show(self):
 		self.viewport.LockUpdate()
@@ -161,7 +196,7 @@ class Fit(Drawable):
 		self.viewport.UnlockUpdate()
 
 	def SetColor(self, color):
-		#FIXME: colors of markers according to some color scheme
+		#FIXME: colors of markers according to some intelegent color scheme
 		pass
 		
 	

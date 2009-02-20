@@ -33,6 +33,10 @@ class Fitter:
 		self.bgdeg = bgdeg
 		self.fitter = None
 		self.bgfitter = None
+	
+	def __getattr__(self, name):
+		if self.fitter:
+			return getattr(self.fitter, name)
 
 
 	def FitBackground(self, backgrounds):
@@ -94,7 +98,7 @@ class Fitter:
 	def OptionsStr(self):
 		"""
 		Returns a string describing the currently set fit parameters
-		""""
+		"""
 		statstr = str()
 		statstr += "Background model: polynomial, deg=%d\n" % self.bgdeg
 		statstr += "Peak model: %s\n" % self.peakModel.Name()
