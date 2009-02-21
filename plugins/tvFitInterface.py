@@ -75,8 +75,6 @@ class TVFitInterface():
 		self.activeRegionMarkers = []
 		self.activeBgMarkers = []
 
-	
-
 		# Register hotkeys
 		self.window.AddHotkey(ROOT.kKey_b, self.PutBackgroundMarker)
 		self.window.AddHotkey(ROOT.kKey_r, self.PutRegionMarker)
@@ -108,9 +106,11 @@ class TVFitInterface():
 		"Put a region marker at the current cursor position (internal use only)"
 		self.window.PutPairedMarker("X", "REGION", self.activeRegionMarkers, 1)
 			
+			
 	def PutBackgroundMarker(self):
 		"Put a background marker at the current cursor position (internal use only)"
 		self.window.PutPairedMarker("X", "BACKGROUND", self.activeBgMarkers)
+		
 		
 	def PutPeakMarker(self):
 		"Put a peak marker at the current cursor position (internal use only)"
@@ -118,21 +118,24 @@ class TVFitInterface():
   		self.activePeakMarkers.append(Marker("PEAK", pos))
   		self.activePeakMarkers[-1].Draw(self.window.fViewport)
 
+
 	def FitBackground(self):
 		fit = self.GetActiveFit()
-		fit.FitBgFunc()
-		fit.Draw(self.window.fViewport)
+		if fit:
+			fit.FitBgFunc()
+			fit.Draw(self.window.fViewport)
 		
 	def FitPeaks(self):
 		fit = self.GetActiveFit()
-		fit.FitPeakFunc()
-		fit.Draw(self.window.fViewport)
+		if fit:
+			fit.FitPeakFunc()
+			fit.Draw(self.window.fViewport)
 	
 	def GetActiveFit(self):
 		spec = self.spectra.GetActiveObject()
 		if not spec:
 			print "There is no active spectrum"
-			return
+			return None
 		try:
 			fit = spec.GetActiveObject()
 		except AttributeError:
@@ -151,8 +154,9 @@ class TVFitInterface():
 			fitter = Fitter(spec.spec, self.peakModel, self.bgDegree)
 			fit = Fit(fitter, self.activeRegionMarkers, self.activePeakMarkers, 
 							  self.activeBgMarkers, color=spec.color)
-			spec.Add(fit)
+			self.spectra[self.spectra.activeID].Add(fit)
 		return fit
+
 
 	def SetDecomp(self, stat):
 		pass

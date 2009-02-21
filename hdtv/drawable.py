@@ -165,7 +165,7 @@ class DrawableCompound(UserDict.DictMixin):
 	
 		
 	def GetActiveObject(self):
-		if not self.activeID:
+		if self.activeID==None:
 			return None
 		else:
 			return self[self.activeID]
