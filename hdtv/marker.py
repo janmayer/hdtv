@@ -44,7 +44,7 @@ class Marker(Drawable):
 		if self.viewport:
 			if self.viewport == viewport:
 				# this marker has already been drawn
-				self.Refresh()
+				self.Show()
 				return
 			else:
 				# Marker can only be drawn to a single viewport

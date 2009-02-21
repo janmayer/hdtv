@@ -29,10 +29,11 @@ class Fitter:
 	"""
 	def __init__(self, spec, peakModel, bgdeg=1):
 		self.spec = spec
-		self.peakModel= self.SetPeakModel(peakModel)
+		self.SetPeakModel(peakModel)
 		self.bgdeg = bgdeg
 		self.fitter = None
 		self.bgfitter = None
+		self.resultPeaks = []
 	
 	def __getattr__(self, name):
 		if self.fitter:
@@ -49,16 +50,19 @@ class Fitter:
 
 
 	def FitPeaks(self, region, peaklist):
-		self.SetPeakModel(self.peakmodel)
-		self.peakModel.fCal = self.spec.fCal
+		self.peakModel.fCal = self.spec.cal
 		peaklist.sort()
-		self.fitter = self.fPeakModel.GetFitter(region, peaklist)
+		self.fitter = self.peakModel.GetFitter(region, peaklist)
 		# Do the fit
 		if self.bgfitter:
 			self.fitter.Fit(self.spec.fHist, self.bgfitter)
 		else:
 			self.fitter.Fit(self.spec.fHist)
-
+		peaks = []
+		for i in range(0, self.fitter.GetNumPeaks()):
+			peaks.append(self.peakModel.CopyPeak(self.fitter.GetPeak(i)))
+		self.resultPeaks = peaks
+		
 
 	def SetPeakModel(self, model):
 		"""
@@ -70,7 +74,7 @@ class Fitter:
 		if type(model) == str:
 			model = gPeakModels[model]
 		self.peakModel = model()
-	
+		
 	
 	def SetParameter(self, parname, status):
 		"""

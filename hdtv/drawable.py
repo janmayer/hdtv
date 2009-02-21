@@ -173,17 +173,15 @@ class DrawableCompound(UserDict.DictMixin):
 	def Draw(self, viewport):
 		"""
 		Draw function
-		Just calls Refresh, because everything has already been drawn
+		Just calls Show, because everything has already been drawn
 		when added to the compound
 		"""
 		if not self.viewport == viewport:
 			# Unlike the Display object of the underlying implementation,
 			# python objects can only be drawn on a single viewport
 			raise RuntimeError, "Object can only be drawn on a single viewport"
-		self.viewport.LockUpdate()
-		self.Refresh()
 		self.Show()
-		self.viewport.UnlockUpdate()
+
 
 	def Remove(self, ids=None):
 		"""
@@ -348,4 +346,4 @@ class DrawableCompound(UserDict.DictMixin):
 		no idea if this is useful ... ?
 		"""
 		for obj in self.objects.itervalues():
-			obj.Refresh()
+			obj.SetColor(color)

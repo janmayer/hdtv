@@ -46,71 +46,67 @@ class Fit(Drawable):
 		self.displayObjs = []
 
 
-	def __str__(self):
-		 return "Fit peaks in region from %s to %s" %(self.region[0], self.region[1])
+#	def __str__(self):
+#		 pass
 
 
 	def Draw(self, viewport):
 		if self.viewport:
-			if self.viewport == viewport:
-				# this fit has already been drawn
-				self.Refresh()
-				return
-			else:
+			if not self.viewport == viewport:
 				# Unlike the Display object of the underlying implementation,
 				# python objects can only be drawn on a single viewport
 				raise RuntimeError, "Object can only be drawn on a single viewport"
 		self.viewport = viewport
 		# Lock updates
 		self.viewport.LockUpdate()
-		# do the fit and draw the functions 
-		# this also updates the peak markers
-		self.DrawBgFunc(self.viewport)
-		self.DrawPeakFunc(self.viewport)
-		self.DrawDecompFunc(self.viewport)
-		# draw the remaining markers
-		for marker in self.regionMarker+self.bgMarkers:
+		# draw fit funcs, if available
+		if self.dispBgFunc:
+			self.dispBgFunc.Draw(self.viewport)
+			self.displayObjs.append(self.dispBgFunc)
+		if self.dispFunc:
+			self.dispFunc.Draw(self.viewport)
+			self.displayObjs.append(self.dispFunc)
+		for func in self.dispDecompFuncs:
+			func.Draw(self.viewport)
+			if not self.showDecomp:
+				# hide it directly, it showDecomp==False
+				func.Hide()
+			self.dispDecompFuncs.append(func)
+		self.displayObjs = self.displayObjs+self.dispDecompFuncs
+		# draw the markers (do this after the fit, 
+		# because the fit updates the position of the peak markers)
+		for marker in self.peakMarkers+self.regionMarkers+self.bgMarkers:
 			marker.Draw(self.viewport)
 			self.displayObjs.append(marker)
 		self.viewport.UnlockUpdate()
 		
 
 	def Refresh(self):
+		# repeat the fits
 		self.viewport.LockUpdate()
-		# remove old fit functions
-		if self.dispFunc:
-			self.displayObjs.remove(self.dispFunc)
-			self.dispFunc.Remove()
-			self.dispFunc = None
 		if self.dispBgFunc:
-			self.displayObjs.remove(self.dispBgFunc)
-			self.dispBgFunc.Remove()
-			self.dispBgFunc = None
-		for func in self.dispDecompFuncs:
-			self.displayObjs.remove(func)
-			func.Remove()
-		self.dispDecompFuncs = []
-		# Repeat the fit and draw the functions
-		# this also updates the peak markers
-		self.viewport.LockUpdate()
-		self.DrawBgFunc(self.viewport)
-		self.DrawPeakFunc(self.viewport)
-		self.DrawDecompFunc(self.viewport)
-		self.viewport.UnlockUpdate()
-		# Draw the remaining markers
-		for marker in self.regionMarker+self.bgMarker:
+			self.FitBgFunc()
+		if self.dispFunc:
+			self.FitPeakFunc()
+		self.Draw(self.viewport)
+		# draw the markers (do this after the fit, 
+		# because the fit updates the position of the peak markers)
+		for marker in self.peakMarkers+self.regionMarkers+self.bgMarkers:
 			marker.Refresh()
 		self.viewport.UnlockUpdate()
 
 
-	def DrawBgFunc(self, viewport):
+	def FitBgFunc(self):
+		"""
+		Do the background fit and extrat the function for display
+		Note: You still need to call Draw afterwards.
+		"""
+		# remove old fit
 		if self.dispBgFunc:
 			self.displayObjs.remove(self.dispBgFunc)
 			self.dispBgFunc.Remove()
 			self.dispBgFunc = None
-		self.viewport = viewport
-		self.viewport.LockUpdate()
-		# fit background and draw it
+		# fit background 
 		if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
 			backgrounds =  map(lambda m: [m.p1, m.p2], self.bgMarkers)
 			self.fitter.FitBackground(backgrounds)
@@ -118,23 +114,23 @@ class Fit(Drawable):
 			self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.FIT_BG_FUNC)
 			if self.fitter.spec.cal:
 				self.dispBgFunc.SetCal(self.spec.cal)
-			self.dispBgFunc.Draw(self.viewport)
-			self.displayObjs.append(self.dispBgFunc)
-		self.viewport.UnlockUpdate()
+			
 	
-	def DrawPeakFunc(self, viewport):
-		if self.viewport:
-			if self.viewport == viewport:
-				# this fit has already been drawn
-				self.Refresh()
-				return
-			else:
-				# Unlike the Display object of the underlying implementation,
-				# python objects can only be drawn on a single viewport
-				raise RuntimeError, "Object can only be drawn on a single viewport"
-		self.viewport = viewport
-		self.viewport.LockUpdate()
-		# fit peaks and draw it
+	def FitPeakFunc(self):
+		"""
+		Do the actual peak fit and extract the functions for display
+		Note: You still need to call Draw afterwards.
+		"""
+		# remove old fit
+		if self.dispFunc:
+			self.displayObjs.remove(self.dispFunc)
+			self.dispFunc.Remove()
+			self.dispFunc = None
+		for func in self.dispDecompFuncs:
+			self.displayObjs.remove(func)
+			func.Remove()
+		self.dispDecompFuncs = []
+		# fit peaks
 		if len(self.peakMarkers)>0 and len(self.regionMarkers)==1 and self.regionMarkers[-1].p2:
 			region = [self.regionMarkers[0].p1, self.regionMarkers[0].p2]
 			peaks = map(lambda m: m.p1, self.peakMarkers)
@@ -142,41 +138,17 @@ class Fit(Drawable):
 			func = self.fitter.GetSumFunc()
 			self.dispFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.FIT_SUM_FUNC)
 			if self.fitter.spec.cal:
-				self.dispFunc.SetCal(self.spec.fCal)
-			self.dispFunc.Draw(self.viewport)
-			self.displayObj.append(self.dispFunc)
+				self.dispFunc.SetCal(self.spec.cal)
+			# extract function for each peak (decomposition)
+			for i in range(0, self.fitter.GetNumPeaks()):
+				func = self.fitter.GetPeak(i).GetPeakFunc()
+				dispFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.FIT_DECOMP_FUNC)
+				if self.fitter.spec.cal:
+					dispFunc.SetCal(self.spec.cal)
 			# update peak markers
 			for (marker, peak) in zip(self.peakMarkers, self.fitter.resultPeaks):
 				marker.p1 = peak.GetPos()
-				marker.Refresh()
-		self.viewport.UnlockUpdate()
-	
-	def DrawDecompFuncs(self, viewport):
-		if self.viewport:
-			if self.viewport == viewport:
-				# this fit has already been drawn
-				self.Refresh()
-				return
-			else:
-				# Unlike the Display object of the underlying implementation,
-				# python objects can only be drawn on a single viewport
-				raise RuntimeError, "Object can only be drawn on a single viewport"
-		self.viewport = viewport
-		self.viewport.LockUpdate()
-		# draw function for each peak (decomposition)
-		for i in range(0, self.fitter.GetNumPeaks()):
-			func = self.fitter.GetPeak(i).GetPeakFunc()
-			dispFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.FIT_DECOMP_FUNC)
-			if self.fitter.spec.cal:
-				dispFunc.SetCal(self.spec.cal)
-			dispFunc.Draw(self.viewport)
-			if not self.showDecomp:
-				# hide it directly, it showDecomp==False
-				dispFunc.Hide()
-			self.dispDecompFuncs.append(dispFunc)
-		self.displayObj = self.displayObj+self.dispDecompFuncs
-		self.viewport.UnlockUpdate()
-
+		
 	def Show(self):
 		self.viewport.LockUpdate()
 		for obj in self.displayObjs:

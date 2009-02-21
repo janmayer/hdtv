@@ -120,13 +120,13 @@ class TVFitInterface():
 
 	def FitBackground(self):
 		fit = self.GetActiveFit()
-		fit.DrawBgFunc(self.window.fViewport)
-		
-	
-	def FitPeaks(self):
-		fit = self.GetActiveFit()
+		fit.FitBgFunc()
 		fit.Draw(self.window.fViewport)
 		
+	def FitPeaks(self):
+		fit = self.GetActiveFit()
+		fit.FitPeakFunc()
+		fit.Draw(self.window.fViewport)
 	
 	def GetActiveFit(self):
 		spec = self.spectra.GetActiveObject()
@@ -136,7 +136,6 @@ class TVFitInterface():
 		try:
 			fit = spec.GetActiveObject()
 		except AttributeError:
-			print spec
 			spec = SpectrumCompound(self.window.fViewport, spec)
 			self.spectra[self.spectra.activeID]=spec
 			fit = None
