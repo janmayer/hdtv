@@ -27,12 +27,28 @@ import sys
 import traceback
 import code
 import atexit
+import subprocess
+import pwd
+import optparse
 
 import readline
 import ROOT
 
 class HDTVCommandError(Exception):
 	pass
+	
+class HDTVCommandAbort(Exception):
+	pass
+	
+class HDTVOptionParser(optparse.OptionParser):
+	def error(self, msg):
+		raise HDTVCommandError, msg
+		
+	def exit(self, status=0, msg=None):
+		if status == 0:
+			raise HDTVCommandAbort, msg
+		else:
+			raise HDTVCommandError, msg
 	
 class HDTVCommandTreeNode:
 	def __init__(self, parent, title, level):
@@ -118,20 +134,11 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 	def SetDefaultLevel(self, level):
 		self.default_level = level
 		
-	def AddCommand(self, title, command, **opt):
+	def AddCommand(self, title, command, overwrite=False, level=None, **opt):
 		"""
 		Adds a command, specified by title, to the command tree.
 		"""
-		if "overwrite" in opt:
-			overwrite = bool(opt["overwrite"])
-			del opt["overwrite"]
-		else:
-			overwrite = False
-			
-		if "level" in opt:
-			level = opt["level"]
-			del opt["level"]
-		else:
+		if level == None:
 			level = self.default_level
 		
 		path = title.split()
@@ -208,11 +215,45 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 
 		if not node or not node.command:
 			raise HDTVCommandError, "Command not recognized"
-		
-		if not self.CheckNumParams(node, len(args)):
-			raise HDTVCommandError, "Wrong number of arguments to command"
-		
-		node.command(args)
+			
+		# Check if node has a parser option set
+		if "parser" in node.options:
+			parser = node.options["parser"]
+		else:
+			parser = None
+			
+		# Try to parse the commands arguments
+		try:
+			if parser:
+				(options, args) = parser.parse_args(args)
+				
+			if not self.CheckNumParams(node, len(args)):
+				raise HDTVCommandError, "Wrong number of arguments to command"
+		except HDTVCommandAbort, msg:
+			if msg:
+				print msg
+			return
+		except HDTVCommandError, msg:
+			if msg:
+				print msg
+			if parser:
+				print parser.get_usage()
+			elif "usage" in node.options:
+				print "usage: " + node.options["usage"]
+			return
+			
+		# Execute the command
+		if parser:
+			result = node.command(args, options)
+		else:
+			result = node.command(args)
+			
+		# Print usage if requested
+		if result == "USAGE":
+			if parser:
+				print parser.get_usage()
+			elif "usage" in node.options:
+				print "usage: " + node.options["usage"]
 		
 	def RemoveCommand(self, title):
 		"""
@@ -332,6 +373,10 @@ class CommandLine:
 		self.fReadlineHistory = None
 		self.fReadlineExitHandler = False
 		
+	def ReadReadlineInit(self, filename):
+		if os.path.isfile(filename):
+			readline.read_init_file(filename)
+		
 	def SetReadlineHistory(self, filename):
 		self.fReadlineHistory = filename
 		
@@ -349,19 +394,37 @@ class CommandLine:
 	def RegisterInteractive(self, name, ref):
 		self.fInteractiveLocals[name] = ref
 		
-	def PythonUnescape(self, s):
+	def Unescape(self, s):
+		"Recognize special command prefixes"
 		s = s.lstrip()
-		if len(s) == 0 or s[0] != ':':
-			return None
-		else:
-			return s[1:]
+		if len(s) == 0:
+			return (None, None)
 			
+		if s[0] == ':':
+			return ("PYTHON", s[1:])
+		elif s[0] == "%":
+			return ("SHELL", s[1:])
+		elif s[0] == "@":
+			return ("CMDFILE", s[1:])
+		else:
+			return ("HDTV", s)
+		
 	def EnterPython(self, args=None):
 		self.fPyMode = True
 	
 	def ExitPython(self):
 		print ""
 		self.fPyMode = False
+		
+	def EnterShell(self, args=None):
+		"Execute a subshell"
+		
+		if "SHELL" in os.environ:
+			shell = os.environ["SHELL"]
+		else:
+			shell = pwd.getpwuid(os.getuid()).pw_shell
+		
+		subprocess.call(shell)
 		
 	def Exit(self, args=None):
 		self.fKeepRunning = False
@@ -371,8 +434,16 @@ class CommandLine:
 		self.Exit()
 		
 	def GetCompleteOptions(self, text):
-		if self.fPyMode or self.fPyMore or \
-		 self.PythonUnescape(readline.get_line_buffer()) != None:
+		if self.fPyMode or self.fPyMore:
+			cmd_type = "PYTHON"
+		else:
+			(cmd_type, cmd) = self.Unescape(readline.get_line_buffer())
+			
+		if cmd_type == "HDTV":
+			return self.fCommandTree.GetCompleteOptions(text)
+		elif cmd_type == "PYTHON":
+			# Extract the possible complete options from the systems
+			#  Python completer
 			opts = list()
 			state = 0
 			
@@ -385,8 +456,13 @@ class CommandLine:
 				state += 1
 					
 			return opts
+		elif cmd_type == "CMDFILE":
+			filepath = os.path.split(cmd)[0]
+			return self.fCommandTree.GetFileCompleteOptions(filepath or ".", text)
 		else:
-			return self.fCommandTree.GetCompleteOptions(text)
+			# No completion support for shell commands
+			return []
+	
 			
 	def Complete(self, text, state):
 		"""
@@ -404,6 +480,12 @@ class CommandLine:
 			return self.fCompleteOptions[state]
 		else:
 			return None
+			
+	def ExecCmdfile(self, fname):
+		print "Execute file: " + fname
+		
+	def ExecShell(self, cmd):
+		subprocess.call(cmd, shell=True)
 			
 	def MainLoop(self):
 		self.fKeepRunning = True
@@ -453,21 +535,27 @@ class CommandLine:
 			
 			# Execute the command
 			try:
-				# In Python mode, all commands need to be Python commands, but
-				#  in command mode, we may still get escaped Python commands
+				# In Python mode, all commands need to be Python commands ...
 				if self.fPyMode or self.fPyMore:
-					pycmd = s
+					cmd_type = "PYTHON"
+					cmd = s
+				# ... otherwise, the prefix decides.
 				else:
-					pycmd = self.PythonUnescape(s)
+					(cmd_type, cmd) = self.Unescape(s)
 		
-				# Execute as either Python or HDTV
-				if pycmd != None:
+				# Execute as appropriate type
+				if cmd_type == "HDTV":
+					self.fCommandTree.ExecCommand(cmd)
+				elif cmd_type == "PYTHON":
 					# The push() function returns a boolean indicating
 					#  whether further input from the user is required.
 					#  We set the python mode accordingly.
-					self.fPyMore = py_console.push(pycmd)
-				else:							
-					self.fCommandTree.ExecCommand(s)
+					self.fPyMore = py_console.push(cmd)
+				elif cmd_type == "CMDFILE":
+					self.ExecCmdfile(cmd)
+				elif cmd_type == "SHELL":
+					self.ExecShell(cmd)
+					
 			except KeyboardInterrupt:
 				print "Aborted"
 				if pycmd:
@@ -501,6 +589,10 @@ def RemoveCommand(title):
 	global command_tree
 	command_tree.RemoveCommand(title)
 	
+def ReadReadlineInit(filename):
+	global command_line
+	command_line.ReadReadlineInit(filename)
+	
 def SetReadlineHistory(filename):
 	global command_line
 	command_line.SetReadlineHistory(filename)
@@ -516,5 +608,6 @@ command_line = CommandLine(command_tree, readline.get_completer())
 RegisterInteractive("gCmd", command_tree)
 
 AddCommand("python", command_line.EnterPython, nargs=0)
+AddCommand("shell", command_line.EnterShell, nargs=0, level=2)
 AddCommand("exit", command_line.Exit, nargs=0)
 AddCommand("quit", command_line.Exit, nargs=0)

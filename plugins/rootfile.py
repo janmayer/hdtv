@@ -90,25 +90,30 @@ def RootGet_Completer(text):
 			
 	return options
 
-def RootGet(args):
+def RootGet(args, options):
 	global fRootFile
 	if fRootFile == None or fRootFile.IsZombie():
 		print "Error: no root file"
 		return
+		
+	# FIXME: we *really* need a better plugin concept...
+	specmgr = tvSpecInterface.plugin
+		
+	if options.replace:
+		specmgr.DeleteObjects(specmgr.keys())
 		
 	keys = fRootFile.GetListOfKeys()
 	for key in keys:
 		if fnmatch.fnmatch(key.GetName(), args[0]):
 			obj = key.ReadObj()
 			if isinstance(obj, ROOT.TH1):
-				# FIXME: we *really* need a better plugin concept...
-				tvSpecInterface.plugin.fWindow.fViewport.LockUpdate()
+				specmgr.fWindow.fViewport.LockUpdate()
 				spec = hdtv.spectrum.Spectrum(obj)
-				ID = tvSpecInterface.plugin.GetFreeID()
-				spec.SetColor(tvSpecInterface.plugin.ColorForID(ID, 1., 1.))
-				tvSpecInterface.plugin[ID] = spec
-				tvSpecInterface.plugin.ActivateObject(ID)
-				tvSpecInterface.plugin.fWindow.fViewport.UnlockUpdate()
+				ID = specmgr.GetFreeID()
+				spec.SetColor(specmgr.ColorForID(ID, 1., 1.))
+				specmgr[ID] = spec
+				specmgr.ActivateObject(ID)
+				specmgr.fWindow.fViewport.UnlockUpdate()
 			else:
 				print "Warning: %s is not a 1D histogram object" % key.GetName()
 
@@ -119,4 +124,9 @@ hdtv.cmdline.AddCommand("root browse", RootBrowse, nargs=0)
 hdtv.cmdline.AddCommand("root ls", RootLs, maxargs=1)
 hdtv.cmdline.AddCommand("root ll", RootLL, maxargs=1, level=2)
 hdtv.cmdline.AddCommand("root cd", RootCd, nargs=1, fileargs=True)
-hdtv.cmdline.AddCommand("root get", RootGet, nargs=1, completer=RootGet_Completer)
+
+parser = hdtv.cmdline.HDTVOptionParser(prog="root get", usage="%prog [OPTIONS] <pattern>")
+parser.add_option("-r", "--replace", action="store_true",
+                  default=False, help="replace existing histogram list")
+hdtv.cmdline.AddCommand("root get", RootGet, nargs=1, completer=RootGet_Completer,
+                        parser=parser)

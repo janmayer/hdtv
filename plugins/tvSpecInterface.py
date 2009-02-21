@@ -72,14 +72,18 @@ class TVSpecInterface(ObjectManager):
 		hdtv.cmdline.AddCommand("spectrum activate", self.SpectrumActivate, nargs=1)
 		hdtv.cmdline.AddCommand("spectrum show", self.SpectrumShow, minargs=1)
 		hdtv.cmdline.AddCommand("spectrum update", self.SpectrumUpdate, minargs=1)
-		hdtv.cmdline.AddCommand("spectrum write", self.SpectrumWrite, minargs=1, maxargs=2)
+		hdtv.cmdline.AddCommand("spectrum write", self.SpectrumWrite, minargs=1, maxargs=2,
+		                        usage="spectrum write <filename>'<format> [index]")
 			
 		hdtv.cmdline.AddCommand("cd", self.Cd, level=2, maxargs=1, dirargs=True)
 		
 		hdtv.cmdline.AddCommand("calibration position read", self.CalPosRead, nargs=1, fileargs=True)
-		hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, nargs=4)
+		hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, nargs=4,
+		                        usage="calibration position enter <ch0> <E0> <ch1> <E1>")
 		hdtv.cmdline.AddCommand("calibration position set", self.CalPosSet, minargs=2)
 		hdtv.cmdline.AddCommand("calibration position assign", self.CalPosAssign, minargs=2)
+		hdtv.cmdline.AddCommand("calibration position getlist", self.CalPosGetlist, nargs=1,
+		                                                               fileargs=True)
 		
 		hdtv.cmdline.AddCommand("fit param background degree", self.FitParamBgDeg, nargs=1)
 		hdtv.cmdline.AddCommand("fit param status", self.FitParamStatus, nargs=0)
@@ -278,7 +282,7 @@ class TVSpecInterface(ObjectManager):
 				except KeyError:
 					print "Error: ID %d not found" % sid
 		except ValueError:
-			print "Usage: spectrum write <filename>'<format> [index]"
+			return "USAGE"
 		return
 
 		
@@ -303,6 +307,10 @@ class TVSpecInterface(ObjectManager):
 			print "Warning: No active spectrum, no action taken."
 			return False
 		self[self.fActiveID].ReadCal(args[0])
+		
+		
+	def CalPosGetlist(self, args):
+		self.ReadCalibrationList(args[0])
 
 		
 	def CalPosEnter(self, args):
@@ -316,8 +324,7 @@ class TVSpecInterface(ObjectManager):
 			p0 = [float(args[0]), float(args[1])]
 			p1 = [float(args[2]), float(args[3])]
 		except ValueError:
-			print "Usage: calibration position enter <ch0> <E0> <ch1> <E1>"
-			return False
+			return "USAGE"
 		self[self.fActiveID].CalFromPairs([p0, p1])
 	
 	

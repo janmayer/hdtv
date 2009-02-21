@@ -5,6 +5,7 @@ import os.path
 import UserDict
 
 import hdtv.util
+import hdtv.spectrum
 from hdtv.window import Window
 
 class ObjectManager(UserDict.DictMixin):
@@ -127,6 +128,58 @@ class ObjectManager(UserDict.DictMixin):
 			else:
 				stat += " "
 			print "%d %s %s" % (ID, stat, obj)
+			
+			
+	def FindSpectrumByName(self, name):
+		"""
+		Find the spectrum object whose ROOT histogram has the given name.
+		If there are several such objects, one of them (in undefined ordering)
+		is returned. If there is none, None is returned.
+		"""
+		for obj in self.fObjects.itervalues():
+			if isinstance(obj, hdtv.spectrum.Spectrum):
+				if obj.fHist != None and obj.fHist.GetName() == name:
+					return obj
+		return None
+			
+			
+	def ReadCalibrationList(self, fname, warn_notfound=False):
+		"""
+		Reads calibrations from a calibration list file. The file has the format
+		<specname>: <cal0> <cal1> ...
+		
+		The optional argument warn_notfound controls whether to warn if a name
+		from the file does not correspond to a spectrum in the list.
+		"""
+		try:
+			f = open(fname, "r")
+		except IOError, msg:
+			print "Error opening file: %s" % msg
+			return False
+		
+		linenum = 0
+		for l in f:
+			linenum += 1
+			
+			# Remove comments and whitespace; ignore empty lines
+			l = l.split('#', 1)[0].strip()
+			if l == "":
+				continue
+			
+			try:
+				(k, v) = l.split(':', 1)
+				name = k.strip()
+				coeff = [float(s) for s in v.split()]
+				spec = self.FindSpectrumByName(name)
+				if spec != None:
+					spec.SetCal(coeff)
+				elif warn_notfound:
+					print "Info: No spectrum named %s found; calibration ignored." % name
+			except ValueError:
+				print "Warning: could not parse line %d of file %s: ignored." % (linenum, fname)
+
+		f.close()
+		return True
 	
 
 	def ActivateObject(self, ID):
