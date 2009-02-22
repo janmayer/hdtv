@@ -118,7 +118,7 @@ class DrawableCompound(UserDict.DictMixin):
 		Adds an object to the first free index in the managers dict.
 		"""
 		ID = self.GetFreeID()
-		self[ID] = obj
+		self.objects[ID] = obj
 		return ID
 
 	def GetFreeID(self):
@@ -157,9 +157,9 @@ class DrawableCompound(UserDict.DictMixin):
 		self.viewport.LockUpdate()
 		if self.activeID != None:
 			c = hdtv.color.ColorForID(self.activeID, 1., .5)
-			self[self.activeID].SetColor(c)
-		self[ID].SetColor(hdtv.color.ColorForID(ID, 1., 1.))
-		self[ID].ToTop()
+			self.objects[self.activeID].SetColor(c)
+		self.objects[ID].SetColor(hdtv.color.ColorForID(ID, 1., 1.))
+		self.objects[ID].ToTop()
 		self.activeID = ID
 		self.viewport.UnlockUpdate()
 	
@@ -168,28 +168,45 @@ class DrawableCompound(UserDict.DictMixin):
 		if self.activeID==None:
 			return None
 		else:
-			return self[self.activeID]
+			return self.objects[self.activeID]
+		
 		
 	def Draw(self, viewport):
 		"""
 		Draw function
-		Just calls Show, because everything has already been drawn
-		when added to the compound
 		"""
 		if not self.viewport == viewport:
 			# Unlike the Display object of the underlying implementation,
 			# python objects can only be drawn on a single viewport
 			raise RuntimeError, "Object can only be drawn on a single viewport"
-		self.Show()
-
-
-	def Remove(self, ids=None):
+		self.viewport = viewport
+		self.viewport.LockUpdate()
+		for ID in self.iterkeys():
+			self.objects[ID].Draw()
+			self.visible.add(ID)
+		self.viewport.UnlockUpdate()
+	
+	
+	def Remove(self):
 		"""
-		Remove objects (default is remove all)
+		Remove all objects
 		"""
 		self.viewport.LockUpdate()
-		if ids==None:
-			ids = self.keys()
+		for ID in self.iterkeys():
+			self._delitem__(ID)
+		self.viewport.UnlockUpdate()
+	
+	def RemoveAll(self):
+		"""
+		Remove all - just a wrapper for convenience
+		"""
+		self.Remove()
+
+	def RemoveObjects(self, ids):
+		"""
+		Remove objects with the specified ids
+		"""
+		self.viewport.LockUpdate()
 		if isinstance(ids, int):
 			ids = [ids]
 		for ID in ids:
@@ -199,14 +216,15 @@ class DrawableCompound(UserDict.DictMixin):
 				print "Warning: ID %d not found" % ID
 		self.viewport.UnlockUpdate()
 
-	def Refresh(self, ids=None):
+
+	def Refresh(self):
 		"""
-		Refresh objects (default is refresh all)
+		Refresh all objects
 		"""
-		if ids==None:
-			ids = self.keys()
-		for ID in ids:
-			self[ID].Refresh()
+		self.viewport.LockUpdate()
+		for obj in self.itervalues():
+			obj.Refresh()
+		self.viewport.UnlockUpdate()
 	
 	def RefreshAll(self):
 		"""
@@ -214,19 +232,49 @@ class DrawableCompound(UserDict.DictMixin):
 		"""
 		self.Refresh()
 	
+	def RefreshObjects(self, ids):
+		"""
+		Refresh objects with ids
+		"""
+		self.viewport.LockUpdate()
+		if isinstance(ids, int):
+			ids = [ids]
+		for ID in ids:
+			try:
+				self.objects[ID].Refresh
+			except KeyError:
+				print "Warning: ID %d not found" % ID
+		self.viewport.UnlockUpdate()
+	
 	def RefreshVisible(self):
 		"""
 		Refresh visible objects
 		"""
-		self.Refresh(self.visible)
+		self.RefreshObjects(self.visible)
 	
-	def Hide(self, ids=None):
+	
+	def Hide(self):
+		"""
+		Hide all objects
+		"""
+		self.viewport.LockUpdate()
+		for ID in self.iterkeys():
+			if ID in self.visible:
+				self.objects[ID].Hide()
+		self.visible.clear()
+		self.viewport.UnlockUpdate()
+			
+	def HideAll(self):
+		"""
+		Hide all - just a wrapper for convenience
+		"""
+		self.Hide()
+			
+	def HideObjects(self):
 		"""
 		Hide objects from the display
 		"""
 		self.viewport.LockUpdate()
-		if ids==None:
-			ids = self.keys()
 		# if only one object is given
 		if isinstance(ids, int):
 			ids = [ids]
@@ -239,13 +287,25 @@ class DrawableCompound(UserDict.DictMixin):
 					print "Warning: ID %d not found" % ID
 		self.viewport.UnlockUpdate()
 
-	def HideAll(self):
-		"""
-		Hide all - just a wrapper for convenience
-		"""
-		self.Hide()
 
-	def Show(self, ids=None, clear=True):
+	def Show(self):
+		"""
+		Show all
+		"""
+		self.viewport.LockUpdate()
+		for ID in self.iterkeys():
+			if ID not in self.visible:
+				self.objects[ID].Show()
+		self.visible=set(self.keys())
+		self.viewport.UnlockUpdate()
+		
+	def ShowAll(self):
+		"""
+		Show all - just a wrapper for convenience
+		"""
+		self.Show()
+
+	def ShowObjects(self, ids=None, clear=True):
 		"""
 		Show objects on the display. 
 
@@ -254,8 +314,6 @@ class DrawableCompound(UserDict.DictMixin):
 		are already visible.
 		"""
 		self.viewport.LockUpdate()
-		if ids==None:
-			ids = self.keys()
 		if isinstance(ids, int):
 			ids = [ids]
 		if clear:
@@ -268,12 +326,6 @@ class DrawableCompound(UserDict.DictMixin):
 				except KeyError:
 					print "Warning: ID %d not found" % ID
 		self.viewport.UnlockUpdate()
-
-	def ShowAll(self):
-		"""
-		Show all - just a wrapper for convenience
-		"""
-		self.Show()
 
 	def ShowNext(self, nb=1):
 		"""
@@ -292,7 +344,7 @@ class DrawableCompound(UserDict.DictMixin):
 		ids.sort()
 		index = ids.index(max(self.visible))
 		ids = ids[index+1:index+nb+1]
-		self.Show(ids, clear=True)
+		self.ShowObjects(ids, clear=True)
 
 	def ShowPrev(self, nb=1):
 		"""
@@ -314,7 +366,7 @@ class DrawableCompound(UserDict.DictMixin):
 			ids = ids[0:index]
 		else:
 			ids = ids[index-nb:index]
-		self.Show(ids, clear=True)
+		self.ShowObjects(ids, clear=True)
 
 	def ShowFirst(self, nb=1):
 		"""
@@ -326,7 +378,7 @@ class DrawableCompound(UserDict.DictMixin):
 		ids = self.keys()
 		ids.sort()
 		ids = ids[:nb]
-		self.Show(ids, clear=True)
+		self.ShowObjects(ids, clear=True)
 
 	def ShowLast(self, nb=1):
 		"""
@@ -338,12 +390,12 @@ class DrawableCompound(UserDict.DictMixin):
 		ids = self.keys()
 		ids.sort()
 		ids = ids[len(ids)-nb:]
-		self.Show(ids, clear=True)
+		self.ShowObjects(ids, clear=True)
 		
 	def SetColor(self, color):
 		"""
 		Set color of all objects to the same color,
 		no idea if this is useful ... ?
 		"""
-		for obj in self.objects.itervalues():
+		for obj in self.itervalues():
 			obj.SetColor(color)

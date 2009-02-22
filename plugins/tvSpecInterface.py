@@ -200,7 +200,7 @@ class TVSpecInterface():
 			return
 		elif ids == "ALL":
 			ids = self.spectra.keys()
-		self.spectra.Remove(ids)
+		self.spectra.RemoveObjects(ids)
 		
 		
 	def SpectrumActivate(self, args):
@@ -232,7 +232,7 @@ class TVSpecInterface():
 		elif ids == "ALL":
 			self.spectra.ShowAll()
 		else:
-			self.spectra.Show(ids)
+			self.spectra.ShowObjects(ids)
 			
 	
 	def SpectrumUpdate(self, args):
