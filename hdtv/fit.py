@@ -40,14 +40,28 @@ class Fit(Drawable):
 		self.bgMarkers = backgrounds
 		self.fitter = fitter
 		self.showDecomp = False
-		self.dispFunc = None
+		self.dispPeakFunc = None
 		self.dispBgFunc = None
 		self.dispDecompFuncs = []
-		self.displayObjs = []
+		self.dispFuncs = []
 
 
-#	def __str__(self):
-#		 pass
+	def __str__(self):
+		i=1
+		text = str()
+		for peak in self.fitter.resultPeaks:
+			if i==1:
+				line1 = "Peak %d:\n" %i
+			else:
+				line1 = 6*" "+"Peak %d:\n" %i
+			line2 = 6*" "
+			line2+= "Pos:" + str(peak.pos.fmt()).rjust(15)
+			line2+= "  Volume:" + str(peak.vol.fmt()).rjust(15)
+			line2+= "  FWHM:" + str(peak.fwhm.fmt()).rjust(15)
+			line2+= "\n"
+			text += line1+line2	
+			i+=1
+		return text
 
 
 	def Draw(self, viewport):
@@ -62,22 +76,21 @@ class Fit(Drawable):
 		# draw fit funcs, if available
 		if self.dispBgFunc:
 			self.dispBgFunc.Draw(self.viewport)
-			self.displayObjs.append(self.dispBgFunc)
-		if self.dispFunc:
-			self.dispFunc.Draw(self.viewport)
-			self.displayObjs.append(self.dispFunc)
+			self.dispFuncs.append(self.dispBgFunc)
+		if self.dispPeakFunc:
+			self.dispPeakFunc.Draw(self.viewport)
+			self.dispFuncs.append(self.dispPeakFunc)
 		for func in self.dispDecompFuncs:
 			func.Draw(self.viewport)
 			if not self.showDecomp:
 				# hide it directly, it showDecomp==False
 				func.Hide()
 			self.dispDecompFuncs.append(func)
-		self.displayObjs = self.displayObjs+self.dispDecompFuncs
-		# draw the markers (do this after the fit, 
+		self.dispFuncs = self.dispFuncs+self.dispDecompFuncs
+		# refresh the markers (do this after the fit, 
 		# because the fit updates the position of the peak markers)
 		for marker in self.peakMarkers+self.regionMarkers+self.bgMarkers:
-			marker.Draw(self.viewport)
-			self.displayObjs.append(marker)
+			marker.Refresh()
 		self.viewport.UnlockUpdate()
 		
 
@@ -86,7 +99,7 @@ class Fit(Drawable):
 		self.viewport.LockUpdate()
 		if self.dispBgFunc:
 			self.FitBgFunc()
-		if self.dispFunc:
+		if self.dispPeakFunc:
 			self.FitPeakFunc()
 		self.Draw(self.viewport)
 		# draw the markers (do this after the fit, 
@@ -103,7 +116,7 @@ class Fit(Drawable):
 		"""
 		# remove old fit
 		if self.dispBgFunc:
-			self.displayObjs.remove(self.dispBgFunc)
+			self.dispFuncs.remove(self.dispBgFunc)
 			self.dispBgFunc.Remove()
 			self.dispBgFunc = None
 		# fit background 
@@ -122,12 +135,12 @@ class Fit(Drawable):
 		Note: You still need to call Draw afterwards.
 		"""
 		# remove old fit
-		if self.dispFunc:
-			self.displayObjs.remove(self.dispFunc)
-			self.dispFunc.Remove()
-			self.dispFunc = None
+		if self.dispPeakFunc:
+			self.dispFuncs.remove(self.dispPeakFunc)
+			self.dispPeakFunc.Remove()
+			self.dispPeakFunc = None
 		for func in self.dispDecompFuncs:
-			self.displayObjs.remove(func)
+			self.dispFuncs.remove(func)
 			func.Remove()
 		self.dispDecompFuncs = []
 		# fit peaks
@@ -136,9 +149,9 @@ class Fit(Drawable):
 			peaks = map(lambda m: m.p1, self.peakMarkers)
 			self.fitter.FitPeaks(region, peaks)
 			func = self.fitter.GetSumFunc()
-			self.dispFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.FIT_SUM_FUNC)
+			self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.FIT_SUM_FUNC)
 			if self.fitter.spec.cal:
-				self.dispFunc.SetCal(self.spec.cal)
+				self.dispPeakFunc.SetCal(self.spec.cal)
 			# extract function for each peak (decomposition)
 			for i in range(0, self.fitter.GetNumPeaks()):
 				func = self.fitter.GetPeak(i).GetPeakFunc()
@@ -149,29 +162,41 @@ class Fit(Drawable):
 			for (marker, peak) in zip(self.peakMarkers, self.fitter.resultPeaks):
 				marker.p1 = peak.GetPos()
 		
+		
 	def Show(self):
 		self.viewport.LockUpdate()
-		for obj in self.displayObjs:
+		objs = self.dispFuncs+self.peakMarkers+self.regionMarkers+self.bgMarkers
+		for obj in objs:
 			obj.Show()
 		self.viewport.UnlockUpdate()
 		
+		
 	def Hide(self):
 		self.viewport.LockUpdate()
-		for obj in self.displayObjs:
+		objs = self.dispFuncs+self.peakMarkers+self.regionMarkers+self.bgMarkers
+		for obj in objs:
 			obj.Hide()
 		self.viewport.UnlockUpdate()
 		
+		
 	def Remove(self):
 		self.viewport.LockUpdate()
-		for obj in self.displayObjs:
+		objs = self.dispFuncs+self.peakMarkers+self.regionMarkers+self.bgMarkers
+		for obj in objs:
 			obj.Remove()
 		self.viewport.UnlockUpdate()
 
+
 	def SetColor(self, color):
-		#FIXME: colors of markers according to some intelegent color scheme
-		pass
+		if self.viewport:
+			self.viewport.LockUpdate()
+		# FIXME: include markers (they do not support SetColor!)
+		objs = self.dispFuncs
+		for obj in objs:
+			obj.SetColor(color)
+		if self.viewport:
+			self.viewport.UnlockUpdate()
 		
-	
 	def SetDecomp(self, stat=True):
 		"""
 		Sets whether to display a decomposition of the fit

@@ -37,6 +37,7 @@ class SpectrumCompound(DrawableCompound):
 		DrawableCompound.__init__(self,viewport)
 		self.spec = spec
 		self.color = spec.color
+		self.pendingFit=None
 		
 	def __getattr__(self, name):
 		"""
@@ -57,8 +58,16 @@ class SpectrumCompound(DrawableCompound):
 		DrawableCompound.Show(self)
 		
 	def Hide(self):
+		if self.pendingFit:
+			for obj in self.pendingFit.dispFuncs:
+				obj.Remove()
+			self.pendingFit = None
 		self.spec.Hide()
 		DrawableCompound.Hide(self)
+		
+	def HideAll(self):
+		DrawableCompound.Hide(self)
+
 
 
 class TVFitInterface():
@@ -81,7 +90,8 @@ class TVFitInterface():
 		self.window.AddHotkey(ROOT.kKey_p, self.PutPeakMarker)
 		self.window.AddHotkey(ROOT.kKey_B, self.FitBackground)
 	  	self.window.AddHotkey(ROOT.kKey_F, self.FitPeaks)
-#	  	self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], self.DeleteFit)
+	  	self.window.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_F], self.KeepFit)
+	  	self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], self.ClearFit)
 #	  	self.window.AddHotkey(ROOT.kKey_I, self.Integrate)
 	  	self.window.AddHotkey(ROOT.kKey_D, lambda: self.SetDecomp(True))
 	  	self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_D], lambda: self.SetDecomp(False))
@@ -120,43 +130,110 @@ class TVFitInterface():
 
 
 	def FitBackground(self):
-		fit = self.GetActiveFit()
-		if fit:
-			fit.FitBgFunc()
-			fit.Draw(self.window.fViewport)
-		
-	def FitPeaks(self):
-		fit = self.GetActiveFit()
-		if fit:
-			fit.FitPeakFunc()
-			fit.Draw(self.window.fViewport)
-	
-	def GetActiveFit(self):
-		spec = self.spectra.GetActiveObject()
-		if not spec:
+		if self.spectra.activeID==None:
 			print "There is no active spectrum"
-			return None
+			return
+		spec = self.spectra[self.spectra.activeID]
 		try:
-			fit = spec.GetActiveObject()
+			fit = self.spectra[self.spectra.activeID].pendingFit
 		except AttributeError:
+			# create SpectrumCompound object 
 			spec = SpectrumCompound(self.window.fViewport, spec)
+			# replace the simple spectrum object by the SpectrumCompound
 			self.spectra[self.spectra.activeID]=spec
-			fit = None
-		if fit:
-			# update 
-			fit.regionMarkers = self.activeRegionMarkers
-			fit.peakMarkers = self.activePeakMarkers
-			fit.bgMarkers = self.activeBgMarkers
-			fit.fitter.SetPeakModel(self.peakModel)
-			fit.fitter.bgdeg = self.bgDegree
-		else:
-			# create new
+		if not fit:
 			fitter = Fitter(spec.spec, self.peakModel, self.bgDegree)
 			fit = Fit(fitter, self.activeRegionMarkers, self.activePeakMarkers, 
 							  self.activeBgMarkers, color=spec.color)
-			self.spectra[self.spectra.activeID].Add(fit)
-		return fit
+		fit.FitBgFunc()
+		fit.Draw(self.window.fViewport)
+		self.spectra[self.spectra.activeID].pendingFit = fit
+		
+		
+	def FitPeaks(self):
+		# get active spectrum
+		if self.spectra.activeID==None:
+			print "There is no active spectrum"
+			return 
+		spec = self.spectra[self.spectra.activeID]
+		try:
+			fit = self.spectra[self.spectra.activeID].pendingFit
+		except AttributeError:
+			# create SpectrumCompound object 
+			spec = SpectrumCompound(self.window.fViewport, spec)
+			# replace the simple spectrum object by the SpectrumCompound
+			self.spectra[self.spectra.activeID]=spec
+			fit = None
+		if not fit:
+			fitter = Fitter(spec.spec, self.peakModel, self.bgDegree)
+			fit = Fit(fitter, self.activeRegionMarkers, self.activePeakMarkers, 
+							  self.activeBgMarkers, color=spec.color)
+		fit.FitPeakFunc()
+		fit.Draw(self.window.fViewport)
+		self.spectra[self.spectra.activeID].pendingFit = fit
 
+
+	def KeepFit(self, clear=False):
+		"""
+		Keep this fit 
+		"""
+		# get active spectrum
+		if self.spectra.activeID==None:
+			print "There is no active spectrum"
+			return 
+		spec = self.spectra[self.spectra.activeID]
+		if not spec.pendingFit:
+			self.FitPeaks()
+		fitID = spec.activeID
+		if fitID==None:
+			fitID = spec.GetFreeID()
+		# FIXME: we need SetColor for markers!
+		spec.pendingFit.SetColor(spec.color)
+		spec[fitID] = spec.pendingFit
+		if not clear:
+			self.CopyMarkers(spec.pendingFit)
+		spec.pendingFit = None
+		spec.activeID = None
+
+
+	def ClearFit(self):
+		# get active spectrum
+		if self.spectra.activeID==None:
+			print "There is no active spectrum"
+			return 
+		spec = self.spectra[self.spectra.activeID]
+		if spec.pendingFit:
+			spec.pendingFit.Remove()
+			spec.pendingFit = None
+		markers = self.activePeakMarkers+self.activeRegionMarkers+self.activeBgMarkers
+		for marker in markers:
+			marker.Remove()
+		self.activePeakMarkers=[]
+		self.activeRegionMarkers=[]
+		self.activeBgMarkers=[]
+				
+	
+	def CopyMarkers(self, fit):
+		"""
+		Copy markers from a fit object
+		"""
+		new = []
+		for marker in fit.regionMarkers:
+			new.append(marker.Copy())
+		self.activeRegionMarkers= new
+		new = []
+		for marker in fit.peakMarkers:
+			new.append(marker.Copy())
+		self.activePeakMarkers = new
+		for marker in fit.bgMarkers:
+			new.append(marker.Copy())
+		self.activeBgMarkers = new
+		self.window.fViewport.LockUpdate()
+		markers = self.activeRegionMarkers+self.activePeakMarkers+self.activeBgMarkers
+		for marker in markers:
+			marker.Draw(self.window.fViewport)
+		self.window.fViewport.UnlockUpdate()
+		
 
 	def SetDecomp(self, stat):
 		pass

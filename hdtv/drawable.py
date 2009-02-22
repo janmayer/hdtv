@@ -61,7 +61,11 @@ class Drawable:
 			self.color = color
 		# update the display if needed	
 		if self.displayObj != None:
-			self.displayObj.SetColor(color)
+			try:
+				self.displayObj.SetColor(color)
+			except:
+				# FIXME: should not happen!
+				print 'SetColor failed for %s' % self.displayObj
 		
 	def ToTop(self):
 		"""
@@ -146,6 +150,7 @@ class DrawableCompound(UserDict.DictMixin):
 			else:
 				stat += " "
 			print "%d %s %s" % (ID, stat, obj)
+			
 
 	def ActivateObject(self, ID):
 		"""
@@ -163,13 +168,6 @@ class DrawableCompound(UserDict.DictMixin):
 		self.activeID = ID
 		self.viewport.UnlockUpdate()
 	
-		
-	def GetActiveObject(self):
-		if self.activeID==None:
-			return None
-		else:
-			return self.objects[self.activeID]
-		
 		
 	def Draw(self, viewport):
 		"""
@@ -193,7 +191,7 @@ class DrawableCompound(UserDict.DictMixin):
 		"""
 		self.viewport.LockUpdate()
 		for ID in self.iterkeys():
-			self._delitem__(ID)
+			self.__delitem__(ID)
 		self.viewport.UnlockUpdate()
 	
 	def RemoveAll(self):
@@ -270,7 +268,7 @@ class DrawableCompound(UserDict.DictMixin):
 		"""
 		self.Hide()
 			
-	def HideObjects(self):
+	def HideObjects(self, ids):
 		"""
 		Hide objects from the display
 		"""
@@ -285,6 +283,9 @@ class DrawableCompound(UserDict.DictMixin):
 					self.visible.discard(ID)
 				except KeyError:
 					print "Warning: ID %d not found" % ID
+		# if there is only one visible object left, activate it
+		if len(self.visible)==1:
+			self.ActivateObject(list(self.visible)[0])
 		self.viewport.UnlockUpdate()
 
 
@@ -305,7 +306,7 @@ class DrawableCompound(UserDict.DictMixin):
 		"""
 		self.Show()
 
-	def ShowObjects(self, ids=None, clear=True):
+	def ShowObjects(self, ids, clear=True):
 		"""
 		Show objects on the display. 
 
@@ -325,6 +326,9 @@ class DrawableCompound(UserDict.DictMixin):
 					self.visible.add(ID)
 				except KeyError:
 					print "Warning: ID %d not found" % ID
+		# if there is only one visible spectrum, activate it
+		if len(self.visible)==1:
+			self.ActivateObject(list(self.visible)[0])
 		self.viewport.UnlockUpdate()
 
 	def ShowNext(self, nb=1):
@@ -344,6 +348,9 @@ class DrawableCompound(UserDict.DictMixin):
 		ids.sort()
 		index = ids.index(max(self.visible))
 		ids = ids[index+1:index+nb+1]
+		if len(ids)==0:
+			self.ShowFirst(nb)
+			return
 		self.ShowObjects(ids, clear=True)
 
 	def ShowPrev(self, nb=1):
@@ -366,6 +373,9 @@ class DrawableCompound(UserDict.DictMixin):
 			ids = ids[0:index]
 		else:
 			ids = ids[index-nb:index]
+		if len(ids)==0:
+			self.ShowLast(nb)
+			return
 		self.ShowObjects(ids, clear=True)
 
 	def ShowFirst(self, nb=1):
@@ -397,5 +407,8 @@ class DrawableCompound(UserDict.DictMixin):
 		Set color of all objects to the same color,
 		no idea if this is useful ... ?
 		"""
+		self.viewport.LockUpdate()
 		for obj in self.itervalues():
 			obj.SetColor(color)
+		self.viewport.UnlockUpdate()
+			

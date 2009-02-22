@@ -77,6 +77,11 @@ class Marker(Drawable):
 				self.displayObj.SetN(1)
 				self.displayObj.SetPos(self.p1)
 
-	def UpdatePos(self):
-		print 'Marker.UpdatePos is deprecated, use Refresh instead.'
-		self.Refresh()
+
+	def Copy(self):
+		new = Marker(self.mtype, self.p1, self.color)
+		new.p2 = self.p2
+		return new
+		
+	
+	
