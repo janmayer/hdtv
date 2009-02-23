@@ -79,6 +79,7 @@ class Spectrum(Drawable):
 		"""
 		Write the spectrum to file
 		"""
+		fname = os.path.expanduser(fname)
 		try:
 			SpecReader().WriteSpectrum(self.fHist, fname, fmt)
 		except SpecReaderError, msg:
@@ -86,44 +87,6 @@ class Spectrum(Drawable):
 			return False
 		return True
 
-
-	def ReadCal(self, fname):
-		"""
-		Read Calibration from file
-		"""
-		try:
-			f = open(fname)
-		except IOError, msg:
-			print msg
-			return False
-		try:
-			calpoly = []
-			for line in f:
-				l = line.strip()
-				if l != "":
-					calpoly.append(float(l))
-		except ValueError:
-			f.close()
-			print "Malformed calibration parameter file."
-			return False
-		f.close()
-		if len(calpoly) < 1 or len(calpoly) > 4:
-			print "Too many or too few parameters in calibration file"
-			return False
-		return self.SetCal(calpoly)
-
-		
-	def CalFromPairs(self, pairs):
-		"""
-		Create a calibration from two pairs of channel and corresponding energy
-		"""
-	 	if len(pairs) != 2:
-	 		print "Pairs length must presently be exactly 2"
-	 		return False
-	 	cal = hdtv.util.Linear.FromXYPairs(pairs[0], pairs[1])
-		self.SetCal([cal.p0, cal.p1])
-
-		
 	def SetCal(self, cal):
 		"""
 		set calibration
@@ -143,13 +106,6 @@ class Spectrum(Drawable):
 		# update the display if needed
 		if self.displayObj != None:
 			self.displayObj.SetCal(self.cal)
-		
-	
-	def UnsetCal(self):
-		"""
-		delete calibration
-		"""
-		self.SetCal(cal=None)
 		
 	
 	def E2Ch(self, e):

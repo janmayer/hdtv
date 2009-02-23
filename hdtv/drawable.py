@@ -326,9 +326,6 @@ class DrawableCompound(UserDict.DictMixin):
 					self.visible.add(ID)
 				except KeyError:
 					print "Warning: ID %d not found" % ID
-		# if there is only one visible spectrum, activate it
-		if len(self.visible)==1:
-			self.ActivateObject(list(self.visible)[0])
 		self.viewport.UnlockUpdate()
 
 	def ShowNext(self, nb=1):

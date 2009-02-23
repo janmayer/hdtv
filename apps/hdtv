@@ -29,19 +29,19 @@ hdtv.cmdline.SetInteractiveDict(locals())
 from hdtv.window import Window
 from hdtv.drawable import DrawableCompound
 
-from tvSpecInterface import TVSpecInterface
-from tvFitInterface import TVFitInterface
+from specInterface import SpecInterface
+from fitInterface import FitInterface
 
 window = Window() 
 spectra = DrawableCompound(window.fViewport)
 
-s = TVSpecInterface(window, spectra)
+s = SpecInterface(window, spectra)
 
-f = TVFitInterface(window, spectra)
+f = FitInterface(window, spectra)
 
-
-
-
+# for debugging
+#s.LoadSpectra('/home/tanja/hdtv/test/spectra/231Th*.ascii')
+s.LoadSpectra('/home/tanja/hdtv/test/spectra/60*')
 
 # Go
 hdtv.cmdline.MainLoop()

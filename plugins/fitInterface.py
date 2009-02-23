@@ -70,7 +70,7 @@ class SpectrumCompound(DrawableCompound):
 
 
 
-class TVFitInterface():
+class FitInterface():
 	"""
 	
 	"""
@@ -78,11 +78,15 @@ class TVFitInterface():
 		print "Loaded commands for 1-d histograms fitting"
 		self.window = window
 		self.spectra = spectra
+
 		self.peakModel= "theuerkauf"
 		self.bgDegree = 1
 		self.activePeakMarkers = []
 		self.activeRegionMarkers = []
 		self.activeBgMarkers = []
+
+		# tv commands
+		self.tv = TvFitInterface(self)
 
 		# Register hotkeys
 		self.window.AddHotkey(ROOT.kKey_b, self.PutBackgroundMarker)
@@ -114,19 +118,53 @@ class TVFitInterface():
 
 	def PutRegionMarker(self):
 		"Put a region marker at the current cursor position (internal use only)"
+		# FIXME: code very similar to the other put marker functions
 		self.window.PutPairedMarker("X", "REGION", self.activeRegionMarkers, 1)
-			
+		if not self.spectra.activeID==None:
+			specID = self.spectra.activeID
+			try:
+				if self.spectra[specID].pendingFit:
+					self.spectra[specID].pendingFit.Remove()
+					self.spectra[specID].pendingFit = None
+				if not self.spectra[specID].activeID==None:
+					fitID = self.spectra[specID].activeID
+					self.spectra[specID][fitID].Hide()
+			except:
+				pass
 			
 	def PutBackgroundMarker(self):
 		"Put a background marker at the current cursor position (internal use only)"
+		# FIXME: code very similar to the other put marker functions
 		self.window.PutPairedMarker("X", "BACKGROUND", self.activeBgMarkers)
+		if not self.spectra.activeID==None:
+			specID = self.spectra.activeID
+			try:
+				if self.spectra[specID].pendingFit:
+					self.spectra[specID].pendingFit.Remove()
+					self.spectra[specID].pendingFit = None
+				if not self.spectra[specID].activeID==None:
+					fitID = self.spectra[specID].activeID
+					self.spectra[specID][fitID].Hide()
+			except:
+				pass
 		
 		
 	def PutPeakMarker(self):
 		"Put a peak marker at the current cursor position (internal use only)"
+		# FIXME: code very similar to the other put marker functions
 		pos = self.window.fViewport.GetCursorX()
   		self.activePeakMarkers.append(Marker("PEAK", pos))
   		self.activePeakMarkers[-1].Draw(self.window.fViewport)
+  		if not self.spectra.activeID==None:
+			try:
+				if self.spectra[specID].pendingFit:
+					self.spectra[specID].pendingFit.Remove()
+					self.spectra[specID].pendingFit = None
+				if not self.spectra[specID].activeID==None:
+					fitID = self.spectra[specID].activeID
+					self.spectra[specID][fitID].Hide()
+			except:
+				pass
 
 
 	def FitBackground(self):
@@ -157,6 +195,7 @@ class TVFitInterface():
 			return 
 		spec = self.spectra[self.spectra.activeID]
 		try:
+			# check if it is already a SpectrumCompound object
 			fit = self.spectra[self.spectra.activeID].pendingFit
 		except AttributeError:
 			# create SpectrumCompound object 
@@ -165,15 +204,32 @@ class TVFitInterface():
 			self.spectra[self.spectra.activeID]=spec
 			fit = None
 		if not fit:
+			# create fresh fit
 			fitter = Fitter(spec.spec, self.peakModel, self.bgDegree)
 			fit = Fit(fitter, self.activeRegionMarkers, self.activePeakMarkers, 
 							  self.activeBgMarkers, color=spec.color)
+		else:
+			# update pending fit with current marker positions
+			pass
+			# FIXME: Marker handling!
+			
 		fit.FitPeakFunc()
 		fit.Draw(self.window.fViewport)
 		self.spectra[self.spectra.activeID].pendingFit = fit
+		print fit
 
 
-	def KeepFit(self, clear=False):
+	def ActivateFit(self, ID):
+		# get active spectrum
+		if self.spectra.activeID==None:
+			print "There is no active spectrum"
+			return 
+		spec = self.spectra[self.spectra.activeID]
+		spec.ActivateObject(ID)
+		self.CopyMarkers(spec[ID])
+
+
+	def KeepFit(self):
 		"""
 		Keep this fit 
 		"""
@@ -190,8 +246,6 @@ class TVFitInterface():
 		# FIXME: we need SetColor for markers!
 		spec.pendingFit.SetColor(spec.color)
 		spec[fitID] = spec.pendingFit
-		if not clear:
-			self.CopyMarkers(spec.pendingFit)
 		spec.pendingFit = None
 		spec.activeID = None
 
@@ -241,7 +295,11 @@ class TVFitInterface():
 		
 		
 
+class TvFitInterface:
 
+	def __init__(self, fitInterface):
+		self.fitIf = fitInterface
+		self.spectra = self.fitIf.spectra
 
 
 

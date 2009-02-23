@@ -195,6 +195,10 @@ class Window(KeyHandler):
 		self.AddHotkey(ROOT.kKey_x, self.ExpandX)
 		self.AddHotkey(ROOT.kKey_Right, lambda: self.fViewport.ShiftXOffset(0.1))
 		self.AddHotkey(ROOT.kKey_Left, lambda: self.fViewport.ShiftXOffset(-0.1))
+		self.AddHotkey(ROOT.kKey_Greater, lambda: self.window.fViewport.ShiftXOffset(0.1))
+		self.AddHotkey(ROOT.kKey_Less, lambda: self.window.fViewport.ShiftXOffset(-0.1))
+		self.AddHotkey(ROOT.kKey_Return, lambda: self.window.fViewport.Update(True))
+		self.AddHotkey(ROOT.kKey_Bar,lambda: self.fViewport.SetXCenter(self.fViewport.GetCursorX()))
 		self.AddHotkey(ROOT.kKey_1, lambda: self.fViewport.XZoomAroundCursor(2.0))
 		self.AddHotkey(ROOT.kKey_0, lambda: self.fViewport.XZoomAroundCursor(0.5))
 		# y direction
@@ -220,6 +224,8 @@ class Window(KeyHandler):
 		
 		self.fViewport.SetXVisibleRegion(100.)
 		self.fViewport.SetXCenter(center)
+		
+	
 	
 	
 	def ExpandX(self):
