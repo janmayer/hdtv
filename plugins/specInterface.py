@@ -36,7 +36,7 @@ from hdtv.specreader import SpecReaderError
 # Don't add created spectra to the ROOT directory
 ROOT.TH1.AddDirectory(ROOT.kFALSE)
 
-class SpecInterface():
+class SpecInterface:
 	"""
 	User interface to work with 1-d spectra
 	"""
@@ -178,7 +178,7 @@ class SpecInterface():
 		return [cal.p0, cal.p1]
 
 	
-class TvSpecInterface():
+class TvSpecInterface:
 	"""
 	TV style commands for the spectrum interface.
 	"""

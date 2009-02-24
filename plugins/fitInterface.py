@@ -108,7 +108,7 @@ class SpectrumCompound(DrawableCompound):
 
 
 
-class FitInterface():
+class FitInterface:
 	"""
 	User interface for fitting 1-d spectra
 	"""
