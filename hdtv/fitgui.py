@@ -1,92 +1,343 @@
-# -*- coding: utf-8 -*-
-
-# HDTV - A ROOT-based spectrum analysis software
-#  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
-#
-# This file is part of HDTV.
-#
-# HDTV is free software; you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the
-# Free Software Foundation; either version 2 of the License, or (at your
-# option) any later version.
-#
-# HDTV is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
-# for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with HDTV; if not, write to the Free Software Foundation,
-# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 import ROOT
+import hdtv.fit
 
-from hdtv.color import *
-from hdtv.drawable import DrawableCollection
-
-hdtv.dlmgr.LoadLibrary("display")
-
-class FitGui():
-	def __init__(self, manager, window, peakModel="Teuerkauf", bgdeg=1):
+class FitGUI:
+	"""
+	Class to add a TV-style peak fitting GUI to a window
+	"""
+	def __init__(self, window, show_panel=False):
+		self.fWindow = window
 		
+		# Create peak model to hold fit parameter settings
+		self.fPeakModel = None
+		self.fBgDeg = 0
 		
-		self.peakModel=peakModel
-		self.bgDegree = bgdeg
-		self.activeFitter = 
-		self.activePeakMarkers = []
-		self.activeRegionMarkers = []
-		self.activeBgMarkers = []
-
+		# Create fitter object to hold the graphical representation of the fit
+		self.fCurrentFit = hdtv.fit.Fit()
+		self.fCurrentFit.Draw(self.fWindow.fViewport)
 		
-class FitCompound(Drawable, UserDict.DictMixin)
-	def __init__(self, spec)
-		Drawable.__init__(self, spec, color)
-		self.spec = spec
-		self.fits = dict()
-		self.visible = set()
+		# Internal markers
+		self.fPeakMarkers = []
+		self.fRegionMarkers = []
+		self.fBgMarkers = []
 		
-	def __setitem__(self, ID, obj):
-		pass
+		# Create fit panel
+		self.fFitPanel = FitPanel()
+		self.fFitPanel.fFitHandler = self.Fit
+		self.fFitPanel.fClearHandler = self.DeleteFit
+		self.fFitPanel.fResetHandler = self.ResetFitParameters
+		self.fFitPanel.fDecompHandler = lambda(stat): self.fCurrentFit.SetDecomp(stat)
 		
-	def __getitem__(self, ID):
-		pass
+		if show_panel:
+			self.fFitPanel.Show()
+			
+		# Register hotkeys
+		self.fWindow.AddHotkey(ROOT.kKey_b, self.PutBackgroundMarker)
+		self.fWindow.AddHotkey(ROOT.kKey_r, self.PutRegionMarker)
+		self.fWindow.AddHotkey(ROOT.kKey_p, self.PutPeakMarker)
+	  	self.fWindow.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], self.DeleteFit)
+	  	self.fWindow.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_F], self.StoreFit)
+	  	self.fWindow.AddHotkey(ROOT.kKey_B, self.FitBackground)
+	  	self.fWindow.AddHotkey(ROOT.kKey_F, self.Fit)
+	  	self.fWindow.AddHotkey(ROOT.kKey_I, self.Integrate)
+	  	self.fWindow.AddHotkey(ROOT.kKey_D, lambda: self.SetDecomp(True))
+	  	self.fWindow.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_D], lambda: self.SetDecomp(False))
+	  	
+	def SetPeakModel(self, model):
+		"""
+		Sets the peak model to be used for fitting. model can be either a string, in
+		which case it is used as a key into the gPeakModels dictionary, or a PeakModel
+		object.
+		"""
+		if type(model) == str:
+			model = hdtv.fit.gPeakModels[model]
+			
+		self.fPeakModel = model()
+		#self.ResetPeak()
+	  	
+	def SetDecomp(self, stat):
+		self.fFitPanel.SetDecomp(stat)
+		self.fCurrentFit.SetDecomp(stat)
 		
-	def __delitem__(self, ID):
-		pass
+	def PutRegionMarker(self):
+		"Put a region marker at the current cursor position (internal use only)"
+		self.fWindow.PutPairedMarker("X", "REGION", self.fRegionMarkers, 1)
+			
+	def PutBackgroundMarker(self):
+		"Put a background marker at the current cursor position (internal use only)"
+		self.fWindow.PutPairedMarker("X", "BACKGROUND", self.fBgMarkers)
 		
-	def Add(self, fit)
-		pass
+	def PutPeakMarker(self):
+		"Put a peak marker at the current cursor position (internal use only)"
+		pos = self.fWindow.fViewport.GetCursorX()
+  		self.fPeakMarkers.append(hdtv.marker.Marker("PEAK", pos))
+  		self.fPeakMarkers[-1].Draw(self.fWindow.fViewport)
 		
-	def GetFreeID(self)
-		pass
+	def ResetFitParameters(self):
+		"""
+		Resets all parameters of the underlying peak model to their default values
+		"""
+		self.fPeakModel.ResetParamStatus()
+		self.fCurrentFit.ResetPeak()
+		self.FitUpdateOptions()
 		
-	def Draw(self, viewport):
-		if self.fViewport:
-			if self.fViewport == viewport:
-				# this fit has already been drawn
-				self.Refresh()
-				return
-			else:
-				# Unlike the Display object of the underlying implementation,
-				# python objects can only be drawn on a single viewport
-				raise RuntimeError, "Object can only be drawn on a single viewport"
-		self.fViewport = viewport
-		# Lock updates
-		self.fViewport.LockUpdate()
-		for obj in self.dispObj:
-			obj.Draw()
-		# Unlock updates
-		self.fViewport.UnlockUpdate()
+	def GetParameters(self):
+		"Return a list of parameter names of the peak model, in the preferred ordering"
+		if self.fPeakModel:
+			return self.fPeakModel.OrderedParamKeys()
+		else:
+			return []
+			
+	def SetParameter(self, parname, status):
+		"""
+		Sets a parameter of the underlying peak model
+		"""
+		self.fPeakModel.SetParameter(parname, status)
+		self.fCurrentFit.ResetPeak()
 		
-		
-	def Refresh(self):
-		# Lock updates
-		self.fViewport.LockUpdate()
-		for obj in self.dispObj:
-			obj.Refresh()
-		# Unlock updates
-		self.fViewport.UnlockUpdate()
-		
+	def OptionsStr(self):
+		"""
+		Returns a string describing the currently set fit parameters
+		"""
+		statstr = str()
 	
-	def AddFit(self):
+		statstr += "Background model: polynomial, deg=%d\n" % self.fBgDeg
+		statstr += "Peak model: %s\n" % self.fPeakModel.Name()
+		statstr += "\n"
 		
+		statstr += self.fPeakModel.OptionsStr()
 		
+		return statstr
+	
+	def FitUpdateOptions(self):
+		self.fFitPanel.SetOptions(self.OptionsStr())
+		
+	def FitUpdateData(self):
+		self.fFitPanel.SetData(self.fCurrentFit.DataStr())
+		
+	def FitBackground(self):
+		# Make sure a fit panel is displayed
+		self.fFitPanel.Show()
+		
+		if self.fBgMarkers[-1].p2 != None and \
+			len(self.fBgMarkers) > 0:
+			
+			self.fCurrentFit.spec = self.fSpec
+			self.fCurrentFit.bgdeg = self.fBgDeg
+			self.fCurrentFit.bglist = map(lambda m: [m.p1, m.p2], self.fBgMarkers)
+			self.fCurrentFit.DoBgFit()
+			
+			self.FitUpdateData()
+		
+	def Fit(self):
+		# Make sure a fit panel is displayed
+		self.fFitPanel.Show()
+		
+		# Lock updates
+		self.fWindow.fViewport.LockUpdate()
+	
+	  	if self.fRegionMarkers[-1].p2 != None and \
+	  		len(self.fRegionMarkers) == 1 and \
+	  		len(self.fPeakMarkers) > 0:
+
+			# Do the fit
+			self.fCurrentFit.spec = self.fSpec
+			self.fCurrentFit.peakmodel = self.fPeakModel
+			self.fCurrentFit.region = [self.fRegionMarkers[0].p1, self.fRegionMarkers[0].p2]
+			self.fCurrentFit.peaklist = map(lambda m: m.p1, self.fPeakMarkers)
+			self.fCurrentFit.DoPeakFit()
+
+			self.FitUpdateData()
+				
+			for (marker, peak) in zip(self.fPeakMarkers, self.fCurrentFit.resultPeaks):
+				marker.p1 = peak.pos_cal.value
+				marker.UpdatePos()
+
+		# Update viewport if required
+		self.fWindow.fViewport.UnlockUpdate()
+  		
+  	def DeleteFit(self):
+		for marker in self.fPeakMarkers:
+  			marker.Remove()
+		for marker in self.fBgMarkers:
+  			marker.Remove()
+  		for marker in self.fRegionMarkers:
+  			marker.Remove()
+	  			
+  		self.fWindow.fPendingMarker = None
+  		self.fPeakMarkers = []
+  		self.fBgMarkers = []
+  		self.fRegionMarkers = []
+  		
+		self.fCurrentFit.Reset()
+
+		if self.fFitPanel:
+			self.fFitPanel.SetData("")
+			
+	def StoreFit(self):
+		self.fSpec.fFits.append(self.fCurrentFit)
+		self.fCurrentFit = hdtv.fit.Fit()
+		self.DeleteFit()
+		self.fCurrentFit.Draw(self.fWindow.fViewport)
+		
+	# FIXME: This function needs rework
+	def Integrate(self):
+		if not self.fWindow.fPendingMarker and len(self.fRegionMarkers) == 1:
+			# Integrate histogram in requested region
+			spec = self.fFitter.spec
+			ch_1 = spec.E2Ch(self.fRegionMarkers[0].p1)
+			ch_2 = spec.E2Ch(self.fRegionMarkers[0].p2)
+				
+			fitter = ROOT.GSFitter(ch_1, ch_2)
+			total_int = fitter.Integrate(spec.fHist)
+			total_err = math.sqrt(total_int)
+			                       
+			# Integrate background function in requested region if it
+			# is available
+			if self.fFitter and self.fFitter.bgfunc:
+				bgfunc = self.fFitter.bgfunc
+				bg_int = bgfunc.Integral(math.ceil(min(ch_1, ch_2) - 0.5) - 0.5,
+				                         math.ceil(max(ch_1, ch_2) - 0.5) + 0.5)
+				bg_err = math.sqrt(bg_int)
+			else:
+				bg_int = None
+
+			# Output results
+			if bg_int != None:
+				sum_int = total_int - bg_int
+				sum_err = math.sqrt(total_int + bg_int)
+
+				text  = "Total:      %10.1f +- %7.1f\n" % (total_int, total_err)
+				text += "Background: %10.1f +- %7.1f\n" % (bg_int, bg_err)
+				text += "Sub:        %10.1f +- %7.1f\n" % (sum_int, sum_err)
+			else:
+				text = "Integral: %.1f +- %.1f\n" % (total_int, total_err)
+			
+			self.EnsureFitPanel()
+			self.fFitPanel.SetText(text)
+
+class FitPanel:
+	def __init__(self):
+		self._dispatchers = []
+		self.fFitHandler = None
+		self.fClearHandler = None
+		self.fResetHandler = None
+		self.fDecompHandler = None
+		self.fVisible = False
+	
+		self.fMainFrame = ROOT.TGMainFrame(ROOT.gClient.GetRoot(), 300, 500)
+		self.fMainFrame.DontCallClose()
+		disp = ROOT.TPyDispatcher(self.Hide)
+		self.fMainFrame.Connect("CloseWindow()", "TPyDispatcher", disp, "Dispatch()")
+		self._dispatchers.append(disp)
+		
+		## Button frame ##
+		self.fButtonFrame = ROOT.TGHorizontalFrame(self.fMainFrame)
+
+		self.fFitButton = ROOT.TGTextButton(self.fButtonFrame, "Fit")
+		disp = ROOT.TPyDispatcher(self.FitClicked)
+		self.fFitButton.Connect("Clicked()", "TPyDispatcher", disp, "Dispatch()")
+		self._dispatchers.append(disp)
+		self.fButtonFrame.AddFrame(self.fFitButton)
+						
+		self.fClearButton = ROOT.TGTextButton(self.fButtonFrame, "Clear")
+		disp = ROOT.TPyDispatcher(self.ClearClicked)
+		self.fClearButton.Connect("Clicked()", "TPyDispatcher", disp, "Dispatch()")
+		self._dispatchers.append(disp)
+		self.fButtonFrame.AddFrame(self.fClearButton)
+		
+		self.fResetButton = ROOT.TGTextButton(self.fButtonFrame, "Reset")
+		disp = ROOT.TPyDispatcher(self.ResetClicked)
+		self.fResetButton.Connect("Clicked()", "TPyDispatcher", disp, "Dispatch()")
+		self._dispatchers.append(disp)
+		self.fButtonFrame.AddFrame(self.fResetButton)
+		
+		self.fHideButton = ROOT.TGTextButton(self.fButtonFrame, "Hide")
+		disp = ROOT.TPyDispatcher(self.HideClicked)
+		self.fHideButton.Connect("Clicked()", "TPyDispatcher", disp, "Dispatch()")
+		self._dispatchers.append(disp)
+		self.fButtonFrame.AddFrame(self.fHideButton)
+		
+		self.fDecompButton = ROOT.TGCheckButton(self.fButtonFrame, "Show decomposition")
+		disp = ROOT.TPyDispatcher(self.DecompClicked)
+		self.fDecompButton.Connect("Clicked()", "TPyDispatcher", disp, "Dispatch()")
+		self._dispatchers.append(disp)
+		self.fButtonFrame.AddFrame(self.fDecompButton,
+		       ROOT.TGLayoutHints(ROOT.kLHintsLeft, 10, 0, 0, 0))
+		
+		self.fMainFrame.AddFrame(self.fButtonFrame,
+		       ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 10, 5, 10, 10))
+				
+		## Fit info ##
+		self.fFitInfo = ROOT.TGTab(self.fMainFrame)
+		self.fMainFrame.AddFrame(self.fFitInfo,
+		       ROOT.TGLayoutHints(ROOT.kLHintsExpandX | ROOT.kLHintsExpandY))
+
+		optionsFrame = self.fFitInfo.AddTab("Options")
+		fitFrame = self.fFitInfo.AddTab("Fit")
+		# listFrame = self.fFitInfo.AddTab("Peak list")
+		
+		self.fOptionsText = ROOT.TGTextView(optionsFrame, 400, 500)
+		optionsFrame.AddFrame(self.fOptionsText,
+		       ROOT.TGLayoutHints(ROOT.kLHintsExpandX | ROOT.kLHintsExpandY))
+	
+		self.fFitText = ROOT.TGTextView(fitFrame, 400, 500)
+		fitFrame.AddFrame(self.fFitText,
+		       ROOT.TGLayoutHints(ROOT.kLHintsExpandX | ROOT.kLHintsExpandY))
+			
+		self.fMainFrame.SetWindowName("Fit")
+		self.fMainFrame.MapSubwindows()
+		self.fMainFrame.Resize(self.fMainFrame.GetDefaultSize())
+		
+	# Note that deleting the window on close, and recreating it when needed,
+	# causes a BadWindow (invalid Window parameter) error from time to time
+	# (the exact conditions are not completely understood).
+	# In addition, just hiding the window has the advantage that all settings
+	# (text entries, checkboxes, ...) are automatically remembered.
+	def Hide(self):
+		if self.fVisible:
+			self.fMainFrame.UnmapWindow()
+			self.fVisible = False
+			
+	def Show(self):
+		if not self.fVisible:
+			self.fMainFrame.MapWindow()
+			self.fVisible = True
+		
+	# FIXME: This should *really* take advantage of signals and slots...
+	def FitClicked(self):
+		if self.fFitHandler:
+			self.fFitHandler()
+			
+	def ClearClicked(self):
+		if self.fClearHandler:
+			self.fClearHandler()
+			
+	def ResetClicked(self):
+		if self.fResetHandler:
+			self.fResetHandler()
+		
+	def HideClicked(self):
+		self.Hide()
+		
+	def DecompClicked(self):
+		if self.fDecompHandler:
+			self.fDecompHandler(bool(self.fDecompButton.IsOn()))
+			
+	def SetDecomp(self, stat):
+		if stat:
+			self.fDecompButton.SetState(ROOT.kButtonDown)
+		else:
+			self.fDecompButton.SetState(ROOT.kButtonUp)
+		
+	def SetData(self, text):
+		if not text:
+			self.fFitText.Clear()
+		else:
+			self.fFitText.LoadBuffer(text)
+		
+	def SetOptions(self, text):
+		if not text:
+			self.fOptionsText.Clear()
+		else:
+			self.fOptionsText.LoadBuffer(text)

@@ -26,13 +26,16 @@
 
 namespace HDTV {
 
+static int num=0;
+
 std::string GetFuncUniqueName(const char *prefix, void *ptr)
 {
-  // Constructs a unique name for a function by concatenation of an instance-unique prefix
-  // and a textual representation of this .
+  // Constructs a unique name for a function by concatenation of an instance-unique prefix,
+  // a textual representation of this, and an increasing number.
+  // FIXME: not thread safe. The whole requirement of unique names is extremely ugly anyway.
   
   std::ostringstream name;
-  name << prefix << "_" << ptr;
+  name << prefix << "_" << ptr << "_" << ++num;
   
   return name.str();
 }

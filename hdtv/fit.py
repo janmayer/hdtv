@@ -32,7 +32,12 @@ class Fit(Drawable):
 	This Fit object is the graphical representation of a fit in HDTV. 
 	It contains the marker lists and the functions. The actual interface to
 	the C++ fitting routines is the class Fitter.
+
+	All values (fit parameters, fit region, peak list) are in uncalibrated units.
+	If spec has a calibration, they will automatically be converted into 
+	uncalibrated units before passing them to the C++ fitter.
 	"""
+
 	def __init__(self, fitter, region=[], peaks=[], backgrounds=[], color=None):
 		Drawable.__init__(self, color)
 		self.regionMarkers = region
@@ -65,6 +70,7 @@ class Fit(Drawable):
 
 
 	def Draw(self, viewport):
+
 		if self.viewport:
 			if not self.viewport == viewport:
 				# Unlike the Display object of the underlying implementation,
@@ -213,4 +219,37 @@ class Fit(Drawable):
 				for func in self.dispDecompFuncs:
 					func.Hide()
 		
-
+#	def CalibrationChanged(self):
+#		"""
+#		Called when the calibration of the associated spectrum changes
+#		"""
+#		if self.viewport:
+#			self.viewport.LockUpdate()
+#		
+#		if self.dispBgFunc:
+#			self.dispBgFunc.SetCal(self.spec.fCal)
+#		if self.dispFunc:
+#			self.dispFunc.SetCal(self.spec.fCal)
+#		for func in self.dispDecompFuncs:
+#			func.SetCal(self.spec.fCal)
+#			
+#		if self.viewport:
+#			self.viewport.UnlockUpdate()
+#		
+#	def E2Ch(self, e):
+#		if self.spec.fCal:
+#			return self.spec.fCal.E2Ch(e)
+#		else:
+#			return e
+#			
+#	def Ch2E(self, ch):
+#		if self.spec.fCal:
+#			return self.spec.fCal.Ch2E(ch)
+#		else:
+#			return ch
+#			
+#	def dEdCh(self, ch):
+#		if self.spec.fCal:
+#			return self.spec.fCal.dEdCh(ch)
+#		else:
+#			return 1.0
