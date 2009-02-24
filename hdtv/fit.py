@@ -85,8 +85,7 @@ class Fit(Drawable):
 			if not self.showDecomp:
 				# hide it directly, it showDecomp==False
 				func.Hide()
-			self.dispDecompFuncs.append(func)
-		self.dispFuncs = self.dispFuncs+self.dispDecompFuncs
+			self.dispFuncs.append(func)
 		# refresh the markers (do this after the fit, 
 		# because the fit updates the position of the peak markers)
 		for marker in self.peakMarkers+self.regionMarkers+self.bgMarkers:
@@ -126,7 +125,7 @@ class Fit(Drawable):
 			func = self.fitter.bgfitter.GetFunc()
 			self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.FIT_BG_FUNC)
 			if self.fitter.spec.cal:
-				self.dispBgFunc.SetCal(self.spec.cal)
+				self.dispBgFunc.SetCal(self.fitter.spec.cal)
 			
 	
 	def FitPeakFunc(self):
@@ -151,13 +150,14 @@ class Fit(Drawable):
 			func = self.fitter.GetSumFunc()
 			self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.FIT_SUM_FUNC)
 			if self.fitter.spec.cal:
-				self.dispPeakFunc.SetCal(self.spec.cal)
+				self.dispPeakFunc.SetCal(self.fitter.spec.cal)
 			# extract function for each peak (decomposition)
 			for i in range(0, self.fitter.GetNumPeaks()):
 				func = self.fitter.GetPeak(i).GetPeakFunc()
 				dispFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.FIT_DECOMP_FUNC)
 				if self.fitter.spec.cal:
-					dispFunc.SetCal(self.spec.cal)
+					dispFunc.SetCal(self.fitter.spec.cal)
+				self.dispDecompFuncs.append(dispFunc)
 			# update peak markers
 			for (marker, peak) in zip(self.peakMarkers, self.fitter.resultPeaks):
 				marker.p1 = peak.GetPos()

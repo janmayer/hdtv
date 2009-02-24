@@ -1,6 +1,7 @@
 import ROOT
 import hdtv.dlmgr
 import array
+import os
 
 class SpecReaderError(Exception):
 	pass
@@ -60,9 +61,9 @@ class SpecReader:
 		if not fmt:
 			fmt = self.fDefaultFormat
 		if histname == None:
-			histname = fname
+			histname = os.path.basename(fname)
 		if histtitle == None:
-			histtitle = fname
+			histtitle = os.path.basename(fname)
 	
 		if fmt.lower() == 'cracow':
 			hdtv.dlmgr.LoadLibrary("cracowio")

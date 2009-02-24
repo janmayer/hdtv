@@ -38,10 +38,10 @@ ROOT.TH1.AddDirectory(ROOT.kFALSE)
 
 class SpecInterface():
 	"""
-	Hotkeys and useful functions to deal with 1-d spectra
+	User interface to work with 1-d spectra
 	"""
 	def __init__(self, window, spectra):
-		print "Loaded commands for 1-d spectra"
+		print "Loaded user interface  for working with 1-d spectra"
 	
 		self.window = window
 		self.spectra= spectra
@@ -81,20 +81,25 @@ class SpecInterface():
 	
 	
 	def HotkeyShow(self, arg):
+		""" 
+		ShowObjects wrapper for use with Hotkey
+		"""
 		try:
-			self.SpectrumShow(arg.split())
+			ids = [int(a) for a in arg.split()]
+			self.spectra.ShowObjects(ids)
 		except ValueError:
 			self.window.fViewport.SetStatusText("Invalid spectrum identifier: %s" % arg)
 
 		
 	def HotkeyActivate(self, arg):
+		"""
+		ActivateObject wrapper for use with Hotkey
+		"""
 		try:
 			ID = int(arg)
+			self.spectra.ActivateObject(ID)
 		except ValueError:
 			self.window.fViewport.SetStatusText("Invalid id: %s" % arg)
-			return
-		try:
-			self.spectra.ActivateObject(ID)
 		except KeyError:
 			self.window.fViewport.SetStatusText("No such id: %d" % ID)
 
@@ -110,7 +115,7 @@ class SpecInterface():
 		# only one filename is given
 		if type(files) == str or type(files) == unicode:
 			files = [files]
-		nloaded = 0
+		loaded = [] 
 		for f in files:
 			# put fmt if available
 			f = f.rsplit("'", 1)
@@ -129,16 +134,11 @@ class SpecInterface():
 					spec.SetColor(hdtv.color.ColorForID(ID, 1., 1.))
 					self.spectra[ID] = spec
 					self.spectra.ActivateObject(ID)
-					nloaded += 1
-		if nloaded == 0:
-			print "Warning: no spectra loaded."
-		elif nloaded == 1:
-			print "Loaded 1 spectrum"
-		else:
-			print "Loaded %d spectra" % nloaded
+					loaded.append(ID)
 		# Update viewport if required
 		self.window.Expand()
 		self.window.fViewport.UnlockUpdate()
+		return loaded
 
 
 	def CalFromFile(self, fname):
@@ -152,7 +152,7 @@ class SpecInterface():
 			f = open(fname)
 		except IOError, msg:
 			print msg
-			return False
+			return []
 		try:
 			calpoly = []
 			for line in f:
@@ -227,7 +227,13 @@ class TvSpecInterface():
 		"""
 		Load Spectrum from files
 		"""
-		self.specIf.LoadSpectra(files = args)
+		loaded = self.specIf.LoadSpectra(files = args)
+		if len(loaded) == 0:
+			print "Warning: no spectra loaded."
+		elif len(loaded) == 1:
+			print "Loaded 1 spectrum"
+		else:
+			print "Loaded %d spectra" % len(loaded)
 		
 	def SpectrumDelete(self, args):
 		""" 
@@ -386,7 +392,7 @@ class TvSpecInterface():
 					print "calibrated spectrum with id %d" %ID
 				except KeyError:
 					print "Warning: there is no spectrum with id: %s" %ID
-		except ValueError, IndexError:
+		except (ValueError, IndexError):
 			print "Usage: calibration position set <deg> <p0> <p1> <p2> ... [ids]"
 			return False
 		

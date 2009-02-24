@@ -157,8 +157,7 @@ class DrawableCompound(UserDict.DictMixin):
 		Activates the object with id ID, while also highlighting it
 		"""
 		if not ID in self.keys():
-			print "Error: No such ID"
-			return
+			raise KeyError
 		self.viewport.LockUpdate()
 		if self.activeID != None:
 			c = hdtv.color.ColorForID(self.activeID, 1., .5)
@@ -253,7 +252,13 @@ class DrawableCompound(UserDict.DictMixin):
 	
 	def Hide(self):
 		"""
-		Hide all objects
+		Hide the whole object
+		"""
+		self.HideAll()
+			
+	def HideAll(self):
+		"""
+		Hide all 
 		"""
 		self.viewport.LockUpdate()
 		for ID in self.iterkeys():
@@ -261,12 +266,6 @@ class DrawableCompound(UserDict.DictMixin):
 				self.objects[ID].Hide()
 		self.visible.clear()
 		self.viewport.UnlockUpdate()
-			
-	def HideAll(self):
-		"""
-		Hide all - just a wrapper for convenience
-		"""
-		self.Hide()
 			
 	def HideObjects(self, ids):
 		"""
@@ -283,15 +282,18 @@ class DrawableCompound(UserDict.DictMixin):
 					self.visible.discard(ID)
 				except KeyError:
 					print "Warning: ID %d not found" % ID
-		# if there is only one visible object left, activate it
-		if len(self.visible)==1:
-			self.ActivateObject(list(self.visible)[0])
 		self.viewport.UnlockUpdate()
 
 
 	def Show(self):
 		"""
-		Show all
+		Show the whole object
+		"""
+		self.ShowAll()
+		
+	def ShowAll(self):
+		"""
+		Show all 
 		"""
 		self.viewport.LockUpdate()
 		for ID in self.iterkeys():
@@ -299,12 +301,6 @@ class DrawableCompound(UserDict.DictMixin):
 				self.objects[ID].Show()
 		self.visible=set(self.keys())
 		self.viewport.UnlockUpdate()
-		
-	def ShowAll(self):
-		"""
-		Show all - just a wrapper for convenience
-		"""
-		self.Show()
 
 	def ShowObjects(self, ids, clear=True):
 		"""
@@ -325,7 +321,7 @@ class DrawableCompound(UserDict.DictMixin):
 					self.objects[ID].Show()
 					self.visible.add(ID)
 				except KeyError:
-					print "Warning: ID %d not found" % ID
+					print "Warning: ID %s not found" % ID
 		self.viewport.UnlockUpdate()
 
 	def ShowNext(self, nb=1):

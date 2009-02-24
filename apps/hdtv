@@ -40,9 +40,15 @@ s = SpecInterface(window, spectra)
 f = FitInterface(window, spectra)
 
 # for debugging
+import glob
 #s.LoadSpectra('/home/tanja/hdtv/test/spectra/231Th*.ascii')
-s.LoadSpectra('/home/tanja/hdtv/test/spectra/60*')
-
+numbers = [35, 40, 45]
+for n in numbers:
+	ids = s.LoadSpectra('/home/tanja/hdtv/test/spectra/231Th_%s*.ascii' % n)
+	cal = s.CalFromFile('/home/tanja/hdtv/test/spectra/231Th_%s.tvcal' %n)
+	for i in ids:
+		spectra[i].SetCal(cal)
+	
 # Go
 hdtv.cmdline.MainLoop()
 

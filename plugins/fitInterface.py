@@ -19,11 +19,14 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 import ROOT
+import hdtv.cmdline
+import hdtv.cmdhelper
 
 from hdtv.drawable import DrawableCompound
 from hdtv.marker import Marker
 from hdtv.fitter import Fitter
 from hdtv.fit import Fit
+
 
 class SpectrumCompound(DrawableCompound):
 	""" 
@@ -46,36 +49,71 @@ class SpectrumCompound(DrawableCompound):
 		return getattr(self.spec, name)
 
 	def Refresh(self):
+		"""
+		Refresh spectrum and fits
+		"""
 		self.spec.Refresh()
 		DrawableCompound.Refresh(self)
 		
 	def Draw(self, viewport):
+		"""
+		Draw spectrum and fits
+		"""
 		self.spec.Draw(viewport)
 		DrawableCompound.Draw(self, viewport)
 		
 	def Show(self):
+		"""
+		Show the spectrum and all fits that are marked as visible
+		"""
 		self.spec.Show()
-		DrawableCompound.Show(self)
+		# only show objects that have been visible before
+		for i in list(self.visible):
+			self.objects[i].Show()
+			
+	def ShowAll(self):
+		"""
+		Show spectrum and all fits
+		"""
+		DrawableCompound.ShowAll(self)
+		
+	def Remove(self):
+		"""
+		Remove spectrum and fits
+		"""
+		self.spec.Remove()
+		DrawableCompound.Remove(self)
 		
 	def Hide(self):
+		"""
+		Hide the whole object,
+		but remember which fits were visible
+		"""
+		# remove pending Fit
 		if self.pendingFit:
-			for obj in self.pendingFit.dispFuncs:
-				obj.Remove()
+			self.pendingFit.Remove()
 			self.pendingFit = None
+		# hide the spectrum itself
 		self.spec.Hide()
+		# Hide all fits, but remember what was visible
+		visible = self.visible.copy()
 		DrawableCompound.Hide(self)
+		self.visible = visible
 		
 	def HideAll(self):
-		DrawableCompound.Hide(self)
+		"""
+		Hide only the fits
+		"""
+		DrawableCompound.HideAll(self)
 
 
 
 class FitInterface():
 	"""
-	
+	User interface for fitting 1-d spectra
 	"""
 	def __init__(self, window, spectra):
-		print "Loaded commands for 1-d histograms fitting"
+		print "Loaded user interface for fitting"
 		self.window = window
 		self.spectra = spectra
 
@@ -89,85 +127,153 @@ class FitInterface():
 		self.tv = TvFitInterface(self)
 
 		# Register hotkeys
-		self.window.AddHotkey(ROOT.kKey_b, self.PutBackgroundMarker)
-		self.window.AddHotkey(ROOT.kKey_r, self.PutRegionMarker)
-		self.window.AddHotkey(ROOT.kKey_p, self.PutPeakMarker)
+		self.window.AddHotkey(ROOT.kKey_b, self._PutBackgroundMarker)
+		self.window.AddHotkey(ROOT.kKey_r, self._PutRegionMarker)
+		self.window.AddHotkey(ROOT.kKey_p, self._PutPeakMarker)
 		self.window.AddHotkey(ROOT.kKey_B, self.FitBackground)
+		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_B], self.ClearBackground)
 	  	self.window.AddHotkey(ROOT.kKey_F, self.FitPeaks)
 	  	self.window.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_F], self.KeepFit)
 	  	self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], self.ClearFit)
 #	  	self.window.AddHotkey(ROOT.kKey_I, self.Integrate)
 	  	self.window.AddHotkey(ROOT.kKey_D, lambda: self.SetDecomp(True))
 	  	self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_D], lambda: self.SetDecomp(False))
-	
-#		self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_p], ?.ShowPrev)
-#		self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_n], ?.ShowNext)
-#		self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_s],
-#		        lambda: self.window.EnterEditMode(prompt="Show Fit: ",
-#		                                   handler=self.HotkeyShow))
-#		self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_a],
-#		        lambda: self.window.EnterEditMode(prompt="Activate Fit: ",
-#		                                   handler=self.HotkeyActivate))
+		self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_s],
+				lambda: self.window.EnterEditMode(prompt="Show Fit: ",
+		                                   handler=self._HotkeyShow))
+		self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_a],
+		        lambda: self.window.EnterEditMode(prompt="Activate Fit: ",
+		                                   handler=self._HotkeyActivate))
+		self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_p], self._HotkeyShowPrev)
+		self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_n], self._HotkeyShowNext)
 
 
-		# register tv commands
-#		hdtv.cmdline.AddCommand("fit param background degree", self.FitParamBgDeg, nargs=1)
-#		hdtv.cmdline.AddCommand("fit param status", self.FitParamStatus, nargs=0)
-#		hdtv.cmdline.AddCommand("fit param reset", self.FitParamReset, nargs=0)
-
-
-	def PutRegionMarker(self):
-		"Put a region marker at the current cursor position (internal use only)"
-		# FIXME: code very similar to the other put marker functions
-		self.window.PutPairedMarker("X", "REGION", self.activeRegionMarkers, 1)
-		if not self.spectra.activeID==None:
-			specID = self.spectra.activeID
-			try:
-				if self.spectra[specID].pendingFit:
-					self.spectra[specID].pendingFit.Remove()
-					self.spectra[specID].pendingFit = None
-				if not self.spectra[specID].activeID==None:
-					fitID = self.spectra[specID].activeID
-					self.spectra[specID][fitID].Hide()
-			except:
-				pass
+	def _HotkeyShowPrev(self):
+		"""
+		ShowPrev wrapper for use with a Hotkey (internal use)
+		"""
+		if self.spectra.activeID==None:
+			self.window.fViewport.SetStatusText("No active spectrum")
+			return
+		try:
+			self.spectra[self.spectra.activeID].ShowPrev()
+		except AttributeError:
+			self.window.fViewport.SetStatusText("No fits available")
 			
-	def PutBackgroundMarker(self):
-		"Put a background marker at the current cursor position (internal use only)"
+			
+	def _HotkeyShowNext(self):
+		"""
+		ShowNext wrapper for use with a Hotkey (internal use)
+		"""
+		if self.spectra.activeID==None:
+			self.window.fViewport.SetStatusText("No active spectrum")
+			return
+		try:
+			self.spectra[self.spectra.activeID].ShowNext()
+		except AttributeError:
+			self.window.fViewport.SetStatusText("No fits available")
+			
+			
+	def _HotkeyShow(self, arg):
+		"""
+		Show wrapper for use with a Hotkey (internal use)
+		"""
+		if self.spectra.activeID==None:
+			self.window.fViewport.SetStatusText("No active spectrum")
+			return
+		try:
+			ids = [int(a) for a in arg.split()]
+			self.spectra[self.spectra.activeID].ShowObjects(ids)
+		except ValueError:
+			self.window.fViewport.SetStatusText("Invalid fit identifier: %s" % arg)
+
+	def _HotkeyActivate(self, arg):
+		"""
+		ActivateObject wrapper for use with a Hotkey (internal use)
+		"""
+		if self.spectra.activeID==None:
+			self.window.fViewport.SetStatusText("No active spectrum")
+			return
+		try:
+			ID = int(arg)
+			self.spectra[self.spectra.activeID].ActivateObject(ID)
+		except ValueError:
+			self.window.fViewport.SetStatusText("Invalid fit identifier: %s" % arg)
+		except KeyError:
+			self.window.fViewport.SetStatusText("No such id: %d" % ID)
+
+
+	def _PutRegionMarker(self):
+		"""
+		Put a region marker at the current cursor position (internal use only)
+		"""
 		# FIXME: code very similar to the other put marker functions
-		self.window.PutPairedMarker("X", "BACKGROUND", self.activeBgMarkers)
 		if not self.spectra.activeID==None:
 			specID = self.spectra.activeID
 			try:
 				if self.spectra[specID].pendingFit:
+					self.CopyMarkers(self.spectra[specID].pendingFit)
 					self.spectra[specID].pendingFit.Remove()
 					self.spectra[specID].pendingFit = None
 				if not self.spectra[specID].activeID==None:
 					fitID = self.spectra[specID].activeID
+					self.CopyMarkers(self.spectra[specID][fitID])
 					self.spectra[specID][fitID].Hide()
 			except:
 				pass
-		
-		
-	def PutPeakMarker(self):
-		"Put a peak marker at the current cursor position (internal use only)"
+		self.window.PutPairedMarker("X", "REGION", self.activeRegionMarkers, 1)	
+			
+			
+	def _PutBackgroundMarker(self):
+		"""
+		Put a background marker at the current cursor position (internal use only)
+		"""
 		# FIXME: code very similar to the other put marker functions
+		if not self.spectra.activeID==None:
+			specID = self.spectra.activeID
+			try:
+				if self.spectra[specID].pendingFit:
+					self.CopyMarkers(self.spectra[specID].pendingFit)
+					self.spectra[specID].pendingFit.Remove()
+					self.spectra[specID].pendingFit = None
+				if not self.spectra[specID].activeID==None:
+					fitID = self.spectra[specID].activeID
+					self.CopyMarkers(self.spectra[specID][fitID])
+					self.spectra[specID][fitID].Hide()
+			except:
+				pass
+		self.window.PutPairedMarker("X", "BACKGROUND", self.activeBgMarkers)
+		
+		
+	def _PutPeakMarker(self):
+		"""
+		Put a peak marker at the current cursor position (internal use only)
+		"""
+		# FIXME: code very similar to the other put marker functions
+		if not self.spectra.activeID==None:
+			specID = self.spectra.activeID
+			try:
+				if self.spectra[specID].pendingFit:
+					self.CopyMarkers(self.spectra[specID].pendingFit)
+					self.spectra[specID].pendingFit.Remove()
+					self.spectra[specID].pendingFit = None
+				if not self.spectra[specID].activeID==None:
+					fitID = self.spectra[specID].activeID
+					self.CopyMarkers(self.spectra[specID][fitID])
+					self.spectra[specID][fitID].Hide()
+			except:
+				pass
 		pos = self.window.fViewport.GetCursorX()
   		self.activePeakMarkers.append(Marker("PEAK", pos))
   		self.activePeakMarkers[-1].Draw(self.window.fViewport)
-  		if not self.spectra.activeID==None:
-			try:
-				if self.spectra[specID].pendingFit:
-					self.spectra[specID].pendingFit.Remove()
-					self.spectra[specID].pendingFit = None
-				if not self.spectra[specID].activeID==None:
-					fitID = self.spectra[specID].activeID
-					self.spectra[specID][fitID].Hide()
-			except:
-				pass
 
 
 	def FitBackground(self):
+		"""
+		Fit the background
+		
+		This only fits the background with a polynom of self.bgDegree
+		"""
 		if self.spectra.activeID==None:
 			print "There is no active spectrum"
 			return
@@ -179,6 +285,7 @@ class FitInterface():
 			spec = SpectrumCompound(self.window.fViewport, spec)
 			# replace the simple spectrum object by the SpectrumCompound
 			self.spectra[self.spectra.activeID]=spec
+			fit = None
 		if not fit:
 			fitter = Fitter(spec.spec, self.peakModel, self.bgDegree)
 			fit = Fit(fitter, self.activeRegionMarkers, self.activePeakMarkers, 
@@ -186,9 +293,16 @@ class FitInterface():
 		fit.FitBgFunc()
 		fit.Draw(self.window.fViewport)
 		self.spectra[self.spectra.activeID].pendingFit = fit
-		
-		
+		self.activePeakMarkers = []
+		self.activeRegionMarkers = []
+		self.activeBgMarkers = []
+
 	def FitPeaks(self):
+		"""
+		Fit the peak
+		
+		If there are background markers, a background fit it included.
+		"""
 		# get active spectrum
 		if self.spectra.activeID==None:
 			print "There is no active spectrum"
@@ -208,30 +322,39 @@ class FitInterface():
 			fitter = Fitter(spec.spec, self.peakModel, self.bgDegree)
 			fit = Fit(fitter, self.activeRegionMarkers, self.activePeakMarkers, 
 							  self.activeBgMarkers, color=spec.color)
-		else:
-			# update pending fit with current marker positions
-			pass
-			# FIXME: Marker handling!
-			
+		if len(fit.bgMarkers)>0:
+			fit.FitBgFunc()
 		fit.FitPeakFunc()
 		fit.Draw(self.window.fViewport)
 		self.spectra[self.spectra.activeID].pendingFit = fit
 		print fit
+		self.activePeakMarkers = []
+		self.activeRegionMarkers = []
+		self.activeBgMarkers = []
 
 
 	def ActivateFit(self, ID):
-		# get active spectrum
-		if self.spectra.activeID==None:
-			print "There is no active spectrum"
-			return 
-		spec = self.spectra[self.spectra.activeID]
-		spec.ActivateObject(ID)
-		self.CopyMarkers(spec[ID])
+		"""
+		Activate one fit
+		
+		The markers of a activated fit, can be changed and then the fit 
+		can be repeated. If the user decided to keep the new fit, the old 
+		fit will be replaced.
+		"""
+		try:
+			spec = self.spectra[self.spectra.activeID]
+			spec.ActivateObject(ID)
+		except KeyError:
+			print 'There is no active spectrum'
+		except AttributeError:
+			print 'There are no fits for this spectrum'
 
 
 	def KeepFit(self):
 		"""
-		Keep this fit 
+		Keep this fit, 
+		
+		If there is an activated fit, it will be replaced by the new fit.
 		"""
 		# get active spectrum
 		if self.spectra.activeID==None:
@@ -239,10 +362,16 @@ class FitInterface():
 			return 
 		spec = self.spectra[self.spectra.activeID]
 		if not spec.pendingFit:
-			self.FitPeaks()
+			if len(self.activeRegionMarkers)+len(self.activePeakMarkers)>0:
+				self.FitPeaks()
+			else:
+				print "Warning: No Fit available, no action taken"
+				return
 		fitID = spec.activeID
 		if fitID==None:
 			fitID = spec.GetFreeID()
+		else:
+			spec[fitID].Remove()
 		# FIXME: we need SetColor for markers!
 		spec.pendingFit.SetColor(spec.color)
 		spec[fitID] = spec.pendingFit
@@ -251,37 +380,69 @@ class FitInterface():
 
 
 	def ClearFit(self):
-		# get active spectrum
-		if self.spectra.activeID==None:
-			print "There is no active spectrum"
-			return 
-		spec = self.spectra[self.spectra.activeID]
-		if spec.pendingFit:
-			spec.pendingFit.Remove()
-			spec.pendingFit = None
+		"""
+		Clear all fit markers and the pending fit, if there is one
+		"""
+		# remove all markers
 		markers = self.activePeakMarkers+self.activeRegionMarkers+self.activeBgMarkers
 		for marker in markers:
 			marker.Remove()
 		self.activePeakMarkers=[]
 		self.activeRegionMarkers=[]
 		self.activeBgMarkers=[]
+		# remove pending fit, if there is any
+		if self.spectra.activeID==None:
+			print "There is no active spectrum"
+			return 
+		spec = self.spectra[self.spectra.activeID]
+		if hasattr(spec, 'pendingFit') and spec.pendingFit:
+			spec.pendingFit.Remove()
+			spec.pendingFit = None
+		
+		
+	def ClearBackground(self):
+		"""
+		Clear Background markers and fit
+		If there is a pending peak fit, it is repeated without the background
+		"""
+		# remove background markers
+		for marker in self.activeBgMarkers:
+			marker.Remove()
+		self.activeBgMarkers=[]
+		if self.spectra.activeID==None:
+			return 
+		spec = self.spectra[self.spectra.activeID]
+		# adjust pending fit, if needed
+		if hasattr(spec, 'pendingFit') and spec.pendingFit:
+			if spec.pendingFit.dispPeakFunc:
+				# redo PeakFit without Background
+				self.CopyMarkers(spec.pendingFit)
+				spec.pendingFit.Remove()
+				spec.pendingFit = None
+				# delete the background markers of the pending fit
+				for marker in self.activeBgMarkers:
+					marker.Remove()
+				self.activeBgMarkers=[]
+				self.FitPeaks()
+			else: 
+				# remove pending fit as it doesn't contain a peak fit
+				spec.pendingFit.Remove()
+				spec.pendingFit = None		
 				
 	
 	def CopyMarkers(self, fit):
 		"""
-		Copy markers from a fit object
+		Copy markers from a fit object to the activeMarkers lists
 		"""
-		new = []
+		self.activeRegionMarkers = []
 		for marker in fit.regionMarkers:
-			new.append(marker.Copy())
-		self.activeRegionMarkers= new
-		new = []
+			self.activeRegionMarkers.append(marker.Copy())
+		self.activePeakMarkers = []
 		for marker in fit.peakMarkers:
-			new.append(marker.Copy())
-		self.activePeakMarkers = new
+			self.activePeakMarkers.append(marker.Copy())
+		self.activeBgMarkers = []
 		for marker in fit.bgMarkers:
-			new.append(marker.Copy())
-		self.activeBgMarkers = new
+			self.activeBgMarkers.append(marker.Copy())
 		self.window.fViewport.LockUpdate()
 		markers = self.activeRegionMarkers+self.activePeakMarkers+self.activeBgMarkers
 		for marker in markers:
@@ -289,26 +450,26 @@ class FitInterface():
 		self.window.fViewport.UnlockUpdate()
 		
 
-	def SetDecomp(self, stat):
-		pass
+	def SetDecomp(self, stat=True):
+		"""
+		Show peak decomposition
+		"""
+		# get active spectrum
+		if self.spectra.activeID==None:
+			print "There is no active spectrum"
+			return 
+		spec = self.spectra[self.spectra.activeID]
+		try:
+			fit = spec.pendingFit
+			if not fit:
+				fit = spec[spec.activeID]
+			fit.SetDecomp(stat)
+		except AttributeError:
+			print "No fits availabel, no action taken."
+		except KeyError:
+			print "No active fit."
 
-		
-		
-
-class TvFitInterface:
-
-	def __init__(self, fitInterface):
-		self.fitIf = fitInterface
-		self.spectra = self.fitIf.spectra
-
-
-
-
-
-
-
-
-		
+				
 #		def MakePeakModelCmd(name):
 #			return lambda args: self.FitSetPeakModel(name)
 #		for name in hdtv.fit.gPeakModels.iterkeys():
@@ -368,4 +529,96 @@ class TvFitInterface:
 #		# Update options
 #		self.fFitGui.FitUpdateOptions()
 #		self.fFitGui.FitUpdateData()
+
+		
+
+class TvFitInterface:
+	"""
+	TV style interface for fitting
+	"""
+	def __init__(self, fitInterface):
+		self.fitIf = fitInterface
+		self.spectra = self.fitIf.spectra
+
+		# register tv commands
+		hdtv.cmdline.AddCommand("fit list", self.FitList, nargs=0)
+		hdtv.cmdline.AddCommand("fit show", self.FitShow, minargs=1)
+		hdtv.cmdline.AddCommand("fit delete", self.FitDelete, minargs=1)
+		hdtv.cmdline.AddCommand("fit activate", self.FitActivate, nargs=1)
+#		hdtv.cmdline.AddCommand("fit param background degree", self.FitParamBgDeg, nargs=1)
+#		hdtv.cmdline.AddCommand("fit param status", self.FitParamStatus, nargs=0)
+#		hdtv.cmdline.AddCommand("fit param reset", self.FitParamReset, nargs=0)
+
+
+	def FitList(self, args):
+		"""
+		Print a list of all fits belonging to the active spectrum 
+		"""
+		try:
+			spec = self.spectra[self.spectra.activeID]
+			if self.spectra.activeID in self.spectra.visible:
+				visible = True
+			else:
+				visible = False
+			print 'Fits belonging to %s (visible=%s):' %(str(spec), visible)
+			spec.ListObjects()
+		except KeyError:
+			print "No active spectrum"
+		except AttributeError:
+			print "There are no fits for this spectrum"
+		except:
+			print "Usage: fit list"	
+		
+	def FitDelete(self, args):
+		""" 
+		Delete fits
+		"""
+		try:
+			ids = hdtv.cmdhelper.ParseRange(args)
+			if ids == "NONE":
+				return
+			elif ids == "ALL":
+				ids = self.spectra[self.spectra.activeID].keys()
+			self.spectra[self.spectra.activeID].RemoveObjects(ids)
+		except KeyError:
+			print "No active spectrum"
+		except AttributeError:
+			print "There are no fits for this spectrum"
+		except:
+			print "Usage: spectrum delete <ids>"
+			return False
+	
+	def FitShow(self, args):
+		"""
+		Show Fits
+		"""
+		try:
+			ids = hdtv.cmdhelper.ParseRange(args)
+			if not self.spectra.activeID in self.spectra.visible:
+				print "Warning: active spectrum is not visible, no action taken"
+				return True
+			if ids == "NONE":
+				self.spectra[self.spectra.activeID].HideAll()
+			elif ids == "ALL":
+				self.spectra[self.spectra.activeID].ShowAll()
+			else:
+				self.spectra[self.spectra.activeID].ShowObjects(ids)
+		except KeyError:
+			print "No active spectrum"
+		except AttributeError:
+			print "There are no fits for this spectrum"
+		except: 
+			print "Usage: spectrum show <ids>|all|none"
+			return False
+	
+	def FitActivate(self, args):
+		"""
+		Activate one spectra
+		"""
+		try:
+			ID = int(args[0])
+			self.fitIf.ActivateFit(ID)
+		except ValueError:
+			print "Usage: fit activate <id>"
+			return False
 
