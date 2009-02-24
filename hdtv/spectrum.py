@@ -95,14 +95,13 @@ class Spectrum(Drawable):
 		calibration polynom:
 		f(x) = cal[0] + cal[1]*x + cal[2]*x^2 + cal[3]*x^3 + ...
 		"""
-		if cal:
-			calarray = ROOT.TArrayD(len(cal))
-			for (i,c) in zip(range(0,len(cal)),cal):
-				calarray[i] = c
-			# create the calibration object
-			self.cal = ROOT.HDTV.Calibration(calarray)
-		else:
-			self.cal = None
+		if cal==None:
+			cal = [0,1]
+		calarray = ROOT.TArrayD(len(cal))
+		for (i,c) in zip(range(0,len(cal)),cal):
+			calarray[i] = c
+		# create the calibration object
+		self.cal = ROOT.HDTV.Calibration(calarray)
 		# update the display if needed
 		if self.displayObj != None:
 			self.displayObj.SetCal(self.cal)

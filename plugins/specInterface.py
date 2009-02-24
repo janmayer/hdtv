@@ -175,7 +175,6 @@ class SpecInterface():
 	 		print "The number of pairs must be exactly two."
 	 		raise ValueError
 	 	cal = hdtv.util.Linear.FromXYPairs(pairs[0], pairs[1])
-	 	print cal.p0, cal.p1
 		return [cal.p0, cal.p1]
 
 	
@@ -304,6 +303,7 @@ class TvSpecInterface():
 				raise ValueError
 			try:
 				self.spectra[ID].WriteSpectrum(fname, fmt)
+				print "wrote spectrum with id %d to file %s" %(ID, fname)
 			except KeyError:
 				 print "Warning: there is no spectrum with id: %s" %ID
 		except ValueError:
@@ -317,6 +317,8 @@ class TvSpecInterface():
 		try:
 			fname = args[0]
 			calpoly = self.specIf.CalFromFile(fname)
+			print "using calibration polynom of deg %d: %s" %(len(calpoly)-1,
+													["%f" %c for c in calpoly])
 			ids = [int(i) for i in args[1:]]
 			if len(ids)==0:
 				if self.spectra.activeID==None:
@@ -327,6 +329,7 @@ class TvSpecInterface():
 			for ID in ids:
 				try:
 					self.spectra[ID].SetCal(calpoly)
+					print "calibrated spectrum with id %d" %ID
 				except KeyError:
 					print "Warning: there is no spectrum with id: %s" %ID
 		except ValueError:
@@ -336,13 +339,14 @@ class TvSpecInterface():
 		
 	def CalPosEnter(self, args):
 		"""
-		Create calibration from two paires of energy and channel
+		Create calibration from two paires of channel and energy
 		"""
 		try:
 			pairs = []
 			pairs.append([float(args[0]), float(args[1])])
 			pairs.append([float(args[2]), float(args[3])])
 			calpoly = self.specIf.CalFromPairs(pairs)
+			print "using calibration polynom of deg 1: %s" %["%f" %c for c in calpoly]
 			ids = [int(i) for i in args[4:]]
 			if len(ids)==0:
 				if self.spectra.activeID==None:
@@ -353,6 +357,7 @@ class TvSpecInterface():
 			for ID in ids:
 				try:
 					self.spectra[ID].SetCal(calpoly)
+					print "calibrated spectrum with id %d" %ID
 				except KeyError:
 					print "Warning: there is no spectrum with id: %s" %ID
 		except ValueError:
@@ -366,9 +371,9 @@ class TvSpecInterface():
 		"""
 		try:
 			deg = int(args[0])
-			calpoly = [float(i) for i in args[1:deg+1]]
-			print calpoly
-			ids = [int(i) for i in args[deg+1:]]
+			calpoly = [float(i) for i in args[1:deg+2]]
+			print "using calibration polynom of deg %d: %s" %(deg, ["%f" %c for c in calpoly])
+			ids = [int(i) for i in args[deg+2:]]
 			if len(ids)==0:
 				if self.spectra.activeID==None:
 					print "No index is given and there is no active spectrum"
@@ -378,10 +383,11 @@ class TvSpecInterface():
 			for ID in ids:
 				try:
 					self.spectra[ID].SetCal(calpoly)
+					print "calibrated spectrum with id %d" %ID
 				except KeyError:
 					print "Warning: there is no spectrum with id: %s" %ID
-		except ValueError:
-			print "Usage: calibration position set <n> <p0> <p1> <p2> ... [ids]"
+		except ValueError, IndexError:
+			print "Usage: calibration position set <deg> <p0> <p1> <p2> ... [ids]"
 			return False
 		
 		
