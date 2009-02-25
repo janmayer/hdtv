@@ -7,13 +7,62 @@ import hdtv.dlmgr
 hdtv.dlmgr.LoadLibrary("display")
 
 class Drawable:
-	def __init__(self, color=None):
+	def __init__(self, color=None, cal=None):
 		self.viewport = None
 		self.displayObj = None
-		self.color = color
+		self.SetColor(color)
+		self.SetCal(cal)
+
 
 	def __str__(self):
-		return 'drawable object'
+		return str(self.displayObj)
+
+	def __setattr__(self, name, value):
+		if name=='cal':
+			self.SetCal(value)
+		elif name == 'color':
+			self.SetColor(value)
+		else:
+			# use all other values as they are
+			self.__dict__[name]=value
+			
+	def SetColor(self, color):
+		"""
+		set color of the object 
+		"""
+		if color:
+			self.__dict__['color'] = color
+		# update the display if needed	
+		if self.displayObj != None:
+			try:
+				self.displayObj.SetColor(color)
+			except:
+				pass
+
+	def SetCal(self, cal):
+		"""
+		Set calibration
+
+		The Parameter cal is either a sequence with the coefficients 
+		of the calibration polynom:
+		f(x) = cal[0] + cal[1]*x + cal[2]*x^2 + cal[3]*x^3 + ...
+		or already a ROOT.HDTV.Calibration object
+		"""
+		if not isinstance(cal, ROOT.HDTV.Calibration):
+			if cal==None:
+				cal = [0,1]
+			calarray = ROOT.TArrayD(len(cal))
+			for (i,c) in zip(range(0,len(cal)),cal):
+				calarray[i] = c
+			# create the calibration object
+			cal = ROOT.HDTV.Calibration(calarray)
+		self.__dict__['cal']=cal
+		# update the display if needed
+		if self.displayObj != None:
+			try:
+				self.displayObj.SetCal(self.cal)
+			except:
+				pass
 
 	def Draw(self, viewport):
 		"""
@@ -53,19 +102,7 @@ class Drawable:
 		"""
 		self.displayObj.Hide()
 
-	def SetColor(self, color):
-		"""
-		set color of the object 
-		"""
-		if color:
-			self.color = color
-		# update the display if needed	
-		if self.displayObj != None:
-			try:
-				self.displayObj.SetColor(color)
-			except:
-				# FIXME: should not happen!
-				print 'SetColor failed for %s' % self.displayObj
+
 		
 	def ToTop(self):
 		"""
@@ -403,5 +440,11 @@ class DrawableCompound(UserDict.DictMixin):
 		self.viewport.LockUpdate()
 		for obj in self.itervalues():
 			obj.SetColor(color)
+		self.viewport.UnlockUpdate()
+		
+	def SetCal(self, cal):
+		self.viewport.LockUpdate()
+		for obj in self.itervalues():
+			obj.SetCal(cal)
 		self.viewport.UnlockUpdate()
 			

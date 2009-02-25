@@ -106,6 +106,9 @@ class SpectrumCompound(DrawableCompound):
 		"""
 		DrawableCompound.HideAll(self)
 
+	def SetCal(self, cal):
+		self.spec.SetCal(cal)
+		DrawableCompound.SetCal(self)
 
 
 class FitInterface:
@@ -289,7 +292,7 @@ class FitInterface:
 		if not fit:
 			fitter = Fitter(spec.spec, self.peakModel, self.bgDegree)
 			fit = Fit(fitter, self.activeRegionMarkers, self.activePeakMarkers, 
-							  self.activeBgMarkers, color=spec.color)
+							  self.activeBgMarkers, color=spec.color, cal=spec.cal)
 		fit.FitBgFunc()
 		fit.Draw(self.window.fViewport)
 		self.spectra[self.spectra.activeID].pendingFit = fit
@@ -321,7 +324,7 @@ class FitInterface:
 			# create fresh fit
 			fitter = Fitter(spec.spec, self.peakModel, self.bgDegree)
 			fit = Fit(fitter, self.activeRegionMarkers, self.activePeakMarkers, 
-							  self.activeBgMarkers, color=spec.color)
+							  self.activeBgMarkers, color=spec.color, cal=spec.cal)
 		if len(fit.bgMarkers)>0:
 			fit.FitBgFunc()
 		fit.FitPeakFunc()

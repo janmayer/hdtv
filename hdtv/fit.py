@@ -33,13 +33,12 @@ class Fit(Drawable):
 	It contains the marker lists and the functions. The actual interface to
 	the C++ fitting routines is the class Fitter.
 
-	All values (fit parameters, fit region, peak list) are in uncalibrated units.
-	If spec has a calibration, they will automatically be converted into 
-	uncalibrated units before passing them to the C++ fitter.
+	All internal values (fit parameters, fit region, peak list) are in 
+	uncalibrated units. 
 	"""
 
-	def __init__(self, fitter, region=[], peaks=[], backgrounds=[], color=None):
-		Drawable.__init__(self, color)
+	def __init__(self, fitter, region=[], peaks=[], backgrounds=[], 
+	             color=None, cal=None):
 		self.regionMarkers = region
 		self.peakMarkers = peaks
 		self.bgMarkers = backgrounds
@@ -70,7 +69,9 @@ class Fit(Drawable):
 
 
 	def Draw(self, viewport):
-
+		"""
+		Draw
+		"""
 		if self.viewport:
 			if not self.viewport == viewport:
 				# Unlike the Display object of the underlying implementation,
@@ -100,6 +101,9 @@ class Fit(Drawable):
 		
 
 	def Refresh(self):
+		"""
+		Refresh
+		"""
 		# repeat the fits
 		self.viewport.LockUpdate()
 		if self.dispBgFunc:
@@ -191,17 +195,34 @@ class Fit(Drawable):
 		for obj in objs:
 			obj.Remove()
 		self.viewport.UnlockUpdate()
+		
+		
+	def SetCal(self, cal):
+		self.viewport.LockUpdate()
+		for marker in self.peakMarkers+self.regionMarkers+self.bgMarkers:
+			marker.SetCal(cal)
+		if cal==None:
+			cal = [0,1]
+		calarray = ROOT.TArrayD(len(cal))
+		for (i,c) in zip(range(0,len(cal)),cal):
+			calarray[i] = c
+		# create the calibration object
+		self.cal = ROOT.HDTV.Calibration(calarray)
+		for obj in self.dispFuncs:
+			obj.SetCal(cal)
+		self.viewport.UnlockUpdate()
 
 
 	def SetColor(self, color):
 		if self.viewport:
 			self.viewport.LockUpdate()
-		# FIXME: include markers (they do not support SetColor!)
+		# FIXME: include markers (they do not support SetColor at the moment!)
 		objs = self.dispFuncs
 		for obj in objs:
 			obj.SetColor(color)
 		if self.viewport:
 			self.viewport.UnlockUpdate()
+			
 		
 	def SetDecomp(self, stat=True):
 		"""

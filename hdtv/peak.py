@@ -27,9 +27,6 @@ class EEPeak:
 		self.gamma = gamma
 		self.vol = vol
 		
-	#def __getattr__(self, key):
-	#	if key in ("fit", "pos", "amp"
-		
 	def GetPos(self):
 		return self.pos.value
 		
@@ -49,36 +46,39 @@ class EEPeak:
 class TheuerkaufPeak:
 	"""
 	Peak object for the Theuerkauf (classic TV) fitter
+	
+	All values with the exception of pos_cal and fwhm_cal are uncalibrated.
 	"""
-	def __init__(self, fit, pos_uncal, vol, fwhm_uncal, tl, tr, sh, sw):
-		self.fit = fit
-		self.pos_uncal = pos_uncal
+	def __init__(self, spec, pos, vol, fwhm, tl, tr, sh, sw):
+		# all values uncalibrated
+		self.spec = spec
+		self.pos = pos
 		self.vol = vol
-		self.fwhm_uncal = fwhm_uncal
+		self.fwhm = fwhm
 		self.tl = tl
 		self.tr = tr
 		self.sh = sh
 		self.sw = sw
 		
-	
 	def __getattr__(self, key):
+		"""
+		Calculate calibrated values for pos and fwhm on the fly with the 
+		current calibration.
+		"""
 		if key == "pos_cal":
-			pos_cal_value = self.fit.Ch2E(self.pos_uncal.value)
-			pos_cal_error = abs(self.fit.dEdCh(self.pos_uncal.value) * self.pos_uncal.error)
-			return FitValue(pos_cal_value, pos_cal_error, self.pos_uncal.free)
+			pos_cal_value = self.spec.cal.Ch2E(self.pos.value)
+			pos_cal_error = abs(self.spec.cal.dEdCh(self.pos.value) * self.pos.error)
+			return FitValue(pos_cal_value, pos_cal_error, self.pos.free)
 		elif key == "fwhm_cal":
-			hwhm_uncal_value = self.fwhm_uncal.value / 2.
-			fwhm_cal_value = self.fit.Ch2E(self.pos_uncal.value + hwhm_uncal_value) \
-			                   - self.fit.Ch2E(self.pos_uncal.value - hwhm_uncal_value)
+			hwhm_value = self.fwhm.value / 2.
+			fwhm_cal_value = self.spec.cal.Ch2E(self.pos.value + hwhm_value) \
+			                   - self.spec.cal.Ch2E(self.pos.value - hwhm_value)
 			# This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
 			#  (which is true for Ch2E \approx linear)
-			fwhm_cal_error = abs( (self.fit.dEdCh(self.pos_uncal.value + hwhm_uncal_value) / 2. \
-			                        + self.fit.dEdCh(self.pos_uncal.value - hwhm_uncal_value) / 2. ) \
-			                      * self.fwhm_uncal.error)
-			return FitValue(fwhm_cal_value, fwhm_cal_error, self.fwhm_uncal.free)
-		else:
-			return self.__dict__[key]
-		
+			fwhm_cal_error = abs( (self.spec.cal.dEdCh(self.pos.value + hwhm_value) / 2. \
+			                        + self.spec.cal.dEdCh(self.pos.value - hwhm_value) / 2. ) \
+			                      * self.fwhm.error)
+			return FitValue(fwhm_cal_value, fwhm_cal_error, self.fwhm.free)
 	
 	def __str__(self):
 		text = ""
@@ -117,25 +117,25 @@ class PeakModel:
 	"""
 	def __init__(self):
 		self.fGlobalParams = dict()
-		self.fCal = None
-		
-	def E2Ch(self, e):
-		if self.fCal:
-			return self.fCal.E2Ch(e)
-		else:
-			return e
-			
-	def Ch2E(self, ch):
-		if self.fCal:
-			return self.fCal.Ch2E(ch)
-		else:
-			return ch
-			
-	def dEdCh(self, ch):
-		if self.fCal:
-			return self.fCal.dEdCh(ch)
-		else:
-			return 1.0
+#		self.fCal = None
+#		
+#	def E2Ch(self, e):
+#		if self.fCal:
+#			return self.fCal.E2Ch(e)
+#		else:
+#			return e
+#			
+#	def Ch2E(self, ch):
+#		if self.fCal:
+#			return self.fCal.Ch2E(ch)
+#		else:
+#			return ch
+#			
+#	def dEdCh(self, ch):
+#		if self.fCal:
+#			return self.fCal.dEdCh(ch)
+#		else:
+#			return 1.0
 		
 	def ResetGlobalParams(self):
 		self.fGlobalParams.clear()
@@ -234,7 +234,7 @@ class PeakModel:
 		else:
 			self.fParStatus[parname] = self.ParseParamStatus(parname, status)
 		
-	def GetParam(self, name, peak_id, pos_uncal, ival=None):
+	def GetParam(self, name, peak_id, pos, ival=None):
 		"""
 		Return an appropriate HDTV.Fit.Param object for the specified parameter
 		"""
@@ -266,7 +266,7 @@ class PeakModel:
 		elif parStatus == "none":
 			return ROOT.HDTV.Fit.Param.None()
 		elif type(parStatus) == float:
-			return ROOT.HDTV.Fit.Param.Fixed(self.SpecToFitter(name, parStatus, pos_uncal))
+			return ROOT.HDTV.Fit.Param.Fixed(parStatus)
 		else:
 			raise RuntimeError, "Invalid parameter status"
 			
@@ -296,13 +296,13 @@ class PeakModelTheuerkauf(PeakModel):
 		"""
 		return self.fOrderedParamKeys
 		
-	def CopyPeak(self, fit, cpeak):
-		fwhm_uncal_value = cpeak.GetSigma() * 2. * math.sqrt(2. * math.log(2.))
-		fwhm_uncal_error = cpeak.GetSigmaError() * 2. * math.sqrt(2. * math.log(2.))
+	def CopyPeak(self, cpeak):
+		fwhm_value = cpeak.GetSigma() * 2. * math.sqrt(2. * math.log(2.))
+		fwhm_error = cpeak.GetSigmaError() * 2. * math.sqrt(2. * math.log(2.))
 		
-		pos_uncal = FitValue(cpeak.GetPos(), cpeak.GetPosError(), cpeak.PosIsFree())
+		pos= FitValue(cpeak.GetPos(), cpeak.GetPosError(), cpeak.PosIsFree())
 		vol = FitValue(cpeak.GetVol(), cpeak.GetVolError(), cpeak.VolIsFree())
-		fwhm_uncal = FitValue(fwhm_uncal_value, fwhm_uncal_error, cpeak.SigmaIsFree())
+		fwhm = FitValue(fwhm_value, fwhm_error, cpeak.SigmaIsFree())
 		
 		if cpeak.HasLeftTail():
 			tl = FitValue(cpeak.GetLeftTail(), cpeak.GetLeftTailError(), 
@@ -324,7 +324,7 @@ class PeakModelTheuerkauf(PeakModel):
 		else:
 			sh = sw = None
 			
-		return TheuerkaufPeak(fit, pos_uncal, vol, fwhm_uncal, tl, tr, sh, sw)
+		return TheuerkaufPeak(cpeak.spec, pos, vol, fwhm, tl, tr, sh, sw)
 		
 	def ResetParamStatus(self):
 		"""
@@ -338,46 +338,43 @@ class PeakModelTheuerkauf(PeakModel):
 		self.fParStatus["sh"] = "none"
 		self.fParStatus["sw"] = "hold"
 		
-	def SpecToFitter(self, parname, value, pos_uncal):
-		"""
-		Convert a value from calibrated (spectrum) to uncalibrated (fitter) units
-		"""
-		if parname == "pos":
-			return self.E2Ch(value)
-		elif parname == "width":
-			pos_cal = self.Ch2E(pos_uncal)
-			fwhm_uncal = self.E2Ch(pos_cal + value/2.) - self.E2Ch(pos_cal - value/2.)
-			# Note that the underlying fitter uses ``sigma'' as a parameter
-			#  (see HDTV technical documentation in the wiki)
-			return fwhm_uncal / (2. * math.sqrt(2. * math.log(2.)))
-		elif parname in ("vol", "tl", "tr", "sh", "sw"):
-			return value
-		else:
-			raise RuntimeError, "Unexpected parameter name"
+#	def SpecToFitter(self, parname, value, pos_uncal):
+#		"""
+#		Convert a value from calibrated (spectrum) to uncalibrated (fitter) units
+#		"""
+#		if parname == "pos":
+#			return self.E2Ch(value)
+#		elif parname == "width":
+#			pos_cal = self.Ch2E(pos_uncal)
+#			fwhm_uncal = self.E2Ch(pos_cal + value/2.) - self.E2Ch(pos_cal - value/2.)
+#			# Note that the underlying fitter uses ``sigma'' as a parameter
+#			#  (see HDTV technical documentation in the wiki)
+#			return fwhm_uncal / (2. * math.sqrt(2. * math.log(2.)))
+#		elif parname in ("vol", "tl", "tr", "sh", "sw"):
+#			return value
+#		else:
+#			raise RuntimeError, "Unexpected parameter name"
 		
-	def GetFitter(self, region_cal, peaklist_cal):
+	def GetFitter(self, region, peaklist):
 		# Define a fitter and a region
-		self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(self.E2Ch(region_cal[0]),
-		                                              self.E2Ch(region_cal[1]))
+		self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(region[0],region[1])
 		self.ResetGlobalParams()
 		
 		# Check if enough values are provided in case of per-peak parameters
 		#  (the function raises a RuntimeError if the check fails)
-		self.CheckParStatusLen(len(peaklist_cal))
-		
-		peaklist_uncal = [self.E2Ch(x) for x in peaklist_cal]
+		self.CheckParStatusLen(len(peaklist))
 		
 		# Copy peaks to the fitter
-		for pid in range(0, len(peaklist_uncal)):
-			pos_uncal = peaklist_uncal[pid]
+		for pid in range(0, len(peaklist)):
+			pos = peaklist[pid]
 			
-			pos = self.GetParam("pos", pid, pos_uncal, pos_uncal)
-			vol = self.GetParam("vol", pid, pos_uncal)
-			sigma = self.GetParam("width", pid, pos_uncal)
-			tl = self.GetParam("tl", pid, pos_uncal)
-			tr = self.GetParam("tr", pid, pos_uncal)
-			sh = self.GetParam("sh", pid, pos_uncal)
-			sw = self.GetParam("sw", pid, pos_uncal)
+			pos = self.GetParam("pos", pid, pos, pos)
+			vol = self.GetParam("vol", pid, pos)
+			sigma = self.GetParam("width", pid, pos)
+			tl = self.GetParam("tl", pid, pos)
+			tr = self.GetParam("tr", pid, pos)
+			sh = self.GetParam("sh", pid, pos)
+			sw = self.GetParam("sw", pid, pos)
 			
 			peak = ROOT.HDTV.Fit.TheuerkaufPeak(pos, vol, sigma, tl, tr, sh, sw)
 			self.fFitter.AddPeak(peak)
@@ -495,53 +492,53 @@ class PeakModelEE(PeakModel):
 			
 		return self.fFitter
 
-# Obsolete
-class Peak:
-	"""
-	Peak object
-	"""
-	def __init__(self, pos, fwhm, vol, ltail=None, rtail=None, cal=None):
-		# f(x) = norm * exp(-0.5 * ((x - mean) / sigma)**2)
-		self.pos = pos
-		self.fwhm = fwhm
-		self.vol = vol
+## Obsolete
+#class Peak:
+#	"""
+#	Peak object
+#	"""
+#	def __init__(self, pos, fwhm, vol, ltail=None, rtail=None, cal=None):
+#		# f(x) = norm * exp(-0.5 * ((x - mean) / sigma)**2)
+#		self.pos = pos
+#		self.fwhm = fwhm
+#		self.vol = vol
 
-		# Tails
-		if ltail and ltail < 1000:
-			self.ltail = ltail
-		else:
-			self.ltail = None
-		if rtail and rtail < 1000:
-			self.rtail = rtail
-		else:
-			self.rtail = None
-		self.cal = cal
-		# TODO: Errors
-		
-	def GetPos(self):
-		if self.cal:
-			return self.cal.Ch2E(self.pos)
-		else:
-			return self.pos
+#		# Tails
+#		if ltail and ltail < 1000:
+#			self.ltail = ltail
+#		else:
+#			self.ltail = None
+#		if rtail and rtail < 1000:
+#			self.rtail = rtail
+#		else:
+#			self.rtail = None
+#		self.cal = cal
+#		# TODO: Errors
+#		
+#	def GetPos(self):
+#		if self.cal:
+#			return self.cal.Ch2E(self.pos)
+#		else:
+#			return self.pos
 
-	def __str__(self):
-		pos = self.pos
-		fwhm = self.fwhm
-		if self.cal:
-			cal = self.cal
-			pos = cal.Ch2E(self.pos)
-			fwhm = cal.Ch2E(self.pos+self.fwhm/2.)-cal.Ch2E(self.pos-self.fwhm/2.)
+#	def __str__(self):
+#		pos = self.pos
+#		fwhm = self.fwhm
+#		if self.cal:
+#			cal = self.cal
+#			pos = cal.Ch2E(self.pos)
+#			fwhm = cal.Ch2E(self.pos+self.fwhm/2.)-cal.Ch2E(self.pos-self.fwhm/2.)
 
-		text = "pos: %10.3f   fwhm: %7.3f   vol: %8.1f   " %(pos, fwhm, self.vol)
-		
-		if self.ltail or self.rtail:
-			text += "\n"
-		
-		# Tails
-		if self.ltail:
-			text+="lefttail: %7.3f   " %self.ltail
-		
-		if self.rtail:
-			text+="righttail: %7.3f   "%self.rtail
-		
-		return text
+#		text = "pos: %10.3f   fwhm: %7.3f   vol: %8.1f   " %(pos, fwhm, self.vol)
+#		
+#		if self.ltail or self.rtail:
+#			text += "\n"
+#		
+#		# Tails
+#		if self.ltail:
+#			text+="lefttail: %7.3f   " %self.ltail
+#		
+#		if self.rtail:
+#			text+="righttail: %7.3f   "%self.rtail
+#		
+#		return text

@@ -23,9 +23,8 @@ class Spectrum(Drawable):
 	
 	A spectrum object can contain a number of fits.
 	"""
-	def __init__(self, hist, cal=None, color=None):
-		Drawable.__init__(self, color)
-		self.cal = cal
+	def __init__(self, hist, color=None, cal=None):
+		Drawable.__init__(self, color, cal)
 		self.fHist = hist
 
 	def __str__(self):
@@ -89,52 +88,34 @@ class Spectrum(Drawable):
 			return False
 		return True
 
-	def SetCal(self, cal):
-		"""
-		set calibration
-
-		The Parameter cal is a sequence with the coefficients of the
-		calibration polynom:
-		f(x) = cal[0] + cal[1]*x + cal[2]*x^2 + cal[3]*x^3 + ...
-		"""
-		if cal==None:
-			cal = [0,1]
-		calarray = ROOT.TArrayD(len(cal))
-		for (i,c) in zip(range(0,len(cal)),cal):
-			calarray[i] = c
-		# create the calibration object
-		self.cal = ROOT.HDTV.Calibration(calarray)
-		# update the display if needed
-		if self.displayObj != None:
-			self.displayObj.SetCal(self.cal)
 		
-
-	def GetPeakList(self):
-		"Returns a list of all fitted peaks in this spectrum"
-		peaks = []
-		for fit in self.fFits:
-			peaks += fit.resultPeaks
-		return peaks
+# FIXME: does not belong here!
+#	def GetPeakList(self):
+#		"Returns a list of all fitted peaks in this spectrum"
+#		peaks = []
+#		for fit in self.fFits:
+#			peaks += fit.resultPeaks
+#		return peaks
 		
-	
-	def E2Ch(self, e):
-		"""
-		calculate channel values to energies
-		"""
-		if self.cal:
-			return self.cal.E2Ch(e)
-		else:
-			return e
-			
+# FIXME: does not belong here!
+#	def E2Ch(self, e):
+#		"""
+#		calculate channel values to energies
+#		"""
+#		if self.cal:
+#			return self.cal.E2Ch(e)
+#		else:
+#			return e
+#			
 
-	def Ch2E(self, ch):
-		"""
-		calculate energies to channels
-		"""
-		if self.cal:
-			return self.cal.Ch2E(ch)
-		else:
-			return ch
+#	def Ch2E(self, ch):
+#		"""
+#		calculate energies to channels
+#		"""
+#		if self.cal:
+#			return self.cal.Ch2E(ch)
+#		else:
+#			return ch
 
 
 	def ToTop(self):

@@ -9,16 +9,16 @@ class Marker(Drawable):
 	X: BACKGROUND", "CUT_BG", "REGION", "CUT", "PEAK", "XZOOM
 	Y: YZOOM
 	"""
-	def __init__(self, mtype, p1, color=None):
-		Drawable.__init__(self, color)
+	def __init__(self, mtype, p1, color=None, cal=None):
+		Drawable.__init__(self, color, cal)
 		self.mtype = mtype
-		self.p1 = p1
-		self.p2 = None
 		# define the xytype of the marker
 		if mtype in ["BACKGROUND", "CUT_BG", "REGION", "CUT", "PEAK", "XZOOM"]:
 		    self.xytype = "X"
 		if mtype in ["YZOOM"]:
 		    self.xytype = "Y"
+		self.p1 = p1
+		self.p2 = None
 		# define the color
 		if color:
 			self.color = color
@@ -32,11 +32,16 @@ class Marker(Drawable):
 			elif mtype in ["XZOOM", "YZOOM"]:
 				self.color = 10
 		
-
+		
 	def __str__(self):
 		return '%s marker at %s' %(self.mtype, self.p1)
-	
 		
+	def __setattr__(self, name, value):
+		if not value==None and name in ['p1','p2'] and self.xytype=="X":
+			self.__dict__[name]=self.cal.E2Ch(value)
+		else:
+			self.__dict__[name]=value
+
 	def Draw(self, viewport):
 		""" 
 		Draw the marker
@@ -78,10 +83,23 @@ class Marker(Drawable):
 				self.displayObj.SetPos(self.p1)
 
 
-	def Copy(self):
-		new = Marker(self.mtype, self.p1, self.color)
-		new.p2 = self.p2
+	def Copy(self, cal=None):
+		"""
+		Create a copy of this marker 
+		
+		The calibration of the new marker is defined by the parameter cal.
+		If cal is not given, this leads to a copy with calibrated values.
+		"""
+		# p1 and p2 are automatically transferred to uncalibrated values 
+		# in the creation of a marker, thus we need calibrated values here
+		# If no calibration is given, this leads to a copy of the marker 
+		# with calibrated values.
+		p1=self.cal.Ch2E(self.p1)
+		p2=self.cal.Ch2E(self.p2)
+		new = Marker(self.mtype, p1, self.color, cal)
+		new.p2 = p2
 		return new
 		
 	
+
 	

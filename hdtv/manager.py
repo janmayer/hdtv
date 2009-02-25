@@ -129,7 +129,7 @@ class ObjectManager(UserDict.DictMixin):
 				stat += " "
 			print "%d %s %s" % (ID, stat, obj)
 			
-			
+# FIXME: INTEGRATE THIS!
 	def FindSpectrumByName(self, name):
 		"""
 		Find the spectrum object whose ROOT histogram has the given name.
@@ -142,7 +142,7 @@ class ObjectManager(UserDict.DictMixin):
 					return obj
 		return None
 			
-			
+# FIXME: INTEGRATE THIS!
 	def ReadCalibrationList(self, fname, warn_notfound=False):
 		"""
 		Reads calibrations from a calibration list file. The file has the format

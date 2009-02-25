@@ -44,7 +44,7 @@ class Fitter:
 		# do the background fit
 		bgfitter = ROOT.HDTV.Fit.PolyBg(self.bgdeg)
 		for bg in backgrounds:
-			bgfitter.AddRegion(self.spec.E2Ch(bg[0]), self.spec.E2Ch(bg[1]))
+			bgfitter.AddRegion(bg[0], bg[1])
 		self.bgfitter = bgfitter
 		self.bgfitter.Fit(self.spec.fHist)
 
