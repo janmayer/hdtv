@@ -27,28 +27,26 @@ hdtv.cmdline.SetReadlineHistory(hdtvpath + "/hdtv_history")
 hdtv.cmdline.SetInteractiveDict(locals())
 # import hdtv.config
 
-from hdtv.window import Window
-from hdtv.drawable import DrawableCompound
+import hdtv.window
+import hdtv.drawable 
+import specInterface 
+import fitInterface 
 
-from specInterface import SpecInterface
-from fitInterface import FitInterface
+window = hdtv.window.Window() 
+spectra = hdtv.drawable.DrawableCompound(window.fViewport)
 
-window = Window() 
-spectra = DrawableCompound(window.fViewport)
-
-s = SpecInterface(window, spectra)
-
-f = FitInterface(window, spectra)
+s = specInterface.SpecInterface(window, spectra)
+f = fitInterface.FitInterface(window, spectra)
 
 # for debugging
-import glob
-#s.LoadSpectra('/home/tanja/hdtv/test/spectra/231Th*.ascii')
-numbers = [35, 40, 45]
-for n in numbers:
-	ids = s.LoadSpectra('/home/tanja/hdtv/test/spectra/231Th_%s*.ascii' % n)
-	cal = s.CalFromFile('/home/tanja/hdtv/test/spectra/231Th_%s.tvcal' %n)
-	for i in ids:
-		spectra[i].SetCal(cal)
+#import glob
+#s.LoadSpectra('/home/tanja/hdtv/test/spectra/60Co_gamma.lc2')
+#numbers = [35, 40, 45]
+#for n in numbers:
+#	ids = s.LoadSpectra('/home/tanja/hdtv/test/spectra/231Th_%s*.ascii' % n)
+#	cal = s.CalFromFile('/home/tanja/hdtv/test/spectra/231Th_%s.tvcal' %n)
+#	for i in ids:
+#		spectra[i].SetCal(cal)
 	
 # Go
 hdtv.cmdline.MainLoop()

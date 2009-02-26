@@ -2,6 +2,7 @@ import ROOT
 import os
 import UserDict
 
+import hdtv.util
 import hdtv.dlmgr
 
 hdtv.dlmgr.LoadLibrary("display")
@@ -10,8 +11,8 @@ class Drawable:
 	def __init__(self, color=None, cal=None):
 		self.viewport = None
 		self.displayObj = None
-		self.SetColor(color)
-		self.SetCal(cal)
+		self.__dict__['color'] = color
+		self.__dict__['cal'] = hdtv.util.MakeCalibration(cal) 
 
 
 	def __str__(self):
@@ -33,11 +34,10 @@ class Drawable:
 		if color:
 			self.__dict__['color'] = color
 		# update the display if needed	
-		if self.displayObj != None:
-			try:
-				self.displayObj.SetColor(color)
-			except:
-				pass
+		try:
+			self.displayObj.SetColor(color)
+		except:
+			pass
 
 	def SetCal(self, cal):
 		"""
@@ -48,21 +48,12 @@ class Drawable:
 		f(x) = cal[0] + cal[1]*x + cal[2]*x^2 + cal[3]*x^3 + ...
 		or already a ROOT.HDTV.Calibration object
 		"""
-		if not isinstance(cal, ROOT.HDTV.Calibration):
-			if cal==None:
-				cal = [0,1]
-			calarray = ROOT.TArrayD(len(cal))
-			for (i,c) in zip(range(0,len(cal)),cal):
-				calarray[i] = c
-			# create the calibration object
-			cal = ROOT.HDTV.Calibration(calarray)
-		self.__dict__['cal']=cal
+		self.__dict__['cal']=hdtv.util.MakeCalibration(cal)
 		# update the display if needed
-		if self.displayObj != None:
-			try:
-				self.displayObj.SetCal(self.cal)
-			except:
-				pass
+		try:
+			self.displayObj.SetCal(self.cal)
+		except:
+			pass
 
 	def Draw(self, viewport):
 		"""
@@ -189,19 +180,22 @@ class DrawableCompound(UserDict.DictMixin):
 			print "%d %s %s" % (ID, stat, obj)
 			
 
-	def ActivateObject(self, ID):
+	def ActivateObject(self, ID=None):
 		"""
 		Activates the object with id ID, while also highlighting it
 		"""
-		if not ID in self.keys():
-			raise KeyError
 		self.viewport.LockUpdate()
 		if self.activeID != None:
 			c = hdtv.color.ColorForID(self.activeID, 1., .5)
 			self.objects[self.activeID].SetColor(c)
-		self.objects[ID].SetColor(hdtv.color.ColorForID(ID, 1., 1.))
-		self.objects[ID].ToTop()
-		self.activeID = ID
+		if ID==None:
+			self.activeID=None
+		elif not ID in self.keys():
+			raise KeyError
+		else:
+			self.objects[ID].SetColor(hdtv.color.ColorForID(ID, 1., 1.))
+			self.objects[ID].ToTop()
+			self.activeID = ID
 		self.viewport.UnlockUpdate()
 	
 		

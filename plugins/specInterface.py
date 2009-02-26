@@ -41,7 +41,7 @@ class SpecInterface:
 	User interface to work with 1-d spectra
 	"""
 	def __init__(self, window, spectra):
-		print "Loaded user interface  for working with 1-d spectra"
+		print "Loaded user interface for working with 1-d spectra"
 	
 		self.window = window
 		self.spectra= spectra
@@ -252,7 +252,8 @@ class TvSpecInterface:
 		hdtv.cmdline.AddCommand("spectrum show", self.SpectrumShow, minargs=1)
 		hdtv.cmdline.AddCommand("spectrum update", self.SpectrumUpdate, minargs=1)
 		hdtv.cmdline.AddCommand("spectrum write", self.SpectrumWrite, minargs=1, maxargs=2)
-			
+		hdtv.cmdline.AddCommand("spectrum expand", self.SpectrumExpand, maxargs=2)
+		
 		# calibration commands
 		hdtv.cmdline.AddCommand("calibration position read", self.CalPosRead, minargs=1,fileargs=True)
 		hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, minargs=4)
@@ -369,6 +370,10 @@ class TvSpecInterface:
 		except ValueError:
 			print "Usage: spectrum write <filename>'<format> [id]"
 			return False
+			
+	def SpectrumExpand(self, args):
+		#FIXME
+		pass
 
 	def CalPosRead(self, args):
 		"""
@@ -379,19 +384,25 @@ class TvSpecInterface:
 			calpoly = self.specIf.CalFromFile(fname)
 			print "using calibration polynom of deg %d: %s" %(len(calpoly)-1,
 													["%f" %c for c in calpoly])
-			ids = [int(i) for i in args[1:]]
-			if len(ids)==0:
+			if len(args[1:])==0:
 				if self.spectra.activeID==None:
 					print "No index is given and there is no active spectrum"
 					raise ValueError
 				else:
 					ids = [self.spectra.activeID]
+			else:
+				ids = hdtv.cmdhelper.ParseRange(args[1:])
+			if ids=="NONE":
+				return
+			elif ids=="ALL":
+				ids = self.spectra.keys()
 			for ID in ids:
 				try:
 					self.spectra[ID].SetCal(calpoly)
 					print "calibrated spectrum with id %d" %ID
 				except KeyError:
 					print "Warning: there is no spectrum with id: %s" %ID
+				self.specIf.window.Expand()
 		except ValueError:
 			print "Usage: calibration position read <filename> [ids]"
 			return False
@@ -407,19 +418,25 @@ class TvSpecInterface:
 			pairs.append([float(args[2]), float(args[3])])
 			calpoly = self.specIf.CalFromPairs(pairs)
 			print "using calibration polynom of deg 1: %s" %["%f" %c for c in calpoly]
-			ids = [int(i) for i in args[4:]]
-			if len(ids)==0:
+			if len(args[4:])==0:
 				if self.spectra.activeID==None:
 					print "No index is given and there is no active spectrum"
 					raise ValueError
 				else:
 					ids = [self.spectra.activeID]
+			else:
+				ids = hdtv.cmdhelper.ParseRange(args[4:])
+			if ids=="NONE":
+				return
+			elif ids=="ALL":
+				ids = self.spectra.keys()
 			for ID in ids:
 				try:
 					self.spectra[ID].SetCal(calpoly)
 					print "calibrated spectrum with id %d" %ID
 				except KeyError:
 					print "Warning: there is no spectrum with id: %s" %ID
+				self.specIf.window.Expand()
 		except ValueError:
 			print "Usage: calibration position enter <ch0> <E0> <ch1> <E1> [ids]"
 			return False
@@ -433,19 +450,25 @@ class TvSpecInterface:
 			deg = int(args[0])
 			calpoly = [float(i) for i in args[1:deg+2]]
 			print "using calibration polynom of deg %d: %s" %(deg, ["%f" %c for c in calpoly])
-			ids = [int(i) for i in args[deg+2:]]
-			if len(ids)==0:
+			if len(args[deg+2:])==0:
 				if self.spectra.activeID==None:
 					print "No index is given and there is no active spectrum"
 					raise ValueError
 				else:
 					ids = [self.spectra.activeID]
+			else:
+				ids = hdtv.cmdhelper.ParseRange(args[deg+2:])
+			if ids=="NONE":
+				return
+			elif ids=="ALL":
+				ids = self.spectra.keys()
 			for ID in ids:
 				try:
 					self.spectra[ID].SetCal(calpoly)
 					print "calibrated spectrum with id %d" %ID
 				except KeyError:
 					print "Warning: there is no spectrum with id: %s" %ID
+				self.specIf.window.Expand()
 		except (ValueError, IndexError):
 			print "Usage: calibration position set <deg> <p0> <p1> <p2> ... [ids]"
 			return False

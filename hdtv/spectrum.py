@@ -26,7 +26,7 @@ class Spectrum(Drawable):
 	def __init__(self, hist, color=None, cal=None):
 		Drawable.__init__(self, color, cal)
 		self.fHist = hist
-
+		
 	def __str__(self):
 		if self.fHist:
 			return self.fHist.GetName()

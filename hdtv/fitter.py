@@ -50,7 +50,6 @@ class Fitter:
 
 
 	def FitPeaks(self, region, peaklist):
-		self.peakModel.fCal = self.spec.cal
 		peaklist.sort()
 		self.fitter = self.peakModel.GetFitter(region, peaklist)
 		# Do the fit
@@ -60,7 +59,7 @@ class Fitter:
 			self.fitter.Fit(self.spec.fHist)
 		peaks = []
 		for i in range(0, self.fitter.GetNumPeaks()):
-			peaks.append(self.peakModel.CopyPeak(self.fitter.GetPeak(i)))
+			peaks.append(self.peakModel.CopyPeak(spec=self.spec, cpeak=self.fitter.GetPeak(i)))
 		self.resultPeaks = peaks
 		
 

@@ -54,6 +54,8 @@ class SpectrumCompound(DrawableCompound):
 		"""
 		self.spec.Refresh()
 		DrawableCompound.Refresh(self)
+		if self.pendingFit:
+			self.pendingFit.Refresh()
 		
 	def Draw(self, viewport):
 		"""
@@ -61,6 +63,8 @@ class SpectrumCompound(DrawableCompound):
 		"""
 		self.spec.Draw(viewport)
 		DrawableCompound.Draw(self, viewport)
+		if self.pendingFit:
+			self.pendingFit.Draw(viewport)
 		
 	def Show(self):
 		"""
@@ -70,6 +74,8 @@ class SpectrumCompound(DrawableCompound):
 		# only show objects that have been visible before
 		for i in list(self.visible):
 			self.objects[i].Show()
+		if self.pendingFit:
+			self.pendingFit.Show()
 			
 	def ShowAll(self):
 		"""
@@ -83,6 +89,8 @@ class SpectrumCompound(DrawableCompound):
 		"""
 		self.spec.Remove()
 		DrawableCompound.Remove(self)
+		if self.pendingFit:
+			self.pendingFit.Remove()
 		
 	def Hide(self):
 		"""
@@ -108,7 +116,9 @@ class SpectrumCompound(DrawableCompound):
 
 	def SetCal(self, cal):
 		self.spec.SetCal(cal)
-		DrawableCompound.SetCal(self)
+		DrawableCompound.SetCal(self, cal)
+		if self.pendingFit:
+			self.pendingFit.SetCal(cal)
 
 
 class FitInterface:
@@ -116,7 +126,7 @@ class FitInterface:
 	User interface for fitting 1-d spectra
 	"""
 	def __init__(self, window, spectra):
-		print "Loaded user interface for fitting"
+		print "Loaded user interface for fitting of 1-d spectra"
 		self.window = window
 		self.spectra = spectra
 
@@ -133,6 +143,7 @@ class FitInterface:
 		self.window.AddHotkey(ROOT.kKey_b, self._PutBackgroundMarker)
 		self.window.AddHotkey(ROOT.kKey_r, self._PutRegionMarker)
 		self.window.AddHotkey(ROOT.kKey_p, self._PutPeakMarker)
+#		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_p], self._DeletePeakMarker)
 		self.window.AddHotkey(ROOT.kKey_B, self.FitBackground)
 		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_B], self.ClearBackground)
 	  	self.window.AddHotkey(ROOT.kKey_F, self.FitPeaks)
@@ -214,16 +225,23 @@ class FitInterface:
 		if not self.spectra.activeID==None:
 			specID = self.spectra.activeID
 			try:
+				self.spectra[specID].pendingFit
+			except AttributeError:
+				pass
+			else:
 				if self.spectra[specID].pendingFit:
 					self.CopyMarkers(self.spectra[specID].pendingFit)
 					self.spectra[specID].pendingFit.Remove()
 					self.spectra[specID].pendingFit = None
+			try:
+				self.spectra[specID].activeID
+			except AttributeError:
+				pass
+			else:
 				if not self.spectra[specID].activeID==None:
 					fitID = self.spectra[specID].activeID
 					self.CopyMarkers(self.spectra[specID][fitID])
-					self.spectra[specID][fitID].Hide()
-			except:
-				pass
+					self.spectra[specID].HideObjects(fitID)
 		self.window.PutPairedMarker("X", "REGION", self.activeRegionMarkers, 1)	
 			
 			
@@ -235,16 +253,23 @@ class FitInterface:
 		if not self.spectra.activeID==None:
 			specID = self.spectra.activeID
 			try:
+				self.spectra[specID].pendingFit
+			except AttributeError:
+				pass
+			else:
 				if self.spectra[specID].pendingFit:
 					self.CopyMarkers(self.spectra[specID].pendingFit)
 					self.spectra[specID].pendingFit.Remove()
 					self.spectra[specID].pendingFit = None
+			try:
+				self.spectra[specID].activeID
+			except AttributeError:
+				pass
+			else:
 				if not self.spectra[specID].activeID==None:
 					fitID = self.spectra[specID].activeID
 					self.CopyMarkers(self.spectra[specID][fitID])
-					self.spectra[specID][fitID].Hide()
-			except:
-				pass
+					self.spectra[specID].HideObjects(fitID)
 		self.window.PutPairedMarker("X", "BACKGROUND", self.activeBgMarkers)
 		
 		
@@ -256,16 +281,23 @@ class FitInterface:
 		if not self.spectra.activeID==None:
 			specID = self.spectra.activeID
 			try:
+				self.spectra[specID].pendingFit
+			except AttributeError:
+				pass
+			else:
 				if self.spectra[specID].pendingFit:
 					self.CopyMarkers(self.spectra[specID].pendingFit)
 					self.spectra[specID].pendingFit.Remove()
 					self.spectra[specID].pendingFit = None
+			try:
+				self.spectra[specID].activeID
+			except AttributeError:
+				pass
+			else:
 				if not self.spectra[specID].activeID==None:
 					fitID = self.spectra[specID].activeID
 					self.CopyMarkers(self.spectra[specID][fitID])
-					self.spectra[specID][fitID].Hide()
-			except:
-				pass
+					self.spectra[specID].HideObjects(fitID)
 		pos = self.window.fViewport.GetCursorX()
   		self.activePeakMarkers.append(Marker("PEAK", pos))
   		self.activePeakMarkers[-1].Draw(self.window.fViewport)
@@ -439,13 +471,13 @@ class FitInterface:
 		"""
 		self.activeRegionMarkers = []
 		for marker in fit.regionMarkers:
-			self.activeRegionMarkers.append(marker.Copy())
+			self.activeRegionMarkers.append(marker.Copy(cal=None))
 		self.activePeakMarkers = []
 		for marker in fit.peakMarkers:
-			self.activePeakMarkers.append(marker.Copy())
+			self.activePeakMarkers.append(marker.Copy(cal=None))
 		self.activeBgMarkers = []
 		for marker in fit.bgMarkers:
-			self.activeBgMarkers.append(marker.Copy())
+			self.activeBgMarkers.append(marker.Copy(cal=None))
 		self.window.fViewport.LockUpdate()
 		markers = self.activeRegionMarkers+self.activePeakMarkers+self.activeBgMarkers
 		for marker in markers:
@@ -588,7 +620,7 @@ class TvFitInterface:
 		except AttributeError:
 			print "There are no fits for this spectrum"
 		except:
-			print "Usage: spectrum delete <ids>"
+			print "Usage: spectrum delete <ids>|none|all"
 			return False
 	
 	def FitShow(self, args):
@@ -619,9 +651,13 @@ class TvFitInterface:
 		Activate one spectra
 		"""
 		try:
-			ID = int(args[0])
+			ID = hdtv.cmdhelper.ParseRange(args)
+			if ID=="NONE":
+				ID = None
+			else:
+				ID = int(args[0])
 			self.fitIf.ActivateFit(ID)
 		except ValueError:
-			print "Usage: fit activate <id>"
+			print "Usage: fit activate <id>|none"
 			return False
 

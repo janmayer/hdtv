@@ -21,6 +21,7 @@
 import ROOT
 
 import hdtv.color
+import hdtv.util
 from hdtv.drawable import Drawable
 
 hdtv.dlmgr.LoadLibrary("display")
@@ -39,6 +40,12 @@ class Fit(Drawable):
 
 	def __init__(self, fitter, region=[], peaks=[], backgrounds=[], 
 	             color=None, cal=None):
+		Drawable.__init__(self, color, cal)
+		for marker in region+peaks+backgrounds:
+			marker.p1 = self.cal.E2Ch(marker.cal.Ch2E(marker.p1))
+			if marker.p2:
+				marker.p2 = self.cal.E2Ch(marker.cal.Ch2E(marker.p2))
+			marker.SetCal(self.cal)
 		self.regionMarkers = region
 		self.peakMarkers = peaks
 		self.bgMarkers = backgrounds
@@ -48,22 +55,19 @@ class Fit(Drawable):
 		self.dispBgFunc = None
 		self.dispDecompFuncs = []
 		self.dispFuncs = []
-
-
+		
 	def __str__(self):
 		i=1
 		text = str()
 		for peak in self.fitter.resultPeaks:
 			if i==1:
-				line1 = "Peak %d:\n" %i
+				text += "Peak %d:  " %i
 			else:
-				line1 = 6*" "+"Peak %d:\n" %i
-			line2 = 6*" "
-			line2+= "Pos:" + str(peak.pos.fmt()).rjust(15)
-			line2+= "  Volume:" + str(peak.vol.fmt()).rjust(15)
-			line2+= "  FWHM:" + str(peak.fwhm.fmt()).rjust(15)
-			line2+= "\n"
-			text += line1+line2	
+				text += 6*" "+"Peak %d:  " %i
+			text+= "Pos:" + str(peak.pos_cal.fmt()).rjust(15)
+			text+= "  Volume:" + str(peak.vol.fmt()).rjust(15)
+			text+= "  FWHM:" + str(peak.fwhm_cal.fmt()).rjust(15)
+			text+= "\n"
 			i+=1
 		return text
 
@@ -81,18 +85,19 @@ class Fit(Drawable):
 		# Lock updates
 		self.viewport.LockUpdate()
 		# draw fit funcs, if available
-		if self.dispBgFunc:
+		if self.dispBgFunc and not self.dispBgFunc in self.dispFuncs:
 			self.dispBgFunc.Draw(self.viewport)
 			self.dispFuncs.append(self.dispBgFunc)
-		if self.dispPeakFunc:
+		if self.dispPeakFunc and not self.dispPeakFunc in self.dispFuncs:
 			self.dispPeakFunc.Draw(self.viewport)
 			self.dispFuncs.append(self.dispPeakFunc)
 		for func in self.dispDecompFuncs:
-			func.Draw(self.viewport)
-			if not self.showDecomp:
-				# hide it directly, it showDecomp==False
-				func.Hide()
-			self.dispFuncs.append(func)
+			if not func in self.dispFuncs:
+				func.Draw(self.viewport)
+				if not self.showDecomp:
+					# hide it directly, it showDecomp==False
+					func.Hide()
+				self.dispFuncs.append(func)
 		# refresh the markers (do this after the fit, 
 		# because the fit updates the position of the peak markers)
 		for marker in self.peakMarkers+self.regionMarkers+self.bgMarkers:
@@ -170,7 +175,7 @@ class Fit(Drawable):
 				self.dispDecompFuncs.append(dispFunc)
 			# update peak markers
 			for (marker, peak) in zip(self.peakMarkers, self.fitter.resultPeaks):
-				marker.p1 = peak.GetPos()
+				marker.p1 = peak.pos.value
 		
 		
 	def Show(self):
@@ -198,19 +203,15 @@ class Fit(Drawable):
 		
 		
 	def SetCal(self, cal):
-		self.viewport.LockUpdate()
+		cal=hdtv.util.MakeCalibration(cal)
+		if self.viewport:
+			self.viewport.LockUpdate()
 		for marker in self.peakMarkers+self.regionMarkers+self.bgMarkers:
 			marker.SetCal(cal)
-		if cal==None:
-			cal = [0,1]
-		calarray = ROOT.TArrayD(len(cal))
-		for (i,c) in zip(range(0,len(cal)),cal):
-			calarray[i] = c
-		# create the calibration object
-		self.cal = ROOT.HDTV.Calibration(calarray)
 		for obj in self.dispFuncs:
 			obj.SetCal(cal)
-		self.viewport.UnlockUpdate()
+		if self.viewport:
+			self.viewport.UnlockUpdate()
 
 
 	def SetColor(self, color):
@@ -240,37 +241,4 @@ class Fit(Drawable):
 				for func in self.dispDecompFuncs:
 					func.Hide()
 		
-#	def CalibrationChanged(self):
-#		"""
-#		Called when the calibration of the associated spectrum changes
-#		"""
-#		if self.viewport:
-#			self.viewport.LockUpdate()
-#		
-#		if self.dispBgFunc:
-#			self.dispBgFunc.SetCal(self.spec.fCal)
-#		if self.dispFunc:
-#			self.dispFunc.SetCal(self.spec.fCal)
-#		for func in self.dispDecompFuncs:
-#			func.SetCal(self.spec.fCal)
-#			
-#		if self.viewport:
-#			self.viewport.UnlockUpdate()
-#		
-#	def E2Ch(self, e):
-#		if self.spec.fCal:
-#			return self.spec.fCal.E2Ch(e)
-#		else:
-#			return e
-#			
-#	def Ch2E(self, ch):
-#		if self.spec.fCal:
-#			return self.spec.fCal.Ch2E(ch)
-#		else:
-#			return ch
-#			
-#	def dEdCh(self, ch):
-#		if self.spec.fCal:
-#			return self.spec.fCal.dEdCh(ch)
-#		else:
-#			return 1.0
+

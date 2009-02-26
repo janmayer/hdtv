@@ -296,7 +296,7 @@ class PeakModelTheuerkauf(PeakModel):
 		"""
 		return self.fOrderedParamKeys
 		
-	def CopyPeak(self, cpeak):
+	def CopyPeak(self, spec, cpeak):
 		fwhm_value = cpeak.GetSigma() * 2. * math.sqrt(2. * math.log(2.))
 		fwhm_error = cpeak.GetSigmaError() * 2. * math.sqrt(2. * math.log(2.))
 		
@@ -324,7 +324,7 @@ class PeakModelTheuerkauf(PeakModel):
 		else:
 			sh = sw = None
 			
-		return TheuerkaufPeak(cpeak.spec, pos, vol, fwhm, tl, tr, sh, sw)
+		return TheuerkaufPeak(spec, pos, vol, fwhm, tl, tr, sh, sw)
 		
 	def ResetParamStatus(self):
 		"""

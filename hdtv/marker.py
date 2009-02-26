@@ -1,5 +1,7 @@
 import ROOT
+import hdtv.util
 from hdtv.drawable import Drawable
+
 
 class Marker(Drawable):
 	""" 
@@ -12,17 +14,14 @@ class Marker(Drawable):
 	def __init__(self, mtype, p1, color=None, cal=None):
 		Drawable.__init__(self, color, cal)
 		self.mtype = mtype
+		self.p1 = self.cal.E2Ch(p1)
+		self.p2 = None
 		# define the xytype of the marker
 		if mtype in ["BACKGROUND", "CUT_BG", "REGION", "CUT", "PEAK", "XZOOM"]:
 		    self.xytype = "X"
 		if mtype in ["YZOOM"]:
 		    self.xytype = "Y"
-		self.p1 = p1
-		self.p2 = None
-		# define the color
-		if color:
-			self.color = color
-		else: # set to default color
+		if not color: # set to default color
 			if mtype in ["BACKGROUND", "CUT_BG"]:
 				self.color = 11
 			elif mtype in ["REGION", "CUT"]:
@@ -36,12 +35,6 @@ class Marker(Drawable):
 	def __str__(self):
 		return '%s marker at %s' %(self.mtype, self.p1)
 		
-	def __setattr__(self, name, value):
-		if not value==None and name in ['p1','p2'] and self.xytype=="X":
-			self.__dict__[name]=self.cal.E2Ch(value)
-		else:
-			self.__dict__[name]=value
-
 	def Draw(self, viewport):
 		""" 
 		Draw the marker
@@ -82,24 +75,22 @@ class Marker(Drawable):
 				self.displayObj.SetN(1)
 				self.displayObj.SetPos(self.p1)
 
-
 	def Copy(self, cal=None):
 		"""
-		Create a copy of this marker 
+		Create a copy of this marker
 		
-		The calibration of the new marker is defined by the parameter cal.
-		If cal is not given, this leads to a copy with calibrated values.
+		The actual position of the marker on the display (calibrated value)
+		is kept. The calibration of the new marker can be set with the parameter
+		cal.
 		"""
-		# p1 and p2 are automatically transferred to uncalibrated values 
-		# in the creation of a marker, thus we need calibrated values here
-		# If no calibration is given, this leads to a copy of the marker 
-		# with calibrated values.
-		p1=self.cal.Ch2E(self.p1)
-		p2=self.cal.Ch2E(self.p2)
+		cal = hdtv.util.MakeCalibration(cal)
+		# translate marker positions to the new calibration
+		p1 = cal.E2Ch(self.cal.Ch2E(self.p1))
 		new = Marker(self.mtype, p1, self.color, cal)
-		new.p2 = p2
+		if self.p2:
+			p2 = cal.E2Ch(self.cal.Ch2E(self.p2))
+			new.p2 = p2
 		return new
 		
-	
 
 	
