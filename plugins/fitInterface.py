@@ -130,8 +130,9 @@ class FitInterface:
 		self.window = window
 		self.spectra = spectra
 
-		self.peakModel= "theuerkauf"
-		self.bgDegree = 1
+		self.peakModel = "theuerkauf"
+		self.bgdeg = 1 
+		self.activeFitter = Fitter(self.peakModel, self.bgdeg)
 		self.activePeakMarkers = []
 		self.activeRegionMarkers = []
 		self.activeBgMarkers = []
@@ -210,7 +211,7 @@ class FitInterface:
 			return
 		try:
 			ID = int(arg)
-			self.spectra[self.spectra.activeID].ActivateObject(ID)
+			self.ActivateFit(ID)
 		except ValueError:
 			self.window.fViewport.SetStatusText("Invalid fit identifier: %s" % arg)
 		except KeyError:
@@ -223,25 +224,12 @@ class FitInterface:
 		"""
 		# FIXME: code very similar to the other put marker functions
 		if not self.spectra.activeID==None:
-			specID = self.spectra.activeID
-			try:
-				self.spectra[specID].pendingFit
-			except AttributeError:
-				pass
-			else:
-				if self.spectra[specID].pendingFit:
-					self.CopyMarkers(self.spectra[specID].pendingFit)
-					self.spectra[specID].pendingFit.Remove()
-					self.spectra[specID].pendingFit = None
-			try:
-				self.spectra[specID].activeID
-			except AttributeError:
-				pass
-			else:
-				if not self.spectra[specID].activeID==None:
-					fitID = self.spectra[specID].activeID
-					self.CopyMarkers(self.spectra[specID][fitID])
-					self.spectra[specID].HideObjects(fitID)
+			spec = self.spectra[self.spectra.activeID]
+			if hasattr(spec, 'pendingFit') and spec.pendingFit:
+				self.CopyMarkers(spec.pendingFit)
+				self.activeFitter = spec.pendingFit.fitter
+				spec.pendingFit.Remove()
+				spec.pendingFit = None
 		self.window.PutPairedMarker("X", "REGION", self.activeRegionMarkers, 1)	
 			
 			
@@ -251,25 +239,12 @@ class FitInterface:
 		"""
 		# FIXME: code very similar to the other put marker functions
 		if not self.spectra.activeID==None:
-			specID = self.spectra.activeID
-			try:
-				self.spectra[specID].pendingFit
-			except AttributeError:
-				pass
-			else:
-				if self.spectra[specID].pendingFit:
-					self.CopyMarkers(self.spectra[specID].pendingFit)
-					self.spectra[specID].pendingFit.Remove()
-					self.spectra[specID].pendingFit = None
-			try:
-				self.spectra[specID].activeID
-			except AttributeError:
-				pass
-			else:
-				if not self.spectra[specID].activeID==None:
-					fitID = self.spectra[specID].activeID
-					self.CopyMarkers(self.spectra[specID][fitID])
-					self.spectra[specID].HideObjects(fitID)
+			spec = self.spectra[self.spectra.activeID]
+			if hasattr(spec, 'pendingFit') and spec.pendingFit:
+				self.CopyMarkers(spec.pendingFit)
+				self.activeFitter = spec.pendingFit.fitter
+				spec.pendingFit.Remove()
+				spec.pendingFit = None
 		self.window.PutPairedMarker("X", "BACKGROUND", self.activeBgMarkers)
 		
 		
@@ -279,29 +254,15 @@ class FitInterface:
 		"""
 		# FIXME: code very similar to the other put marker functions
 		if not self.spectra.activeID==None:
-			specID = self.spectra.activeID
-			try:
-				self.spectra[specID].pendingFit
-			except AttributeError:
-				pass
-			else:
-				if self.spectra[specID].pendingFit:
-					self.CopyMarkers(self.spectra[specID].pendingFit)
-					self.spectra[specID].pendingFit.Remove()
-					self.spectra[specID].pendingFit = None
-			try:
-				self.spectra[specID].activeID
-			except AttributeError:
-				pass
-			else:
-				if not self.spectra[specID].activeID==None:
-					fitID = self.spectra[specID].activeID
-					self.CopyMarkers(self.spectra[specID][fitID])
-					self.spectra[specID].HideObjects(fitID)
+			spec = self.spectra[self.spectra.activeID]
+			if hasattr(spec, 'pendingFit') and spec.pendingFit:
+				self.CopyMarkers(spec.pendingFit)
+				self.activeFitter = spec.pendingFit.fitter
+				spec.pendingFit.Remove()
+				spec.pendingFit = None
 		pos = self.window.fViewport.GetCursorX()
   		self.activePeakMarkers.append(Marker("PEAK", pos))
   		self.activePeakMarkers[-1].Draw(self.window.fViewport)
-
 
 
 	def FitBackground(self):
@@ -323,12 +284,12 @@ class FitInterface:
 			self.spectra[self.spectra.activeID]=spec
 			fit = None
 		if not fit:
-			fitter = Fitter(spec.spec, self.peakModel, self.bgDegree)
-			fit = Fit(fitter, self.activeRegionMarkers, self.activePeakMarkers, 
-							  self.activeBgMarkers, color=spec.color, cal=spec.cal)
-		fit.FitBgFunc()
+			fit = Fit(self.activeFitter, self.activeRegionMarkers, self.activePeakMarkers, 
+					  self.activeBgMarkers, color=spec.color, cal=spec.cal)
+		fit.FitBgFunc(spec)
 		fit.Draw(self.window.fViewport)
 		self.spectra[self.spectra.activeID].pendingFit = fit
+		self.activeFitter = None
 		self.activePeakMarkers = []
 		self.activeRegionMarkers = []
 		self.activeBgMarkers = []
@@ -355,14 +316,14 @@ class FitInterface:
 			fit = None
 		if not fit:
 			# create fresh fit
-			fitter = Fitter(spec.spec, self.peakModel, self.bgDegree)
-			fit = Fit(fitter, self.activeRegionMarkers, self.activePeakMarkers, 
-							  self.activeBgMarkers, color=spec.color, cal=spec.cal)
+			fit = Fit(self.activeFitter, self.activeRegionMarkers, self.activePeakMarkers, 
+					  self.activeBgMarkers, color=spec.color, cal=spec.cal)
 		if len(fit.bgMarkers)>0:
-			fit.FitBgFunc()
-		fit.FitPeakFunc()
+			fit.FitBgFunc(spec)
+		fit.FitPeakFunc(spec)
 		fit.Draw(self.window.fViewport)
 		self.spectra[self.spectra.activeID].pendingFit = fit
+		self.activeFitter = None
 		self.activePeakMarkers = []
 		self.activeRegionMarkers = []
 		self.activeBgMarkers = []
@@ -372,9 +333,9 @@ class FitInterface:
 		"""
 		Activate one fit
 		
-		The markers of a activated fit, can be changed and then the fit 
-		can be repeated. If the user decided to keep the new fit, the old 
-		fit will be replaced.
+		If the user activates a fit, the old fit is discarded, and the 
+		can change and redo the fit. Note: The old fit is lost for good, 
+		no possibilty to undo it.
 		"""
 		try:
 			spec = self.spectra[self.spectra.activeID]
@@ -383,8 +344,11 @@ class FitInterface:
 			print 'There is no active spectrum'
 		except AttributeError:
 			print 'There are no fits for this spectrum'
-
-
+		if spec.pendingFit:
+			spec.pendingFit.Remove()
+		spec.pendingFit = spec.pop(spec.activeID)
+		
+	
 	def KeepFit(self):
 		"""
 		Keep this fit, 
@@ -400,18 +364,18 @@ class FitInterface:
 			if len(self.activeRegionMarkers)+len(self.activePeakMarkers)>0:
 				self.FitPeaks()
 			else:
-				print "Warning: No Fit available, no action taken"
+				spec.activeID = None
+				print "Warning: No Fit available"
 				return
 		fitID = spec.activeID
 		if fitID==None:
 			fitID = spec.GetFreeID()
-		else:
-			spec[fitID].Remove()
+			spec[fitID] = spec.pendingFit
 		# FIXME: we need SetColor for markers!
-		spec.pendingFit.SetColor(spec.color)
-		spec[fitID] = spec.pendingFit
+		spec[fitID].SetColor(spec.color)
 		spec.pendingFit = None
 		spec.activeID = None
+		self.activeFitter = Fitter(self.peakModel, self.bgdeg)
 
 
 	def ClearFit(self):
@@ -433,6 +397,7 @@ class FitInterface:
 		if hasattr(spec, 'pendingFit') and spec.pendingFit:
 			spec.pendingFit.Remove()
 			spec.pendingFit = None
+		self.activeFitter = Fitter(self.peakModel, self.bgdeg)
 		
 		
 	def ClearBackground(self):
@@ -462,7 +427,8 @@ class FitInterface:
 			else: 
 				# remove pending fit as it doesn't contain a peak fit
 				spec.pendingFit.Remove()
-				spec.pendingFit = None		
+				spec.pendingFit = None
+			self.activeFitter = Fitter(self.peakModel, self.bgdeg)
 				
 	
 	def CopyMarkers(self, fit):
@@ -517,9 +483,54 @@ class FitInterface:
 #		self.fFitGui.FitUpdateOptions()
 #		self.fFitGui.FitUpdateData()
 
-#	def ShowFitOptions(self):
-#		print self.peakmodel.OptionsStr()
-	
+
+	def ShowFitStatus(self):
+		if self.activeFitter:
+			fitter = self.activeFitter
+		elif not self.spectra.activeID==None and self.spectra[self.spectra.activeID].pendingFit:
+			fitter = self.spectra[self.spectra.activeID].pendingFit.fitter
+		else:
+			raise RuntimeError
+		statstr = str()
+		statstr += "Background model: polynomial, deg=%d\n" % fitter.bgdeg
+		statstr += "Peak model: %s\n" % fitter.Name()
+		statstr += "\n"
+		statstr += fitter.OptionsStr()
+		print statstr
+
+# TODO: Testing!
+	def SetFitParameters(self, parname, status):
+		if self.activeFitter:
+			self.activeFitter.SetParameter(parname, status)
+		else:
+			try:
+				pendingFit = self.spectra[self.spectra.activeID].pendingFit
+			except (KeyError, ValueError), e:
+				print e
+				raise RuntimeError
+			pendingFit.fitter.SetParameter(parname, status)
+			pendingFit.Refresh()
+#		# Update options
+#		self.fFitGui.FitUpdateOptions()
+#		self.fFitGui.FitUpdateData()
+
+
+# TODO: Testing!
+	def ResetFitParameters(self, parname, status):
+		if self.activeFitter:
+			self.activeFitter.SetParameter(parname, status)
+		else:
+			try:
+				pendingFit = self.spectra[self.spectra.activeID].pendingFit
+			except (KeyError, ValueError), e:
+				print e
+				raise RuntimeError
+			pendingFit.fitter.ResetParamStatus(parname, status)
+			pendingFit.Refresh()
+#		# Update options
+#		self.fFitGui.FitUpdateOptions()
+#		self.fFitGui.FitUpdateData()
+
 
 class TvFitInterface:
 	"""
@@ -536,7 +547,8 @@ class TvFitInterface:
 		hdtv.cmdline.AddCommand("fit activate", self.FitActivate, nargs=1)
 		hdtv.cmdline.AddCommand("fit param background degree", self.FitParamBgDeg, nargs=1)
 		hdtv.cmdline.AddCommand("fit param status", self.FitParamStatus, nargs=0)
-#		hdtv.cmdline.AddCommand("fit param reset", self.FitParamReset, nargs=0)
+		hdtv.cmdline.AddCommand("fit param reset", self.FitParamReset, nargs=0)
+
 #		hdtv.cmdline.AddCommand("fit function peak activate", self.FitSetPeakModel,
 #								completer=self.PeakModelCompleter, nargs=1)
 
@@ -635,7 +647,55 @@ class TvFitInterface:
 		self.fitIf.SetBgDeg(bgdeg)
 
 	def FitParamStatus(self, args):
-		self.fitIf.ShowFitOptions()
+		self.fitIf.ShowFitStatus()
+
+	def FitParamReset(self, args):
+		self.fitIf.ResetFitParameters()
+	
+
+# FIXME!
+#	def FitParam(self, param, args):
+#		try:
+#			self.fitIf.SetFitParameters(param, " ".join(args))
+#		except ValueError:
+#			print "Usage: fit parameter <parname> [free|ifree|hold|disable|<number>]"
+#			return False
+#		except RuntimeError, e:
+#			print e
+#			return False
+
+#	def PeakModelCompleter(self, text):
+#		return hdtv.util.GetCompleteOptions(text, hdtv.fitter.gPeakModels.iterkeys())
+#			
+#	def SetPeakModel(self, args):
+#		"""
+#		Set the peak model (function used for fitting peaks)
+#		"""
+#		
+
+
+#		# Unregister old parameters
+#		for param in fitter.OrderedParamKeys():
+#			hdtv.cmdline.RemoveCommand("fit param %s" % param)
+
+#		# Set new peak model
+#		fitter.SetPeakModel(args[0].lower())
+#		
+#		# Register new parameters
+#		def MakeParamCmd(param):
+#			return lambda args: self.FitParam(param, args)
+
+#		for param in fitter.OrderedParamKeys():
+#			hdtv.cmdline.AddCommand("fit param %s" % param,
+#			                        MakeParamCmd(param),
+#			                        minargs=1)
+		
+		# Update options
+		self.fFitGui.FitUpdateOptions()
+		self.fFitGui.FitUpdateData()
+
+
+
 
 
 	def CalPosAssign(self, args):

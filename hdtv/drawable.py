@@ -135,7 +135,6 @@ class DrawableCompound(UserDict.DictMixin):
 		self.visible.add(ID)
 
 	def __delitem__(self, ID):
-		self.objects[ID].Remove()
 		if ID in self.visible:
 			self.visible.discard(ID)
 		if ID == self.activeID:
@@ -217,18 +216,18 @@ class DrawableCompound(UserDict.DictMixin):
 	
 	def Remove(self):
 		"""
-		Remove all objects
+		Remove 
 		"""
-		self.viewport.LockUpdate()
-		for ID in self.iterkeys():
-			self.__delitem__(ID)
-		self.viewport.UnlockUpdate()
+		self.RemoveAll()
 	
 	def RemoveAll(self):
 		"""
-		Remove all - just a wrapper for convenience
+		Remove all 
 		"""
-		self.Remove()
+		self.viewport.LockUpdate()
+		for ID in self.iterkeys():
+			self.pop(ID).Remove()
+		self.viewport.UnlockUpdate()
 
 	def RemoveObjects(self, ids):
 		"""
@@ -239,7 +238,7 @@ class DrawableCompound(UserDict.DictMixin):
 			ids = [ids]
 		for ID in ids:
 			try:
-				self.__delitem__(ID)
+				self.pop(ID).Remove()
 			except KeyError:
 				print "Warning: ID %d not found" % ID
 		self.viewport.UnlockUpdate()

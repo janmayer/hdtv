@@ -117,25 +117,7 @@ class PeakModel:
 	"""
 	def __init__(self):
 		self.fGlobalParams = dict()
-#		self.fCal = None
-#		
-#	def E2Ch(self, e):
-#		if self.fCal:
-#			return self.fCal.E2Ch(e)
-#		else:
-#			return e
-#			
-#	def Ch2E(self, ch):
-#		if self.fCal:
-#			return self.fCal.Ch2E(ch)
-#		else:
-#			return ch
-#			
-#	def dEdCh(self, ch):
-#		if self.fCal:
-#			return self.fCal.dEdCh(ch)
-#		else:
-#			return 1.0
+
 		
 	def ResetGlobalParams(self):
 		self.fGlobalParams.clear()
@@ -337,24 +319,7 @@ class PeakModelTheuerkauf(PeakModel):
 		self.fParStatus["tr"] = "none"
 		self.fParStatus["sh"] = "none"
 		self.fParStatus["sw"] = "hold"
-		
-#	def SpecToFitter(self, parname, value, pos_uncal):
-#		"""
-#		Convert a value from calibrated (spectrum) to uncalibrated (fitter) units
-#		"""
-#		if parname == "pos":
-#			return self.E2Ch(value)
-#		elif parname == "width":
-#			pos_cal = self.Ch2E(pos_uncal)
-#			fwhm_uncal = self.E2Ch(pos_cal + value/2.) - self.E2Ch(pos_cal - value/2.)
-#			# Note that the underlying fitter uses ``sigma'' as a parameter
-#			#  (see HDTV technical documentation in the wiki)
-#			return fwhm_uncal / (2. * math.sqrt(2. * math.log(2.)))
-#		elif parname in ("vol", "tl", "tr", "sh", "sw"):
-#			return value
-#		else:
-#			raise RuntimeError, "Unexpected parameter name"
-		
+
 	def GetFitter(self, region, peaklist):
 		# Define a fitter and a region
 		self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(region[0],region[1])
