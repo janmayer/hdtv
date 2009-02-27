@@ -39,14 +39,8 @@ s = specInterface.SpecInterface(window, spectra)
 f = fitInterface.FitInterface(window, spectra)
 
 # for debugging
-#import glob
-#s.LoadSpectra('/home/tanja/hdtv/test/spectra/60Co_gamma.lc2')
-#numbers = [35, 40, 45]
-#for n in numbers:
-#	ids = s.LoadSpectra('/home/tanja/hdtv/test/spectra/231Th_%s*.ascii' % n)
-#	cal = s.CalFromFile('/home/tanja/hdtv/test/spectra/231Th_%s.tvcal' %n)
-#	for i in ids:
-#		spectra[i].SetCal(cal)
+s.LoadSpectra("../test/spectra/231Th*.ascii")
+s.ReadCalibrationList("../test/spectra/231Th_calibrations.txt")
 	
 # Go
 hdtv.cmdline.MainLoop()

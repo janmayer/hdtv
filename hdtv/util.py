@@ -18,28 +18,13 @@
 # You should have received a copy of the GNU General Public License
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
-import ROOT
+
 import math
 
 def GetCompleteOptions(begin, options):
 	l = len(begin)
 	return [o + " " for o in options if o[0:l] == begin]
 	
-
-def MakeCalibration(cal):
-	""" 
-	Create a ROOT.HDTV.Calibration object from a python list
-	"""
-	if not isinstance(cal, ROOT.HDTV.Calibration):
-		if cal==None:
-			cal = [0,1]
-		calarray = ROOT.TArrayD(len(cal))
-		for (i,c) in zip(range(0,len(cal)),cal):
-			calarray[i] = c
-		# create the calibration object
-		cal = ROOT.HDTV.Calibration(calarray)
-	return cal
-
 class ErrValue:
 	"""
 	A value with an error
@@ -170,5 +155,6 @@ class Linear:
 		l.p1 = p1
 		l.p0 = point[1] - l.p1 * point[0]
 		return l
-		
-	
+
+
+

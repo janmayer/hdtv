@@ -303,6 +303,7 @@ class FitInterface:
   		self.activePeakMarkers[-1].Draw(self.window.fViewport)
 
 
+
 	def FitBackground(self):
 		"""
 		Fit the background
@@ -362,7 +363,6 @@ class FitInterface:
 		fit.FitPeakFunc()
 		fit.Draw(self.window.fViewport)
 		self.spectra[self.spectra.activeID].pendingFit = fit
-		print fit
 		self.activePeakMarkers = []
 		self.activeRegionMarkers = []
 		self.activeBgMarkers = []
@@ -504,68 +504,22 @@ class FitInterface:
 		except KeyError:
 			print "No active fit."
 
-				
-#		def MakePeakModelCmd(name):
-#			return lambda args: self.FitSetPeakModel(name)
-#		for name in hdtv.fit.gPeakModels.iterkeys():
-#			hdtv.cmdline.AddCommand("fit function peak activate %s" % name,
-#			                        MakePeakModelCmd(name), nargs=0)
 
-
-#	def FitParamBgDeg(self, args):
-#		try:
-#			bgdeg = int(args[0])
-#		except ValueError:
-#			print "Usage: fit parameter background degree <deg>"
-#			return False
-#			
-#		self.fFitGui.fFitter.bgdeg = bgdeg
-
-#		# Update options
-#		self.fFitGui.FitUpdateOptions()
-#		self.fFitGui.FitUpdateData()
-#		
-#	def FitParamStatus(self, args):
-#		self.fFitGui.fFitter.PrintParamStatus()
-#		
-#	def FitParamPeak(self, parname, args):
-#		try:
-#			self.fFitGui.fFitter.SetParameter(parname, " ".join(args))
-#		except ValueError:
-#			print "Usage: fit parameter <parname> [free|ifree|hold|disable|<number>]"
-#			return False
-#		except RuntimeError, e:
-#			print e
-#			return False
-#			
-#		# Update options
-#		self.fFitGui.FitUpdateOptions()
-#		self.fFitGui.FitUpdateData()
-#		
-#	def FitParamReset(self, args):
-#		self.fFitGui.ResetFitParameters()
-#			
-#	def FitSetPeakModel(self, name):
-#		# Unregister old parameters
-#		for param in self.fFitGui.fFitter.GetParameters():
-#			hdtv.cmdline.RemoveCommand("fit param %s" % param)
-#		
-#		# Set new peak model
-#		self.fFitGui.fFitter.SetPeakModel(name.lower())
-#		
-#		# Register new parameters
-#		def MakeParamCmd(param):
-#			return lambda args: self.FitParamPeak(param, args)
-#		for param in self.fFitGui.fFitter.GetParameters():
-#			hdtv.cmdline.AddCommand("fit param %s" % param, 
-#			                        MakeParamCmd(param),
-#			                        minargs=1)
-#			                        
+	def SetBgDeg(self, bgdeg):
+		self.bgDegree = bgdeg
+		if self.spectra.activeID==None:
+			return
+		spec = self.spectra[self.spectra.activeID]
+		if hasattr(spec, 'pendingFit') and spec.pendingFit:
+			spec.pendingFit.fitter.bgdeg = bgdeg
+			spec.pendingFit.Refresh()
 #		# Update options
 #		self.fFitGui.FitUpdateOptions()
 #		self.fFitGui.FitUpdateData()
 
-		
+#	def ShowFitOptions(self):
+#		print self.peakmodel.OptionsStr()
+	
 
 class TvFitInterface:
 	"""
@@ -580,10 +534,13 @@ class TvFitInterface:
 		hdtv.cmdline.AddCommand("fit show", self.FitShow, minargs=1)
 		hdtv.cmdline.AddCommand("fit delete", self.FitDelete, minargs=1)
 		hdtv.cmdline.AddCommand("fit activate", self.FitActivate, nargs=1)
-#		hdtv.cmdline.AddCommand("fit param background degree", self.FitParamBgDeg, nargs=1)
-#		hdtv.cmdline.AddCommand("fit param status", self.FitParamStatus, nargs=0)
+		hdtv.cmdline.AddCommand("fit param background degree", self.FitParamBgDeg, nargs=1)
+		hdtv.cmdline.AddCommand("fit param status", self.FitParamStatus, nargs=0)
 #		hdtv.cmdline.AddCommand("fit param reset", self.FitParamReset, nargs=0)
+#		hdtv.cmdline.AddCommand("fit function peak activate", self.FitSetPeakModel,
+#								completer=self.PeakModelCompleter, nargs=1)
 
+		hdtv.cmdline.AddCommand("calibration position assign", self.CalPosAssign, minargs=2)
 
 	def FitList(self, args):
 		"""
@@ -599,10 +556,13 @@ class TvFitInterface:
 			spec.ListObjects()
 		except KeyError:
 			print "No active spectrum"
+			return False
 		except AttributeError:
 			print "There are no fits for this spectrum"
+			return False
 		except:
-			print "Usage: fit list"	
+			print "Usage: fit list"
+			return False	
 		
 	def FitDelete(self, args):
 		""" 
@@ -617,8 +577,10 @@ class TvFitInterface:
 			self.spectra[self.spectra.activeID].RemoveObjects(ids)
 		except KeyError:
 			print "No active spectrum"
+			return False
 		except AttributeError:
 			print "There are no fits for this spectrum"
+			return False
 		except:
 			print "Usage: spectrum delete <ids>|none|all"
 			return False
@@ -640,8 +602,10 @@ class TvFitInterface:
 				self.spectra[self.spectra.activeID].ShowObjects(ids)
 		except KeyError:
 			print "No active spectrum"
+			return False
 		except AttributeError:
 			print "There are no fits for this spectrum"
+			return False
 		except: 
 			print "Usage: spectrum show <ids>|all|none"
 			return False
@@ -660,4 +624,58 @@ class TvFitInterface:
 		except ValueError:
 			print "Usage: fit activate <id>|none"
 			return False
+
+
+	def FitParamBgDeg(self, args):
+		try:
+			bgdeg = int(args[0])
+		except ValueError:
+			print "Usage: fit parameter background degree <deg>"
+			return False
+		self.fitIf.SetBgDeg(bgdeg)
+
+	def FitParamStatus(self, args):
+		self.fitIf.ShowFitOptions()
+
+
+	def CalPosAssign(self, args):
+		""" 
+		Calibrate the active spectrum by asigning energies to fitted peaks
+
+		Peaks are specified by their id and the peak number within the peak.
+		Syntax: id.number
+		If no number is given, the first peak in the fit is used.
+		"""
+		if self.spectra.activeID == None:
+			print "Warning: No active spectrum, no action taken."
+			return False
+		spec = self.spectra[self.spectra.activeID]
+		try:
+			if len(args)%2 !=0:
+				raise ValueError
+			channels = []
+			energies = []
+			while len(args)>0:
+				fitID = args.pop(0).split('.')
+				if len(fitID)>2:
+					raise ValueError
+				elif len(fitID)==2:
+					channel = spec[int(fitID[0])].peakMarkers[int(fitID[1])].p1
+				else:
+					channel = spec[int(fitID[0])].peakMarkers[0].p1				 	
+				channels.append(channel)
+				energies.append(float(args.pop(0)))
+			pairs = zip(channels, energies)
+			cal = hdtv.cal.CalFromPairs(pairs)
+		except (ValueError, KeyError):
+			print "Usage: calibration position set <f1>[.?] <e1> <f2>[.?] <e2> "
+			return False
+		else:
+			pairs = zip(channels, energies)
+			cal = hdtv.cal.CalFromPairs(pairs)
+			spec.SetCal(cal)
+			self.fitIf.window.Expand()
+			return True
+		
+
 

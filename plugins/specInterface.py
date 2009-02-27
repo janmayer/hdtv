@@ -26,7 +26,7 @@ import glob
 import hdtv.cmdline
 import hdtv.cmdhelper
 import hdtv.color
-import hdtv.util
+import hdtv.cal
  
 from hdtv.spectrum import Spectrum, FileSpectrum
 from hdtv.specreader import SpecReaderError
@@ -65,20 +65,6 @@ class SpecInterface:
 		self.window.AddHotkey(ROOT.kKey_a,
 		        lambda: self.window.EnterEditMode(prompt="Activate spectrum: ",
 		                                   handler=self.HotkeyActivate))
-		
-#		# Register configuration variables
-#		opt = hdtv.options.Option(default = self.fWindow.fViewport.GetYMinVisibleRegion(),
-#                                  parse = lambda(x): float(x),
-#                                  changeCallback = self.YMinVisibleRegionChanged)
-#		config.RegisterOption("display.YMinVisibleRegion", opt)
-
-#		# Register variables for interactive use
-#		hdtv.cmdline.RegisterInteractive("gSpectra", self)
-#		
-#		
-#	def YMinVisibleRegionChanged(self, opt):
-#		self.fWindow.fViewport.SetYMinVisibleRegion(opt.Get())
-	
 	
 	def HotkeyShow(self, arg):
 		""" 
@@ -141,97 +127,55 @@ class SpecInterface:
 		return loaded
 
 
-	def CalFromFile(self, fname):
+	def FindSpectrumByName(self, name):
 		"""
-		Read calibration polynom from file
+		Find the spectrum object whose ROOT histogram has the given name.
+		If there are several such objects, one of them (in undefined ordering)
+		is returned. If there is none, None is returned.
+		"""
+		for obj in self.spectra.objects.itervalues():
+			if isinstance(obj, hdtv.spectrum.Spectrum):
+				if obj.fHist != None and obj.fHist.GetName() == name:
+					return obj
+		return None
+			
+
+	def ReadCalibrationList(self, fname, warn_notfound=False):
+		"""
+		Reads calibrations from a calibration list file. The file has the format
+		<specname>: <cal0> <cal1> ...
 		
-		There should be one coefficient in each line, starting with p0
+		The optional argument warn_notfound controls whether to warn if a name
+		from the file does not correspond to a spectrum in the list.
 		"""
 		fname = os.path.expanduser(fname)
 		try:
-			f = open(fname)
+			f = open(fname, "r")
 		except IOError, msg:
-			print msg
-			return []
-		try:
-			calpoly = []
-			for line in f:
-				l = line.strip()
-				if l != "":
-					calpoly.append(float(l))
-		except ValueError:
-			f.close()
-			print "Malformed calibration parameter file."
+			print "Error opening file: %s" % msg
 			return False
+		linenum = 0
+		for l in f:
+			linenum += 1
+			# Remove comments and whitespace; ignore empty lines
+			l = l.split('#', 1)[0].strip()
+			if l == "":
+				continue
+			try:
+				(k, v) = l.split(':', 1)
+				name = k.strip()
+				coeff = [float(s) for s in v.split()]
+				spec = self.FindSpectrumByName(name)
+				if spec != None:
+					spec.SetCal(coeff)
+				elif warn_notfound:
+					print "Info: No spectrum named %s found; calibration ignored." % name
+			except ValueError:
+				print "Warning: could not parse line %d of file %s: ignored." % (linenum, fname)
 		f.close()
-		return calpoly
-		
+		return True
 
-	def CalFromPairs(self, pairs):
-		"""
-		Create a calibration from two pairs of channel and corresponding energy
-		"""
-	 	if not len(pairs)==2:
-	 		print "The number of pairs must be exactly two."
-	 		raise ValueError
-	 	cal = hdtv.util.Linear.FromXYPairs(pairs[0], pairs[1])
-		return [cal.p0, cal.p1]
-		
-		
-## FIXME: INTEGRATE THIS!
-#	def FindSpectrumByName(self, name):
-#		"""
-#		Find the spectrum object whose ROOT histogram has the given name.
-#		If there are several such objects, one of them (in undefined ordering)
-#		is returned. If there is none, None is returned.
-#		"""
-#		for obj in self.fObjects.itervalues():
-#			if isinstance(obj, hdtv.spectrum.Spectrum):
-#				if obj.fHist != None and obj.fHist.GetName() == name:
-#					return obj
-#		return None
-#			
-## FIXME: INTEGRATE THIS!
-#	def ReadCalibrationList(self, fname, warn_notfound=False):
-#		"""
-#		Reads calibrations from a calibration list file. The file has the format
-#		<specname>: <cal0> <cal1> ...
-#		
-#		The optional argument warn_notfound controls whether to warn if a name
-#		from the file does not correspond to a spectrum in the list.
-#		"""
-#		try:
-#			f = open(fname, "r")
-#		except IOError, msg:
-#			print "Error opening file: %s" % msg
-#			return False
-#		
-#		linenum = 0
-#		for l in f:
-#			linenum += 1
-#			
-#			# Remove comments and whitespace; ignore empty lines
-#			l = l.split('#', 1)[0].strip()
-#			if l == "":
-#				continue
-#			
-#			try:
-#				(k, v) = l.split(':', 1)
-#				name = k.strip()
-#				coeff = [float(s) for s in v.split()]
-#				spec = self.FindSpectrumByName(name)
-#				if spec != None:
-#					spec.SetCal(coeff)
-#				elif warn_notfound:
-#					print "Info: No spectrum named %s found; calibration ignored." % name
-#			except ValueError:
-#				print "Warning: could not parse line %d of file %s: ignored." % (linenum, fname)
 
-#		f.close()
-#		return True
-#		
-		
-	
 class TvSpecInterface:
 	"""
 	TV style commands for the spectrum interface.
@@ -252,12 +196,12 @@ class TvSpecInterface:
 		hdtv.cmdline.AddCommand("spectrum show", self.SpectrumShow, minargs=1)
 		hdtv.cmdline.AddCommand("spectrum update", self.SpectrumUpdate, minargs=1)
 		hdtv.cmdline.AddCommand("spectrum write", self.SpectrumWrite, minargs=1, maxargs=2)
-		hdtv.cmdline.AddCommand("spectrum expand", self.SpectrumExpand, maxargs=2)
-		
+
 		# calibration commands
 		hdtv.cmdline.AddCommand("calibration position read", self.CalPosRead, minargs=1,fileargs=True)
 		hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, minargs=4)
 		hdtv.cmdline.AddCommand("calibration position set", self.CalPosSet, minargs=2)
+		hdtv.cmdline.AddCommand("calibration position getlist", self.CalPosGetlist, nargs=1,fileargs=True)
 		
 	def Cd(self, args):
 		"""
@@ -370,10 +314,7 @@ class TvSpecInterface:
 		except ValueError:
 			print "Usage: spectrum write <filename>'<format> [id]"
 			return False
-			
-	def SpectrumExpand(self, args):
-		#FIXME
-		pass
+
 
 	def CalPosRead(self, args):
 		"""
@@ -381,9 +322,7 @@ class TvSpecInterface:
 		"""
 		try:
 			fname = args[0]
-			calpoly = self.specIf.CalFromFile(fname)
-			print "using calibration polynom of deg %d: %s" %(len(calpoly)-1,
-													["%f" %c for c in calpoly])
+			cal = hdtv.cal.CalFromFile(fname)
 			if len(args[1:])==0:
 				if self.spectra.activeID==None:
 					print "No index is given and there is no active spectrum"
@@ -392,20 +331,23 @@ class TvSpecInterface:
 					ids = [self.spectra.activeID]
 			else:
 				ids = hdtv.cmdhelper.ParseRange(args[1:])
+		except ValueError:
+			print "Usage: calibration position read <filename> [ids]"
+			return False
+		else:	
 			if ids=="NONE":
 				return
 			elif ids=="ALL":
 				ids = self.spectra.keys()
+		
 			for ID in ids:
 				try:
-					self.spectra[ID].SetCal(calpoly)
+					self.spectra[ID].SetCal(cal)
 					print "calibrated spectrum with id %d" %ID
 				except KeyError:
 					print "Warning: there is no spectrum with id: %s" %ID
-				self.specIf.window.Expand()
-		except ValueError:
-			print "Usage: calibration position read <filename> [ids]"
-			return False
+			self.specIf.window.Expand()
+			return True
 			
 		
 	def CalPosEnter(self, args):
@@ -416,8 +358,7 @@ class TvSpecInterface:
 			pairs = []
 			pairs.append([float(args[0]), float(args[1])])
 			pairs.append([float(args[2]), float(args[3])])
-			calpoly = self.specIf.CalFromPairs(pairs)
-			print "using calibration polynom of deg 1: %s" %["%f" %c for c in calpoly]
+			cal = hdtv.cal.CalFromPairs(pairs)
 			if len(args[4:])==0:
 				if self.spectra.activeID==None:
 					print "No index is given and there is no active spectrum"
@@ -426,20 +367,23 @@ class TvSpecInterface:
 					ids = [self.spectra.activeID]
 			else:
 				ids = hdtv.cmdhelper.ParseRange(args[4:])
+		except (ValueError, IndexError):
+			print "Usage: calibration position enter <ch0> <E0> <ch1> <E1> [ids]"
+			return False
+		else:
 			if ids=="NONE":
 				return
 			elif ids=="ALL":
 				ids = self.spectra.keys()
 			for ID in ids:
 				try:
-					self.spectra[ID].SetCal(calpoly)
+					self.spectra[ID].SetCal(cal)
 					print "calibrated spectrum with id %d" %ID
 				except KeyError:
 					print "Warning: there is no spectrum with id: %s" %ID
-				self.specIf.window.Expand()
-		except ValueError:
-			print "Usage: calibration position enter <ch0> <E0> <ch1> <E1> [ids]"
-			return False
+			self.specIf.window.Expand()
+			return True
+
 		
 	def CalPosSet(self, args):
 		"""
@@ -449,7 +393,6 @@ class TvSpecInterface:
 		try:
 			deg = int(args[0])
 			calpoly = [float(i) for i in args[1:deg+2]]
-			print "using calibration polynom of deg %d: %s" %(deg, ["%f" %c for c in calpoly])
 			if len(args[deg+2:])==0:
 				if self.spectra.activeID==None:
 					print "No index is given and there is no active spectrum"
@@ -458,6 +401,10 @@ class TvSpecInterface:
 					ids = [self.spectra.activeID]
 			else:
 				ids = hdtv.cmdhelper.ParseRange(args[deg+2:])
+		except (ValueError, IndexError):
+			print "Usage: calibration position set <deg> <p0> <p1> <p2> ... [ids]"
+			return False
+		else:
 			if ids=="NONE":
 				return
 			elif ids=="ALL":
@@ -468,10 +415,12 @@ class TvSpecInterface:
 					print "calibrated spectrum with id %d" %ID
 				except KeyError:
 					print "Warning: there is no spectrum with id: %s" %ID
-				self.specIf.window.Expand()
-		except (ValueError, IndexError):
-			print "Usage: calibration position set <deg> <p0> <p1> <p2> ... [ids]"
-			return False
+			self.specIf.window.Expand()
+			return True
+	
 		
-		
-		
+	def CalPosGetlist(self, args):
+		"""
+		Read calibrations for several spectra from file
+		"""
+		self.specIf.ReadCalibrationList(args[0])

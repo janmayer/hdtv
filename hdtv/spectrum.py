@@ -88,35 +88,6 @@ class Spectrum(Drawable):
 			return False
 		return True
 
-		
-# FIXME: does not belong here!
-#	def GetPeakList(self):
-#		"Returns a list of all fitted peaks in this spectrum"
-#		peaks = []
-#		for fit in self.fFits:
-#			peaks += fit.resultPeaks
-#		return peaks
-		
-# FIXME: does not belong here!
-#	def E2Ch(self, e):
-#		"""
-#		calculate channel values to energies
-#		"""
-#		if self.cal:
-#			return self.cal.E2Ch(e)
-#		else:
-#			return e
-#			
-
-#	def Ch2E(self, ch):
-#		"""
-#		calculate energies to channels
-#		"""
-#		if self.cal:
-#			return self.cal.Ch2E(ch)
-#		else:
-#			return ch
-
 
 	def ToTop(self):
 		"""

@@ -21,7 +21,7 @@
 import ROOT
 
 import hdtv.color
-import hdtv.util
+import hdtv.cal
 from hdtv.drawable import Drawable
 
 hdtv.dlmgr.LoadLibrary("display")
@@ -176,7 +176,8 @@ class Fit(Drawable):
 			# update peak markers
 			for (marker, peak) in zip(self.peakMarkers, self.fitter.resultPeaks):
 				marker.p1 = peak.pos.value
-		
+			# print result
+			print "\n"+6*" "+str(self)
 		
 	def Show(self):
 		self.viewport.LockUpdate()
@@ -203,7 +204,7 @@ class Fit(Drawable):
 		
 		
 	def SetCal(self, cal):
-		cal=hdtv.util.MakeCalibration(cal)
+		cal=hdtv.cal.MakeCalibration(cal)
 		if self.viewport:
 			self.viewport.LockUpdate()
 		for marker in self.peakMarkers+self.regionMarkers+self.bgMarkers:

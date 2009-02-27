@@ -1,5 +1,5 @@
 import ROOT
-import hdtv.util
+import hdtv.cal
 from hdtv.drawable import Drawable
 
 
@@ -83,7 +83,7 @@ class Marker(Drawable):
 		is kept. The calibration of the new marker can be set with the parameter
 		cal.
 		"""
-		cal = hdtv.util.MakeCalibration(cal)
+		cal = hdtv.cal.MakeCalibration(cal)
 		# translate marker positions to the new calibration
 		p1 = cal.E2Ch(self.cal.Ch2E(self.p1))
 		new = Marker(self.mtype, p1, self.color, cal)

@@ -2,7 +2,7 @@ import ROOT
 import os
 import UserDict
 
-import hdtv.util
+import hdtv.cal
 import hdtv.dlmgr
 
 hdtv.dlmgr.LoadLibrary("display")
@@ -12,7 +12,7 @@ class Drawable:
 		self.viewport = None
 		self.displayObj = None
 		self.__dict__['color'] = color
-		self.__dict__['cal'] = hdtv.util.MakeCalibration(cal) 
+		self.__dict__['cal'] = hdtv.cal.MakeCalibration(cal) 
 
 
 	def __str__(self):
@@ -48,7 +48,7 @@ class Drawable:
 		f(x) = cal[0] + cal[1]*x + cal[2]*x^2 + cal[3]*x^3 + ...
 		or already a ROOT.HDTV.Calibration object
 		"""
-		self.__dict__['cal']=hdtv.util.MakeCalibration(cal)
+		self.__dict__['cal']=hdtv.cal.MakeCalibration(cal)
 		# update the display if needed
 		try:
 			self.displayObj.SetCal(self.cal)
