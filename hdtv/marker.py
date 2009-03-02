@@ -1,3 +1,23 @@
+# -*- coding: utf-8 -*-
+
+# HDTV - A ROOT-based spectrum analysis software
+#  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+#
+# This file is part of HDTV.
+#
+# HDTV is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# HDTV is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with HDTV; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 import ROOT
 import hdtv.cal
 from hdtv.drawable import Drawable
@@ -11,29 +31,17 @@ class Marker(Drawable):
 	X: BACKGROUND", "CUT_BG", "REGION", "CUT", "PEAK", "XZOOM
 	Y: YZOOM
 	"""
-	def __init__(self, mtype, p1, color=None, cal=None):
+	def __init__(self, xytype, p1, color=None, cal=None):
 		Drawable.__init__(self, color, cal)
-		self.mtype = mtype
+		self.xytype = xytype
 		self.p1 = self.cal.E2Ch(p1)
 		self.p2 = None
-		# define the xytype of the marker
-		if mtype in ["BACKGROUND", "CUT_BG", "REGION", "CUT", "PEAK", "XZOOM"]:
-		    self.xytype = "X"
-		if mtype in ["YZOOM"]:
-		    self.xytype = "Y"
-		if not color: # set to default color
-			if mtype in ["BACKGROUND", "CUT_BG"]:
-				self.color = 11
-			elif mtype in ["REGION", "CUT"]:
-				self.color = 38
-			elif mtype in ["PEAK"]:
-				self.color = 50
-			elif mtype in ["XZOOM", "YZOOM"]:
-				self.color = 10
-		
 		
 	def __str__(self):
-		return '%s marker at %s' %(self.mtype, self.p1)
+		if self.p2:
+			return '%s marker at %s and %s' %(self.xytype, self.p1, self.p2)
+		else:
+			return '%s marker at %s' %(self.xytype, self.p1)
 		
 	def Draw(self, viewport):
 		""" 
@@ -42,7 +50,8 @@ class Marker(Drawable):
 		if self.viewport:
 			if self.viewport == viewport:
 				# this marker has already been drawn
-				self.Show()
+				# but maybe the position 
+				self.Refresh()
 				return
 			else:
 				# Marker can only be drawn to a single viewport
@@ -93,4 +102,76 @@ class Marker(Drawable):
 		return new
 		
 
+class MarkerCollection(Drawable):
+	def __init__(self, xytype, paired=False, maxnum=None, color=None, cal=None):
+		Drawable.__init__(self, color, cal)
+		self.xytype = xytype
+		self.paired = paired
+		self.maxnum = maxnum
+		self.collection = list()
+		
+	def Draw(self, viewport):
+		self.viewport = viewport
+		for marker in self.collection:
+			marker.Draw(self.viewport)
+			
+	def Show(self):
+		for marker in self.collection:
+			marker.Show()
+			
+	def Hide(self):
+		for marker in self.collection:
+			marker.Hide()
+			
+	def Remove(self):
+		for marker in self.collection:
+			marker.Remove()
+		self.collection = list()
+			
+	def SetColor(self, color):
+		self.color=color
+		for marker in self.collection:
+			marker.SetColor(color)
+			
+	def SetCal(self, cal):
+		self.cal= cal
+		for marker in self.collection:
+			marker.SetCal(cal)
+		
+	def __getattr__(self, name):
+		return getattr(self.collection, name)
+
+	def PutMarker(self, pos, cal=None):
+		cal = hdtv.cal.MakeCalibration(cal)
+		# translate pos to uncalibrated value
+		pos = cal.E2Ch(pos)
+		if not self.paired:
+			m = Marker(self.xytype, pos, self.color, self.cal)
+			m.Draw(self.viewport)
+			self.collection.append(m)
+		else:
+			if len(self.collection)>0 and self.collection[-1].p2==None:
+				pending = self.collection[-1]
+				pending.p2 = pos
+				pending.Refresh()
+			elif self.maxnum and len(self.collection)== self.maxnum:
+				pending = self.collection.pop(0)
+				pending.p1 = pos
+				pending.p2 = None
+				pending.Refresh()
+				self.collection.append(pending)
+			else:
+				pending = Marker(self.xytype, pos, self.color, self.cal)
+				pending.Draw(self.viewport)
+				self.collection.append(pending)
+				
+	def DeleteClosest(self, pos):
+		# FIXME: just an idea for the future
+		pass
+		
+	def ListPositions(self):
+		# FIXME: just an idea for the future
+		pass
+		
+	
 	

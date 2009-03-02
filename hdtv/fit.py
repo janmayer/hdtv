@@ -23,6 +23,7 @@ import ROOT
 import hdtv.color
 import hdtv.cal
 from hdtv.drawable import Drawable
+from hdtv.marker import MarkerCollection
 
 hdtv.dlmgr.LoadLibrary("display")
 
@@ -38,17 +39,14 @@ class Fit(Drawable):
 	uncalibrated units. 
 	"""
 
-	def __init__(self, fitter, region=[], peaks=[], backgrounds=[], 
-	             color=None, cal=None):
+	def __init__(self, fitter, color=None, cal=None):
 		Drawable.__init__(self, color, cal)
-		for marker in region+peaks+backgrounds:
-			marker.p1 = self.cal.E2Ch(marker.cal.Ch2E(marker.p1))
-			if marker.p2:
-				marker.p2 = self.cal.E2Ch(marker.cal.Ch2E(marker.p2))
-			marker.SetCal(self.cal)
-		self.regionMarkers = region
-		self.peakMarkers = peaks
-		self.bgMarkers = backgrounds
+		self.regionMarkers = MarkerCollection("X", paired=True, maxnum=1,
+												  color=38, cal=self.cal)
+		self.peakMarkers = MarkerCollection("X", paired=False, maxnum=None,
+												  color=50, cal=self.cal)
+		self.bgMarkers = MarkerCollection("X", paired=True, maxnum=None,
+												  color=11, cal=self.cal)
 		self.fitter = fitter
 		self.showDecomp = False
 		self.dispPeakFunc = None
@@ -70,58 +68,48 @@ class Fit(Drawable):
 			text+= "\n"
 			i+=1
 		return text
-
-
-	def Draw(self, viewport):
-		"""
-		Draw
-		"""
-		if self.viewport:
-			if not self.viewport == viewport:
-				# Unlike the Display object of the underlying implementation,
-				# python objects can only be drawn on a single viewport
-				raise RuntimeError, "Object can only be drawn on a single viewport"
-		self.viewport = viewport
-		# Lock updates
-		self.viewport.LockUpdate()
-		# draw fit funcs, if available
-		if self.dispBgFunc and not self.dispBgFunc in self.dispFuncs:
-			self.dispBgFunc.Draw(self.viewport)
-			self.dispFuncs.append(self.dispBgFunc)
-		if self.dispPeakFunc and not self.dispPeakFunc in self.dispFuncs:
-			self.dispPeakFunc.Draw(self.viewport)
-			self.dispFuncs.append(self.dispPeakFunc)
-		for func in self.dispDecompFuncs:
-			if not func in self.dispFuncs:
-				func.Draw(self.viewport)
-				if not self.showDecomp:
-					# hide it directly, it showDecomp==False
-					func.Hide()
-				self.dispFuncs.append(func)
-		# refresh the markers (do this after the fit, 
-		# because the fit updates the position of the peak markers)
-		for marker in self.peakMarkers+self.regionMarkers+self.bgMarkers:
-			marker.Refresh()
-		self.viewport.UnlockUpdate()
 		
-
-	def Refresh(self):
-		"""
-		Refresh
-		"""
-		# repeat the fits
-		self.viewport.LockUpdate()
-		if self.dispBgFunc:
-			self.FitBgFunc(self.fitter.spec)
+	
+	def PutPeakMarker(self, pos):
 		if self.dispPeakFunc:
-			self.FitPeakFunc(self.fitter.spec)
-		self.Draw(self.viewport)
-		# draw the markers (do this after the fit, 
-		# because the fit updates the position of the peak markers)
-		for marker in self.peakMarkers+self.regionMarkers+self.bgMarkers:
-			marker.Refresh()
-		self.viewport.UnlockUpdate()
-
+			self.dispFuncs.remove(self.dispPeakFunc)
+			self.dispPeakFunc.Remove()
+			self.dispPeakFunc = None
+		for func in self.dispDecompFuncs:
+			self.dispFuncs.remove(func)
+			func.Remove()
+		self.dispDecompFuncs = []
+		self.peakMarkers.PutMarker(pos, self.cal)
+		
+	
+	def PutRegionMarker(self, pos):
+		if self.dispPeakFunc:
+			self.dispFuncs.remove(self.dispPeakFunc)
+			self.dispPeakFunc.Remove()
+			self.dispPeakFunc = None
+		for func in self.dispDecompFuncs:
+			self.dispFuncs.remove(func)
+			func.Remove()
+		self.dispDecompFuncs = []
+		self.peakMarkers.Remove()
+		self.regionMarkers.PutMarker(pos, self.cal)
+		
+		
+	def PutBgMarker(self, pos):
+		if self.dispBgFunc:
+			self.dispFuncs.remove(self.dispBgFunc)
+			self.dispBgFunc.Remove()
+			self.dispBgFunc = None
+		if self.dispPeakFunc:
+			self.dispFuncs.remove(self.dispPeakFunc)
+			self.dispPeakFunc.Remove()
+			self.dispPeakFunc = None
+		for func in self.dispDecompFuncs:
+			self.dispFuncs.remove(func)
+			func.Remove()
+		self.dispDecompFuncs = []
+		self.bgMarkers.PutMarker(pos, self.cal)
+		
 
 	def FitBgFunc(self, spec):
 		"""
@@ -133,6 +121,14 @@ class Fit(Drawable):
 			self.dispFuncs.remove(self.dispBgFunc)
 			self.dispBgFunc.Remove()
 			self.dispBgFunc = None
+		if self.dispPeakFunc:
+			self.dispFuncs.remove(self.dispPeakFunc)
+			self.dispPeakFunc.Remove()
+			self.dispPeakFunc = None
+		for func in self.dispDecompFuncs:
+			self.dispFuncs.remove(func)
+			func.Remove()
+		self.dispDecompFuncs = []
 		# fit background 
 		if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
 			backgrounds =  map(lambda m: [m.p1, m.p2], self.bgMarkers)
@@ -141,6 +137,7 @@ class Fit(Drawable):
 			self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.FIT_BG_FUNC)
 			if spec.cal:
 				self.dispBgFunc.SetCal(spec.cal)
+			self.dispFuncs.append(self.dispBgFunc)
 			
 	
 	def FitPeakFunc(self, spec):
@@ -166,6 +163,7 @@ class Fit(Drawable):
 			self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.FIT_SUM_FUNC)
 			if spec.cal:
 				self.dispPeakFunc.SetCal(spec.cal)
+			self.dispFuncs.append(self.dispPeakFunc)
 			# extract function for each peak (decomposition)
 			for i in range(0, self.fitter.peakFitter.GetNumPeaks()):
 				func = self.fitter.peakFitter.GetPeak(i).GetPeakFunc()
@@ -173,42 +171,95 @@ class Fit(Drawable):
 				if spec.cal:
 					dispFunc.SetCal(spec.cal)
 				self.dispDecompFuncs.append(dispFunc)
+				self.dispFuncs.append(dispFunc)
 			# update peak markers
 			for (marker, peak) in zip(self.peakMarkers, self.fitter.resultPeaks):
 				marker.p1 = peak.pos.value
 			# print result
 			print "\n"+6*" "+str(self)
+
+
+
+	def Draw(self, viewport):
+		"""
+		Draw
+		"""
+		if self.viewport:
+			if not self.viewport == viewport:
+				# Unlike the Display object of the underlying implementation,
+				# python objects can only be drawn on a single viewport
+				raise RuntimeError, "Object can only be drawn on a single viewport"
+		self.viewport = viewport
+		# Lock updates
+		self.viewport.LockUpdate()
+		# draw fit funcs, if available
+		for func in self.dispFuncs:
+			func.Draw(self.viewport)
+		# draw the markers (do this after the fit, 
+		# because the fit updates the position of the peak markers)
+		self.peakMarkers.Draw(self.viewport)
+		self.regionMarkers.Draw(self.viewport)
+		self.bgMarkers.Draw(self.viewport)
+		self.viewport.UnlockUpdate()
 		
+
+	def Refresh(self):
+		"""
+		Refresh
+		"""
+		# repeat the fits
+		self.viewport.LockUpdate()
+		if self.dispBgFunc:
+			self.FitBgFunc(self.fitter.spec)
+		if self.dispPeakFunc:
+			self.FitPeakFunc(self.fitter.spec)
+		self.Draw(self.viewport)
+		# draw the markers (do this after the fit, 
+		# because the fit updates the position of the peak markers)
+		self.peakMarkers.Refresh()
+		self.regionMarkers.Refresh()
+		self.bgMarkers.Refresh()
+		self.viewport.UnlockUpdate()
+
+
 	def Show(self):
 		self.viewport.LockUpdate()
-		objs = self.dispFuncs+self.peakMarkers+self.regionMarkers+self.bgMarkers
-		for obj in objs:
+		self.peakMarkers.Show()
+		self.regionMarkers.Show()
+		self.bgMarkers.Show()
+		for obj in self.dispFuncs:
 			obj.Show()
 		self.viewport.UnlockUpdate()
 		
 		
 	def Hide(self):
 		self.viewport.LockUpdate()
-		objs = self.dispFuncs+self.peakMarkers+self.regionMarkers+self.bgMarkers
-		for obj in objs:
+		self.peakMarkers.Hide()
+		self.regionMarkers.Hide()
+		self.bgMarkers.Hide()
+		for obj in self.dispFuncs:
 			obj.Hide()
 		self.viewport.UnlockUpdate()
 		
 		
 	def Remove(self):
 		self.viewport.LockUpdate()
-		objs = self.dispFuncs+self.peakMarkers+self.regionMarkers+self.bgMarkers
-		for obj in objs:
-			obj.Remove()
+		self.peakMarkers.Remove()
+		self.regionMarkers.Remove()
+		self.bgMarkers.Remove()
+		while len(self.dispFuncs)>0:
+			self.dispFuncs.pop().Remove()
 		self.viewport.UnlockUpdate()
+		self.fitter.resultPeaks = []
 		
 		
 	def SetCal(self, cal):
 		cal=hdtv.cal.MakeCalibration(cal)
 		if self.viewport:
 			self.viewport.LockUpdate()
-		for marker in self.peakMarkers+self.regionMarkers+self.bgMarkers:
-			marker.SetCal(cal)
+		self.peakMarkers.SetCal(cal)
+		self.regionMarkers.SetCal(cal)
+		self.bgMarkers.SetCal(cal)
 		for obj in self.dispFuncs:
 			obj.SetCal(cal)
 		if self.viewport:

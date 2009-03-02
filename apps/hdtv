@@ -33,15 +33,15 @@ import specInterface
 import fitInterface 
 
 window = hdtv.window.Window() 
-spectra = hdtv.drawable.DrawableCompound(window.fViewport)
+spectra = hdtv.drawable.DrawableCompound(window.viewport)
 
 s = specInterface.SpecInterface(window, spectra)
 f = fitInterface.FitInterface(window, spectra)
 
 # for debugging
-#s.LoadSpectra("../test/spectra/231Th_7down.ascii")
-s.LoadSpectra("../test/spectra/231Th*.ascii")
-s.ReadCalibrationList("../test/spectra/231Th_calibrations.txt")
+#s.LoadSpectra(hdtvpath+"/test/spectra/231Th_7down.ascii")
+s.LoadSpectra(hdtvpath+"/test/spectra/231Th*.ascii")
+#s.ReadCalibrationList(hdtvpath+"/test/spectra/231Th_calibrations.txt")
 	
 
 # Go

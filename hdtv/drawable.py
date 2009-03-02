@@ -1,3 +1,24 @@
+# -*- coding: utf-8 -*-
+
+# HDTV - A ROOT-based spectrum analysis software
+#  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+#
+# This file is part of HDTV.
+#
+# HDTV is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# HDTV is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with HDTV; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+
 import ROOT
 import os
 import UserDict
@@ -11,28 +32,20 @@ class Drawable:
 	def __init__(self, color=None, cal=None):
 		self.viewport = None
 		self.displayObj = None
-		self.__dict__['color'] = color
-		self.__dict__['cal'] = hdtv.cal.MakeCalibration(cal) 
+		self.color = color
+		self.cal = hdtv.cal.MakeCalibration(cal) 
 
 
 	def __str__(self):
 		return str(self.displayObj)
 
-	def __setattr__(self, name, value):
-		if name=='cal':
-			self.SetCal(value)
-		elif name == 'color':
-			self.SetColor(value)
-		else:
-			# use all other values as they are
-			self.__dict__[name]=value
-			
+
 	def SetColor(self, color):
 		"""
 		set color of the object 
 		"""
 		if color:
-			self.__dict__['color'] = color
+			self.color = color
 		# update the display if needed	
 		try:
 			self.displayObj.SetColor(color)
@@ -48,7 +61,7 @@ class Drawable:
 		f(x) = cal[0] + cal[1]*x + cal[2]*x^2 + cal[3]*x^3 + ...
 		or already a ROOT.HDTV.Calibration object
 		"""
-		self.__dict__['cal']=hdtv.cal.MakeCalibration(cal)
+		self.cal=hdtv.cal.MakeCalibration(cal)
 		# update the display if needed
 		try:
 			self.displayObj.SetCal(self.cal)
@@ -62,7 +75,8 @@ class Drawable:
 		Attention: Unlike the Display object of the underlying implementation,
 		python objects can only be drawn on a single viewport
 		"""
-		pass
+		self.viewport = viewport
+
 		
 	def Refresh(self):
 		"""
@@ -139,6 +153,7 @@ class DrawableCompound(UserDict.DictMixin):
 			self.visible.discard(ID)
 		if ID == self.activeID:
 			self.activeID = None
+		self.objects[ID].Remove()
 		self.objects.__delitem__(ID)
 
 	def keys(self):

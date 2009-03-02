@@ -1,6 +1,27 @@
+# -*- coding: utf-8 -*-
+
+# HDTV - A ROOT-based spectrum analysis software
+#  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+#
+# This file is part of HDTV.
+#
+# HDTV is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# HDTV is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with HDTV; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+
 import ROOT
 import hdtv.dlmgr
-from hdtv.marker import Marker
+from hdtv.marker import MarkerCollection
 
 from types import *
 
@@ -84,7 +105,7 @@ class KeyHandler(HotkeyList):
                               ROOT.kKey_NumLock,
                               ROOT.kKey_ScrollLock)
 
-		# Parent class must provide self.fViewer and self.fViewport!
+		# Parent class must provide self.viewer and self.viewport!
 		
 	
 	def EnterEditMode(self, prompt, handler):
@@ -95,23 +116,23 @@ class KeyHandler(HotkeyList):
 		self.fEditStr = ""
 		self.fEditPrompt = prompt
 		self.fEditHandler = handler
-		self.fViewport.SetStatusText(self.fEditPrompt)
+		self.viewport.SetStatusText(self.fEditPrompt)
 
 		
 	def EditKeyHandler(self):
 		"""
 		Key handler in edit mode
 		"""
-		if self.fViewer.fKeySym == ROOT.kKey_Backspace:
+		if self.viewer.fKeySym == ROOT.kKey_Backspace:
 			self.fEditStr = self.fEditStr[0:-1]
-			self.fViewport.SetStatusText(self.fEditPrompt + self.fEditStr)
-		elif self.fViewer.fKeySym == ROOT.kKey_Return:
+			self.viewport.SetStatusText(self.fEditPrompt + self.fEditStr)
+		elif self.viewer.fKeySym == ROOT.kKey_Return:
 			self.fEditMode = False
-			self.fViewport.SetStatusText("")
+			self.viewport.SetStatusText("")
 			self.fEditHandler(self.fEditStr)
-		elif self.fViewer.fKeyStr != "":
-			self.fEditStr += self.fViewer.fKeyStr
-			self.fViewport.SetStatusText(self.fEditPrompt + self.fEditStr)
+		elif self.viewer.fKeyStr != "":
+			self.fEditStr += self.viewer.fKeyStr
+			self.viewport.SetStatusText(self.fEditPrompt + self.fEditStr)
 		else:
 			return False
 			
@@ -123,16 +144,16 @@ class KeyHandler(HotkeyList):
 		Key handler (handles hotkeys and calls EditKeyHandler in edit mode)
 		"""
 		# Filter unknown and modifier keys
-		if self.fViewer.fKeySym in self.MODIFIER_KEYS or \
-		   self.fViewer.fKeySym == ROOT.kKey_Unknown:
+		if self.viewer.fKeySym in self.MODIFIER_KEYS or \
+		   self.viewer.fKeySym == ROOT.kKey_Unknown:
 			return
 			
 		# ESC aborts
-		if self.fViewer.fKeySym == ROOT.kKey_Escape:
+		if self.viewer.fKeySym == ROOT.kKey_Escape:
 			self.ResetHotkeyState()
 			self.fEditMode = False
 			self.fKeyString = ""
-			self.fViewport.SetStatusText("")
+			self.viewport.SetStatusText("")
 			return True
 			
 		# There are two modes: the ``edit'' mode, in which the status
@@ -141,23 +162,23 @@ class KeyHandler(HotkeyList):
 		if self.fEditMode:
 			handled = self.EditKeyHandler()
 		else:
-			keyStr = self.fViewer.fKeyStr
+			keyStr = self.viewer.fKeyStr
 		
 			if not keyStr:
 				keyStr = "<?>"
 		
-			handled = self.HandleHotkey(self.fViewer.fKeySym)
+			handled = self.HandleHotkey(self.viewer.fKeySym)
 			
 			if handled == None:
 				self.fKeyString += keyStr
-				self.fViewport.SetStatusText("Command: %s" % self.fKeyString)
+				self.viewport.SetStatusText("Command: %s" % self.fKeyString)
 			elif handled == False:
 				self.fKeyString += keyStr
-				self.fViewport.SetStatusText("Invalid hotkey %s" % self.fKeyString)
+				self.viewport.SetStatusText("Invalid hotkey %s" % self.fKeyString)
 				self.fKeyString = ""
 			else:
 				if not self.fEditMode:
-					self.fViewport.SetStatusText("")
+					self.viewport.SetStatusText("")
 				self.fKeyString = ""
 
 		return handled
@@ -173,41 +194,43 @@ class Window(KeyHandler):
 	def __init__(self):
 		KeyHandler.__init__(self)
 	
-		self.fViewer = ROOT.HDTV.Display.Viewer()
-		self.fViewport = self.fViewer.GetViewport()
+		self.viewer = ROOT.HDTV.Display.Viewer()
+		self.viewport = self.viewer.GetViewport()
 		
-		self.fXZoomMarkers = []
-		self.fYZoomMarkers = []
+		self.XZoomMarkers = MarkerCollection("X", paired=True, maxnum=1, color=10)
+		self.XZoomMarkers.Draw(self.viewport)
+		self.YZoomMarkers = MarkerCollection("Y", paired=True, maxnum=1, color=10)
+		self.YZoomMarkers.Draw(self.viewport)
 
 		# Key Handling
-		self.fKeyDispatch = ROOT.TPyDispatcher(self.KeyHandler)
-		self.fViewer.Connect("KeyPressed()", "TPyDispatcher", 
-							 self.fKeyDispatch, "Dispatch()")
+		self.keyDispatch = ROOT.TPyDispatcher(self.KeyHandler)
+		self.viewer.Connect("KeyPressed()", "TPyDispatcher", 
+							 self.keyDispatch, "Dispatch()")
 		
-		self.fKeyString = ""
-		self.AddHotkey(ROOT.kKey_u, lambda: self.fViewport.Update())
+		self.keyString = ""
+		self.AddHotkey(ROOT.kKey_u, lambda: self.viewport.Update())
 		# toggle spectrum display
-		self.AddHotkey(ROOT.kKey_l, self.fViewport.ToggleLogScale)
-		self.AddHotkey(ROOT.kKey_A, self.fViewport.ToggleYAutoScale)
-		self.AddHotkey(ROOT.kKey_Exclam, self.fViewport.ToggleUseNorm)
+		self.AddHotkey(ROOT.kKey_l, self.viewport.ToggleLogScale)
+		self.AddHotkey(ROOT.kKey_A, self.viewport.ToggleYAutoScale)
+		self.AddHotkey(ROOT.kKey_Exclam, self.viewport.ToggleUseNorm)
 		# x directions
 		self.AddHotkey(ROOT.kKey_Space, self.PutXZoomMarker)
 		self.AddHotkey(ROOT.kKey_x, self.ExpandX)
-		self.AddHotkey(ROOT.kKey_Right, lambda: self.fViewport.ShiftXOffset(0.1))
-		self.AddHotkey(ROOT.kKey_Left, lambda: self.fViewport.ShiftXOffset(-0.1))
-		self.AddHotkey(ROOT.kKey_Greater, lambda: self.window.fViewport.ShiftXOffset(0.1))
-		self.AddHotkey(ROOT.kKey_Less, lambda: self.window.fViewport.ShiftXOffset(-0.1))
-		self.AddHotkey(ROOT.kKey_Return, lambda: self.window.fViewport.Update(True))
-		self.AddHotkey(ROOT.kKey_Bar,lambda: self.fViewport.SetXCenter(self.fViewport.GetCursorX()))
-		self.AddHotkey(ROOT.kKey_1, lambda: self.fViewport.XZoomAroundCursor(2.0))
-		self.AddHotkey(ROOT.kKey_0, lambda: self.fViewport.XZoomAroundCursor(0.5))
+		self.AddHotkey(ROOT.kKey_Right, lambda: self.viewport.ShiftXOffset(0.1))
+		self.AddHotkey(ROOT.kKey_Left, lambda: self.viewport.ShiftXOffset(-0.1))
+		self.AddHotkey(ROOT.kKey_Greater, lambda: self.viewport.ShiftXOffset(0.1))
+		self.AddHotkey(ROOT.kKey_Less, lambda: self.viewport.ShiftXOffset(-0.1))
+		self.AddHotkey(ROOT.kKey_Return, lambda: self.viewport.Update(True))
+		self.AddHotkey(ROOT.kKey_Bar,lambda: self.viewport.SetXCenter(self.viewport.GetCursorX()))
+		self.AddHotkey(ROOT.kKey_1, lambda: self.viewport.XZoomAroundCursor(2.0))
+		self.AddHotkey(ROOT.kKey_0, lambda: self.viewport.XZoomAroundCursor(0.5))
 		# y direction
 		self.AddHotkey(ROOT.kKey_h, self.PutYZoomMarker)
 		self.AddHotkey(ROOT.kKey_y, self.ExpandY)
-		self.AddHotkey(ROOT.kKey_Up, lambda: self.fViewport.ShiftYOffset(0.1))
-		self.AddHotkey(ROOT.kKey_Down, lambda: self.fViewport.ShiftYOffset(-0.1))
-		self.AddHotkey(ROOT.kKey_Z, lambda: self.fViewport.YZoomAroundCursor(2.0))
-		self.AddHotkey(ROOT.kKey_X, lambda: self.fViewport.YZoomAroundCursor(0.5))
+		self.AddHotkey(ROOT.kKey_Up, lambda: self.viewport.ShiftYOffset(0.1))
+		self.AddHotkey(ROOT.kKey_Down, lambda: self.viewport.ShiftYOffset(-0.1))
+		self.AddHotkey(ROOT.kKey_Z, lambda: self.viewport.YZoomAroundCursor(2.0))
+		self.AddHotkey(ROOT.kKey_X, lambda: self.viewport.YZoomAroundCursor(0.5))
 		# expand in all directions
 		self.AddHotkey(ROOT.kKey_e, self.Expand)
 
@@ -216,24 +239,24 @@ class Window(KeyHandler):
 
 # FIXME: Test this and add it back
 #		# Register configuration variables
-#		opt = hdtv.options.Option(default = self.fViewport.GetYMinVisibleRegion(),
+#		opt = hdtv.options.Option(default = self.viewport.GetYMinVisibleRegion(),
 #                                  parse = lambda(x): float(x),
 #                                  changeCallback = self.YMinVisibleRegionChanged)
 #		config.RegisterOption("display.YMinVisibleRegion", opt)
 #		
 #		def YMinVisibleRegionChanged(self, opt):
-#			self.fViewport.SetYMinVisibleRegion(opt.Get())
+#			self.viewport.SetYMinVisibleRegion(opt.Get())
 #	
 	
 	def GoToPosition(self, arg):
 		try:
 			center = float(arg)
 		except ValueError:
-			self.fViewport.SetStatusText("Invalid position: %s" % arg)
+			self.viewport.SetStatusText("Invalid position: %s" % arg)
 			return
 		
-		self.fViewport.SetXVisibleRegion(100.)
-		self.fViewport.SetXCenter(center)
+		self.viewport.SetXVisibleRegion(100.)
+		self.viewport.SetXCenter(center)
 		
 
 	def ExpandX(self):
@@ -265,57 +288,33 @@ class Window(KeyHandler):
   			print "invalid parameter %s to the private function _expand" % xytype
   			return
   		
-  		zoomMarkers = getattr(self,"f%sZoomMarkers" %xytype)
+  		zoomMarkers = getattr(self,"%sZoomMarkers" %xytype)
   		if len(zoomMarkers) == 1:
   			zm = zoomMarkers[0] 
-  			setOffset = getattr(self.fViewport, "Set%sOffset" % xytype)
+  			setOffset = getattr(self.viewport, "Set%sOffset" % xytype)
   			setOffset(min(zm.p1, zm.p2))
-  			setVisibleRegion = getattr(self.fViewport, "Set%sVisibleRegion" % xytype)
+  			setVisibleRegion = getattr(self.viewport, "Set%sVisibleRegion" % xytype)
   			setVisibleRegion(abs(zm.p2 - zm.p1))
   			zm.Remove()
-  			getattr(self,"f%sZoomMarkers" %xytype).pop()
+  			getattr(self,"%sZoomMarkers" %xytype).pop()
   		else:
   			if xytype == "X":
-  				self.fViewport.ShowAll()
+  				self.viewport.ShowAll()
   			elif xytype == "Y":
-  	 			self.fViewport.YAutoScaleOnce()
+  	 			self.viewport.YAutoScaleOnce()
 
 	def PutXZoomMarker(self):
   		"""
   		set a X zoom marker
   		"""
-		self.PutPairedMarker("X", "XZOOM", self.fXZoomMarkers, 1)
+  		pos = self.viewport.GetCursorX()
+		self.XZoomMarkers.PutMarker(pos)
 		
 	def PutYZoomMarker(self):
 		"""
 		set a Y zoom marker
 		"""
-		self.PutPairedMarker("Y", "YZOOM", self.fYZoomMarkers, 1)
+		pos = self.viewport.GetCursorY()
+		self.YZoomMarkers.PutMarker(pos)
 
-	def PutPairedMarker(self, xy, mtype, collection, maxnum=None):
-		"""
-		set paired markers (either X or Y direction)
-		"""
-		# FIXME: I am not sure, if this belongs here. It may be better 
-		#        to include it into the marker class
-		if xy == "X" or xy == "x":
-			pos = self.fViewport.GetCursorX()
-		elif xy == "Y" or xy == "y":
-			pos = self.fViewport.GetCursorY()
-		else:
-			raise RuntimeError, "Parameter xy must be either x or y"
 
-		if len(collection)>0 and collection[-1].p2==None:
-			pending = collection[-1]
-			pending.p2 = pos
-			pending.Refresh()
-		elif maxnum and len(collection)== maxnum:
-			pending = collection.pop(0)
-			pending.p1 = pos
-			pending.p2 = None
-			pending.Refresh()
-			collection.append(pending)
-		else:
-			pending = Marker(mtype, pos, color=None)
-			collection.append(pending)
-			pending.Draw(self.fViewport)

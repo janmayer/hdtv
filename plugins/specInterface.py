@@ -54,11 +54,6 @@ class SpecInterface:
 		self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_n], self.spectra.ShowNext)
 		self.window.AddHotkey(ROOT.kKey_Equal, self.spectra.RefreshAll)
 		self.window.AddHotkey(ROOT.kKey_t, self.spectra.RefreshVisible)
-		self.window.AddHotkey(ROOT.kKey_Greater, lambda: self.window.fViewport.ShiftXOffset(0.1))
-		self.window.AddHotkey(ROOT.kKey_Less, lambda: self.window.fViewport.ShiftXOffset(-0.1))
-		self.window.AddHotkey(ROOT.kKey_Return, lambda: self.window.fViewport.Update(True))
-		self.window.AddHotkey(ROOT.kKey_Bar,
-		        lambda: self.window.fViewport.SetXCenter(self.window.fViewport.GetCursorX()))
 		self.window.AddHotkey(ROOT.kKey_n,
 		        lambda: self.window.EnterEditMode(prompt="Show spectrum: ",
 		                                   handler=self.HotkeyShow))
@@ -74,7 +69,7 @@ class SpecInterface:
 			ids = [int(a) for a in arg.split()]
 			self.spectra.ShowObjects(ids)
 		except ValueError:
-			self.window.fViewport.SetStatusText("Invalid spectrum identifier: %s" % arg)
+			self.window.viewport.SetStatusText("Invalid spectrum identifier: %s" % arg)
 
 		
 	def HotkeyActivate(self, arg):
@@ -85,9 +80,9 @@ class SpecInterface:
 			ID = int(arg)
 			self.spectra.ActivateObject(ID)
 		except ValueError:
-			self.window.fViewport.SetStatusText("Invalid id: %s" % arg)
+			self.window.viewport.SetStatusText("Invalid id: %s" % arg)
 		except KeyError:
-			self.window.fViewport.SetStatusText("No such id: %d" % ID)
+			self.window.viewport.SetStatusText("No such id: %d" % ID)
 
 
 	def LoadSpectra(self, files):
@@ -97,7 +92,7 @@ class SpecInterface:
 		It is possible to use wildcards. 
 		"""
 		# Avoid multiple updates
-		self.window.fViewport.LockUpdate()
+		self.window.viewport.LockUpdate()
 		# only one filename is given
 		if type(files) == str or type(files) == unicode:
 			files = [files]
@@ -123,7 +118,7 @@ class SpecInterface:
 					loaded.append(ID)
 		# Update viewport if required
 		self.window.Expand()
-		self.window.fViewport.UnlockUpdate()
+		self.window.viewport.UnlockUpdate()
 		return loaded
 
 
