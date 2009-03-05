@@ -77,6 +77,13 @@ class Fitter:
 		self.peakModel = model()
 		
 	
+	def Copy(self):
+		new = Fitter(self.peakModel.Name(), self.bgdeg)
+		new.peakModel.fParStatus = self.peakModel.fParStatus
+		return new
+	
+	
+	
 #	def SetParameter(self, parname, status):
 #		"""
 #		Sets a parameter of the underlying peak model

@@ -120,9 +120,8 @@ class FitInterface:
 		self.window = window
 		self.spectra = spectra
 
-		self.peakModel = "theuerkauf"
-		self.bgdeg = 1 
-		self.activeFit = Fit(Fitter(self.peakModel, self.bgdeg))
+		self.defaultFitter = Fitter(peakModel="theuerkauf",bgdeg=1)
+		self.activeFit = Fit(self.defaultFitter.Copy())
 		self.activeFit.Draw(self.window.viewport)
 
 
@@ -225,6 +224,9 @@ class FitInterface:
 			spec = self.spectra[self.spectra.activeID]
 			if hasattr(spec, "activeID") and not spec.activeID==None:
 				return spec[spec.activeID]
+		if not self.activeFit:
+			self.activeFit = Fit(self.defaultFitter.Copy())
+			self.activeFit.Draw(self.window.viewport)
 		return self.activeFit
 
 
@@ -247,9 +249,7 @@ class FitInterface:
 			ID = spec.GetFreeID()
 			spec[ID]=self.activeFit
 			spec.ActivateObject(ID)
-			# fresh Fit
-			self.activeFit = Fit(Fitter(self.peakModel, self.bgdeg)) 
-			self.activeFit.Draw(self.window.viewport)
+			self.activeFit = None
 		fit = spec[spec.activeID]
 		fit.FitBgFunc(spec)
 		fit.Draw(self.window.viewport)
@@ -274,9 +274,7 @@ class FitInterface:
 			ID = spec.GetFreeID()
 			spec[ID]=self.activeFit
 			spec.ActivateObject(ID)
-			# fresh Fit
-			self.activeFit = Fit(Fitter(self.peakModel, self.bgdeg)) 
-			self.activeFit.Draw(self.window.viewport)
+			self.activeFit = None
 		fit = spec[spec.activeID]
 		if len(fit.bgMarkers)>0:
 			fit.FitBgFunc(spec)
@@ -295,12 +293,18 @@ class FitInterface:
 		if not hasattr(spec, "activeID"):
 			print 'There are no fits for this spectrum'
 			return
+		if not self.spectra.activeID in self.spectra.visible:
+			print 'Warning: active spectrum (id=%s) is not visible' %self.spectra.activeID
 		if not spec.activeID==None:
 			# keep current status of old fit
 			self.KeepFit()
+		elif self.activeFit:
+			self.activeFit.Remove()
+			self.activeFit = None
 		# activate another fit
 		spec.ActivateObject(ID)
-		spec[spec.activeID].Show()
+		if self.spectra.activeID in self.spectra.visible:
+			spec[spec.activeID].Show()
 		
 	
 	def KeepFit(self):
@@ -322,6 +326,7 @@ class FitInterface:
 			spec.pop(spec.activeID)
 		# deactivate all objects
 		spec.ActivateObject(None)
+		
 
 
 	def ClearFit(self):
@@ -352,7 +357,9 @@ class FitInterface:
 		
 
 	def SetBgDeg(self, bgdeg):
-		self.bgdeg = bgdeg
+		# change default fitter
+		self.defaultFitter.bgdeg = bgdeg
+		# and for active fit
 		fit = self.GetActiveFit()
 		fit.fitter.bgdeg = bgdeg
 		fit.Refresh()
@@ -370,8 +377,11 @@ class FitInterface:
 		statstr += fitter.OptionsStr()
 		print statstr
 
-# TODO: Testing!
-	def SetFitParameters(self, parname, status):
+
+	def SetParameter(self, parname, status):
+		# change default fitter
+		self.defaultFitter.SetParameter(parname, status)
+		# and active fit
 		fit = self.GetActiveFit()
 		fit.fitter.SetParameter(parname, status)
 		fit.Refresh()
@@ -380,15 +390,39 @@ class FitInterface:
 #		self.fFitGui.FitUpdateData()
 
 
-# TODO: Testing!
-	def ResetFitParameters(self, parname):
+
+	def ResetParameters(self):
+		# change default fitter
+		self.defaultFitter.ResetParamStatus()
+		# and active fit
 		fit = self.GetActiveFit()
-		fit.fitter.ResetParameter(parname)
+		fit.fitter.ResetParamStatus()
 		fit.Refresh()
 #		# Update options
 #		self.fFitGui.FitUpdateOptions()
 #		self.fFitGui.FitUpdateData()
 
+
+	def SetPeakModel(self, peakmodel):
+		"""
+		Set the peak model (function used for fitting peaks)
+		"""
+		fit = self.GetActiveFit()
+		fitter = fit.fitter
+		if self.tv:
+			# Unregister old parameter
+			self.tv.UnregisterFitParameter(fitter)
+		# Set new peak model
+		self.defaultFitter.SetPeakModel(peakmodel)
+		fitter.SetPeakModel(peakmodel)
+		if self.tv:
+			# Register new parameter
+			self.tv.RegisterFitParameter(fitter)
+		fit.Refresh()
+#		# Update options
+#		self.fFitGui.FitUpdateOptions()
+#		self.fFitGui.FitUpdateData()
+			
 
 class TvFitInterface:
 	"""
@@ -397,8 +431,10 @@ class TvFitInterface:
 	def __init__(self, fitInterface):
 		self.fitIf = fitInterface
 		self.spectra = self.fitIf.spectra
-
+		
 		# register tv commands
+		self.RegisterFitParameter(self.fitIf.defaultFitter)
+		
 		hdtv.cmdline.AddCommand("fit list", self.FitList, nargs=0)
 		hdtv.cmdline.AddCommand("fit show", self.FitShow, minargs=1)
 		hdtv.cmdline.AddCommand("fit delete", self.FitDelete, minargs=1)
@@ -406,11 +442,26 @@ class TvFitInterface:
 		hdtv.cmdline.AddCommand("fit param background degree", self.FitParamBgDeg, nargs=1)
 		hdtv.cmdline.AddCommand("fit param status", self.FitParamStatus, nargs=0)
 		hdtv.cmdline.AddCommand("fit param reset", self.FitParamReset, nargs=0)
-
-#		hdtv.cmdline.AddCommand("fit function peak activate", self.FitSetPeakModel,
-#								completer=self.PeakModelCompleter, nargs=1)
-
+		hdtv.cmdline.AddCommand("fit function peak activate", self.FitSetPeakModel,
+								completer=self.PeakModelCompleter, nargs=1)
+		
 		hdtv.cmdline.AddCommand("calibration position assign", self.CalPosAssign, minargs=2)
+	
+	
+	def RegisterFitParameter(self, fitter):
+		# we need to create the function outside the loop
+		def MakeSetFunction(param):
+			return lambda args: self.fitIf.SetParameter(param," ".join(args))
+		# create new commands 
+		for param in fitter.OrderedParamKeys():
+			hdtv.cmdline.AddCommand("fit param %s" % param, MakeSetFunction(param), minargs=1)
+
+	def UnregisterFitParameter(self, fitter):
+		# Unregister old parameters
+		for param in fitter.OrderedParamKeys():
+			hdtv.cmdline.RemoveCommand("fit param %s" % param)
+
+		
 
 	def FitList(self, args):
 		"""
@@ -508,52 +559,15 @@ class TvFitInterface:
 		self.fitIf.ShowFitStatus()
 
 	def FitParamReset(self, args):
-		self.fitIf.ResetFitParameters()
+		self.fitIf.ResetParameters()
 	
-
-# FIXME!
-#	def FitParam(self, param, args):
-#		try:
-#			self.fitIf.SetFitParameters(param, " ".join(args))
-#		except ValueError:
-#			print "Usage: fit parameter <parname> [free|ifree|hold|disable|<number>]"
-#			return False
-#		except RuntimeError, e:
-#			print e
-#			return False
-
-#	def PeakModelCompleter(self, text):
-#		return hdtv.util.GetCompleteOptions(text, hdtv.fitter.gPeakModels.iterkeys())
-#			
-#	def SetPeakModel(self, args):
-#		"""
-#		Set the peak model (function used for fitting peaks)
-#		"""
-#		
+	def FitSetPeakModel(self, args):
+		self.fitIf.SetPeakModel(args[0].lower())
 
 
-#		# Unregister old parameters
-#		for param in fitter.OrderedParamKeys():
-#			hdtv.cmdline.RemoveCommand("fit param %s" % param)
-
-#		# Set new peak model
-#		fitter.SetPeakModel(args[0].lower())
-#		
-#		# Register new parameters
-#		def MakeParamCmd(param):
-#			return lambda args: self.FitParam(param, args)
-
-#		for param in fitter.OrderedParamKeys():
-#			hdtv.cmdline.AddCommand("fit param %s" % param,
-#			                        MakeParamCmd(param),
-#			                        minargs=1)
-		
-		# Update options
-		self.fFitGui.FitUpdateOptions()
-		self.fFitGui.FitUpdateData()
-
-
-
+	def PeakModelCompleter(self, text):
+		return hdtv.util.GetCompleteOptions(text, hdtv.fitter.gPeakModels.iterkeys())
+			
 
 
 	def CalPosAssign(self, args):

@@ -17,8 +17,8 @@ class EEPeak:
 	"""
 	Peak object for the ee fitter
 	"""
-	def __init__(self, fit, pos, amp, sigma1, sigma2, eta, gamma, vol):
-		self.fit = fit
+	def __init__(self, spec, pos, amp, sigma1, sigma2, eta, gamma, vol):
+		self.spec = spec
 		self.pos = pos
 		self.amp = amp
 		self.sigma1 = sigma1
@@ -27,8 +27,31 @@ class EEPeak:
 		self.gamma = gamma
 		self.vol = vol
 		
-	def GetPos(self):
-		return self.pos.value
+
+	def __getattr__(self, key):
+		"""
+		Calculate calibrated values for pos and fwhm on the fly with the 
+		current calibration.
+		"""
+		if key == "pos_cal":
+			pos_cal_value = self.spec.cal.Ch2E(self.pos.value)
+			pos_cal_error = abs(self.spec.cal.dEdCh(self.pos.value) * self.pos.error)
+			return util.ErrValue(pos_cal_value, pos_cal_error)
+		elif key == "sigma1_cal":
+			sigma1_cal_value = self.spec.cal.Ch2E(self.pos.value) \
+			                 - self.spec.cal.Ch2E(self.pos.value - self.sigma1.value)
+			# This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
+			#  (which is true for Ch2E \approx linear)
+			sigma1_cal_error = abs(self.spec.cal.dEdCh(self.pos.value - self.sigma1.value) * self.sigma1.error)
+			return util.ErrValue(sigma1_cal_value, sigma1_cal_error)
+		elif key=="sigma2_cal":
+			sigma2_cal_value = self.spec.cal.Ch2E(self.pos.value) \
+			                 - self.spec.cal.Ch2E(self.pos.value - self.sigma2.value)
+			# This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
+			#  (which is true for Ch2E \approx linear)
+			sigma2_cal_error = abs(self.spec.cal.dEdCh(self.pos.value - self.sigma2.value) * self.sigma2.error)
+			return util.ErrValue(sigma2_cal_value, sigma2_cal_error)
+
 		
 	def __str__(self):
 		text = ""
@@ -368,36 +391,20 @@ class PeakModelEE(PeakModel):
 	def Name(self):
 		return "ee"
 		
-	def CopyPeak(self, cpeak):
+	def CopyPeak(self, spec, cpeak):
 		"""
 		Copies peak data from a C++ peak class to a Python class
 		"""
-		pos_uncal = cpeak.GetPos()
-		pos_err_uncal = cpeak.GetPosError()
-		hwhm1_uncal = cpeak.GetSigma1()
-		hwhm1_err_uncal = cpeak.GetSigma1Error()
-		hwhm2_uncal = cpeak.GetSigma2()
-		hwhm2_err_uncal = cpeak.GetSigma2Error()
-		
-		pos_cal = self.Ch2E(pos_uncal)
-		pos_err_cal = abs(self.dEdCh(pos_uncal) * pos_err_uncal)
-		
-		hwhm1_cal = self.Ch2E(pos_uncal) - self.Ch2E(pos_uncal - hwhm1_uncal)
-		hwhm2_cal = self.Ch2E(pos_uncal + hwhm2_uncal) - self.Ch2E(pos_uncal)
-		# This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
-		#  (which is true for Ch2E \approx linear)
-		hwhm1_err_cal = abs( self.dEdCh(pos_uncal - hwhm1_uncal) * hwhm1_err_uncal)
-		hwhm2_err_cal = abs( self.dEdCh(pos_uncal + hwhm2_uncal) * hwhm2_err_uncal)
-		
-		pos = util.ErrValue(pos_cal, pos_err_cal)
+		pos= util.ErrValue(cpeak.GetPos(), cpeak.GetPosError())
 		amp = util.ErrValue(cpeak.GetAmp(), cpeak.GetAmpError())
-		sigma1 = util.ErrValue(hwhm1_cal, hwhm1_err_cal)
-		sigma2 = util.ErrValue(hwhm2_cal, hwhm2_err_cal)
+		sigma1 = util.ErrValue(cpeak.GetSigma1(), cpeak.GetSigma1Error())
+		sigma2 = util.ErrValue(cpeak.GetSigma2(), cpeak.GetSigma2Error())
 		eta = util.ErrValue(cpeak.GetEta(), cpeak.GetEtaError())
 		gamma = util.ErrValue(cpeak.GetGamma(), cpeak.GetGammaError())
 		vol = util.ErrValue(cpeak.GetVol(), cpeak.GetVolError())
+		
 
-		return EEPeak(pos, amp, sigma1, sigma2, eta, gamma, vol)
+		return EEPeak(spec, pos, amp, sigma1, sigma2, eta, gamma, vol)
 		
 	def OrderedParamKeys(self):
 		"""
@@ -416,24 +423,6 @@ class PeakModelEE(PeakModel):
 		self.fParStatus["eta"] = "equal"
 		self.fParStatus["gamma"] = "equal"
 		
-	def SpecToFitter(self, parname, value, pos_uncal):
-		"""
-		Convert a value from calibrated (spectrum) to uncalibrated (fitter) units
-		"""
-		if parname == "pos":
-			return self.E2Ch(value)
-		elif parname == "sigma1":
-			pos_cal = self.Ch2E(pos_uncal)
-			left_hwhm_uncal = pos_uncal - self.E2Ch(pos_cal - value)
-			return left_hwhm_uncal
-		elif parname == "sigma2":
-			pos_cal = self.Ch2E(pos_uncal)
-			right_hwhm_uncal = self.E2Ch(pos_cal + value) - pos_uncal
-			return right_hwhm_uncal
-		elif parname in ("amp", "eta", "gamma"):
-			return value
-		else:
-			raise RuntimeError, "Unexpected parameter name"
 		
 	def GetFitter(self, region, peaklist_uncal):
 		self.fFitter = ROOT.HDTV.Fit.EEFitter(region[0], region[1])

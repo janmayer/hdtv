@@ -58,15 +58,8 @@ class Fit(Drawable):
 		i=1
 		text = str()
 		for peak in self.fitter.resultPeaks:
-			if i==1:
 				text += "Peak %d:  " %i
-			else:
-				text += 6*" "+"Peak %d:  " %i
-			text+= "Pos:" + str(peak.pos_cal.fmt()).rjust(15)
-			text+= "  Volume:" + str(peak.vol.fmt()).rjust(15)
-			text+= "  FWHM:" + str(peak.fwhm_cal.fmt()).rjust(15)
-			text+= "\n"
-			i+=1
+				text += ("\n               ".join(str(peak).split('\n')))
 		return text
 		
 	
@@ -250,6 +243,9 @@ class Fit(Drawable):
 		while len(self.dispFuncs)>0:
 			self.dispFuncs.pop().Remove()
 		self.viewport.UnlockUpdate()
+		self.dispPeakFunc = None
+		self.dispBgFunc = None
+		self.dispDecompFuncs = []
 		self.fitter.resultPeaks = []
 		
 		
