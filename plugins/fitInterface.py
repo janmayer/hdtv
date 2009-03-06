@@ -26,6 +26,7 @@ from hdtv.drawable import DrawableCompound
 from hdtv.marker import MarkerCollection
 from hdtv.fitter import Fitter
 from hdtv.fit import Fit
+from hdtv.fitpanel import FitPanel
 
 
 class SpectrumCompound(DrawableCompound):
@@ -47,6 +48,11 @@ class SpectrumCompound(DrawableCompound):
 		"""
 		return getattr(self.spec, name)
 
+	def __setitem__(self, ID, obj):
+		obj.Recalibrate(self.cal)
+		DrawableCompound.__setitem__(self, ID, obj)
+
+		
 	def Refresh(self):
 		"""
 		Refresh spectrum and fits
@@ -124,12 +130,20 @@ class FitInterface:
 		self.activeFit = Fit(self.defaultFitter.Copy())
 		self.activeFit.Draw(self.window.viewport)
 
-
 		# tv commands
 		self.tv = TvFitInterface(self)
 
+		# fit panel
+		self.fitPanel = FitPanel()
+		self.fitPanel.fFitHandler = self.FitPeaks
+		self.fitPanel.fClearHandler = self.ClearFit
+		self.fitPanel.fResetHandler = self.ResetParameters
+		self.fitPanel.fDecompHandler = lambda(stat): self.SetDecomp(stat)
+		self.fitPanel.Show()
+
 		# Register hotkeys
 		self.window.AddHotkey(ROOT.kKey_b, self._PutBgMarker)
+#		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_b], self._DeleteBgMarker)
 		self.window.AddHotkey(ROOT.kKey_r, self._PutRegionMarker)
 		self.window.AddHotkey(ROOT.kKey_p, self._PutPeakMarker)
 #		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_p], self._DeletePeakMarker)
@@ -228,8 +242,8 @@ class FitInterface:
 			self.activeFit = Fit(self.defaultFitter.Copy())
 			self.activeFit.Draw(self.window.viewport)
 		return self.activeFit
-
-
+		
+	
 	def FitBackground(self):
 		"""
 		Fit the background
@@ -239,6 +253,8 @@ class FitInterface:
 		if self.spectra.activeID==None:
 			print "There is no active spectrum"
 			return 
+		if self.fitPanel:
+			self.fitPanel.Show()
 		spec = self.spectra[self.spectra.activeID]
 		if not hasattr(spec, "activeID"):
 			# create SpectrumCompound object 
@@ -253,7 +269,8 @@ class FitInterface:
 		fit = spec[spec.activeID]
 		fit.FitBgFunc(spec)
 		fit.Draw(self.window.viewport)
-		
+		self.UpdateFitPanel()
+
 
 	def FitPeaks(self):
 		"""
@@ -264,6 +281,8 @@ class FitInterface:
 		if self.spectra.activeID==None:
 			print "There is no active spectrum"
 			return 
+		if self.fitPanel:
+			self.fitPanel.Show()
 		spec = self.spectra[self.spectra.activeID]
 		if not hasattr(spec, "activeID"):
 			# create SpectrumCompound object 
@@ -273,13 +292,15 @@ class FitInterface:
 		if spec.activeID==None:
 			ID = spec.GetFreeID()
 			spec[ID]=self.activeFit
-			spec.ActivateObject(ID)
 			self.activeFit = None
+			spec.ActivateObject(ID)
 		fit = spec[spec.activeID]
 		if len(fit.bgMarkers)>0:
 			fit.FitBgFunc(spec)
 		fit.FitPeakFunc(spec)
 		fit.Draw(self.window.viewport)
+		# update fitPanel
+		self.UpdateFitPanel()
 
 
 	def ActivateFit(self, ID):
@@ -305,7 +326,9 @@ class FitInterface:
 		spec.ActivateObject(ID)
 		if self.spectra.activeID in self.spectra.visible:
 			spec[spec.activeID].Show()
-		
+		# update fitPanel
+		self.UpdateFitPanel()
+
 	
 	def KeepFit(self):
 		"""
@@ -335,6 +358,8 @@ class FitInterface:
 		"""
 		fit = self.GetActiveFit()
 		fit.Remove()
+		# update fitPanel
+		self.UpdateFitPanel()
 
 	
 	def ClearBackground(self):
@@ -347,13 +372,58 @@ class FitInterface:
 			fit.bgMarkers.pop().Remove()
 		# redo Fit without Background
 			fit.Refresh()
+		# update fitPanel
+		self.UpdateFitPanel()
 		
+	
+	def FitMultiSpectra(self, ids):
+		self.window.viewport.LockUpdate()
+		# save the current fit as template for the other fits
+		fit = self.GetActiveFit().Copy(cal=None)
+		if not self.spectra.activeID==None:
+			spec = self.spectra[self.spectra.activeID]
+			if hasattr(spec, "activeID") and not spec.activeID==None:
+				ID = spec.activeID
+				# deactivate fit
+				spec.ActivateObject(None)
+				# and delete from spectrum
+				spec.pop(ID)
+		if self.activeFit:
+			self.activeFit.Remove()
+		for ID in ids:
+			try:
+				spec = self.spectra[ID]
+			except KeyError:
+				print "Warning: ID %s not found" % ID
+				continue
+			try:
+				# deactive all objects
+				spec.ActiveObject(None)
+			except AttributeError:
+				# create SpectrumCompound object 
+				spec = SpectrumCompound(self.window.viewport, spec)
+				# replace the simple spectrum object by the SpectrumCompound
+				self.spectra[ID]=spec
+			fitID = spec.GetFreeID()
+			spec[fitID] = fit.Copy(cal=spec.cal, color=spec.color)
+			if len(spec[fitID].bgMarkers)>0:
+				spec[fitID].FitBgFunc(spec)
+			spec[fitID].FitPeakFunc(spec)
+			spec[fitID].Draw(self.window.viewport)
+			if not ID==self.spectra.activeID:
+				spec[fitID].Hide()
+		self.window.viewport.UnlockUpdate()
+			
+
+
 	def SetDecomp(self, stat=True):
 		"""
 		Show peak decomposition
 		"""
 		fit = self.GetActiveFit()
 		fit.SetDecomp(stat)
+		if self.fitPanel:
+			self.fitPanel.SetDecomp(stat)
 		
 
 	def SetBgDeg(self, bgdeg):
@@ -363,9 +433,8 @@ class FitInterface:
 		fit = self.GetActiveFit()
 		fit.fitter.bgdeg = bgdeg
 		fit.Refresh()
-#		# Update options
-#		self.fFitGui.FitUpdateOptions()
-#		self.fFitGui.FitUpdateData()
+		# Update fitPanel
+		self.UpdateFitPanel()
 
 
 	def ShowFitStatus(self):
@@ -385,10 +454,8 @@ class FitInterface:
 		fit = self.GetActiveFit()
 		fit.fitter.SetParameter(parname, status)
 		fit.Refresh()
-#		# Update options
-#		self.fFitGui.FitUpdateOptions()
-#		self.fFitGui.FitUpdateData()
-
+		# Update fitPanel
+		self.UpdateFitPanel()
 
 
 	def ResetParameters(self):
@@ -398,9 +465,8 @@ class FitInterface:
 		fit = self.GetActiveFit()
 		fit.fitter.ResetParamStatus()
 		fit.Refresh()
-#		# Update options
-#		self.fFitGui.FitUpdateOptions()
-#		self.fFitGui.FitUpdateData()
+		# Update fitPanel
+		self.UpdateFitPanel()
 
 
 	def SetPeakModel(self, peakmodel):
@@ -419,10 +485,40 @@ class FitInterface:
 			# Register new parameter
 			self.tv.RegisterFitParameter(fitter)
 		fit.Refresh()
-#		# Update options
-#		self.fFitGui.FitUpdateOptions()
-#		self.fFitGui.FitUpdateData()
+		# Update fit panel
+		self.UpdateFitPanel()
 			
+
+	def UpdateFitPanel(self):
+		if not self.fitPanel:
+			return
+		fitter = self.GetActiveFit().fitter
+		# options
+		text = str()
+		text += "Background model: polynomial, deg=%d\n" % fitter.bgdeg
+		text += "Peak model: %s\n" % fitter.peakModel.Name()
+		text += "\n"
+		text += fitter.peakModel.OptionsStr()
+		self.fitPanel.SetOptions(text)
+		# data
+		text = str()
+		if fitter.bgFitter:
+			deg = fitter.bgFitter.GetDegree()
+			chisquare = fitter.bgFitter.GetChisquare()
+			text += "Background (seperate fit): degree = %d   chi^2 = %.2f\n" % (deg, chisquare)
+			for i in range(0,deg+1):
+				value = hdtv.util.ErrValue(fitter.bgFitter.GetCoeff(i),
+				                           fitter.bgFitter.GetCoeffError(i))
+				text += "bg[%d]: %s   " % (i, value.fmt())
+			text += "\n\n"
+		i = 1
+		if fitter.peakFitter:
+			text += "Peak fit: chi^2 = %.2f\n" % fitter.peakFitter.GetChisquare()
+			for peak in fitter.resultPeaks:
+				text += "Peak %d:\n%s\n" % (i, str(peak))
+				i += 1
+		self.fitPanel.SetData(text)
+		
 
 class TvFitInterface:
 	"""
@@ -431,7 +527,8 @@ class TvFitInterface:
 	def __init__(self, fitInterface):
 		self.fitIf = fitInterface
 		self.spectra = self.fitIf.spectra
-		
+
+
 		# register tv commands
 		self.RegisterFitParameter(self.fitIf.defaultFitter)
 		
@@ -439,6 +536,7 @@ class TvFitInterface:
 		hdtv.cmdline.AddCommand("fit show", self.FitShow, minargs=1)
 		hdtv.cmdline.AddCommand("fit delete", self.FitDelete, minargs=1)
 		hdtv.cmdline.AddCommand("fit activate", self.FitActivate, nargs=1)
+		hdtv.cmdline.AddCommand("fit multi", self.FitMulti, minargs=1)
 		hdtv.cmdline.AddCommand("fit param background degree", self.FitParamBgDeg, nargs=1)
 		hdtv.cmdline.AddCommand("fit param status", self.FitParamStatus, nargs=0)
 		hdtv.cmdline.AddCommand("fit param reset", self.FitParamReset, nargs=0)
@@ -528,7 +626,7 @@ class TvFitInterface:
 			print "There are no fits for this spectrum"
 			return False
 		except: 
-			print "Usage: spectrum show <ids>|all|none"
+			print "Usage: fit show <ids>|all|none"
 			return False
 	
 	def FitActivate(self, args):
@@ -545,6 +643,19 @@ class TvFitInterface:
 		except ValueError:
 			print "Usage: fit activate <id>|none"
 			return False
+
+
+	def FitMulti(self, args):
+		try:
+			ids = hdtv.cmdhelper.ParseRange(args, ["all", "shown"])
+		except ValueError:
+			print "Usage: fit fit <ids>|all|shown"
+			return False
+		if ids == "ALL":
+			ids = self.spectra.keys()
+		elif ids =="SHOWN":
+			ids = list(self.spectra.visible)
+		self.fitIf.FitMultiSpectra(ids)
 
 
 	def FitParamBgDeg(self, args):

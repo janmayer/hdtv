@@ -69,6 +69,8 @@ class Marker(Drawable):
 		elif self.xytype == "Y":
 			constructor = ROOT.HDTV.Display.YMarker
 		self.displayObj = constructor(n, self.p1, p2, self.color)
+		if self.xytype=="X":
+			self.displayObj.SetCal(self.cal)
 		self.displayObj.Draw(self.viewport)
 		
 
@@ -92,15 +94,25 @@ class Marker(Drawable):
 		is kept. The calibration of the new marker can be set with the parameter
 		cal.
 		"""
+		new = Marker(self.xytype, self.p1, self.color, cal=None)
+		new.p2= self.p2
+		new.cal=self.cal
+		new.Recalibrate(cal)
+		return new
+
+	def Recalibrate(self, cal=None):
+		"""
+		Changes the internal (uncalibrated) values of the position in such a way, 
+		that the calibrated values are kept fixed, but a new calibration is used.
+		"""
 		cal = hdtv.cal.MakeCalibration(cal)
 		# translate marker positions to the new calibration
-		p1 = cal.E2Ch(self.cal.Ch2E(self.p1))
-		new = Marker(self.mtype, p1, self.color, cal)
+		self.p1 = cal.E2Ch(self.cal.Ch2E(self.p1))
 		if self.p2:
-			p2 = cal.E2Ch(self.cal.Ch2E(self.p2))
-			new.p2 = p2
-		return new
-		
+			self.p2 = cal.E2Ch(self.cal.Ch2E(self.p2))
+		# save new calibration
+		self.SetCal(cal)
+
 
 class MarkerCollection(Drawable):
 	def __init__(self, xytype, paired=False, maxnum=None, color=None, cal=None):
@@ -134,17 +146,24 @@ class MarkerCollection(Drawable):
 			marker.SetColor(color)
 			
 	def SetCal(self, cal):
-		self.cal= cal
+		self.cal= hdtv.cal.MakeCalibration(cal)
 		for marker in self.collection:
 			marker.SetCal(cal)
-		
+
+	def Recalibrate(self, cal):
+		"""
+		Changes the internal (uncalibrated) values of the positions in such a way, 
+		that the calibrated values are kept fixed, but a new calibration is used.
+		"""
+		self.cal = hdtv.cal.MakeCalibration(cal)
+		for marker in self.collection:
+			marker.Recalibrate(cal)
+
 	def __getattr__(self, name):
 		return getattr(self.collection, name)
 
 	def PutMarker(self, pos, cal=None):
 		cal = hdtv.cal.MakeCalibration(cal)
-		# translate pos to uncalibrated value
-		pos = cal.E2Ch(pos)
 		if not self.paired:
 			m = Marker(self.xytype, pos, self.color, self.cal)
 			m.Draw(self.viewport)
@@ -152,11 +171,11 @@ class MarkerCollection(Drawable):
 		else:
 			if len(self.collection)>0 and self.collection[-1].p2==None:
 				pending = self.collection[-1]
-				pending.p2 = pos
+				pending.p2 = cal.E2Ch(pos)
 				pending.Refresh()
 			elif self.maxnum and len(self.collection)== self.maxnum:
 				pending = self.collection.pop(0)
-				pending.p1 = pos
+				pending.p1 = cal.E2Ch(pos)
 				pending.p2 = None
 				pending.Refresh()
 				self.collection.append(pending)

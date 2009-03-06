@@ -224,7 +224,7 @@ class DrawableCompound(UserDict.DictMixin):
 		self.viewport = viewport
 		self.viewport.LockUpdate()
 		for ID in self.iterkeys():
-			self.objects[ID].Draw()
+			self.objects[ID].Draw(self.viewport)
 			self.visible.add(ID)
 		self.viewport.UnlockUpdate()
 	

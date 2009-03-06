@@ -60,6 +60,7 @@ class Fit(Drawable):
 		for peak in self.fitter.resultPeaks:
 				text += "Peak %d:  " %i
 				text += ("\n               ".join(str(peak).split('\n')))
+				i+=1
 		return text
 		
 	
@@ -188,6 +189,10 @@ class Fit(Drawable):
 		# draw fit funcs, if available
 		for func in self.dispFuncs:
 			func.Draw(self.viewport)
+		if not self.showDecomp:
+			# hide decompostion functions
+			for func in self.dispDecompFuncs:
+				func.Hide()
 		# draw the markers (do this after the fit, 
 		# because the fit updates the position of the peak markers)
 		self.peakMarkers.Draw(self.viewport)
@@ -272,6 +277,32 @@ class Fit(Drawable):
 		if self.viewport:
 			self.viewport.UnlockUpdate()
 			
+	def Recalibrate(self, cal):
+		"""
+		Changes the internal (uncalibrated) values of the markers in such a way, 
+		that the calibrated values are kept fixed, but a new calibration is used.
+		"""
+		self.cal = hdtv.cal.MakeCalibration(cal)
+		self.peakMarkers.Recalibrate(cal)
+		self.regionMarkers.Recalibrate(cal)
+		self.bgMarkers.Recalibrate(cal)
+
+	def Copy(self, cal=None, color=None):
+		cal = hdtv.cal.MakeCalibration(cal)
+		new = Fit(self.fitter.Copy())
+		for marker in self.bgMarkers.collection:
+			newmarker = marker.Copy(cal)
+			new.bgMarkers.append(newmarker)
+		for marker in self.regionMarkers.collection:
+			newmarker = marker.Copy(cal)
+			new.regionMarkers.append(newmarker)
+		for marker in self.peakMarkers.collection:
+			newmarker = marker.Copy(cal)
+			new.peakMarkers.append(newmarker)
+		new.SetCal(cal)
+		new.SetColor(color)
+		return new
+
 		
 	def SetDecomp(self, stat=True):
 		"""
@@ -288,6 +319,7 @@ class Fit(Drawable):
 			else:
 				for func in self.dispDecompFuncs:
 					func.Hide()
+
 
 
 

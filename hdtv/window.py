@@ -152,7 +152,7 @@ class KeyHandler(HotkeyList):
 		if self.viewer.fKeySym == ROOT.kKey_Escape:
 			self.ResetHotkeyState()
 			self.fEditMode = False
-			self.fKeyString = ""
+			self.keyString = ""
 			self.viewport.SetStatusText("")
 			return True
 			
@@ -170,16 +170,16 @@ class KeyHandler(HotkeyList):
 			handled = self.HandleHotkey(self.viewer.fKeySym)
 			
 			if handled == None:
-				self.fKeyString += keyStr
-				self.viewport.SetStatusText("Command: %s" % self.fKeyString)
+				self.keyString += keyStr
+				self.viewport.SetStatusText("Command: %s" % self.keyString)
 			elif handled == False:
-				self.fKeyString += keyStr
-				self.viewport.SetStatusText("Invalid hotkey %s" % self.fKeyString)
-				self.fKeyString = ""
+				self.keyString += keyStr
+				self.viewport.SetStatusText("Invalid hotkey %s" % self.keyString)
+				self.keyString = ""
 			else:
 				if not self.fEditMode:
 					self.viewport.SetStatusText("")
-				self.fKeyString = ""
+				self.keyString = ""
 
 		return handled
 

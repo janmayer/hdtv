@@ -50,18 +50,18 @@ class SpecInterface:
 		self.tv = TvSpecInterface(self)
 		
 		# register common tv hotkeys
-		self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_p], self.spectra.ShowPrev)
-		self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_n], self.spectra.ShowNext)
+		self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_p], self._HotkeyShowPrev)
+		self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_n], self._HotkeyShowNext)
 		self.window.AddHotkey(ROOT.kKey_Equal, self.spectra.RefreshAll)
 		self.window.AddHotkey(ROOT.kKey_t, self.spectra.RefreshVisible)
 		self.window.AddHotkey(ROOT.kKey_n,
 		        lambda: self.window.EnterEditMode(prompt="Show spectrum: ",
-		                                   handler=self.HotkeyShow))
+		                                   handler=self._HotkeyShow))
 		self.window.AddHotkey(ROOT.kKey_a,
 		        lambda: self.window.EnterEditMode(prompt="Activate spectrum: ",
-		                                   handler=self.HotkeyActivate))
+		                                   handler=self._HotkeyActivate))
 	
-	def HotkeyShow(self, arg):
+	def _HotkeyShow(self, arg):
 		""" 
 		ShowObjects wrapper for use with Hotkey
 		"""
@@ -71,8 +71,9 @@ class SpecInterface:
 		except ValueError:
 			self.window.viewport.SetStatusText("Invalid spectrum identifier: %s" % arg)
 
+
 		
-	def HotkeyActivate(self, arg):
+	def _HotkeyActivate(self, arg):
 		"""
 		ActivateObject wrapper for use with Hotkey
 		"""
@@ -83,6 +84,22 @@ class SpecInterface:
 			self.window.viewport.SetStatusText("Invalid id: %s" % arg)
 		except KeyError:
 			self.window.viewport.SetStatusText("No such id: %d" % ID)
+
+	def _HotkeyShowNext(self):
+		"""
+		Show next spectrum and activate it automatically
+		"""
+		self.spectra.ShowNext()
+		ID = list(self.spectra.visible)[0]
+		self.spectra.ActivateObject(ID)
+
+	def _HotkeyShowPrev(self):
+		"""
+		Show previous spectrum and activate it automatically
+		"""
+		self.spectra.ShowPrev()
+		ID = list(self.spectra.visible)[0]
+		self.spectra.ActivateObject(ID)
 
 
 	def LoadSpectra(self, files):

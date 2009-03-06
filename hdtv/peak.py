@@ -104,8 +104,7 @@ class TheuerkaufPeak:
 			return FitValue(fwhm_cal_value, fwhm_cal_error, self.fwhm.free)
 	
 	def __str__(self):
-		text = ""
-
+		text = str()
 		text += "Pos:         " + self.pos_cal.fmt() + "\n"
 		text += "Volume:      " + self.vol.fmt() + "\n"
 		text += "FWHM:        " + self.fwhm_cal.fmt() + "\n"
@@ -124,7 +123,7 @@ class TheuerkaufPeak:
 			text += "Step height: " + self.sh.fmt() + "\n"
 			text += "Step width:  " + self.sw.fmt() + "\n"
 		else:
-			text += "Step: None\n"
+			text += "Step:        None\n"
 			
 		return text
 
