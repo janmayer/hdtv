@@ -207,6 +207,26 @@ void Painter::DrawYMarker(YMarker *marker, int x1, int x2)
   }
 }
 
+void Painter::DrawIDList(std::list<DisplayObj*> objects)
+{
+  // Draw a colered list of IDs. This is a quick hack, really.
+  DisplaySpec* spec;
+  int x = fXBase;
+  char tmp[16];
+  int len;
+   
+  for(std::list<DisplayObj*>::iterator obj = objects.begin();
+      obj != objects.end();
+      ++obj) {
+    spec = dynamic_cast<DisplaySpec*>(*obj);
+    if(spec && spec->IsVisible()) {
+      len = snprintf(tmp, 16, "%d ", spec->GetID());
+      gVirtualX->DrawString(fDrawable, spec->GetGC()->GetGC(), x, fYBase - fHeight - 5, tmp, len);
+      x += gVirtualX->TextWidth(fFontStruct, tmp, len);
+    }
+  }
+}
+
 void Painter::UpdateYZoom()
 {
   double yRange = fYVisibleRegion;

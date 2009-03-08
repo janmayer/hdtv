@@ -33,6 +33,7 @@
 #ifndef __Painter_h__
 #define __Painter_h__
 
+#include <list>
 #include <TGResourcePool.h>
 #include <TGFont.h>
 #include <TGFrame.h>
@@ -41,6 +42,8 @@
 
 namespace HDTV {
 namespace Display {
+
+class DisplayObj;
 
 enum ViewMode {
   kVMSolid = 1,
@@ -132,6 +135,7 @@ class Painter {
   void ClearTopXScale();
   void ClearBottomXScale();
   void DrawYScale();
+  void DrawIDList(std::list<DisplayObj *> objects);
   
   //ClassDef(Painter, 1)
 

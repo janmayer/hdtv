@@ -21,6 +21,8 @@
 
 import ROOT
 import hdtv.dlmgr
+import hdtv.options
+import config
 from hdtv.marker import MarkerCollection
 
 from types import *
@@ -237,16 +239,16 @@ class Window(KeyHandler):
 		self.AddHotkey(ROOT.kKey_i, lambda: self.EnterEditMode(prompt="Position: ",
 		                                                    handler=self.GoToPosition))
 
-# FIXME: Test this and add it back
-#		# Register configuration variables
-#		opt = hdtv.options.Option(default = self.viewport.GetYMinVisibleRegion(),
-#                                  parse = lambda(x): float(x),
-#                                  changeCallback = self.YMinVisibleRegionChanged)
-#		config.RegisterOption("display.YMinVisibleRegion", opt)
-#		
-#		def YMinVisibleRegionChanged(self, opt):
-#			self.viewport.SetYMinVisibleRegion(opt.Get())
-#	
+
+		# Register configuration variables
+		opt = hdtv.options.Option(default = self.viewport.GetYMinVisibleRegion(),
+                                  parse = lambda(x): float(x),
+                                  changeCallback = self.YMinVisibleRegionChanged)
+		config.RegisterOption("display.YMinVisibleRegion", opt)
+		
+	def YMinVisibleRegionChanged(self, opt):
+		self.viewport.SetYMinVisibleRegion(opt.Get())
+	
 	
 	def GoToPosition(self, arg):
 		try:

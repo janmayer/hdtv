@@ -39,6 +39,9 @@ class DisplaySpec : public DisplayBlock {
 
    int GetRegionMaxBin(int b1, int b2);
    double GetRegionMax(int b1, int b2);
+   
+   inline void SetID(int ID)  { fID = ID; }
+   inline int GetID()         { return fID; }
 
    // Convenience functions to access the underlying histogram object and its x axis
    inline double GetBinContent(Int_t bin) { return fHist->GetBinContent(bin); }
@@ -88,6 +91,7 @@ class DisplaySpec : public DisplayBlock {
    int fCachedB1, fCachedB2, fCachedMaxBin;
    double fCachedMax;
    bool fDrawUnderflowBin, fDrawOverflowBin;
+   int fID;  // ID for use by higher-level structures
 };
 
 } // end namespace Display

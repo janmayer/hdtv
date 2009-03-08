@@ -121,7 +121,7 @@ class FitInterface:
 	"""
 	User interface for fitting 1-d spectra
 	"""
-	def __init__(self, window, spectra):
+	def __init__(self, window, spectra, show_panel=True):
 		print "Loaded user interface for fitting of 1-d spectra"
 		self.window = window
 		self.spectra = spectra
@@ -139,7 +139,8 @@ class FitInterface:
 		self.fitPanel.fClearHandler = self.ClearFit
 		self.fitPanel.fResetHandler = self.ResetParameters
 		self.fitPanel.fDecompHandler = lambda(stat): self.SetDecomp(stat)
-		self.fitPanel.Show()
+		if show_panel:
+			self.fitPanel.Show()
 
 		# Register hotkeys
 		self.window.AddHotkey(ROOT.kKey_b, self._PutBgMarker)

@@ -1,8 +1,32 @@
-#!/usr/bin/python
+#!/usr/bin/python -i
+# -*- coding: utf-8 -*-
+
+# HDTV - A ROOT-based spectrum analysis software
+#  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+#
+# This file is part of HDTV.
+#
+# HDTV is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# HDTV is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with HDTV; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+
+#-------------------------------------------------------------------------------
 # Infrastructure for generation of artificial spectra
+#-------------------------------------------------------------------------------
+
 from __future__ import division
 import math
-import ROOT   # needed for TMath::Erf()
+import ROOT
 
 class PolyBg:
 	"Polynomial background"
@@ -86,36 +110,103 @@ class EEPeak:
 			
 		return _y * self.amp
 
-class Spectrum:
+class SpecFunc:
+	"""
+	Sum of background and (several) peak functions, describing a complete
+	spectrum
+	"""
 	def __init__(self):
 		self.background = None
 		self.peaks = []
 		
-	def value(self, x):
+	def __call__(self, x):
 		y = 0.
 		
 		if self.background:
-			y += self.background.value(x)
+			y += self.background.value(x[0])
 		
 		for peak in self.peaks:
-			y += peak.value(x)
+			y += peak.value(x[0])
 			
 		return y
 	
-	def write(self, fname, channels):
-		f = open(fname, "w")
-	
-		for x in channels:
-			f.write("%f\n" % self.value(x))
-			
-		f.close()
+class Spectrum:
+	"Class to generate artificial spectra"
+	def __init__(self, nbins, xmin, xmax):
+		self.func = SpecFunc()
+		self.nbins = nbins
+		self.xmin = xmin
+		self.xmax = xmax
 		
-spec = Spectrum()
-# spec.background = PolyBg([2.0, 0.01])
-spec.peaks.append(TheuerkaufPeak(500, 3000.0, 10.0, None, None, 20.0, 1.0))
-spec.peaks.append(TheuerkaufPeak(600, 1000.0, 10.0, None, None, 10.0, 1.0))
+	def GetFunc(self, name = "specfunc"):
+		"""
+		Return the underlying function as a ROOT TF1 object.
+		name is the name to be used by ROOT.
+		"""
+		return ROOT.TF1(name, self.func, self.xmin, self.xmax, 0)
+		
+	def GetExactHist(self):
+		"""
+		Return a ROOT TH1D object with each bin containing exactly the value
+		of the spectrum function at its center.
+		"""
+		hist = ROOT.TH1D("spec_exact", "spec_exact", self.nbins, self.xmin, self.xmax)
+		
+		bincenter = hist.GetXaxis().GetBinCenter
+		for bin in range(1, hist.GetNbinsX()+1):
+			hist.SetBinContent(bin, self.func([bincenter(bin)]))
+			
+		return hist
+			
+	def GetSampledHist(self, nsamples):
+		"""
+		Return a ROOT TH1I object filled with nsamples samples from the spectrum
+		function.
+		"""
+		# Due to limitations in ROOT, we cannot pass a TF1 object to FillRandom(),
+		# but the function must be loaded from the ROOT function dictionary.
+		# We need to choose a "special" name in order to not interfere with
+		# any functions the user may have defined.
+		func = self.GetFunc("__samplefunc__")
+	
+		hist = ROOT.TH1I("spec_sampled", "spec_sampled", self.nbins, self.xmin, self.xmax)
+		hist.FillRandom("__samplefunc__", nsamples)
+		
+		del func
+		
+		return hist
+	
+def write_hist(hist, fname):
+	"""
+	Dump a ROOT histogram object to a file in a format suitable for the old tv program.
+	We simply write the content of all bins, exculding the under- and overflow bins,
+	seperated by newlines. Any information on the position of the bins on the axis
+	is lost.
+	"""
+	f = open(fname, "w")
+
+	for bin in range(1, hist.GetNbinsX()+1):
+		f.write("%f\n" % hist.GetBinContent(bin))
+		
+	f.close()
+		
+
+spec = Spectrum(1024, -0.5, 1023.5)
+spec.func.background = PolyBg([10.0])
+spec.func.peaks.append(TheuerkaufPeak(500, 300.0, 10.0))
+spec.func.peaks.append(TheuerkaufPeak(515, 100.0, 10.0))
 # spec.peaks.append(EEPeak(300, 100, 4.5, 6.0, 1.5, 0.7))
 # spec.peaks.append(EEPeak(400, 30, 4.5, 6.0, 1.5, 0.7))
 
-spec.write("test.asc", xrange(0, 1024))
+nsamples = int(3e3)
+hs = spec.GetSampledHist(nsamples)
+hs.Draw()
 
+he = spec.GetExactHist()
+scale = nsamples / he.GetSumOfWeights()
+he.Scale(scale)
+
+he.SetLineColor(ROOT.kRed)
+he.Draw("SAME")
+
+write_hist(hs, "test.asc")

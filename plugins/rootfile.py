@@ -26,107 +26,114 @@ import hdtv.cmdline
 import hdtv.tabformat
 import hdtv.spectrum
 import fnmatch
-import tvSpecInterface
 
-def RootBrowse(args):
-	global fBrowser, fRootFile
-	fBrowser = ROOT.TBrowser()
-	
-	if fRootFile != None and not fRootFile.IsZombie():
-		fRootFile.Browse(fBrowser)
+class RootFile:
+	def __init__(self, window, spectra, caldict):
+		self.window = window
+		self.spectra = spectra
+		self.caldict = caldict
+		self.rootfile = None
+		self.browser = None
+		
+		hdtv.cmdline.AddCommand("root browse", self.RootBrowse, nargs=0)
+		hdtv.cmdline.AddCommand("root ls", self.RootLs, maxargs=1)
+		hdtv.cmdline.AddCommand("root ll", self.RootLL, maxargs=1, level=2)
+		hdtv.cmdline.AddCommand("root cd", self.RootCd, nargs=1, fileargs=True)
 
-def RootLs(args):
-	global fRootFile
-	if fRootFile == None or fRootFile.IsZombie():
-		print "Error: no root file"
-		return
+		parser = hdtv.cmdline.HDTVOptionParser(prog="root get", usage="%prog [OPTIONS] <pattern>")
+		parser.add_option("-r", "--replace", action="store_true",
+    		              default=False, help="replace existing histogram list")
+		parser.add_option("-c", "--load-cal", action="store_true",
+		                  default=False, help="load calibration from calibration dictionary")
+		parser.add_option("-v", "--invisible", action="store_true",
+		                  default=False, help="do not make histograms visible, only add to display list")
+		hdtv.cmdline.AddCommand("root get", self.RootGet, nargs=1, completer=self.RootGet_Completer,
+		                        parser=parser)
 	
-	keys = fRootFile.GetListOfKeys()
-	names = [k.GetName() for k in keys]
+	def RootBrowse(self, args):
+		self.browser = ROOT.TBrowser()
+		
+		if self.rootfile != None and not self.rootfile.IsZombie():
+			self.rootfile.Browse(self.browser)
 
-	if len(args) > 0:
-		names = fnmatch.filter(names, args[0])
-	
-	names.sort()
-	hdtv.tabformat.tabformat(names)
-	
-def RootLL(args):
-	global fRootFile
-	if fRootFile == None or fRootFile.IsZombie():
-		print "Error: no root file"
-		return
+	def RootLs(self, args):
+		if self.rootfile == None or self.rootfile.IsZombie():
+			print "Error: no root file"
+			return
 		
-	if len(args) == 0:
-		fRootFile.ls()
-	else:
-		fRootFile.ls(args[0])
-		
-def RootCd(args):
-	global fRootFile
-	if fRootFile != None:
-		fRootFile.Close()
+		keys = self.rootfile.GetListOfKeys()
+		names = [k.GetName() for k in keys]
 	
-	fRootFile = ROOT.TFile(args[0])
-	if fRootFile.IsZombie():
-		print "Error: failed to open file"
-		fRootFile = None
+		if len(args) > 0:
+			names = fnmatch.filter(names, args[0])
 		
-	hdtv.cmdline.RegisterInteractive("gRootFile", fRootFile)
+		names.sort()
+		hdtv.tabformat.tabformat(names)
 	
-def RootGet_Completer(text):
-	global fRootFile
-	if fRootFile == None or fRootFile.IsZombie():
-		# Autocompleter must not complain...
-		return
-		
-	keys = fRootFile.GetListOfKeys()
-	names = [k.GetName() for k in keys]
-
-	options = []
-	l = len(text)
-	for name in names:
-		if name[0:l] == text:
-			options.append(name)
+	def RootLL(self, args):
+		if self.rootfile == None or self.rootfile.IsZombie():
+			print "Error: no root file"
+			return
 			
-	return options
-
-def RootGet(args, options):
-	global fRootFile
-	if fRootFile == None or fRootFile.IsZombie():
-		print "Error: no root file"
-		return
+		if len(args) == 0:
+			self.rootfile.ls()
+		else:
+			self.rootfile.ls(args[0])
+			
+	def RootCd(self, args):
+		if self.rootfile != None:
+			self.rootfile.Close()
 		
-	# FIXME: we *really* need a better plugin concept...
-	specmgr = tvSpecInterface.plugin
+		self.rootfile = ROOT.TFile(args[0])
+		if self.rootfile.IsZombie():
+			print "Error: failed to open file"
+			self.rootfile = None
+			
+		hdtv.cmdline.RegisterInteractive("gRootFile", self.rootfile)
 		
-	if options.replace:
-		specmgr.DeleteObjects(specmgr.keys())
-		
-	keys = fRootFile.GetListOfKeys()
-	for key in keys:
-		if fnmatch.fnmatch(key.GetName(), args[0]):
-			obj = key.ReadObj()
-			if isinstance(obj, ROOT.TH1):
-				specmgr.fWindow.fViewport.LockUpdate()
-				spec = hdtv.spectrum.Spectrum(obj)
-				ID = specmgr.GetFreeID()
-				spec.SetColor(specmgr.ColorForID(ID, 1., 1.))
-				specmgr[ID] = spec
-				specmgr.ActivateObject(ID)
-				specmgr.fWindow.fViewport.UnlockUpdate()
-			else:
-				print "Warning: %s is not a 1D histogram object" % key.GetName()
-
-fRootFile = None
-fBrowser = None
-
-hdtv.cmdline.AddCommand("root browse", RootBrowse, nargs=0)
-hdtv.cmdline.AddCommand("root ls", RootLs, maxargs=1)
-hdtv.cmdline.AddCommand("root ll", RootLL, maxargs=1, level=2)
-hdtv.cmdline.AddCommand("root cd", RootCd, nargs=1, fileargs=True)
-
-parser = hdtv.cmdline.HDTVOptionParser(prog="root get", usage="%prog [OPTIONS] <pattern>")
-parser.add_option("-r", "--replace", action="store_true",
-                  default=False, help="replace existing histogram list")
-hdtv.cmdline.AddCommand("root get", RootGet, nargs=1, completer=RootGet_Completer,
-                        parser=parser)
+	def RootGet_Completer(self, text):
+		if self.rootfile == None or self.rootfile.IsZombie():
+			# Autocompleter must not complain...
+			return
+			
+		keys = self.rootfile.GetListOfKeys()
+		names = [k.GetName() for k in keys]
+	
+		options = []
+		l = len(text)
+		for name in names:
+			if name[0:l] == text:
+				options.append(name)
+				
+		return options
+	
+	def RootGet(self, args, options):
+		if self.rootfile == None or self.rootfile.IsZombie():
+			print "Error: no root file"
+			return
+			
+		if options.replace:
+			self.spectra.DeleteObjects(self.spectra.keys())
+			
+		keys = self.rootfile.GetListOfKeys()
+		self.window.viewport.LockUpdate()
+		for key in keys:
+			if fnmatch.fnmatch(key.GetName(), args[0]):
+				obj = key.ReadObj()
+				if isinstance(obj, ROOT.TH1):
+					spec = hdtv.spectrum.Spectrum(obj)
+					ID = self.spectra.GetFreeID()
+					spec.SetColor(hdtv.color.ColorForID(ID, ""))
+					if options.load_cal:
+						if obj.GetName() in self.caldict:
+							spec.SetCal(self.caldict[obj.GetName()])
+						else:
+							print "Warning: no calibration found for %s" % obj.GetName()
+					self.spectra[ID] = spec
+					if options.invisible:
+						self.spectra.HideObjects(ID)
+					else:
+						self.spectra.ActivateObject(ID)
+				else:
+					print "Warning: %s is not a 1D histogram object" % key.GetName()
+		self.window.viewport.UnlockUpdate()

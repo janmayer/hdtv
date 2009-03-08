@@ -51,7 +51,7 @@ View1D::View1D(const TGWindow *p, UInt_t w, UInt_t h)
   
   fLeftBorder = 60;
   fRightBorder = 3;
-  fTopBorder = 3;
+  fTopBorder = 20;
   fBottomBorder = 30;
   
   //fTopScale = X_SCALE_CHANNEL;
@@ -320,7 +320,7 @@ void View1D::ShowAll(void)
       obj != fDisplayStack.fSpectra.end();
       ++obj) {
     spec = dynamic_cast<DisplaySpec *> (*obj);
-    if(spec) {
+    if(spec && spec->IsVisible()) {
       minE = spec->GetMinE();
       maxE = spec->GetMaxE();
     
@@ -709,6 +709,7 @@ void View1D::DoRedraw(void)
   fDisplayStack.PaintRegion(x+2, x+w-2, fPainter);
   DrawXScales(x+2, x+w-2);
   fPainter.DrawYScale();
+  fPainter.DrawIDList(fDisplayStack.fSpectra);
   
   if(cv) DrawCursor();
 }

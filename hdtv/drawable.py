@@ -144,6 +144,11 @@ class DrawableCompound(UserDict.DictMixin):
 		return self.objects.__getitem__(ID)
 
 	def __setitem__(self, ID, obj):
+		try:
+			obj.SetID(ID)
+		except AttributeError:
+			pass
+		
 		self.objects.__setitem__(ID, obj)
 		obj.Draw(self.viewport)
 		self.visible.add(ID)
@@ -200,14 +205,14 @@ class DrawableCompound(UserDict.DictMixin):
 		"""
 		self.viewport.LockUpdate()
 		if self.activeID != None:
-			c = hdtv.color.ColorForID(self.activeID, 1., .5)
+			c = hdtv.color.ColorForID(self.activeID, "")
 			self.objects[self.activeID].SetColor(c)
 		if ID==None:
 			self.activeID=None
 		elif not ID in self.keys():
 			raise KeyError
 		else:
-			self.objects[ID].SetColor(hdtv.color.ColorForID(ID, 1., 1.))
+			self.objects[ID].SetColor(hdtv.color.ColorForID(ID, "ACTIVE"))
 			self.objects[ID].ToTop()
 			self.activeID = ID
 		self.viewport.UnlockUpdate()

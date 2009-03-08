@@ -45,6 +45,7 @@ class SpecInterface:
 	
 		self.window = window
 		self.spectra= spectra
+		self.caldict = dict()
 		
 		# tv commands
 		self.tv = TvSpecInterface(self)
@@ -129,7 +130,7 @@ class SpecInterface:
 					print "Warning: could not load %s'%s" %(fname, fmt)
 				else:
 					ID = self.spectra.GetFreeID()
-					spec.SetColor(hdtv.color.ColorForID(ID, 1., 1.))
+					spec.SetColor(hdtv.color.ColorForID(ID, ""))
 					self.spectra[ID] = spec
 					self.spectra.ActivateObject(ID)
 					loaded.append(ID)
@@ -152,38 +153,35 @@ class SpecInterface:
 		return None
 			
 
-	def ReadCalibrationList(self, fname, warn_notfound=False):
+	def CalPosGetlist(self, fname):
 		"""
 		Reads calibrations from a calibration list file. The file has the format
 		<specname>: <cal0> <cal1> ...
-		
-		The optional argument warn_notfound controls whether to warn if a name
-		from the file does not correspond to a spectrum in the list.
+		The calibrations are written into the calibration dictionary.
 		"""
-		fname = os.path.expanduser(fname)
 		try:
 			f = open(fname, "r")
 		except IOError, msg:
 			print "Error opening file: %s" % msg
 			return False
+		
 		linenum = 0
 		for l in f:
 			linenum += 1
+			
 			# Remove comments and whitespace; ignore empty lines
 			l = l.split('#', 1)[0].strip()
 			if l == "":
 				continue
+			
 			try:
 				(k, v) = l.split(':', 1)
 				name = k.strip()
-				coeff = [float(s) for s in v.split()]
-				spec = self.FindSpectrumByName(name)
-				if spec != None:
-					spec.SetCal(coeff)
-				elif warn_notfound:
-					print "Info: No spectrum named %s found; calibration ignored." % name
+				coeff = [ float(s) for s in v.split() ]
+				self.caldict[name] = coeff
 			except ValueError:
 				print "Warning: could not parse line %d of file %s: ignored." % (linenum, fname)
+
 		f.close()
 		return True
 
@@ -201,19 +199,34 @@ class TvSpecInterface:
 		hdtv.cmdline.AddCommand("cd", self.Cd, level=2, maxargs=1, dirargs=True)
 		
 		# spectrum commands
-		hdtv.cmdline.AddCommand("spectrum get", self.SpectrumGet, level=0, minargs=1, fileargs=True)
-		hdtv.cmdline.AddCommand("spectrum list", self.SpectrumList, nargs=0)
-		hdtv.cmdline.AddCommand("spectrum delete", self.SpectrumDelete, minargs=1)
-		hdtv.cmdline.AddCommand("spectrum activate", self.SpectrumActivate, nargs=1)
-		hdtv.cmdline.AddCommand("spectrum show", self.SpectrumShow, minargs=1)
-		hdtv.cmdline.AddCommand("spectrum update", self.SpectrumUpdate, minargs=1)
-		hdtv.cmdline.AddCommand("spectrum write", self.SpectrumWrite, minargs=1, maxargs=2)
+		hdtv.cmdline.AddCommand("spectrum get", self.SpectrumGet, level=0, minargs=1,
+		                        fileargs=True)
+		parser = hdtv.cmdline.HDTVOptionParser(prog="spectrum list", usage="%prog [OPTIONS]")
+		parser.add_option("-v", "--visible", action="store_true",
+                          default=False, help="list only visible (and active) spectra")
+		hdtv.cmdline.AddCommand("spectrum list", self.SpectrumList, nargs=0, parser=parser)
+		hdtv.cmdline.AddCommand("spectrum delete", self.SpectrumDelete, minargs=1,
+		                        usage="spectrum delete <ids>")
+		hdtv.cmdline.AddCommand("spectrum activate", self.SpectrumActivate, nargs=1,
+		                        usage="spectrum activate <id>")
+		hdtv.cmdline.AddCommand("spectrum show", self.SpectrumShow, minargs=1,
+		                        usage="spectrum show <ids>|all|none")
+		hdtv.cmdline.AddCommand("spectrum update", self.SpectrumUpdate, minargs=1,
+		                        usage="spectrum update <ids>|all|shown")
+		hdtv.cmdline.AddCommand("spectrum write", self.SpectrumWrite, minargs=1, maxargs=2,
+		                        usage="spectrum write <filename>'<format> [id]")
 
 		# calibration commands
-		hdtv.cmdline.AddCommand("calibration position read", self.CalPosRead, minargs=1,fileargs=True)
-		hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, minargs=4)
-		hdtv.cmdline.AddCommand("calibration position set", self.CalPosSet, minargs=2)
-		hdtv.cmdline.AddCommand("calibration position getlist", self.CalPosGetlist, nargs=1,fileargs=True)
+		hdtv.cmdline.AddCommand("calibration position read", self.CalPosRead, minargs=1,
+		                        fileargs=True,
+		                        usage="calibration position read <filename> [ids]")
+		hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, minargs=4,
+		                        usage="calibration position enter <ch0> <E0> <ch1> <E1> [ids]")
+		hdtv.cmdline.AddCommand("calibration position set", self.CalPosSet, minargs=2,
+		                        usage="calibration position set <deg> <p0> <p1> <p2> ... [ids]")
+		hdtv.cmdline.AddCommand("calibration position getlist", self.CalPosGetlist, nargs=1,
+		                        fileargs=True,
+		                        usage="calibration position getlist <filename>")
 		
 	def Cd(self, args):
 		"""
@@ -228,7 +241,7 @@ class TvSpecInterface:
 			except OSError, msg:
 				print msg
 	
-	def SpectrumList(self, args):
+	def SpectrumList(self, args, options):
 		"""
 		Print a list of all spectra 
 		"""
@@ -246,6 +259,7 @@ class TvSpecInterface:
 		else:
 			print "Loaded %d spectra" % len(loaded)
 		
+
 	def SpectrumDelete(self, args):
 		""" 
 		Deletes spectra 
@@ -258,9 +272,9 @@ class TvSpecInterface:
 				ids = self.spectra.keys()
 			self.spectra.RemoveObjects(ids)
 		except:
-			print "Usage: spectrum delete <ids>"
-			return False
-		
+			return "USAGE"
+					
+
 	def SpectrumActivate(self, args):
 		"""
 		Activate one spectra
@@ -269,8 +283,7 @@ class TvSpecInterface:
 			ID = int(args[0])
 			self.spectra.ActivateObject(ID)
 		except ValueError:
-			print "Usage: spectrum activate <id>"
-			return False
+			return "USAGE"
 		
 		
 	def SpectrumShow(self, args):
@@ -285,9 +298,9 @@ class TvSpecInterface:
 				self.spectra.ShowAll()
 			else:
 				self.spectra.ShowObjects(ids)
-		except: 
-			print "Usage: spectrum show <ids>|all|none"
-			return False
+		except:
+			return "USAGE"
+
 			
 	def SpectrumUpdate(self, args):
 		"""
@@ -302,8 +315,8 @@ class TvSpecInterface:
 			else:
 				self.spectra.Refresh(ids)
 		except:
-			print "Usage: spectrum update <ids>|all|shown"
-			return False
+			return "USAGE"
+
 			
 	def SpectrumWrite(self, args):
 		"""
@@ -324,8 +337,7 @@ class TvSpecInterface:
 			except KeyError:
 				 print "Warning: there is no spectrum with id: %s" %ID
 		except ValueError:
-			print "Usage: spectrum write <filename>'<format> [id]"
-			return False
+			return "USAGE"
 
 
 	def CalPosRead(self, args):
@@ -344,8 +356,7 @@ class TvSpecInterface:
 			else:
 				ids = hdtv.cmdhelper.ParseRange(args[1:])
 		except ValueError:
-			print "Usage: calibration position read <filename> [ids]"
-			return False
+			return "USAGE"
 		else:	
 			if ids=="NONE":
 				return
@@ -364,7 +375,7 @@ class TvSpecInterface:
 		
 	def CalPosEnter(self, args):
 		"""
-		Create calibration from two paires of channel and energy
+		Create calibration from two pairs of channel and energy
 		"""
 		try:
 			pairs = []
@@ -380,8 +391,7 @@ class TvSpecInterface:
 			else:
 				ids = hdtv.cmdhelper.ParseRange(args[4:])
 		except (ValueError, IndexError):
-			print "Usage: calibration position enter <ch0> <E0> <ch1> <E1> [ids]"
-			return False
+			return "USAGE"
 		else:
 			if ids=="NONE":
 				return
@@ -414,8 +424,7 @@ class TvSpecInterface:
 			else:
 				ids = hdtv.cmdhelper.ParseRange(args[deg+2:])
 		except (ValueError, IndexError):
-			print "Usage: calibration position set <deg> <p0> <p1> <p2> ... [ids]"
-			return False
+			return "USAGE"
 		else:
 			if ids=="NONE":
 				return
@@ -435,4 +444,4 @@ class TvSpecInterface:
 		"""
 		Read calibrations for several spectra from file
 		"""
-		self.specIf.ReadCalibrationList(args[0])
+		self.specIf.CalPosGetlist(args[0])

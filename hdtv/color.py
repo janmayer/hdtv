@@ -36,10 +36,21 @@ FIT_SUM_FUNC = ROOT.kOrange - 3
 FIT_BG_FUNC = ROOT.kGreen
 FIT_DECOMP_FUNC = ROOT.kMagenta + 1
 
+def ColorForID(ID, status):
+	if status == "ACTIVE":
+		satur = 0.5
+	else:
+		satur = 1.0
+		
+	hue = HueForID(ID)
+	value = 1.0
+	
+	(r,g,b) = HSV2RGB(hue*360., satur, value)
+	return ROOT.TColor.GetColor(r,g,b)
 
-def ColorForID(ID, satur, value):
+def HueForID(ID):
 	"""
-	Returns the color corresponding to a certain spectrum ID. The idea is to maximize the
+	Returns the hue corresponding to a certain spectrum ID. The idea is to maximize the
 	hue difference between the spectra shown, without knowing beforehand how many spectra
 	there will be and without being able to change the color afterwards (that would confuse
 	the user). The saturation and value of the color can be set arbitrarily, for example
@@ -52,9 +63,8 @@ def ColorForID(ID, satur, value):
 		p = math.floor(math.log(ID) / math.log(2))
 		q = ID - 2**p
 		hue = 2**(-p-1) + q*2**(-p)
-	(r,g,b) = HSV2RGB(hue*360., satur, value)
-	return ROOT.TColor.GetColor(r,g,b)
-	
+		
+	return hue
 	
 def HSV2RGB(hue, satur, value):
 	"""
