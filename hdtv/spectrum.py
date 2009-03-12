@@ -47,6 +47,7 @@ class Spectrum(Drawable):
 	def __init__(self, hist, color=None, cal=None):
 		Drawable.__init__(self, color, cal)
 		self.ID = -1
+		self.norm = 1.0
 		self.fHist = hist
 		
 	def __str__(self):
@@ -76,6 +77,7 @@ class Spectrum(Drawable):
 				self.color = kSpecDef
 			self.displayObj = ROOT.HDTV.Display.DisplaySpec(self.fHist, self.color)
 			self.displayObj.SetID(self.ID)
+			self.displayObj.SetNorm(self.norm)
 			self.displayObj.Draw(self.viewport)
 
 			# add calibration
@@ -87,8 +89,15 @@ class Spectrum(Drawable):
 		
 	def SetID(self, ID):
 		self.ID = ID
-		if self.fDisplayObj:
-			self.fDisplayObj.SetID(ID)
+		if self.displayObj:
+			self.displayObj.SetID(ID)
+			
+			
+	def SetNorm(self, norm):
+		"Set the normalization factor for displaying this spectrum"
+		self.norm = norm
+		if self.displayObj:
+			self.displayObj.SetNorm(self.norm)
 		
 	
 	def Refresh(self):

@@ -45,7 +45,16 @@ Marker::Marker(int n, double p1, double p2, int col)
   }
   
   fDash1 = fDash2 = false;
+  InitGC(col);
+}
 
+Marker::~Marker(void)
+{
+  FreeGC();
+}
+
+void Marker::InitGC(int col)
+{
   TColor *color = dynamic_cast<TColor*>(gROOT->GetListOfColors()->At(col));
   GCValues_t gval;
   gval.fMask = kGCForeground | kGCLineStyle;
@@ -58,10 +67,19 @@ Marker::Marker(int n, double p1, double p2, int col)
   fDashedGC = gClient->GetGCPool()->GetGC(&gval, true);
 }
 
-Marker::~Marker(void)
+void Marker::FreeGC()
 {
   gClient->GetGCPool()->FreeGC(fGC);
   gClient->GetGCPool()->FreeGC(fDashedGC);
+}
+
+void Marker::SetColor(int col)
+{
+  // Set color for this marker
+
+  FreeGC();
+  InitGC(col);
+  Update();
 }
 
 DisplayStack::ObjList& Marker::GetList(DisplayStack *stack)

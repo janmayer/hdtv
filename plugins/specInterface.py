@@ -50,6 +50,10 @@ class SpecInterface:
 		# tv commands
 		self.tv = TvSpecInterface(self)
 		
+		# good to have as well...
+		self.window.AddHotkey(ROOT.kKey_PageUp, self._HotkeyShowPrev)
+		self.window.AddHotkey(ROOT.kKey_PageDown, self._HotkeyShowNext)
+		
 		# register common tv hotkeys
 		self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_p], self._HotkeyShowPrev)
 		self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_n], self._HotkeyShowNext)
@@ -67,8 +71,13 @@ class SpecInterface:
 		ShowObjects wrapper for use with Hotkey
 		"""
 		try:
-			ids = [int(a) for a in arg.split()]
-			self.spectra.ShowObjects(ids)
+			ids = hdtv.cmdhelper.ParseRange(arg.split())
+			if ids == "NONE":
+				self.spectra.HideAll()
+			elif ids == "ALL":
+				self.spectra.ShowAll()
+			else:
+				self.spectra.ShowObjects(ids)
 		except ValueError:
 			self.window.viewport.SetStatusText("Invalid spectrum identifier: %s" % arg)
 
@@ -215,6 +224,9 @@ class TvSpecInterface:
 		                        usage="spectrum update <ids>|all|shown")
 		hdtv.cmdline.AddCommand("spectrum write", self.SpectrumWrite, minargs=1, maxargs=2,
 		                        usage="spectrum write <filename>'<format> [id]")
+		hdtv.cmdline.AddCommand("spectrum normalization", self.SpectrumNormalization,
+		                        minargs=1,
+		                        usage="spectrum normalization [ids] <norm>")
 
 		# calibration commands
 		hdtv.cmdline.AddCommand("calibration position read", self.CalPosRead, minargs=1,
@@ -338,8 +350,31 @@ class TvSpecInterface:
 				 print "Warning: there is no spectrum with id: %s" %ID
 		except ValueError:
 			return "USAGE"
-
-
+			
+	
+	def SpectrumNormalization(self, args):
+		"Set normalization for spectrum"
+		try:
+			if len(args) == 1:
+				ids = [ self.spectra.activeID ]
+			else:
+				ids = hdtv.cmdhelper.ParseRange(args[:-1])
+				if ids == "NONE":
+					ids = []
+				elif ids == "ALL":
+					ids = self.spectra.keys()
+			
+			norm = float(args[-1])
+		except ValueError:
+			return "USAGE"
+			
+		for ID in ids:
+			try:
+				self.spectra[ID].SetNorm(norm)
+			except KetError:
+				print "Warning: there is no spectrum with id: %s" % ID
+						
+			
 	def CalPosRead(self, args):
 		"""
 		Read calibration from file

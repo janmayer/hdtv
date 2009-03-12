@@ -107,7 +107,7 @@ class Fit(Drawable):
 
 	def FitBgFunc(self, spec):
 		"""
-		Do the background fit and extrat the function for display
+		Do the background fit and extract the function for display
 		Note: You still need to call Draw afterwards.
 		"""
 		# remove old fit
@@ -270,7 +270,7 @@ class Fit(Drawable):
 	def SetColor(self, color):
 		if self.viewport:
 			self.viewport.LockUpdate()
-		# FIXME: include markers (they do not support SetColor at the moment!)
+		# FIXME: include markers (they support SetColor() now)
 		objs = self.dispFuncs
 		for obj in objs:
 			obj.SetColor(color)

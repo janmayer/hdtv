@@ -113,7 +113,7 @@ class RootFile:
 			return
 			
 		if options.replace:
-			self.spectra.DeleteObjects(self.spectra.keys())
+			self.spectra.RemoveAll()
 			
 		keys = self.rootfile.GetListOfKeys()
 		self.window.viewport.LockUpdate()

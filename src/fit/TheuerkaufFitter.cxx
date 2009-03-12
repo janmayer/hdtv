@@ -378,13 +378,13 @@ void TheuerkaufFitter::_Fit(TH1& hist)
   }
   
   // FIXME
-  double avgVol = 1e2;
+  double avgVol = 1e3;
   
   // Init fit parameters
   for(iter = fPeaks.begin(); iter != fPeaks.end(); iter ++) {
 	SetParameter(*fSumFunc, iter->fPos);
 	SetParameter(*fSumFunc, iter->fVol, avgVol);
-	SetParameter(*fSumFunc, iter->fSigma, 1.0);
+	SetParameter(*fSumFunc, iter->fSigma, 10.0);
 	SetParameter(*fSumFunc, iter->fSH, 1.0);
 	SetParameter(*fSumFunc, iter->fSW, 1.0);
 	if(iter->fTL.IsFree()) {

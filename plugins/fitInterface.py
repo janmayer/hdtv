@@ -21,6 +21,7 @@
 import ROOT
 import hdtv.cmdline
 import hdtv.cmdhelper
+import hdtv.fitio
 
 from hdtv.drawable import DrawableCompound
 from hdtv.marker import MarkerCollection
@@ -533,7 +534,9 @@ class TvFitInterface:
 		# register tv commands
 		self.RegisterFitParameter(self.fitIf.defaultFitter)
 		
-		hdtv.cmdline.AddCommand("fit list", self.FitList, nargs=0)
+		hdtv.cmdline.AddCommand("fit list", self.FitList, nargs=0, usage="fit list")
+		hdtv.cmdline.AddCommand("fit write", self.FitWrite, nargs=0,
+		                        usage="fit write <filename>")
 		hdtv.cmdline.AddCommand("fit show", self.FitShow, minargs=1)
 		hdtv.cmdline.AddCommand("fit delete", self.FitDelete, minargs=1)
 		hdtv.cmdline.AddCommand("fit activate", self.FitActivate, nargs=1)
@@ -560,7 +563,29 @@ class TvFitInterface:
 		for param in fitter.OrderedParamKeys():
 			hdtv.cmdline.RemoveCommand("fit param %s" % param)
 
-		
+
+	def FitWrite(self, args):
+		"""
+		Write a list of all fits belonging to the active spectrum to an XML file
+		"""
+		try:
+			spec = self.spectra[self.spectra.activeID]
+			if self.spectra.activeID in self.spectra.visible:
+				visible = True
+			else:
+				visible = False
+		except KeyError:
+			print "No active spectrum"
+			return False
+		except AttributeError:
+			print "There are no fits for this spectrum"
+			return False
+		except:
+			return "USAGE"
+			
+		print 'Dumping fits belonging to %s (visible=%s):' %(str(spec), visible)
+		hdtv.fitio.FitIO().Write(spec)
+
 
 	def FitList(self, args):
 		"""
@@ -581,8 +606,7 @@ class TvFitInterface:
 			print "There are no fits for this spectrum"
 			return False
 		except:
-			print "Usage: fit list"
-			return False	
+			return "USAGE"
 		
 	def FitDelete(self, args):
 		""" 
