@@ -99,14 +99,17 @@ class Drawable:
 		"""
 		Show the object 
 		"""
+		if not self.viewport:
+			return
 		self.displayObj.Show()
 
 	def Hide(self):
 		"""
 		Hide the object 
 		"""
+		if not self.viewport:
+			return
 		self.displayObj.Hide()
-
 
 		
 	def ToTop(self):
@@ -143,15 +146,17 @@ class DrawableCompound(UserDict.DictMixin):
 	def __getitem__(self, ID):
 		return self.objects.__getitem__(ID)
 
+
 	def __setitem__(self, ID, obj):
 		try:
 			obj.SetID(ID)
 		except AttributeError:
 			pass
-		
 		self.objects.__setitem__(ID, obj)
-		obj.Draw(self.viewport)
-		self.visible.add(ID)
+		if self.viewport:
+			obj.Draw(self.viewport)
+			self.visible.add(ID)
+
 
 	def __delitem__(self, ID):
 		if ID in self.visible:
@@ -161,8 +166,10 @@ class DrawableCompound(UserDict.DictMixin):
 		self.objects[ID].Remove()
 		self.objects.__delitem__(ID)
 
+
 	def keys(self):
 		return self.objects.keys()
+
 
 	def Add(self, obj):
 		"""
@@ -171,6 +178,7 @@ class DrawableCompound(UserDict.DictMixin):
 		ID = self.GetFreeID()
 		self.objects[ID] = obj
 		return ID
+
 
 	def GetFreeID(self):
 		"""
@@ -181,6 +189,7 @@ class DrawableCompound(UserDict.DictMixin):
 		while ID in self.keys():
 			ID += 1
 		return ID
+
 		
 	def ListObjects(self, args=None):
 		"""

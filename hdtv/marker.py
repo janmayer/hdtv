@@ -78,6 +78,8 @@ class Marker(Drawable):
 		""" 
 		Update the position of the marker
 		"""
+		if not self.viewport:
+			return
 		if self.displayObj:
 			if self.p2:
 				self.displayObj.SetN(2)
@@ -160,37 +162,59 @@ class MarkerCollection(Drawable):
 			marker.Recalibrate(cal)
 
 	def __getattr__(self, name):
+		# FIXME: include automatic remove when a marker is deleted
 		return getattr(self.collection, name)
 
-	def PutMarker(self, pos, cal=None):
-		cal = hdtv.cal.MakeCalibration(cal)
+	def PutMarker(self, pos):
+		"""
+		Put a marker to position pos, where pos is assumed to be calibrated
+		"""
 		if not self.paired:
 			m = Marker(self.xytype, pos, self.color, self.cal)
-			m.Draw(self.viewport)
+			if self.viewport:
+				m.Draw(self.viewport)
 			self.collection.append(m)
 		else:
 			if len(self.collection)>0 and self.collection[-1].p2==None:
 				pending = self.collection[-1]
-				pending.p2 = cal.E2Ch(pos)
+				pending.p2 = self.cal.E2Ch(pos)
 				pending.Refresh()
 			elif self.maxnum and len(self.collection)== self.maxnum:
 				pending = self.collection.pop(0)
-				pending.p1 = cal.E2Ch(pos)
+				pending.p1 = self.cal.E2Ch(pos)
 				pending.p2 = None
 				pending.Refresh()
 				self.collection.append(pending)
 			else:
 				pending = Marker(self.xytype, pos, self.color, self.cal)
-				pending.Draw(self.viewport)
+				if self.viewport:
+					pending.Draw(self.viewport)
 				self.collection.append(pending)
-				
-	def DeleteClosest(self, pos):
-		# FIXME: just an idea for the future
-		pass
 		
-	def ListPositions(self):
-		# FIXME: just an idea for the future
-		pass
 		
+	def RemoveNearest(self, pos):
+		"""
+		Remove the marker that is nearest to pos, where pos is a calibrated value
+		"""
+		pos = self.cal.E2Ch(pos)
+		index = dict()
+		for m in self.collection:
+			diff = abs(pos-m.p1)
+			index[diff] = m
+			if self.paired:
+				diff = abs(pos-m.p2)
+				index[diff] = m
+		nearest = index[min(index.keys())]
+		if not self.paired or nearest.p2==None:
+			nearest.Remove()
+			self.collection.remove(nearest)
+		else:
+			if abs(pos-nearest.p1) < abs(pos-nearest.p2):
+				nearest.p1 = nearest.p2		
+			nearest.p2 = None
+			self.collection.remove(nearest)
+			self.collection.append(nearest)
+			nearest.Refresh()
 	
-	
+			
+

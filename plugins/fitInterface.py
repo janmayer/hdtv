@@ -23,99 +23,13 @@ import hdtv.cmdline
 import hdtv.cmdhelper
 import hdtv.fitio
 
-from hdtv.drawable import DrawableCompound
+from hdtv.spectrum import SpectrumCompound
 from hdtv.marker import MarkerCollection
 from hdtv.fitter import Fitter
 from hdtv.fit import Fit
 from hdtv.fitpanel import FitPanel
 
-
-class SpectrumCompound(DrawableCompound):
-	""" 
-	This CompoundObject is a dictionary of Fits belonging to a spectrum.
-	Everything that is not directed at the Fit dict is dispatched to the 
-	underlying spectrum. Thus from the outside this can be treated as an 
-	spectrum object, so that everything that has been written with a 
-	spectrum object in mind will continue to work. 
-	"""
-	def __init__(self, viewport, spec):
-		DrawableCompound.__init__(self,viewport)
-		self.spec = spec
-		self.color = spec.color
-		
-	def __getattr__(self, name):
-		"""
-		Dispatch everything which is unknown to this object to the spectrum
-		"""
-		return getattr(self.spec, name)
-
-	def __setitem__(self, ID, obj):
-		obj.Recalibrate(self.cal)
-		DrawableCompound.__setitem__(self, ID, obj)
-
-		
-	def Refresh(self):
-		"""
-		Refresh spectrum and fits
-		"""
-		self.spec.Refresh()
-		DrawableCompound.Refresh(self)
-		
-		
-	def Draw(self, viewport):
-		"""
-		Draw spectrum and fits
-		"""
-		self.spec.Draw(viewport)
-		DrawableCompound.Draw(self, viewport)
-		
-		
-	def Show(self):
-		"""
-		Show the spectrum and all fits that are marked as visible
-		"""
-		self.spec.Show()
-		# only show objects that have been visible before
-		for i in list(self.visible):
-			self.objects[i].Show()
-		
-			
-	def ShowAll(self):
-		"""
-		Show spectrum and all fits
-		"""
-		DrawableCompound.ShowAll(self)
-		
-	def Remove(self):
-		"""
-		Remove spectrum and fits
-		"""
-		self.spec.Remove()
-		DrawableCompound.Remove(self)
-		
-		
-	def Hide(self):
-		"""
-		Hide the whole object,
-		but remember which fits were visible
-		"""
-		# hide the spectrum itself
-		self.spec.Hide()
-		# Hide all fits, but remember what was visible
-		visible = self.visible.copy()
-		DrawableCompound.Hide(self)
-		self.visible = visible
-		
-	def HideAll(self):
-		"""
-		Hide only the fits
-		"""
-		DrawableCompound.HideAll(self)
-
-	def SetCal(self, cal):
-		self.spec.SetCal(cal)
-		DrawableCompound.SetCal(self, cal)
-		
+	
 
 
 class FitInterface:
@@ -145,10 +59,10 @@ class FitInterface:
 
 		# Register hotkeys
 		self.window.AddHotkey(ROOT.kKey_b, self._PutBgMarker)
-#		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_b], self._DeleteBgMarker)
+		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_b], self._DeleteBgMarker)
 		self.window.AddHotkey(ROOT.kKey_r, self._PutRegionMarker)
 		self.window.AddHotkey(ROOT.kKey_p, self._PutPeakMarker)
-#		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_p], self._DeletePeakMarker)
+		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_p], self._DeletePeakMarker)
 		self.window.AddHotkey(ROOT.kKey_B, self.FitBackground)
 		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_B], self.ClearBackground)
 	  	self.window.AddHotkey(ROOT.kKey_F, self.FitPeaks)
@@ -223,19 +137,48 @@ class FitInterface:
 
 
 	def _PutRegionMarker(self):
+		"""
+		Put region marker to the current position of cursor (internal use)
+		"""
 		fit = self.GetActiveFit()
 		fit.PutRegionMarker(self.window.viewport.GetCursorX())
 		
+
 	def _PutPeakMarker(self):
+		"""
+		Put peak marker to the current position of cursor (internal use)
+		"""
 		fit = self.GetActiveFit()
 		fit.PutPeakMarker(self.window.viewport.GetCursorX())
 
 	def _PutBgMarker(self):
+		"""
+		Put background marker to the current position of cursor (internal use)
+		"""
 		fit = self.GetActiveFit()
 		fit.PutBgMarker(self.window.viewport.GetCursorX())
 
 
+	def _DeleteBgMarker(self):
+		"""
+		Delete the background marker that is nearest to cursor (internal use)
+		"""
+		fit = self.GetActiveFit()
+		fit.bgMarkers.RemoveNearest(self.window.viewport.GetCursorX())
+
+
+	def _DeletePeakMarker(self):
+		"""
+		Delete the peak marker that is nearest to cursor (internal use)
+		"""
+		fit = self.GetActiveFit()
+		fit.peakMarkers.RemoveNearest(self.window.viewport.GetCursorX())
+
+
 	def GetActiveFit(self):
+		"""
+		Returns the currently active fit
+		"""
 		if not self.spectra.activeID==None:
 			spec = self.spectra[self.spectra.activeID]
 			if hasattr(spec, "activeID") and not spec.activeID==None:
@@ -626,7 +569,7 @@ class TvFitInterface:
 			print "There are no fits for this spectrum"
 			return False
 		except:
-			print "Usage: spectrum delete <ids>|none|all"
+			print "Usage: spectrum delete <ids>|all"
 			return False
 	
 	def FitShow(self, args):

@@ -41,7 +41,6 @@ s = specInterface.SpecInterface(window, spectra)
 f = fitInterface.FitInterface(window, spectra, show_panel=False)
 r = rootfile.RootFile(window, spectra, s.caldict)
 
-# execfile(hdtvpath+"/apps/debug.py")
-	
+
 # Go
 hdtv.cmdline.MainLoop()

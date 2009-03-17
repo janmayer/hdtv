@@ -23,7 +23,7 @@ import ROOT
 import os
 import hdtv.dlmgr
 from hdtv.color import *
-from hdtv.drawable import Drawable
+from hdtv.drawable import Drawable, DrawableCompound
 from hdtv.specreader import SpecReader, SpecReaderError
 
 hdtv.dlmgr.LoadLibrary("display")
@@ -196,3 +196,89 @@ class FileSpectrum(Spectrum):
 			return
 		self.SetHist(hist)
 		
+
+class SpectrumCompound(DrawableCompound):
+	""" 
+	This CompoundObject is a dictionary of Fits belonging to a spectrum.
+	Everything that is not directed at the Fit dict is dispatched to the 
+	underlying spectrum. Thus from the outside this can be treated as an 
+	spectrum object, so that everything that has been written with a 
+	spectrum object in mind will continue to work. 
+	"""
+	def __init__(self, viewport, spec):
+		DrawableCompound.__init__(self,viewport)
+		self.spec = spec
+		self.color = spec.color
+		
+	def __getattr__(self, name):
+		"""
+		Dispatch everything which is unknown to this object to the spectrum
+		"""
+		return getattr(self.spec, name)
+
+	def __setitem__(self, ID, obj):
+		obj.Recalibrate(self.cal)
+		DrawableCompound.__setitem__(self, ID, obj)
+
+		
+	def Refresh(self):
+		"""
+		Refresh spectrum and fits
+		"""
+		self.spec.Refresh()
+		DrawableCompound.Refresh(self)
+		
+		
+	def Draw(self, viewport):
+		"""
+		Draw spectrum and fits
+		"""
+		self.spec.Draw(viewport)
+		DrawableCompound.Draw(self, viewport)
+		
+		
+	def Show(self):
+		"""
+		Show the spectrum and all fits that are marked as visible
+		"""
+		self.spec.Show()
+		# only show objects that have been visible before
+		for i in list(self.visible):
+			self.objects[i].Show()
+		
+			
+	def ShowAll(self):
+		"""
+		Show spectrum and all fits
+		"""
+		DrawableCompound.ShowAll(self)
+		
+	def Remove(self):
+		"""
+		Remove spectrum and fits
+		"""
+		self.spec.Remove()
+		DrawableCompound.Remove(self)
+		
+		
+	def Hide(self):
+		"""
+		Hide the whole object,
+		but remember which fits were visible
+		"""
+		# hide the spectrum itself
+		self.spec.Hide()
+		# Hide all fits, but remember what was visible
+		visible = self.visible.copy()
+		DrawableCompound.Hide(self)
+		self.visible = visible
+		
+	def HideAll(self):
+		"""
+		Hide only the fits
+		"""
+		DrawableCompound.HideAll(self)
+
+	def SetCal(self, cal):
+		self.spec.SetCal(cal)
+		DrawableCompound.SetCal(self, cal)

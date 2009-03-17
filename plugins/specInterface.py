@@ -306,11 +306,20 @@ class TvSpecInterface:
 		Shows spectra
 		"""
 		try:
-			ids = hdtv.cmdhelper.ParseRange(args)
+			keywords = ["none", "all", "next", "prev", "first", "last"]
+			ids = hdtv.cmdhelper.ParseRange(args, keywords)
 			if ids == "NONE":
 				self.spectra.HideAll()
 			elif ids == "ALL":
 				self.spectra.ShowAll()
+			elif ids == "NEXT":
+				self.spectra.ShowNext()
+			elif ids == "PREV":
+				self.spectra.ShowPrev()
+			elif ids == "FIRST":
+				self.spectra.ShowFirst()
+			elif ids == "LAST":
+				self.spectra.ShowLast()
 			else:
 				self.spectra.ShowObjects(ids)
 		except:

@@ -58,9 +58,9 @@ class Fit(Drawable):
 		i=1
 		text = str()
 		for peak in self.fitter.resultPeaks:
-				text += "Peak %d:  " %i
-				text += ("\n               ".join(str(peak).split('\n')))
-				i+=1
+			text += "Peak %d:  " %i
+			text += ("\n               ".join(str(peak).split('\n')))
+			i+=1
 		return text
 		
 	
@@ -73,7 +73,7 @@ class Fit(Drawable):
 			self.dispFuncs.remove(func)
 			func.Remove()
 		self.dispDecompFuncs = []
-		self.peakMarkers.PutMarker(pos, self.cal)
+		self.peakMarkers.PutMarker(pos)
 		
 	
 	def PutRegionMarker(self, pos):
@@ -86,7 +86,7 @@ class Fit(Drawable):
 			func.Remove()
 		self.dispDecompFuncs = []
 		self.peakMarkers.Remove()
-		self.regionMarkers.PutMarker(pos, self.cal)
+		self.regionMarkers.PutMarker(pos)
 		
 		
 	def PutBgMarker(self, pos):
@@ -102,7 +102,7 @@ class Fit(Drawable):
 			self.dispFuncs.remove(func)
 			func.Remove()
 		self.dispDecompFuncs = []
-		self.bgMarkers.PutMarker(pos, self.cal)
+		self.bgMarkers.PutMarker(pos)
 		
 
 	def FitBgFunc(self, spec):
@@ -206,11 +206,13 @@ class Fit(Drawable):
 		Refresh
 		"""
 		# repeat the fits
-		self.viewport.LockUpdate()
 		if self.dispBgFunc:
 			self.FitBgFunc(self.fitter.spec)
 		if self.dispPeakFunc:
 			self.FitPeakFunc(self.fitter.spec)
+		if not self.viewport:
+			return
+		self.viewport.LockUpdate()
 		self.Draw(self.viewport)
 		# draw the markers (do this after the fit, 
 		# because the fit updates the position of the peak markers)
@@ -221,16 +223,23 @@ class Fit(Drawable):
 
 
 	def Show(self):
+		if not self.viewport:
+			return
 		self.viewport.LockUpdate()
 		self.peakMarkers.Show()
 		self.regionMarkers.Show()
 		self.bgMarkers.Show()
 		for obj in self.dispFuncs:
+			if not self.showDecomp and obj in self.dispDecompFuncs:
+				# do not show decomposition functions if not asked
+				continue
 			obj.Show()
 		self.viewport.UnlockUpdate()
 		
 		
 	def Hide(self):
+		if not self.viewport:
+			return
 		self.viewport.LockUpdate()
 		self.peakMarkers.Hide()
 		self.regionMarkers.Hide()
@@ -241,16 +250,18 @@ class Fit(Drawable):
 		
 		
 	def Remove(self):
-		self.viewport.LockUpdate()
-		self.peakMarkers.Remove()
-		self.regionMarkers.Remove()
-		self.bgMarkers.Remove()
-		while len(self.dispFuncs)>0:
-			self.dispFuncs.pop().Remove()
-		self.viewport.UnlockUpdate()
+		if self.viewport:
+			self.viewport.LockUpdate()
+			self.peakMarkers.Remove()
+			self.regionMarkers.Remove()
+			self.bgMarkers.Remove()
+			while len(self.dispFuncs)>0:
+				self.dispFuncs.pop().Remove()
+			self.viewport.UnlockUpdate()
 		self.dispPeakFunc = None
 		self.dispBgFunc = None
 		self.dispDecompFuncs = []
+		self.dispFuncs = []
 		self.fitter.resultPeaks = []
 		
 		
