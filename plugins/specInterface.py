@@ -31,7 +31,6 @@ import hdtv.cal
 from hdtv.spectrum import Spectrum, FileSpectrum
 from hdtv.specreader import SpecReaderError
 
-#import config
 
 # Don't add created spectra to the ROOT directory
 ROOT.TH1.AddDirectory(ROOT.kFALSE)
@@ -162,7 +161,7 @@ class SpecInterface:
 		return None
 			
 
-	def CalPosGetlist(self, fname):
+	def GetCalsFromList(self, fname):
 		"""
 		Reads calibrations from a calibration list file. The file has the format
 		<specname>: <cal0> <cal1> ...
@@ -173,16 +172,13 @@ class SpecInterface:
 		except IOError, msg:
 			print "Error opening file: %s" % msg
 			return False
-		
 		linenum = 0
 		for l in f:
 			linenum += 1
-			
 			# Remove comments and whitespace; ignore empty lines
 			l = l.split('#', 1)[0].strip()
 			if l == "":
 				continue
-			
 			try:
 				(k, v) = l.split(':', 1)
 				name = k.strip()
@@ -190,8 +186,12 @@ class SpecInterface:
 				self.caldict[name] = coeff
 			except ValueError:
 				print "Warning: could not parse line %d of file %s: ignored." % (linenum, fname)
-
-		f.close()
+			else:
+				# FIXME: Maybe Norbert had different plans here?
+				spec = self.FindSpectrumByName(name)
+				if spec:
+					spec.SetCal(self.caldict[name])
+ 		f.close()
 		return True
 
 
@@ -252,13 +252,16 @@ class TvSpecInterface:
 				os.chdir(os.path.expanduser(args[0]))
 			except OSError, msg:
 				print msg
+
 	
 	def SpectrumList(self, args, options):
 		"""
 		Print a list of all spectra 
 		"""
+		# FIXME: args and options? Why?
 		self.spectra.ListObjects()
 	
+
 	def SpectrumGet(self, args):
 		"""
 		Load Spectrum from files
@@ -479,4 +482,7 @@ class TvSpecInterface:
 		"""
 		Read calibrations for several spectra from file
 		"""
-		self.specIf.CalPosGetlist(args[0])
+		self.specIf.GetCalsFromList(args[0])
+
+
+

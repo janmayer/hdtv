@@ -174,7 +174,7 @@ class DrawableCompound(UserDict.DictMixin):
 
 	def GetFreeID(self):
 		"""
-		Finds the first free index in the managers dict
+		Finds the first free index
 		"""
 		# Find a free ID
 		ID = 0
