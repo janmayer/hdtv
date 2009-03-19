@@ -22,7 +22,7 @@
 import ROOT
 import os
 import hdtv.dlmgr
-from hdtv.color import *
+import hdtv.color 
 from hdtv.drawable import Drawable, DrawableCompound
 from hdtv.specreader import SpecReader, SpecReaderError
 
@@ -74,7 +74,7 @@ class Spectrum(Drawable):
 		if self.displayObj == None and self.fHist != None:
 			if self.color==None:
 				# set to default color
-				self.color = kSpecDef
+				self.color = hdtv.color.spectrum
 			self.displayObj = ROOT.HDTV.Display.DisplaySpec(self.fHist, self.color)
 			self.displayObj.SetID(self.ID)
 			self.displayObj.SetNorm(self.norm)
@@ -151,7 +151,7 @@ class FileSpectrum(Spectrum):
 	
 	A spectrum that comes from a file in any of the formats supported by hdtv.
 	"""
-	def __init__(self, fname, fmt=None, cal=None, color=None):
+	def __init__(self, fname, fmt=None, color=None, cal=None):
 		"""
 		Read a spectrum from file
 		"""
@@ -169,13 +169,7 @@ class FileSpectrum(Spectrum):
 			raise 
 		self.fFilename = fname
 		self.fFmt = fmt
-		Spectrum.__init__(self, hist)
-		# set calibration 
-		if cal:
-			self.SetCal(cal)
-		# set color
-		if color:
-			self.SetColor(color)
+		Spectrum.__init__(self, hist, color, cal)
 		
 	
 	def Refresh(self):

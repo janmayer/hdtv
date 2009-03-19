@@ -138,10 +138,11 @@ class SpecInterface:
 					print "Warning: could not load %s'%s" %(fname, fmt)
 				else:
 					ID = self.spectra.GetFreeID()
-					spec.SetColor(hdtv.color.ColorForID(ID, ""))
+					spec.SetColor(hdtv.color.ColorForID(ID))
 					self.spectra[ID] = spec
-					self.spectra.ActivateObject(ID)
 					loaded.append(ID)
+		if len(loaded)>0:
+			self.spectra.ActivateObject(loaded[-1])
 		# Update viewport if required
 		self.window.Expand()
 		self.window.viewport.UnlockUpdate()

@@ -20,6 +20,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 import ROOT
 import hdtv.cal
+import hdtv.color
 from hdtv.drawable import Drawable
 
 
@@ -68,6 +69,8 @@ class Marker(Drawable):
 			constructor = ROOT.HDTV.Display.XMarker
 		elif self.xytype == "Y":
 			constructor = ROOT.HDTV.Display.YMarker
+		if not self.color:
+			self.color = hdtv.color.zoom
 		self.displayObj = constructor(n, self.p1, p2, self.color)
 		if self.xytype=="X":
 			self.displayObj.SetCal(self.cal)
@@ -124,33 +127,43 @@ class MarkerCollection(Drawable):
 		self.maxnum = maxnum
 		self.collection = list()
 		
+
 	def Draw(self, viewport):
 		self.viewport = viewport
 		for marker in self.collection:
 			marker.Draw(self.viewport)
 			
+
 	def Show(self):
 		for marker in self.collection:
 			marker.Show()
 			
+
 	def Hide(self):
 		for marker in self.collection:
 			marker.Hide()
 			
+
 	def Remove(self):
 		for marker in self.collection:
 			marker.Remove()
 		self.collection = list()
 			
-	def SetColor(self, color):
-		self.color=color
+
+	def SetColor(self, color=None, active=False):
+		if not color:
+			# use old color
+			color = self.color
+		self.color=hdtv.color.Highlight(color, active)
 		for marker in self.collection:
-			marker.SetColor(color)
+			marker.SetColor(self.color)
 			
+
 	def SetCal(self, cal):
 		self.cal= hdtv.cal.MakeCalibration(cal)
 		for marker in self.collection:
 			marker.SetCal(cal)
+
 
 	def Recalibrate(self, cal):
 		"""
@@ -161,9 +174,11 @@ class MarkerCollection(Drawable):
 		for marker in self.collection:
 			marker.Recalibrate(cal)
 
+
 	def __getattr__(self, name):
 		# FIXME: include automatic remove when a marker is deleted
 		return getattr(self.collection, name)
+
 
 	def PutMarker(self, pos):
 		"""

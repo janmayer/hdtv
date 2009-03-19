@@ -22,6 +22,7 @@
 import ROOT
 import hdtv.dlmgr
 import hdtv.options
+import hdtv.color
 import config
 from hdtv.marker import MarkerCollection
 
@@ -199,9 +200,11 @@ class Window(KeyHandler):
 		self.viewer = ROOT.HDTV.Display.Viewer()
 		self.viewport = self.viewer.GetViewport()
 		
-		self.XZoomMarkers = MarkerCollection("X", paired=True, maxnum=1, color=10)
+		self.XZoomMarkers = MarkerCollection("X", paired=True, maxnum=1, 
+												  color=hdtv.color.zoom)
 		self.XZoomMarkers.Draw(self.viewport)
-		self.YZoomMarkers = MarkerCollection("Y", paired=True, maxnum=1, color=10)
+		self.YZoomMarkers = MarkerCollection("Y", paired=True, maxnum=1, 
+												  color=hdtv.color.zoom)
 		self.YZoomMarkers.Draw(self.viewport)
 
 		# Key Handling

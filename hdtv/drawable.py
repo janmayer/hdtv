@@ -24,6 +24,7 @@ import os
 import UserDict
 
 import hdtv.cal
+import hdtv.color
 import hdtv.dlmgr
 
 hdtv.dlmgr.LoadLibrary("display")
@@ -32,7 +33,7 @@ class Drawable:
 	def __init__(self, color=None, cal=None):
 		self.viewport = None
 		self.displayObj = None
-		self.color = color
+		self.color = hdtv.color.Highlight(color, active=False)
 		self.cal = hdtv.cal.MakeCalibration(cal) 
 
 
@@ -40,15 +41,17 @@ class Drawable:
 		return str(self.displayObj)
 
 
-	def SetColor(self, color):
+	def SetColor(self, color=None, active=False):
 		"""
 		set color of the object 
 		"""
-		if color:
-			self.color = color
+		if not color:
+			# use old color
+			color = self.color
+		self.color = hdtv.color.Highlight(color, active)
 		# update the display if needed	
 		try:
-			self.displayObj.SetColor(color)
+			self.displayObj.SetColor(self.color)
 		except:
 			pass
 
@@ -213,17 +216,18 @@ class DrawableCompound(UserDict.DictMixin):
 		Activates the object with id ID, while also highlighting it
 		"""
 		self.viewport.LockUpdate()
+		# lowlight previously active object
 		if self.activeID != None:
-			c = hdtv.color.ColorForID(self.activeID, "")
-			self.objects[self.activeID].SetColor(c)
+			self.objects[self.activeID].SetColor(active=False)
+		# set new active object
 		if ID==None:
 			self.activeID=None
-		elif not ID in self.keys():
-			raise KeyError
-		else:
-			self.objects[ID].SetColor(hdtv.color.ColorForID(ID, "ACTIVE"))
+		elif ID in self.keys():
+			self.objects[ID].SetColor(active=True)
 			self.objects[ID].ToTop()
 			self.activeID = ID
+		else:
+			print "Warning, invalid id %s" %ID
 		self.viewport.UnlockUpdate()
 	
 		
@@ -454,17 +458,18 @@ class DrawableCompound(UserDict.DictMixin):
 		ids = ids[len(ids)-nb:]
 		self.ShowObjects(ids, clear=True)
 		
-	def SetColor(self, color):
+	def SetColor(self, color=None, active=False):
 		"""
-		Set color of all objects to the same color,
-		no idea if this is useful ... ?
+		Call SetColor for all components
 		"""
-		self.viewport.LockUpdate()
 		for obj in self.itervalues():
-			obj.SetColor(color)
+			obj.SetColor(color, active)
 		self.viewport.UnlockUpdate()
 		
 	def SetCal(self, cal):
+		"""
+		Call SetCal for all components
+		"""
 		self.viewport.LockUpdate()
 		for obj in self.itervalues():
 			obj.SetCal(cal)

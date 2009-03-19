@@ -42,11 +42,11 @@ class Fit(Drawable):
 	def __init__(self, fitter, color=None, cal=None):
 		Drawable.__init__(self, color, cal)
 		self.regionMarkers = MarkerCollection("X", paired=True, maxnum=1,
-												  color=38, cal=self.cal)
+												  color=hdtv.color.region, cal=self.cal)
 		self.peakMarkers = MarkerCollection("X", paired=False, maxnum=None,
-												  color=50, cal=self.cal)
+												  color=hdtv.color.peak, cal=self.cal)
 		self.bgMarkers = MarkerCollection("X", paired=True, maxnum=None,
-												  color=11, cal=self.cal)
+												  color=hdtv.color.bg, cal=self.cal)
 		self.fitter = fitter
 		self.showDecomp = False
 		self.dispPeakFunc = None
@@ -128,7 +128,7 @@ class Fit(Drawable):
 			backgrounds =  map(lambda m: [m.p1, m.p2], self.bgMarkers)
 			self.fitter.FitBackground(spec, backgrounds)
 			func = self.fitter.bgFitter.GetFunc()
-			self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.FIT_BG_FUNC)
+			self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
 			if spec.cal:
 				self.dispBgFunc.SetCal(spec.cal)
 			self.dispFuncs.append(self.dispBgFunc)
@@ -154,14 +154,14 @@ class Fit(Drawable):
 			peaks = map(lambda m: m.p1, self.peakMarkers)
 			self.fitter.FitPeaks(spec, region, peaks)
 			func = self.fitter.peakFitter.GetSumFunc()
-			self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.FIT_SUM_FUNC)
+			self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.region)
 			if spec.cal:
 				self.dispPeakFunc.SetCal(spec.cal)
 			self.dispFuncs.append(self.dispPeakFunc)
 			# extract function for each peak (decomposition)
 			for i in range(0, self.fitter.peakFitter.GetNumPeaks()):
 				func = self.fitter.peakFitter.GetPeak(i).GetPeakFunc()
-				dispFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.FIT_DECOMP_FUNC)
+				dispFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.peak)
 				if spec.cal:
 					dispFunc.SetCal(spec.cal)
 				self.dispDecompFuncs.append(dispFunc)
@@ -279,13 +279,28 @@ class Fit(Drawable):
 			self.viewport.UnlockUpdate()
 
 
-	def SetColor(self, color):
+	def SetColor(self, color=None, active=False):
 		if self.viewport:
 			self.viewport.LockUpdate()
-		# FIXME: include markers (they support SetColor() now)
-		objs = self.dispFuncs
-		for obj in objs:
-			obj.SetColor(color)
+		if not color:
+			color = self.color
+		self.color = hdtv.color.Highlight(color, active)
+		if active:
+			self.regionMarkers.SetColor(hdtv.color.region)
+			self.peakMarkers.SetColor(hdtv.color.peak)
+			self.bgMarkers.SetColor(hdtv.color.bg)
+			if self.dispPeakFunc:
+				self.dispPeakFunc.SetColor(hdtv.color.region)
+			if self.dispBgFunc:
+				self.dispBgFunc.SetColor(hdtv.color.bg)
+			for func in self.dispDecompFuncs:
+				func.SetColor(hdtv.color.peak)
+		else:
+			self.regionMarkers.SetColor(self.color)
+			self.peakMarkers.SetColor(self.color)
+			self.bgMarkers.SetColor(self.color)
+			for func in self.dispFuncs:
+				func.SetColor(self.color)
 		if self.viewport:
 			self.viewport.UnlockUpdate()
 			
