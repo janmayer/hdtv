@@ -248,6 +248,7 @@ class Window(KeyHandler):
 		
 	def YMinVisibleRegionChanged(self, opt):
 		self.viewport.SetYMinVisibleRegion(opt.Get())
+
 	
 	
 	def GoToPosition(self, arg):
@@ -293,6 +294,8 @@ class Window(KeyHandler):
   		zoomMarkers = getattr(self,"%sZoomMarkers" %xytype)
   		if len(zoomMarkers) == 1:
   			zm = zoomMarkers[0] 
+			if zm.p2==None:
+				zm.p2 = 0.0
   			setOffset = getattr(self.viewport, "Set%sOffset" % xytype)
   			setOffset(min(zm.p1, zm.p2))
   			setVisibleRegion = getattr(self.viewport, "Set%sVisibleRegion" % xytype)

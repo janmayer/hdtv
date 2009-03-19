@@ -201,7 +201,7 @@ class MarkerCollection(Drawable):
 		for m in self.collection:
 			diff = abs(pos-m.p1)
 			index[diff] = m
-			if self.paired:
+			if self.paired and not m.p2==None:
 				diff = abs(pos-m.p2)
 				index[diff] = m
 		nearest = index[min(index.keys())]

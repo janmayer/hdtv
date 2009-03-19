@@ -234,6 +234,7 @@ class Fit(Drawable):
 				# do not show decomposition functions if not asked
 				continue
 			obj.Show()
+		print "\n"+6*" "+str(self)
 		self.viewport.UnlockUpdate()
 		
 		

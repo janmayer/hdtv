@@ -309,6 +309,8 @@ class TvSpecInterface:
 				self.spectra.ShowLast()
 			else:
 				self.spectra.ShowObjects(ids)
+			ID = list(self.spectra.visible)[0]
+			self.spectra.ActivateObject(ID)
 		except:
 			return "USAGE"
 

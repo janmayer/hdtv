@@ -55,11 +55,12 @@ class FitInterface:
 			self.fitPanel.Show()
 
 		# Register hotkeys
-		self.window.AddHotkey(ROOT.kKey_b, self._PutBgMarker)
-		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_b], self._DeleteBgMarker)
-		self.window.AddHotkey(ROOT.kKey_r, self._PutRegionMarker)
-		self.window.AddHotkey(ROOT.kKey_p, self._PutPeakMarker)
-		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_p], self._DeletePeakMarker)
+		self.window.AddHotkey(ROOT.kKey_b, lambda: self._PutMarker("bg"))
+		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_b], lambda: self._DeleteMarker("bg"))
+		self.window.AddHotkey(ROOT.kKey_r, lambda: self._PutMarker("region"))
+		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_r], lambda: self._DeleteMarker("region"))
+		self.window.AddHotkey(ROOT.kKey_p, lambda: self._PutMarker("peak"))
+		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_p], lambda: self._DeleteMarker("peak"))
 		self.window.AddHotkey(ROOT.kKey_B, self.FitBackground)
 		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_B], self.ClearBackground)
 	  	self.window.AddHotkey(ROOT.kKey_F, self.FitPeaks)
@@ -132,44 +133,25 @@ class FitInterface:
 		except KeyError:
 			self.window.viewport.SetStatusText("No such id: %d" % ID)
 
-
-	def _PutRegionMarker(self):
+	def _PutMarker(self, mtype):
 		"""
-		Put region marker to the current position of cursor (internal use)
-		"""
-		fit = self.GetActiveFit()
-		fit.PutRegionMarker(self.window.viewport.GetCursorX())
-		
-
-	def _PutPeakMarker(self):
-		"""
-		Put peak marker to the current position of cursor (internal use)
+		Put marker of type region, peak or bg to the current position of cursor 
+		(internal use)
 		"""
 		fit = self.GetActiveFit()
-		fit.PutPeakMarker(self.window.viewport.GetCursorX())
+		pos = self.window.viewport.GetCursorX()
+		getattr(fit,"Put%sMarker" %mtype.title())(pos)
 
-	def _PutBgMarker(self):
+
+	def _DeleteMarker(self, mtype):
 		"""
-		Put background marker to the current position of cursor (internal use)
+		Delete the marker of type region, peak or bg, that is nearest to cursor 
+		(internal use)
 		"""
 		fit = self.GetActiveFit()
-		fit.PutBgMarker(self.window.viewport.GetCursorX())
-
-
-	def _DeleteBgMarker(self):
-		"""
-		Delete the background marker that is nearest to cursor (internal use)
-		"""
-		fit = self.GetActiveFit()
-		fit.bgMarkers.RemoveNearest(self.window.viewport.GetCursorX())
-
-
-	def _DeletePeakMarker(self):
-		"""
-		Delete the peak marker that is nearest to cursor (internal use)
-		"""
-		fit = self.GetActiveFit()
-		fit.peakMarkers.RemoveNearest(self.window.viewport.GetCursorX())
+		pos = self.window.viewport.GetCursorX()
+		markers = getattr(fit, "%sMarkers" %mtype.lower())
+		markers.RemoveNearest(pos)
 
 
 	def GetActiveFit(self):
@@ -478,6 +460,7 @@ class TvFitInterface:
 		hdtv.cmdline.AddCommand("fit write", self.FitWrite, nargs=0,
 		                        usage="fit write <filename>")
 		hdtv.cmdline.AddCommand("fit show", self.FitShow, minargs=1)
+		hdtv.cmdline.AddCommand("fit print", self.FitPrint, minargs=1)
 		hdtv.cmdline.AddCommand("fit delete", self.FitDelete, minargs=1)
 		hdtv.cmdline.AddCommand("fit activate", self.FitActivate, nargs=1)
 		hdtv.cmdline.AddCommand("fit multi", self.FitMulti, minargs=1)
@@ -594,6 +577,31 @@ class TvFitInterface:
 			print "Usage: fit show <ids>|all|none"
 			return False
 	
+	def FitPrint(self, args):
+		try:
+			spec = self.spectra[self.spectra.activeID]
+		except KeyError:
+			print "No active spectrum"
+			return False
+		try:
+			ids = hdtv.cmdhelper.ParseRange(args)
+			if ids == "NONE":
+				return
+			if ids == "ALL":
+				ids = spec.keys()
+			for ID in ids:
+				try:
+					print str(spec[ID])
+				except KeyError:
+					print "Warning: No fit with id %s" %ID
+					continue
+		except AttributeError:
+			print "There are no fits for this spectrum"
+			return False
+		except: 
+			print "Usage: fit print <ids>|all"
+			return False
+
 	def FitActivate(self, args):
 		"""
 		Activate one spectra
