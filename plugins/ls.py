@@ -20,8 +20,8 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 #-------------------------------------------------------------------------------
-# Plugin implementing an ls-like command for the HDTV command line, by special
-# request from R. Schulze :)
+# Plugin implementing some useful hdtv commands for navigation the file system
+# this includes a ls-like command, by special request from R. Schulze :)
 #-------------------------------------------------------------------------------
 
 import hdtv.tabformat
@@ -31,7 +31,9 @@ import stat
 import glob
 
 def ls(args):
-	"This function prints an output similar to that of the ``ls'' program"
+	"""
+	this function prints an output similar to that of the ``ls'' program
+	"""
 	if len(args) > 0:
 		pattern = os.path.expanduser(args[0])
 	else:
@@ -53,5 +55,34 @@ def ls(args):
 	
 	dirlist.sort()
 	hdtv.tabformat.tabformat(dirlist)
-	
+
+
+def cd(args):
+	"""
+	change current working directory
+	"""
+	if len(args) == 0:
+		path = os.path.expanduser("~")
+	elif args[0]=="-":
+		path = os.environ["OLDPWD"]
+	else:
+		path = os.path.expanduser(args[0])
+	try:
+		os.chdir(path)
+		print path
+	except OSError, msg:
+		print msg
+
+
+def pwd(args):
+	"""
+	print name of current/working directory
+	"""
+	print os.getcwdu()
+
+
+print "loaded ls plugin"
 hdtv.cmdline.AddCommand("ls", ls, maxargs=1, dirargs=True)
+hdtv.cmdline.AddCommand("cd", cd, maxargs=1, dirargs=True)
+hdtv.cmdline.AddCommand("pwd", pwd, nargs=0) 
+

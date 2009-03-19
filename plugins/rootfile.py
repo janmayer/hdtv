@@ -29,6 +29,7 @@ import fnmatch
 
 class RootFile:
 	def __init__(self, window, spectra, caldict):
+		print "Loaded user interface for working with root files"
 		self.window = window
 		self.spectra = spectra
 		self.caldict = caldict
@@ -137,3 +138,10 @@ class RootFile:
 				else:
 					print "Warning: %s is not a 1D histogram object" % key.GetName()
 		self.window.viewport.UnlockUpdate()
+
+
+# plugin initialisation
+import __main__
+import specInterface 
+r = RootFile(__main__.window, __main__.spectra, __main__.s.caldict)
+

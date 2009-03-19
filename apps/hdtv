@@ -25,21 +25,10 @@ import hdtv.cmdline
 hdtv.cmdline.ReadReadlineInit(hdtvpath + "/inputrc")
 hdtv.cmdline.SetReadlineHistory(hdtvpath + "/hdtv_history")
 hdtv.cmdline.SetInteractiveDict(locals())
-# import hdtv.config
 
-import hdtv.window
-import hdtv.drawable 
-import specInterface 
-import fitInterface
-import rootfile
-import ls
 
-window = hdtv.window.Window() 
-spectra = hdtv.drawable.DrawableCompound(window.viewport)
-
-s = specInterface.SpecInterface(window, spectra)
-f = fitInterface.FitInterface(window, spectra, show_panel=False)
-r = rootfile.RootFile(window, spectra, s.caldict)
+# Execute startup script
+import startup
 
 
 # Go

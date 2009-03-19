@@ -29,9 +29,6 @@ from hdtv.fitter import Fitter
 from hdtv.fit import Fit
 from hdtv.fitpanel import FitPanel
 
-	
-
-
 class FitInterface:
 	"""
 	User interface for fitting 1-d spectra
@@ -688,5 +685,15 @@ class TvFitInterface:
 			self.fitIf.window.Expand()
 			return True
 		
+
+# plugin initialisation
+import __main__
+if not hasattr(__main__,"window"):
+	import hdtv.window
+	__main__.window = hdtv.window.Window()
+if not hasattr(__main__, "spectra"):
+	import hdtv.drawable
+	__main__.spectra = hdtv.drawable.DrawableCompound(__main__.window.viewport)
+__main__.f = FitInterface(__main__.window, __main__.spectra, show_panel=False)
 
 

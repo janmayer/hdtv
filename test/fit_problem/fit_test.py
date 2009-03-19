@@ -1,3 +1,5 @@
+from __main__ import *
+
 from hdtv.fit import Fit
 from hdtv.spectrum import FileSpectrum, SpectrumCompound
 

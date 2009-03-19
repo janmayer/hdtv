@@ -205,7 +205,7 @@ class TvSpecInterface:
 		
 		# register tv commands
 		hdtv.cmdline.command_tree.SetDefaultLevel(1)
-		hdtv.cmdline.AddCommand("cd", self.Cd, level=2, maxargs=1, dirargs=True)
+		
 		
 		# spectrum commands
 		hdtv.cmdline.AddCommand("spectrum get", self.SpectrumGet, level=0, minargs=1,
@@ -239,19 +239,6 @@ class TvSpecInterface:
 		hdtv.cmdline.AddCommand("calibration position getlist", self.CalPosGetlist, nargs=1,
 		                        fileargs=True,
 		                        usage="calibration position getlist <filename>")
-		
-	def Cd(self, args):
-		"""
-		Change current working directory
-		"""
-		# FIXME: not sure where this belongs
-		if len(args) == 0:
-			print os.getcwdu()
-		else:
-			try:
-				os.chdir(os.path.expanduser(args[0]))
-			except OSError, msg:
-				print msg
 
 	
 	def SpectrumList(self, args, options):
@@ -494,4 +481,13 @@ class TvSpecInterface:
 		self.specIf.GetCalsFromList(args[0])
 
 
+# plugin initialisation
+import __main__
+if not hasattr(__main__,"window"):
+	import hdtv.window
+	__main__.window = hdtv.window.Window()
+if not hasattr(__main__, "spectra"):
+	import hdtv.drawable
+	__main__.spectra = hdtv.drawable.DrawableCompound(__main__.window.viewport)
+__main__.s = SpecInterface(__main__.window, __main__.spectra)
 

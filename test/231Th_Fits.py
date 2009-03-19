@@ -2,7 +2,8 @@
 
 
 # works with revision 117
-#from __main__ import *
+
+from __main__ import *
 
 from hdtv.fit import Fit
 from hdtv.spectrum import SpectrumCompound

@@ -52,6 +52,6 @@ def ConfigShow(args):
 		except KeyError:
 			print "%s: no such option" % args[0]
 	
-
+print "loaded config plugin"
 hdtv.cmdline.AddCommand("config set", ConfigSet, nargs=2)
 hdtv.cmdline.AddCommand("config show", ConfigShow, maxargs=1)
