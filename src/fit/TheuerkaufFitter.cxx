@@ -384,7 +384,7 @@ void TheuerkaufFitter::_Fit(TH1& hist)
   for(iter = fPeaks.begin(); iter != fPeaks.end(); iter ++) {
 	SetParameter(*fSumFunc, iter->fPos);
 	SetParameter(*fSumFunc, iter->fVol, avgVol);
-	SetParameter(*fSumFunc, iter->fSigma, 10.0);
+	SetParameter(*fSumFunc, iter->fSigma, 1.0);
 	SetParameter(*fSumFunc, iter->fSH, 1.0);
 	SetParameter(*fSumFunc, iter->fSW, 1.0);
 	if(iter->fTL.IsFree()) {

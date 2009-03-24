@@ -139,6 +139,8 @@ class Drawable:
 
 class DrawableCompound(UserDict.DictMixin):
 	"""
+	This class is a prototype of a collection of drawable objects. 
+	It provides some handy functions to manage such an collection.
 	"""
 	def __init__(self, viewport):
 		self.viewport = viewport
@@ -151,22 +153,26 @@ class DrawableCompound(UserDict.DictMixin):
 
 
 	def __setitem__(self, ID, obj):
+		""" 
+		Low level function to add an object to this compound
+		Note: This does not call Draw 
+		"""
 		try:
 			obj.SetID(ID)
 		except AttributeError:
 			pass
 		self.objects.__setitem__(ID, obj)
-		if self.viewport:
-			obj.Draw(self.viewport)
-			self.visible.add(ID)
 
 
 	def __delitem__(self, ID):
+		"""
+		Low level function to delete an object from this compound
+		Note: This does not call Remove
+		"""
 		if ID in self.visible:
 			self.visible.discard(ID)
 		if ID == self.activeID:
 			self.activeID = None
-		self.objects[ID].Remove()
 		self.objects.__delitem__(ID)
 
 
@@ -176,10 +182,13 @@ class DrawableCompound(UserDict.DictMixin):
 
 	def Add(self, obj):
 		"""
-		Adds an object to the first free index in the managers dict.
+		Adds an object to the first free index (this also calls draw for the object)
 		"""
 		ID = self.GetFreeID()
-		self.objects[ID] = obj
+		self[ID] = obj
+		if self.viewport:
+			obj.Draw(self.viewport)
+			self.visible.add(ID)
 		return ID
 
 
@@ -458,12 +467,18 @@ class DrawableCompound(UserDict.DictMixin):
 		ids = ids[len(ids)-nb:]
 		self.ShowObjects(ids, clear=True)
 		
-	def SetColor(self, color=None, active=False):
+	def SetColor(self, color=None, active=None):
 		"""
 		Call SetColor for all components
 		"""
-		for obj in self.itervalues():
-			obj.SetColor(color, active)
+		self.viewport.LockUpdate()
+		for ID in self.keys():
+			if active==None:
+				if ID==self.activeID:
+					active=True
+				else:
+					active=False
+			self[ID].SetColor(color, active)
 		self.viewport.UnlockUpdate()
 		
 	def SetCal(self, cal):

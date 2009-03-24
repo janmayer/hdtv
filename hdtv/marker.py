@@ -211,6 +211,9 @@ class MarkerCollection(Drawable):
 		"""
 		Remove the marker that is nearest to pos, where pos is a calibrated value
 		"""
+		if len(self.collection)==0:
+			print "Warning: no marker available, no action taken"
+			return
 		pos = self.cal.E2Ch(pos)
 		index = dict()
 		for m in self.collection:

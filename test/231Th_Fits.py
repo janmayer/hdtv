@@ -47,33 +47,14 @@ s.GetCalsFromList(hdtvpath+"/test/spectra/231Th_calibrations.txt")
 Init(spectra)
 
 
-
 ### default fit parameter
 f.SetPeakModel("theuerkauf")
 f.SetParameter("tr", "free")
 f.SetBgDeg(1)
-default = f.defaultFitter.Copy()
 
-#allspecs = set(spectra.keys())
+execfile("231Th_241keV.py")
 
-### Peak around 42 keV:
-#exceptions = set(range(2,8)) 
-#ids = list(allspecs-exceptions)
-region      = [35,50]
-peaks       = [42]
-backgrounds = [30, 34, 50, 53]
-fitter = default.Copy()
-for spec in spectra.itervalues():
-	DoFit(spec, fitter, region, peaks, backgrounds)
 
-##ids = [2,3]
-##region		= [15, 50]
-##peaks 		= [28, 42] #extra background peak
-##backgrounds = [6, 11, 54, 58]
-##fitter = default.Copy()
-##for sid in ids:
-##	spec = spectra[sid]
-##	DoFit(spec, fitter, region, peaks, backgrounds)
 
 
 #### Peak around 96 keV:
@@ -401,7 +382,7 @@ for spec in spectra.itervalues():
 #for spec in spectra.itervalues():
 #	DoFit(spec, fitter, region, peaks, backgrounds)
 
-#### und ein paar mehr bei höheren Energien
+##### und ein paar mehr bei höheren Energien
 
  
 

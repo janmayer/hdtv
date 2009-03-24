@@ -48,11 +48,12 @@ def ColorForID(ID, active=False):
 
 def HueForID(ID):
 	"""
-	Returns the hue corresponding to a certain spectrum ID. The idea is to maximize the
-	hue difference between the spectra shown, without knowing beforehand how many spectra
-	there will be and without being able to change the color afterwards (that would confuse
-	the user). The saturation and value of the color can be set arbitrarily, for example
-	to indicate which spectrum is currently active.
+	Returns the hue corresponding to a certain spectrum ID. The idea is to 
+	maximize the hue difference between the spectra shown, without knowing 
+	beforehand how many spectra there will be and without being able to change 
+	the color afterwards (that would confuse the user). The saturation and value 
+	of the color can be set arbitrarily, for example to indicate which spectrum 
+	is currently active.
 	"""
 	# Special case
 	if ID==0:

@@ -56,11 +56,14 @@ class FitInterface:
 
 		# Register hotkeys
 		self.window.AddHotkey(ROOT.kKey_b, lambda: self._PutMarker("bg"))
-		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_b], lambda: self._DeleteMarker("bg"))
+		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_b], 
+								lambda: self._DeleteMarker("bg"))
 		self.window.AddHotkey(ROOT.kKey_r, lambda: self._PutMarker("region"))
-		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_r], lambda: self._DeleteMarker("region"))
+		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_r], 
+								lambda: self._DeleteMarker("region"))
 		self.window.AddHotkey(ROOT.kKey_p, lambda: self._PutMarker("peak"))
-		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_p], lambda: self._DeleteMarker("peak"))
+		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_p], 
+								lambda: self._DeleteMarker("peak"))
 		self.window.AddHotkey(ROOT.kKey_B, self.FitBackground)
 		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_B], self.ClearBackground)
 	  	self.window.AddHotkey(ROOT.kKey_F, self.FitPeaks)
@@ -68,12 +71,13 @@ class FitInterface:
 	  	self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], self.ClearFit)
 #	  	self.window.AddHotkey(ROOT.kKey_I, self.Integrate)
 	  	self.window.AddHotkey(ROOT.kKey_D, lambda: self.SetDecomp(True))
-	  	self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_D], lambda: self.SetDecomp(False))
+	  	self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_D], 
+								lambda: self.SetDecomp(False))
 		self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_s],
-				lambda: self.window.EnterEditMode(prompt="Show Fit: ",
+						lambda: self.window.EnterEditMode(prompt="Show Fit: ",
 		                                   handler=self._HotkeyShow))
 		self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_a],
-		        lambda: self.window.EnterEditMode(prompt="Activate Fit: ",
+		        		lambda: self.window.EnterEditMode(prompt="Activate Fit: ",
 		                                   handler=self._HotkeyActivate))
 		self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_p], self._HotkeyShowPrev)
 		self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_n], self._HotkeyShowNext)
@@ -214,8 +218,7 @@ class FitInterface:
 			# replace the simple spectrum object by the SpectrumCompound
 			self.spectra[self.spectra.activeID]=spec
 		if spec.activeID==None:
-			ID = spec.GetFreeID()
-			spec[ID]=self.activeFit
+			ID = spec.Add(self.activeFit)
 			self.activeFit = None
 			spec.ActivateObject(ID)
 		fit = spec[spec.activeID]
@@ -266,7 +269,6 @@ class FitInterface:
 		if not hasattr(spec, "activeID") or spec.activeID==None:
 			# do the fit
 			self.FitPeaks()
-		# FIXME: we need SetColor for markers!
 		spec[spec.activeID].SetColor(spec.color)
 		# remove the fit, if it is empty (=nothing fitted)
 		if len(spec[spec.activeID].dispFuncs)==0:
@@ -301,43 +303,56 @@ class FitInterface:
 		
 	
 	def FitMultiSpectra(self, ids):
+		"""
+		Use the fit markers of the active fit to fit multiple spectra.
+		The spectra that should be fitted are given by the parameter ids.
+		"""
 		self.window.viewport.LockUpdate()
-		# save the current fit as template for the other fits
-		fit = self.GetActiveFit().Copy(cal=None)
-		if not self.spectra.activeID==None:
-			spec = self.spectra[self.spectra.activeID]
-			if hasattr(spec, "activeID") and not spec.activeID==None:
-				ID = spec.activeID
-				# deactivate fit
-				spec.ActivateObject(None)
-				# and delete from spectrum
-				spec.pop(ID)
-		if self.activeFit:
-			self.activeFit.Remove()
+		self.CopyActiveFit(ids)
+		for ID in ids:
+			spec = self.spectra[ID]
+			fit = spec[spec.activeID]
+			if len(fit.bgMarkers)>0:
+				fit.FitBgFunc(spec)
+			fit.FitPeakFunc(spec)
+			fit.Draw(self.window.viewport)
+			if not ID in self.spectra.visible:
+				fit.Hide()
+		self.window.viewport.UnlockUpdate()
+
+
+	def CopyActiveFit(self, ids):
+		"""
+		Copy active fit to other spectra which are defined by the parameter ids
+		"""
+		self.window.viewport.LockUpdate()
 		for ID in ids:
 			try:
 				spec = self.spectra[ID]
 			except KeyError:
 				print "Warning: ID %s not found" % ID
 				continue
-			try:
-				# deactive all objects
-				spec.ActiveObject(None)
-			except AttributeError:
-				# create SpectrumCompound object 
-				spec = SpectrumCompound(self.window.viewport, spec)
-				# replace the simple spectrum object by the SpectrumCompound
-				self.spectra[ID]=spec
-			fitID = spec.GetFreeID()
-			spec[fitID] = fit.Copy(cal=spec.cal, color=spec.color)
-			if len(spec[fitID].bgMarkers)>0:
-				spec[fitID].FitBgFunc(spec)
-			spec[fitID].FitPeakFunc(spec)
-			spec[fitID].Draw(self.window.viewport)
-			if not ID==self.spectra.activeID:
-				spec[fitID].Hide()
-		self.window.viewport.UnlockUpdate()
-			
+			# get active fit to make the copies
+			fit = self.GetActiveFit()
+			# do not copy, if active fit belongs already to this spectrum
+			if not fit.fitter.spec == spec:
+				try:
+					# deactive all objects
+					spec.ActiveObject(None)
+				except AttributeError:
+					# create SpectrumCompound object 
+					spec = SpectrumCompound(self.window.viewport, spec)
+					# replace the simple spectrum object by the SpectrumCompound
+					self.spectra[ID]=spec
+				fitID=spec.Add(fit.Copy(cal=spec.cal, color=spec.color))
+				if not ID in self.spectra.visible:
+					spec[fitID].Hide()
+				spec.ActivateObject(fitID)
+			# clear pending Fit, if there is one
+			if self.activeFit:
+				self.activeFit.Remove()
+				self.activeFit= None
+		self.window.viewport.UnlockUpdate()	
 
 
 	def SetDecomp(self, stat=True):
@@ -463,6 +478,7 @@ class TvFitInterface:
 		hdtv.cmdline.AddCommand("fit print", self.FitPrint, minargs=1)
 		hdtv.cmdline.AddCommand("fit delete", self.FitDelete, minargs=1)
 		hdtv.cmdline.AddCommand("fit activate", self.FitActivate, nargs=1)
+		hdtv.cmdline.AddCommand("fit copy", self.FitCopy, minargs=1)
 		hdtv.cmdline.AddCommand("fit multi", self.FitMulti, minargs=1)
 		hdtv.cmdline.AddCommand("fit param background degree", self.FitParamBgDeg, nargs=1)
 		hdtv.cmdline.AddCommand("fit param status", self.FitParamStatus, nargs=0)
@@ -615,6 +631,19 @@ class TvFitInterface:
 			self.fitIf.ActivateFit(ID)
 		except ValueError:
 			print "Usage: fit activate <id>|none"
+			return False
+
+
+	def FitCopy(self, args):
+		try:
+			ids = hdtv.cmdhelper.ParseRange(args)
+			if ids == "NONE":
+				return
+			if ids == "ALL":
+				ids = self.spectra.keys()
+			self.fitIf.CopyActiveFit(ids)
+		except: 
+			print "Usage: fit copy <ids>|all"
 			return False
 
 

@@ -137,9 +137,8 @@ class SpecInterface:
 				except (OSError, SpecReaderError):
 					print "Warning: could not load %s'%s" %(fname, fmt)
 				else:
-					ID = self.spectra.GetFreeID()
+					ID = self.spectra.Add(spec)
 					spec.SetColor(hdtv.color.ColorForID(ID))
-					self.spectra[ID] = spec
 					loaded.append(ID)
 		if len(loaded)>0:
 			self.spectra.ActivateObject(loaded[-1])

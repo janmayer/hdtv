@@ -206,7 +206,8 @@ class SpectrumCompound(DrawableCompound):
 		
 	def __getattr__(self, name):
 		"""
-		Dispatch everything which is unknown to this object to the spectrum
+		Dispatch everything which is unknown to this object 
+		to the underlying spectrum
 		"""
 		return getattr(self.spec, name)
 
@@ -266,12 +267,15 @@ class SpectrumCompound(DrawableCompound):
 		visible = self.visible.copy()
 		DrawableCompound.Hide(self)
 		self.visible = visible
+
 		
 	def HideAll(self):
 		"""
 		Hide only the fits
 		"""
 		DrawableCompound.HideAll(self)
+
+
 
 	def SetCal(self, cal):
 		self.spec.SetCal(cal)
