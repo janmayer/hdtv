@@ -276,7 +276,18 @@ class SpectrumCompound(DrawableCompound):
 		DrawableCompound.HideAll(self)
 
 
+	def SetColor(self, color=None, active=False):
+		self.spec.SetColor(color, active)
+		for ID in self.keys():
+			if active==True and ID==self.activeID:
+				self[ID].SetColor(color, active=True)
+			else:
+				self[ID].SetColor(color, active=False)
+		
+
 
 	def SetCal(self, cal):
 		self.spec.SetCal(cal)
 		DrawableCompound.SetCal(self, cal)
+
+

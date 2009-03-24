@@ -34,7 +34,10 @@ def run(args):
 	"""
 	fname = os.path.expanduser(args[0])
 	print "Running script %s" %fname
-	execfile(fname)
+	try:
+		execfile(fname)
+	except IOError, msg:
+		print msg
 	print "Finished!"
 
 print "loaded run plugin"

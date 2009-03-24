@@ -467,18 +467,13 @@ class DrawableCompound(UserDict.DictMixin):
 		ids = ids[len(ids)-nb:]
 		self.ShowObjects(ids, clear=True)
 		
-	def SetColor(self, color=None, active=None):
+	def SetColor(self, color=None, active=False):
 		"""
 		Call SetColor for all components
 		"""
 		self.viewport.LockUpdate()
-		for ID in self.keys():
-			if active==None:
-				if ID==self.activeID:
-					active=True
-				else:
-					active=False
-			self[ID].SetColor(color, active)
+		for obj in self.itervalues():
+			obj.SetColor(color, active)
 		self.viewport.UnlockUpdate()
 		
 	def SetCal(self, cal):

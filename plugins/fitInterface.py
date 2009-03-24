@@ -47,7 +47,7 @@ class FitInterface:
 
 		# fit panel
 		self.fitPanel = FitPanel()
-		self.fitPanel.fFitHandler = self.FitPeaks
+		self.fitPanel.fFitHandler = self.Fit
 		self.fitPanel.fClearHandler = self.ClearFit
 		self.fitPanel.fResetHandler = self.ResetParameters
 		self.fitPanel.fDecompHandler = lambda(stat): self.SetDecomp(stat)
@@ -64,9 +64,9 @@ class FitInterface:
 		self.window.AddHotkey(ROOT.kKey_p, lambda: self._PutMarker("peak"))
 		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_p], 
 								lambda: self._DeleteMarker("peak"))
-		self.window.AddHotkey(ROOT.kKey_B, self.FitBackground)
+		self.window.AddHotkey(ROOT.kKey_B, lambda: self.Fit(peaks=False))
 		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_B], self.ClearBackground)
-	  	self.window.AddHotkey(ROOT.kKey_F, self.FitPeaks)
+	  	self.window.AddHotkey(ROOT.kKey_F, lambda: self.Fit(peaks=True))
 	  	self.window.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_F], self.KeepFit)
 	  	self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], self.ClearFit)
 #	  	self.window.AddHotkey(ROOT.kKey_I, self.Integrate)
@@ -171,36 +171,8 @@ class FitInterface:
 			self.activeFit.Draw(self.window.viewport)
 		return self.activeFit
 		
-	
-	def FitBackground(self):
-		"""
-		Fit the background
-		
-		This only fits the background with a polynom of self.bgDegree
-		"""
-		if self.spectra.activeID==None:
-			print "There is no active spectrum"
-			return 
-		if self.fitPanel:
-			self.fitPanel.Show()
-		spec = self.spectra[self.spectra.activeID]
-		if not hasattr(spec, "activeID"):
-			# create SpectrumCompound object 
-			spec = SpectrumCompound(self.window.viewport, spec)
-			# replace the simple spectrum object by the SpectrumCompound
-			self.spectra[self.spectra.activeID]=spec
-		if spec.activeID==None:
-			ID = spec.GetFreeID()
-			spec[ID]=self.activeFit
-			spec.ActivateObject(ID)
-			self.activeFit = None
-		fit = spec[spec.activeID]
-		fit.FitBgFunc(spec)
-		fit.Draw(self.window.viewport)
-		self.UpdateFitPanel()
 
-
-	def FitPeaks(self):
+	def Fit(self, peaks=True):
 		"""
 		Fit the peak
 		
@@ -218,13 +190,14 @@ class FitInterface:
 			# replace the simple spectrum object by the SpectrumCompound
 			self.spectra[self.spectra.activeID]=spec
 		if spec.activeID==None:
-			ID = spec.Add(self.activeFit)
+			ID = spec.Add(self.GetActiveFit())
 			self.activeFit = None
 			spec.ActivateObject(ID)
 		fit = spec[spec.activeID]
 		if len(fit.bgMarkers)>0:
 			fit.FitBgFunc(spec)
-		fit.FitPeakFunc(spec)
+		if peaks:
+			fit.FitPeakFunc(spec)
 		fit.Draw(self.window.viewport)
 		# update fitPanel
 		self.UpdateFitPanel()
@@ -268,7 +241,7 @@ class FitInterface:
 		spec = self.spectra[self.spectra.activeID]
 		if not hasattr(spec, "activeID") or spec.activeID==None:
 			# do the fit
-			self.FitPeaks()
+			self.Fit(peaks=True)
 		spec[spec.activeID].SetColor(spec.color)
 		# remove the fit, if it is empty (=nothing fitted)
 		if len(spec[spec.activeID].dispFuncs)==0:
@@ -307,6 +280,8 @@ class FitInterface:
 		Use the fit markers of the active fit to fit multiple spectra.
 		The spectra that should be fitted are given by the parameter ids.
 		"""
+		if isinstance(ids, int):
+			ids = [ids]
 		self.window.viewport.LockUpdate()
 		self.CopyActiveFit(ids)
 		for ID in ids:
@@ -325,6 +300,8 @@ class FitInterface:
 		"""
 		Copy active fit to other spectra which are defined by the parameter ids
 		"""
+		if isinstance(ids, int):
+			ids = [ids]
 		self.window.viewport.LockUpdate()
 		for ID in ids:
 			try:
