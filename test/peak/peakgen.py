@@ -1,4 +1,4 @@
-#!/usr/bin/python -i
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # HDTV - A ROOT-based spectrum analysis software
@@ -193,20 +193,21 @@ def write_hist(hist, fname):
 
 spec = Spectrum(1024, -0.5, 1023.5)
 spec.func.background = PolyBg([10.0])
-spec.func.peaks.append(TheuerkaufPeak(500, 300.0, 10.0))
-spec.func.peaks.append(TheuerkaufPeak(515, 100.0, 10.0))
+spec.func.peaks.append(TheuerkaufPeak(500, 300.0, 10.0, sh=3.0, sw=1.0))
+# spec.func.peaks.append(TheuerkaufPeak(515, 100.0, 10.0))
 # spec.peaks.append(EEPeak(300, 100, 4.5, 6.0, 1.5, 0.7))
 # spec.peaks.append(EEPeak(400, 30, 4.5, 6.0, 1.5, 0.7))
 
-nsamples = int(3e3)
-hs = spec.GetSampledHist(nsamples)
-hs.Draw()
+# nsamples = int(3e3)
+# hs = spec.GetSampledHist(nsamples)
+hs = spec.GetExactHist()
+# hs.Draw()
 
-he = spec.GetExactHist()
-scale = nsamples / he.GetSumOfWeights()
-he.Scale(scale)
+# he = spec.GetExactHist()
+# scale = nsamples / he.GetSumOfWeights()
+# he.Scale(scale)
 
-he.SetLineColor(ROOT.kRed)
-he.Draw("SAME")
+# he.SetLineColor(ROOT.kRed)
+# he.Draw("SAME")
 
 write_hist(hs, "test.asc")

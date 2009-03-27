@@ -224,7 +224,7 @@ class FitInterface:
 			self.activeFit = None
 		# activate another fit
 		spec.ActivateObject(ID)
-		if self.spectra.activeID in self.spectra.visible:
+		if self.spectra.activeID in self.spectra.visible and spec.activeID:
 			spec[spec.activeID].Show()
 		# update fitPanel
 		self.UpdateFitPanel()
@@ -303,14 +303,14 @@ class FitInterface:
 		if isinstance(ids, int):
 			ids = [ids]
 		self.window.viewport.LockUpdate()
+		# get active fit to make the copies
+		fit = self.GetActiveFit()
 		for ID in ids:
 			try:
 				spec = self.spectra[ID]
 			except KeyError:
 				print "Warning: ID %s not found" % ID
 				continue
-			# get active fit to make the copies
-			fit = self.GetActiveFit()
 			# do not copy, if active fit belongs already to this spectrum
 			if not fit.fitter.spec == spec:
 				try:
@@ -325,10 +325,12 @@ class FitInterface:
 				if not ID in self.spectra.visible:
 					spec[fitID].Hide()
 				spec.ActivateObject(fitID)
-			# clear pending Fit, if there is one
-			if self.activeFit:
-				self.activeFit.Remove()
-				self.activeFit= None
+		# clear pending Fit, if there is one
+		# Note: we have to keep this until now, 
+		# as it may be the template for all the copies 
+		if self.activeFit:
+			self.activeFit.Remove()
+			self.activeFit= None
 		self.window.viewport.UnlockUpdate()	
 
 
@@ -542,7 +544,7 @@ class TvFitInterface:
 			print "There are no fits for this spectrum"
 			return False
 		except:
-			print "Usage: spectrum delete <ids>|all"
+			print "Usage: fit delete <ids>|all"
 			return False
 	
 	def FitShow(self, args):
@@ -628,7 +630,7 @@ class TvFitInterface:
 		try:
 			ids = hdtv.cmdhelper.ParseRange(args, ["all", "shown"])
 		except ValueError:
-			print "Usage: fit fit <ids>|all|shown"
+			print "Usage: fit multi <ids>|all|shown"
 			return False
 		if ids == "ALL":
 			ids = self.spectra.keys()

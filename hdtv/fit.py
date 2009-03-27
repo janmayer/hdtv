@@ -140,6 +140,10 @@ class Fit(Drawable):
 		Note: You still need to call Draw afterwards.
 		"""
 		# remove old fit
+		if self.dispBgFunc:
+			self.dispFuncs.remove(self.dispBgFunc)
+			self.dispBgFunc.Remove()
+			self.dispBgFunc = None
 		if self.dispPeakFunc:
 			self.dispFuncs.remove(self.dispPeakFunc)
 			self.dispPeakFunc.Remove()
@@ -153,11 +157,18 @@ class Fit(Drawable):
 			region = [self.regionMarkers[0].p1, self.regionMarkers[0].p2]
 			peaks = map(lambda m: m.p1, self.peakMarkers)
 			self.fitter.FitPeaks(spec, region, peaks)
+			# get peak function
 			func = self.fitter.peakFitter.GetSumFunc()
 			self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.region)
 			if spec.cal:
 				self.dispPeakFunc.SetCal(spec.cal)
 			self.dispFuncs.append(self.dispPeakFunc)
+			# get background function
+			func = self.fitter.peakFitter.GetBgFunc()
+			self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
+			if spec.cal:
+				self.dispBgFunc.SetCal(spec.cal)
+			self.dispFuncs.append(self.dispBgFunc)
 			# extract function for each peak (decomposition)
 			for i in range(0, self.fitter.peakFitter.GetNumPeaks()):
 				func = self.fitter.peakFitter.GetPeak(i).GetPeakFunc()
