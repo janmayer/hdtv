@@ -245,7 +245,7 @@ void Painter::SetSize(int w, int h)
   UpdateYZoom();
 }
 
-int Painter::GetYAtPixel(DisplaySpec *dSpec, UInt_t x)
+int Painter::GetYAtPixel(DisplaySpec *dSpec, Int_t x)
 {
   if(fUseNorm) {
     return CtoY(dSpec->GetNorm() * GetCountsAtPixel(dSpec, x));
@@ -254,7 +254,7 @@ int Painter::GetYAtPixel(DisplaySpec *dSpec, UInt_t x)
   }
 }
 
-double Painter::GetCountsAtPixel(DisplaySpec *dSpec, UInt_t x)
+double Painter::GetCountsAtPixel(DisplaySpec *dSpec, Int_t x)
 {
   // Get counts at screen X position x
   // FIXME: this could be significantly optimized...
@@ -447,7 +447,7 @@ void Painter::GetTicDistance(double tic, double& major_tic, double& minor_tic, i
   }
 }
 
-void Painter::DrawXNonlinearScale(UInt_t x1, UInt_t x2, bool top, const Calibration& cal)
+void Painter::DrawXNonlinearScale(Int_t x1, Int_t x2, bool top, const Calibration& cal)
 {
   int x;
   int y = top ? fYBase - fHeight - 2 : fYBase + 2;
@@ -471,7 +471,7 @@ void Painter::DrawXNonlinearScale(UInt_t x1, UInt_t x2, bool top, const Calibrat
   i2 = (int) TMath::Floor(cal.E2Ch(XtoE(x2)) / minor_tic);
 
   for(; i<=i2; ++i) {
-	x = (UInt_t) EtoX(cal.Ch2E((double) i * minor_tic));
+	x = EtoX(cal.Ch2E((double) i * minor_tic));
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x, y, x, y+5*sgn);
   }
 
@@ -480,7 +480,7 @@ void Painter::DrawXNonlinearScale(UInt_t x1, UInt_t x2, bool top, const Calibrat
   i2 = (int) TMath::Floor(cal.E2Ch(XtoE(x2)) / major_tic);
 
   for(; i<=i2; ++i) {
-	x = (UInt_t) EtoX(cal.Ch2E((double) i * major_tic));
+	x = EtoX(cal.Ch2E((double) i * major_tic));
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x, y, x, y+9*sgn);
   
 	// TODO: handle len > 16
@@ -493,10 +493,10 @@ void Painter::DrawXNonlinearScale(UInt_t x1, UInt_t x2, bool top, const Calibrat
   
 }
 
-void Painter::DrawXScale(UInt_t x1, UInt_t x2)
+void Painter::DrawXScale(Int_t x1, Int_t x2)
 {
-  UInt_t x;
-  UInt_t y = fYBase + 2;
+  Int_t x;
+  Int_t y = fYBase + 2;
   char tmp[16];
   char fmt[5] = "%.0f";
   size_t len;
@@ -515,7 +515,7 @@ void Painter::DrawXScale(UInt_t x1, UInt_t x2)
   i2 = (int) TMath::Floor(XtoE(x2) / minor_tic);
 
   for(; i<=i2; ++i) {
-	x = (UInt_t) EtoX((double) i * minor_tic);
+	x = EtoX((double) i * minor_tic);
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x, y, x, y+5);
   }
 
@@ -524,7 +524,7 @@ void Painter::DrawXScale(UInt_t x1, UInt_t x2)
   i2 = (int) TMath::Floor(XtoE(x2) / major_tic);
 
   for(; i<=i2; ++i) {
-	x = (UInt_t) EtoX((double) i * major_tic);
+	x = EtoX((double) i * major_tic);
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x, y, x, y+9);
   
 	// TODO: handle len > 16
@@ -569,8 +569,8 @@ void Painter::DrawString(GContext_t gc, int x, int y, char *str, size_t len,
 
 void Painter::DrawYLinearScale()
 {
-  UInt_t x = fXBase - 2;
-  UInt_t y;
+  int x = fXBase - 2;
+  int y;
   char tmp[16];
   size_t len;
   int i, i2;
@@ -584,7 +584,7 @@ void Painter::DrawYLinearScale()
   i2 = (int) TMath::Floor(YtoC(fYBase - fHeight) / minor_tic);
 
   for(; i<=i2; ++i) {
-	y = (UInt_t) CtoY((double) i * minor_tic);
+	y = CtoY((double) i * minor_tic);
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x-5, y, x, y);
   }
 
@@ -593,7 +593,7 @@ void Painter::DrawYLinearScale()
   i2 = (int) TMath::Floor(YtoC(fYBase - fHeight) / major_tic);
 
   for(; i<=i2; ++i) {
-	y = (UInt_t) CtoY((double) i * major_tic);
+	y = CtoY((double) i * major_tic);
 	gVirtualX->DrawLine(fDrawable, fAxisGC, x-9, y, x, y);
   
 	// TODO: handle len > 16
@@ -706,8 +706,8 @@ void Painter::_DrawYLogScale(int minDist, int sgn, double cMin, double cMax)
 
 void Painter::DrawYMajorTic(double c, bool drawLine)
 {
-  UInt_t x = fXBase - 2;
-  UInt_t y = (UInt_t) CtoY(c);
+  int x = fXBase - 2;
+  int y = CtoY(c);
   char tmp[16];
   size_t len;
   
@@ -721,8 +721,8 @@ void Painter::DrawYMajorTic(double c, bool drawLine)
 
 inline void Painter::DrawYMinorTic(double c)
 {
-  UInt_t x = fXBase - 2;
-  UInt_t y = (UInt_t) CtoY(c);
+  int x = fXBase - 2;
+  int y = CtoY(c);
   gVirtualX->DrawLine(fDrawable, fAxisGC, x-5, y, x, y);
 }
 

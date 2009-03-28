@@ -258,7 +258,7 @@ double View1D::GetCursorX()
 {
   // Returns the X position of the cursor, in energy units.
 
-  return fPainter.XtoE(fCursorX);
+  return fPainter.XtoE((Int_t) fCursorX);
 }
 
 double View1D::GetCursorY()
@@ -556,7 +556,7 @@ void View1D::UpdateStatusPos()
   
   if(fStatusBar) {
     if(fPainter.IsWithin(fCursorX, fCursorY)) {
-      snprintf(temp, 32, "%.4g %.4g", fPainter.XtoE(fCursorX), fPainter.YtoC(fCursorY));
+      snprintf(temp, 32, "%.4g %.4g", fPainter.XtoE((Int_t) fCursorX), fPainter.YtoC(fCursorY));
       fStatusBar->SetText(temp, 0);
     } else {
       fStatusBar->SetText("", 0);

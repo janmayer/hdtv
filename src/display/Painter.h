@@ -69,7 +69,7 @@ class DisplayFunc;
 class XMarker;
 class YMarker;
 
-class Painter { 
+class Painter {
  public:
   Painter();
   inline void SetXVisibleRegion(double xv) 
@@ -88,10 +88,10 @@ class Painter {
   inline void SetViewMode(ViewMode vm) { fViewMode = vm; }
   inline ViewMode GetViewMode() { return fViewMode; }
   inline void SetBasePoint(int x, int y) { fXBase = x; fYBase = y; }
-  inline UInt_t GetBaseX() { return fXBase; }
+  inline Int_t GetBaseX() { return fXBase; }
   void SetSize(int w, int h);
-  inline UInt_t GetWidth() { return fWidth; }
-  inline UInt_t GetHeight() { return fHeight; }
+  inline Int_t GetWidth() { return fWidth; }
+  inline Int_t GetHeight() { return fHeight; }
   inline void SetDrawable(Drawable_t drawable) { fDrawable = drawable; }
   inline void SetAxisGC(GContext_t gc) { fAxisGC = gc; }
   inline void SetClearGC(GContext_t gc) { fClearGC = gc; }
@@ -106,7 +106,7 @@ class Painter {
   double ModLog(double x);
   double InvModLog(double x);
 
-  inline double XtoE(UInt_t x)
+  inline double XtoE(Int_t x)
 	{ return (double) (x - fXBase) / fXZoom + fXOffset; }
   inline int EtoX(double e) 
 	{ return (int) TMath::Ceil(((e - fXOffset) * fXZoom) + fXBase - 0.5); }
@@ -121,7 +121,7 @@ class Painter {
   int CtoY(double c);
   double YtoC(int y);
   
-  inline Bool_t IsWithin(UInt_t x, UInt_t y) {
+  inline Bool_t IsWithin(Int_t x, Int_t y) {
     return (x >= fXBase && x <= fXBase + fWidth && y >= fYBase - fHeight && y <= fYBase);
   }
 
@@ -130,8 +130,8 @@ class Painter {
   void DrawXMarker(XMarker *marker, int x1, int x2);
   void DrawYMarker(YMarker *marker, int x1, int x2);
   double GetYAutoZoom(DisplaySpec *dSpec);
-  void DrawXScale(UInt_t x1, UInt_t x2);
-  void DrawXNonlinearScale(UInt_t x1, UInt_t x2, bool top, const Calibration& cal);
+  void DrawXScale(Int_t x1, Int_t x2);
+  void DrawXNonlinearScale(Int_t x1, Int_t x2, bool top, const Calibration& cal);
   void ClearTopXScale();
   void ClearBottomXScale();
   void DrawYScale();
@@ -147,8 +147,8 @@ class Painter {
   void DrawString(GContext_t gc, int x, int y, char *str, size_t len,
 				  HTextAlign hAlign, VTextAlign vAlign);
   inline void DrawYMinorTic(double c);
-  double GetCountsAtPixel(DisplaySpec *dSpec, UInt_t x);
-  int GetYAtPixel(DisplaySpec *dSpec, UInt_t x);
+  double GetCountsAtPixel(DisplaySpec *dSpec, Int_t x);
+  int GetYAtPixel(DisplaySpec *dSpec, Int_t x);
 
   void GetTicDistance(double tic, double& major_tic, double& minor_tic, int& n);
   void UpdateYZoom();
@@ -159,8 +159,8 @@ class Painter {
   double fXOffset, fYOffset;
   Bool_t fLogScale;
   Bool_t fUseNorm;
-  UInt_t fXBase, fYBase;
-  UInt_t fWidth, fHeight;
+  Int_t fXBase, fYBase;
+  Int_t fWidth, fHeight;
   ViewMode fViewMode;
   Drawable_t fDrawable;
   GContext_t fAxisGC;
