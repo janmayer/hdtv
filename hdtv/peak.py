@@ -259,7 +259,7 @@ class PeakModel:
 		else:
 			self.fParStatus[parname] = self.ParseParamStatus(parname, status)
 		
-	def GetParam(self, name, peak_id, pos, ival=None):
+	def GetParam(self, name, peak_id, ival=None):
 		"""
 		Return an appropriate HDTV.Fit.Param object for the specified parameter
 		"""
@@ -291,7 +291,7 @@ class PeakModel:
 		elif parStatus == "none":
 			return ROOT.HDTV.Fit.Param.None()
 		elif type(parStatus) == float:
-			return ROOT.HDTV.Fit.Param.Fixed(parStatus)
+			return ROOT.HDTV.Fit.Param.Fixed(self.SpecToFitter(name, parStatus))
 		else:
 			raise RuntimeError, "Invalid parameter status"
 			
@@ -362,8 +362,25 @@ class PeakModelTheuerkauf(PeakModel):
 		self.fParStatus["tr"] = "none"
 		self.fParStatus["sh"] = "none"
 		self.fParStatus["sw"] = "hold"
+		
+	def Uncal(self, parname, value, pos_uncal, cal):
+		"""
+		Convert a value from calibrated (spectrum) to uncalibrated (fitter) units
+		"""
+		if parname == "pos":
+			return cal.E2Ch(value)
+		elif parname == "width":
+			pos_cal = cal.Ch2E(pos_uncal)
+			fwhm_uncal = cal.E2Ch(pos_cal + value/2.) - cal.E2Ch(pos_cal - value/2.)
+			# Note that the underlying fitter uses ``sigma'' as a parameter
+			#  (see HDTV technical documentation in the wiki)
+			return fwhm_uncal / (2. * math.sqrt(2. * math.log(2.)))
+		elif parname in ("vol", "tl", "tr", "sh", "sw"):
+			return value
+		else:
+			raise RuntimeError, "Unexpected parameter name"
 
-	def GetFitter(self, region, peaklist):
+	def GetFitter(self, region, peaklist, cal):
 		# Define a fitter and a region
 		self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(region[0],region[1])
 		self.ResetGlobalParams()
@@ -376,13 +393,15 @@ class PeakModelTheuerkauf(PeakModel):
 		for pid in range(0, len(peaklist)):
 			pos = peaklist[pid]
 			
-			pos = self.GetParam("pos", pid, pos, pos)
-			vol = self.GetParam("vol", pid, pos)
-			sigma = self.GetParam("width", pid, pos)
-			tl = self.GetParam("tl", pid, pos)
-			tr = self.GetParam("tr", pid, pos)
-			sh = self.GetParam("sh", pid, pos)
-			sw = self.GetParam("sw", pid, pos)
+			self.SpecToFitter = lambda parname, value: self.Uncal(parname, value, pos_uncal=pos, cal=cal)
+			
+			pos = self.GetParam("pos", pid, pos)
+			vol = self.GetParam("vol", pid)
+			sigma = self.GetParam("width", pid)
+			tl = self.GetParam("tl", pid)
+			tr = self.GetParam("tr", pid)
+			sh = self.GetParam("sh", pid)
+			sw = self.GetParam("sw", pid)
 			
 			peak = ROOT.HDTV.Fit.TheuerkaufPeak(pos, vol, sigma, tl, tr, sh, sw)
 			self.fFitter.AddPeak(peak)
@@ -443,76 +462,49 @@ class PeakModelEE(PeakModel):
 		self.fParStatus["eta"] = "equal"
 		self.fParStatus["gamma"] = "equal"
 		
+	
+	def Uncal(parname, value, pos_uncal, cal):
+		"""
+		Convert a value from calibrated to uncalibrated units
+		"""
+		if parname == "pos":
+			return cal.E2Ch(value)
+		elif parname == "sigma1":
+			pos_cal = cal.Ch2E(pos_uncal)
+			left_hwhm_uncal = pos_uncal - cal.E2Ch(pos_cal - value)
+			return left_hwhm_uncal
+		elif parname == "sigma2":
+			pos_cal = cal.Ch2E(pos_uncal)
+			right_hwhm_uncal = cal.E2Ch(pos_cal + value) - pos_uncal
+			return right_hwhm_uncal
+		elif parname in ("amp", "eta", "gamma"):
+			return value
+		else:
+			raise RuntimeError, "Unexpected parameter name"
 		
-	def GetFitter(self, region, peaklist_uncal):
+		
+	def GetFitter(self, region, peaklist, cal):
 		self.fFitter = ROOT.HDTV.Fit.EEFitter(region[0], region[1])
 		self.ResetGlobalParams()
 		
 		# Check if enough values are provided in case of per-peak parameters
 		#  (the function raises a RuntimeError if the check fails)
-		self.CheckParStatusLen(len(peaklist_uncal))
+		self.CheckParStatusLen(len(peaklist))
 			
-		for pid in range(0, len(peaklist_uncal)):
-			pos_uncal = peaklist_uncal[pid]
+		for pid in range(0, len(peaklist)):
+			pos = peaklist[pid]
+			
+			self.SpecToFitter = lambda parname, value: self.Uncal(parname, value, pos_uncal=pos, cal=cal)
 		
-			pos = self.GetParam("pos", pid, pos_uncal, pos_uncal)
-			amp = self.GetParam("amp", pid, pos_uncal)
-			sigma1 = self.GetParam("sigma1", pid, pos_uncal)
-			sigma2 = self.GetParam("sigma2", pid, pos_uncal)
-			eta = self.GetParam("eta", pid, pos_uncal)
-			gamma = self.GetParam("gamma", pid, pos_uncal)
+			pos = self.GetParam("pos", pid, pos_uncal)
+			amp = self.GetParam("amp", pid)
+			sigma1 = self.GetParam("sigma1", pid)
+			sigma2 = self.GetParam("sigma2", pid)
+			eta = self.GetParam("eta", pid)
+			gamma = self.GetParam("gamma", pid)
 			peak = ROOT.HDTV.Fit.EEPeak(pos, amp, sigma1, sigma2, eta, gamma)
 			self.fFitter.AddPeak(peak)
 			
 		return self.fFitter
 
-## Obsolete
-#class Peak:
-#	"""
-#	Peak object
-#	"""
-#	def __init__(self, pos, fwhm, vol, ltail=None, rtail=None, cal=None):
-#		# f(x) = norm * exp(-0.5 * ((x - mean) / sigma)**2)
-#		self.pos = pos
-#		self.fwhm = fwhm
-#		self.vol = vol
 
-#		# Tails
-#		if ltail and ltail < 1000:
-#			self.ltail = ltail
-#		else:
-#			self.ltail = None
-#		if rtail and rtail < 1000:
-#			self.rtail = rtail
-#		else:
-#			self.rtail = None
-#		self.cal = cal
-#		# TODO: Errors
-#		
-#	def GetPos(self):
-#		if self.cal:
-#			return self.cal.Ch2E(self.pos)
-#		else:
-#			return self.pos
-
-#	def __str__(self):
-#		pos = self.pos
-#		fwhm = self.fwhm
-#		if self.cal:
-#			cal = self.cal
-#			pos = cal.Ch2E(self.pos)
-#			fwhm = cal.Ch2E(self.pos+self.fwhm/2.)-cal.Ch2E(self.pos-self.fwhm/2.)
-
-#		text = "pos: %10.3f   fwhm: %7.3f   vol: %8.1f   " %(pos, fwhm, self.vol)
-#		
-#		if self.ltail or self.rtail:
-#			text += "\n"
-#		
-#		# Tails
-#		if self.ltail:
-#			text+="lefttail: %7.3f   " %self.ltail
-#		
-#		if self.rtail:
-#			text+="righttail: %7.3f   "%self.rtail
-#		
-#		return text

@@ -52,7 +52,7 @@ class Fitter:
 	def FitPeaks(self, spec, region, peaklist):
 		self.spec = spec
 		peaklist.sort()
-		self.peakFitter = self.peakModel.GetFitter(region, peaklist)
+		self.peakFitter = self.peakModel.GetFitter(region, peaklist, spec.cal)
 		# Do the fit
 		if self.bgFitter:
 			self.peakFitter.Fit(self.spec.fHist, self.bgFitter)
