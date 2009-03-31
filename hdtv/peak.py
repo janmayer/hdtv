@@ -210,6 +210,7 @@ class PeakModel:
 		else:
 			self.fParStatus[parname] = self.ParseParamStatus(parname, status)
 		
+
 	def GetParam(self, name, peak_id, pos_uncal, cal, ival=None):
 		"""
 		Return an appropriate HDTV.Fit.Param object for the specified parameter
@@ -326,8 +327,8 @@ class PeakModelTheuerkauf(PeakModel):
 		self.fParStatus["tr"] = "none"
 		self.fParStatus["sh"] = "none"
 		self.fParStatus["sw"] = "hold"
-		
-		
+
+
 	def Uncal(self, parname, value, pos_uncal, cal):
 		"""
 		Convert a value from calibrated (spectrum) to uncalibrated (fitter) units
@@ -442,7 +443,6 @@ class PeakModelEE(PeakModel):
 		self.fParStatus["sigma2"] = "equal"
 		self.fParStatus["eta"] = "equal"
 		self.fParStatus["gamma"] = "equal"
-		
 	
 	def Uncal(parname, value, pos_uncal, cal):
 		"""
@@ -467,6 +467,7 @@ class PeakModelEE(PeakModel):
 	def GetFitter(self, region, peaklist, cal):
 		self.fFitter = ROOT.HDTV.Fit.EEFitter(cal.E2Ch(region[0]),
 											  cal.E2Ch( region[1]))
+
 		self.ResetGlobalParams()
 		
 		# Check if enough values are provided in case of per-peak parameters
@@ -484,6 +485,7 @@ class PeakModelEE(PeakModel):
 			sigma2 = self.GetParam("sigma2", pid, pos_uncal, cal)
 			eta = self.GetParam("eta", pid, pos_uncal, cal)
 			gamma = self.GetParam("gamma", pid, pos_uncal, cal)
+
 			peak = ROOT.HDTV.Fit.EEPeak(pos, amp, sigma1, sigma2, eta, gamma)
 			self.fFitter.AddPeak(peak)
 			
