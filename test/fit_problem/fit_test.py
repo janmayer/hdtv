@@ -9,7 +9,8 @@ spectra.RemoveAll()
 
 fspec = FileSpectrum(hdtvpath+"/test/fit_problem/231Th_10down.ascii")
 spec = SpectrumCompound(window.viewport, fspec)
-spectra.Add(spec)
+ID=spectra.Add(spec)
+spectra.ActivateObject(ID)
 
 fit = Fit(f.defaultFitter.Copy(), cal=spec.cal, color=spec.color)
 fit.PutRegionMarker(490)
