@@ -42,11 +42,11 @@ class Fit(Drawable):
 	def __init__(self, fitter, color=None, cal=None):
 		Drawable.__init__(self, color, cal)
 		self.regionMarkers = MarkerCollection("X", paired=True, maxnum=1,
-												  color=hdtv.color.region, cal=self.cal)
+											 color=hdtv.color.region, cal=self.cal)
 		self.peakMarkers = MarkerCollection("X", paired=False, maxnum=None,
-												  color=hdtv.color.peak, cal=self.cal)
+											 color=hdtv.color.peak, cal=self.cal)
 		self.bgMarkers = MarkerCollection("X", paired=True, maxnum=None,
-												  color=hdtv.color.bg, cal=self.cal)
+											 color=hdtv.color.bg, cal=self.cal)
 		self.fitter = fitter
 		self.showDecomp = False
 		self.dispPeakFunc = None
@@ -57,7 +57,7 @@ class Fit(Drawable):
 	def __str__(self):
 		i=1
 		text = str()
-		for peak in self.fitter.resultPeaks:
+		for peak in self.fitter.GetResults():
 			text += "Peak %d:  " %i
 			text += ("\n               ".join(str(peak).split('\n')))
 			i+=1
@@ -178,11 +178,10 @@ class Fit(Drawable):
 				self.dispDecompFuncs.append(dispFunc)
 				self.dispFuncs.append(dispFunc)
 			# update peak markers
-			for (marker, peak) in zip(self.peakMarkers, self.fitter.resultPeaks):
+			for (marker, peak) in zip(self.peakMarkers, self.fitter.GetResults()):
 				marker.p1 = peak.pos.value
 			# print result
 			print "\n"+6*" "+str(self)
-
 
 
 	def Draw(self, viewport):
@@ -274,7 +273,6 @@ class Fit(Drawable):
 		self.dispBgFunc = None
 		self.dispDecompFuncs = []
 		self.dispFuncs = []
-		self.fitter.resultPeaks = []
 		
 		
 	def SetCal(self, cal):
@@ -327,7 +325,7 @@ class Fit(Drawable):
 
 	def Copy(self, cal=None, color=None):
 		cal = hdtv.cal.MakeCalibration(cal)
-		new = Fit(self.fitter.Copy())
+		new = Fit(self.fitter.Copy(), cal=cal, color=color)
 		for marker in self.bgMarkers.collection:
 			newmarker = marker.Copy(cal)
 			new.bgMarkers.append(newmarker)
@@ -337,8 +335,6 @@ class Fit(Drawable):
 		for marker in self.peakMarkers.collection:
 			newmarker = marker.Copy(cal)
 			new.peakMarkers.append(newmarker)
-		new.SetCal(cal)
-		new.SetColor(color)
 		return new
 
 		

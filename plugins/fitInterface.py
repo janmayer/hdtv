@@ -432,7 +432,7 @@ class FitInterface:
 		i = 1
 		if fitter.peakFitter:
 			text += "Peak fit: chi^2 = %.2f\n" % fitter.peakFitter.GetChisquare()
-			for peak in fitter.resultPeaks:
+			for peak in fitter.GetResults():
 				text += "Peak %d:\n%s\n" % (i, str(peak))
 				i += 1
 		self.fitPanel.SetData(text)

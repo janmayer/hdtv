@@ -28,14 +28,15 @@ class Marker(Drawable):
 	""" 
 	Markers in X or in Y direction
 	
-	Currently there are the following kinds of markers available:
-	X: BACKGROUND", "CUT_BG", "REGION", "CUT", "PEAK", "XZOOM
-	Y: YZOOM
+	Every marker contains a pair of positions as many markers come always in 
+	pairs to mark a region (like background markers). Of course it is also 
+	possible to have markers that consist of a single marker, then the second 
+	possition is None.
 	"""
 	def __init__(self, xytype, p1, color=None, cal=None):
 		Drawable.__init__(self, color, cal)
 		self.xytype = xytype
-		self.p1 = self.cal.E2Ch(p1)
+		self.p1 = p1
 		self.p2 = None
 		
 	def __str__(self):
@@ -58,24 +59,28 @@ class Marker(Drawable):
 				# Marker can only be drawn to a single viewport
 				raise RuntimeError, "Marker cannot be realized on multiple viewports"
 		self.viewport = viewport
+		# adjust the position values for the creation of the makers
+		# on the C++ side all values must be uncalibrated
 		if self.p2 == None:
 			n = 1
+			p1 = self.cal.E2Ch(self.p1)
 			p2 = 0.0
 		else:
 			n = 2
-			p2 = self.p2
+			p1 = self.cal.E2Ch(self.p1)
+			p2 = self.cal.E2Ch(self.p2)
 		# X or Y?
 		if self.xytype == "X":
-			constructor = ROOT.HDTV.Display.XMarker
+			constructor = ROOT.HDTV.Display.XMarker 
 		elif self.xytype == "Y":
 			constructor = ROOT.HDTV.Display.YMarker
 		if not self.color:
 			self.color = hdtv.color.zoom
-		self.displayObj = constructor(n, self.p1, p2, self.color)
+		self.displayObj = constructor(n, p1, p2, self.color)
 		if self.xytype=="X":
+			# calibration makes only sense on the X axis
 			self.displayObj.SetCal(self.cal)
 		self.displayObj.Draw(self.viewport)
-		
 
 	def Refresh(self):
 		""" 
@@ -85,38 +90,47 @@ class Marker(Drawable):
 			return
 		if self.displayObj:
 			if self.p2:
+				# on the C++ side all values must be uncalibrated
+				p1 = self.cal.E2Ch(self.p1)
+				p2 = self.cal.E2Ch(self.p2)
 				self.displayObj.SetN(2)
-				self.displayObj.SetPos(self.p1, self.p2)
+				self.displayObj.SetPos(p1, p2)
 			else:
+				# on the C++ side all values must be uncalibrated
+				p1 = self.cal.E2Ch(self.p1)
 				self.displayObj.SetN(1)
-				self.displayObj.SetPos(self.p1)
+				self.displayObj.SetPos(p1)
 
 	def Copy(self, cal=None):
 		"""
 		Create a copy of this marker
 		
 		The actual position of the marker on the display (calibrated value)
-		is kept. The calibration of the new marker can be set with the parameter
-		cal.
+		is kept. 
 		"""
-		new = Marker(self.xytype, self.p1, self.color, cal=None)
+		new = Marker(self.xytype, self.p1, self.color, cal)
 		new.p2= self.p2
-		new.cal=self.cal
-		new.Recalibrate(cal)
 		return new
+		
 
 	def Recalibrate(self, cal=None):
 		"""
-		Changes the internal (uncalibrated) values of the position in such a way, 
+		Changes the uncalibrated values of the position in such a way, 
 		that the calibrated values are kept fixed, but a new calibration is used.
 		"""
-		cal = hdtv.cal.MakeCalibration(cal)
-		# translate marker positions to the new calibration
-		self.p1 = cal.E2Ch(self.cal.Ch2E(self.p1))
+		self.cal = cal
+		self.Refresh()
+		
+		
+	def SetCal(self, cal):
+		"""
+		Changes the calibration of a marker
+		this changes also the values of p1 and p2, as they are calibrated values
+		"""
+		self.p1 = cal.Ch2E(self.cal.E2Ch(self.p1))
 		if self.p2:
-			self.p2 = cal.E2Ch(self.cal.Ch2E(self.p2))
-		# save new calibration
-		self.SetCal(cal)
+			self.p2 = cal.Ch2E(self.cal.E2Ch(self.p2))
+		Drawable.SetCal(self, cal)
 
 
 class MarkerCollection(Drawable):
@@ -182,7 +196,7 @@ class MarkerCollection(Drawable):
 
 	def PutMarker(self, pos):
 		"""
-		Put a marker to position pos, where pos is assumed to be calibrated
+		Put a marker to position pos
 		"""
 		if not self.paired:
 			m = Marker(self.xytype, pos, self.color, self.cal)
@@ -192,11 +206,11 @@ class MarkerCollection(Drawable):
 		else:
 			if len(self.collection)>0 and self.collection[-1].p2==None:
 				pending = self.collection[-1]
-				pending.p2 = self.cal.E2Ch(pos)
+				pending.p2 = pos
 				pending.Refresh()
 			elif self.maxnum and len(self.collection)== self.maxnum:
 				pending = self.collection.pop(0)
-				pending.p1 = self.cal.E2Ch(pos)
+				pending.p1 = pos
 				pending.p2 = None
 				pending.Refresh()
 				self.collection.append(pending)
@@ -214,7 +228,6 @@ class MarkerCollection(Drawable):
 		if len(self.collection)==0:
 			print "Warning: no marker available, no action taken"
 			return
-		pos = self.cal.E2Ch(pos)
 		index = dict()
 		for m in self.collection:
 			diff = abs(pos-m.p1)

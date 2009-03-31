@@ -38,8 +38,7 @@ class EEPeak:
 	"""
 	Peak object for the ee fitter
 	"""
-	def __init__(self, spec, pos, amp, sigma1, sigma2, eta, gamma, vol):
-		self.spec = spec
+	def __init__(self, pos, amp, sigma1, sigma2, eta, gamma, vol):
 		self.pos = pos
 		self.amp = amp
 		self.sigma1 = sigma1
@@ -47,36 +46,9 @@ class EEPeak:
 		self.eta = eta
 		self.gamma = gamma
 		self.vol = vol
-		
 
-	def __getattr__(self, key):
-		"""
-		Calculate calibrated values for pos and fwhm on the fly with the 
-		current calibration.
-		"""
-		if key == "pos_cal":
-			pos_cal_value = self.spec.cal.Ch2E(self.pos.value)
-			pos_cal_error = abs(self.spec.cal.dEdCh(self.pos.value) * self.pos.error)
-			return util.ErrValue(pos_cal_value, pos_cal_error)
-		elif key == "sigma1_cal":
-			sigma1_cal_value = self.spec.cal.Ch2E(self.pos.value) \
-			                 - self.spec.cal.Ch2E(self.pos.value - self.sigma1.value)
-			# This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
-			#  (which is true for Ch2E \approx linear)
-			sigma1_cal_error = abs(self.spec.cal.dEdCh(self.pos.value - self.sigma1.value) * self.sigma1.error)
-			return util.ErrValue(sigma1_cal_value, sigma1_cal_error)
-		elif key=="sigma2_cal":
-			sigma2_cal_value = self.spec.cal.Ch2E(self.pos.value) \
-			                 - self.spec.cal.Ch2E(self.pos.value - self.sigma2.value)
-			# This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
-			#  (which is true for Ch2E \approx linear)
-			sigma2_cal_error = abs(self.spec.cal.dEdCh(self.pos.value - self.sigma2.value) * self.sigma2.error)
-			return util.ErrValue(sigma2_cal_value, sigma2_cal_error)
-
-		
 	def __str__(self):
-		text = ""
-		
+		text = str()
 		text += "Pos:    " + self.pos.fmt() + "\n"
 		text += "Amp:    " + self.amp.fmt() + "\n"
 		text += "Sigma1: " + self.sigma1.fmt() + "\n"
@@ -84,18 +56,14 @@ class EEPeak:
 		text += "Eta:    " + self.eta.fmt() + "\n"
 		text += "Gamma:  " + self.gamma.fmt() + "\n"
 		text += "Volume: " + self.vol.fmt() + "\n"
-		
 		return text
+		
 		
 class TheuerkaufPeak:
 	"""
 	Peak object for the Theuerkauf (classic TV) fitter
-	
-	All values with the exception of pos_cal and fwhm_cal are uncalibrated.
 	"""
-	def __init__(self, spec, pos, vol, fwhm, tl, tr, sh, sw):
-		# all values uncalibrated
-		self.spec = spec
+	def __init__(self, pos, vol, fwhm, tl, tr, sh, sw):
 		self.pos = pos
 		self.vol = vol
 		self.fwhm = fwhm
@@ -104,49 +72,27 @@ class TheuerkaufPeak:
 		self.sh = sh
 		self.sw = sw
 		
-	def __getattr__(self, key):
-		"""
-		Calculate calibrated values for pos and fwhm on the fly with the 
-		current calibration.
-		"""
-		if key == "pos_cal":
-			pos_cal_value = self.spec.cal.Ch2E(self.pos.value)
-			pos_cal_error = abs(self.spec.cal.dEdCh(self.pos.value) * self.pos.error)
-			return FitValue(pos_cal_value, pos_cal_error, self.pos.free)
-		elif key == "fwhm_cal":
-			hwhm_value = self.fwhm.value / 2.
-			fwhm_cal_value = self.spec.cal.Ch2E(self.pos.value + hwhm_value) \
-			                   - self.spec.cal.Ch2E(self.pos.value - hwhm_value)
-			# This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
-			#  (which is true for Ch2E \approx linear)
-			fwhm_cal_error = abs( (self.spec.cal.dEdCh(self.pos.value + hwhm_value) / 2. \
-			                        + self.spec.cal.dEdCh(self.pos.value - hwhm_value) / 2. ) \
-			                      * self.fwhm.error)
-			return FitValue(fwhm_cal_value, fwhm_cal_error, self.fwhm.free)
-	
+
 	def __str__(self):
 		text = str()
-		text += "Pos:         " + self.pos_cal.fmt() + "\n"
+		text += "Pos:         " + self.pos.fmt() + "\n"
 		text += "Volume:      " + self.vol.fmt() + "\n"
-		text += "FWHM:        " + self.fwhm_cal.fmt() + "\n"
-		
+		text += "FWHM:        " + self.fwhm.fmt() + "\n"
 		if self.tl != None:
 			text += "Left Tail:   " + self.tl.fmt() + "\n"
 		else:
 			text += "Left Tail:   None\n"
-			
 		if self.tr != None:
 			text += "Right Tail:  " + self.tr.fmt() + "\n"
 		else:
 			text += "Right Tail:  None\n"
-			
 		if self.sh != None:
 			text += "Step height: " + self.sh.fmt() + "\n"
 			text += "Step width:  " + self.sw.fmt() + "\n"
 		else:
 			text += "Step:        None\n"
-			
 		return text
+		
 
 # For each model implemented on the C++ side, we have a corresponding Python
 # class to handle fitter setup and data transfer to the Python side
@@ -161,9 +107,14 @@ class PeakModel:
 	def __init__(self):
 		self.fGlobalParams = dict()
 
-		
 	def ResetGlobalParams(self):
 		self.fGlobalParams.clear()
+		
+	def OrderedParamKeys(self):
+		"""
+		Return the names of all peak parameters in the preferred ordering
+		"""
+		return self.fOrderedParamKeys
 		
 	def OptionsStr(self):
 		"""
@@ -259,7 +210,7 @@ class PeakModel:
 		else:
 			self.fParStatus[parname] = self.ParseParamStatus(parname, status)
 		
-	def GetParam(self, name, peak_id, pos, cal, ival=None):
+	def GetParam(self, name, peak_id, pos_uncal, cal, ival=None):
 		"""
 		Return an appropriate HDTV.Fit.Param object for the specified parameter
 		"""
@@ -291,14 +242,14 @@ class PeakModel:
 		elif parStatus == "none":
 			return ROOT.HDTV.Fit.Param.None()
 		elif type(parStatus) == float:
-			return ROOT.HDTV.Fit.Param.Fixed(self.Uncal(name, parStatus, pos, cal))
+			return ROOT.HDTV.Fit.Param.Fixed(self.Uncal(name, parStatus, pos_uncal, cal))
 		else:
 			raise RuntimeError, "Invalid parameter status"
 			
 # TVs classic peak model
 class PeakModelTheuerkauf(PeakModel):
 	""" 
-	Theuerkauf peak model - "classical" modell used by tv
+	Theuerkauf peak model - "classical" model used by tv
 	"""
 	def __init__(self):
 		PeakModel.__init__(self)
@@ -318,19 +269,28 @@ class PeakModelTheuerkauf(PeakModel):
 	def Name(self):
 		return "theuerkauf"
 		
-	def OrderedParamKeys(self):
+
+	def CopyPeak(self, cpeak, cal):
 		"""
-		Return the names of all peak parameters in the preferred ordering
+		
 		"""
-		return self.fOrderedParamKeys
-		
-	def CopyPeak(self, spec, cpeak):
-		fwhm_value = cpeak.GetSigma() * 2. * math.sqrt(2. * math.log(2.))
-		fwhm_error = cpeak.GetSigmaError() * 2. * math.sqrt(2. * math.log(2.))
-		
-		pos= FitValue(cpeak.GetPos(), cpeak.GetPosError(), cpeak.PosIsFree())
+		# get values from C++ object (uncalibrated)
+		pos_uncal = cpeak.GetPos()
+		pos_err_uncal = cpeak.GetPosError()
+		hwhm_uncal = cpeak.GetSigma() * math.sqrt(2. * math.log(2.))
+		fwhm_err_uncal = cpeak.GetSigmaError() * 2. * math.sqrt(2. * math.log(2.))
+		# calculate calibrated values
+		pos_cal = cal.Ch2E(pos_uncal)
+		pos_err_cal = abs(cal.dEdCh(pos_uncal) * pos_err_uncal)
+		fwhm_cal = cal.Ch2E(pos_uncal + hwhm_uncal) - cal.Ch2E(pos_uncal - hwhm_uncal)
+		# This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
+		#  (which is true for Ch2E \approx linear)
+		fwhm_err_cal = abs( (cal.dEdCh(pos_uncal + hwhm_uncal) / 2. + 
+                             cal.dEdCh(pos_uncal - hwhm_uncal) / 2.   ) * fwhm_err_uncal)
+		# create FitValues objets from this
+		pos = FitValue(pos_cal, pos_err_cal, cpeak.PosIsFree())
 		vol = FitValue(cpeak.GetVol(), cpeak.GetVolError(), cpeak.VolIsFree())
-		fwhm = FitValue(fwhm_value, fwhm_error, cpeak.SigmaIsFree())
+		fwhm = FitValue(fwhm_cal, fwhm_err_cal, cpeak.SigmaIsFree())
 		
 		if cpeak.HasLeftTail():
 			tl = FitValue(cpeak.GetLeftTail(), cpeak.GetLeftTailError(), 
@@ -352,7 +312,8 @@ class PeakModelTheuerkauf(PeakModel):
 		else:
 			sh = sw = None
 			
-		return TheuerkaufPeak(spec, pos, vol, fwhm, tl, tr, sh, sw)
+		return TheuerkaufPeak(pos, vol, fwhm, tl, tr, sh, sw)
+		
 		
 	def ResetParamStatus(self):
 		"""
@@ -365,6 +326,7 @@ class PeakModelTheuerkauf(PeakModel):
 		self.fParStatus["tr"] = "none"
 		self.fParStatus["sh"] = "none"
 		self.fParStatus["sw"] = "hold"
+		
 		
 	def Uncal(self, parname, value, pos_uncal, cal):
 		"""
@@ -382,31 +344,35 @@ class PeakModelTheuerkauf(PeakModel):
 			return value
 		else:
 			raise RuntimeError, "Unexpected parameter name"
+			
 
 	def GetFitter(self, region, peaklist, cal):
 		# Define a fitter and a region
-		self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(region[0],region[1])
+		self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(cal.E2Ch(region[0]),
+		                                              cal.E2Ch(region[1]))
 		self.ResetGlobalParams()
-		
 		# Check if enough values are provided in case of per-peak parameters
 		#  (the function raises a RuntimeError if the check fails)
 		self.CheckParStatusLen(len(peaklist))
 		
+		# transfer peaklist to uncalibrated values
+		peaklist_uncal = [cal.E2Ch(x) for x in peaklist]
+		
 		# Copy peaks to the fitter
-		for pid in range(0, len(peaklist)):
-			pos = peaklist[pid]
+		for pid in range(0, len(peaklist_uncal)):
+			pos_uncal = peaklist_uncal[pid]
 			
-			pos = self.GetParam("pos", pid, pos, cal, pos)
-			vol = self.GetParam("vol", pid, pos, cal)
-			sigma = self.GetParam("width", pid, pos, cal)
-			tl = self.GetParam("tl", pid, pos, cal)
-			tr = self.GetParam("tr", pid, pos, cal)
-			sh = self.GetParam("sh", pid, pos, cal)
-			sw = self.GetParam("sw", pid, pos, cal)
+			pos = self.GetParam("pos", pid, pos_uncal, cal, pos_uncal)
+			vol = self.GetParam("vol", pid, pos_uncal, cal)
+			sigma = self.GetParam("width", pid, pos_uncal, cal)
+			tl = self.GetParam("tl", pid, pos_uncal, cal)
+			tr = self.GetParam("tr", pid, pos_uncal, cal)
+			sh = self.GetParam("sh", pid, pos_uncal, cal)
+			sw = self.GetParam("sw", pid, pos_uncal, cal)
 			
 			peak = ROOT.HDTV.Fit.TheuerkaufPeak(pos, vol, sigma, tl, tr, sh, sw)
 			self.fFitter.AddPeak(peak)
-			
+
 		return self.fFitter
 
 # Peak model for electron-electron scattering
@@ -431,27 +397,41 @@ class PeakModelEE(PeakModel):
 	def Name(self):
 		return "ee"
 		
-	def CopyPeak(self, spec, cpeak):
+	def CopyPeak(self, cpeak, cal):
 		"""
 		Copies peak data from a C++ peak class to a Python class
 		"""
-		pos= util.ErrValue(cpeak.GetPos(), cpeak.GetPosError())
+		"""
+		Copies peak data from a C++ peak class to a Python class
+		"""
+		pos_uncal = cpeak.GetPos()
+		pos_err_uncal = cpeak.GetPosError()
+		hwhm1_uncal = cpeak.GetSigma1()
+		hwhm1_err_uncal = cpeak.GetSigma1Error()
+		hwhm2_uncal = cpeak.GetSigma2()
+		hwhm2_err_uncal = cpeak.GetSigma2Error()
+		
+		pos_cal = cal.Ch2E(pos_uncal)
+		pos_err_cal = abs(cal.dEdCh(pos_uncal) * pos_err_uncal)
+		
+		hwhm1_cal = cal.Ch2E(pos_uncal) - cal.Ch2E(pos_uncal - hwhm1_uncal)
+		hwhm2_cal = cal.Ch2E(pos_uncal + hwhm2_uncal) - cal.Ch2E(pos_uncal)
+		# This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
+		#  (which is true for Ch2E \approx linear)
+		hwhm1_err_cal = abs( cal.dEdCh(pos_uncal - hwhm1_uncal) * hwhm1_err_uncal)
+		hwhm2_err_cal = abs( cal.dEdCh(pos_uncal + hwhm2_uncal) * hwhm2_err_uncal)
+		
+		pos = util.ErrValue(pos_cal, pos_err_cal)
 		amp = util.ErrValue(cpeak.GetAmp(), cpeak.GetAmpError())
-		sigma1 = util.ErrValue(cpeak.GetSigma1(), cpeak.GetSigma1Error())
-		sigma2 = util.ErrValue(cpeak.GetSigma2(), cpeak.GetSigma2Error())
+		sigma1 = util.ErrValue(hwhm1_cal, hwhm1_err_cal)
+		sigma2 = util.ErrValue(hwhm2_cal, hwhm2_err_cal)
 		eta = util.ErrValue(cpeak.GetEta(), cpeak.GetEtaError())
 		gamma = util.ErrValue(cpeak.GetGamma(), cpeak.GetGammaError())
 		vol = util.ErrValue(cpeak.GetVol(), cpeak.GetVolError())
-		
 
-		return EEPeak(spec, pos, amp, sigma1, sigma2, eta, gamma, vol)
+		return EEPeak(pos, amp, sigma1, sigma2, eta, gamma, vol)
 		
-	def OrderedParamKeys(self):
-		"""
-		Return the names of all peak parameters in the preferred ordering
-		"""
-		return self.fOrderedParamKeys
-		
+	
 	def ResetParamStatus(self):
 		"""
 		Reset parameter status to defaults
@@ -485,22 +465,25 @@ class PeakModelEE(PeakModel):
 		
 		
 	def GetFitter(self, region, peaklist, cal):
-		self.fFitter = ROOT.HDTV.Fit.EEFitter(region[0], region[1])
+		self.fFitter = ROOT.HDTV.Fit.EEFitter(cal.E2Ch(region[0]),
+											  cal.E2Ch( region[1]))
 		self.ResetGlobalParams()
 		
 		# Check if enough values are provided in case of per-peak parameters
 		#  (the function raises a RuntimeError if the check fails)
 		self.CheckParStatusLen(len(peaklist))
+		
+		peaklist_uncal = [cal.E2Ch(x) for x in peaklist]
 			
-		for pid in range(0, len(peaklist)):
-			pos = peaklist[pid]
+		for pid in range(0, len(peaklist_uncal)):
+			pos_uncal = peaklist_uncal[pid]
 			
-			pos = self.GetParam("pos", pid, pos, cal, pos)
-			amp = self.GetParam("amp", pid, pos, cal)
-			sigma1 = self.GetParam("sigma1", pid, pos, cal)
-			sigma2 = self.GetParam("sigma2", pid, pos, cal)
-			eta = self.GetParam("eta", pid, pos, cal)
-			gamma = self.GetParam("gamma", pid, pos, cal)
+			pos = self.GetParam("pos", pid, pos_uncal, cal, pos_uncal)
+			amp = self.GetParam("amp", pid, pos_uncal, cal)
+			sigma1 = self.GetParam("sigma1", pid, pos_uncal, cal)
+			sigma2 = self.GetParam("sigma2", pid, pos_uncal, cal)
+			eta = self.GetParam("eta", pid, pos_uncal, cal)
+			gamma = self.GetParam("gamma", pid, pos_uncal, cal)
 			peak = ROOT.HDTV.Fit.EEPeak(pos, amp, sigma1, sigma2, eta, gamma)
 			self.fFitter.AddPeak(peak)
 			

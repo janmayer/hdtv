@@ -33,7 +33,6 @@ class Fitter:
 		self.spec = None
 		self.peakFitter = None
 		self.bgFitter = None
-		self.resultPeaks = []
 	
 	def __getattr__(self, name):
 		return getattr(self.peakModel, name)
@@ -58,11 +57,14 @@ class Fitter:
 			self.peakFitter.Fit(self.spec.fHist, self.bgFitter)
 		else:
 			self.peakFitter.Fit(self.spec.fHist)
+		
+				
+	def GetResults(self):
 		peaks = []
 		for i in range(0, self.peakFitter.GetNumPeaks()):
 			cpeak=self.peakFitter.GetPeak(i)
-			peaks.append(self.peakModel.CopyPeak(self.spec, cpeak))
-		self.resultPeaks = peaks
+			peaks.append(self.peakModel.CopyPeak(cpeak, self.spec.cal))
+		return peaks
 		
 
 	def SetPeakModel(self, model):
