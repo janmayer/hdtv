@@ -10,7 +10,7 @@ SOURCES= DisplaySpec.cxx DisplayFunc.cxx DisplayBlock.cxx DisplayObj.cxx Display
 EXPHEADERS= Calibration.h View.h View1D.h View2D.h MTViewer.h Viewer.h DisplaySpec.h DisplayFunc.h DisplayBlock.h DisplayObj.h Marker.h XMarker.h YMarker.h
 HEADERS= $(EXPHEADERS) Painter.h
 OBJ= $(SOURCES:.cxx=.o)
-DESTDIR = ../../lib
+DESTDIR = ../../hdtv/lib
 MODNAME= display
 
 .PHONY: all build copy clean

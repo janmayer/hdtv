@@ -9,7 +9,7 @@ SOURCES= PolyBg.cxx Param.cxx Fitter.cxx TheuerkaufFitter.cxx EEFitter.cxx Util.
 EXPHEADERS= Background.h PolyBg.h Param.h Fitter.h TheuerkaufFitter.h EEFitter.h
 HEADERS= $(EXPHEADERS)
 OBJ= $(SOURCES:.cxx=.o)
-DESTDIR= ../../lib
+DESTDIR= ../../hdtv/lib
 MODNAME= fit
 
 .PHONY: all build copy clean

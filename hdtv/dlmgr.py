@@ -30,7 +30,12 @@ import ROOT
 class DLImportError(Exception):
 	pass
 
-path = list()
+
+libpath = __file__.split(os.sep)
+libpath[-1]='lib'
+libpath = os.sep.join(libpath)
+path = [libpath]
+
 
 def FindLibrary(name):
 	"""

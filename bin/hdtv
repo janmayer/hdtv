@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#-------------------------------------------------------------------------------
+# This is the main HDTV application.
+#-------------------------------------------------------------------------------
+
+# Load required modules
+import sys
+import os
+import ROOT
+
+# Get ~/.hdtv directory
+configpath = os.path.expanduser("~/.hdtv")
+sys.path.append(configpath)
+sys.path.append(configpath + "/plugins")
+
+# Check if we are inside the hdtv source directory
+hdtvpath=sys.path[0].split(os.sep)
+hdtvpath = os.sep.join(hdtvpath[:-1])
+libpath = sys.path
+if os.path.exists(hdtvpath+os.sep+'hdtv'):
+	sys.path.insert(2,hdtvpath)
+
+# Import core modules
+import hdtv.dlmgr
+import hdtv.cmdline
+hdtv.cmdline.ReadReadlineInit(configpath + "/inputrc")
+hdtv.cmdline.SetReadlineHistory(configpath + "/hdtv_history")
+hdtv.cmdline.SetInteractiveDict(locals())
+
+# Import core plugins
+import hdtv.plugins.ls
+import hdtv.plugins.run
+import hdtv.plugins.specInterface 
+import hdtv.plugins.fitInterface
+import hdtv.plugins.rootfile
+
+try:
+	import startup
+except ImportError:
+	pass
+
+# Go
+hdtv.cmdline.MainLoop()

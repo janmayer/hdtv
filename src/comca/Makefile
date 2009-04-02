@@ -9,7 +9,7 @@ LFLAGS=$(shell root-config --glibs) -L/ikpv2/lib -lcomca
 SOURCES= CoMCA.cxx
 HEADERS= CoMCA.h
 OBJ= $(SOURCES:.cxx=.o)
-DESTDIR= ../../lib
+DESTDIR= ../../hdtv/lib
 MODNAME= comca-root
 
 .PHONY: all build copy clean

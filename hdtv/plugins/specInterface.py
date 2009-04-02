@@ -167,6 +167,7 @@ class SpecInterface:
 		<specname>: <cal0> <cal1> ...
 		The calibrations are written into the calibration dictionary.
 		"""
+		fname = os.path.expanduser(fname)
 		try:
 			f = open(fname, "r")
 		except IOError, msg:

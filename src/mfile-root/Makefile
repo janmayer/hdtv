@@ -9,7 +9,7 @@ LFLAGS=$(shell root-config --glibs) -L/ikpv2/lib -lmfile
 SOURCES= MFileHist.cxx VMatrix.cxx
 HEADERS= MFileHist.h VMatrix.h
 OBJ= $(SOURCES:.cxx=.o)
-DESTDIR= ../../lib
+DESTDIR= ../../hdtv/lib
 MODNAME= mfile-root
 
 .PHONY: all build copy clean

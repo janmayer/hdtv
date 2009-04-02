@@ -41,8 +41,8 @@ def Init(spectra):
 ### start!
 spectra.RemoveAll()
 
-s.LoadSpectra(hdtvpath+"/test/spectra/231Th*[down,up].ascii")
-s.GetCalsFromList(hdtvpath+"/test/spectra/231Th_calibrations.txt")
+s.LoadSpectra("~/hdtv/test/spectra/231Th*[down,up].ascii")
+s.GetCalsFromList("~/hdtv/test/spectra/231Th_calibrations.txt")
 
 Init(spectra)
 
@@ -54,17 +54,6 @@ f.SetBgDeg(1)
 
 
 #### Peak around 42 keV:
-#ids = range(10,12)
-#region      = [32,53]
-#peaks       = [42]
-#backgrounds = [24, 34, 54, 64]
-#fitter = f.defaultFitter.Copy()
-#fitter.bgdeg=2
-#for ID in ids:
-#	spec = spectra[ID]
-#	DoFit(42, spec, fitter, region, peaks, backgrounds)
-
-
 #ids = range(12,18)
 #region      = [32,53]
 #peaks       = [42]

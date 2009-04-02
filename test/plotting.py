@@ -5,10 +5,10 @@ from __main__ import *
 
 
 def plot_pos(en, peak=1):
-	plot(en, "pos_cal", peak)
+	plot(en, "pos", peak)
 
 def plot_width(en, peak=1):
-	plot(en, "fwhm_cal", peak)
+	plot(en, "fwhm", peak)
 
 
 def plot_tr(en, peak=1):
@@ -26,8 +26,8 @@ def plot(en, param, peak):
 			pos = np.nan
 			err = np.nan
 		else:
-			pos= getattr(fit.fitter.resultPeaks[peak-1], param).value
-			err = getattr(fit.fitter.resultPeaks[peak-1], param).error
+			pos= getattr(fit.fitter.GetResults()[peak-1], param).value
+			err = getattr(fit.fitter.GetResults()[peak-1], param).error
 		positions.append(pos)
 		errors.append(err)
 	mean =average(positions, errors)
@@ -43,4 +43,5 @@ def average(values, errors):
 	errors = np.ma.masked_array(errors, mask=np.isnan(errors))
 	weights = 1/errors**2
 	return np.ma.average(values, weights=weights)
+	
 	
