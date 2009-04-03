@@ -190,11 +190,12 @@ class FitInterface:
 			# replace the simple spectrum object by the SpectrumCompound
 			self.spectra[self.spectra.activeID]=spec
 		if spec.activeID==None:
-			ID = spec.Add(self.GetActiveFit())
+			ID = spec.GetFreeID()
+			spec[ID] =  self.GetActiveFit()
 			self.activeFit = None
 			spec.ActivateObject(ID)
 		fit = spec[spec.activeID]
-		if len(fit.bgMarkers)>0:
+		if not peaks and len(fit.bgMarkers)>0:
 			fit.FitBgFunc(spec)
 		if peaks:
 			fit.FitPeakFunc(spec)

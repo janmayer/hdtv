@@ -95,11 +95,13 @@ class Marker(Drawable):
 				p2 = self.cal.E2Ch(self.p2)
 				self.displayObj.SetN(2)
 				self.displayObj.SetPos(p1, p2)
+				self.displayObj.SetCal(self.cal)
 			else:
 				# on the C++ side all values must be uncalibrated
 				p1 = self.cal.E2Ch(self.p1)
 				self.displayObj.SetN(1)
 				self.displayObj.SetPos(p1)
+				self.displayObj.SetCal(self.cal)
 
 	def Copy(self, cal=None):
 		"""
@@ -118,7 +120,7 @@ class Marker(Drawable):
 		Changes the uncalibrated values of the position in such a way, 
 		that the calibrated values are kept fixed, but a new calibration is used.
 		"""
-		self.cal = cal
+		self.cal= hdtv.cal.MakeCalibration(cal)
 		self.Refresh()
 		
 		

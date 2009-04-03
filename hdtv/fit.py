@@ -125,7 +125,7 @@ class Fit(Drawable):
 		self.dispDecompFuncs = []
 		# fit background 
 		if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
-			backgrounds =  map(lambda m: [m.p1, m.p2], self.bgMarkers)
+			backgrounds = [[m.p1, m.p2] for m in self.bgMarkers] 
 			self.fitter.FitBackground(spec, backgrounds)
 			func = self.fitter.bgFitter.GetFunc()
 			self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
@@ -152,6 +152,10 @@ class Fit(Drawable):
 			self.dispFuncs.remove(func)
 			func.Remove()
 		self.dispDecompFuncs = []
+		# fit background 
+		if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
+			backgrounds =  map(lambda m: [m.p1, m.p2], self.bgMarkers)
+			self.fitter.FitBackground(spec, backgrounds)
 		# fit peaks
 		if len(self.peakMarkers)>0 and len(self.regionMarkers)==1 and self.regionMarkers[-1].p2:
 			region = [self.regionMarkers[0].p1, self.regionMarkers[0].p2]

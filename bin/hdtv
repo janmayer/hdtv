@@ -17,7 +17,6 @@ sys.path.append(configpath + "/plugins")
 # Check if we are inside the hdtv source directory
 hdtvpath=sys.path[0].split(os.sep)
 hdtvpath = os.sep.join(hdtvpath[:-1])
-libpath = sys.path
 if os.path.exists(hdtvpath+os.sep+'hdtv'):
 	sys.path.insert(2,hdtvpath)
 

@@ -43,7 +43,7 @@ class Fitter:
 		# do the background fit
 		bgfitter = ROOT.HDTV.Fit.PolyBg(self.bgdeg)
 		for bg in backgrounds:
-			bgfitter.AddRegion(bg[0], bg[1])
+			bgfitter.AddRegion(spec.cal.E2Ch(bg[0]), spec.cal.E2Ch(bg[1]))
 		self.bgFitter = bgfitter
 		self.bgFitter.Fit(spec.fHist)
 
@@ -60,7 +60,9 @@ class Fitter:
 		
 				
 	def GetResults(self):
-		peaks = []
+		peaks = list()
+		if not self.peakFitter:
+			return peaks
 		for i in range(0, self.peakFitter.GetNumPeaks()):
 			cpeak=self.peakFitter.GetPeak(i)
 			peaks.append(self.peakModel.CopyPeak(cpeak, self.spec.cal))

@@ -284,8 +284,6 @@ class SpectrumCompound(DrawableCompound):
 			else:
 				self[ID].SetColor(color, active=False)
 		
-
-
 	def SetCal(self, cal):
 		self.spec.SetCal(cal)
 		DrawableCompound.SetCal(self, cal)
