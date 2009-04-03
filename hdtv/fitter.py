@@ -66,6 +66,7 @@ class Fitter:
 		for i in range(0, self.peakFitter.GetNumPeaks()):
 			cpeak=self.peakFitter.GetPeak(i)
 			peaks.append(self.peakModel.CopyPeak(cpeak, self.spec.cal))
+		peaks.sort
 		return peaks
 		
 
@@ -83,7 +84,7 @@ class Fitter:
 	
 	def Copy(self):
 		new = Fitter(self.peakModel.Name(), self.bgdeg)
-		new.peakModel.fParStatus = self.peakModel.fParStatus
+		new.peakModel.fParStatus = self.peakModel.fParStatus.copy()
 		return new
 	
 	

@@ -51,11 +51,11 @@ __main__.f.SetBgDeg(1)
 
 
 #### Peak around 42 keV:
-# FIXME: difficult background
-#ids = range(12,18)
+# FIXME: difficult background (all)
+#ids = range(0,18)
 #region      = [32,53]
 #peaks       = [42]
-#backgrounds = [20, 30, 60, 70]
+#backgrounds = [20, 30, 55, 60]
 #fitter = __main__.f.defaultFitter.Copy()
 #for ID in ids:
 #	spec = spectra[ID]
@@ -93,101 +93,138 @@ __main__.f.SetBgDeg(1)
 #ids = range(2,18)
 #ids.remove(5)	# peak to small
 #ids.remove(8)	# peak to small
+#ids.remove(10) # peak to small 
 #region 		= [215, 232]
 #peaks		= [221.6]
-#backgrounds	= [200, 212, 233, 236]
+#backgrounds	= [200, 212, 230, 233]
 #fitter = __main__.f.defaultFitter.Copy()
+#fitter.bgdeg = 2
 #for ID in ids:
 #	spec = spectra[ID]
 #	DoFit(221, spec, fitter, region, peaks, backgrounds)
 
 
-#### Peaks around 241 keV und 248 keV:
-# FIXME: Cannot fit this double peak!
+#### Peaks around 241 keV und 248 keV: 
 #ids = range(0,18)
 #region		= [230, 260]
 #peaks		= [241.7, 248.8]
 #backgrounds = [228, 233, 290, 295]
 #fitter = __main__.f.defaultFitter.Copy()
-#fitter.SetParameter("pos", "241.75, 248.6")
+#fitter.SetParameter("width", "5.6")
 #for ID in ids:
 #	spec = spectra[ID]
 #	DoFit(241, spec, fitter, region, peaks, backgrounds)
 
 
+
 #### Peak around 273 keV:
-ids = range(0,18)
-region      = [265, 290]
-peaks       = [273]
-backgrounds = [260, 264, 291, 295]
-fitter = __main__.f.defaultFitter.Copy()
-for ID in ids:
-	spec = spectra[ID]
-	DoFit(273, spec, fitter, region, peaks, backgrounds)
+#ids = range(0,18)
+#region      = [265, 290]
+#peaks       = [272.7, 278.6]
+#backgrounds = [260, 264, 291, 295]
+#fitter = __main__.f.defaultFitter.Copy()
+#fitter.SetParameter("width", "5.8")
+#for ID in ids:
+#	spec = spectra[ID]
+#	DoFit(273, spec, fitter, region, peaks, backgrounds)
 
 
 #### Peak around 302 keV:
+#ids = range(0,18)
 #region 		= [295, 310]
 #peaks		= [302]
-#backgrounds = [260, 262, 365, 370]
+#backgrounds = [292, 294, 312, 315 ]
 #fitter = __main__.f.defaultFitter.Copy()
-#for spec in spectra.itervalues():
+#for ID in ids:
+#	spec = spectra[ID]
 #	DoFit(302, spec, fitter, region, peaks, backgrounds)
 
 
 #### Peaks around 317 keV und 325 keV:
-#region 		= [310, 340]
-#peaks 		= [317, 325]
-#backgrounds = [260, 265, 365, 370]
+#ids = range(0,18)
+#region 		= [312, 340]
+#peaks 		= [317.9, 325.1]
+#backgrounds = [310, 312, 341, 346]
 #fitter = __main__.f.defaultFitter.Copy()
-#for spec in spectra.itervalues():
+#fitter.SetParameter("pos","hold")
+#for ID in ids:
+#	spec = spectra[ID]
 #	DoFit(317, spec, fitter, region, peaks, backgrounds)
 
 
 #### Peak around 351 keV:
-#region 		= [345, 364]
+#ids = range(0,18)
+#region 		= [345, 360]
 #peaks 		= [351]
-#backgrounds = [190, 200, 365, 370]
+#backgrounds = [190, 200, 360, 363]
 #fitter = __main__.f.defaultFitter.Copy()
-#for spec in spectra.itervalues():
+#for ID in ids:
+#	spec = spectra[ID]
 #	DoFit(351, spec, fitter, region, peaks, backgrounds)
 
 
 #### Peaks around 378 keV, 388 keV:
+# FIXME: ids 0-3
+# FIXME: double or triple?
+#ids = range(4,18)
 #region		= [370, 395]
-#peaks		= [378, 388]
-#backgrounds = [362, 368, 420, 425]
+#peaks		= [377.9, 385.8]
+#backgrounds = [362, 368, 392, 396]
 #fitter = __main__.f.defaultFitter.Copy()
-#for spec in spectra.itervalues():
+#fitter.SetParameter("pos", "hold, free")
+#for ID in ids:
+#	spec = spectra[ID]
 #	DoFit(378, spec, fitter, region, peaks, backgrounds)
 
 
 #### Peaks around 402 keV:
+# ids 0-1: big background
+# FIXME: ids 2-5
+#ids = range(6,18)
 #region 		= [395, 410]
 #peaks		= [402]
 #backgrounds = [365, 370, 420, 425]
 #fitter = __main__.f.defaultFitter.Copy()
-#for spec in spectra.itervalues():
+#for ID in ids:
+#	spec = spectra[ID]
 #	DoFit(402, spec, fitter, region, peaks, backgrounds)
 
 
 #### Peaks around 447 keV and 466.5 keV:
+# FIXME: ids 0-1
+#ids 2-3: big background
+# FIXME: ids 4-7 sophisticated background needed 
+#ids = range(8,18)
 #region 		= [440, 480]
-#peaks		= [447, 466.5]
+#peaks		= [447.75, 466.5]
 #backgrounds = [430, 435, 480, 485]
 #fitter = __main__.f.defaultFitter.Copy()
-#for spec in spectra.itervalues():
+#fitter.SetParameter("pos", "hold")
+#for ID in ids:
+#	spec = spectra[ID]
 #	DoFit(447, spec, fitter, region, peaks, backgrounds)
 
 
 #### Peak around 490.5 keV;
-#region 		= [485, 500]
+#ids = range(0,18)
+#ids.remove(2) 	# big background
+#ids.remove(3)	# big background
+#ids.remove(6)	# big background
+#ids.remove(7)	# big background
+#region 		= [485, 504]
 #peaks		= [490.5]
 #backgrounds	= [480, 484, 505, 510]
 #fitter = __main__.f.defaultFitter.Copy()
-#for spec in spectra.itervalues():
+#for ID in ids:
+#	spec = spectra[ID]
+#	if ID==11: # Extra Wurst
+#		fitter.SetParameter("pos", "490.37")
+#	else:
+#		fitter.SetParameter("pos", "free")
 #	DoFit(491, spec, fitter, region, peaks, backgrounds)
 
+
+# FIXME: HERE!
 
 #### Peak around 553 keV:
 #region 		= [545, 565]
