@@ -38,6 +38,12 @@ class ErrValue:
 	
 	def __str__(self):
 		return self.fmt()
+
+	def __cmp__(self, other):
+		"""
+		compare by value
+		"""
+		return cmp(self.value, other.value)
 		
 	def fmt(self):
 		# Check and store sign

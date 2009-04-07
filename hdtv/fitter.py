@@ -66,7 +66,9 @@ class Fitter:
 		for i in range(0, self.peakFitter.GetNumPeaks()):
 			cpeak=self.peakFitter.GetPeak(i)
 			peaks.append(self.peakModel.CopyPeak(cpeak, self.spec.cal))
-		peaks.sort
+		# in some rare cases it can happen that peaks change position 
+		# while doing the fit, thus we have to sort here
+		peaks.sort()
 		return peaks
 		
 

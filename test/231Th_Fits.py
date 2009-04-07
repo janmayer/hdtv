@@ -46,7 +46,7 @@ Init(spectra)
 
 ### f.defaultFitter fit parameter
 __main__.f.SetPeakModel("theuerkauf")
-__main__.f.SetParameter("tr", "free")
+__main__.f.SetParameter("tr", "equal")
 __main__.f.SetBgDeg(1)
 
 

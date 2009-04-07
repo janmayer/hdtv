@@ -57,7 +57,9 @@ class EEPeak:
 		text += "Gamma:  " + self.gamma.fmt() + "\n"
 		text += "Volume: " + self.vol.fmt() + "\n"
 		return text
-		
+	
+	def __cmp__(self, other):	
+		return cmp(self.pos, other.pos)
 		
 class TheuerkaufPeak:
 	"""
@@ -78,21 +80,26 @@ class TheuerkaufPeak:
 		text += "Pos:         " + self.pos.fmt() + "\n"
 		text += "Volume:      " + self.vol.fmt() + "\n"
 		text += "FWHM:        " + self.fwhm.fmt() + "\n"
-		if self.tl != None:
+		# Note: do not use == or != when testing for None
+		# those operators use cmp, which is not garanteed to handle None
+		if not self.tl is None:
 			text += "Left Tail:   " + self.tl.fmt() + "\n"
 		else:
 			text += "Left Tail:   None\n"
-		if self.tr != None:
+		if not self.tr is None:
 			text += "Right Tail:  " + self.tr.fmt() + "\n"
 		else:
 			text += "Right Tail:  None\n"
-		if self.sh != None:
+		if not self.sh is None:
 			text += "Step height: " + self.sh.fmt() + "\n"
 			text += "Step width:  " + self.sw.fmt() + "\n"
 		else:
 			text += "Step:        None\n"
 		return text
-		
+
+	def __cmp__(self, other):	
+		return cmp(self.pos, other.pos)
+	
 
 # For each model implemented on the C++ side, we have a corresponding Python
 # class to handle fitter setup and data transfer to the Python side
@@ -186,7 +193,7 @@ class PeakModel:
 	
 		# If status was a keyword, see if this setting is legal for the
 		#  parameter in question
-		if stat != None:
+		if not stat is None:
 			if stat in self.fValidParStatus[parname]:
 				return stat
 			else:

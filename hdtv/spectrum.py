@@ -71,8 +71,8 @@ class Spectrum(Drawable):
 		# Lock updates
 		self.viewport.LockUpdate()
 		# Show spectrum
-		if self.displayObj == None and self.fHist != None:
-			if self.color==None:
+		if self.displayObj is None and not self.fHist is None:
+			if self.color is None:
 				# set to default color
 				self.color = hdtv.color.spectrum
 			self.displayObj = ROOT.HDTV.Display.DisplaySpec(self.fHist, self.color)
