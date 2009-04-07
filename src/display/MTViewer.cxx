@@ -49,6 +49,3 @@ MTViewer::~MTViewer()
 
 } // end namespace Display
 } // end namespace HDTV
-
-int main()
-{ return 0; }

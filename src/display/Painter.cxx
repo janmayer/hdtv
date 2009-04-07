@@ -516,7 +516,7 @@ void Painter::DrawXScale(Int_t x1, Int_t x2)
 
   for(; i<=i2; ++i) {
 	x = EtoX((double) i * minor_tic);
-	gVirtualX->DrawLine(fDrawable, fAxisGC, x, y, x, y+5);
+	gVirtualX->DrawLine(fDrawable, fAxisGC, x, y+1, x, y+5);
   }
 
   // Draw the major tics
@@ -525,7 +525,7 @@ void Painter::DrawXScale(Int_t x1, Int_t x2)
 
   for(; i<=i2; ++i) {
 	x = EtoX((double) i * major_tic);
-	gVirtualX->DrawLine(fDrawable, fAxisGC, x, y, x, y+9);
+	gVirtualX->DrawLine(fDrawable, fAxisGC, x, y+1, x, y+9);
   
 	// TODO: handle len > 16
 	len = snprintf(tmp, 16, fmt, (double) major_tic * i);

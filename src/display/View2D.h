@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2008  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ *  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
  *
  * This file is part of HDTV.
  *
@@ -29,6 +29,7 @@
 #include <TGStatusBar.h>
 #include <TH2.h>
 #include <math.h>
+#include "Painter.h"
 #include "View.h"
 
 namespace HDTV {
@@ -43,6 +44,7 @@ class View2D : public View {
     void FlushTiles();
     void WeedTiles();
     void DoRedraw();
+    void Layout();
     void Update();
     void UpdateStatusBar();
     void ZoomFull(Bool_t update=true);
@@ -58,18 +60,18 @@ class View2D : public View {
     Bool_t HandleButton(Event_t *ev);
     Bool_t HandleCrossing(Event_t *ev);
     
-    inline int XTileToCh(int x)
-       { return (int) ceil(((double) x) / fXZoom - 0.5); }
-    inline int YTileToCh(int y)
-       { return (int) ceil(((double) y) / fYZoom - 0.5); }
+    inline double XTileToE(int x)
+       { return ((double) x) / fPainter.GetXZoom(); }
+    inline double YTileToE(int y)
+       { return ((double) y) / fPainter.GetYZoom(); }
     inline int XScrToTile(int x)
        { return x - fXTileOffset; }
     inline int YScrToTile(int y)
        { return -y + fYTileOffset; }
-    inline int XScrToCh(int x)
-       { return XTileToCh(XScrToTile(x)); }
-    inline int YScrToCh(int y)
-       { return YTileToCh(YScrToTile(y)); }
+    inline double XScrToE(int x)
+       { return XTileToE(XScrToTile(x)); }
+    inline double YScrToE(int y)
+       { return YTileToE(YScrToTile(y)); }
     inline int ZCtsToScr(double z)
        { return (int) (((z - fZOffset) / fZVisibleRegion) * cZColorRange); }
     /* inline void SetXVisibleRegion(double xreg)
@@ -77,6 +79,8 @@ class View2D : public View {
     inline void SetYVisibleRegion(double yreg)
        { fYZoom = (double) fHeight / yreg; } */
     void ShiftOffset(int dX, int dY);
+    
+    // Calculate floor(pos / cTileSize)
     inline int GetTileId(int pos)
        { return pos < 0 ? (pos / cTileSize) - 1 : pos / cTileSize; }
 
@@ -87,7 +91,6 @@ class View2D : public View {
   
   protected:
     std::map<uint32_t, Pixmap_t> fTiles;
-    double fXZoom, fYZoom;
     double fZVisibleRegion, fZOffset;
     Bool_t fLogScale;
     
@@ -101,6 +104,14 @@ class View2D : public View {
     
     static const int cZColorRange = 5 * 256;
     static const int cTileSize = 128;
+    
+    Painter fPainter;
+    
+    // Borders
+    int fLeftBorder, fRightBorder, fTopBorder, fBottomBorder;
+    
+    // Viewport dimensions (updated by Layout())
+    int fVPHeight, fVPWidth;
 };
 
 } // end namespace Display

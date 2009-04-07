@@ -31,7 +31,7 @@ const double View1D::DEFAULT_MAX_ENERGY = 1000.0;
 const double View1D::MIN_ENERGY_REGION = 1e-2;
 
 View1D::View1D(const TGWindow *p, UInt_t w, UInt_t h)
-  : HDTV::Display::View(p, w, h),
+  : View(p, w, h),
     fCurrentCal(),
     fDisplayStack(this),
     fPainter()

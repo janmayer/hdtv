@@ -86,6 +86,7 @@ class ErrValue:
 				prec = 6
 				
 		# Limit precision to sensible values, and capture NaN
+		#  (Note that NaN is by definition unequal to itself)
 		if prec > 20:
 			prec = 20
 		elif prec != prec:

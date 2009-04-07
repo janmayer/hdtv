@@ -35,6 +35,7 @@ class RootFile:
 		self.caldict = caldict
 		self.rootfile = None
 		self.browser = None
+		self.matviews = list()
 		
 		hdtv.cmdline.AddCommand("root browse", self.RootBrowse, nargs=0)
 		hdtv.cmdline.AddCommand("root ls", self.RootLs, maxargs=1)
@@ -50,6 +51,10 @@ class RootFile:
 		                  default=False, help="do not make histograms visible, only add to display list")
 		hdtv.cmdline.AddCommand("root get", self.RootGet, nargs=1, completer=self.RootGet_Completer,
 		                        parser=parser)
+		
+		hdtv.cmdline.AddCommand("root matrix", self.RootMatrix, nargs=1,
+		                        completer=self.RootGet_Completer,
+		                        usage="root matrix <matname>")
 	
 	def RootBrowse(self, args):
 		self.browser = ROOT.TBrowser()
@@ -107,6 +112,19 @@ class RootFile:
 				options.append(name)
 				
 		return options
+		
+	def RootMatrix(self, args):
+		if self.rootfile == None or self.rootfile.IsZombie():
+			print "Error: no root file"
+			return
+			
+		hist = self.rootfile.Get(args[0])
+		if hist == None or not isinstance(hist, ROOT.TH2):
+			print "Error: %s is not a 2d histogram" % args[0]
+		
+		title = hist.GetTitle()
+		viewer = ROOT.HDTV.Display.MTViewer(400, 400, hist, title)
+		self.matviews.append(viewer)
 	
 	def RootGet(self, args, options):
 		if self.rootfile == None or self.rootfile.IsZombie():
@@ -116,6 +134,7 @@ class RootFile:
 		if options.replace:
 			self.spectra.RemoveAll()
 			
+		nloaded = 0
 		keys = self.rootfile.GetListOfKeys()
 		self.window.viewport.LockUpdate()
 		for key in keys:
@@ -123,20 +142,26 @@ class RootFile:
 				obj = key.ReadObj()
 				if isinstance(obj, ROOT.TH1):
 					spec = hdtv.spectrum.Spectrum(obj)
-					ID = self.spectra.GetFreeID()
-					spec.SetColor(hdtv.color.ColorForID(ID, ""))
+					ID = self.spectra.Add(spec)
+					spec.SetColor(hdtv.color.ColorForID(ID))
+					
 					if options.load_cal:
 						if obj.GetName() in self.caldict:
 							spec.SetCal(self.caldict[obj.GetName()])
 						else:
 							print "Warning: no calibration found for %s" % obj.GetName()
-					self.spectra[ID] = spec
+					
 					if options.invisible:
 						self.spectra.HideObjects(ID)
 					else:
 						self.spectra.ActivateObject(ID)
+					
+					nloaded += 1
 				else:
 					print "Warning: %s is not a 1D histogram object" % key.GetName()
+					
+		print "%d spectra loaded" % nloaded
+		
 		self.window.viewport.UnlockUpdate()
 
 
