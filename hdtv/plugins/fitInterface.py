@@ -316,7 +316,7 @@ class FitInterface:
 			if not fit.fitter.spec == spec:
 				try:
 					# deactive all objects
-					spec.ActiveObject(None)
+					spec.ActivateObject(None)
 				except AttributeError:
 					# create SpectrumCompound object 
 					spec = SpectrumCompound(self.window.viewport, spec)

@@ -9,7 +9,7 @@ def DoFit(ID, spec, fitter, region, peaks, backgrounds):
 	"""
 	Do the actual fit
 	"""
-	fit = hdtv.fit.Fit(fitter.Copy(), cal=spec.cal, color=spec.color)
+	fit = hdtv.fit.Fit(fitter, cal=spec.cal, color=spec.color)
 	spec[ID]=fit
 	for r in region:
 		fit.PutRegionMarker(float(r))
@@ -56,8 +56,8 @@ __main__.f.SetBgDeg(1)
 #region      = [32,53]
 #peaks       = [42]
 #backgrounds = [20, 30, 55, 60]
-#fitter = __main__.f.defaultFitter.Copy()
 #for ID in ids:
+#	fitter = __main__.f.defaultFitter.Copy()
 #	spec = spectra[ID]
 #	DoFit(42, spec, fitter, region, peaks, backgrounds)
 
@@ -70,9 +70,9 @@ __main__.f.SetBgDeg(1)
 #region 		= [84, 110]
 #peaks		= [96]
 #backgrounds = [75, 80, 111, 115]
-#fitter = __main__.f.defaultFitter.Copy()
 #for ID  in  ids:
 #	spec = spectra[ID]
+#	fitter = __main__.f.defaultFitter.Copy()
 #	DoFit(96, spec, fitter, region, peaks, backgrounds)
 
 
@@ -82,9 +82,9 @@ __main__.f.SetBgDeg(1)
 #region 		= [154, 174]
 #peaks		= [162]
 #backgrounds = [142, 152, 175, 180] 
-#fitter = __main__.f.defaultFitter.Copy()
 #for ID  in  ids:
 #	spec = spectra[ID]
+#	fitter = __main__.f.defaultFitter.Copy()
 #	DoFit(162, spec, fitter, region, peaks, backgrounds)
 
 
@@ -97,10 +97,10 @@ __main__.f.SetBgDeg(1)
 #region 		= [215, 232]
 #peaks		= [221.6]
 #backgrounds	= [200, 212, 230, 233]
-#fitter = __main__.f.defaultFitter.Copy()
-#fitter.bgdeg = 2
 #for ID in ids:
 #	spec = spectra[ID]
+#	fitter = __main__.f.defaultFitter.Copy()
+#	fitter.bgdeg = 2
 #	DoFit(221, spec, fitter, region, peaks, backgrounds)
 
 
@@ -109,10 +109,10 @@ __main__.f.SetBgDeg(1)
 #region		= [230, 260]
 #peaks		= [241.7, 248.8]
 #backgrounds = [228, 233, 290, 295]
-#fitter = __main__.f.defaultFitter.Copy()
-#fitter.SetParameter("width", "5.6")
 #for ID in ids:
 #	spec = spectra[ID]
+#	fitter = __main__.f.defaultFitter.Copy()
+#	fitter.SetParameter("width", "5.6")
 #	DoFit(241, spec, fitter, region, peaks, backgrounds)
 
 
@@ -122,10 +122,10 @@ __main__.f.SetBgDeg(1)
 #region      = [265, 290]
 #peaks       = [272.7, 278.6]
 #backgrounds = [260, 264, 291, 295]
-#fitter = __main__.f.defaultFitter.Copy()
-#fitter.SetParameter("width", "5.8")
 #for ID in ids:
 #	spec = spectra[ID]
+#	fitter = __main__.f.defaultFitter.Copy()
+#	fitter.SetParameter("width", "5.8")
 #	DoFit(273, spec, fitter, region, peaks, backgrounds)
 
 
@@ -134,21 +134,21 @@ __main__.f.SetBgDeg(1)
 #region 		= [295, 310]
 #peaks		= [302]
 #backgrounds = [292, 294, 312, 315 ]
-#fitter = __main__.f.defaultFitter.Copy()
 #for ID in ids:
 #	spec = spectra[ID]
+#	fitter = __main__.f.defaultFitter.Copy()
 #	DoFit(302, spec, fitter, region, peaks, backgrounds)
 
 
 #### Peaks around 317 keV und 325 keV:
 #ids = range(0,18)
 #region 		= [312, 340]
-#peaks 		= [317.9, 325.1]
+#peaks 		= [318, 325]
 #backgrounds = [310, 312, 341, 346]
-#fitter = __main__.f.defaultFitter.Copy()
-#fitter.SetParameter("pos","hold")
 #for ID in ids:
 #	spec = spectra[ID]
+#	fitter = __main__.f.defaultFitter.Copy()
+#	fitter.SetParameter("pos","hold")
 #	DoFit(317, spec, fitter, region, peaks, backgrounds)
 
 
@@ -157,9 +157,9 @@ __main__.f.SetBgDeg(1)
 #region 		= [345, 360]
 #peaks 		= [351]
 #backgrounds = [190, 200, 360, 363]
-#fitter = __main__.f.defaultFitter.Copy()
 #for ID in ids:
 #	spec = spectra[ID]
+#	fitter = __main__.f.defaultFitter.Copy()
 #	DoFit(351, spec, fitter, region, peaks, backgrounds)
 
 
@@ -170,10 +170,10 @@ __main__.f.SetBgDeg(1)
 #region		= [370, 395]
 #peaks		= [377.9, 385.8]
 #backgrounds = [362, 368, 392, 396]
-#fitter = __main__.f.defaultFitter.Copy()
-#fitter.SetParameter("pos", "hold, free")
 #for ID in ids:
 #	spec = spectra[ID]
+#	fitter = __main__.f.defaultFitter.Copy()
+#	fitter.SetParameter("pos", "hold, free")
 #	DoFit(378, spec, fitter, region, peaks, backgrounds)
 
 
@@ -184,9 +184,9 @@ __main__.f.SetBgDeg(1)
 #region 		= [395, 410]
 #peaks		= [402]
 #backgrounds = [365, 370, 420, 425]
-#fitter = __main__.f.defaultFitter.Copy()
 #for ID in ids:
 #	spec = spectra[ID]
+#	fitter = __main__.f.defaultFitter.Copy()
 #	DoFit(402, spec, fitter, region, peaks, backgrounds)
 
 
@@ -198,10 +198,10 @@ __main__.f.SetBgDeg(1)
 #region 		= [440, 480]
 #peaks		= [447.75, 466.5]
 #backgrounds = [430, 435, 480, 485]
-#fitter = __main__.f.defaultFitter.Copy()
-#fitter.SetParameter("pos", "hold")
 #for ID in ids:
 #	spec = spectra[ID]
+#	fitter = __main__.f.defaultFitter.Copy()
+#	fitter.SetParameter("pos", "hold")
 #	DoFit(447, spec, fitter, region, peaks, backgrounds)
 
 
@@ -214,9 +214,9 @@ __main__.f.SetBgDeg(1)
 #region 		= [485, 504]
 #peaks		= [490.5]
 #backgrounds	= [480, 484, 505, 510]
-#fitter = __main__.f.defaultFitter.Copy()
 #for ID in ids:
 #	spec = spectra[ID]
+#	fitter = __main__.f.defaultFitter.Copy()
 #	if ID==11: # Extra Wurst
 #		fitter.SetParameter("pos", "490.37")
 #	else:
@@ -224,42 +224,65 @@ __main__.f.SetBgDeg(1)
 #	DoFit(491, spec, fitter, region, peaks, backgrounds)
 
 
-# FIXME: HERE!
-
 #### Peak around 553 keV:
-#region 		= [545, 565]
+# FIXME: ids= 0,1
+#ids = range(2,18)
+#ids.remove(4)	# big background
+#ids.remove(5)	# big background
+#region 		= [545, 566]
 #peaks		= [553]
-#backgrounds = [505, 510, 670, 675]
-#fitter = __main__.f.defaultFitter.Copy()
-#for spec in spectra.itervalues():
+#backgrounds = [537, 542, 567 , 570]
+#for ID in ids:
+#	spec = spectra[ID]
+#	fitter = __main__.f.defaultFitter.Copy()
 #	DoFit(553, spec, fitter, region, peaks, backgrounds)
 
 
 #### Peaks around 578 keV and 592 keV:
+#ids = range(0,18)
+#ids.remove(4)	# big background
+#ids.remove(5)	# big background
 #region		= [570, 600]
 #peaks		= [578, 592]
-#backgrounds	= [565, 568, 610, 615]
+#backgrounds	= [565, 568, 600, 603]
 #fitter = __main__.f.defaultFitter.Copy()
-#for spec in spectra.itervalues():
-#	DoFit(578, spec, fitter, region, peaks, backgrounds)
+#fitter.SetParameter('pos', 'free, hold')
+#for ID in ids:
+#	spec = spectra[ID]
+#	fitter = __main__.f.defaultFitter.Copy()
+#	fitter.SetParameter('pos', 'free, hold')
+#	for ID in [8,9]:	# difficult background
+#		DoFit(578, spec, fitter, region, peaks, [569, 571, 599, 601])
+#	else:
+#		DoFit(578, spec, fitter, region, peaks, backgrounds)
 
 
 #### Peaks around 643.5 keV and 653 keV:
-#region 		= [635, 665]
-#peaks 		= [643.5, 653]
-#backgrounds = [620, 630, 670, 675]
-#fitter = __main__.f.defaultFitter.Copy()
-#for spec in spectra.itervalues():
+ids = range(8,18)
+# FIXME: ids 0-5
+# ids = 6+7 big background
+#ids.remove(10)	# big background
+#ids.remove(11)	# big background
+#region 		= [638, 665]
+#peaks 		= [645, 653]
+#backgrounds = [630, 635, 670, 675]
+#for ID in ids:
+#	fitter = __main__.f.defaultFitter.Copy()
+#	spec = spectra[ID]
 #	DoFit(643, spec, fitter, region, peaks, backgrounds)
 
 
 #### Peaks around 682 keV and 685 keV:
-#region 		= [675, 695]
-#peaks		= [682, 685]
-#backgrounds = [670, 675, 770, 780]
-#fitter = __main__.f.defaultFitter.Copy()
-#for spec in spectra.itervalues():
-#	DoFit(682, spec, fitter, region, peaks, backgrounds)
+ids = range(0,18)
+ids.remove(6)	# big background
+ids.remove(7)	# big background
+region 		= [675, 695]
+peaks		= [682, 685]
+backgrounds = [670, 675, 760, 770]
+for ID in ids:
+	spec = spectra[ID]
+	fitter = __main__.f.defaultFitter.Copy()
+	DoFit(682, spec, fitter, region, peaks, backgrounds)
 
 
 #### Peaks around 706 keV, 721 keV, 746 keV:
