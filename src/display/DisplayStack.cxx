@@ -64,10 +64,9 @@ inline void DisplayStack::RemoveList(ObjList& objects)
 {
   // Paints all objects in the list given (internal use only)
   
-  for(ObjList::iterator obj = objects.begin();
-      obj != objects.end();
-      ++obj) {
-    (*obj)->Remove(this);
+  // Note that we cannot use an iterator to traverse a changing list
+  while(!objects.empty()) {
+    (*objects.begin())->Remove(this);
   }
 }
 

@@ -24,6 +24,7 @@
 #-------------------------------------------------------------------------------
 import os
 import sys
+import signal
 import traceback
 import code
 import atexit
@@ -429,6 +430,11 @@ class CommandLine:
 	def Exit(self, args=None):
 		self.fKeepRunning = False
 		
+	def AsyncExit(self):
+		"Asynchronous exit; to be called from another thread"
+		self.fKeepRunning = False
+		os.kill(os.getpid(), signal.SIGINT)
+		
 	def EOFHandler(self):
 		print ""
 		self.Exit()
@@ -520,6 +526,16 @@ class CommandLine:
 					self.EOFHandler()
 				continue
 			except KeyboardInterrupt:
+				# The SIGINT signal (which Python turns into a KeyboardInterrupt
+				# exception) is used for asynchronous exit, i.e. if another thread
+				# (e.g. the GUI thread) wants to exit the application.
+				if not self.fKeepRunning:
+					print ""
+					break
+				
+				# If we get here, we assume the KeyboardInterrupt is due to the user
+				#  hitting Ctrl-C.
+				
 				# Ctrl-C can be used to abort the entry of a (multi-line) command.
 				#  If no command is being entered, we assume the user wants to exit
 				#  and explain how to do that correctly.
@@ -596,6 +612,10 @@ def ReadReadlineInit(filename):
 def SetReadlineHistory(filename):
 	global command_line
 	command_line.SetReadlineHistory(filename)
+	
+def AsyncExit():
+	global command_line
+	command_line.AsyncExit()
 	
 def MainLoop():
 	global command_line

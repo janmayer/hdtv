@@ -97,16 +97,16 @@ void DisplayObj::Remove(DisplayStack *stack)
 
   GetList(stack).remove(this);
   stack->Update();
+  fStacks.remove(stack);
 }
 
 void DisplayObj::Remove()
 {
   // Remove the object from all display stacks it appears in
-
-  for(std::list<DisplayStack*>::iterator stack = fStacks.begin();
-      stack != fStacks.end();
-      ++stack) {
-    Remove(*stack);
+  
+  // Note that we cannot use an iterator to traverse a changing list
+  while(!fStacks.empty()) {
+    Remove(*fStacks.begin());
   }
 }
 

@@ -35,7 +35,7 @@ class View1D;
 class DisplayObj {
   public:
     DisplayObj() : fVisible(true) { }
-  	virtual ~DisplayObj();
+    virtual ~DisplayObj();
   	
     inline bool IsVisible() { return fVisible; }
     inline void Show() { fVisible = true; Update(true); }
@@ -59,7 +59,7 @@ class DisplayObj {
     
   protected:
     void Update(bool force=false);
-  	std::list<DisplayStack*> fStacks;
+    std::list<DisplayStack*> fStacks;
   	
   private:
     bool fVisible;
