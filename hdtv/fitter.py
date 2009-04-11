@@ -33,6 +33,7 @@ class Fitter:
 		self.spec = None
 		self.peakFitter = None
 		self.bgFitter = None
+		self.intBgDeg = 0
 	
 	def __getattr__(self, name):
 		return getattr(self.peakModel, name)
@@ -56,7 +57,7 @@ class Fitter:
 		if self.bgFitter:
 			self.peakFitter.Fit(self.spec.fHist, self.bgFitter)
 		else:
-			self.peakFitter.Fit(self.spec.fHist)
+			self.peakFitter.Fit(self.spec.fHist, self.intBgDeg)
 		
 				
 	def GetResults(self):
