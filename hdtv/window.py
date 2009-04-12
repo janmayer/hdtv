@@ -208,10 +208,10 @@ class Window(KeyHandler):
 		self._dispatchers.append(disp)
 		
 		self.XZoomMarkers = MarkerCollection("X", paired=True, maxnum=1, 
-												  color=hdtv.color.zoom)
+		                                          color=hdtv.color.zoom)
 		self.XZoomMarkers.Draw(self.viewport)
 		self.YZoomMarkers = MarkerCollection("Y", paired=True, maxnum=1, 
-												  color=hdtv.color.zoom)
+		                                          color=hdtv.color.zoom)
 		self.YZoomMarkers.Draw(self.viewport)
 
 		# Key Handling
@@ -299,7 +299,7 @@ class Window(KeyHandler):
   		"""
   		# check the input
   		if xytype not in ["X","Y"]:
-  			print "invalid parameter %s to the private function _expand" % xytype
+  			print "invalid parameter %s to the private function _Expand" % xytype
   			return
   		
   		zoomMarkers = getattr(self,"%sZoomMarkers" %xytype)
