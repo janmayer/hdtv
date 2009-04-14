@@ -190,7 +190,20 @@ class DrawableCompound(UserDict.DictMixin):
 			obj.Draw(self.viewport)
 			self.visible.add(ID)
 		return ID
-
+		
+	def Insert(self, obj, ID):
+		"""
+		Inserts an object into the index at id ID, possibly removing an object
+		which was there before. (This also calls draw for the object.)
+		"""
+		if ID in self.keys():
+			self.RemoveObjects([ID])
+		
+		self[ID] = obj
+		if self.viewport:
+			obj.Draw(self.viewport)
+			self.visible.add(ID)
+		return ID
 
 	def GetFreeID(self):
 		"""
@@ -203,21 +216,25 @@ class DrawableCompound(UserDict.DictMixin):
 		return ID
 
 		
-	def ListObjects(self, args=None):
+	def ListObjects(self, visible_only=False):
 		"""
 		List all objects in a human readable way
 		"""
 		for (ID, obj) in self.objects.iteritems():
 			stat = " "
+			visible = False
 			if ID == self.activeID:
 				stat += "A"
+				visible = True
 			else:
 				stat += " "
 			if ID in self.visible:
 				stat += "V"
+				visible = True
 			else:
 				stat += " "
-			print "%d %s %s" % (ID, stat, obj)
+			if not visible_only or visible:
+				print "%d %s %s" % (ID, stat, obj)
 			
 
 	def ActivateObject(self, ID=None):

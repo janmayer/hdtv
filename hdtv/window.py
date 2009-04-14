@@ -23,7 +23,6 @@ import ROOT
 import hdtv.dlmgr
 import hdtv.options
 import hdtv.color
-#import config
 from hdtv.marker import MarkerCollection
 
 from types import *
@@ -254,8 +253,8 @@ class Window(KeyHandler):
 		opt = hdtv.options.Option(default = self.viewport.GetYMinVisibleRegion(),
                                   parse = lambda(x): float(x),
                                   changeCallback = self.YMinVisibleRegionChanged)
-		# FIXME: the base classes should not depend on plugins!
-		#config.RegisterOption("display.YMinVisibleRegion", opt)
+
+		hdtv.options.RegisterOption("display.YMinVisibleRegion", opt)
 		
 
 	def YMinVisibleRegionChanged(self, opt):
@@ -332,5 +331,3 @@ class Window(KeyHandler):
 		"""
 		pos = self.viewport.GetCursorY()
 		self.YZoomMarkers.PutMarker(pos)
-
-

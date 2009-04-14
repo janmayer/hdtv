@@ -90,37 +90,6 @@ void View1D::SetStatusBar(TGStatusBar *sb)
   UpdateStatusScale();
 }
 
-/* int View1D::FindNearestXMarker(double e, double tol)
-{
-  // Returns a pointer to the X marker which is nearest to the energy e.
-  // If no marker is within tol of e, NULL is returned.
-
-  XMarker *marker;
-  double minDist = 1e50;
-  double dist;
-
-  for(int i=0; i < fXMarkers.size(); i++) {
-  	dist = TMath::Abs(fXMarkers[i]->GetE1() - e);
-  	if(dist < minDist) {
-  		minDist = dist;
-  		id = i << 1;
-  	}
-  	
-  	if(fXMarkers[i]->GetN() > 1) {
-  		dist = TMath::Abs(fXMarkers[i]->GetE1() - e);
-  		if(dist < minDist) {
-  			minDist = dist;
-  			id = (i << 1) + 1;
-  		}
-  	}
-  }
-  
-  if(tol >= 0 && minDist > tol)
-  	id = -1;
-  	
-  return id;
-} */
-
 void View1D::SetLogScale(Bool_t l)
 {
   // Sets Y (counts) scale to logarithmic or linear
@@ -268,14 +237,6 @@ double View1D::GetCursorY()
 
   return fPainter.YtoC(fCursorY);
 }
-
-/* int View1D::FindXMarkerNearestCursor(int tol)
-{
-  // Find the X marker nearest the current cursor position
-  // tol is the FIXME
-
-  return FindNearestXMarker(fPainter.XtoE(fCursorX), fPainter.dXtodE(tol));
-} */
 
 void View1D::XZoomAroundCursor(double f)
 {

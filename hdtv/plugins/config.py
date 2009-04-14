@@ -21,18 +21,10 @@
 
 import hdtv.options
 import hdtv.cmdline
+import hdtv.util
 
-def RegisterOption(varname, option):
-	# FIXME: there is probably a nicer way to do tab extension for these
-	def MakeSetCmd(varname):
-		return lambda args: ConfigSet([varname] + args)
-	def MakeShowCmd(varname):
-		return lambda args: ConfigShow([varname] + args)
-	
-	hdtv.options.RegisterOption(varname, option)
-	hdtv.cmdline.AddCommand("config set %s" % varname, MakeSetCmd(varname), nargs=1)
-	hdtv.cmdline.AddCommand("config show %s" % varname, MakeShowCmd(varname), nargs=0)
-
+def ConfigVarCompleter(text):
+	return hdtv.util.GetCompleteOptions(text, hdtv.options.variables.iterkeys())
 
 def ConfigSet(args):
 	try:
@@ -41,7 +33,6 @@ def ConfigSet(args):
 		print "%s: no such option" % args[0]
 	except ValueError:
 		print "Invalid value (%s) for option %s" % (args[1], args[0])
-
 
 def ConfigShow(args):
 	if len(args) == 0:
@@ -53,5 +44,11 @@ def ConfigShow(args):
 			print "%s: no such option" % args[0]
 	
 
-hdtv.cmdline.AddCommand("config set", ConfigSet, nargs=2)
-hdtv.cmdline.AddCommand("config show", ConfigShow, maxargs=1)
+hdtv.cmdline.AddCommand("config set", ConfigSet, nargs=2,
+                        usage="%prog <variable> <value>",
+                        completer=ConfigVarCompleter)
+hdtv.cmdline.AddCommand("config show", ConfigShow, maxargs=1,
+                        usage="%prog [variable]",
+                        completer=ConfigVarCompleter)
+                        
+print "Loaded user interface for configuration variables"

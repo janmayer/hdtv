@@ -111,35 +111,60 @@ class SpecInterface:
 		self.spectra.ActivateObject(ID)
 
 
-	def LoadSpectra(self, files):
+	def LoadSpectra(self, patterns, ID=None):
 		"""
-		Load spectra from files
+		Load spectra from files matching patterns.
 		
-		It is possible to use wildcards. 
+		If ID is specified, the spectrum is stored with id ID, possibly
+		replacing a spectrum that was there before.
 		"""
 		# Avoid multiple updates
 		self.window.viewport.LockUpdate()
 		# only one filename is given
-		if type(files) == str or type(files) == unicode:
-			files = [files]
+		if type(patterns) == str or type(patterns) == unicode:
+			patterns = [patterns]
+
+		if ID != None and len(patterns) > 1:
+			print "Error: if you specify an ID, you can only give one pattern"
+			self.window.viewport.UnlockUpdate()
+			return
+		
 		loaded = [] 
-		for f in files:
+		for p in patterns:
 			# put fmt if available
-			f = f.rsplit("'", 1)
-			if len(f) == 1 or not f[1]:
-				(fname, fmt) = (f[0], None)
+			p = p.rsplit("'", 1)
+			if len(p) == 1 or not p[1]:
+				(fpat, fmt) = (p[0], None)
 			else:
-				(fname, fmt) = f
-			path = os.path.expanduser(fname)
-			for fname in glob.glob(path):
+				(fpat, fmt) = p
+
+			files = glob.glob(os.path.expanduser(fpat))
+			
+			if len(files) == 0:
+				print "Warning: %s: no such file" % fpat
+			elif ID != None and len(files) > 1:
+				print "Error: pattern %s is ambiguous and you specified an ID" % fpat
+				break
+			
+			for fname in files:
 				try:
 					spec = FileSpectrum(fname, fmt)
 				except (OSError, SpecReaderError):
-					print "Warning: could not load %s'%s" %(fname, fmt)
+					print "Warning: could not load %s'%s" % (fname, fmt)
 				else:
-					ID = self.spectra.Add(spec)
-					spec.SetColor(hdtv.color.ColorForID(ID))
-					loaded.append(ID)
+					if ID == None:
+						sid = self.spectra.Add(spec)
+					else:
+						sid = self.spectra.Insert(spec, ID)
+
+					spec.SetColor(hdtv.color.ColorForID(sid))
+					loaded.append(sid)
+					
+					if fmt == None:
+						print "Loaded %s into %d" % (fname, sid)
+					else:
+						print "Loaded %s'%s into %d" % (fname, fmt, sid)
+		
 		if len(loaded)>0:
 			self.spectra.ActivateObject(loaded[-1])
 		# Update viewport if required
@@ -209,59 +234,92 @@ class TvSpecInterface:
 		
 		
 		# spectrum commands
+		parser = hdtv.cmdline.HDTVOptionParser(prog="spectrum get",
+		             usage="%prog [OPTIONS] <pattern> [<pattern> ...]")
+		parser.add_option("-i", "--id", action="store",
+                          default=None, help="id for loaded spectrum")
 		hdtv.cmdline.AddCommand("spectrum get", self.SpectrumGet, level=0, minargs=1,
-		                        fileargs=True)
+		                        fileargs=True, parser=parser)
+		
 		parser = hdtv.cmdline.HDTVOptionParser(prog="spectrum list", usage="%prog [OPTIONS]")
 		parser.add_option("-v", "--visible", action="store_true",
                           default=False, help="list only visible (and active) spectra")
 		hdtv.cmdline.AddCommand("spectrum list", self.SpectrumList, nargs=0, parser=parser)
+		
 		hdtv.cmdline.AddCommand("spectrum delete", self.SpectrumDelete, minargs=1,
-		                        usage="spectrum delete <ids>")
+		                        usage="%prog <ids>")
 		hdtv.cmdline.AddCommand("spectrum activate", self.SpectrumActivate, nargs=1,
-		                        usage="spectrum activate <id>")
+		                        usage="%prog <id>")
 		hdtv.cmdline.AddCommand("spectrum show", self.SpectrumShow, minargs=1,
-		                        usage="spectrum show <ids>|all|none")
+		                        usage="%prog <ids>|all|none")
 		hdtv.cmdline.AddCommand("spectrum update", self.SpectrumUpdate, minargs=1,
-		                        usage="spectrum update <ids>|all|shown")
+		                        usage="%prog <ids>|all|shown")
 		hdtv.cmdline.AddCommand("spectrum write", self.SpectrumWrite, minargs=1, maxargs=2,
-		                        usage="spectrum write <filename>'<format> [id]")
+		                        usage="%prog <filename>'<format> [id]")
 		hdtv.cmdline.AddCommand("spectrum normalization", self.SpectrumNormalization,
 		                        minargs=1,
-		                        usage="spectrum normalization [ids] <norm>")
+		                        usage="%prog [ids] <norm>")
 
 		# calibration commands
-		hdtv.cmdline.AddCommand("calibration position read", self.CalPosRead, minargs=1,
-		                        fileargs=True,
-		                        usage="calibration position read <filename> [ids]")
-		hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, minargs=4,
-		                        usage="calibration position enter <ch0> <E0> <ch1> <E1> [ids]")
+		parser = hdtv.cmdline.HDTVOptionParser(prog="calibration position read",
+		                                       usage="%prog [OPTIONS] <filename>")
+		parser.add_option("-s", "--spec", action="store",
+                          default="all", help="spectrum ids to apply calibration to")
+		hdtv.cmdline.AddCommand("calibration position read", self.CalPosRead, nargs=1,
+		                        fileargs=True, parser=parser)
+		
+		
+		parser = hdtv.cmdline.HDTVOptionParser(prog="calibration position enter",
+		             description=
+"""Fit a calibration polynomial to the energy/channel pairs given.
+Hint: specifying degree=0 will fix the linear term at 1. Specify spec=None
+to only fit the calibration.""",
+		             usage="%prog [OPTIONS] <ch0> <E0> [<ch1> <E1> ...]")
+		parser.add_option("-s", "--spec", action="store",
+                          default="all", help="spectrum ids to apply calibration to")
+		parser.add_option("-d", "--degree", action="store",
+		                  default="1", help="degree of calibration polynomial fitted [default: %default]")
+		parser.add_option("-f", "--show-fit", action="store_true",
+		                  default=False, help="show fit used to obtain calibration")
+		parser.add_option("-r", "--show-residual", action="store_true",
+		                  default=False, help="show residual of calibration fit")
+		parser.add_option("-t", "--show-table", action="store_true",
+		                  default=False, help="print table of energies given and energies obtained from fit")
+		hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, minargs=2,
+		                        parser=parser)
+		
+		
+		parser = hdtv.cmdline.HDTVOptionParser(prog="calibration position set",
+		                                       usage="%prog [OPTIONS] <p0> <p1> [<p2> ...]")
+		parser.add_option("-s", "--spec", action="store",
+                          default="all", help="spectrum ids to apply calibration to")
 		hdtv.cmdline.AddCommand("calibration position set", self.CalPosSet, minargs=2,
-		                        usage="calibration position set <deg> <p0> <p1> <p2> ... [ids]")
+		                        parser=parser)
+		
+		
 		hdtv.cmdline.AddCommand("calibration position getlist", self.CalPosGetlist, nargs=1,
 		                        fileargs=True,
-		                        usage="calibration position getlist <filename>")
+		                        usage="%prog <filename>")
 
 	
 	def SpectrumList(self, args, options):
 		"""
 		Print a list of all spectra 
 		"""
-		# FIXME: args and options? Why?
-		self.spectra.ListObjects()
+		self.spectra.ListObjects(options.visible)
 	
 
-	def SpectrumGet(self, args):
+	def SpectrumGet(self, args, options):
 		"""
-		Load Spectrum from files
+		Load Spectra from files
 		"""
-		loaded = self.specIf.LoadSpectra(files = args)
-		if len(loaded) == 0:
-			print "Warning: no spectra loaded."
-		elif len(loaded) == 1:
-			print "Loaded 1 spectrum"
+		if options.id != None:
+			ID = int(options.id)
 		else:
-			print "Loaded %d spectra" % len(loaded)
+			ID = None
 		
+		self.specIf.LoadSpectra(patterns = args, ID = ID)
+
 
 	def SpectrumDelete(self, args):
 		""" 
@@ -375,105 +433,113 @@ class TvSpecInterface:
 				self.spectra[ID].SetNorm(norm)
 			except KetError:
 				print "Warning: there is no spectrum with id: %s" % ID
-						
+				
+	def ParseIDs(self, strings):
+		# Parse IDs
+		# Raises a ValueError if parsing fails
+		ids = hdtv.cmdhelper.ParseRange(strings, ["ALL", "NONE", "ACTIVE"])
+		if ids=="NONE":
+			return []
+		elif ids=="ACTIVE":
+			if self.spectra.activeID==None:
+				print "Error: no active spectrum"
+				return False
+			else:
+				ids = [self.spectra.activeID]
+		elif ids=="ALL":
+			ids = self.spectra.keys()
+		return ids
 			
-	def CalPosRead(self, args):
+	def ApplyCalibration(self, cal, ids):
+		"""
+		Apply calibration cal to spectra with ids
+		"""
+		for ID in ids:
+			try:
+				self.spectra[ID].SetCal(cal)
+				print "calibrated spectrum with id %d" %ID
+			except KeyError:
+				print "Warning: there is no spectrum with id: %s" %ID
+			self.specIf.window.Expand()
+			
+	def CalPosRead(self, args, options):
 		"""
 		Read calibration from file
 		"""
 		try:
+			ids = self.ParseIDs(options.spec)
+			if not ids:
+				return
+			
+			# Load calibration
 			fname = args[0]
 			cal = hdtv.cal.CalFromFile(fname)
-			if len(args[1:])==0:
-				if self.spectra.activeID==None:
-					print "No index is given and there is no active spectrum"
-					raise ValueError
-				else:
-					ids = [self.spectra.activeID]
-			else:
-				ids = hdtv.cmdhelper.ParseRange(args[1:])
 		except ValueError:
 			return "USAGE"
-		else:	
-			if ids=="NONE":
-				return
-			elif ids=="ALL":
-				ids = self.spectra.keys()
-		
-			for ID in ids:
-				try:
-					self.spectra[ID].SetCal(cal)
-					print "calibrated spectrum with id %d" %ID
-				except KeyError:
-					print "Warning: there is no spectrum with id: %s" %ID
-			self.specIf.window.Expand()
+		else:
+			self.ApplyCalibration(cal, ids)		
 			return True
 			
 		
-	def CalPosEnter(self, args):
+	def CalPosEnter(self, args, options):
 		"""
-		Create calibration from two pairs of channel and energy
+		Create calibration from pairs of channel and energy
 		"""
 		try:
-			pairs = []
-			pairs.append([float(args[0]), float(args[1])])
-			pairs.append([float(args[2]), float(args[3])])
-			cal = hdtv.cal.CalFromPairs(pairs)
-			if len(args[4:])==0:
-				if self.spectra.activeID==None:
-					print "No index is given and there is no active spectrum"
-					raise ValueError
-				else:
-					ids = [self.spectra.activeID]
-			else:
-				ids = hdtv.cmdhelper.ParseRange(args[4:])
-		except (ValueError, IndexError):
-			return "USAGE"
-		else:
-			if ids=="NONE":
+			if len(args) % 2 != 0:
+				print "Error: number of parameters must be even"
+				return "USAGE"
+				
+			ids = self.ParseIDs(options.spec)
+			if ids == False:
 				return
-			elif ids=="ALL":
-				ids = self.spectra.keys()
-			for ID in ids:
-				try:
-					self.spectra[ID].SetCal(cal)
-					print "calibrated spectrum with id %d" %ID
-				except KeyError:
-					print "Warning: there is no spectrum with id: %s" %ID
-			self.specIf.window.Expand()
+			
+			degree = int(options.degree)
+		except ValueError:
+			return "USAGE"
+						
+		try:
+			fitter = hdtv.cal.CalibrationFitter()			
+			for p in range(0, len(args), 2):
+				fitter.AddPair(float(args[p]), float(args[p+1]))
+				
+			fitter.FitCal(degree)
+				
+			print fitter.ResultStr()
+			if options.show_table:
+				print ""
+				print fitter.ResultTable()
+				
+			if options.show_fit:
+				fitter.DrawCalFit()
+				
+			if options.show_residual:
+				fitter.DrawCalResidual()
+			
+		except (ValueError, RuntimeError), msg:
+			print "Error: " + str(msg)
+			return False
+		
+		else:
+			self.ApplyCalibration(fitter.calib, ids)			
 			return True
 
-		
-	def CalPosSet(self, args):
+
+	def CalPosSet(self, args, options):
 		"""
-		Create calibration from the coefficients p of a polynom
-		n is the degree of the polynom
+		Create calibration from the coefficients p of a polynomial
+		n is the degree of the polynomial
 		"""
 		try:
-			deg = int(args[0])
-			calpoly = [float(i) for i in args[1:deg+2]]
-			if len(args[deg+2:])==0:
-				if self.spectra.activeID==None:
-					print "No index is given and there is no active spectrum"
-					raise ValueError
-				else:
-					ids = [self.spectra.activeID]
-			else:
-				ids = hdtv.cmdhelper.ParseRange(args[deg+2:])
-		except (ValueError, IndexError):
+			cal = [float(i) for i in args]
+			ids = self.ParseIDs(options.spec)
+			if not ids:
+				return
+			
+		except ValueError:
 			return "USAGE"
 		else:
-			if ids=="NONE":
-				return
-			elif ids=="ALL":
-				ids = self.spectra.keys()
-			for ID in ids:
-				try:
-					self.spectra[ID].SetCal(calpoly)
-					print "calibrated spectrum with id %d" %ID
-				except KeyError:
-					print "Warning: there is no spectrum with id: %s" %ID
-			self.specIf.window.Expand()
+			self.ApplyCalibration(cal, ids)
 			return True
 	
 		
