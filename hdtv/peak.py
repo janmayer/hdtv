@@ -451,7 +451,7 @@ class PeakModelEE(PeakModel):
 		self.fParStatus["eta"] = "equal"
 		self.fParStatus["gamma"] = "equal"
 	
-	def Uncal(parname, value, pos_uncal, cal):
+	def Uncal(self, parname, value, pos_uncal, cal):
 		"""
 		Convert a value from calibrated to uncalibrated units
 		"""
