@@ -201,8 +201,7 @@ class FitInterface:
 			# replace the simple spectrum object by the SpectrumCompound
 			self.spectra[self.spectra.activeID]=spec
 		if spec.activeID==None:
-			ID = spec.GetFreeID()
-			spec[ID] =  self.GetActiveFit()
+			ID = spec.Add(self.GetActiveFit())
 			self.activeFit = None
 			spec.ActivateObject(ID)
 		fit = spec[spec.activeID]
@@ -261,7 +260,6 @@ class FitInterface:
 		# deactivate all objects
 		spec.ActivateObject(None)
 		
-
 
 	def ClearFit(self):
 		"""

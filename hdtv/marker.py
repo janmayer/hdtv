@@ -225,7 +225,9 @@ class MarkerCollection(Drawable):
 		
 	def RemoveNearest(self, pos):
 		"""
-		Remove the marker that is nearest to pos, where pos is a calibrated value
+		Remove the marker that is nearest to pos
+		If one of the members of a marker pair is nearest to pos, 
+		both are removed
 		"""
 		if len(self.collection)==0:
 			print "Warning: no marker available, no action taken"
@@ -238,16 +240,9 @@ class MarkerCollection(Drawable):
 				diff = abs(pos-m.p2)
 				index[diff] = m
 		nearest = index[min(index.keys())]
-		if not self.paired or nearest.p2==None:
-			nearest.Remove()
-			self.collection.remove(nearest)
-		else:
-			if abs(pos-nearest.p1) < abs(pos-nearest.p2):
-				nearest.p1 = nearest.p2		
-			nearest.p2 = None
-			self.collection.remove(nearest)
-			self.collection.append(nearest)
-			nearest.Refresh()
+		nearest.Remove()
+		self.collection.remove(nearest)
+		
 	
 			
 

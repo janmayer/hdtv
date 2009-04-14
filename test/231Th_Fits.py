@@ -272,25 +272,34 @@ ids = range(8,18)
 #	DoFit(643, spec, fitter, region, peaks, backgrounds)
 
 
-#### Peaks around 682 keV and 685 keV:
-ids = range(0,18)
-ids.remove(6)	# big background
-ids.remove(7)	# big background
-region 		= [675, 695]
-peaks		= [682, 685]
-backgrounds = [670, 675, 760, 770]
-for ID in ids:
-	spec = spectra[ID]
-	fitter = __main__.f.defaultFitter.Copy()
-	DoFit(682, spec, fitter, region, peaks, backgrounds)
+#### Peak around 682 keV:
+#ids = range(0,18)
+#ids.remove(2)	# to small
+#ids.remove(3)	# to small
+#ids.remove(6)	# big background
+#ids.remove(7)	# big background
+#region 		= [670, 690]
+#peaks		= [682]
+#backgrounds = [665, 668, 691, 693]
+#for ID in ids:
+#	spec = spectra[ID]
+#	fitter = __main__.f.defaultFitter.Copy()
+#	DoFit(682, spec, fitter, region, peaks, backgrounds)
+
+# FIXME: HERE
 
 
 #### Peaks around 706 keV, 721 keV, 746 keV:
+#ids=range(0,18)
+#ids.remove(6)	# big background
+#ids.remove(7) 	# big background
 #region		= [ 695, 760]
 #peaks		= [706, 721, 746]
 #backgrounds = [730,740]
 #fitter = __main__.f.defaultFitter.Copy()
-#for spec in spectra.itervalues():
+#for ID in ids:
+#	spec = spectra[ID]
+#	fitter = __main__.f.defaultFitter.Copy()
 #	DoFit(706, spec, fitter, region, peaks, backgrounds)
 
 

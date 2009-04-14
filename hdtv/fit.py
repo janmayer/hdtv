@@ -58,8 +58,11 @@ class Fit(Drawable):
 		i=1
 		text = str()
 		for peak in self.fitter.GetResults():
-			text += "Peak %d:  " %i
-			text += ("\n               ".join(str(peak).split('\n')))
+			text += ("\nPeak %d:" %i).ljust(10)
+			peakstr = str(peak).strip()
+			peakstr = peakstr.split("\n")
+			peakstr =("\n".ljust(10)).join(peakstr)
+			text += peakstr
 			i+=1
 		return text
 		
@@ -85,7 +88,6 @@ class Fit(Drawable):
 			self.dispFuncs.remove(func)
 			func.Remove()
 		self.dispDecompFuncs = []
-		self.peakMarkers.Remove()
 		self.regionMarkers.PutMarker(pos)
 		
 		
