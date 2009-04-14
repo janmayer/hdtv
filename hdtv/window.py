@@ -27,6 +27,7 @@ import hdtv.color
 from hdtv.marker import MarkerCollection
 
 from types import *
+import hdtv.cmdline
 
 hdtv.dlmgr.LoadLibrary("display")
 
@@ -192,25 +193,31 @@ class Window(KeyHandler):
 	"""
 	Base class of a window object 
 
-	This class provides a basic key handling for zooming and scrolling.
+	This class provides basic key handling for zooming and scrolling.
 	"""
 	def __init__(self):
 		KeyHandler.__init__(self)
 	
 		self.viewer = ROOT.HDTV.Display.Viewer()
 		self.viewport = self.viewer.GetViewport()
+		self._dispatchers = list()
+		
+		# Handle closing of the main window (with an application exit)
+		disp = ROOT.TPyDispatcher(hdtv.cmdline.AsyncExit)
+		self.viewer.Connect("CloseWindow()", "TPyDispatcher", disp, "Dispatch()")
+		self._dispatchers.append(disp)
 		
 		self.XZoomMarkers = MarkerCollection("X", paired=True, maxnum=1, 
-												  color=hdtv.color.zoom)
+		                                          color=hdtv.color.zoom)
 		self.XZoomMarkers.Draw(self.viewport)
 		self.YZoomMarkers = MarkerCollection("Y", paired=True, maxnum=1, 
-												  color=hdtv.color.zoom)
+		                                          color=hdtv.color.zoom)
 		self.YZoomMarkers.Draw(self.viewport)
 
 		# Key Handling
-		self.keyDispatch = ROOT.TPyDispatcher(self.KeyHandler)
-		self.viewer.Connect("KeyPressed()", "TPyDispatcher", 
-							 self.keyDispatch, "Dispatch()")
+		disp = ROOT.TPyDispatcher(self.KeyHandler)
+		self.viewer.Connect("KeyPressed()", "TPyDispatcher", disp, "Dispatch()")
+		self._dispatchers.append(disp)
 		
 		self.keyString = ""
 		self.AddHotkey(ROOT.kKey_u, lambda: self.viewport.Update())
@@ -250,9 +257,9 @@ class Window(KeyHandler):
 		# FIXME: the base classes should not depend on plugins!
 		#config.RegisterOption("display.YMinVisibleRegion", opt)
 		
+
 	def YMinVisibleRegionChanged(self, opt):
 		self.viewport.SetYMinVisibleRegion(opt.Get())
-
 	
 	
 	def GoToPosition(self, arg):
@@ -292,7 +299,7 @@ class Window(KeyHandler):
   		"""
   		# check the input
   		if xytype not in ["X","Y"]:
-  			print "invalid parameter %s to the private function _expand" % xytype
+  			print "invalid parameter %s to the private function _Expand" % xytype
   			return
   		
   		zoomMarkers = getattr(self,"%sZoomMarkers" %xytype)

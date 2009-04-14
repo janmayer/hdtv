@@ -21,6 +21,7 @@
  */
 
 #include "View1D.h"
+#include <limits>
 #include <TMath.h>
 #include <Riostream.h>
 
@@ -310,8 +311,8 @@ void View1D::ShowAll(void)
   // Set the X (energy) axis zoom so that all spectra are fully visible.
   // Shows a range from 0 to DEFAULT_MAX_ENERGY if the view contains no spectra.
 
-  fMinEnergy = 0.0;
-  fMaxEnergy = 0.0;
+  fMinEnergy =   std::numeric_limits<double>::infinity();
+  fMaxEnergy = - std::numeric_limits<double>::infinity();
   double minE, maxE;
   DisplaySpec *spec;
   bool hadSpec = false;
@@ -330,8 +331,10 @@ void View1D::ShowAll(void)
     }
   }
 
-  if(!hadSpec)
+  if(!hadSpec) {
+    fMinEnergy = 0.0;
     fMaxEnergy = DEFAULT_MAX_ENERGY;
+  }
   
   fXOffset = fMinEnergy;
   fXVisibleRegion = TMath::Max(fMaxEnergy - fMinEnergy, MIN_ENERGY_REGION);

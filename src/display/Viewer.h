@@ -30,18 +30,22 @@
 #include <KeySymbols.h>
 #include "View1D.h"
 
-#include <RQ_OBJECT.h>
+// see below...
+// #include <RQ_OBJECT.h>
 
 namespace HDTV {
 namespace Display {
 
 class Viewer : public TGMainFrame {
-  RQ_OBJECT("HDTV::Display::Viewer")
+  // FIXME: uncommenting the following line causes the inherited CloseWindow()
+  //  signal to stop working. The reason is not presently understood, however,
+  //  the line does not seem to be needed.
+  // RQ_OBJECT("HDTV::Display::Viewer")
  public:
   Viewer(UInt_t w=800, UInt_t h=400, const char *title = "hdtv");
   ~Viewer();
   inline const View1D *GetViewport(void) { return fView; } // FIXME: should be called GetView
-  void KeyPressed() {   Emit("KeyPressed()"); }  // *SIGNAL*
+  void KeyPressed()  { Emit("KeyPressed()"); }   // *SIGNAL*
   
   UInt_t fKeySym;    // Key symbol
   char fKeyStr[16];  // Key string

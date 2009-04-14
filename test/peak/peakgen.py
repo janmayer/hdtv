@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # HDTV - A ROOT-based spectrum analysis software
@@ -145,12 +144,12 @@ class Spectrum:
 		"""
 		return ROOT.TF1(name, self.func, self.xmin, self.xmax, 0)
 		
-	def GetExactHist(self):
+	def GetExactHist(self, name="spec_exact"):
 		"""
 		Return a ROOT TH1D object with each bin containing exactly the value
 		of the spectrum function at its center.
 		"""
-		hist = ROOT.TH1D("spec_exact", "spec_exact", self.nbins, self.xmin, self.xmax)
+		hist = ROOT.TH1D(name, name, self.nbins, self.xmin, self.xmax)
 		
 		bincenter = hist.GetXaxis().GetBinCenter
 		for bin in range(1, hist.GetNbinsX()+1):
@@ -158,7 +157,7 @@ class Spectrum:
 			
 		return hist
 			
-	def GetSampledHist(self, nsamples):
+	def GetSampledHist(self, nsamples, name="spec_sampled"):
 		"""
 		Return a ROOT TH1I object filled with nsamples samples from the spectrum
 		function.
@@ -169,45 +168,30 @@ class Spectrum:
 		# any functions the user may have defined.
 		func = self.GetFunc("__samplefunc__")
 	
-		hist = ROOT.TH1I("spec_sampled", "spec_sampled", self.nbins, self.xmin, self.xmax)
+		hist = ROOT.TH1D(name, name, self.nbins, self.xmin, self.xmax)
 		hist.FillRandom("__samplefunc__", nsamples)
 		
 		del func
 		
 		return hist
 	
-def write_hist(hist, fname):
+def write_hist(hist, fname, include_x=False, include_err=False):
 	"""
-	Dump a ROOT histogram object to a file in a format suitable for the old tv program.
-	We simply write the content of all bins, exculding the under- and overflow bins,
-	seperated by newlines. Any information on the position of the bins on the axis
-	is lost.
+	Dump a ROOT histogram object to a textfile.	We write the content of all
+	bins, exculding the under- and overflow bins, seperated by newlines. The
+	parameters include_x and include_err control if the bin center and the bin
+	error are to be included. If the resulting file should be readable by the
+	old tv program, they must both be set to False.
 	"""
 	f = open(fname, "w")
-
+	
+	axis = hist.GetXaxis()
 	for bin in range(1, hist.GetNbinsX()+1):
-		f.write("%f\n" % hist.GetBinContent(bin))
+		if include_x:
+			f.write("%f " % axis.GetBinCenter(bin))
+		f.write("%f" % hist.GetBinContent(bin))
+		if include_err:
+			f.write(" %f" % hist.GetBinError(bin))
+		f.write("\n")
 		
 	f.close()
-		
-
-spec = Spectrum(1024, -0.5, 1023.5)
-spec.func.background = PolyBg([10.0])
-spec.func.peaks.append(TheuerkaufPeak(500, 300.0, 10.0, sh=3.0, sw=1.0))
-# spec.func.peaks.append(TheuerkaufPeak(515, 100.0, 10.0))
-# spec.peaks.append(EEPeak(300, 100, 4.5, 6.0, 1.5, 0.7))
-# spec.peaks.append(EEPeak(400, 30, 4.5, 6.0, 1.5, 0.7))
-
-# nsamples = int(3e3)
-# hs = spec.GetSampledHist(nsamples)
-hs = spec.GetExactHist()
-# hs.Draw()
-
-# he = spec.GetExactHist()
-# scale = nsamples / he.GetSumOfWeights()
-# he.Scale(scale)
-
-# he.SetLineColor(ROOT.kRed)
-# he.Draw("SAME")
-
-write_hist(hs, "test.asc")

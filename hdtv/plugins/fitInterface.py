@@ -55,6 +55,7 @@ class FitInterface:
 			self.fitPanel.Show()
 
 		# Register hotkeys
+		self.window.AddHotkey(ROOT.kKey_Q, self.Quickfit)
 		self.window.AddHotkey(ROOT.kKey_b, lambda: self._PutMarker("bg"))
 		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_b], 
 								lambda: self._DeleteMarker("bg"))
@@ -83,6 +84,16 @@ class FitInterface:
 		self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_n], self._HotkeyShowNext)
 
 
+	def Quickfit(self):
+		self.ClearFit()
+		fit = self.GetActiveFit()
+		pos = self.window.viewport.GetCursorX()
+		fit.PutRegionMarker(pos - 10.)
+		fit.PutRegionMarker(pos + 10.)
+		fit.PutPeakMarker(pos)
+		self.Fit()
+		
+	
 	def _HotkeyShowPrev(self):
 		"""
 		ShowPrev wrapper for use with a Hotkey (internal use)

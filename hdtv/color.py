@@ -67,7 +67,7 @@ def HueForID(ID):
 
 def Highlight(color, active=True):
 	"""
-	Manipulates the color in HSV room to archive highlighting
+	Manipulates the color in HSV room to achieve highlighting
 	 - The hue value runs from 0 to 360.
 	 - The saturation is the degree of strength or purity and is from 0 to 1.
 	   Purity is how much white is added to the color, so S=1 makes the purest
