@@ -65,10 +65,10 @@ class TheuerkaufPeak:
 	"""
 	Peak object for the Theuerkauf (classic TV) fitter
 	"""
-	def __init__(self, pos, vol, fwhm, tl, tr, sh, sw):
+	def __init__(self, pos, vol, width, tl, tr, sh, sw):
 		self.pos = pos
 		self.vol = vol
-		self.fwhm = fwhm
+		self.width = width	# fwhm!
 		self.tl = tl
 		self.tr = tr
 		self.sh = sh
@@ -79,7 +79,7 @@ class TheuerkaufPeak:
 		text = str()
 		text += "Pos:         " + self.pos.fmt() + "\n"
 		text += "Volume:      " + self.vol.fmt() + "\n"
-		text += "FWHM:        " + self.fwhm.fmt() + "\n"
+		text += "FWHM:        " + self.width.fmt() + "\n"
 		# Note: do not use == or != when testing for None
 		# those operators use cmp, which is not garanteed to handle None
 		if not self.tl is None:
@@ -262,7 +262,7 @@ class PeakModelTheuerkauf(PeakModel):
 	def __init__(self):
 		PeakModel.__init__(self)
 		self.fOrderedParamKeys = ["pos", "vol", "width", "tl", "tr", "sh", "sw"]
-		self.fParStatus = { "pos": None, "vol": None, "sigma": None,
+		self.fParStatus = { "pos": None, "vol": None, "width": None,
 		                    "tl": None, "tr": None, "sh": None, "sw": None }
 		self.fValidParStatus = { "pos":   [ float, "free", "hold" ],
 		                         "vol":   [ float, "free", "hold" ],
@@ -286,19 +286,20 @@ class PeakModelTheuerkauf(PeakModel):
 		pos_uncal = cpeak.GetPos()
 		pos_err_uncal = cpeak.GetPosError()
 		hwhm_uncal = cpeak.GetSigma() * math.sqrt(2. * math.log(2.))
-		fwhm_err_uncal = cpeak.GetSigmaError() * 2. * math.sqrt(2. * math.log(2.))
+		width_err_uncal = cpeak.GetSigmaError() * 2. * math.sqrt(2. * math.log(2.))
 		# calculate calibrated values
 		pos_cal = cal.Ch2E(pos_uncal)
 		pos_err_cal = abs(cal.dEdCh(pos_uncal) * pos_err_uncal)
-		fwhm_cal = cal.Ch2E(pos_uncal + hwhm_uncal) - cal.Ch2E(pos_uncal - hwhm_uncal)
-		# This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
+		width_cal = cal.Ch2E(pos_uncal + hwhm_uncal) - cal.Ch2E(pos_uncal - hwhm_uncal)
+		# This is only an approximation, valid as d(width_cal)/d(pos_uncal) \approx 0
 		#  (which is true for Ch2E \approx linear)
-		fwhm_err_cal = abs( (cal.dEdCh(pos_uncal + hwhm_uncal) / 2. + 
-                             cal.dEdCh(pos_uncal - hwhm_uncal) / 2.   ) * fwhm_err_uncal)
+		width_err_cal = abs( (cal.dEdCh(pos_uncal + hwhm_uncal) / 2. + 
+                             cal.dEdCh(pos_uncal - hwhm_uncal) / 2.   ) * width_err_uncal)
 		# create FitValues objets from this
 		pos = FitValue(pos_cal, pos_err_cal, cpeak.PosIsFree())
 		vol = FitValue(cpeak.GetVol(), cpeak.GetVolError(), cpeak.VolIsFree())
-		fwhm = FitValue(fwhm_cal, fwhm_err_cal, cpeak.SigmaIsFree())
+		# width==fwhm (internally the C++ fitter uses sigma)
+		width = FitValue(width_cal, width_err_cal, cpeak.SigmaIsFree())
 		
 		if cpeak.HasLeftTail():
 			tl = FitValue(cpeak.GetLeftTail(), cpeak.GetLeftTailError(), 
@@ -320,7 +321,7 @@ class PeakModelTheuerkauf(PeakModel):
 		else:
 			sh = sw = None
 			
-		return TheuerkaufPeak(pos, vol, fwhm, tl, tr, sh, sw)
+		return TheuerkaufPeak(pos, vol, width, tl, tr, sh, sw)
 		
 		
 	def ResetParamStatus(self):
@@ -344,10 +345,10 @@ class PeakModelTheuerkauf(PeakModel):
 			return cal.E2Ch(value)
 		elif parname == "width":
 			pos_cal = cal.Ch2E(pos_uncal)
-			fwhm_uncal = cal.E2Ch(pos_cal + value/2.) - cal.E2Ch(pos_cal - value/2.)
+			width_uncal = cal.E2Ch(pos_cal + value/2.) - cal.E2Ch(pos_cal - value/2.)
 			# Note that the underlying fitter uses ``sigma'' as a parameter
 			#  (see HDTV technical documentation in the wiki)
-			return fwhm_uncal / (2. * math.sqrt(2. * math.log(2.)))
+			return width_uncal / (2. * math.sqrt(2. * math.log(2.)))
 		elif parname in ("vol", "tl", "tr", "sh", "sw"):
 			return value
 		else:

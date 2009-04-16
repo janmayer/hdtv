@@ -461,8 +461,8 @@ class TvFitInterface:
 		self.RegisterFitParameter(self.fitIf.defaultFitter)
 		
 		hdtv.cmdline.AddCommand("fit list", self.FitList, nargs=0, usage="fit list")
-		hdtv.cmdline.AddCommand("fit write", self.FitWrite, nargs=0,
-		                        usage="fit write <filename>")
+#		hdtv.cmdline.AddCommand("fit write", self.FitWrite, nargs=0,
+#		                        usage="fit write <filename>")
 		hdtv.cmdline.AddCommand("fit show", self.FitShow, minargs=1)
 		hdtv.cmdline.AddCommand("fit print", self.FitPrint, minargs=1)
 		hdtv.cmdline.AddCommand("fit delete", self.FitDelete, minargs=1)
