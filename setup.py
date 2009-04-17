@@ -10,17 +10,20 @@ display = Extension('display',
 					sources = glob.glob('src/display/*.cxx'), 
 					include_dirs=['/usr/include/root'],
 					language='c++',
+					depends=''
 					)
 fit 	= Extension('fit', 
 					sources=glob.glob('src/fit/*.cxx'), 
 					include_dirs=['/usr/include/root'],
 					language='c++',
+					depends=''
 					)
 mfile_root = Extension('mfile-root', 
 					sources=glob.glob('src/mfile-root/*.cxx'), 
 					include_dirs=['/usr/include/root'],
 					libraries=['mfile'],
 					language='c++',
+					depends =''
 					)
 
 setup(name='hdtv',

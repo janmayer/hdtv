@@ -38,7 +38,6 @@ class Fitter:
 	def __getattr__(self, name):
 		return getattr(self.peakModel, name)
 
-
 	def FitBackground(self, spec, backgrounds):
 		self.spec = spec
 		# do the background fit
@@ -51,7 +50,6 @@ class Fitter:
 
 	def FitPeaks(self, spec, region, peaklist):
 		self.spec = spec
-		peaklist.sort()
 		self.peakFitter = self.peakModel.GetFitter(region, peaklist, spec.cal)
 		# Do the fit
 		if self.bgFitter:

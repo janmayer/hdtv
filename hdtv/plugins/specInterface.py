@@ -80,7 +80,6 @@ class SpecInterface:
 		except ValueError:
 			self.window.viewport.SetStatusText("Invalid spectrum identifier: %s" % arg)
 
-
 		
 	def _HotkeyActivate(self, arg):
 		"""

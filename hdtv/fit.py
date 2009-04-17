@@ -161,7 +161,14 @@ class Fit(Drawable):
 		# fit peaks
 		if len(self.peakMarkers)>0 and len(self.regionMarkers)==1 and self.regionMarkers[-1].p2:
 			region = [self.regionMarkers[0].p1, self.regionMarkers[0].p2]
-			peaks = map(lambda m: m.p1, self.peakMarkers)
+			# remove peak marker that are outside of region
+			region.sort()
+			for m in self.peakMarkers:
+				if m.p1<region[0] or m.p1>region[1]:
+					m.Remove()
+					self.peakMarkers.remove(m)
+			peaks = [m.p1 for m in self.peakMarkers]
+			peaks.sort()
 			self.fitter.FitPeaks(spec, region, peaks)
 			# get peak function
 			func = self.fitter.peakFitter.GetSumFunc()
@@ -360,8 +367,36 @@ class Fit(Drawable):
 				for func in self.dispDecompFuncs:
 					func.Hide()
 
-
-
+	def DumpMarkers(self, cal=True):
+		background=list()
+		for marker in self.bgMarkers:
+			if cal:
+				p1=marker.p1
+				p2=marker.p2
+			else:
+				p1=self.cal.E2Ch(marker.p1)
+				p2=self.cal.E2Ch(marker.p2)
+			background.append([p1,p2])
+		region=list()
+		for marker in self.regionMarkers:
+			if cal:
+				p1=marker.p1
+				p2=marker.p2
+			else:
+				p1=self.cal.E2Ch(marker.p1)
+				p2=self.cal.E2Ch(marker.p2)
+			region.append([p1,p2])
+		peaks=list()
+		for marker in self.peakMarkers:
+			if cal:
+				p1=marker.p1
+			else:
+				p1=self.cal.E2Ch(marker.p1)
+			peaks.append(p1)
+		
+		print "background=",background
+		print "region=", region
+		print "peaks=",peaks
 
 
 
