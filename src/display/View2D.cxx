@@ -368,7 +368,7 @@ void View2D::FlushTiles()
 
 Pixmap_t View2D::GetTile(int x, int y)
 {
-  uint32_t id = y << 16 | x & 0xFFFF;
+  uint32_t id = (y << 16) | (x & 0xFFFF);
   std::map<uint32_t, Pixmap_t>::iterator iter;
   
   iter = fTiles.find(id);
