@@ -31,6 +31,7 @@ zoom = 10
 region = 38
 peak   = 50 
 bg    = 11
+cut   = ROOT.kYellow - 4
 
 activeSatur = 1.0
 nonactiveSatur = 0.5

@@ -32,6 +32,7 @@ import hdtv.plugins.ls
 import hdtv.plugins.run
 import hdtv.plugins.specInterface 
 import hdtv.plugins.fitInterface
+import hdtv.plugins.matrix
 import hdtv.plugins.rootfile
 import hdtv.plugins.config
 

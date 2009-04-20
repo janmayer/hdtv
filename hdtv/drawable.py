@@ -255,7 +255,16 @@ class DrawableCompound(UserDict.DictMixin):
 		else:
 			print "Warning, invalid id %s" %ID
 		self.viewport.UnlockUpdate()
+		
+	def GetActiveObject(self):
+		"""
+		Returns the presently active object
+		"""
 	
+		if self.activeID == None:
+			return None
+		else:
+			return self.objects[self.activeID]
 		
 	def Draw(self, viewport):
 		"""

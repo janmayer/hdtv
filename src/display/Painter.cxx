@@ -50,6 +50,8 @@ Painter::Painter()
 
 void Painter::DrawFunction(DisplayFunc *dFunc, int x1, int x2)
 {
+  // Function to draw a DisplayFunc object
+
   int x;
   int y;
   int hClip = fYBase - fHeight;
@@ -57,7 +59,7 @@ void Painter::DrawFunction(DisplayFunc *dFunc, int x1, int x2)
   double ch;
   double norm = fUseNorm ? dFunc->GetNorm() : 1.0;
 
-  /* Do x axis clipping */
+  // Do x axis clipping
   int minX = EtoX(dFunc->GetMinE());
   int maxX = EtoX(dFunc->GetMaxE());
 
@@ -88,13 +90,15 @@ void Painter::DrawFunction(DisplayFunc *dFunc, int x1, int x2)
 
 void Painter::DrawSpectrum(DisplaySpec *dSpec, int x1, int x2)
 {
+  // Function to draw a DisplaySpec object
+
   int x;
   int y;
   int hClip = fYBase - fHeight;
   int lClip = fYBase;
   
 
-  /* Do x axis clipping */
+  // Do x axis clipping
   int minX = EtoX(dSpec->GetMinE());
   int maxX = EtoX(dSpec->GetMaxE());
 
@@ -160,44 +164,60 @@ void Painter::DrawSpectrum(DisplaySpec *dSpec, int x1, int x2)
 
 void Painter::DrawXMarker(XMarker *marker, int x1, int x2)
 {
+  // Function to draw an XMarker object
+  
   int xm1, xm2;
 
-  /* Draw first marker of the pair */
+  // Draw first marker of the pair
   xm1 = EtoX(marker->GetE1());
   if(xm1 >= x1 && xm1 <= x2)
 	gVirtualX->DrawLine(fDrawable, marker->GetGC_1()->GetGC(), 
 						xm1, fYBase, xm1, fYBase - fHeight);
 
   if(marker->GetN() > 1) {
-	/* Draw second marker of the pair */
+	// Draw second marker of the pair
 	xm2 = EtoX(marker->GetE2());
 
 	if(xm2 >= x1 && xm2 <= x2)
 	  gVirtualX->DrawLine(fDrawable, marker->GetGC_2()->GetGC(), 
 						  xm2, fYBase, xm2, fYBase - fHeight);
 
-	/* Draw connecting line */
-	if(xm1 < x1) xm1 = x1;
+    // Draw connecting line
+    if(xm1 > xm2) {
+      int tmp = xm2;
+      xm2 = xm1;
+      xm1 = tmp;
+    }
+      
+    if(xm1 < x1) xm1 = x1;
 	if(xm2 > x2) xm2 = x2;
 
-	if(xm1 <= xm2)
-	  gVirtualX->DrawLine(fDrawable, marker->GetGC_C()->GetGC(),
-						  xm1, fYBase - fHeight, xm2, fYBase - fHeight);
+	if(xm1 <= xm2) {
+	  int h;
+      if(marker->fConnectTop)
+        h = fYBase - fHeight;
+      else
+        h = fYBase;
+      gVirtualX->DrawLine(fDrawable, marker->GetGC_C()->GetGC(),
+                          xm1, h, xm2, h);
+    }
   }
 }
 
 void Painter::DrawYMarker(YMarker *marker, int x1, int x2)
 {
+  // Function to draw a YMarker object
+  
   int y;
   
-  /* Draw first marker of the pair */
+  // Draw first marker of the pair
   y = CtoY(marker->GetP1());
   if(y <= fYBase && y >= (fYBase - fHeight)) {
     gVirtualX->DrawLine(fDrawable, marker->GetGC_1()->GetGC(),
                         x1, y, x2, y);
   }
   
-  /* Draw second marker of the pair */
+  // Draw second marker of the pair
   if(marker->GetN() > 1) {
     y = CtoY(marker->GetP2());
     if(y <= fYBase && y >= (fYBase - fHeight)) {
@@ -210,6 +230,7 @@ void Painter::DrawYMarker(YMarker *marker, int x1, int x2)
 void Painter::DrawIDList(std::list<DisplayObj*> objects)
 {
   // Draw a colered list of IDs. This is a quick hack, really.
+  
   DisplaySpec* spec;
   int x = fXBase;
   char tmp[16];

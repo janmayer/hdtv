@@ -242,7 +242,7 @@ class SpecReader:
 	def GetMatrix(self, filename, fmt, histname, histtitle):
 		hdtv.dlmgr.LoadLibrary("mfile-root")
 		mhist = ROOT.MFileHist()
-		mhist.Open(filename)
+		mhist.Open(filename)  ### FIXME: error handling
 		return mhist.ToTH2D(histname, histtitle, 0)
 		
 	def WriteSpectrum(self, hist, fname, fmt):
