@@ -1,4 +1,5 @@
 import os
+import glob
 import xml.etree.cElementTree as ET
 import hdtv.cmdline
 import hdtv.spectrum
@@ -18,6 +19,8 @@ class FitXml:
 	def __init__(self, spectra):
 		print "loaded fitXML plugin"
 		self.spectra = spectra
+		# hdtv commands
+		self.tv = TvFitXML(self)
 
 
 	def WriteFitlist(self, filename=None):
@@ -116,17 +119,22 @@ class FitXml:
 			ET.dump(root)
 
 
-	def ReadFitlist(self, filename):
+	def ReadFitlist(self, fnames):
 		"""
 		Read fits from xml file
 
 		This function parses the xml tree to memory and checks the version
 		and calls the appropriate function for further processing.
 		"""
-		tree = ET.parse(filename)
-		root = tree.getroot()
-		if root.get("version").startswith("0"):
-			self.ReadFitlist_v0(root)
+		if type(fnames) == str or type(fnames) == unicode:
+			fnames = [fnames]
+		for fname in fnames:
+			path = os.path.expanduser(fname)
+			for filename in glob.glob(path):
+				tree = ET.parse(filename)
+				root = tree.getroot()
+				if root.get("version").startswith("0"):
+					self.ReadFitlist_v0(root)
 
 
 	def ReadFitlist_v0(self, root):
@@ -172,6 +180,7 @@ class FitXml:
 							params[parname]=[status]
 				for parname in params.keys():
 					status = params[parname]
+					# check if all values in status are the same
 					if status.count(status[0])==len(status):
 						status = str(status[0])
 					else:
