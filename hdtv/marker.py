@@ -33,9 +33,10 @@ class Marker(Drawable):
 	possible to have markers that consist of a single marker, then the second 
 	possition is None.
 	"""
-	def __init__(self, xytype, p1, color=None, cal=None):
+	def __init__(self, xytype, p1, color=None, cal=None, connecttop=True):
 		Drawable.__init__(self, color, cal)
 		self.xytype = xytype
+		self.connecttop = connecttop
 		self.p1 = p1
 		self.p2 = None
 		
@@ -71,7 +72,7 @@ class Marker(Drawable):
 			p2 = self.cal.E2Ch(self.p2)
 		# X or Y?
 		if self.xytype == "X":
-			constructor = ROOT.HDTV.Display.XMarker 
+			constructor = ROOT.HDTV.Display.XMarker
 		elif self.xytype == "Y":
 			constructor = ROOT.HDTV.Display.YMarker
 		if not self.color:
@@ -80,6 +81,7 @@ class Marker(Drawable):
 		if self.xytype=="X":
 			# calibration makes only sense on the X axis
 			self.displayObj.SetCal(self.cal)
+			self.displayObj.SetConnectTop(self.connecttop)
 		self.displayObj.Draw(self.viewport)
 
 	def Refresh(self):
@@ -136,11 +138,12 @@ class Marker(Drawable):
 
 
 class MarkerCollection(Drawable):
-	def __init__(self, xytype, paired=False, maxnum=None, color=None, cal=None):
+	def __init__(self, xytype, paired=False, maxnum=None, color=None, cal=None, connecttop=True):
 		Drawable.__init__(self, color, cal)
 		self.xytype = xytype
 		self.paired = paired
 		self.maxnum = maxnum
+		self.connecttop = connecttop
 		self.collection = list()
 		
 
@@ -198,10 +201,10 @@ class MarkerCollection(Drawable):
 
 	def PutMarker(self, pos):
 		"""
-		Put a marker to position pos
+		Put a marker to position pos, possibly completing a marker pair
 		"""
 		if not self.paired:
-			m = Marker(self.xytype, pos, self.color, self.cal)
+			m = Marker(self.xytype, pos, self.color, self.cal, self.connecttop)
 			if self.viewport:
 				m.Draw(self.viewport)
 			self.collection.append(m)
@@ -217,10 +220,37 @@ class MarkerCollection(Drawable):
 				pending.Refresh()
 				self.collection.append(pending)
 			else:
-				pending = Marker(self.xytype, pos, self.color, self.cal)
+				pending = Marker(self.xytype, pos, self.color, self.cal,\
+				                 self.connecttop)
 				if self.viewport:
 					pending.Draw(self.viewport)
 				self.collection.append(pending)
+				
+	def IsFull(self):
+		"""
+		Checks if this MarkerCollection already contains the maximum number of
+		markers allowed
+		"""
+		if self.maxnum == None:
+			return False
+			
+		if len(self.collection) > 0 and self.collection[-1].p2 == None:
+			return False
+			
+		return len(self.collection) == self.maxnum
+		
+	
+	def Clear(self):
+		if self.viewport != None:
+			self.viewport.LockUpdate()
+			
+		for m in self.collection:
+			m.Remove()
+		
+		self.collection = list()
+		
+		if self.viewport != None:
+			self.viewport.UnlockUpdate()
 		
 		
 	def RemoveNearest(self, pos):

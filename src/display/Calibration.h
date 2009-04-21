@@ -57,6 +57,8 @@ class Calibration {
 	void SetCal(const std::vector<double>& cal);
 	void SetCal(const TArrayD& cal);
 	
+	inline const std::vector<double>& GetCoeffs() const { return fCal; }
+	
     inline operator bool() const { return !fCal.empty(); }
 	inline const std::vector<double>& GetCoeffs() const { return fCal; }
 	

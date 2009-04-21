@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ *  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
  *
  * This file is part of HDTV.
  *
@@ -36,6 +36,7 @@ namespace Display {
 class View1D;
 
 class XMarker : public Marker {
+  friend class Painter;
   public:
     XMarker(int n, double p1, double p2=0.0, int col=5);
     inline TGGC *GetGC_C() { return (fDash1 && fDash2) ? fDashedGC : fGC; }
@@ -45,11 +46,14 @@ class XMarker : public Marker {
       { fCal1 = cal1; fCal2 = cal1; Update(); }
     inline void SetCal(const Calibration& cal1, const Calibration& cal2)
       { fCal1 = cal1; fCal2 = cal2; Update(); }
+    inline void SetConnectTop(bool ct)
+      { fConnectTop = ct; Update(); }
     virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter)
       { if(IsVisible()) painter.DrawXMarker(this, x1, x2); }
       
   private:
     Calibration fCal1, fCal2;
+    bool fConnectTop;
 };
 
 } // end namespace Display

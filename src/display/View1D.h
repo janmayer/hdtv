@@ -91,7 +91,6 @@ class View1D : public View {
   void SetStatusBar(TGStatusBar *sb);
   double GetCursorX();
   double GetCursorY();
-  // int FindMarkerNearestCursor(int tol=3);
   
   void LockUpdate();
   void UnlockUpdate();
@@ -100,9 +99,6 @@ class View1D : public View {
   /*** Helper functions to draw scales ***/
   void DrawXScales(UInt_t x1, UInt_t x2);
   void ClearXScales();
-  
-  /*** Display object helper functions ***/
-  // XMarker* FindNearestXMarker(double e, double tol=-1.0);
     
   // Default parameters
   static const double DEFAULT_MAX_ENERGY;

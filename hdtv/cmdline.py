@@ -240,7 +240,8 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 			if parser:
 				print parser.get_usage()
 			elif "usage" in node.options:
-				print "usage: " + node.options["usage"]
+				usage = node.options["usage"].replace("%prog", node.FullTitle())
+				print "usage: " + usage
 			return
 			
 		# Execute the command
@@ -254,7 +255,8 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 			if parser:
 				print parser.get_usage()
 			elif "usage" in node.options:
-				print "usage: " + node.options["usage"]
+				usage = node.options["usage"].replace("%prog", node.FullTitle())
+				print "usage: " + usage
 		
 	def RemoveCommand(self, title):
 		"""

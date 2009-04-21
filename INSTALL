@@ -4,9 +4,5 @@ At the moment, HDTV can only be installed locally.
 
 * Execute ``make'' in the src/ subdirectory.
 * Create a directory ~/.hdtv
-* Copy, or link, the following directories into ~/.hdtv:
-	- hdtv/
-	- plugins/
-	- lib/
-
-* Copy startup.py into ~/.hdtv. Customize if desired.
+* Copy or link the hdtv/ directory into ~/.hdtv
+* Copy or link the bin/hdtv script into some directory in your $PATH

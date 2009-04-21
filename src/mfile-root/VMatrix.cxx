@@ -84,7 +84,7 @@ TH1 *VMatrix::Cut(const char *histname, const char *histtitle)
           throw MFileReadException();
 
         for(c=0; c<cols; c++) {
-          /* Bad for speed; overloaded operator[] checks array bounds */
+          // Bad for speed; overloaded operator[] checks array bounds
           sum[c] += buf[c];
         }
       
@@ -102,7 +102,7 @@ TH1 *VMatrix::Cut(const char *histname, const char *histtitle)
           throw MFileReadException();
 
         for(c=0; c<cols; c++) {
-          /* Bad for speed; overloaded operator[] checks array bounds */
+          // Bad for speed; overloaded operator[] checks array bounds
           bg[c] += buf[c];
         }
       

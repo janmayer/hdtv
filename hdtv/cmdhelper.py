@@ -19,26 +19,34 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-def ParseRange(strings, special=["all", "none"]):
+def ParseRange(strings, special=["ALL", "NONE"]):
 	"""
-	Parse a list of strings specifying (possibly many) ranges and
-	return all values from all ranges. Ranges are inclusive. Each
-	value is returned at most once, but it is no error if it occurs
-	more than once. If ["all"] or ["none"] are passed, "ALL" or "NONE"
-	are returned. Further such keywords may be defined using the
-	optional special parameter. If the string is malformed, a
-	ValueError exception is raised.
+	Parse a string or a list of strings specifying (possibly many)
+	ranges and return all values from all ranges. Ranges are inclusive.
+	Each value is returned at most once, but it is no error if it occurs
+	more than once. Within strings, space and comma (,) are accepted as
+	separators. If one of the values from the special array is
+	passed, it is returned (in uppercase); matching is case-insensitive.
+    If the string is malformed, a ValueError exception is raised.
 	
-	Example: "1 3 2-5 10 12" gives set([1 2 3 4 5 10 12]).
+	Example: "1 3 2-5, 10,12" gives set([1 2 3 4 5 10 12]).
 	"""
-	# Test for special strings
-	if len(strings) == 1:
-		if strings[0].strip().lower() in special:
-			return strings[0].strip().upper()
+	# Normalize separators
+	if not isinstance(strings, str):
+		strings = ",".join(strings)
+	strings = ",".join(strings.split())
+	
+	# Split string
+	parts = [p for p in strings.split(",") if p]
+	
+	# Test for special strings (case-insensitive)
+	special = [s.upper() for s in special]
+	if len(parts) == 1 and parts[0].upper() in special:
+		return parts[0].upper()
 	
 	# Parse ranges
 	values = set()
-	for part in strings:
+	for part in parts:
 		r = part.split("-")
 		if len(r) == 1:
 			values.add(int(r[0]))

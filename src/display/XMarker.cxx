@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ *  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
  *
  * This file is part of HDTV.
  *
@@ -29,7 +29,9 @@ XMarker::XMarker(int n, double p1, double p2, int col)
    : Marker(n, p1, p2, col),
      fCal1(),
      fCal2()
-{ }
+{
+  fConnectTop = true;
+}
 
 } // end namespace Display
 } // end namespace HDTV
