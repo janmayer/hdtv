@@ -178,7 +178,17 @@ class DrawableCompound(UserDict.DictMixin):
 
 	def keys(self):
 		return self.objects.keys()
-
+		
+		
+	def Index(self, obj):
+		"""
+		Return index such that self.objects[index] == obj
+		"""
+		index = [k for (k,v) in self.objects.iteritems() if v == obj]
+		if len(index) == 0:
+			raise ValueError, "Object not found in this collection"
+		else:
+			return index[0]
 
 	def Add(self, obj):
 		"""

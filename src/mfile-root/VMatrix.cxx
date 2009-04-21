@@ -114,11 +114,11 @@ TH1 *VMatrix::Cut(const char *histname, const char *histtitle)
     return NULL;
   }
   
-  double bgFac = (double) nBg / nCut;
+  double bgFac = (double) nCut / nBg;
   TH1D *hist = new TH1D(histname, histtitle, cols, -0.5, (double) cols - 0.5);
   for(c=0; c<cols; c++) {
     hist->SetBinContent(c+1, sum[c] - bg[c] * bgFac);
   }
   
-  return hist; 
+  return hist;
 }

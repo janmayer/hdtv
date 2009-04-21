@@ -4,6 +4,7 @@
 #include "MFileHist.h"
 #include <list>
 #include <TH1.h>
+#include <cmath>
 
 class VMatrix {
   public:
@@ -12,7 +13,9 @@ class VMatrix {
     inline void AddCutRegion(int c1, int c2) { AddRegion(fCutRegions, c1, c2); }
     inline void AddBgRegion(int c1, int c2) { AddRegion(fBgRegions, c1, c2); }
     void ResetRegions() { fCutRegions.clear(); fBgRegions.clear(); }
-  
+    inline int Ch2Bin(double ch)  // convert channel to bin number
+      { return (int) ceil(ch - 0.5); }
+
     TH1 *Cut(const char *histname, const char *histtitle);
   
   private:

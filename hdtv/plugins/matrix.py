@@ -41,6 +41,8 @@ class CutSpectrum(hdtv.spectrum.Spectrum):
 class Matrix(hdtv.spectrum.Spectrum):
 	def __init__(self, fname, fmt=None, color=None, cal=None):
 		self.fname = fname
+		self.cuts = []
+		self.cutRegions = []
 	
 		hdtv.dlmgr.LoadLibrary("mfile-root")
 		self.mhist = ROOT.MFileHist()
@@ -73,23 +75,35 @@ class Matrix(hdtv.spectrum.Spectrum):
 		ROOT.SetOwnership(self.mhist, True)
 		self.mhist = None
 		
-	def Round(self, x):
-		return int(math.ceil(x - 0.5))
+	def E2Bin(self, e):
+		if self.cal:
+			ch = self.cal.E2Ch(e)
+		else:
+			ch = e
+
+		return self.vmat.Ch2Bin(ch)
 		
-	def AddCutRegion(self, c1, c2):
-		self.vmat.AddCutRegion(self.Round(c1), self.Round(c2))
+	def AddCutRegion(self, e1, e2):
+		b1 = self.E2Bin(e1)
+		b2 = self.E2Bin(e2)
+		self.cutRegions.append((b1, b2))
+		self.vmat.AddCutRegion(b1, b2)
 		
-	def AddBgRegion(self, c1, c2):
-		self.vmat.AddBgRegion(self.Round(c1), self.Round(c2))
+	def AddBgRegion(self, e1, e2):
+		self.vmat.AddBgRegion(self.E2Bin(e1), self.E2Bin(e2))
 		
 	def ResetRegions(self):
 		self.vmat.ResetRegions()
+		self.cutRegions = []
 		
 	def Cut(self):
-		title = self.fname + "_cut"
+		title = self.fname
+		for (b1,b2) in self.cutRegions:
+			title += "_c%d-%d" % (b1, b2)
+				
 		hist = self.vmat.Cut(title, title)
-		self.cut = CutSpectrum(hist, self)
-		return self.cut
+		self.cuts.append(CutSpectrum(hist, self, cal=self.cal))
+		return self.cuts[-1]
 
 class MatrixInterface:
 	def __init__(self, window, spectra):
@@ -106,12 +120,41 @@ class MatrixInterface:
 		self.window.AddHotkey(ROOT.kKey_c, self.HotkeyCutMarker)
 		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_C], self.HotkeyClearCutMarkers)
 		self.window.AddHotkey(ROOT.kKey_C, self.HotkeyCreateCut)
+		self.window.AddHotkey(ROOT.kKey_Tab, self.HotkeySwitch)
 	
 		# Register commands
 		hdtv.cmdline.AddCommand("matrix open", self.MatrixOpen, nargs=1,
 		                        usage="%prog <filename>", fileargs=True)
 
 		print "Loaded user interface for working with matrices (2d histograms)"
+		
+	def HotkeySwitch(self):
+		"""
+		Switch between a cut and the corresponding full projection, or the
+		full projection and the most recent cut
+		"""
+		spec = self.spectra.GetActiveObject()
+		if isinstance(spec, Matrix):
+			try:
+				target = spec.cuts[-1]
+			except IndexError:
+				return
+		elif isinstance(spec, CutSpectrum):
+			target = spec.matrix
+		else:
+			return
+			
+		try:
+			targetID = self.spectra.Index(target)
+		except ValueError:
+			return
+		
+		self.window.viewport.LockUpdate()
+		self.spectra.HideObjects([self.spectra.activeID])
+		self.spectra.ShowObjects([targetID])
+		self.spectra.ActivateObject(targetID)
+		self.window.viewport.UnlockUpdate()
+		
 		
 	def HotkeyCutMarker(self):
 		"""
@@ -131,9 +174,16 @@ class MatrixInterface:
 			return
 			
 		matrix = self.spectra.GetActiveObject()
-		if not isinstance(matrix, Matrix):
+		if isinstance(matrix, CutSpectrum):
+			matrix = matrix.matrix
+		elif not isinstance(matrix, Matrix):
 			return
 			
+		self.window.viewport.LockUpdate()
+		
+		# Hide the current spectrum
+		self.spectra.HideObjects([self.spectra.activeID])
+		
 		matrix.ResetRegions()
 		
 		for region in self.CutRegionMarkers:
@@ -145,7 +195,13 @@ class MatrixInterface:
 		cut = matrix.Cut()
 		cutid = self.spectra.Add(cut)
 		cut.SetColor(hdtv.color.ColorForID(cutid))
-			
+		self.spectra.ActivateObject(cutid)
+		
+		# Remove cut markers
+		self.CutRegionMarkers.Clear()
+		self.CutBgMarkers.Clear()
+		
+		self.window.viewport.UnlockUpdate()
 		
 	def HotkeyClearCutMarkers(self):
 		self.window.viewport.LockUpdate()
