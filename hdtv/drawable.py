@@ -187,8 +187,10 @@ class DrawableCompound(UserDict.DictMixin):
 		ID = self.GetFreeID()
 		self[ID] = obj
 		if self.viewport:
+			obj.SetColor(active=False)
 			obj.Draw(self.viewport)
 			self.visible.add(ID)
+		
 		return ID
 
 

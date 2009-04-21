@@ -81,6 +81,7 @@ class Fitter:
 		if type(model) == str:
 			model = gPeakModels[model]
 		self.peakModel = model()
+		self.peakFitter = None
 		
 	
 	def Copy(self):
