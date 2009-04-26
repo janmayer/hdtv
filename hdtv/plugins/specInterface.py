@@ -144,6 +144,8 @@ class SpecInterface:
 			elif ID != None and len(files) > 1:
 				print "Error: pattern %s is ambiguous and you specified an ID" % fpat
 				break
+				
+			files.sort()
 			
 			for fname in files:
 				try:
