@@ -594,19 +594,12 @@ class CommandLine:
 					#  We set the python mode accordingly.
 					self.fPyMore = py_console.push(cmd)
 				elif cmd_type == "CMDFILE":
-					## TODO: Where is pycmd defined?
-					# if I don't define it here I get "NameError: global name 'pycmd' is not defined"
-					# on KeyboardInterrupt during CMDFILE execution.
-					pycmd = False
 					self.ExecCmdfile(cmd)
 				elif cmd_type == "SHELL":
 					self.ExecShell(cmd)
 					
 			except KeyboardInterrupt:
 				print "Aborted"
-				if pycmd:
-					py_console.resetbuffer()
-					self.fPyMore = False
 			except HDTVCommandError, msg:
 				print "Error: %s" % msg
 			except SystemExit:
