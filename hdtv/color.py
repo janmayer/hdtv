@@ -26,11 +26,11 @@ import colorsys
 
 
 # some default colors 
-default= 2
-zoom = 10
-region = 38
-peak   = 50 
-bg    = 11
+default= ROOT.kRed
+zoom = ROOT.kWhite
+region = ROOT.kBlue - 4
+peak   = ROOT.kViolet - 4
+bg    = ROOT.kGreen -4
 cut   = ROOT.kYellow - 4
 
 activeSatur = 1.0
