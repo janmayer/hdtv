@@ -208,6 +208,11 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 		if cmdline.strip() == "":
 			return
 		
+		# Strip comments 
+		cmdline = cmdline.split("#")[0] 
+		if cmdline == "":
+			return
+		
 		path = cmdline.split()
 		(node, args) = self.FindNode(path)
 		
@@ -488,9 +493,28 @@ class CommandLine:
 			return self.fCompleteOptions[state]
 		else:
 			return None
-			
+
 	def ExecCmdfile(self, fname):
+		"""
+		Execute a command file with hdtv commands (aka batch file)
+		"""
 		print "Execute file: " + fname
+		
+		file = None
+		try:
+			file = open(fname, "r")
+			for line in file:
+				line = line.rstrip('\n')
+				print "file>", line
+				ExecCommand(line)
+		except IOError, msg:
+			print "Error opening file:", msg
+		except: # Let MainLoop handle other exceptions
+			raise
+		finally:
+			if file:
+				file.close()
+			
 		
 	def ExecShell(self, cmd):
 		subprocess.call(cmd, shell=True)
@@ -576,9 +600,6 @@ class CommandLine:
 					
 			except KeyboardInterrupt:
 				print "Aborted"
-				if pycmd:
-					py_console.resetbuffer()
-					self.fPyMore = False
 			except HDTVCommandError, msg:
 				print "Error: %s" % msg
 			except SystemExit:

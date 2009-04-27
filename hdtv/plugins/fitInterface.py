@@ -609,7 +609,7 @@ class TvFitInterface:
 
 	def FitActivate(self, args):
 		"""
-		Activate one spectra
+		Activate one spectrum
 		"""
 		try:
 			ID = hdtv.cmdhelper.ParseRange(args)
@@ -674,7 +674,7 @@ class TvFitInterface:
 
 	def CalPosAssign(self, args):
 		""" 
-		Calibrate the active spectrum by asigning energies to fitted peaks
+		Calibrate the active spectrum by assigning energies to fitted peaks
 
 		Peaks are specified by their id and the peak number within the peak.
 		Syntax: id.number
