@@ -26,6 +26,7 @@ import hdtv.cmdline
 import hdtv.tabformat
 import hdtv.spectrum
 import fnmatch
+import readline
 
 class RootFile:
 	def __init__(self, window, spectra, caldict):
@@ -40,7 +41,11 @@ class RootFile:
 		hdtv.cmdline.AddCommand("root browse", self.RootBrowse, nargs=0)
 		hdtv.cmdline.AddCommand("root ls", self.RootLs, maxargs=1)
 		hdtv.cmdline.AddCommand("root ll", self.RootLL, maxargs=1, level=2)
-		hdtv.cmdline.AddCommand("root cd", self.RootCd, nargs=1, fileargs=True)
+		hdtv.cmdline.AddCommand("root open", self.RootOpen, nargs=1, fileargs=True)
+		hdtv.cmdline.AddCommand("root close", self.RootClose, nargs=0)
+		hdtv.cmdline.AddCommand("root cd", self.RootCd, nargs=1,
+		                        completer=self.RootCd_Completer)
+		hdtv.cmdline.AddCommand("root pwd", self.RootPwd, nargs=0)
 
 		parser = hdtv.cmdline.HDTVOptionParser(prog="root get", usage="%prog [OPTIONS] <pattern>")
 		parser.add_option("-r", "--replace", action="store_true",
@@ -63,11 +68,10 @@ class RootFile:
 			self.rootfile.Browse(self.browser)
 
 	def RootLs(self, args):
-		if self.rootfile == None or self.rootfile.IsZombie():
-			print "Error: no root file"
+		keys = ROOT.gDirectory.GetListOfKeys()
+		if not keys:
 			return
 		
-		keys = self.rootfile.GetListOfKeys()
 		names = [k.GetName() for k in keys]
 	
 		if len(args) > 0:
@@ -77,17 +81,20 @@ class RootFile:
 		hdtv.tabformat.tabformat(names)
 	
 	def RootLL(self, args):
-		if self.rootfile == None or self.rootfile.IsZombie():
-			print "Error: no root file"
-			return
-			
 		if len(args) == 0:
-			self.rootfile.ls()
+			ROOT.gDirectory.ls()
 		else:
-			self.rootfile.ls(args[0])
+			ROOT.gDirectory.ls(args[0])
 			
 	def RootCd(self, args):
+		ROOT.gDirectory.cd(args[0])
+		
+	def RootPwd(self, args):
+		ROOT.gDirectory.pwd()
+			
+	def RootOpen(self, args):
 		if self.rootfile != None:
+			print "Info: closing old root file %s" % self.rootfile.GetName()
 			self.rootfile.Close()
 		
 		self.rootfile = ROOT.TFile(args[0])
@@ -97,28 +104,67 @@ class RootFile:
 			
 		hdtv.cmdline.RegisterInteractive("gRootFile", self.rootfile)
 		
-	def RootGet_Completer(self, text):
-		if self.rootfile == None or self.rootfile.IsZombie():
-			# Autocompleter must not complain...
-			return
+	def RootClose(self, args):
+		if self.rootfile == None:
+			print "Info: no root file open, no action taken"
+		else:
+			self.rootfile.Close()
+			self.rootfile = None
 			
-		keys = self.rootfile.GetListOfKeys()
-		names = [k.GetName() for k in keys]
-	
-		options = []
+	def RootGet_Completer(self, text):
+		return self.Completer(text, dirs_only=False)
+		
+	def RootCd_Completer(self, text):
+		return self.Completer(text, dirs_only=True)
+		
+	def GetObjCompleteOptions(self, directory, text, dirs_only=False):
+		"""
+		Returns a list of objects whose names begin with text in the given
+		directory. If directory is "" or ".", it is taken to be the current
+		directory.
+		"""
+		if directory == "" or directory == ".":
+			dirobj = ROOT.gDirectory
+		else:
+			dirobj = ROOT.gDirectory.Get(directory)
+		
+		if dirobj == None:
+			# Autocompleter must not complain...
+			return []
+		
+		keys = dirobj.GetListOfKeys()
+		if keys == None:
+			return []
+			
 		l = len(text)
-		for name in names:
+		options = []
+		for k in keys:
+			name = k.GetName()
 			if name[0:l] == text:
-				options.append(name)
-				
+				if k.GetClassName() == "TDirectoryFile":
+					options.append(name + "/")
+				elif not dirs_only:
+					options.append(name + " ")
+		
 		return options
 		
+	def Completer(self, text, dirs_only):
+		buf = readline.get_line_buffer()
+		if buf == "":
+			# This should not happen...
+			return []
+		if buf[-1] == " ":
+			return self.GetObjCompleteOptions(".", text, dirs_only)
+		else:
+			path = buf.rsplit(None, 1)[-1]
+			dirs = path.rsplit("/", 1)
+			if len(dirs) == 1:
+				return self.GetObjCompleteOptions(".", text, dirs_only)
+			else:
+				return self.GetObjCompleteOptions(dirs[0], text, dirs_only)
+		
 	def RootMatrix(self, args):
-		if self.rootfile == None or self.rootfile.IsZombie():
-			print "Error: no root file"
-			return
-			
-		hist = self.rootfile.Get(args[0])
+		hist = ROOT.gDirectory.Get(args[0])
 		if hist == None or not isinstance(hist, ROOT.TH2):
 			print "Error: %s is not a 2d histogram" % args[0]
 		
@@ -127,15 +173,11 @@ class RootFile:
 		self.matviews.append(viewer)
 	
 	def RootGet(self, args, options):
-		if self.rootfile == None or self.rootfile.IsZombie():
-			print "Error: no root file"
-			return
-			
 		if options.replace:
 			self.spectra.RemoveAll()
 			
 		nloaded = 0
-		keys = self.rootfile.GetListOfKeys()
+		keys = ROOT.gDirectory.GetListOfKeys()
 		self.window.viewport.LockUpdate()
 		for key in keys:
 			if fnmatch.fnmatch(key.GetName(), args[0]):
