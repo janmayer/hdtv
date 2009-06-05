@@ -346,7 +346,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 		# take files or directories as arguments.
 		elif ("fileargs" in node.options and node.options["fileargs"]) or \
 		     ("dirargs" in node.options and node.options["dirargs"]):
-			if "dirargs" in node.options:
+			if "dirargs" in node.options and node.options["dirargs"]:
 				dirs_only = True
 			else:
 				dirs_only = False
