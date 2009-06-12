@@ -205,10 +205,16 @@ class RootFile:
 		print "%d spectra loaded" % nloaded
 		
 		self.window.viewport.UnlockUpdate()
+		
+	def Draw(self, hist):
+		spec = hdtv.spectrum.Spectrum(hist)
+		ID = self.spectra.Add(spec)
+		spec.SetColor(hdtv.color.ColorForID(ID))
+		self.spectra.ActivateObject(ID)
 
 
 # plugin initialisation
 import __main__
 import specInterface 
 r = RootFile(__main__.window, __main__.spectra, __main__.s.caldict)
-
+__main__.Draw = r.Draw
