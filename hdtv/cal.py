@@ -216,3 +216,21 @@ def CalFromFile(fname):
 	f.close()
 	return MakeCalibration(calpoly)
 
+def CalFromPairs(pairs, degree=1, table=False, fit=False, residual=False):
+	"""
+	Create calibration from pairs of channel and energy
+	"""
+	fitter = CalibrationFitter()			
+	for p in pairs:
+		fitter.AddPair(p[0], p[1])
+	fitter.FitCal(degree)
+	print fitter.ResultStr()
+	if table:
+		print ""
+		print fitter.ResultTable()
+	if fit:
+		fitter.DrawCalFit()
+	if residual:
+		fitter.DrawCalResidual()
+	return fitter.calib
+

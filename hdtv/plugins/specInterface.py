@@ -220,7 +220,18 @@ class SpecInterface:
 					spec.SetCal(self.caldict[name])
  		f.close()
 		return True
-
+	
+	def ApplyCalibration(self, cal, ids):
+		"""
+		Apply calibration cal to spectra with ids
+		"""
+		for ID in ids:
+			try:
+				self.spectra[ID].SetCal(cal)
+				print "calibrated spectrum with id %d" %ID
+			except KeyError:
+				print "Warning: there is no spectrum with id: %s" %ID
+		self.window.Expand()
 
 class TvSpecInterface:
 	"""
@@ -451,18 +462,6 @@ to only fit the calibration.""",
 			ids = self.spectra.keys()
 		return ids
 			
-	def ApplyCalibration(self, cal, ids):
-		"""
-		Apply calibration cal to spectra with ids
-		"""
-		for ID in ids:
-			try:
-				self.spectra[ID].SetCal(cal)
-				print "calibrated spectrum with id %d" %ID
-			except KeyError:
-				print "Warning: there is no spectrum with id: %s" %ID
-			self.specIf.window.Expand()
-			
 	def CalPosRead(self, args, options):
 		"""
 		Read calibration from file
@@ -478,7 +477,7 @@ to only fit the calibration.""",
 		except ValueError:
 			return "USAGE"
 		else:
-			self.ApplyCalibration(cal, ids)		
+			self.specIf.ApplyCalibration(cal, ids)		
 			return True
 			
 		
@@ -490,39 +489,21 @@ to only fit the calibration.""",
 			if len(args) % 2 != 0:
 				print "Error: number of parameters must be even"
 				return "USAGE"
-				
+			pairs = [[float(args[p]),float(args[p+1])] for p in range(0,len(args),2)]
 			ids = self.ParseIDs(options.spec)
 			if ids == False:
 				return
-			
 			degree = int(options.degree)
 		except ValueError:
 			return "USAGE"
-						
 		try:
-			fitter = hdtv.cal.CalibrationFitter()			
-			for p in range(0, len(args), 2):
-				fitter.AddPair(float(args[p]), float(args[p+1]))
-				
-			fitter.FitCal(degree)
-				
-			print fitter.ResultStr()
-			if options.show_table:
-				print ""
-				print fitter.ResultTable()
-				
-			if options.show_fit:
-				fitter.DrawCalFit()
-				
-			if options.show_residual:
-				fitter.DrawCalResidual()
-			
+			cal = hdtv.cal.CalFromPairs(pairs, degree, options.show_table, 
+										options.show_fit, options.show_residual)
 		except (ValueError, RuntimeError), msg:
 			print "Error: " + str(msg)
 			return False
-		
 		else:
-			self.ApplyCalibration(fitter.calib, ids)			
+			self.specIf.ApplyCalibration(cal, ids)			
 			return True
 
 
@@ -540,7 +521,7 @@ to only fit the calibration.""",
 		except ValueError:
 			return "USAGE"
 		else:
-			self.ApplyCalibration(cal, ids)
+			self.specIf.ApplyCalibration(cal, ids)
 			return True
 	
 		

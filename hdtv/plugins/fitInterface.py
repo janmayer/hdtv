@@ -475,7 +475,22 @@ class TvFitInterface:
 		hdtv.cmdline.AddCommand("fit function peak activate", self.FitSetPeakModel,
 								completer=self.PeakModelCompleter, nargs=1)
 		
-		hdtv.cmdline.AddCommand("calibration position assign", self.CalPosAssign, minargs=2)
+		# calibration command
+		parser = hdtv.cmdline.HDTVOptionParser(prog="calibration position assign",
+		             description=
+"""Calibrate the active spectrum by asigning energies to fitted peaks, peaks are specified by their index and the peak number within the peak (if number is ommitted the first (and only?) peak is taken).""",
+		             usage="%prog [OPTIONS] <id0> <E0> [<od1> <E1> ...]")
+		parser.add_option("-s", "--spec", action="store",
+                          default="all", help="spectrum ids to apply calibration to")
+		parser.add_option("-d", "--degree", action="store",
+		                  default="1", help="degree of calibration polynomial fitted [default: %default]")
+		parser.add_option("-f", "--show-fit", action="store_true",
+		                  default=False, help="show fit used to obtain calibration")
+		parser.add_option("-r", "--show-residual", action="store_true",
+		                  default=False, help="show residual of calibration fit")
+		parser.add_option("-t", "--show-table", action="store_true",
+		                  default=False, help="print table of energies given and energies obtained from fit")
+		hdtv.cmdline.AddCommand("calibration position assign", self.CalPosAssign, minargs=2, parser=parser)
 	
 	
 	def RegisterFitParameter(self, fitter):
@@ -671,8 +686,24 @@ class TvFitInterface:
 		return hdtv.util.GetCompleteOptions(text, hdtv.fitter.gPeakModels.iterkeys())
 			
 
+	def ParseIDs(self, strings):
+		# Parse IDs
+		# Raises a ValueError if parsing fails
+		ids = hdtv.cmdhelper.ParseRange(strings, ["ALL", "NONE", "ACTIVE"])
+		if ids=="NONE":
+			return []
+		elif ids=="ACTIVE":
+			if self.spectra.activeID==None:
+				print "Error: no active spectrum"
+				return False
+			else:
+				ids = [self.spectra.activeID]
+		elif ids=="ALL":
+			ids = self.spectra.keys()
+		return ids
 
-	def CalPosAssign(self, args):
+
+	def CalPosAssign(self, args, options):
 		""" 
 		Calibrate the active spectrum by assigning energies to fitted peaks
 
@@ -683,34 +714,49 @@ class TvFitInterface:
 		if self.spectra.activeID == None:
 			print "Warning: No active spectrum, no action taken."
 			return False
-		spec = self.spectra[self.spectra.activeID]
+		spec = self.spectra[self.spectra.activeID]	
 		try:
-			if len(args)%2 !=0:
-				raise ValueError
-			channels = []
-			energies = []
+			if len(args) % 2 != 0:
+				print "Error: number of parameters must be even"
+				return "USAGE"
+			ids = self.ParseIDs(options.spec)
+			if ids == False:
+				return
+			degree = int(options.degree)
+		except ValueError:
+			return "USAGE"
+		try:
+			channels = list()
+			energies = list()
 			while len(args)>0:
+				# parse fit ids 
 				fitID = args.pop(0).split('.')
 				if len(fitID)>2:
 					raise ValueError
 				elif len(fitID)==2:
 					channel = spec[int(fitID[0])].peakMarkers[int(fitID[1])].p1
 				else:
-					channel = spec[int(fitID[0])].peakMarkers[0].p1				 	
+					channel = spec[int(fitID[0])].peakMarkers[0].p1
+				channel = spec.cal.E2Ch(channel)
 				channels.append(channel)
+				# parse energy
 				energies.append(float(args.pop(0)))
 			pairs = zip(channels, energies)
-			cal = hdtv.cal.CalFromPairs(pairs)
-		except (ValueError, KeyError):
-			print "Usage: calibration position set <f1>[.?] <e1> <f2>[.?] <e2> "
+			cal = hdtv.cal.CalFromPairs(pairs, degree, options.show_table, 
+										options.show_fit, options.show_residual)
+		except (ValueError, RuntimeError), msg:
+			print "Error: " + str(msg)
 			return False
 		else:
-			pairs = zip(channels, energies)
-			cal = hdtv.cal.CalFromPairs(pairs)
-			spec.SetCal(cal)
-			self.fitIf.window.Expand()
+			for ID in ids:
+				try:
+					self.spectra[ID].SetCal(cal)
+					print "calibrated spectrum with id %d" %ID
+				except KeyError:
+					print "Warning: there is no spectrum with id: %s" %ID
+			self.fitIf.window.Expand()		
 			return True
-		
+
 
 # plugin initialisation
 import __main__
