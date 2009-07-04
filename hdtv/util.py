@@ -46,81 +46,93 @@ class ErrValue:
 		return cmp(self.value, other.value)
 		
 	def fmt(self):
-		# Check and store sign
-		if self.value < 0:
-			sgn = "-"
-			value = -self.value
-		else:
-			sgn = ""
-			value = self.value
-			
-		# Errors are always positive
-		error = abs(self.error)
 	
-		# Check whether to switch to scientific notation
-		# Catch the case where value is zero
 		try:
-			log10_val = math.floor(math.log(value) / math.log(10.))
-		except (ValueError, OverflowError):
-			log10_val = 0.
-		
-		if log10_val >= 6 or log10_val <= -2:
-			# Use scientific notation
-			suffix = "e%d" % int(log10_val)
-			exp = 10**log10_val
-			value /= exp
-			error /= exp
-		else:
-			# Use normal notation
-			suffix = ""
-			
-		# Find precision (number of digits after decimal point) needed such that the
-		# error is given to at least two decimal places
-		if error >= 10.:
-			prec = 0
-		else:
-			# Catch the case where error is zero
-			try:
-				prec = -math.floor(math.log(error) / math.log(10.)) + 1
-			except (ValueError, OverflowError):
-				prec = 6
+			# Call fmt_no_error() for values without error
+			if self.error == None:
+				return self.fmt_no_error()
+
+			# Check and store sign
+			if self.value < 0:
+				sgn = "-"
+				value = -self.value
+			else:
+				sgn = ""
+				value = self.value
 				
-		# Limit precision to sensible values, and capture NaN
-		#  (Note that NaN is by definition unequal to itself)
-		if prec > 20:
-			prec = 20
-		elif prec != prec:
-			prec = 3
-			
-		# Make sure error is always rounded up
-		return "%s%.*f(%.0f)%s" % (sgn, int(prec), value, error*10**prec + 0.5, suffix)
+			# Errors are always positive
+			error = abs(self.error)
+		
+			# Check whether to switch to scientific notation
+			# Catch the case where value is zero
+			try:
+				log10_val = math.floor(math.log(value) / math.log(10.))
+			except (ValueError, OverflowError):
+				log10_val = 0.
+
+			if log10_val >= 6 or log10_val <= -2:
+				# Use scientific notation
+				suffix = "e%d" % int(log10_val)
+				exp = 10**log10_val
+				value /= exp
+				error /= exp
+			else:
+				# Use normal notation
+				suffix = ""
+				
+			# Find precision (number of digits after decimal point) needed such that the
+			# error is given to at least two decimal places
+			if error >= 10.:
+				prec = 0
+			else:
+				# Catch the case where error is zero
+				try:
+					prec = -math.floor(math.log(error) / math.log(10.)) + 1
+				except (ValueError, OverflowError):
+					prec = 6
+					
+			# Limit precision to sensible values, and capture NaN
+			#  (Note that NaN is by definition unequal to itself)
+			if prec > 20:
+				prec = 20
+			elif prec != prec:
+				prec = 3
+				
+			# Make sure error is always rounded up
+			return "%s%.*f(%.0f)%s" % (sgn, int(prec), value, error*10**prec + 0.5, suffix)
+		
+		except (ValueError, TypeError):
+			return ""
 		
 	def fmt_no_error(self, prec=6):
-		# Check and store sign
-		if self.value < 0:
-			sgn = "-"
-			value = -self.value
-		else:
-			sgn = ""
-			value = self.value
-			
-		# Check whether to switch to scientific notation
-		# Catch the case where value is zero
 		try:
-			log10_val = math.floor(math.log(value) / math.log(10.))
-		except (ValueError, OverflowError):
-			log10_val = 0.
-		
-		if log10_val >= 6 or log10_val <= -2:
-			# Use scientific notation
-			suffix = "e%d" % int(log10_val)
-			value /= 10**log10_val
-		else:
-			# Use normal notation
-			suffix = ""
+			# Check and store sign
+			if self.value < 0:
+				sgn = "-"
+				value = -self.value
+			else:
+				sgn = ""
+				value = self.value
+				
+			# Check whether to switch to scientific notation
+			# Catch the case where value is zero
+			try:
+				log10_val = math.floor(math.log(value) / math.log(10.))
+			except (ValueError, OverflowError):
+				log10_val = 0.
 			
-		# Make sure error is always rounded up
-		return "%s%.*f%s" % (sgn, prec, value, suffix)
+			if log10_val >= 6 or log10_val <= -2:
+				# Use scientific notation
+				suffix = "e%d" % int(log10_val)
+				value /= 10**log10_val
+			else:
+				# Use normal notation
+				suffix = ""
+				
+			# Make sure error is always rounded up
+			return "%s%.*f%s" % (sgn, prec, value, suffix)
+		except (ValueError, TypeError):
+			return ""
 
 class Linear:
 	"""
