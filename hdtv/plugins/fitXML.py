@@ -10,7 +10,7 @@ import hdtv.spectrum
 # If it is just a small change or bug fix, change the minor number.
 # There is a script in the test directory, to test reading and writing for 
 # some test cases, please make sure that your changes do not break those test cases
-VERSION="0.1"
+VERSION="0.11"
 
 class FitXml:
 	"""
@@ -48,16 +48,16 @@ class FitXml:
 				# <background>
 				for marker in fit.bgMarkers:
 					markerXML = ET.SubElement(fitXML, "background")
-					# <p1>
-					p1XML = ET.SubElement(markerXML, "p1")
+					# <begin>
+					beginXML = ET.SubElement(markerXML, "begin")
 					# <cal>
-					calXML = ET.SubElement(p1XML, "cal")
+					calXML = ET.SubElement(beginXML, "cal")
 					calXML.text = str(marker.p1)
 					# <uncal>
-					uncalXML = ET.SubElement(p1XML, "uncal")
+					uncalXML = ET.SubElement(beginXML, "uncal")
 					uncalXML.text = str(spec.cal.E2Ch(marker.p1))
-					# <p2>
-					p2XML = ET.SubElement(markerXML, "p2")
+					# <end>
+					p2XML = ET.SubElement(markerXML, "end")
 					# <cal>
 					calXML = ET.SubElement(p2XML, "cal")
 					calXML.text = str(marker.p2)
@@ -67,16 +67,16 @@ class FitXml:
 				# <region>
 				for marker in fit.regionMarkers:
 					markerXML = ET.SubElement(fitXML, "region")
-					# <p1>
-					p1XML = ET.SubElement(markerXML, "p1")
+					# <begin>
+					beginXML = ET.SubElement(markerXML, "begin")
 					# <cal>
-					calXML = ET.SubElement(p1XML, "cal")
+					calXML = ET.SubElement(beginXML, "cal")
 					calXML.text = str(marker.p1)
 					# <uncal>
-					uncalXML = ET.SubElement(p1XML, "uncal")
+					uncalXML = ET.SubElement(beginXML, "uncal")
 					uncalXML.text = str(spec.cal.E2Ch(marker.p1))
 					# <p2>
-					p2XML = ET.SubElement(markerXML, "p2")
+					p2XML = ET.SubElement(markerXML, "end")
 					# <cal>
 					calXML = ET.SubElement(p2XML, "cal")
 					calXML.text = str(marker.p2)
@@ -86,13 +86,13 @@ class FitXml:
 				# <peak>
 				for marker in fit.peakMarkers:
 					markerXML = ET.SubElement(fitXML, "peak")
-					# <p1>
-					p1XML = ET.SubElement(markerXML, "p1")
+					# <begin>
+					beginXML = ET.SubElement(markerXML, "position")
 					# <cal>
-					calXML = ET.SubElement(p1XML, "cal")
+					calXML = ET.SubElement(beginXML, "cal")
 					calXML.text = str(marker.p1)
 					# <uncal>
-					uncalXML = ET.SubElement(p1XML, "uncal")
+					uncalXML = ET.SubElement(beginXML, "uncal")
 					uncalXML.text = str(spec.cal.E2Ch(marker.p1))
 				# <result>
 				for result in fit.fitter.GetResults():
@@ -189,20 +189,41 @@ class FitXml:
 				fit = hdtv.fit.Fit(fitter, spec.color, spec.cal)
 				# <background>
 				for bgXML in fitXML.findall("background"):
-					p1 = float(bgXML.find("p1").find("uncal").text)
-					fit.PutBgMarker(fit.cal.Ch2E(p1))
-					p2 = float(bgXML.find("p2").find("uncal").text)
-					fit.PutBgMarker(fit.cal.Ch2E(p2))
+					# Read begin/p1 marker
+					beginElement = bgXML.find("begin");
+					if beginElement == None: # Maybe old XML (ver 0.1)
+						beginElement = bgXML.find("p1")
+					begin = float(beginElement.find("uncal").text)
+					fit.PutBgMarker(fit.cal.Ch2E(begin))
+					# Read end/p2 marker
+					endElement = bgXML.find("end");
+					if endElement == None: # Maybe old XML (ver 0.1)
+						endElement = bgXML.find("p2")
+					end = float(endElement.find("uncal").text)
+					fit.PutBgMarker(fit.cal.Ch2E(end))
 				# <region>
 				for regionXML in fitXML.findall("region"):
-					p1 = float(regionXML.find("p1").find("uncal").text)
-					fit.PutRegionMarker(fit.cal.Ch2E(p1))
-					p2 = float(regionXML.find("p2").find("uncal").text)
-					fit.PutRegionMarker(fit.cal.Ch2E(p2))
+					# Read begin/p1 marker
+					beginElement = regionXML.find("begin");
+					if beginElement == None: # Maybe old XML (ver 0.1)
+						beginElement = regionXML.find("p1")
+					begin = float(beginElement.find("uncal").text)
+					fit.PutRegionMarker(fit.cal.Ch2E(begin))
+					
+					# Read end/p2 marker
+					endElement = regionXML.find("end");
+					if endElement == None: # Maybe old XML (ver 0.1)
+						endElement = regionXML.find("p2")
+					end = float(endElement.find("uncal").text)
+					fit.PutRegionMarker(fit.cal.Ch2E(end))
 				# <peak>
 				for peakXML in fitXML.findall("peak"):
-					p1 = float(peakXML.find("p1").find("uncal").text)
-					fit.PutPeakMarker(fit.cal.Ch2E(p1))
+					# Read position/p1 marker
+					posElement = peakXML.find("position")
+					if posElement == None:
+						posElement = peakXML.find("p1") 
+					pos = float(posElement.find("uncal").text)
+					fit.PutPeakMarker(fit.cal.Ch2E(pos))
 				spec.Add(fit)
 
 
