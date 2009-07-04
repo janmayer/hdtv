@@ -61,7 +61,7 @@ class ErrValue:
 		# Catch the case where value is zero
 		try:
 			log10_val = math.floor(math.log(value) / math.log(10.))
-		except OverflowError:
+		except (ValueError, OverflowError):
 			log10_val = 0.
 		
 		if log10_val >= 6 or log10_val <= -2:
@@ -82,7 +82,7 @@ class ErrValue:
 			# Catch the case where error is zero
 			try:
 				prec = -math.floor(math.log(error) / math.log(10.)) + 1
-			except OverflowError:
+			except (ValueError, OverflowError):
 				prec = 6
 				
 		# Limit precision to sensible values, and capture NaN
@@ -108,7 +108,7 @@ class ErrValue:
 		# Catch the case where value is zero
 		try:
 			log10_val = math.floor(math.log(value) / math.log(10.))
-		except OverflowError:
+		except (ValueError, OverflowError):
 			log10_val = 0.
 		
 		if log10_val >= 6 or log10_val <= -2:
