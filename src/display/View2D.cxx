@@ -181,14 +181,16 @@ void View2D::ZoomAroundCursor(double f, Bool_t update)
 
 void View2D::ZoomFull(Bool_t update)
 {
-  double xvis = fMatrix->GetXaxis()->GetXmax() - fMatrix->GetXaxis()->GetXmin();
-  double yvis = fMatrix->GetYaxis()->GetXmax() - fMatrix->GetYaxis()->GetXmin();
+  double xmin = fMatrix->GetXaxis()->GetXmin();
+  double ymin = fMatrix->GetYaxis()->GetXmin();
+  double xvis = fMatrix->GetXaxis()->GetXmax() - xmin;
+  double yvis = fMatrix->GetYaxis()->GetXmax() - ymin;
   
   fPainter.SetXVisibleRegion(xvis);
   fPainter.SetYVisibleRegion(yvis);
-    
-  fXTileOffset = fLeftBorder;
-  fYTileOffset = fTopBorder + fVPHeight;
+      
+  fXTileOffset = fLeftBorder - xmin * fPainter.GetXZoom();
+  fYTileOffset = fTopBorder + fVPHeight + ymin * fPainter.GetYZoom();
     
   if(update)
     Update();
@@ -265,9 +267,6 @@ int View2D::GetValueAtPixel(int x, int y)
 {
   double z;
  
-  if(x < 0 || y < 0)
-    return ZCtsToScr(0);
-
   z = fMatrix->GetBinContent(fMatrix->FindBin(XTileToE(x), YTileToE(y)));
   
   if(fLogScale)
