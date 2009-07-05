@@ -237,7 +237,7 @@ class RootFile:
 				
 					nloaded += 1
 				else:
-					print "Warning: %s is not a 1D histogram object" % key.GetName()
+					print "Warning: %s is not a 1D histogram object" % obj.GetName()
 					
 			print "%d spectra loaded" % nloaded
 		finally:
