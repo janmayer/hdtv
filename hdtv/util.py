@@ -41,9 +41,13 @@ class ErrValue:
 
 	def __cmp__(self, other):
 		"""
-		compare by value
+		compare by value, taking errors into account
 		"""
-		return cmp(self.value, other.value)
+		if (self.error != None) and (other.error != None) \
+		  and (abs(self.value - other.value) <= (abs(self.error) + abs(other.error))):
+			return 0
+		else:
+		  return cmp(self.value, other.value)
 		
 	def fmt(self):
 	
