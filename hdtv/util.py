@@ -73,7 +73,7 @@ class ErrValue:
 			if log10_val >= 6 or log10_val <= -2:
 				# Use scientific notation
 				suffix = "e%d" % int(log10_val)
-				exp = 10**log10_val
+				exp = 10 ** log10_val
 				value /= exp
 				error /= exp
 			else:
@@ -99,7 +99,7 @@ class ErrValue:
 				prec = 3
 				
 			# Make sure error is always rounded up
-			return "%s%.*f(%.0f)%s" % (sgn, int(prec), value, error*10**prec + 0.5, suffix)
+			return "%s%.*f(%.0f)%s" % (sgn, int(prec), value, error * 10 ** prec + 0.5, suffix)
 		
 		except (ValueError, TypeError):
 			return ""
@@ -124,7 +124,7 @@ class ErrValue:
 			if log10_val >= 6 or log10_val <= -2:
 				# Use scientific notation
 				suffix = "e%d" % int(log10_val)
-				value /= 10**log10_val
+				value /= 10 ** log10_val
 			else:
 				# Use normal notation
 				suffix = ""
