@@ -43,11 +43,26 @@ class ErrValue:
 		"""
 		compare by value, taking errors into account
 		"""
-		if (self.error != None) and (other.error != None) \
-		  and (abs(self.value - other.value) <= (abs(self.error) + abs(other.error))):
+		# Check given objects
+		val1 = self.value
+		if self.error == None:
+			err1 = 0
+		else:
+			err1 = self.error
+		
+		try:
+			val2 = other.value
+			err2 = (0 if (not other.error) else other.error)
+		except AttributeError: # other is not no instance of ErrValue
+			val2 = other
+			err2 = 0
+		
+		# Do the comparison
+		if (abs(val1 - val2) <= (abs(err1) + abs(err2))):
 			return 0
 		else:
-		  return cmp(self.value, other.value)
+			return cmp(val1, val2)
+		
 		
 	def fmt(self):
 	
