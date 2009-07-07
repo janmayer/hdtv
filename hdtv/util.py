@@ -39,9 +39,9 @@ class ErrValue:
 	def __str__(self):
 		return self.fmt()
 
-	def __cmp__(self, other):
+	def __eq__(self, other):
 		"""
-		compare by value, taking errors into account
+		Test for equality; taking errors into account
 		"""
 		# Check given objects
 		val1 = self.value
@@ -59,9 +59,22 @@ class ErrValue:
 		
 		# Do the comparison
 		if (abs(val1 - val2) <= (abs(err1) + abs(err2))):
-			return 0
+			return True
 		else:
-			return cmp(val1, val2)
+			return False
+		
+	def __cmp__(self, other):
+		"""
+		compare by value
+		"""
+		# Check given objects
+				
+		try:
+			val2 = other.value
+		except AttributeError: # other is not no instance of ErrValue
+			val2 = other
+			
+		return cmp(self.value, val2)
 		
 		
 	def fmt(self):
