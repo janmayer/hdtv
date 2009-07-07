@@ -132,8 +132,7 @@ class ErrValue:
 			elif prec != prec:
 				prec = 3
 				
-			# Make sure error is always rounded up
-			return "%s%.*f(%.0f)%s" % (sgn, int(prec), value, error * 10 ** prec + 0.5, suffix)
+			return "%s%.*f(%.0f)%s" % (sgn, int(prec), value, error * 10 ** prec, suffix)
 		
 		except (ValueError, TypeError):
 			return ""
@@ -163,7 +162,6 @@ class ErrValue:
 				# Use normal notation
 				suffix = ""
 				
-			# Make sure error is always rounded up
 			return "%s%.*f%s" % (sgn, prec, value, suffix)
 		except (ValueError, TypeError):
 			return ""
