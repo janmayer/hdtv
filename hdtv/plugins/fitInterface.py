@@ -439,7 +439,7 @@ class FitInterface:
 				                           fitter.bgFitter.GetCoeffError(i))
 				text += "bg[%d]: %s   " % (i, value.fmt())
 			text += "\n\n"
-		i = 1
+		i = 0
 		if fitter.peakFitter:
 			text += "Peak fit: chi^2 = %.2f\n" % fitter.peakFitter.GetChisquare()
 			for peak in fitter.GetResults():

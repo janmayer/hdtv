@@ -55,7 +55,7 @@ class Fit(Drawable):
 		self.dispFuncs = []
 		
 	def __str__(self):
-		i=1
+		i=0
 		text = str()
 		for peak in self.fitter.GetResults():
 			text += ("\nPeak %d:" %i).ljust(10)
