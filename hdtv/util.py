@@ -44,21 +44,11 @@ class ErrValue:
 		Test for equality; taking errors into account
 		"""
 		# Check given objects
-		val1 = self.value
-		if self.error == None:
-			err1 = 0
-		else:
-			err1 = self.error
-		
-		try:
-			val2 = other.value
-			err2 = (0 if (not other.error) else other.error)
-		except AttributeError: # other is not no instance of ErrValue
-			val2 = other
-			err2 = 0
+		val1 = self._sanitize(self)
+		val2 = self._sanitize(other)
 		
 		# Do the comparison
-		if (abs(val1 - val2) <= (abs(err1) + abs(err2))):
+		if (abs(val1.value - val2.value) <= (abs(val1.error) + abs(val2.error))):
 			return True
 		else:
 			return False
@@ -68,14 +58,26 @@ class ErrValue:
 		compare by value
 		"""
 		# Check given objects
-				
-		try:
-			val2 = other.value
-		except AttributeError: # other is not no instance of ErrValue
-			val2 = other
-			
-		return cmp(self.value, val2)
 		
+		otherval = self._sanitize(other)
+		
+		return cmp(self.value, otherval.value)
+		
+	def _sanitize(self, val):
+		"""
+		* Convert floats to ErrValue with error=0, if necessary
+		* Return .error=0 for .error==None values to be able to do calculations
+		"""
+		ret = ErrValue(0, 0)
+		
+		try:
+			ret.value = val.value
+			ret.error = abs(val.error)
+		except AttributeError:
+			ret.value = val
+			ret.error = 0
+			
+		return ret
 		
 	def fmt(self):
 	
