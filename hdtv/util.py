@@ -61,7 +61,7 @@ class ErrValue:
 		# Catch the case where value is zero
 		try:
 			log10_val = math.floor(math.log(value) / math.log(10.))
-		except OverflowError:
+		except (OverflowError,ValueError):
 			log10_val = 0.
 		
 		if log10_val >= 6 or log10_val <= -2:
