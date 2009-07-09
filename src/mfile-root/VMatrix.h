@@ -28,24 +28,108 @@
 #include <TH1.h>
 #include <cmath>
 
+// VMatrix and RMatrix should be moved to a different module, as they are not
+// related to MFile...
+
+/*
+  Cut  ^
+  Axis |
+       |
+       |+++++++++++++++++++
+       |+++++++++++++++++++
+       |+++++++++++++++++++
+       |    |    |    |
+       |    |    |    |
+       |    v    v    v
+       +------------------->
+               Projection axis
+*/
+  
+  
 class VMatrix {
   public:
-    VMatrix(MFileHist *hist, int level);
+    VMatrix() : fFail(false) { };
   
     inline void AddCutRegion(int c1, int c2) { AddRegion(fCutRegions, c1, c2); }
     inline void AddBgRegion(int c1, int c2) { AddRegion(fBgRegions, c1, c2); }
     void ResetRegions() { fCutRegions.clear(); fBgRegions.clear(); }
-    inline int Ch2Bin(double ch)  // convert channel to bin number
-      { return (int) ceil(ch - 0.5); }
-
+    
     TH1 *Cut(const char *histname, const char *histtitle);
+    
+    // Cut axis info
+    virtual int FindCutBin(double x) = 0;
+    virtual int GetCutLowBin() = 0;
+    virtual int GetCutHighBin() = 0;
+    
+    // Projection axis info
+    virtual double GetProjXmin() = 0;
+    virtual double GetProjXmax() = 0;
+    virtual int GetProjXbins() = 0;
+    
+    virtual void AddLine(TArrayD& dst, int l) = 0;
+    
+    inline bool Failed() { return fFail; }
   
   private:
     void AddRegion(std::list<int> &reglist, int c1, int c2);
- 
+    std::list<int> fCutRegions, fBgRegions;
+    
+  protected:
+    bool fFail;
+};
+
+// Projection
+class RMatrix: public VMatrix {
+  public:
+    enum ProjAxis_t { PROJ_X, PROJ_Y };
+  
+    RMatrix(TH2* hist, ProjAxis_t paxis);
+        
+    virtual int FindCutBin(double x)
+       { TAxis *a = (fProjAxis == PROJ_X) ? fHist->GetYaxis() : fHist->GetXaxis();
+         return a->FindBin(x); }
+       
+    virtual int GetCutLowBin()  { return 1; }
+    virtual int GetCutHighBin()
+       { return (fProjAxis == PROJ_X) ? fHist->GetNbinsY() : fHist->GetNbinsX(); }
+    
+    virtual double GetProjXmin()
+       { TAxis *a = (fProjAxis == PROJ_X) ? fHist->GetXaxis() : fHist->GetYaxis();
+         return a->GetXmin(); }
+         
+    virtual double GetProjXmax()
+       { TAxis *a = (fProjAxis == PROJ_X) ? fHist->GetXaxis() : fHist->GetYaxis();
+         return a->GetXmax(); }
+         
+    virtual int GetProjXbins()
+       { return (fProjAxis == PROJ_X) ? fHist->GetNbinsX() : fHist->GetNbinsY(); }
+       
+    virtual void AddLine(TArrayD& dst, int l);
+    
+  private:
+    TH2* fHist;
+    ProjAxis_t fProjAxis;
+};
+
+class MFMatrix: public VMatrix {
+  public:
+    MFMatrix(MFileHist *mat, int level);
+    virtual int FindCutBin(double x)  // convert channel to bin number
+      { return (int) ceil(x - 0.5); }
+
+    virtual int GetCutLowBin()   { return 0; }
+    virtual int GetCutHighBin()  { return fMatrix->GetNLines() - 1; }
+    
+    virtual double GetProjXmin() { return -0.5; }
+    virtual double GetProjXmax() { return fMatrix->GetNColumns() - .5; }
+    virtual int GetProjXbins()   { return fMatrix->GetNColumns(); }
+    
+    virtual void AddLine(TArrayD& dst, int l);
+
+  private:
     MFileHist *fMatrix;
     int fLevel;
-    std::list<int> fCutRegions, fBgRegions;
+    TArrayD fBuf;
 };
 
 #endif

@@ -39,11 +39,49 @@ class CutSpectrum(hdtv.spectrum.Spectrum):
 		hdtv.spectrum.Spectrum.__init__(self, hist, color, cal)
 
 class Matrix(hdtv.spectrum.Spectrum):
-	def __init__(self, fname, fmt=None, color=None, cal=None):
-		self.fname = fname
+	def __init__(self, proj, title, color, cal):
 		self.cuts = []
 		self.cutRegions = []
-	
+		self.title = title
+		hdtv.spectrum.Spectrum.__init__(self, proj, color, cal)
+		
+	def E2CutBin(self, e):
+		if self.cal:
+			ch = self.cal.E2Ch(e)
+		else:
+			ch = e
+
+		return self.vmat.FindCutBin(ch)
+		
+	def AddCutRegion(self, e1, e2):
+		b1 = self.E2CutBin(e1)
+		b2 = self.E2CutBin(e2)
+		self.cutRegions.append((b1, b2))
+		self.vmat.AddCutRegion(b1, b2)
+		
+	def AddBgRegion(self, e1, e2):
+		self.vmat.AddBgRegion(self.E2CutBin(e1), self.E2CutBin(e2))
+		
+	def ResetRegions(self):
+		self.vmat.ResetRegions()
+		self.cutRegions = []
+		
+	def Cut(self):
+		title = self.title
+		for (b1,b2) in self.cutRegions:
+			title += "_c%d-%d" % (b1, b2)
+				
+		hist = self.vmat.Cut(title, title)
+		self.cuts.append(CutSpectrum(hist, self, cal=self.cal))
+		return self.cuts[-1]
+		
+class MFMatrix(Matrix):
+	"""
+	mfile-backed matrix
+	"""
+	def __init__(self, fname, fmt=None, color=None, cal=None):
+		self.fname = fname
+			
 		hdtv.dlmgr.LoadLibrary("mfile-root")
 		self.mhist = ROOT.MFileHist()
 
@@ -67,49 +105,19 @@ class Matrix(hdtv.spectrum.Spectrum):
 		if not hist:
 			raise SpecReaderError, mhist_pry.GetErrorMsg()
 		
-		hdtv.spectrum.Spectrum.__init__(self, hist, color, cal)
+		Matrix.__init__(self, hist, self.fname, color, cal)
 		
 	def __del__(self):
 		# Explicitly deconstruct C++ objects in the right order
 		self.vmat = None
 		ROOT.SetOwnership(self.mhist, True)
 		self.mhist = None
-		
-	def E2Bin(self, e):
-		if self.cal:
-			ch = self.cal.E2Ch(e)
-		else:
-			ch = e
-
-		return self.vmat.Ch2Bin(ch)
-		
-	def AddCutRegion(self, e1, e2):
-		b1 = self.E2Bin(e1)
-		b2 = self.E2Bin(e2)
-		self.cutRegions.append((b1, b2))
-		self.vmat.AddCutRegion(b1, b2)
-		
-	def AddBgRegion(self, e1, e2):
-		self.vmat.AddBgRegion(self.E2Bin(e1), self.E2Bin(e2))
-		
-	def ResetRegions(self):
-		self.vmat.ResetRegions()
-		self.cutRegions = []
-		
-	def Cut(self):
-		title = self.fname
-		for (b1,b2) in self.cutRegions:
-			title += "_c%d-%d" % (b1, b2)
-				
-		hist = self.vmat.Cut(title, title)
-		self.cuts.append(CutSpectrum(hist, self, cal=self.cal))
-		return self.cuts[-1]
 
 class MatrixInterface:
 	def __init__(self, window, spectra):
 		self.window = window
 		self.spectra = spectra
-		self.CutRegionMarkers = hdtv.marker.MarkerCollection("X", paired=True, maxnum=1,
+		self.CutRegionMarkers = hdtv.marker.MarkerCollection("X", paired=True,
 		                                         color=hdtv.color.cut)
 		self.CutRegionMarkers.Draw(self.window.viewport)
 		self.CutBgMarkers = hdtv.marker.MarkerCollection("X", paired=True,
@@ -118,6 +126,7 @@ class MatrixInterface:
 		
 		# Register hotkeys
 		self.window.AddHotkey(ROOT.kKey_c, self.HotkeyCutMarker)
+		self.window.AddHotkey([ROOT.kKey_Comma, ROOT.kKey_c], self.HotkeyCutRegionMarker)
 		self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_C], self.HotkeyClearCutMarkers)
 		self.window.AddHotkey(ROOT.kKey_C, self.HotkeyCreateCut)
 		self.window.AddHotkey(ROOT.kKey_Tab, self.HotkeySwitch)
@@ -155,13 +164,20 @@ class MatrixInterface:
 		self.spectra.ActivateObject(targetID)
 		self.window.viewport.UnlockUpdate()
 		
+	def HotkeyCutRegionMarker(self):
+		"""
+		sets a cut region marker, even if a pair of cut region markers already
+		exists
+		"""
+		pos = self.window.viewport.GetCursorX()
+		self.CutRegionMarkers.PutMarker(pos)
 		
 	def HotkeyCutMarker(self):
 		"""
   		set a cut marker
   		"""
   		pos = self.window.viewport.GetCursorX()
-		if not self.CutRegionMarkers.IsFull():
+		if len(self.CutRegionMarkers) < 1 or self.CutRegionMarkers.IsPending():
 			self.CutRegionMarkers.PutMarker(pos)
 		else:
 			self.CutBgMarkers.PutMarker(pos)

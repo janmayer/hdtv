@@ -23,12 +23,6 @@
 #include <TArrayD.h>
 #include "VMatrix.h"
 
-VMatrix::VMatrix(MFileHist *hist, int level)
-{
-  fMatrix = hist;
-  fLevel = level;
-}
-
 void VMatrix::AddRegion(std::list<int> &reglist, int l1, int l2)
 {
   std::list<int>::iterator iter, next;
@@ -39,10 +33,10 @@ void VMatrix::AddRegion(std::list<int> &reglist, int l1, int l2)
   max = TMath::Max(l1, l2);
   
   // Perform clipping
-  if(max < 0 || min >= fMatrix->GetNColumns() || fMatrix->GetNColumns() == 0)
+  if(max < GetCutLowBin() || min > GetCutHighBin())
     return;
-  min = TMath::Max(min, 0);
-  max = TMath::Min(max, (int) fMatrix->GetNColumns() - 1);
+  min = TMath::Max(min, GetCutLowBin());
+  max = TMath::Min(max, GetCutHighBin());
 
   iter = reglist.begin();
   while(iter != reglist.end() && *iter < min) {
@@ -67,32 +61,27 @@ void VMatrix::AddRegion(std::list<int> &reglist, int l1, int l2)
   }
 }
 
-class MFileReadException { };
+class ReadException { };
 
 TH1 *VMatrix::Cut(const char *histname, const char *histtitle)
 {
   int l, l1, l2;   // lines
-  int c, cols = fMatrix->GetNColumns();   // columns
   std::list<int>::iterator iter;
   int nCut=0, nBg=0;   // total number of cut and background lines
+  int pbins = GetProjXbins();
   
-
-  // Sanity checks
-  if(fLevel < 0 || fLevel >= fMatrix->GetNLevels())
-  	return NULL;
+  if(Failed())
+    return NULL;
   	
   if(fCutRegions.empty())
     return NULL;
   
-  // Temporary buffer
-  TArrayD buf(cols);
-  
   // Sum of cut lines
-  TArrayD sum(cols);
+  TArrayD sum(pbins);
   sum.Reset(0.0);
   
   // Sum of background lines
-  TArrayD bg(cols);
+  TArrayD bg(pbins);
   bg.Reset(0.0);
   
   try {
@@ -102,14 +91,7 @@ TH1 *VMatrix::Cut(const char *histname, const char *histtitle)
       l1 = *iter++;
       l2 = *iter++;
       for(l=l1; l<=l2; l++) {
-        if(!fMatrix->FillBuf1D(buf.GetArray(), fLevel, l))
-          throw MFileReadException();
-
-        for(c=0; c<cols; c++) {
-          // Bad for speed; overloaded operator[] checks array bounds
-          sum[c] += buf[c];
-        }
-      
+        AddLine(sum, l);
         nCut++;
       }
     }
@@ -120,27 +102,72 @@ TH1 *VMatrix::Cut(const char *histname, const char *histtitle)
       l1 = *iter++;
       l2 = *iter++;
       for(l=l1; l<=l2; l++) {
-        if(!fMatrix->FillBuf1D(buf.GetArray(), fLevel, l))
-          throw MFileReadException();
-
-        for(c=0; c<cols; c++) {
-          // Bad for speed; overloaded operator[] checks array bounds
-          bg[c] += buf[c];
-        }
-      
+        AddLine(bg, l);
         nBg++;
       }
     }
   }
-  catch(MFileReadException&) {
+  catch(ReadException&) {
     return NULL;
   }
   
-  double bgFac = (double) nCut / nBg;
-  TH1D *hist = new TH1D(histname, histtitle, cols, -0.5, (double) cols - 0.5);
-  for(c=0; c<cols; c++) {
+  double bgFac = (nBg == 0) ? 0.0 : (double) nCut / nBg;
+  TH1D *hist = new TH1D(histname, histtitle, GetProjXbins(), GetProjXmin(), GetProjXmax());
+  //cols, -0.5, (double) cols - 0.5);
+  for(int c=0; c<pbins; c++) {
     hist->SetBinContent(c+1, sum[c] - bg[c] * bgFac);
   }
   
   return hist;
+}
+
+RMatrix::RMatrix(TH2* hist, ProjAxis_t paxis)
+  : VMatrix(),
+    fHist(hist),
+    fProjAxis(paxis)
+{ }
+
+void RMatrix::AddLine(TArrayD& dst, int l)
+{
+  if(fProjAxis == PROJ_X) {
+    int cols = fHist->GetNbinsX();
+  
+    for(int c=1; c<=cols; ++c) {
+      // Bad for speed; overloaded operator[] checks array bounds
+      dst[c-1] += fHist->GetBinContent(c, l);
+    }
+  } else {
+    int cols = fHist->GetNbinsY();
+  
+    for(int c=1; c<=cols; ++c) {
+      // Bad for speed; overloaded operator[] checks array bounds
+      dst[c-1] += fHist->GetBinContent(l, c);
+    }
+  }
+}
+
+MFMatrix::MFMatrix(MFileHist *mat, int level)
+ : VMatrix(),
+   fMatrix(mat),
+   fLevel(level),
+   fBuf()
+{
+  // Sanity checks
+  if(fLevel < 0 || fLevel >= fMatrix->GetNLevels())
+    fFail = true;
+  else
+    fBuf.Set(fMatrix->GetNColumns());
+}
+
+void MFMatrix::AddLine(TArrayD& dst, int l)
+{
+  if(!fMatrix->FillBuf1D(fBuf.GetArray(), fLevel, l))
+    throw ReadException();
+    
+  int cols = fMatrix->GetNColumns();
+
+  for(int c=0; c<cols; ++c) {
+    // Bad for speed; overloaded operator[] checks array bounds
+    dst[c] += fBuf[c];
+  }
 }

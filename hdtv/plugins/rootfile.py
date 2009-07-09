@@ -29,6 +29,31 @@ import hdtv.spectrum
 import fnmatch
 import readline
 import hdtv.rfile_utils
+import hdtv.plugins.matrix
+
+class RMatrix(hdtv.plugins.matrix.Matrix):
+	"""
+	ROOT TH2-backed matrix for projection
+	"""
+	def __init__(self, hist, color=None, cal=None):
+		hdtv.dlmgr.LoadLibrary("mfile-root")
+		self.hist = hist
+		self.vmat = ROOT.RMatrix(self.hist, ROOT.RMatrix.PROJ_X)
+		title = self.hist.GetTitle()
+		
+		# Load the projection
+		self.vmat.AddCutRegion(self.vmat.GetCutLowBin(), self.vmat.GetCutHighBin())
+		hist = self.vmat.Cut(title + "_prx", title + "_prx")
+		self.vmat.ResetRegions()
+				
+		hdtv.plugins.matrix.Matrix.__init__(self, hist, title, color, cal)
+		
+	def __del__(self):
+		# Explicitly deconstruct C++ objects in the right order
+		self.vmat = None
+		ROOT.SetOwnership(self.hist, True)
+		self.hist = None
+		
 
 class RootFile:
 	def __init__(self, window, spectra, caldict):
@@ -61,7 +86,10 @@ class RootFile:
 		
 		hdtv.cmdline.AddCommand("root matrix", self.RootMatrix, minargs=1,
 		                        completer=self.RootGet_Completer,
-		                        usage="root matrix <matname>")
+		                        usage="root matrix <matname> [<matname> ...]")
+		hdtv.cmdline.AddCommand("root project", self.RootProject, nargs=1,
+		                        completer=self.RootGet_Completer,
+		                        usage="root project <matname>")
 		                        
 		hdtv.cmdline.RegisterInteractive("gRootFile", self.rootfile)
 	
@@ -163,44 +191,66 @@ class RootFile:
 				return hdtv.rfile_utils.PathComplete(".", cur_root_dir, "", text, dirs_only)
 			else:
 				return hdtv.rfile_utils.PathComplete(".", cur_root_dir, dirs[0], text, dirs_only)
-		
-	def RootMatrix(self, args):
+				
+	def GetTH2(self, path):
 		"""
-		Load a 2D histogram (``matrix'') from a ROOT file and display it.
+		Load a 2D histogram (``matrix'') from a ROOT file.
 		
 		Note: Unlike RootGet(), this function does not support shell-style
 		pattern expansion, as this make it too easy to undeliberately load
 		too many histograms. As they use a lot of memory, this would likely
 		lead to a crash of the program.
 		"""
-		for path in args:
-			dirs = path.rsplit("/", 1)
-			if len(dirs) == 1:
-				# Load 2d histogram from current directory
-				hist = ROOT.gDirectory.Get(dirs[0])
+		dirs = path.rsplit("/", 1)
+		if len(dirs) == 1:
+			# Load 2d histogram from current directory
+			hist = ROOT.gDirectory.Get(dirs[0])
+		else:
+			if self.rootfile:
+				cur_root_dir = ROOT.gDirectory
 			else:
-				if self.rootfile:
-					cur_root_dir = ROOT.gDirectory
-				else:
-					cur_root_dir = None
-			
-				(posix_path, rfile, root_dir) = hdtv.rfile_utils.GetRelDirectory(os.getcwd(), cur_root_dir, dirs[0])
-			
-				if root_dir:
-					hist = root_dir.Get(dirs[1])
-				else:
-					hist = None
-				
-				if rfile:
-					rfile.Close()
+				cur_root_dir = None
 		
-			if hist == None or not isinstance(hist, ROOT.TH2):
-				print "Error: %s is not a 2d histogram" % args[0]
-				return
+			(posix_path, rfile, root_dir) = hdtv.rfile_utils.GetRelDirectory(os.getcwd(), cur_root_dir, dirs[0])
 		
-			title = hist.GetTitle()
-			viewer = ROOT.HDTV.Display.MTViewer(400, 400, hist, title)
-			self.matviews.append(viewer)
+			if root_dir:
+				hist = root_dir.Get(dirs[1])
+			else:
+				hist = None
+			
+			if rfile:
+				rfile.Close()
+	
+		if hist == None or not isinstance(hist, ROOT.TH2):
+			print "Error: %s is not a 2d histogram" % path
+			return None
+
+		return hist
+		
+	def RootMatrix(self, args):
+		"""
+		Load a 2D histogram (``matrix'') from a ROOT file and display it.
+		"""
+		
+		for path in args:
+			hist = self.GetTH2(path)
+			if hist:
+				title = hist.GetTitle()
+				viewer = ROOT.HDTV.Display.MTViewer(400, 400, hist, title)
+				self.matviews.append(viewer)
+			
+	def RootProject(self, args):
+		"""
+		Load a 2D histogram (``matrix'') from a ROOT file in projection mode.
+		"""
+		
+		hist = self.GetTH2(args[0])
+		if hist:
+			spec = RMatrix(hist)
+			sid = self.spectra.Add(spec)
+			spec.SetColor(hdtv.color.ColorForID(sid))
+			self.spectra.ActivateObject(sid)
+			self.window.Expand()		
 	
 	def RootGet(self, args, options):
 		if self.rootfile:
