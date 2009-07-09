@@ -232,6 +232,7 @@ class Window(KeyHandler):
 		self.AddHotkey(ROOT.kKey_Greater, lambda: self.viewport.ShiftXOffset(0.1))
 		self.AddHotkey(ROOT.kKey_Less, lambda: self.viewport.ShiftXOffset(-0.1))
 		self.AddHotkey(ROOT.kKey_Return, lambda: self.viewport.Update(True))
+		self.AddHotkey(ROOT.kKey_Enter, lambda: self.viewport.Update(True))
 		self.AddHotkey(ROOT.kKey_Bar,lambda: self.viewport.SetXCenter(self.viewport.GetCursorX()))
 		self.AddHotkey(ROOT.kKey_1, lambda: self.viewport.XZoomAroundCursor(2.0))
 		self.AddHotkey(ROOT.kKey_0, lambda: self.viewport.XZoomAroundCursor(0.5))
