@@ -239,6 +239,14 @@ class MarkerCollection(Drawable):
 			
 		return len(self.collection) == self.maxnum
 		
+	def IsPending(self):
+		"""
+		Checks if there is a single marker waiting to form a pair.
+		Always returns False if this is a MarkerCollection with paired == False.
+		"""
+		if not self.paired:
+			return False
+		return (len(self.collection) > 0 and self.collection[-1].p2 == None)
 	
 	def Clear(self):
 		if self.viewport != None:
