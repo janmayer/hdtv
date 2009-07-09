@@ -22,11 +22,13 @@
 # Preliminary ROOT file interface for hdtv
 
 import ROOT
+import os
 import hdtv.cmdline
 import hdtv.tabformat
 import hdtv.spectrum
 import fnmatch
 import readline
+import hdtv.rfile_utils
 
 class RootFile:
 	def __init__(self, window, spectra, caldict):
@@ -54,12 +56,14 @@ class RootFile:
 		                  default=False, help="load calibration from calibration dictionary")
 		parser.add_option("-v", "--invisible", action="store_true",
 		                  default=False, help="do not make histograms visible, only add to display list")
-		hdtv.cmdline.AddCommand("root get", self.RootGet, nargs=1, completer=self.RootGet_Completer,
+		hdtv.cmdline.AddCommand("root get", self.RootGet, minargs=1, completer=self.RootGet_Completer,
 		                        parser=parser)
 		
-		hdtv.cmdline.AddCommand("root matrix", self.RootMatrix, nargs=1,
+		hdtv.cmdline.AddCommand("root matrix", self.RootMatrix, minargs=1,
 		                        completer=self.RootGet_Completer,
 		                        usage="root matrix <matname>")
+		                        
+		hdtv.cmdline.RegisterInteractive("gRootFile", self.rootfile)
 	
 	def RootBrowse(self, args):
 		self.browser = ROOT.TBrowser()
@@ -87,22 +91,39 @@ class RootFile:
 			ROOT.gDirectory.ls(args[0])
 			
 	def RootCd(self, args):
-		ROOT.gDirectory.cd(args[0])
+		if self.rootfile:
+			cur_root_dir = ROOT.gDirectory
+		else:
+			cur_root_dir = None
+	
+		(posix_path, rfile, root_dir) = hdtv.rfile_utils.GetRelDirectory(os.getcwd(), cur_root_dir, args[0])
+		if (posix_path, rfile, root_dir) == (None, None, None):
+			print "Error: invalid path specified."
+			return
+			
+		os.chdir(posix_path)
+			
+		# If root_dir is None, we moved outside the ROOT file and are now in
+		# a POSIX directory. If rfile is not None, we *changed* the ROOT file.
+		if root_dir == None or rfile != None:
+			if self.rootfile != None:
+				print "Info: closing old root file %s" % self.rootfile.GetName()
+				self.rootfile.Close()
+			self.rootfile = rfile
+			if self.rootfile != None:
+				print "Info: opened new root file %s" % self.rootfile.GetName()
+			
+		if root_dir != None:
+			root_dir.cd()
 		
 	def RootPwd(self, args):
-		ROOT.gDirectory.pwd()
+		if self.rootfile != None:
+			ROOT.gDirectory.pwd()
+		else:
+			print os.getcwd()
 			
 	def RootOpen(self, args):
-		if self.rootfile != None:
-			print "Info: closing old root file %s" % self.rootfile.GetName()
-			self.rootfile.Close()
-		
-		self.rootfile = ROOT.TFile(args[0])
-		if self.rootfile.IsZombie():
-			print "Error: failed to open file"
-			self.rootfile = None
-			
-		hdtv.cmdline.RegisterInteractive("gRootFile", self.rootfile)
+		return self.RootCd(args)
 		
 	def RootClose(self, args):
 		if self.rootfile == None:
@@ -117,71 +138,87 @@ class RootFile:
 	def RootCd_Completer(self, text):
 		return self.Completer(text, dirs_only=True)
 		
-	def GetObjCompleteOptions(self, directory, text, dirs_only=False):
-		"""
-		Returns a list of objects whose names begin with text in the given
-		directory. If directory is "" or ".", it is taken to be the current
-		directory.
-		"""
-		if directory == "" or directory == ".":
-			dirobj = ROOT.gDirectory
-		else:
-			dirobj = ROOT.gDirectory.Get(directory)
-		
-		if dirobj == None:
-			# Autocompleter must not complain...
-			return []
-		
-		keys = dirobj.GetListOfKeys()
-		if keys == None:
-			return []
-			
-		l = len(text)
-		options = []
-		for k in keys:
-			name = k.GetName()
-			if name[0:l] == text:
-				if k.GetClassName() == "TDirectoryFile":
-					options.append(name + "/")
-				elif not dirs_only:
-					options.append(name + " ")
-		
-		return options
-		
 	def Completer(self, text, dirs_only):
 		buf = readline.get_line_buffer()
 		if buf == "":
 			# This should not happen...
 			return []
+			
+		if self.rootfile:
+			cur_root_dir = ROOT.gDirectory
+		else:
+			cur_root_dir = None
+		
 		if buf[-1] == " ":
-			return self.GetObjCompleteOptions(".", text, dirs_only)
+			return hdtv.rfile_utils.PathComplete(".", cur_root_dir, "", text, dirs_only)
 		else:
 			path = buf.rsplit(None, 1)[-1]
 			dirs = path.rsplit("/", 1)
+			
+			# Handle absolute paths
+			if dirs[0] == "":
+				dirs[0] = "/"
+			
 			if len(dirs) == 1:
-				return self.GetObjCompleteOptions(".", text, dirs_only)
+				return hdtv.rfile_utils.PathComplete(".", cur_root_dir, "", text, dirs_only)
 			else:
-				return self.GetObjCompleteOptions(dirs[0], text, dirs_only)
+				return hdtv.rfile_utils.PathComplete(".", cur_root_dir, dirs[0], text, dirs_only)
 		
 	def RootMatrix(self, args):
-		hist = ROOT.gDirectory.Get(args[0])
-		if hist == None or not isinstance(hist, ROOT.TH2):
-			print "Error: %s is not a 2d histogram" % args[0]
+		"""
+		Load a 2D histogram (``matrix'') from a ROOT file and display it.
 		
-		title = hist.GetTitle()
-		viewer = ROOT.HDTV.Display.MTViewer(400, 400, hist, title)
-		self.matviews.append(viewer)
+		Note: Unlike RootGet(), this function does not support shell-style
+		pattern expansion, as this make it too easy to undeliberately load
+		too many histograms. As they use a lot of memory, this would likely
+		lead to a crash of the program.
+		"""
+		for path in args:
+			dirs = path.rsplit("/", 1)
+			if len(dirs) == 1:
+				# Load 2d histogram from current directory
+				hist = ROOT.gDirectory.Get(dirs[0])
+			else:
+				if self.rootfile:
+					cur_root_dir = ROOT.gDirectory
+				else:
+					cur_root_dir = None
+			
+				(posix_path, rfile, root_dir) = hdtv.rfile_utils.GetRelDirectory(os.getcwd(), cur_root_dir, dirs[0])
+			
+				if root_dir:
+					hist = root_dir.Get(dirs[1])
+				else:
+					hist = None
+				
+				if rfile:
+					rfile.Close()
+		
+			if hist == None or not isinstance(hist, ROOT.TH2):
+				print "Error: %s is not a 2d histogram" % args[0]
+				return
+		
+			title = hist.GetTitle()
+			viewer = ROOT.HDTV.Display.MTViewer(400, 400, hist, title)
+			self.matviews.append(viewer)
 	
 	def RootGet(self, args, options):
+		if self.rootfile:
+			cur_root_dir = ROOT.gDirectory
+		else:
+			cur_root_dir = None
+			
+		objs = []
+		for pat in args:
+			objs += hdtv.rfile_utils.Get(".", cur_root_dir, pat)
+	
 		if options.replace:
 			self.spectra.RemoveAll()
 			
 		nloaded = 0
-		keys = ROOT.gDirectory.GetListOfKeys()
 		self.window.viewport.LockUpdate()
-		for key in keys:
-			if fnmatch.fnmatch(key.GetName(), args[0]):
-				obj = key.ReadObj()
+		try:  # We should really use a context manager here...
+			for obj in objs:
 				if isinstance(obj, ROOT.TH1):
 					spec = hdtv.spectrum.Spectrum(obj)
 					ID = self.spectra.Add(spec)
@@ -192,19 +229,19 @@ class RootFile:
 							spec.SetCal(self.caldict[obj.GetName()])
 						else:
 							print "Warning: no calibration found for %s" % obj.GetName()
-					
+				
 					if options.invisible:
 						self.spectra.HideObjects(ID)
 					else:
 						self.spectra.ActivateObject(ID)
-					
+				
 					nloaded += 1
 				else:
-					print "Warning: %s is not a 1D histogram object" % key.GetName()
+					print "Warning: %s is not a 1D histogram object" % obj.GetName()
 					
-		print "%d spectra loaded" % nloaded
-		
-		self.window.viewport.UnlockUpdate()
+			print "%d spectra loaded" % nloaded
+		finally:
+			self.window.viewport.UnlockUpdate()
 		
 	def Draw(self, hist):
 		spec = hdtv.spectrum.Spectrum(hist)

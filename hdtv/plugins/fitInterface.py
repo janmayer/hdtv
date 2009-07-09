@@ -439,7 +439,7 @@ class FitInterface:
 				                           fitter.bgFitter.GetCoeffError(i))
 				text += "bg[%d]: %s   " % (i, value.fmt())
 			text += "\n\n"
-		i = 1
+		i = 0
 		if fitter.peakFitter:
 			text += "Peak fit: chi^2 = %.2f\n" % fitter.peakFitter.GetChisquare()
 			for peak in fitter.GetResults():
@@ -461,8 +461,6 @@ class TvFitInterface:
 		self.RegisterFitParameter(self.fitIf.defaultFitter)
 		
 		hdtv.cmdline.AddCommand("fit list", self.FitList, nargs=0, usage="fit list")
-#		hdtv.cmdline.AddCommand("fit write", self.FitWrite, nargs=0,
-#		                        usage="fit write <filename>")
 		hdtv.cmdline.AddCommand("fit show", self.FitShow, minargs=1)
 		hdtv.cmdline.AddCommand("fit print", self.FitPrint, minargs=1)
 		hdtv.cmdline.AddCommand("fit delete", self.FitDelete, minargs=1)
