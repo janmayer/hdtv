@@ -129,7 +129,7 @@ class KeyHandler(HotkeyList):
 		if self.viewer.fKeySym == ROOT.kKey_Backspace:
 			self.fEditStr = self.fEditStr[0:-1]
 			self.viewport.SetStatusText(self.fEditPrompt + self.fEditStr)
-		elif self.viewer.fKeySym == ROOT.kKey_Return or self.viewer.fKeySym == ROOT.kKey_Enter:
+		elif self.viewer.fKeySym == ROOT.kKey_Return:
 			self.fEditMode = False
 			self.viewport.SetStatusText("")
 			self.fEditHandler(self.fEditStr)

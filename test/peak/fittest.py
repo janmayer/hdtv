@@ -33,15 +33,16 @@ spec.func.peaks.append(peakgen.TheuerkaufPeak(515, 3000.0, 10.0))
 # spec.peaks.append(peakgen.EEPeak(300, 100, 4.5, 6.0, 1.5, 0.7))
 # spec.peaks.append(peakgen.EEPeak(400, 30, 4.5, 6.0, 1.5, 0.7))
 
-# nsamples = int(3e3)
-# hs = spec.GetSampledHist(nsamples)
+nsamples = int(3e3)
+hs = spec.GetSampledHist(nsamples)
 # hs.Draw()
 
 he = spec.GetExactHist()
-# scale = nsamples / he.GetSumOfWeights()
-# he.Scale(scale)
+scale = nsamples / he.GetSumOfWeights()
+he.Scale(scale)
 
 # he.SetLineColor(ROOT.kRed)
 # he.Draw("SAME")
 
-peakgen.write_hist(he, "test.asc")
+peakgen.write_hist(he, "test_exact.asc")
+peakgen.write_hist(hs, "test_sampled.asc")
