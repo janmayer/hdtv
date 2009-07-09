@@ -126,6 +126,10 @@ class ErrValue:
 			
 		return ret
 		
+		
+	def __abs__(self):
+		return ErrValue(abs(self.value), self.error)
+	
 	def fmt(self):
 	
 		try:
