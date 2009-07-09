@@ -28,6 +28,9 @@ def GetCompleteOptions(begin, options):
 class ErrValue:
 	"""
 	A value with an error
+	
+	Beware: Error propagation is only working for statistically independant 
+	values for now!
 	"""
 	def __init__(self, value, error):
 		self.value = value
@@ -62,7 +65,51 @@ class ErrValue:
 		otherval = self._sanitize(other)
 		
 		return cmp(self.value, otherval.value)
+	
+	def __add__(self, other):
+		"""Add two values with error propagation"""
+		val1 = self._sanitize(self)
+		val2 = self._sanitize(other)
+		ret  = ErrValue(0, 0)
 		
+		ret.value = val1.value + val2.value
+		ret.error = math.sqrt(math.pow(val1.error, 2) + math.pow(val2.error, 2))
+		print "add error ", ret.error 
+		return ret
+	
+	def __sub__(self, other):
+		"""Subtract two values with error propagation"""
+		val1 = self._sanitize(self)
+		val2 = self._sanitize(other)
+		ret  = ErrValue(0,0)
+		
+		ret.value = val1.value - val2.value
+		ret.error = math.sqrt(math.pow(val1.error, 2) + math.pow(val2.error, 2))
+
+		return ret
+
+	def __mul__(self, other):
+		"""Multiply two values with error propagation"""
+		val1 = self._sanitize(self)
+		val2 = self._sanitize(other)
+		ret  = ErrValue(0,0)
+		
+		ret.value = val1.value * val2.value
+		ret.error = math.sqrt(math.pow((val1.value * val2.error), 2) \
+							  + math.pow((val1.value * val2.error), 2))
+		return ret
+
+	def __div__(self, other):
+		"""Divide two values with error propagation"""
+		val1 = self._sanitize(self)
+		val2 = self._sanitize(other)
+		ret  = ErrValue(0,0)
+		
+		ret.value = val1.value / val2.value
+		ret.error = math.sqrt(math.pow((val1.error / val2.value), 2) \
+							  + math.pow((val1.value * val2.error / math.pow(val2.value,2)), 2))
+		return ret
+	
 	def _sanitize(self, val):
 		"""
 		* Convert floats to ErrValue with error=0, if necessary
