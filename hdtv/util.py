@@ -74,7 +74,6 @@ class ErrValue:
 		
 		ret.value = val1.value + val2.value
 		ret.error = math.sqrt(math.pow(val1.error, 2) + math.pow(val2.error, 2))
-		print "add error ", ret.error 
 		return ret
 	
 	def __sub__(self, other):
