@@ -34,7 +34,7 @@ class ErrValue:
 	"""
 	def __init__(self, value, error):
 		self.value = value
-		self.error = error
+		self.error = abs(error) # Errors are always positive
 		
 	def __repr__(self):
 		return "ErrValue(" + repr(self.value) + ", " + repr(self.error) + ")"
