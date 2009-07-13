@@ -125,10 +125,13 @@ class ErrValue:
 		try:
 			ret.value = val.value
 			ret.error = abs(val.error)
+		except TypeError:
+			ret.value = val.value
+			ret.error = 0
 		except AttributeError:
 			ret.value = val
 			ret.error = 0
-			
+		
 		return ret
 		
 		
