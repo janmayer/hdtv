@@ -112,6 +112,9 @@ class ErrValue:
 							  + math.pow((val1.value * val2.error / math.pow(val2.value,2)), 2))
 		return ret
 	
+	def __float__(self):
+		return float(self.value)
+	
 	def _sanitize(self, val):
 		"""
 		* Convert floats to ErrValue with error=0, if necessary
