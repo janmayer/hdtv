@@ -32,7 +32,7 @@ class DLImportError(Exception):
 
 
 libpath = __file__.split(os.sep)
-libpath[-1]='lib'
+libpath[-1]='clib'
 libpath = os.sep.join(libpath)
 path = [libpath]
 
