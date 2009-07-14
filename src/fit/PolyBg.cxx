@@ -23,7 +23,8 @@
 #include "PolyBg.h"
 #include "Util.h"
 #include <iostream>
- 
+#include <TError.h>
+
 namespace HDTV {
 namespace Fit {
 
@@ -110,6 +111,34 @@ void PolyBg::Fit(TH1& hist)
     fFunc->SetParameter(i, fitFunc.GetParameter(i));
     fFunc->SetParError(i, fitFunc.GetParError(i));
   }
+}
+
+bool PolyBg::Restore(std::vector<double> values, std::vector<double> errors, double ChiSquare)
+{
+
+    if( (values.size() != static_cast<unsigned int>(fBgDeg+1)) || (errors.size() != static_cast<unsigned int>(fBgDeg+1)) ) {
+         Warning("HDTV::PolyBg::Restore", "size of vector does not match degree of background.");
+         return false;
+    }
+
+
+    // Copy parameters to new function
+    fFunc.reset(new TF1(GetFuncUniqueName("b", this).c_str(),
+            this, &PolyBg::_Eval,
+            GetMin(), GetMax(),
+            fBgDeg+1, "PolyBg", "_Eval"));
+
+    for(int i=0; i<=fBgDeg; i++) {
+        fFunc->SetParameter(i, values[i]);
+        fFunc->SetParError(i, errors[i]);
+    }
+
+    // Copy chisquare
+    fChisquare = ChiSquare;
+
+    fFunc->SetChisquare(ChiSquare);
+
+    return true;
 }
 
 void PolyBg::AddRegion(double p1, double p2)

@@ -466,11 +466,11 @@ void TheuerkaufFitter::Restore(const Background& bg, double ChiSquare)
 
   // Store Chi^2
   fChisquare = ChiSquare;
+  fSumFunc->SetChisquare(ChiSquare);
 
   // Finalize fitter
   fFinal = true;
 }
-
 
 } // end namespace Fit
 } // end namespace HDTV

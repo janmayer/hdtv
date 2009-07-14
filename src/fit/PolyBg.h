@@ -60,6 +60,7 @@ class PolyBg: public Background {
                   *(fBgRegions.rbegin()); }
     
     void Fit(TH1& hist);
+    bool Restore(std::vector<double> values, std::vector<double> errors, double ChiSquare);
     void AddRegion(double p1, double p2);
     virtual PolyBg* Clone() const
       { return new PolyBg(*this); }    
