@@ -33,7 +33,8 @@ class Fitter:
 		self.spec = None
 		self.peakFitter = None
 		self.bgFitter = None
-		self.intBgDeg = 0
+		# degree of internal background , used when no background is set
+		self.intBgDeg = 0 
 	
 	def __getattr__(self, name):
 		return getattr(self.peakModel, name)
@@ -47,6 +48,13 @@ class Fitter:
 		self.bgFitter = bgfitter
 		self.bgFitter.Fit(spec.fHist)
 
+	def RestoreBackgrounds(self, spec, backgrounds, values, errors, chisquare):
+		self.spec = spec
+		bgfitter = ROOT.HDTV.Fit.PolyBg(self.bgdeg)
+		for bg in backgrounds:
+			bgfitter.AddRegion(spec.cal.E2Ch(bg[0]), spec.cal.E2Ch(bg[1]))
+		self.bgFitter = bgfitter
+		self.bgFitter.Restore(values, errors, chisquare)
 
 	def FitPeaks(self, spec, region, peaklist):
 		self.spec = spec
@@ -57,7 +65,20 @@ class Fitter:
 		else:
 			self.peakFitter.Fit(self.spec.fHist, self.intBgDeg)
 		
-				
+	def RestorePeaks(self, spec, region, peaklist, params, chisquare):
+		self.spec = spec
+		self.peakFitter = self.peakModel.GetFitter(region, peaklist, spec.cal)
+		if self.bgFitter:
+			self.peakFitter.Restore(self.bgFitter, chisquare)
+		else:
+			# FIXME: internal background
+			return 
+		for i in range(0, self.peakFitter.GetNumPeaks()):
+			cpeak=self.peakFitter.GetPeak(i)
+			for param in params:
+				cpeak.Restore(param, value, error)
+
+
 	def GetResults(self):
 		peaks = list()
 		if not self.peakFitter:
