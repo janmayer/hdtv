@@ -33,7 +33,7 @@ setup(name='hdtv',
 	long_description=open('./README','r').read(),
 	scripts = ['bin/hdtv'],
 	packages=['hdtv', 'hdtv.plugins'],
-	ext_package='hdtv/lib',
+	ext_package='hdtv/clib',
 	ext_modules=[display, fit, mfile_root ]
 	)
 #gcc -pthread -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -fPIC -I/usr/include/python2.5 -c src/display/View.cxx -o build/temp.linux-i686-2.5/src/display/View.o

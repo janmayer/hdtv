@@ -1,15 +1,10 @@
 # Makefile for HDTV::Fit
+include ../Makefile.def
 
-CPP=g++ -g -Wall
-CC=gcc -g -Wall
-ROOTCINT=rootcint
-CFLAGS=$(shell root-config --cflags)
-LFLAGS=$(shell root-config --glibs)
 SOURCES= PolyBg.cxx Param.cxx Fitter.cxx TheuerkaufFitter.cxx EEFitter.cxx Util.cxx
 EXPHEADERS= Background.h PolyBg.h Param.h Fitter.h TheuerkaufFitter.h EEFitter.h
 HEADERS= $(EXPHEADERS)
 OBJ= $(SOURCES:.cxx=.o)
-DESTDIR= ../../hdtv/lib
 MODNAME= fit
 
 .PHONY: all build copy clean

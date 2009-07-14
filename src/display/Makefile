@@ -1,16 +1,12 @@
 # Makefile for HDTV::Display
+include ../Makefile.def
 
-CPP=g++
-ROOTCINT=rootcint
-CFLAGS=$(shell root-config --cflags) -g -Wall
-LFLAGS=$(shell root-config --glibs)
 SOURCES= DisplaySpec.cxx DisplayFunc.cxx DisplayBlock.cxx DisplayObj.cxx DisplayStack.cxx Viewer.cxx Painter.cxx Marker.cxx XMarker.cxx YMarker.cxx Calibration.cxx View.cxx View1D.cxx View2D.cxx MTViewer.cxx
 # The ordering matters here: rootcint will complain on (some) different orderings.
 # The reason for this is unclear.
 EXPHEADERS= Calibration.h View.h View1D.h View2D.h MTViewer.h Viewer.h DisplaySpec.h DisplayFunc.h DisplayBlock.h DisplayObj.h Marker.h XMarker.h YMarker.h
 HEADERS= $(EXPHEADERS) Painter.h
 OBJ= $(SOURCES:.cxx=.o)
-DESTDIR = ../../hdtv/lib
 MODNAME= display
 
 .PHONY: all build copy clean

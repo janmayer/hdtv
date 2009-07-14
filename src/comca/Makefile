@@ -1,15 +1,9 @@
 # Makefile for comca-root
+include ../Makefile.def
 
-CPP=g++
-CC=gcc
-ROOTCINT=rootcint
-INCL_PATH=-I/ikpv2/include
-CFLAGS=$(shell root-config --cflags) $(INCL_PATH)
-LFLAGS=$(shell root-config --glibs) -L/ikpv2/lib -lcomca
 SOURCES= CoMCA.cxx
 HEADERS= CoMCA.h
 OBJ= $(SOURCES:.cxx=.o)
-DESTDIR= ../../hdtv/lib
 MODNAME= comca-root
 
 .PHONY: all build copy clean

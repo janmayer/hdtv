@@ -113,6 +113,24 @@ TheuerkaufPeak& TheuerkaufPeak::operator= (const TheuerkaufPeak& src)
   return *this;
 }
 
+void TheuerkaufPeak::RestoreParam(const Param& param, double value, double error)
+{
+    // Restores parameters and error for fit function.
+    // Warnings:    Restore function of corresponding fitter has to be called
+    //              beforehand!
+
+    if(fFunc != NULL) {
+        fFunc->SetParameter(param._Id(), value);
+        fFunc->SetParError(param._Id(), error);
+    }
+
+    if(fPeakFunc.get()) {
+        fPeakFunc->SetParameter(param._Id(), value);
+        fPeakFunc->SetParError(param._Id(), error);
+    }
+
+}
+
 const double TheuerkaufPeak::DECOMP_FUNC_WIDTH = 5.0;
 
 TF1 *TheuerkaufPeak::GetPeakFunc()
@@ -421,6 +439,38 @@ void TheuerkaufFitter::_Fit(TH1& hist)
   // Finalize fitter
   fFinal = true;
 }
+
+void TheuerkaufFitter::Restore(const Background& bg, double ChiSquare)
+{
+
+  // Do the fit, using the given background function
+  fBackground.reset(bg.Clone());
+  fIntBgDeg = -1;
+
+
+  // Allocate additional parameters for internal polynomial background
+  // Note that a polynomial of degree n has n+1 parameters!
+  if(fIntBgDeg >= 0) {
+       fNumParams += (fIntBgDeg + 1);
+  }
+
+  // Create fit function
+  fSumFunc.reset(new TF1(GetFuncUniqueName("f", this).c_str(),
+          this, &TheuerkaufFitter::Eval, fMin, fMax,
+          fNumParams, "TheuerkaufFitter", "Eval"));
+
+  std::vector<TheuerkaufPeak>::iterator iter;
+  for(iter = fPeaks.begin(); iter != fPeaks.end(); iter ++) {
+      iter->SetSumFunc(fSumFunc.get());
+  }
+
+  // Store Chi^2
+  fChisquare = ChiSquare;
+
+  // Finalize fitter
+  fFinal = true;
+}
+
 
 } // end namespace Fit
 } // end namespace HDTV

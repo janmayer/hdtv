@@ -43,6 +43,7 @@ Param Fitter::AllocParam(double ival)
 
 void Fitter::SetParameter(TF1& func, Param& param, double ival)
 {
+
   if(!param.HasIVal())
     param.SetValue(ival);
   
