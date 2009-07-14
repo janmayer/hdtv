@@ -69,19 +69,29 @@ class TheuerkaufPeak {
     inline double GetPos() const        { return fPos.Value(fFunc); }
     inline double GetPosError() const   { return fPos.Error(fFunc); }
     inline bool   PosIsFree() const     { return fPos.IsFree(); }
+    inline void   RestorePos(double value, double error)
+        { RestoreParam(fPos, value, error); }
+
     inline double GetVol() const        { return fVol.Value(fFunc); }
     inline double GetVolError() const   { return fVol.Error(fFunc); }
     inline bool   VolIsFree() const     { return fVol.IsFree(); }
+    inline void   RestoreVol(double value, double error)
+            { RestoreParam(fVol, value, error); }
+
     inline double GetSigma() const      { return fSigma.Value(fFunc); }
     inline double GetSigmaError() const { return fSigma.Error(fFunc); }
     inline bool   SigmaIsFree() const     { return fSigma.IsFree(); }
-    
+    inline void   RestoreSigma(double value, double error)
+            { RestoreParam(fSigma, value, error); }
+
     inline bool HasLeftTail() const        { return fHasLeftTail; }
     inline double GetLeftTail() const      { return fHasLeftTail ? fTL.Value(fFunc) : 
                                                std::numeric_limits<double>::infinity(); }
     inline double GetLeftTailError() const { return fHasLeftTail ? fTL.Error(fFunc) :
                                                std::numeric_limits<double>::quiet_NaN(); }
     inline bool LeftTailIsFree() const     { return fHasLeftTail ? fTL.IsFree() : false; }
+    inline void RestoreLeftTail(double value, double error)
+            { RestoreParam(fTL, value, error); }
 
     inline bool HasRightTail() const        { return fHasRightTail; }
     inline double GetRightTail() const      { return fHasRightTail ? fTR.Value(fFunc) : 
@@ -89,20 +99,29 @@ class TheuerkaufPeak {
     inline double GetRightTailError() const { return fHasRightTail ? fTR.Error(fFunc) :
                                                 std::numeric_limits<double>::quiet_NaN(); }
     inline bool RightTailIsFree() const     { return fHasRightTail ? fTR.IsFree() : false; }
-                                            
+    inline void RestoreRightTail(double value, double error)
+                { RestoreParam(fTR, value, error); }
+
     inline bool HasStep() const              { return fHasStep; }
     inline double GetStepHeight() const      { return fHasStep ? fSH.Value(fFunc) : 0.0; }
     inline double GetStepHeightError() const { return fHasStep ? fSH.Error(fFunc) :
                                                 std::numeric_limits<double>::quiet_NaN(); }
     inline bool StepHeightIsFree() const     { return fHasStep ? fSH.IsFree() : false; }
+    inline void RestoreStepHeight(double value, double error)
+                    { RestoreParam(fSH, value, error); }
+
     inline double GetStepWidth() const       { return fHasStep ? fSW.Value(fFunc) : 
                                                 std::numeric_limits<double>::quiet_NaN(); }
     inline double GetStepWidthError() const  { return fHasStep ? fSW.Error(fFunc) :
                                                 std::numeric_limits<double>::quiet_NaN(); }
     inline bool StepWidthIsFree() const      { return fHasStep ? fSW.IsFree() : false; }
-                                            
+    inline void RestoreStepWidth(double value, double error)
+                    { RestoreParam(fSW, value, error); }
+
     inline void SetSumFunc(TF1 *func) { fFunc = func; }
-    
+
+    void RestoreParam(const Param& param, double value, double error);
+
     TF1* GetPeakFunc();
 
   private:
@@ -127,10 +146,11 @@ class TheuerkaufFitter : public Fitter {
     void Fit(TH1& hist, const Background& bg);
     void Fit(TH1& hist, int intBgDeg=-1);
     inline int GetNumPeaks() { return fNumPeaks; }
-    inline const TheuerkaufPeak& GetPeak(int i) { return fPeaks[i]; }
+    inline const TheuerkaufPeak& GetPeak(int i) { std::cout << "DEBUG GetPeak" << std::endl;return fPeaks[i]; }
     inline double GetChisquare() { return fChisquare; }
     inline TF1* GetSumFunc() { return fSumFunc.get(); }
     TF1* GetBgFunc();
+    void Restore(const Background& bg, double ChiSquare);
     
   private:
     // Copying the fitter is not supported
