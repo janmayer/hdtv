@@ -3,6 +3,7 @@ import glob
 import xml.etree.cElementTree as ET
 import hdtv.cmdline
 import hdtv.spectrum
+import ROOT
 
 # Increase the version number if you changed something related to the xml output.
 # If your change affect the reading, you should increase the major number 
@@ -150,6 +151,10 @@ class FitXml:
 		# <spectrum>
 		for specXML in root.getiterator():
 			name = specXML.get("name")
+#			print "DEBUG ", name
+#			calibration = specXML.get("calibration")
+##			calibration = calibration.split()
+#			print "DEBUG ", calibration
 			# find this spectrum from XML in the real world
 			spec = None
 			for sid in spectra.keys():
@@ -185,8 +190,12 @@ class FitXml:
 						status = str(status[0])
 					else:
 						status = ','.join(status)
+					print "DEBUG: SetParameter, fitXML"
 					fitter.SetParameter(parname, status)
+					
 				fit = hdtv.fit.Fit(fitter, spec.color, spec.cal)
+				
+
 				# <background>
 				for bgXML in fitXML.findall("background"):
 					# Read begin/p1 marker
@@ -202,12 +211,14 @@ class FitXml:
 					end = float(endElement.find("uncal").text)
 					fit.PutBgMarker(fit.cal.Ch2E(end))
 				# <region>
+				region = list()
 				for regionXML in fitXML.findall("region"):
 					# Read begin/p1 marker
 					beginElement = regionXML.find("begin");
 					if beginElement == None: # Maybe old XML (ver 0.1)
 						beginElement = regionXML.find("p1")
 					begin = float(beginElement.find("uncal").text)
+					region.append(begin)
 					fit.PutRegionMarker(fit.cal.Ch2E(begin))
 					
 					# Read end/p2 marker
@@ -215,15 +226,28 @@ class FitXml:
 					if endElement == None: # Maybe old XML (ver 0.1)
 						endElement = regionXML.find("p2")
 					end = float(endElement.find("uncal").text)
+					region.append(end)
 					fit.PutRegionMarker(fit.cal.Ch2E(end))
 				# <peak>
+				peaklist = list()
 				for peakXML in fitXML.findall("peak"):
 					# Read position/p1 marker
 					posElement = peakXML.find("position")
 					if posElement == None:
 						posElement = peakXML.find("p1") 
 					pos = float(posElement.find("uncal").text)
+					peaklist.append(pos)
 					fit.PutPeakMarker(fit.cal.Ch2E(pos))
+					
+					# TEST
+#					tcal = hdtv.cal.CalibrationFitter()
+#					cal = hdtv.cal.MakeCalibration(calibration)
+					print "DEBUG peakpos", pos
+					fitter.GetFitter(region, peaklist, fit.cal)
+					#					fitter.AddPeak()
+					peak = fitter.fFitter.GetPeak(0)
+					peak.RestoreParam(ROOT.HDTV.Fit.Param.Free(2),  10,5)
+					# TEST
 				spec.Add(fit)
 
 

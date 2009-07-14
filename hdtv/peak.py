@@ -204,10 +204,11 @@ class PeakModel:
 		
 	def SetParameter(self, parname, status):
 		"""
+
 		Set status for a certain parameter
 		"""
 		parname = parname.strip().lower()
-		
+		print "DEBUG SetParameter, peak.py"
 		if not parname in self.fValidParStatus.keys():
 			raise RuntimeError, "Invalid parameter name"
 			
@@ -216,6 +217,12 @@ class PeakModel:
 			                               status.split(","))
 		else:
 			self.fParStatus[parname] = self.ParseParamStatus(parname, status)
+		
+	def RestoreParam(self, parname, value, error):
+		"""
+		TODO
+		"""
+		self.fFitter.RestoreParam(parname, value, error)
 		
 
 	def GetParam(self, name, peak_id, pos_uncal, cal, ival=None):

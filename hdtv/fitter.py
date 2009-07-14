@@ -70,7 +70,6 @@ class Fitter:
 		peaks.sort()
 		return peaks
 		
-
 	def SetPeakModel(self, model):
 		"""
 		Sets the peak model to be used for fitting. model can be either a string,

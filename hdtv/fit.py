@@ -397,6 +397,3 @@ class Fit(Drawable):
 		print "background=",background
 		print "region=", region
 		print "peaks=",peaks
-
-
-
