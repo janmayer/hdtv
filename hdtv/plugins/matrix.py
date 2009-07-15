@@ -174,9 +174,9 @@ class MatrixInterface:
 		
 	def HotkeyCutMarker(self):
 		"""
-  		set a cut marker
-  		"""
-  		pos = self.window.viewport.GetCursorX()
+		set a cut marker
+		"""
+		pos = self.window.viewport.GetCursorX()
 		if len(self.CutRegionMarkers) < 1 or self.CutRegionMarkers.IsPending():
 			self.CutRegionMarkers.PutMarker(pos)
 		else:
