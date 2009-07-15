@@ -79,18 +79,18 @@ class Fitter:
 				cpeak.Restore(param, value, error)
 
 
-	def GetResults(self):
-		peaks = list()
-		if not self.peakFitter:
-			return peaks
-		for i in range(0, self.peakFitter.GetNumPeaks()):
-			cpeak=self.peakFitter.GetPeak(i)
-			peaks.append(self.peakModel.CopyPeak(cpeak, self.spec.cal))
-		# in some rare cases it can happen that peaks change position 
-		# while doing the fit, thus we have to sort here
-		peaks.sort()
-		return peaks
-		
+#	def GetResults(self):
+#		peaks = list()
+#		if not self.peakFitter:
+#			return peaks
+#		for i in range(0, self.peakFitter.GetNumPeaks()):
+#			cpeak=self.peakFitter.GetPeak(i)
+#			peaks.append(self.peakModel.CopyPeak(cpeak, self.spec.cal))
+#		# in some rare cases it can happen that peaks change position 
+#		# while doing the fit, thus we have to sort here
+#		peaks.sort()
+#		return peaks
+#		
 
 	def SetPeakModel(self, model):
 		"""
@@ -106,7 +106,7 @@ class Fitter:
 		
 	
 	def Copy(self):
-		new = Fitter(self.peakModel.Name(), self.bgdeg)
+		new = Fitter(self.peakModel.name, self.bgdeg)
 		new.peakModel.fParStatus = self.peakModel.fParStatus.copy()
 		return new
 	

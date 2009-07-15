@@ -21,7 +21,6 @@
 import ROOT
 import hdtv.cmdline
 import hdtv.cmdhelper
-import hdtv.fitio
 
 from hdtv.spectrum import SpectrumCompound
 from hdtv.marker import MarkerCollection
@@ -255,7 +254,7 @@ class FitInterface:
 			self.Fit(peaks=True)
 		spec[spec.activeID].SetColor(spec.color)
 		# remove the fit, if it is empty (=nothing fitted)
-		if len(spec[spec.activeID].dispFuncs)==0:
+		if len(spec[spec.activeID].peaks)==0:
 			spec.pop(spec.activeID)
 		# deactivate all objects
 		spec.ActivateObject(None)
@@ -369,7 +368,7 @@ class FitInterface:
 		fitter = self.GetActiveFit().fitter
 		statstr = str()
 		statstr += "Background model: polynomial, deg=%d\n" % fitter.bgdeg
-		statstr += "Peak model: %s\n" % fitter.Name()
+		statstr += "Peak model: %s\n" % fitter.peakmodel.name
 		statstr += "\n"
 		statstr += fitter.OptionsStr()
 		print statstr
@@ -420,29 +419,29 @@ class FitInterface:
 	def UpdateFitPanel(self):
 		if not self.fitPanel:
 			return
-		fitter = self.GetActiveFit().fitter
+		fit = self.GetActiveFit()
 		# options
 		text = str()
-		text += "Background model: polynomial, deg=%d\n" % fitter.bgdeg
-		text += "Peak model: %s\n" % fitter.peakModel.Name()
+		text += "Background model: polynomial, deg=%d\n" % fit.fitter.bgdeg
+		text += "Peak model: %s\n" % fit.fitter.peakModel.name
 		text += "\n"
-		text += fitter.peakModel.OptionsStr()
+		text += fit.fitter.peakModel.OptionsStr()
 		self.fitPanel.SetOptions(text)
 		# data
 		text = str()
-		if fitter.bgFitter:
-			deg = fitter.bgFitter.GetDegree()
-			chisquare = fitter.bgFitter.GetChisquare()
+		if fit.fitter.bgFitter:
+			deg = fit.fitter.bgFitter.GetDegree()
+			chisquare = fit.fitter.bgFitter.GetChisquare()
 			text += "Background (seperate fit): degree = %d   chi^2 = %.2f\n" % (deg, chisquare)
 			for i in range(0,deg+1):
-				value = hdtv.util.ErrValue(fitter.bgFitter.GetCoeff(i),
-				                           fitter.bgFitter.GetCoeffError(i))
+				value = hdtv.util.ErrValue(fit.fitter.bgFitter.GetCoeff(i),
+				                           fit.fitter.bgFitter.GetCoeffError(i))
 				text += "bg[%d]: %s   " % (i, value.fmt())
 			text += "\n\n"
 		i = 0
-		if fitter.peakFitter:
-			text += "Peak fit: chi^2 = %.2f\n" % fitter.peakFitter.GetChisquare()
-			for peak in fitter.GetResults():
+		if fit.fitter.peakFitter:
+			text += "Peak fit: chi^2 = %.2f\n" % fit.fitter.peakFitter.GetChisquare()
+			for peak in fit.peaks:
 				text += "Peak %d:\n%s\n" % (i, str(peak))
 				i += 1
 		self.fitPanel.SetData(text)

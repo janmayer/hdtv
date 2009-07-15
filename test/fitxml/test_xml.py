@@ -1,3 +1,29 @@
+# -*- coding: utf-8 -*-
+
+# HDTV - A ROOT-based spectrum analysis software
+#  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+#
+# This file is part of HDTV.
+#
+# HDTV is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# HDTV is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with HDTV; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+
+################################################################################
+# This script contains some test cases for the writing and reading of fits to XML
+# If this test work fine, one also needs to test, how thing behave after changing  
+# the calibration back and forth...
+################################################################################
 import os
 import __main__
 
@@ -6,11 +32,11 @@ spectra.RemoveAll()
 
 testspectrum= os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
 testXML = os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.xml")
-oldXML = os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg_v0.1_.xml")
+
 
 __main__.s.LoadSpectra(testspectrum)
 
-# 1.) all parameter free, just one peak, no background, theuerkauf modell
+# 0.) all parameter free, just one peak, no background, theuerkauf modell
 __main__.f.SetPeakModel("theuerkauf")
 __main__.f.ResetParameters()
 fit = __main__.f.GetActiveFit()
@@ -20,7 +46,7 @@ fit.PutPeakMarker(1460)
 __main__.f.Fit()
 __main__.f.KeepFit()
 
-# 2.) all parameter free, just one peak, background
+# 1.) all parameter free, just one peak, background
 __main__.f.ResetParameters()
 fit = __main__.f.GetActiveFit()
 fit.PutRegionMarker(500)
@@ -34,7 +60,7 @@ __main__.f.Fit()
 __main__.f.KeepFit()
 
 
-# 3.) all parameter free, more than one peak
+# 2.) all parameter free, more than one peak
 __main__.f.ResetParameters()
 fit = __main__.f.GetActiveFit()
 fit.PutRegionMarker(1395)
@@ -48,7 +74,7 @@ fit.PutBgMarker(1425)
 __main__.f.Fit()
 __main__.f.KeepFit()
 
-# 4.) one parameter status!=free, but equal for all peaks
+# 3.) one parameter status!=free, but equal for all peaks
 __main__.f.ResetParameters()
 fit = __main__.f.GetActiveFit()
 fit.PutRegionMarker(960)
@@ -59,12 +85,12 @@ fit.PutBgMarker(950)
 fit.PutBgMarker(955)
 fit.PutBgMarker(980)
 fit.PutBgMarker(985)
-__main__.f.SetParameter("width", "equal")
+__main__.f.SetParameter("pos", "hold")
 __main__.f.Fit()
 __main__.f.KeepFit()
 
 
-# 5.) different parameter status for each peak
+# 4.) different parameter status for each peak
 __main__.f.ResetParameters()
 fit = __main__.f.GetActiveFit()
 fit.PutRegionMarker(1750)
@@ -75,7 +101,17 @@ fit.PutBgMarker(1700)
 fit.PutBgMarker(1710)
 fit.PutBgMarker(1800)
 fit.PutBgMarker(1810)
-__main__.f.SetParameter("tl", "free, none")
+__main__.f.Fit()
+__main__.f.KeepFit()
+
+
+# 5.) ee peak (just proof of concept, not a thorough test)
+__main__.f.SetPeakModel("ee")
+__main__.f.ResetParameters()
+fit = __main__.f.GetActiveFit()
+fit.PutRegionMarker(1115)
+fit.PutRegionMarker(1125)
+fit.PutPeakMarker(1120)
 __main__.f.Fit()
 __main__.f.KeepFit()
 
@@ -84,7 +120,7 @@ print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
 __main__.spectra[0].RemoveObjects(spectra[0].keys())
-print 'Reading fits from file %s' %oldXML
-__main__.fitxml.ReadFitlist(oldXML)
+print 'Reading fits from file %s' %testXML
+__main__.fitxml.ReadFitlist(testXML)
 
 

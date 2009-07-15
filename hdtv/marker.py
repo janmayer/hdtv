@@ -53,7 +53,7 @@ class Marker(Drawable):
 		if self.viewport:
 			if self.viewport == viewport:
 				# this marker has already been drawn
-				# but maybe the position 
+				# but maybe the position changed
 				self.Refresh()
 				return
 			else:

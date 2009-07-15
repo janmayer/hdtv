@@ -43,8 +43,9 @@ class FitXml:
 			# <fit>
 			for fit in spec.itervalues():
 				fitElement = ET.SubElement(specElement, "fit")
-				fitElement.set("peakModel", fit.fitter.peakModel.Name())
+				fitElement.set("peakModel", fit.fitter.peakModel.name)
 				fitElement.set("bgDegree", str(fit.fitter.bgdeg))
+				fitElement.set("chi", str(fit.chi))
 				# <bgMarker>
 				for marker in fit.bgMarkers:
 					markerElement = ET.SubElement(fitElement, "bgMarker")
@@ -87,58 +88,68 @@ class FitXml:
 				for marker in fit.peakMarkers:
 					markerElement = ET.SubElement(fitElement, "peakMarker")
 					# <begin>
-					beginElement = ET.SubElement(markerElement, "position")
+					positionElement = ET.SubElement(markerElement, "position")
 					# <cal>
-					calElement = ET.SubElement(beginElement, "cal")
+					calElement = ET.SubElement(positionElement, "cal")
 					calElement.text = str(marker.p1)
 					# <uncal>
-					uncalElement = ET.SubElement(beginElement, "uncal")
+					uncalElement = ET.SubElement(positionElement, "uncal")
 					uncalElement.text = str(spec.cal.E2Ch(marker.p1))
 				# <background>
 				if not fit.fitter.bgFitter is None:
 					bgElement = ET.SubElement(fitElement,"background")
-					deg = fit.fitter.bgFitter.GetDegree()
+					deg = len(fit.bgCoeffs)-1
 					bgElement.set("deg", str(deg))
-					bgElement.set("chisquare", str(fit.fitter.bgFitter.GetChisquare()))
+					bgElement.set("chisquare", str(fit.bgChi))
 					# <coeff>
 					for i in range(0,deg+1):
 						coeffElement = ET.SubElement(bgElement, "coeff")
 						coeffElement.set("deg", str(i))
 						# <value>
 						valueElement = ET.SubElement(coeffElement, "value")
-						valueElement.text = str(fit.fitter.bgFitter.GetCoeff(i))
+						valueElement.text = str(fit.bgCoeffs[i].value)
 						# <error>
 						errorElement = ET.SubElement(coeffElement, "error")
-						errorElement.text = str(fit.fitter.bgFitter.GetCoeffError(i))
+						errorElement.text = str(fit.bgCoeffs[i].error)
 				# <peak>
-				for result in fit.fitter.GetResults():
-					resultElement = ET.SubElement(fitElement, "peak")
+				for peak in fit.peaks:
+					peakElement = ET.SubElement(fitElement, "peak")
+					# <uncal>
+					uncalElement = ET.SubElement(peakElement, "uncal")
 					# Parameter
 					for param in fit.fitter.fParStatus.iterkeys():
-						paramElement = ET.SubElement(resultElement, param)
+						paramElement = ET.SubElement(uncalElement, param)
 						status = fit.fitter.fParStatus[param]
 						if type(status)==list:
-							index = fit.fitter.GetResults().index(result)
+							index = fit.peaks.index(peak)
 							status = status[index]
 						paramElement.set("status", str(status))
-						param = getattr(result, param)
-						if not param is None: #FIXME :cal/uncal
-							# <cal>
-							calElement = ET.SubElement(paramElement, "cal")
+						param = getattr(peak, param)
+						if not param is None: 
 							# <value>
-							valueElement = ET.SubElement(calElement, "value")
+							valueElement = ET.SubElement(paramElement, "value")
 							valueElement.text = str(param.value)
 							# <error>
-							errorElement = ET.SubElement(calElement, "error")
+							errorElement = ET.SubElement(paramElement, "error")
 							errorElement.text = str(param.error)
-							# <uncal>
-							calElement = ET.SubElement(paramElement, "cal")
+					# <cal>
+					calElement = ET.SubElement(peakElement, "cal")
+					# Parameter
+					for param in fit.fitter.fParStatus.iterkeys():
+						paramElement = ET.SubElement(calElement, param)
+						status = fit.fitter.fParStatus[param]
+						if type(status)==list:
+							index = fit.peaks.index(peak)
+							status = status[index]
+						paramElement.set("status", str(status))
+						param = getattr(peak, "%s_cal" %param)
+						if not param is None: 
 							# <value>
-							valueElement = ET.SubElement(calElement, "value")
+							valueElement = ET.SubElement(paramElement, "value")
 							valueElement.text = str(param.value)
 							# <error>
-							errorElement = ET.SubElement(calElement, "error")
-							errorElement.text = str(param.value)
+							errorElement = ET.SubElement(paramElement, "error")
+							errorElement.text = str(param.error)
 		self.indent(root)
 		if filename:
 			tree = ET.ElementTree(root)
@@ -207,8 +218,9 @@ class FitXml:
 				fitter = hdtv.fitter.Fitter(peakModel, bgdeg)
 				# <peak>
 				params = dict()
-				for resultElement in fitElement.findall("peak"):
-					for paramElement in resultElement:
+				for peakElement in fitElement.findall("peak"):
+					uncalElement = peakElement.find("uncal")
+					for paramElement in uncalElement:
 						parname = paramElement.tag
 						status = paramElement.get("status")
 						try:
@@ -224,6 +236,7 @@ class FitXml:
 						status = ','.join(status)
 					fitter.SetParameter(parname, status)
 				fit = hdtv.fit.Fit(fitter, spec.color, spec.cal)
+				fit.chi = float(fitElement.get("chi"))
 				# <bgMarker>
 				for bgElement in fitElement.findall("bgMarker"):
 					# Read begin marker
@@ -235,7 +248,7 @@ class FitXml:
 					end = float(endElement.find("uncal").text)
 					fit.PutBgMarker(fit.cal.Ch2E(end))
 				# <regionMarker>
-				for regionElement in fitElement.findall("region"):
+				for regionElement in fitElement.findall("regionMarker"):
 					# Read begin marker
 					beginElement = regionElement.find("begin");
 					begin = float(beginElement.find("uncal").text)
@@ -245,34 +258,59 @@ class FitXml:
 					end = float(endElement.find("uncal").text)
 					fit.PutRegionMarker(fit.cal.Ch2E(end))
 				# <peakMarker>
-				for peakElement in fitElement.findall("peak"):
+				for peakElement in fitElement.findall("peakMarker"):
 					# Read position marker
 					posElement = peakElement.find("position")
 					pos = float(posElement.find("uncal").text)
 					fit.PutPeakMarker(fit.cal.Ch2E(pos))
-				spec.Add(fit)
-				# restore background fit
 				# <background>
-				bgElement = fitElement.findall("background")
-				chisquare = bgElement.get("chisquare")
-				coeffs = list()
-				for coeffElement in bgElement.findall("coeff"):
-					deg = int(coeff.get("deg")) 
-					# <value>
-					valueElement = coeffElement.find("value")
-					value = float(valueElement.text)
-					# <error>
-					errorElement = coeffElement.find("error")
-					error = float(errorElement.text)
-					coeffs.append([deg, value, error])
-				coeffs.sort()
-				values = [c[1] for c in coeffs]
-				errors = [c[2] for c in coeffs]
-				backgrounds = [[m.p1, m.p2] for m in fit.bgMarkers]
-				fit.fitter.RestoreBackground(spec, backgrounds, values, errors, chisquare)
-
-
-
+				bgElement = fitElement.find("background")
+				if bgElement:
+					fit.bgChi = float(bgElement.get("chisquare"))
+					coeffs = list()
+					for coeffElement in bgElement.findall("coeff"):
+						deg = int(coeffElement.get("deg")) 
+						# <value>
+						valueElement = coeffElement.find("value")
+						value = float(valueElement.text)
+						# <error>
+						errorElement = coeffElement.find("error")
+						error = float(errorElement.text)
+						coeff = hdtv.util.ErrValue(value, error)
+						coeffs.append([deg, coeff])
+					coeffs.sort()
+					fit.bgCoeffs = coeffs
+				# <peak>
+				for peakElement in fitElement.findall("peak"):
+					# <uncal>
+					uncalElement = peakElement.find("uncal")
+					parameter = dict()
+					for paramElement in uncalElement:
+						name = paramElement.tag
+						# <value>
+						valueElement = paramElement.find("value")
+						if valueElement is None:
+							parameter[name]=None
+							continue
+						value = float(valueElement.text)
+						# <error>
+						errorElement = paramElement.find("error")
+						error = float(errorElement.text)
+						status = paramElement.get("status")
+						if status in ["free", "equal"]:
+							free = True
+						else:
+							free = False
+						parameter[name] = hdtv.peak.FitValue(value, error, free)
+					try:
+						peak =fit.fitter.peakModel.Peak(cal=spec.cal, **parameter)
+					except TypeError:
+						print parameter
+						continue
+					fit.peaks.append(peak)
+				fit.Restore()
+				spec.Add(fit)
+				
 
 	def ReadFitlist_v0(self, root):
 		"""

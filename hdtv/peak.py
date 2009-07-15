@@ -19,33 +19,81 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-import util
 import math
 import ROOT
+import hdtv.color
+import hdtv.cal
+import hdtv.util
+from hdtv.drawable import Drawable
 
-class FitValue(util.ErrValue):
+hdtv.dlmgr.LoadLibrary("display")
+
+class FitValue(hdtv.util.ErrValue):
 	def __init__(self, value, error, free):
-		util.ErrValue.__init__(self, value, error)
+		hdtv.util.ErrValue.__init__(self, value, error)
 		self.free = free
 		
 	def fmt(self):
 		if self.free:
-			return util.ErrValue.fmt(self)
+			return hdtv.util.ErrValue.fmt(self)
 		else:
-			return util.ErrValue.fmt_no_error(self) + " (HOLD)"
+			return hdtv.util.ErrValue.fmt_no_error(self) + " (HOLD)"
 
-class EEPeak:
+class EEPeak(Drawable):
 	"""
 	Peak object for the ee fitter
 	"""
-	def __init__(self, pos, amp, sigma1, sigma2, eta, gamma, vol):
+	def __init__(self, pos, amp, sigma1, sigma2, eta, gamma, vol, color=None, cal=None):
+		Drawable.__init__(self, color, cal)
 		self.pos = pos
 		self.amp = amp
 		self.sigma1 = sigma1
 		self.sigma2 = sigma2
 		self.eta = eta
 		self.gamma = gamma
+		# vol is not a fit parameter, but rather the result of the fit
 		self.vol = vol
+		
+	def __getattr__(self, name):
+		if name=="pos_cal":
+			if self.cal is None:
+				return self.pos
+			pos_uncal = self.pos.value
+			pos_err_uncal = self.pos.error
+			pos_cal = self.cal.Ch2E(pos_uncal)
+			pos_err_cal = abs(self.cal.dEdCh(pos_uncal) * pos_err_uncal)
+			# FitValue is not supported because of missing code in C++
+			return hdtv.util.ErrValue(pos_cal, pos_err_cal)
+		elif name=="sigma1_cal":
+			if self.cal is None:
+				return self.sigma1
+			pos_uncal = self.pos.value
+			sigma1_uncal = self.sigma1.value
+			sigma1_err_uncal = self.sigma1.error
+			sigma1_cal = self.cal.Ch2E(pos_uncal) - self.cal.Ch2E(pos_uncal - sigma1_uncal)
+			# This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
+			#  (which is true for Ch2E \approx linear)
+			sigma1_err_cal = abs( self.cal.dEdCh(pos_uncal - sigma1_uncal) * sigma1_err_uncal)
+			# FitValue is not supported because of missing code in C++
+			return hdtv.util.ErrValue(sigma1_cal, sigma1_err_cal)
+		elif name=="sigma2_cal":
+			if self.cal is None:
+				return self.sigma2
+			pos_uncal = self.pos.value
+			sigma2_uncal = self.sigma2.value
+			sigma2_err_uncal = self.sigma2.error
+			sigma2_cal = self.cal.Ch2E(pos_uncal) - self.cal.Ch2E(pos_uncal - sigma2_uncal)
+			# This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
+			#  (which is true for Ch2E \approx linear)
+			sigma2_err_cal = abs( self.cal.dEdCh(pos_uncal - sigma2_uncal) * sigma2_err_uncal)
+			# FitValue is not supported because of missing code in C++
+			return hdtv.util.ErrValue(sigma2_cal, sigma2_err_cal)
+		elif name in ["amp_cal","eta_cal","gamma_cal","vol_cal"]:
+			name = name[0:name.rfind("_cal")]
+			return getattr(self, name)
+		else:
+			# DON'T FORGET THIS LINE! see http://code.activestate.com/recipes/52238/ 
+			raise AttributeError, name 
 
 	def __str__(self):
 		text = str()
@@ -58,28 +106,84 @@ class EEPeak:
 		text += "Volume: " + self.vol.fmt() + "\n"
 		return text
 	
+	
 	def __cmp__(self, other):	
 		return cmp(self.pos, other.pos)
 		
-class TheuerkaufPeak:
+		
+	def Draw(self, viewport):
+		"""
+		Draw the function of this peak
+		"""
+		if self.viewport:
+			if self.viewport == viewport:
+				# this has already been drawn
+				self.Refresh()
+				return
+			else:
+				# Unlike the Display object of the underlying implementation,
+				# python objects can only be drawn on a single viewport
+				raise RuntimeError, "Peak cannot be drawn on multiple viewports"
+		self.viewport = viewport
+		if self.displayObj:
+			self.displayObj.Draw(self.viewport)
+	
+		
+class TheuerkaufPeak(Drawable):
 	"""
 	Peak object for the Theuerkauf (classic TV) fitter
 	"""
-	def __init__(self, pos, vol, width, tl, tr, sh, sw):
+	def __init__(self, pos, vol, width, tl, tr, sh, sw, color=None, cal=None):
+		Drawable.__init__(self, color, cal)
+		# values are uncalibrated!
 		self.pos = pos
 		self.vol = vol
-		self.width = width	# fwhm!
+		# width==fwhm (internally the C++ fitter uses sigma)
+		self.width = width	
 		self.tl = tl
 		self.tr = tr
 		self.sh = sh
 		self.sw = sw
 		
+	def __getattr__(self, name):
+		"""
+		calculate calibrated values on the fly for pos and width
+		"""
+		if name=="pos_cal":
+			if self.cal is None:
+				return self.pos
+			pos_uncal = self.pos.value
+			pos_err_uncal = self.pos.error
+			pos_cal = self.cal.Ch2E(pos_uncal)
+			pos_err_cal = abs(self.cal.dEdCh(pos_uncal) * pos_err_uncal)
+			return FitValue(pos_cal, pos_err_cal, self.pos.free)
+		elif name=="width_cal":
+			if self.cal is None:
+				return self.width
+			pos_uncal = self.pos.value
+			hwhm_uncal = self.width.value/2
+			width_err_uncal = self.width.error
+			width_cal = self.cal.Ch2E(pos_uncal + hwhm_uncal) - self.cal.Ch2E(pos_uncal - hwhm_uncal)
+			# This is only an approximation, valid as d(width_cal)/d(pos_uncal) \approx 0
+			#  (which is true for Ch2E \approx linear)
+			width_err_cal = abs( (self.cal.dEdCh(pos_uncal + hwhm_uncal) / 2. + 
+                                  self.cal.dEdCh(pos_uncal - hwhm_uncal) / 2.   ) * width_err_uncal)
+			return FitValue(width_cal, width_err_cal, self.width.free)
+		elif name in ["vol_cal","tl_cal","tr_cal","sh_cal","sw_cal"]:
+			name = name[0:name.rfind("_cal")]
+			return getattr(self, name)
+		else:
+			# DON'T FORGET THIS LINE! see http://code.activestate.com/recipes/52238/ 
+			raise AttributeError, name 
 
 	def __str__(self):
+		"""
+		print the properties of this peak in a nicely formated way
+		"""
 		text = str()
-		text += "Pos:         " + self.pos.fmt() + "\n"
+		text += "Pos:         " + self.pos_cal.fmt() + "\n"
 		text += "Volume:      " + self.vol.fmt() + "\n"
-		text += "FWHM:        " + self.width.fmt() + "\n"
+		text += "FWHM:        " + self.width_cal.fmt() + "\n"
 		# Note: do not use == or != when testing for None
 		# those operators use cmp, which is not garanteed to handle None
 		if not self.tl is None:
@@ -97,9 +201,30 @@ class TheuerkaufPeak:
 			text += "Step:        None\n"
 		return text
 
-	def __cmp__(self, other):	
+	def __cmp__(self, other):
+		"""
+		compare peaks according to their position (uncalibrated)
+		"""	
 		return cmp(self.pos, other.pos)
 	
+	
+	def Draw(self, viewport):
+		"""
+		Draw the function of this peak
+		"""
+		if self.viewport:
+			if self.viewport == viewport:
+				# this has already been drawn
+				self.Refresh()
+				return
+			else:
+				# Unlike the Display object of the underlying implementation,
+				# python objects can only be drawn on a single viewport
+				raise RuntimeError, "Peak cannot be drawn on multiple viewports"
+		self.viewport = viewport
+		if self.displayObj:
+			self.displayObj.Draw(self.viewport)
+
 
 # For each model implemented on the C++ side, we have a corresponding Python
 # class to handle fitter setup and data transfer to the Python side
@@ -202,6 +327,7 @@ class PeakModel:
 		else:
 			return float(status)
 		
+		
 	def SetParameter(self, parname, status):
 		"""
 		Set status for a certain parameter
@@ -228,7 +354,6 @@ class PeakModel:
 			parStatus = self.fParStatus[name][peak_id]
 		else:
 			parStatus = self.fParStatus[name]
-			
 		# Switch according to parameter status
 		if parStatus == "equal":
 			if not name in self.fGlobalParams:
@@ -273,55 +398,49 @@ class PeakModelTheuerkauf(PeakModel):
 		                         "sw":    [ float, "free", "equal", "hold" ] }
 		                         
 		self.ResetParamStatus()
-		
-	def Name(self):
-		return "theuerkauf"
+		self.Peak = TheuerkaufPeak
+		self.name = "theuerkauf"
 		
 
-	def CopyPeak(self, cpeak, cal):
+	def CopyPeak(self, cpeak, color=None, cal=None):
 		"""
-		
-		"""
+		create a python peak object from C++ peak object
+		""" 
 		# get values from C++ object (uncalibrated)
 		pos_uncal = cpeak.GetPos()
 		pos_err_uncal = cpeak.GetPosError()
-		hwhm_uncal = cpeak.GetSigma() * math.sqrt(2. * math.log(2.))
-		width_err_uncal = cpeak.GetSigmaError() * 2. * math.sqrt(2. * math.log(2.))
-		# calculate calibrated values
-		pos_cal = cal.Ch2E(pos_uncal)
-		pos_err_cal = abs(cal.dEdCh(pos_uncal) * pos_err_uncal)
-		width_cal = cal.Ch2E(pos_uncal + hwhm_uncal) - cal.Ch2E(pos_uncal - hwhm_uncal)
-		# This is only an approximation, valid as d(width_cal)/d(pos_uncal) \approx 0
-		#  (which is true for Ch2E \approx linear)
-		width_err_cal = abs( (cal.dEdCh(pos_uncal + hwhm_uncal) / 2. + 
-                             cal.dEdCh(pos_uncal - hwhm_uncal) / 2.   ) * width_err_uncal)
-		# create FitValues objets from this
-		pos = FitValue(pos_cal, pos_err_cal, cpeak.PosIsFree())
-		vol = FitValue(cpeak.GetVol(), cpeak.GetVolError(), cpeak.VolIsFree())
 		# width==fwhm (internally the C++ fitter uses sigma)
-		width = FitValue(width_cal, width_err_cal, cpeak.SigmaIsFree())
-		
+		hwhm_uncal = cpeak.GetSigma() * math.sqrt(2. * math.log(2.))
+		width_uncal = 2* hwhm_uncal
+		width_err_uncal = cpeak.GetSigmaError() * 2. * math.sqrt(2. * math.log(2.))
+		# create FitValues objets from this
+		pos = FitValue(pos_uncal, pos_err_uncal, cpeak.PosIsFree())
+		vol = FitValue(cpeak.GetVol(), cpeak.GetVolError(), cpeak.VolIsFree())
+		width = FitValue(width_uncal, width_err_uncal, cpeak.SigmaIsFree())
+		# optional parameters
 		if cpeak.HasLeftTail():
 			tl = FitValue(cpeak.GetLeftTail(), cpeak.GetLeftTailError(), 
 			              cpeak.LeftTailIsFree())
 		else:
 			tl = None
-			
 		if cpeak.HasRightTail():
 			tr = FitValue(cpeak.GetRightTail(), cpeak.GetRightTailError(),
 			              cpeak.RightTailIsFree())
 		else:
 			tr = None
-			
 		if cpeak.HasStep():
 			sh = FitValue(cpeak.GetStepHeight(), cpeak.GetStepHeightError(),
-			                   cpeak.StepHeightIsFree())
+			              cpeak.StepHeightIsFree())
 			sw = FitValue(cpeak.GetStepWidth(), cpeak.GetStepWidthError(),
-			                   cpeak.StepWidthIsFree())
+			              cpeak.StepWidthIsFree())
 		else:
 			sh = sw = None
-			
-		return TheuerkaufPeak(pos, vol, width, tl, tr, sh, sw)
+		# create peak object
+		peak = self.Peak(pos, vol, width, tl, tr, sh, sw, color, cal)
+		func = cpeak.GetPeakFunc()
+		peak.displayObj = ROOT.HDTV.Display.DisplayFunc(func, color)
+		peak.displayObj.SetCal(cal)
+		return peak
 		
 		
 	def ResetParamStatus(self):
@@ -340,6 +459,7 @@ class PeakModelTheuerkauf(PeakModel):
 	def Uncal(self, parname, value, pos_uncal, cal):
 		"""
 		Convert a value from calibrated (spectrum) to uncalibrated (fitter) units
+		This is needed, when a value is hold to a specific calibrated value.
 		"""
 		if parname == "pos":
 			return cal.E2Ch(value)
@@ -379,8 +499,8 @@ class PeakModelTheuerkauf(PeakModel):
 			sh = self.GetParam("sh", pid, pos_uncal, cal)
 			sw = self.GetParam("sw", pid, pos_uncal, cal)
 			
-			peak = ROOT.HDTV.Fit.TheuerkaufPeak(pos, vol, sigma, tl, tr, sh, sw)
-			self.fFitter.AddPeak(peak)
+			cpeak = ROOT.HDTV.Fit.TheuerkaufPeak(pos, vol, sigma, tl, tr, sh, sw)
+			self.fFitter.AddPeak(cpeak)
 
 		return self.fFitter
 
@@ -392,53 +512,41 @@ class PeakModelEE(PeakModel):
 	"""
 	def __init__(self):
 		PeakModel.__init__(self)
-		self.fOrderedParamKeys = ["pos", "amp", "sigma1", "sigma2", "eta", "gamma"]
+		self.fOrderedParamKeys = ["pos", "amp", "sigma1", "sigma2", "eta", "gamma", "vol"]
 		self.fParStatus = { "pos": None, "amp": None, "sigma1": None, "sigma2": None,
-		                    "eta": None, "gamma": None }
+		                    "eta": None, "gamma": None, "vol":None }
+		# volume is not a fit parameter, but is must be in this list
+		# because it is a property of an EEPeak
 		self.fValidParStatus = { "pos":    [ float, "free", "hold" ],
 		                         "amp":    [ float, "free", "hold" ],
 		                         "sigma1": [ float, "free", "equal" ],
 		                         "sigma2": [ float, "free", "equal" ],
 		                         "eta":    [ float, "free", "equal" ],
-		                         "gamma":  [ float, "free", "equal" ] }
+		                         "gamma":  [ float, "free", "equal" ],
+		                         "vol":    ["free"] }
 		self.ResetParamStatus()
+		self.name = "ee"
+		self.Peak = EEPeak
 		
-	def Name(self):
-		return "ee"
 		
-	def CopyPeak(self, cpeak, cal):
+	def CopyPeak(self, cpeak, color=None, cal=None):
 		"""
 		Copies peak data from a C++ peak class to a Python class
 		"""
-		"""
-		Copies peak data from a C++ peak class to a Python class
-		"""
-		pos_uncal = cpeak.GetPos()
-		pos_err_uncal = cpeak.GetPosError()
-		hwhm1_uncal = cpeak.GetSigma1()
-		hwhm1_err_uncal = cpeak.GetSigma1Error()
-		hwhm2_uncal = cpeak.GetSigma2()
-		hwhm2_err_uncal = cpeak.GetSigma2Error()
-		
-		pos_cal = cal.Ch2E(pos_uncal)
-		pos_err_cal = abs(cal.dEdCh(pos_uncal) * pos_err_uncal)
-		
-		hwhm1_cal = cal.Ch2E(pos_uncal) - cal.Ch2E(pos_uncal - hwhm1_uncal)
-		hwhm2_cal = cal.Ch2E(pos_uncal + hwhm2_uncal) - cal.Ch2E(pos_uncal)
-		# This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
-		#  (which is true for Ch2E \approx linear)
-		hwhm1_err_cal = abs( cal.dEdCh(pos_uncal - hwhm1_uncal) * hwhm1_err_uncal)
-		hwhm2_err_cal = abs( cal.dEdCh(pos_uncal + hwhm2_uncal) * hwhm2_err_uncal)
-		
-		pos = util.ErrValue(pos_cal, pos_err_cal)
-		amp = util.ErrValue(cpeak.GetAmp(), cpeak.GetAmpError())
-		sigma1 = util.ErrValue(hwhm1_cal, hwhm1_err_cal)
-		sigma2 = util.ErrValue(hwhm2_cal, hwhm2_err_cal)
-		eta = util.ErrValue(cpeak.GetEta(), cpeak.GetEtaError())
-		gamma = util.ErrValue(cpeak.GetGamma(), cpeak.GetGammaError())
-		vol = util.ErrValue(cpeak.GetVol(), cpeak.GetVolError())
-
-		return EEPeak(pos, amp, sigma1, sigma2, eta, gamma, vol)
+		# create ErrValues (the use of FitValues is not implemented in C++)
+		pos = hdtv.util.ErrValue(cpeak.GetPos(), cpeak.GetPosError())
+		amp = hdtv.util.ErrValue(cpeak.GetAmp(), cpeak.GetAmpError())
+		sigma1 = hdtv.util.ErrValue(cpeak.GetSigma1(), cpeak.GetSigma1Error())
+		sigma2 = hdtv.util.ErrValue(cpeak.GetSigma2(), cpeak.GetSigma2Error())
+		eta = hdtv.util.ErrValue(cpeak.GetEta(), cpeak.GetEtaError())
+		gamma = hdtv.util.ErrValue(cpeak.GetGamma(), cpeak.GetGammaError())
+		vol = hdtv.util.ErrValue(cpeak.GetVol(), cpeak.GetVolError())
+		# create the peak object
+		peak = self.Peak(pos, amp, sigma1, sigma2, eta, gamma, vol)
+		func = cpeak.GetPeakFunc()
+		peak.displayObj = ROOT.HDTV.Display.DisplayFunc(func, color)
+		peak.displayObj.SetCal(cal)
+		return peak
 		
 	
 	def ResetParamStatus(self):
@@ -451,6 +559,7 @@ class PeakModelEE(PeakModel):
 		self.fParStatus["sigma2"] = "equal"
 		self.fParStatus["eta"] = "equal"
 		self.fParStatus["gamma"] = "equal"
+		self.fParStatus["vol"] = "free"
 	
 	def Uncal(self, parname, value, pos_uncal, cal):
 		"""

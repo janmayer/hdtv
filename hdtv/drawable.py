@@ -93,7 +93,8 @@ class Drawable:
 		"""
 		if not self.viewport:
 			return
-		self.displayObj.Remove()
+		if self.displayObj:
+			self.displayObj.Remove()
 		self.displayObj = None
 		# finally remove the viewport from this object
 		self.viewport = None
@@ -104,7 +105,8 @@ class Drawable:
 		"""
 		if not self.viewport:
 			return
-		self.displayObj.Show()
+		if self.displayObj:
+			self.displayObj.Show()
 
 	def Hide(self):
 		"""
@@ -112,7 +114,8 @@ class Drawable:
 		"""
 		if not self.viewport:
 			return
-		self.displayObj.Hide()
+		if self.displayObj:
+			self.displayObj.Hide()
 
 		
 	def ToTop(self):
@@ -200,7 +203,6 @@ class DrawableCompound(UserDict.DictMixin):
 			obj.SetColor(active=False)
 			obj.Draw(self.viewport)
 			self.visible.add(ID)
-		
 		return ID
 		
 	def Insert(self, obj, ID):

@@ -22,6 +22,7 @@ import ROOT
 
 import hdtv.color
 import hdtv.cal
+import hdtv.util
 from hdtv.drawable import Drawable
 from hdtv.marker import MarkerCollection
 
@@ -48,16 +49,19 @@ class Fit(Drawable):
 		self.bgMarkers = MarkerCollection("X", paired=True, maxnum=None,
 											 color=hdtv.color.bg, cal=self.cal)
 		self.fitter = fitter
+		self.peaks = []
+		self.chi = None
+		self.bgChi = None
+		self.bgCoeffs = []
 		self.showDecomp = False
 		self.dispPeakFunc = None
 		self.dispBgFunc = None
-		self.dispDecompFuncs = []
-		self.dispFuncs = []
+		
 		
 	def __str__(self):
 		i=0
 		text = str()
-		for peak in self.fitter.GetResults():
+		for peak in self.peaks:
 			text += ("\nPeak %d:" %i).ljust(10)
 			peakstr = str(peak).strip()
 			peakstr = peakstr.split("\n")
@@ -69,41 +73,31 @@ class Fit(Drawable):
 	
 	def PutPeakMarker(self, pos):
 		if self.dispPeakFunc:
-			self.dispFuncs.remove(self.dispPeakFunc)
 			self.dispPeakFunc.Remove()
 			self.dispPeakFunc = None
-		for func in self.dispDecompFuncs:
-			self.dispFuncs.remove(func)
-			func.Remove()
-		self.dispDecompFuncs = []
+		for peak in self.peaks:
+			peak.Remove()
 		self.peakMarkers.PutMarker(pos)
 		
 	
 	def PutRegionMarker(self, pos):
 		if self.dispPeakFunc:
-			self.dispFuncs.remove(self.dispPeakFunc)
 			self.dispPeakFunc.Remove()
 			self.dispPeakFunc = None
-		for func in self.dispDecompFuncs:
-			self.dispFuncs.remove(func)
-			func.Remove()
-		self.dispDecompFuncs = []
+		for peak in self.peaks:
+			peak.Remove()
 		self.regionMarkers.PutMarker(pos)
 		
 		
 	def PutBgMarker(self, pos):
 		if self.dispBgFunc:
-			self.dispFuncs.remove(self.dispBgFunc)
 			self.dispBgFunc.Remove()
 			self.dispBgFunc = None
 		if self.dispPeakFunc:
-			self.dispFuncs.remove(self.dispPeakFunc)
 			self.dispPeakFunc.Remove()
 			self.dispPeakFunc = None
-		for func in self.dispDecompFuncs:
-			self.dispFuncs.remove(func)
-			func.Remove()
-		self.dispDecompFuncs = []
+		for peak in self.peaks:
+			peak.Remove()
 		self.bgMarkers.PutMarker(pos)
 		
 
@@ -114,28 +108,33 @@ class Fit(Drawable):
 		"""
 		# remove old fit
 		if self.dispBgFunc:
-			self.dispFuncs.remove(self.dispBgFunc)
 			self.dispBgFunc.Remove()
 			self.dispBgFunc = None
+		self.bgCoeffs = []
+		self.bgChi = None
 		if self.dispPeakFunc:
-			self.dispFuncs.remove(self.dispPeakFunc)
 			self.dispPeakFunc.Remove()
 			self.dispPeakFunc = None
-		for func in self.dispDecompFuncs:
-			self.dispFuncs.remove(func)
-			func.Remove()
-		self.dispDecompFuncs = []
+		for peak in self.peaks:
+			peak.Remove()
+		self.peaks = []
+		self.chi=None
 		# fit background 
 		if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
 			backgrounds = [[m.p1, m.p2] for m in self.bgMarkers] 
 			self.fitter.FitBackground(spec, backgrounds)
 			func = self.fitter.bgFitter.GetFunc()
 			self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
-			if spec.cal:
-				self.dispBgFunc.SetCal(spec.cal)
-			self.dispFuncs.append(self.dispBgFunc)
+			self.dispBgFunc.SetCal(spec.cal)
+			self.bgChi = self.fitter.bgFitter.GetChisquare()
+			self.bgCoeffs = []
+			deg = self.fitter.bgFitter.GetDegree()
+			for i in range(0, deg+1):
+				value = self.fitter.bgFitter.GetCoeff(i)
+				error = self.fitter.bgFitter.GetCoeffError(i)
+				self.bgCoeffs.append(hdtv.util.ErrValue(value, error))
 			
-	
+			
 	def FitPeakFunc(self, spec):
 		"""
 		Do the actual peak fit and extract the functions for display
@@ -143,17 +142,17 @@ class Fit(Drawable):
 		"""
 		# remove old fit
 		if self.dispBgFunc:
-			self.dispFuncs.remove(self.dispBgFunc)
 			self.dispBgFunc.Remove()
 			self.dispBgFunc = None
+		self.bgCoeffs = []
+		self.bgChi = None
 		if self.dispPeakFunc:
-			self.dispFuncs.remove(self.dispPeakFunc)
 			self.dispPeakFunc.Remove()
 			self.dispPeakFunc = None
-		for func in self.dispDecompFuncs:
-			self.dispFuncs.remove(func)
-			func.Remove()
-		self.dispDecompFuncs = []
+		for peak in self.peaks:
+			peak.Remove()
+		self.peaks = []
+		self.chi=None
 		# fit background 
 		if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
 			backgrounds =  map(lambda m: [m.p1, m.p2], self.bgMarkers)
@@ -170,31 +169,42 @@ class Fit(Drawable):
 			peaks = [m.p1 for m in self.peakMarkers]
 			peaks.sort()
 			self.fitter.FitPeaks(spec, region, peaks)
-			# get peak function
-			func = self.fitter.peakFitter.GetSumFunc()
-			self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.region)
-			if spec.cal:
-				self.dispPeakFunc.SetCal(spec.cal)
-			self.dispFuncs.append(self.dispPeakFunc)
 			# get background function
 			func = self.fitter.peakFitter.GetBgFunc()
 			self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
-			if spec.cal:
-				self.dispBgFunc.SetCal(spec.cal)
-			self.dispFuncs.append(self.dispBgFunc)
-			# extract function for each peak (decomposition)
+			self.dispBgFunc.SetCal(spec.cal)
+			if self.fitter.bgFitter:
+				self.bgChi = self.fitter.bgFitter.GetChisquare()
+				self.bgCoeffs = []
+				deg = self.fitter.bgFitter.GetDegree()
+				for i in range(0, deg+1):
+					value = self.fitter.bgFitter.GetCoeff(i)
+					error = self.fitter.bgFitter.GetCoeffError(i)
+					self.bgCoeffs.append(hdtv.util.ErrValue(value, error))
+			# get peak function
+			func = self.fitter.peakFitter.GetSumFunc()
+			self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.region)
+			self.dispPeakFunc.SetCal(spec.cal)
+			self.chi = self.fitter.peakFitter.GetChisquare()
+			# create peak list
 			for i in range(0, self.fitter.peakFitter.GetNumPeaks()):
-				func = self.fitter.peakFitter.GetPeak(i).GetPeakFunc()
-				dispFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.peak)
-				if spec.cal:
-					dispFunc.SetCal(spec.cal)
-				self.dispDecompFuncs.append(dispFunc)
-				self.dispFuncs.append(dispFunc)
+				cpeak = self.fitter.peakFitter.GetPeak(i)
+				peak = self.fitter.peakModel.CopyPeak(cpeak, hdtv.color.peak, spec.cal)
+				self.peaks.append(peak)
+			# in some rare cases it can happen that peaks change position 
+			# while doing the fit, thus we have to sort here
+			self.peaks.sort()
 			# update peak markers
-			for (marker, peak) in zip(self.peakMarkers, self.fitter.GetResults()):
+			for (marker, peak) in zip(self.peakMarkers, self.peaks):
 				marker.p1 = peak.pos.value
 			# print result
 			print "\n"+6*" "+str(self)
+
+	def Restore(self):
+		print "Restoring Fit"
+#		if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
+#			backgrounds = [[m.p1, m.p2] for m in fit.bgMarkers]
+#			self.fitter.RestoreBackground(spec, background, self.bgCoeffs, self.bgChi)
 
 
 	def Draw(self, viewport):
@@ -209,18 +219,21 @@ class Fit(Drawable):
 		self.viewport = viewport
 		# Lock updates
 		self.viewport.LockUpdate()
-		# draw fit funcs, if available
-		for func in self.dispFuncs:
-			func.Draw(self.viewport)
-		if not self.showDecomp:
-			# hide decompostion functions
-			for func in self.dispDecompFuncs:
-				func.Hide()
 		# draw the markers (do this after the fit, 
 		# because the fit updates the position of the peak markers)
 		self.peakMarkers.Draw(self.viewport)
 		self.regionMarkers.Draw(self.viewport)
 		self.bgMarkers.Draw(self.viewport)
+		# draw fit func, if available
+		if self.dispPeakFunc:
+			self.dispPeakFunc.Draw(self.viewport)
+		if self.dispBgFunc:
+			self.dispBgFunc.Draw(self.viewport)
+		# draw peaks
+		for peak in self.peaks:
+			peak.Draw(self.viewport)
+			if not self.showDecomp:
+				peak.Hide()
 		self.viewport.UnlockUpdate()
 		
 
@@ -236,7 +249,16 @@ class Fit(Drawable):
 		if not self.viewport:
 			return
 		self.viewport.LockUpdate()
-		self.Draw(self.viewport)
+		# draw fit func, if available
+		if self.dispPeakFunc:
+			self.dispPeakFunc.Draw(self.viewport)
+		if self.dispBgFunc:
+			self.dispBgFunc.Draw(self.viewport)
+		# draw peaks
+		for peak in self.peaks:
+			peak.Draw()
+			if not self.showDecomp:
+				peak.Hide()
 		# draw the markers (do this after the fit, 
 		# because the fit updates the position of the peak markers)
 		self.peakMarkers.Refresh()
@@ -252,12 +274,13 @@ class Fit(Drawable):
 		self.peakMarkers.Show()
 		self.regionMarkers.Show()
 		self.bgMarkers.Show()
-		for obj in self.dispFuncs:
-			if not self.showDecomp and obj in self.dispDecompFuncs:
-				# do not show decomposition functions if not asked
-				continue
-			obj.Show()
-		print "\n"+6*" "+str(self)
+		if self.dispPeakFunc:
+			self.dispPeakFunc.Show()
+		if self.dispBgFunc:
+			self.dispBgFunc.Show()
+		if self.showDecomp:
+			for peak in self.peaks:
+				peak.Show()
 		self.viewport.UnlockUpdate()
 		
 		
@@ -268,8 +291,12 @@ class Fit(Drawable):
 		self.peakMarkers.Hide()
 		self.regionMarkers.Hide()
 		self.bgMarkers.Hide()
-		for obj in self.dispFuncs:
-			obj.Hide()
+		if self.dispPeakFunc:
+			self.dispPeakFunc.Hide()
+		if self.dispBgFunc:
+			self.dispBgFunc.Hide()
+		for peak in self.peaks:
+			peak.Hide()
 		self.viewport.UnlockUpdate()
 		
 		
@@ -279,13 +306,19 @@ class Fit(Drawable):
 			self.peakMarkers.Remove()
 			self.regionMarkers.Remove()
 			self.bgMarkers.Remove()
-			while len(self.dispFuncs)>0:
-				self.dispFuncs.pop().Remove()
+			if self.dispPeakFunc:
+				self.dispPeakFunc.Remove()
+			if self.dispBgFunc:
+				self.dispBgFunc.Remove()
+			for peak in self.peaks:
+				peak.Remove()
 			self.viewport.UnlockUpdate()
 		self.dispPeakFunc = None
 		self.dispBgFunc = None
-		self.dispDecompFuncs = []
-		self.dispFuncs = []
+		self.bgCoeffs = []
+		self.bgChi = None
+		self.peaks = []
+		self.chi = None
 		
 		
 	def SetCal(self, cal):
@@ -295,8 +328,12 @@ class Fit(Drawable):
 		self.peakMarkers.SetCal(cal)
 		self.regionMarkers.SetCal(cal)
 		self.bgMarkers.SetCal(cal)
-		for obj in self.dispFuncs:
-			obj.SetCal(cal)
+		if self.dispPeakFunc:
+			self.dispPeakFunc.SetCal(cal)
+		if self.dispBgFunc:
+			self.dispBgFunc.SetCal(cal)
+		for peak in self.peaks:
+			peak.SetCal(cal)
 		if self.viewport:
 			self.viewport.UnlockUpdate()
 
@@ -315,14 +352,18 @@ class Fit(Drawable):
 				self.dispPeakFunc.SetColor(hdtv.color.region)
 			if self.dispBgFunc:
 				self.dispBgFunc.SetColor(hdtv.color.bg)
-			for func in self.dispDecompFuncs:
-				func.SetColor(hdtv.color.peak)
+			for peak in self.peaks:
+				peak.SetColor(hdtv.color.peak)
 		else:
 			self.regionMarkers.SetColor(self.color)
 			self.peakMarkers.SetColor(self.color)
 			self.bgMarkers.SetColor(self.color)
-			for func in self.dispFuncs:
-				func.SetColor(self.color)
+			if self.dispPeakFunc:
+				self.dispPeakFunc.SetColor(self.color)
+			if self.dispBgFunc:
+				self.dispBgFunc.SetColor(self.color)
+			for peak in self.peaks:
+				peak.SetColor(self.color)
 		if self.viewport:
 			self.viewport.UnlockUpdate()
 			
@@ -361,42 +402,13 @@ class Fit(Drawable):
 		else:
 			self.showDecomp =  stat
 			if stat:
-				for func in self.dispDecompFuncs:
-					func.Show()
+				for peak in self.peaks:
+					peak.Show()
 			else:
-				for func in self.dispDecompFuncs:
-					func.Hide()
+				for peak in self.peaks:
+					peak.Hide()
 
-	def DumpMarkers(self, cal=True):
-		background=list()
-		for marker in self.bgMarkers:
-			if cal:
-				p1=marker.p1
-				p2=marker.p2
-			else:
-				p1=self.cal.E2Ch(marker.p1)
-				p2=self.cal.E2Ch(marker.p2)
-			background.append([p1,p2])
-		region=list()
-		for marker in self.regionMarkers:
-			if cal:
-				p1=marker.p1
-				p2=marker.p2
-			else:
-				p1=self.cal.E2Ch(marker.p1)
-				p2=self.cal.E2Ch(marker.p2)
-			region.append([p1,p2])
-		peaks=list()
-		for marker in self.peakMarkers:
-			if cal:
-				p1=marker.p1
-			else:
-				p1=self.cal.E2Ch(marker.p1)
-			peaks.append(p1)
-		
-		print "background=",background
-		print "region=", region
-		print "peaks=",peaks
+
 
 
 
