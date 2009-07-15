@@ -20,39 +20,39 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 def ParseRange(strings, special=["ALL", "NONE"]):
-	"""
-	Parse a string or a list of strings specifying (possibly many)
-	ranges and return all values from all ranges. Ranges are inclusive.
-	Each value is returned at most once, but it is no error if it occurs
-	more than once. Within strings, space and comma (,) are accepted as
-	separators. If one of the values from the special array is
-	passed, it is returned (in uppercase); matching is case-insensitive.
+    """
+    Parse a string or a list of strings specifying (possibly many)
+    ranges and return all values from all ranges. Ranges are inclusive.
+    Each value is returned at most once, but it is no error if it occurs
+    more than once. Within strings, space and comma (,) are accepted as
+    separators. If one of the values from the special array is
+    passed, it is returned (in uppercase); matching is case-insensitive.
     If the string is malformed, a ValueError exception is raised.
-	
-	Example: "1 3 2-5, 10,12" gives set([1 2 3 4 5 10 12]).
-	"""
-	# Normalize separators
-	if not isinstance(strings, str):
-		strings = ",".join(strings)
-	strings = ",".join(strings.split())
-	
-	# Split string
-	parts = [p for p in strings.split(",") if p]
-	
-	# Test for special strings (case-insensitive)
-	special = [s.upper() for s in special]
-	if len(parts) == 1 and parts[0].upper() in special:
-		return parts[0].upper()
-	
-	# Parse ranges
-	values = set()
-	for part in parts:
-		r = part.split("-")
-		if len(r) == 1:
-			values.add(int(r[0]))
-		elif len(r) == 2:
-			values |= set(range(int(r[0]), int(r[1])+1))
-		else:
-			raise ValueError, "Malformed range"
-			
-	return values
+    
+    Example: "1 3 2-5, 10,12" gives set([1 2 3 4 5 10 12]).
+    """
+    # Normalize separators
+    if not isinstance(strings, str):
+        strings = ",".join(strings)
+    strings = ",".join(strings.split())
+    
+    # Split string
+    parts = [p for p in strings.split(",") if p]
+    
+    # Test for special strings (case-insensitive)
+    special = [s.upper() for s in special]
+    if len(parts) == 1 and parts[0].upper() in special:
+        return parts[0].upper()
+    
+    # Parse ranges
+    values = set()
+    for part in parts:
+        r = part.split("-")
+        if len(r) == 1:
+            values.add(int(r[0]))
+        elif len(r) == 2:
+            values |= set(range(int(r[0]), int(r[1])+1))
+        else:
+            raise ValueError, "Malformed range"
+            
+    return values

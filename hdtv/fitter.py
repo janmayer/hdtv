@@ -25,75 +25,75 @@ import peak
 dlmgr.LoadLibrary("fit")
 
 class Fitter:
-	"""
-	"""
-	def __init__(self, peakModel, bgdeg):
-		self.SetPeakModel(peakModel)
-		self.bgdeg = bgdeg
-		self.spec = None
-		self.peakFitter = None
-		self.bgFitter = None
-		self.intBgDeg = 0
-	
-	def __getattr__(self, name):
-		return getattr(self.peakModel, name)
+    """
+    """
+    def __init__(self, peakModel, bgdeg):
+        self.SetPeakModel(peakModel)
+        self.bgdeg = bgdeg
+        self.spec = None
+        self.peakFitter = None
+        self.bgFitter = None
+        self.intBgDeg = 0
+    
+    def __getattr__(self, name):
+        return getattr(self.peakModel, name)
 
-	def FitBackground(self, spec, backgrounds):
-		self.spec = spec
-		# do the background fit
-		bgfitter = ROOT.HDTV.Fit.PolyBg(self.bgdeg)
-		for bg in backgrounds:
-			bgfitter.AddRegion(spec.cal.E2Ch(bg[0]), spec.cal.E2Ch(bg[1]))
-		self.bgFitter = bgfitter
-		self.bgFitter.Fit(spec.fHist)
+    def FitBackground(self, spec, backgrounds):
+        self.spec = spec
+        # do the background fit
+        bgfitter = ROOT.HDTV.Fit.PolyBg(self.bgdeg)
+        for bg in backgrounds:
+            bgfitter.AddRegion(spec.cal.E2Ch(bg[0]), spec.cal.E2Ch(bg[1]))
+        self.bgFitter = bgfitter
+        self.bgFitter.Fit(spec.fHist)
 
 
-	def FitPeaks(self, spec, region, peaklist):
-		self.spec = spec
-		self.peakFitter = self.peakModel.GetFitter(region, peaklist, spec.cal)
-		# Do the fit
-		if self.bgFitter:
-			self.peakFitter.Fit(self.spec.fHist, self.bgFitter)
-		else:
-			self.peakFitter.Fit(self.spec.fHist, self.intBgDeg)
-		
-				
-	def GetResults(self):
-		peaks = list()
-		if not self.peakFitter:
-			return peaks
-		for i in range(0, self.peakFitter.GetNumPeaks()):
-			cpeak=self.peakFitter.GetPeak(i)
-			peaks.append(self.peakModel.CopyPeak(cpeak, self.spec.cal))
-		# in some rare cases it can happen that peaks change position 
-		# while doing the fit, thus we have to sort here
-		peaks.sort()
-		return peaks
-		
+    def FitPeaks(self, spec, region, peaklist):
+        self.spec = spec
+        self.peakFitter = self.peakModel.GetFitter(region, peaklist, spec.cal)
+        # Do the fit
+        if self.bgFitter:
+            self.peakFitter.Fit(self.spec.fHist, self.bgFitter)
+        else:
+            self.peakFitter.Fit(self.spec.fHist, self.intBgDeg)
+        
+                
+    def GetResults(self):
+        peaks = list()
+        if not self.peakFitter:
+            return peaks
+        for i in range(0, self.peakFitter.GetNumPeaks()):
+            cpeak=self.peakFitter.GetPeak(i)
+            peaks.append(self.peakModel.CopyPeak(cpeak, self.spec.cal))
+        # in some rare cases it can happen that peaks change position 
+        # while doing the fit, thus we have to sort here
+        peaks.sort()
+        return peaks
+        
 
-	def SetPeakModel(self, model):
-		"""
-		Sets the peak model to be used for fitting. model can be either a string,
-		in which case it is used as a key into the gPeakModels dictionary, or a 
-		PeakModel object.
-		"""
-		global gPeakModels
-		if type(model) == str:
-			model = gPeakModels[model]
-		self.peakModel = model()
-		self.peakFitter = None
-		
-	
-	def Copy(self):
-		new = Fitter(self.peakModel.Name(), self.bgdeg)
-		new.peakModel.fParStatus = self.peakModel.fParStatus.copy()
-		return new
-	
-	
+    def SetPeakModel(self, model):
+        """
+        Sets the peak model to be used for fitting. model can be either a string,
+        in which case it is used as a key into the gPeakModels dictionary, or a 
+        PeakModel object.
+        """
+        global gPeakModels
+        if type(model) == str:
+            model = gPeakModels[model]
+        self.peakModel = model()
+        self.peakFitter = None
+        
+    
+    def Copy(self):
+        new = Fitter(self.peakModel.Name(), self.bgdeg)
+        new.peakModel.fParStatus = self.peakModel.fParStatus.copy()
+        return new
+    
+    
 # global dictionary of available peak models
 def RegisterPeakModel(name, model):
-	gPeakModels[name] = model
-	
+    gPeakModels[name] = model
+    
 gPeakModels = dict()
 
 RegisterPeakModel("theuerkauf", peak.PeakModelTheuerkauf)
