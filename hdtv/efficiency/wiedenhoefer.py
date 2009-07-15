@@ -1,5 +1,6 @@
-import math
 from . efficiency import _Efficiency
+from ROOT import TF1
+import math
 
 class WiedenhoeferEff(_Efficiency):
     """
@@ -10,8 +11,10 @@ class WiedenhoeferEff(_Efficiency):
     
     def __init__(self, pars=list()):
         self.fPars = None
-        self.fParErrors = None
 
+        self.id = "wiedenhoefereff_" + hex(id(self))
+        self.TF1 = TF1(self.id, "[0]*pow(x - [2] + [3] * exp(-[4] *x), -[1])", 0, 0)
+        
         _Efficiency.__init__(self, num_pars=5, pars=pars)
 
         # Efficiency function

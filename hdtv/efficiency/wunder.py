@@ -1,4 +1,5 @@
 from . efficiency import _Efficiency
+from ROOT import TF1
 import math
 
 class WunderEff(_Efficiency):
@@ -8,6 +9,9 @@ class WunderEff(_Efficiency):
     eff(E) = (a*E + b/E) * exp(c*E + d/E) 
     """
     def __init__(self, pars=list()):
+        
+        self.id = "wundereff_" + hex(id(self))
+        self.TF1 = TF1(self.id, "([0]*x + [1]/x) * exp([2]*x + [3]/x)", 0, 0)
         
         _Efficiency.__init__(self, num_pars=4, pars=pars)
         
