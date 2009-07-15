@@ -218,7 +218,7 @@ class SpecInterface:
 				spec = self.FindSpectrumByName(name)
 				if spec:
 					spec.SetCal(self.caldict[name])
- 		f.close()
+		f.close()
 		return True
 	
 	def ApplyCalibration(self, cal, ids):

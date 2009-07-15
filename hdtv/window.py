@@ -292,38 +292,38 @@ class Window(KeyHandler):
 		self._Expand("X")
 		self._Expand("Y")
 		
-  	def _Expand(self, xytype):
-  		"""
-  		expand the display to show the region between the zoom markers (X or Y),
+	def _Expand(self, xytype):
+		"""
+		expand the display to show the region between the zoom markers (X or Y),
 		or the full spectrum if not zoom markers are set.
-  		"""
-  		# check the input
-  		if xytype not in ["X","Y"]:
-  			print "invalid parameter %s to the private function _Expand" % xytype
-  			return
-  		
-  		zoomMarkers = getattr(self,"%sZoomMarkers" %xytype)
-  		if len(zoomMarkers) == 1:
-  			zm = zoomMarkers[0] 
+		"""
+		# check the input
+		if xytype not in ["X","Y"]:
+			print "invalid parameter %s to the private function _Expand" % xytype
+			return
+		
+		zoomMarkers = getattr(self,"%sZoomMarkers" %xytype)
+		if len(zoomMarkers) == 1:
+			zm = zoomMarkers[0] 
 			if zm.p2==None:
 				zm.p2 = 0.0
-  			setOffset = getattr(self.viewport, "Set%sOffset" % xytype)
-  			setOffset(min(zm.p1, zm.p2))
-  			setVisibleRegion = getattr(self.viewport, "Set%sVisibleRegion" % xytype)
-  			setVisibleRegion(abs(zm.p2 - zm.p1))
-  			zm.Remove()
-  			getattr(self,"%sZoomMarkers" %xytype).pop()
-  		else:
-  			if xytype == "X":
-  				self.viewport.ShowAll()
-  			elif xytype == "Y":
-  	 			self.viewport.YAutoScaleOnce()
+			setOffset = getattr(self.viewport, "Set%sOffset" % xytype)
+			setOffset(min(zm.p1, zm.p2))
+			setVisibleRegion = getattr(self.viewport, "Set%sVisibleRegion" % xytype)
+			setVisibleRegion(abs(zm.p2 - zm.p1))
+			zm.Remove()
+			getattr(self,"%sZoomMarkers" %xytype).pop()
+		else:
+			if xytype == "X":
+				self.viewport.ShowAll()
+			elif xytype == "Y":
+				self.viewport.YAutoScaleOnce()
 
 	def PutXZoomMarker(self):
-  		"""
-  		set a X zoom marker
-  		"""
-  		pos = self.viewport.GetCursorX()
+		"""
+		set a X zoom marker
+		"""
+		pos = self.viewport.GetCursorX()
 		self.XZoomMarkers.PutMarker(pos)
 		
 	def PutYZoomMarker(self):
