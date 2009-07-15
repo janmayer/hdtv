@@ -24,25 +24,25 @@ import hdtv.cmdline
 import hdtv.util
 
 def ConfigVarCompleter(text):
-	return hdtv.util.GetCompleteOptions(text, hdtv.options.variables.iterkeys())
+    return hdtv.util.GetCompleteOptions(text, hdtv.options.variables.iterkeys())
 
 def ConfigSet(args):
-	try:
-		hdtv.options.Set(args[0], args[1])
-	except KeyError:
-		print "%s: no such option" % args[0]
-	except ValueError:
-		print "Invalid value (%s) for option %s" % (args[1], args[0])
+    try:
+        hdtv.options.Set(args[0], args[1])
+    except KeyError:
+        print "%s: no such option" % args[0]
+    except ValueError:
+        print "Invalid value (%s) for option %s" % (args[1], args[0])
 
 def ConfigShow(args):
-	if len(args) == 0:
-		print hdtv.options.Str(),
-	else:
-		try:
-			print hdtv.options.Show(args[0])
-		except KeyError:
-			print "%s: no such option" % args[0]
-	
+    if len(args) == 0:
+        print hdtv.options.Str(),
+    else:
+        try:
+            print hdtv.options.Show(args[0])
+        except KeyError:
+            print "%s: no such option" % args[0]
+    
 
 hdtv.cmdline.AddCommand("config set", ConfigSet, nargs=2,
                         usage="%prog <variable> <value>",
