@@ -70,7 +70,7 @@ class _Efficiency(object):
         fitopts = "N"
         if quiet:
             fitopts += "Q"
-        print fitopts
+
         self.TGraph.Fit(self.id, fitopts)
         
         # Get parameter
