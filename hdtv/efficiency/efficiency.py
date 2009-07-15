@@ -7,7 +7,7 @@ import string
 
 class _Efficiency(object):
     
-    def __init__(self, num_pars=0, pars=list()):
+    def __init__(self, num_pars=0, pars=list(), norm=True):
         
          self._numPars = num_pars 
          self.fPars = pars
@@ -15,16 +15,23 @@ class _Efficiency(object):
 
          self._dEff_dP = list()
          self.TGraph = None 
+         
+         # Normalization factors
+         self._doNorm = norm
+         self.norm = 1.0
+         self.TF1.FixParameter(0, self.norm) # Normalization
 
          if self.fPars: # Parameters were given
-             map(lambda i: self.TF1.SetParameter(i, self.fPars[i]), range(0, len(pars))) # Set initial parameters
+             map(lambda i: self.TF1.SetParameter(i+1, self.fPars[i]), range(1, len(pars))) # Set initial parameters
          else:
-             self.fPars = [None for i in range(self._numPars)]
+             self.fPars = [None for i in range(1, self._numPars + 1)]
              
+         self.TF1.SetParName(0, "N") # Normalization
+         
          for i in range(0, num_pars):
              self._dEff_dP.append(None)
              if num_pars <= len(string.ascii_lowercase):
-                self.TF1.SetParName(i, string.ascii_lowercase[i])
+                self.TF1.SetParName(i + 1, string.ascii_lowercase[i])
  
     def __call__(self, E):
         value = self.value(E)
@@ -63,20 +70,38 @@ class _Efficiency(object):
             else:
                 map(lambda x: delta_eff.append(0.0), efficiencies)
         
-        self.TF1.SetRange(0, max(energies)*1.1)
+        # Preliminary normalization
+#        if self._doNorm:
+#            self.norm = 1 / max(efficiencies)
+#            for i in range(len(eff)):
+#                eff[i] *= self.norm
+#                delta_eff[i] *= self.norm
+        
+        self.TF1.SetRange(0, max(energies) * 1.1)
         self.TGraph = TGraphErrors(len(energies), E, eff, delta_E, delta_eff)
-
+        
+        
         # Do the fit
         fitopts = "N"
         if quiet:
             fitopts += "Q"
-        print fitopts
+
         self.TGraph.Fit(self.id, fitopts)
-        
+
+        # Final normalization
+        if self._doNorm:
+            self.norm = 1 / self.TF1.GetMaximum(0.0, 0.0)
+            for i in range(len(eff)):
+                eff[i] *= self.norm
+                delta_eff[i] *= self.norm
+                self.TGraph = TGraphErrors(len(energies), E, eff, delta_E, delta_eff)
+            
+            self.normalize()
+
         # Get parameter
         for i in range(self._numPars):
-            self.fPars[i] = self.TF1.GetParameter(i) 
-        
+            self.fPars[i] = self.TF1.GetParameter(i + 1)
+
         # Get covariance matrix
         tvf = TVirtualFitter.GetFitter()
 ##        cov = tvf.GetCovarianceMatrix()
@@ -85,11 +110,17 @@ class _Efficiency(object):
                 self.fCov[i][j] = tvf.GetCovarianceMatrixElement(i, j)
 ##                 self.fCov[i][j] = cov[i * self._numPars + j]
 
+    def normalize(self):
+        if self._doNorm:
+            self.norm = 1.0 / self.TF1.GetMaximum(0.0, 0.0)
+            self.TF1.SetParameter(0, self.norm)
+
     def value(self, E):
-        E = float(E) # Make sure E is treated as float, not as int
-        if not self.fPars or len(self.fPars) != self._numPars:
-            raise ValueError, "Incorrect number of parameters"
-        return self._Eff(E, self.fPars)
+#        E = float(E) # Make sure E is treated as float, not as int
+#        if not self.fPars or len(self.fPars) != self._numPars:
+#            raise ValueError, "Incorrect number of parameters"
+#        return self._Eff(E, self.fPars)
+        return self.TF1.Eval(E, 0.0, 0.0, 0.0)
     
     def error(self, E):
         """
@@ -132,11 +163,11 @@ class _Efficiency(object):
         
         self.fPars = vals
         for i in range(self._numPars):
-            self.TF1.SetParameter(i, self.fPars[i])
+            self.TF1.SetParameter(i + 1, self.fPars[i])
             
         if covfile:
             vals = []
-            
+
             with open(covfile) as f:
                 for line in f:
                     line = line.strip()
