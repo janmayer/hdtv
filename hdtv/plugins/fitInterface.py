@@ -66,12 +66,12 @@ class FitInterface:
                                 lambda: self._DeleteMarker("peak"))
         self.window.AddHotkey(ROOT.kKey_B, lambda: self.Fit(peaks=False))
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_B], self.ClearBackground)
-          self.window.AddHotkey(ROOT.kKey_F, lambda: self.Fit(peaks=True))
-          self.window.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_F], self.KeepFit)
-          self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], self.ClearFit)
-#          self.window.AddHotkey(ROOT.kKey_I, self.Integrate)
-          self.window.AddHotkey(ROOT.kKey_D, lambda: self.SetDecomp(True))
-          self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_D], 
+        self.window.AddHotkey(ROOT.kKey_F, lambda: self.Fit(peaks=True))
+        self.window.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_F], self.KeepFit)
+        self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], self.ClearFit)
+#       self.window.AddHotkey(ROOT.kKey_I, self.Integrate)
+        self.window.AddHotkey(ROOT.kKey_D, lambda: self.SetDecomp(True))
+        self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_D], 
                                 lambda: self.SetDecomp(False))
         self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_s],
                         lambda: self.window.EnterEditMode(prompt="Show Fit: ",

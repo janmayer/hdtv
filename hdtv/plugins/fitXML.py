@@ -173,7 +173,19 @@ class FitXml:
                 tree = ET.parse(filename)
                 root = tree.getroot()
                 if root.get("version").startswith("0"):
-                    self.ReadFitlist_v0(root)
+                    print "The XML version of %s is old." %fname
+                    do_fit = None
+                    while not do_fit in ["Y","y","N","n",""]:
+                        question = "Do you want to update it to the current version? [Y/n]"
+                        do_fit = raw_input(question)
+                    if do_fit in ["Y","y",""]:
+                        print "The old files will be kept as backup with the suffix _v0"
+                        print "The conversion will take some time..."
+                        self.ReadFitlist_v0(root, True)
+                        os.rename(fname, "%s_v0" %fname)
+                        self.WriteFitlist(fname)
+                    else:
+                        self.ReadFitlist_v0(root)
                 if root.get("version").startswith("1"):
                     self.ReadFitlist_v1(root)
 
@@ -312,7 +324,7 @@ class FitXml:
                 spec.Add(fit)
                 
 
-    def ReadFitlist_v0(self, root):
+    def ReadFitlist_v0(self, root, do_fit=False):
         """
         Reads fits from xml file (version = 0.*) 
     
@@ -399,7 +411,10 @@ class FitXml:
                         posElement = peakElement.find("p1") 
                     pos = float(posElement.find("uncal").text)
                     fit.PutPeakMarker(fit.cal.Ch2E(pos))
+                if do_fit:
+                    fit.FitPeakFunc(spec)
                 spec.Add(fit)
+                
 
 
     def indent(self, elem, level=0):
