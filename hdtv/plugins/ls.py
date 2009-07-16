@@ -31,54 +31,54 @@ import stat
 import glob
 
 def ls(args):
-	"""
-	this function prints an output similar to that of the ``ls'' program
-	"""
-	if len(args) > 0:
-		pattern = os.path.expanduser(args[0])
-	else:
-		pattern = "*"
-	
-	dirlist = []
-	for fname in glob.glob(pattern):
-		# For broken symlinks, os.stat may fail.
-		# We simply add them to the list, without
-		# knowing more about them.
-		try:
-			mode = os.stat(fname)[stat.ST_MODE]
-			if stat.S_ISDIR(mode):
-				dirlist.append(fname + "/")
-			else:
-				dirlist.append(fname)
-		except OSError:
-			dirlist.append(fname)
-	
-	dirlist.sort()
-	hdtv.tabformat.tabformat(dirlist)
+    """
+    this function prints an output similar to that of the ``ls'' program
+    """
+    if len(args) > 0:
+        pattern = os.path.expanduser(args[0])
+    else:
+        pattern = "*"
+    
+    dirlist = []
+    for fname in glob.glob(pattern):
+        # For broken symlinks, os.stat may fail.
+        # We simply add them to the list, without
+        # knowing more about them.
+        try:
+            mode = os.stat(fname)[stat.ST_MODE]
+            if stat.S_ISDIR(mode):
+                dirlist.append(fname + "/")
+            else:
+                dirlist.append(fname)
+        except OSError:
+            dirlist.append(fname)
+    
+    dirlist.sort()
+    hdtv.tabformat.tabformat(dirlist)
 
 
 def cd(args):
-	"""
-	change current working directory
-	"""
-	if len(args) == 0:
-		path = os.path.expanduser("~")
-	elif args[0]=="-":
-		path = os.environ["OLDPWD"]
-	else:
-		path = os.path.expanduser(args[0])
-	try:
-		os.chdir(path)
-		print path
-	except OSError, msg:
-		print msg
+    """
+    change current working directory
+    """
+    if len(args) == 0:
+        path = os.path.expanduser("~")
+    elif args[0]=="-":
+        path = os.environ["OLDPWD"]
+    else:
+        path = os.path.expanduser(args[0])
+    try:
+        os.chdir(path)
+        print path
+    except OSError, msg:
+        print msg
 
 
 def pwd(args):
-	"""
-	print name of current/working directory
-	"""
-	print os.getcwdu()
+    """
+    print name of current/working directory
+    """
+    print os.getcwdu()
 
 
 print "loaded ls plugin"

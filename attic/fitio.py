@@ -22,55 +22,55 @@ import sys
 from xml.dom.minidom import getDOMImplementation
 
 class FitIO:
-	def __init__(self):
-		pass
-		
-	def WriteFit(self, fit, fitNode):
-		fitNode.setAttribute(u"region1", str(fit.regionMarkers[0].p1))
-		fitNode.setAttribute(u"region2", str(fit.regionMarkers[0].p2))
-		
-		bgNode = self.createElement(u"background")
-		self.WriteBackground(fit, bgNode)
-		fitNode.appendChild(bgNode)
-		
-	
-	def WriteBackground(self, fit, bgNode):
-		for bg in fit.bgMarkers:
-			regionNode = self.createElement(u"region")
-			regionNode.setAttribute(u"p1", str(bg.p1))
-			regionNode.setAttribute(u"p2", str(bg.p2))
-			bgNode.appendChild(regionNode)
-			
-	def WritePeak(self):
-		pass
+    def __init__(self):
+        pass
+        
+    def WriteFit(self, fit, fitNode):
+        fitNode.setAttribute(u"region1", str(fit.regionMarkers[0].p1))
+        fitNode.setAttribute(u"region2", str(fit.regionMarkers[0].p2))
+        
+        bgNode = self.createElement(u"background")
+        self.WriteBackground(fit, bgNode)
+        fitNode.appendChild(bgNode)
+        
+    
+    def WriteBackground(self, fit, bgNode):
+        for bg in fit.bgMarkers:
+            regionNode = self.createElement(u"region")
+            regionNode.setAttribute(u"p1", str(bg.p1))
+            regionNode.setAttribute(u"p2", str(bg.p2))
+            bgNode.appendChild(regionNode)
+            
+    def WritePeak(self):
+        pass
 
 
-	def WriteSpec(self, spec, specNode):
-		if spec.fHist:
-			name = spec.fHist.GetName()
-		else:
-			name = "__unknown__"
+    def WriteSpec(self, spec, specNode):
+        if spec.fHist:
+            name = spec.fHist.GetName()
+        else:
+            name = "__unknown__"
 
-		specNode.setAttribute("name", name)
-		
-		try:
-			fits = spec.objects.itervalues()
-		except AttributeError:
-			fits = []
-			
-		for fit in fits:
-			fitNode = self.createElement(u"fit")
-			self.WriteFit(fit, fitNode)
-			specNode.appendChild(fitNode)
+        specNode.setAttribute("name", name)
+        
+        try:
+            fits = spec.objects.itervalues()
+        except AttributeError:
+            fits = []
+            
+        for fit in fits:
+            fitNode = self.createElement(u"fit")
+            self.WriteFit(fit, fitNode)
+            specNode.appendChild(fitNode)
 
-	def Write(self, spec):
-		xmlDoc = getDOMImplementation().createDocument(None, None, None)
-		self.createElement = xmlDoc.createElement
+    def Write(self, spec):
+        xmlDoc = getDOMImplementation().createDocument(None, None, None)
+        self.createElement = xmlDoc.createElement
 
-		specNode = self.createElement(u"spectrum")
-		self.WriteSpec(spec, specNode)
-		xmlDoc.appendChild(specNode)
-		
-		xmlDoc.writexml(sys.stdout, indent="", addindent="\t", newl="\n")
-		xmlDoc.unlink()
-	
+        specNode = self.createElement(u"spectrum")
+        self.WriteSpec(spec, specNode)
+        xmlDoc.appendChild(specNode)
+        
+        xmlDoc.writexml(sys.stdout, indent="", addindent="\t", newl="\n")
+        xmlDoc.unlink()
+    

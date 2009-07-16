@@ -29,16 +29,16 @@ import hdtv.cmdline
 
 
 def run(args):
-	"""
-	Executes a python script from the hdtv command line (via execfile)
-	"""
-	fname = os.path.expanduser(args[0])
-	print "Running script %s" %fname
-	try:
-		execfile(fname)
-	except IOError, msg:
-		print msg
-	print "Finished!"
+    """
+    Executes a python script from the hdtv command line (via execfile)
+    """
+    fname = os.path.expanduser(args[0])
+    print "Running script %s" %fname
+    try:
+        execfile(fname)
+    except IOError, msg:
+        print msg
+    print "Finished!"
 
 print "loaded run plugin"
 hdtv.cmdline.AddCommand("run", run, nargs=1, fileargs=True)
