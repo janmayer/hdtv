@@ -32,7 +32,7 @@ setup(name='hdtv',
     author = open('./AUTHORS', 'r').read(),
     long_description=open('./README','r').read(),
     scripts = ['bin/hdtv'],
-    packages=['hdtv', 'hdtv.plugins'],
+    packages=['hdtv', 'hdtv.plugins', 'hdtv.peakmodels', 'hdtv.efficiency'],
     ext_package='hdtv/clib',
     ext_modules=[display, fit, mfile_root ]
     )
