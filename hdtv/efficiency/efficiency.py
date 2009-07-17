@@ -117,7 +117,6 @@ class _Efficiency(object):
             self.TF1.SetParameter(0, self.norm)
             
     def value(self, E):
-#        E = float(E) # Make sure E is treated as float, not as int
 #        if not self.fPars or len(self.fPars) != self._numPars:
 #            raise ValueError, "Incorrect number of parameters"
 #        return self._Eff(E, self.fPars)
@@ -135,7 +134,6 @@ class _Efficiency(object):
             raise ValueError, "Incorrect size of covariance matrix"
         
         res = 0.0
-        E = float(E) # Make sure E is treated as float, not as int
         
         # Do matrix multiplication
         for i in range(0, self._numPars):
