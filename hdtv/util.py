@@ -41,7 +41,7 @@ class ErrValue:
             
         try:
             self.rel_error = self.error / self.value * 100.0 # Error in percent
-        except ZeroDivisionError:
+        except (ZeroDivisionError, TypeError):
             self.rel_error = None
             
     def __repr__(self):
