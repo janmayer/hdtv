@@ -39,6 +39,11 @@ class ErrValue:
         except TypeError:
             self.error = None
             
+        try:
+            self.rel_error = self.error / self.value * 100.0 # Error in percent
+        except ZeroDivisionError:
+            self.rel_error = None
+            
     def __repr__(self):
         return "ErrValue(" + repr(self.value) + ", " + repr(self.error) + ")"
     
@@ -195,6 +200,13 @@ class ErrValue:
         
         except (ValueError, TypeError):
             return ""
+    
+    def fmt_full(self):
+        """
+        Print ErrValue with absolute and relative error
+        """
+        string = str(self.fmt()) + " [" + "%.*f" % (2, self.rel_error) + "%]"
+        return string 
         
     def fmt_no_error(self, prec=6):
         try:
