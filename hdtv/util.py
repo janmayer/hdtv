@@ -103,7 +103,7 @@ class ErrValue:
         
         ret.value = val1.value * val2.value
         ret.error = math.sqrt(math.pow((val1.value * val2.error), 2) \
-                              + math.pow((val1.value * val2.error), 2))
+                              + math.pow((val2.value * val1.error), 2))
         return ret
 
     def __div__(self, other):
