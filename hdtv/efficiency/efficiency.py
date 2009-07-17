@@ -20,6 +20,7 @@ class _Efficiency(object):
          self._doNorm = norm
          self.norm = 1.0
          self.TF1.FixParameter(0, self.norm) # Normalization
+         self.TF1.SetRange(0, 10000) # Default range for efficiency function
 
          if self.fPars: # Parameters were given
              map(lambda i: self.TF1.SetParameter(i+1, self.fPars[i]), range(1, len(pars))) # Set initial parameters
@@ -114,6 +115,8 @@ class _Efficiency(object):
         if self._doNorm:
             self.norm = 1.0 / self.TF1.GetMaximum(0.0, 0.0)
             self.TF1.SetParameter(0, self.norm)
+            
+        print "DEBUG: norm_factor: ", self.norm, "TF1: ", self.TF1.GetParameter(0)
 
     def value(self, E):
 #        E = float(E) # Make sure E is treated as float, not as int
@@ -179,5 +182,8 @@ class _Efficiency(object):
 
             if len(vals) != self._numPars:
                 raise RuntimeError, "Incorrect format of parameter error file"
-                
+            
             self.fCov = vals
+        
+        if self._doNorm:
+            self.normalize()
