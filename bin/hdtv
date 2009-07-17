@@ -34,8 +34,8 @@ import hdtv.plugins.specInterface
 import hdtv.plugins.fitInterface
 import hdtv.plugins.matrix
 import hdtv.plugins.rootfile
-import hdtv.plugins.fitXML
 import hdtv.plugins.config
+import hdtv.plugins.fitlist
 
 try:
     import startup

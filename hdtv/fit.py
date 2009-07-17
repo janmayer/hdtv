@@ -196,15 +196,28 @@ class Fit(Drawable):
             self.peaks.sort()
             # update peak markers
             for (marker, peak) in zip(self.peakMarkers, self.peaks):
-                marker.p1 = peak.pos.value
+                marker.p1 = peak.pos_cal.value
             # print result
             print "\n"+6*" "+str(self)
 
-    def Restore(self):
-        print "Restoring Fit"
-#        if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
-#            backgrounds = [[m.p1, m.p2] for m in fit.bgMarkers]
-#            self.fitter.RestoreBackground(spec, background, self.bgCoeffs, self.bgChi)
+    def Restore(self, spec):
+        if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
+            backgrounds = [[m.p1, m.p2] for m in self.bgMarkers]
+            self.fitter.RestoreBackground(spec, backgrounds, self.bgCoeffs, self.bgChi)
+        region = [self.regionMarkers[0].p1, self.regionMarkers[0].p2]
+        # remove peak marker that are outside of region
+        region.sort()
+        self.fitter.RestorePeaks(spec, region, self.peaks, self.chi)
+        # get background function
+        func = self.fitter.peakFitter.GetBgFunc()
+        self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
+        self.dispBgFunc.SetCal(spec.cal)
+        # get peak function
+        func = self.fitter.peakFitter.GetSumFunc()
+        self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.region)
+        self.dispPeakFunc.SetCal(spec.cal)
+        # print result
+        print "\n"+6*" "+str(self)
 
 
     def Draw(self, viewport):

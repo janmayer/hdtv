@@ -1,8 +1,28 @@
+# -*- coding: utf-8 -*-
+
+# HDTV - A ROOT-based spectrum analysis software
+#  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+#
+# This file is part of HDTV.
+#
+# HDTV is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# HDTV is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with HDTV; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 import os
 import glob
 import xml.etree.cElementTree as ET
-import hdtv.cmdline
 import hdtv.spectrum
+import hdtv.peakmodels
 
 # Increase the version number if you changed something related to the xml output.
 # If your change affect the reading, you should increase the major number 
@@ -17,15 +37,11 @@ class FitXml:
     Class to save and read fit lists to and from xml file
     """
     def __init__(self, spectra):
-        print "loaded fitXML plugin"
         self.spectra = spectra
-        # hdtv commands
-        self.tv = TvFitXML(self)
 
-
-    def WriteFitlist(self, filename=None):
+    def CreateXML(self):
         """
-        Writes fit list belonging to the currently loaded spectra to xml file
+        create XMl for all known fits
         """
         spectra = self.spectra
         # <hdtv>
@@ -151,11 +167,17 @@ class FitXml:
                             errorElement = ET.SubElement(paramElement, "error")
                             errorElement.text = str(param.error)
         self.indent(root)
-        if filename:
-            tree = ET.ElementTree(root)
-            tree.write(os.path.expanduser(filename))
-        else:
-            ET.dump(root)
+        return root
+
+
+    def WriteFitlist(self, fname):
+        """
+        Writes fit list belonging to the currently loaded spectra to xml file
+        """
+        root = self.CreateXML()
+        fname = os.path.expanduser(fname)
+        tree = ET.ElementTree(root)
+        tree.write(fname)
 
 
     def ReadFitlist(self, fnames):
@@ -165,7 +187,7 @@ class FitXml:
         This function parses the xml tree to memory and checks the version
         and calls the appropriate function for further processing.
         """
-        if type(fnames) == str or type(fnames) == unicode:
+        if type(fnames) in [str,unicode]:
             fnames = [fnames]
         for fname in fnames:
             path = os.path.expanduser(fname)
@@ -177,18 +199,33 @@ class FitXml:
                     do_fit = None
                     while not do_fit in ["Y","y","N","n",""]:
                         question = "Do you want to update it to the current version? [Y/n]"
-                        do_fit = raw_input(question)
-                    if do_fit in ["Y","y",""]:
                         print "The old files will be kept as backup with the suffix _v0"
                         print "The conversion will take some time..."
+                        do_fit = raw_input(question)
+                    if do_fit in ["Y","y",""]:
+                        # we first have to delete all fits, that are already open,
+                        # because otherwise they also will be saved in the new file                        
+                        tmp = self.CreateXML()
+                        for spectra in self.spectra.values():
+                            try:
+                                spectra.RemoveAll()
+                            except AttributeError:
+                                # there are no fits for that spectrum
+                                pass
+                        # then we can deal with the old file and do all the fits
                         self.ReadFitlist_v0(root, True)
-                        os.rename(fname, "%s_v0" %fname)
-                        self.WriteFitlist(fname)
+                        # backup old file
+                        os.rename(filename, "%s_v0" %filename)
+                        # and write the new file
+                        self.WriteFitlist(filename)
+                        # afterwards we restore again all the other fits
+                        v = VERSION.split('.')[0]
+                        newest_ReadFunc = getattr(self, "ReadFitlist_v%s" %v)
+                        newest_ReadFunc(tmp)                       
                     else:
                         self.ReadFitlist_v0(root)
                 if root.get("version").startswith("1"):
                     self.ReadFitlist_v1(root)
-
 
 
     def ReadFitlist_v1(self, root):
@@ -291,7 +328,7 @@ class FitXml:
                         coeff = hdtv.util.ErrValue(value, error)
                         coeffs.append([deg, coeff])
                     coeffs.sort()
-                    fit.bgCoeffs = coeffs
+                    fit.bgCoeffs = [c[1] for c in coeffs]
                 # <peak>
                 for peakElement in fitElement.findall("peak"):
                     # <uncal>
@@ -313,15 +350,19 @@ class FitXml:
                             free = True
                         else:
                             free = False
-                        parameter[name] = hdtv.peak.FitValue(value, error, free)
+                        parameter[name] = hdtv.peakmodels.FitValue(value, error, free)
                     try:
                         peak =fit.fitter.peakModel.Peak(cal=spec.cal, **parameter)
                     except TypeError:
                         print parameter
                         continue
                     fit.peaks.append(peak)
-                fit.Restore()
+                # make sure the peaks are in the right order
+                fit.peaks.sort()
+                fit.Restore(spec)
                 spec.Add(fit)
+                if not sid in spectra.visible:
+                    fit.Hide()
                 
 
     def ReadFitlist_v0(self, root, do_fit=False):
@@ -416,7 +457,6 @@ class FitXml:
                 spec.Add(fit)
                 
 
-
     def indent(self, elem, level=0):
         """
         This function formats the xml in-place for prettyprinting 
@@ -436,27 +476,6 @@ class FitXml:
         else:
             if level and (not elem.tail or not elem.tail.strip()):
                 elem.tail = i
-
-
-class TvFitXML:
-    def __init__(self, fitxml):
-        self.fitxml = fitxml
-        self.spectra = self.fitxml.spectra
-        
-        # register tv commands
-        hdtv.cmdline.command_tree.SetDefaultLevel(1)
-
-        hdtv.cmdline.AddCommand("fit write", lambda args: self.fitxml.WriteFitlist(args[0]), 
-                        nargs=1, usage="fit write <filename>")
-        hdtv.cmdline.AddCommand("fit read", lambda args: self.fitxml.ReadFitlist(args[0]), 
-                        nargs=1, fileargs=True, usage="fit read <filename>")
-
-# plugin initialisation
-import __main__
-if not hasattr(__main__, "spectra"):
-    import hdtv.drawable
-    __main__.spectra = hdtv.drawable.DrawableCompound(__main__.window.viewport)
-__main__.fitxml = FitXml( __main__.spectra)
 
 
 

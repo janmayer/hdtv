@@ -5,3 +5,6 @@ rootdict-*.h
 test/spectra/*
 test/spectra
 hdtv_history
+build
+test/peak/test_step.asc
+test/peak/test_tail.asc

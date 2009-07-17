@@ -113,10 +113,10 @@ void PolyBg::Fit(TH1& hist)
   }
 }
 
-bool PolyBg::Restore(std::vector<double> values, std::vector<double> errors, double ChiSquare)
+bool PolyBg::Restore(const TArrayD& values, const TArrayD& errors, double ChiSquare)
 {
 
-    if( (values.size() != static_cast<unsigned int>(fBgDeg+1)) || (errors.size() != static_cast<unsigned int>(fBgDeg+1)) ) {
+    if( (values.GetSize() != static_cast<unsigned int>(fBgDeg+1)) || (errors.GetSize() != static_cast<unsigned int>(fBgDeg+1)) ) {
          Warning("HDTV::PolyBg::Restore", "size of vector does not match degree of background.");
          return false;
     }

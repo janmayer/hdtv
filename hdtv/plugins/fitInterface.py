@@ -368,7 +368,7 @@ class FitInterface:
         fitter = self.GetActiveFit().fitter
         statstr = str()
         statstr += "Background model: polynomial, deg=%d\n" % fitter.bgdeg
-        statstr += "Peak model: %s\n" % fitter.peakmodel.name
+        statstr += "Peak model: %s\n" % fitter.peakModel.name
         statstr += "\n"
         statstr += fitter.OptionsStr()
         print statstr

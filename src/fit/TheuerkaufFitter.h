@@ -146,12 +146,13 @@ class TheuerkaufFitter : public Fitter {
     void Fit(TH1& hist, const Background& bg);
     void Fit(TH1& hist, int intBgDeg=-1);
     inline int GetNumPeaks() { return fNumPeaks; }
-    inline const TheuerkaufPeak& GetPeak(int i) { std::cout << "DEBUG GetPeak" << std::endl;return fPeaks[i]; }
+    inline const TheuerkaufPeak& GetPeak(int i) { return fPeaks[i]; }
     inline double GetChisquare() { return fChisquare; }
     inline TF1* GetSumFunc() { return fSumFunc.get(); }
     TF1* GetBgFunc();
     void Restore(const Background& bg, double ChiSquare);
-    
+    void Restore(int intBgDeg, double ChiSquare);
+
   private:
     // Copying the fitter is not supported
     TheuerkaufFitter(const TheuerkaufFitter& src) { }
