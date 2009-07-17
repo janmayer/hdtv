@@ -117,9 +117,6 @@ class _Efficiency(object):
             self.TF1.SetParameter(0, self.norm)
             
     def value(self, E):
-#        if not self.fPars or len(self.fPars) != self._numPars:
-#            raise ValueError, "Incorrect number of parameters"
-#        return self._Eff(E, self.fPars)
         return self.TF1.Eval(E, 0.0, 0.0, 0.0)
     
     def error(self, E):
