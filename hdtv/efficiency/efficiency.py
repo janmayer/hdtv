@@ -116,8 +116,6 @@ class _Efficiency(object):
             self.norm = 1.0 / self.TF1.GetMaximum(0.0, 0.0)
             self.TF1.SetParameter(0, self.norm)
             
-        print "DEBUG: norm_factor: ", self.norm, "TF1: ", self.TF1.GetParameter(0)
-
     def value(self, E):
 #        E = float(E) # Make sure E is treated as float, not as int
 #        if not self.fPars or len(self.fPars) != self._numPars:
