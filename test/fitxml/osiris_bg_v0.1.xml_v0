@@ -1,0 +1,339 @@
+<hdtv version="0.1">
+  <spectrum calibration="0.000000  1.000000" name="osiris_bg.spc">
+    <fit bgDegree="1" peakModel="theuerkauf">
+      <region>
+        <p1>
+          <cal>1450</cal>
+          <uncal>1450.0</uncal>
+        </p1>
+        <p2>
+          <cal>1470</cal>
+          <uncal>1470.0</uncal>
+        </p2>
+      </region>
+      <peak>
+        <p1>
+          <cal>1460.7518791</cal>
+          <uncal>1460.7518791</uncal>
+        </p1>
+      </peak>
+      <result>
+        <vol status="free">
+          <value>133646.832483</value>
+          <error>378.532090153</error>
+        </vol>
+        <sw status="hold" />
+        <tr status="none" />
+        <pos status="free">
+          <value>1460.7518791</value>
+          <error>0.00387142352529</error>
+        </pos>
+        <width status="equal">
+          <value>2.96003237983</value>
+          <error>0.00741959255098</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+      </result>
+    </fit>
+    <fit bgDegree="1" peakModel="theuerkauf">
+      <background>
+        <p1>
+          <cal>480</cal>
+          <uncal>480.0</uncal>
+        </p1>
+        <p2>
+          <cal>490</cal>
+          <uncal>490.0</uncal>
+        </p2>
+      </background>
+      <background>
+        <p1>
+          <cal>530</cal>
+          <uncal>530.0</uncal>
+        </p1>
+        <p2>
+          <cal>540</cal>
+          <uncal>540.0</uncal>
+        </p2>
+      </background>
+      <region>
+        <p1>
+          <cal>500</cal>
+          <uncal>500.0</uncal>
+        </p1>
+        <p2>
+          <cal>520</cal>
+          <uncal>520.0</uncal>
+        </p2>
+      </region>
+      <peak>
+        <p1>
+          <cal>510.883086652</cal>
+          <uncal>510.883086652</uncal>
+        </p1>
+      </peak>
+      <result>
+        <width status="equal">
+          <value>3.14072443444</value>
+          <error>0.0304049184707</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+        <vol status="free">
+          <value>31876.5331481</value>
+          <error>276.114585596</error>
+        </vol>
+        <tr status="none" />
+        <sw status="hold" />
+        <pos status="free">
+          <value>510.883086652</value>
+          <error>0.0132416886684</error>
+        </pos>
+      </result>
+    </fit>
+    <fit bgDegree="1" peakModel="theuerkauf">
+      <background>
+        <p1>
+          <cal>1350</cal>
+          <uncal>1350.0</uncal>
+        </p1>
+        <p2>
+          <cal>1355</cal>
+          <uncal>1355.0</uncal>
+        </p2>
+      </background>
+      <background>
+        <p1>
+          <cal>1420</cal>
+          <uncal>1420.0</uncal>
+        </p1>
+        <p2>
+          <cal>1425</cal>
+          <uncal>1425.0</uncal>
+        </p2>
+      </background>
+      <region>
+        <p1>
+          <cal>1395</cal>
+          <uncal>1395.0</uncal>
+        </p1>
+        <p2>
+          <cal>1415</cal>
+          <uncal>1415.0</uncal>
+        </p2>
+      </region>
+      <peak>
+        <p1>
+          <cal>1401.62570502</cal>
+          <uncal>1401.62570502</uncal>
+        </p1>
+      </peak>
+      <peak>
+        <p1>
+          <cal>1407.97363461</cal>
+          <uncal>1407.97363461</uncal>
+        </p1>
+      </peak>
+      <result>
+        <width status="equal">
+          <value>2.78145173831</value>
+          <error>0.0594892120934</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+        <vol status="free">
+          <value>2446.25531925</value>
+          <error>85.3819549001</error>
+        </vol>
+        <tr status="none" />
+        <sw status="hold" />
+        <pos status="free">
+          <value>1401.62570502</value>
+          <error>0.050958680853</error>
+        </pos>
+      </result>
+      <result>
+        <width status="equal">
+          <value>2.78145173831</value>
+          <error>0.0594892120934</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+        <vol status="free">
+          <value>4406.68571442</value>
+          <error>101.557228838</error>
+        </vol>
+        <tr status="none" />
+        <sw status="hold" />
+        <pos status="free">
+          <value>1407.97363461</value>
+          <error>0.0325323203262</error>
+        </pos>
+      </result>
+    </fit>
+    <fit bgDegree="1" peakModel="theuerkauf">
+      <background>
+        <p1>
+          <cal>950</cal>
+          <uncal>950.0</uncal>
+        </p1>
+        <p2>
+          <cal>955</cal>
+          <uncal>955.0</uncal>
+        </p2>
+      </background>
+      <background>
+        <p1>
+          <cal>980</cal>
+          <uncal>980.0</uncal>
+        </p1>
+        <p2>
+          <cal>985</cal>
+          <uncal>985.0</uncal>
+        </p2>
+      </background>
+      <region>
+        <p1>
+          <cal>960</cal>
+          <uncal>960.0</uncal>
+        </p1>
+        <p2>
+          <cal>975</cal>
+          <uncal>975.0</uncal>
+        </p2>
+      </region>
+      <peak>
+        <p1>
+          <cal>964.794101716</cal>
+          <uncal>964.794101716</uncal>
+        </p1>
+      </peak>
+      <peak>
+        <p1>
+          <cal>968.996972434</cal>
+          <uncal>968.996972434</uncal>
+        </p1>
+      </peak>
+      <result>
+        <width status="equal">
+          <value>2.44335073578</value>
+          <error>0.0217334084914</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+        <vol status="free">
+          <value>6600.69123345</value>
+          <error>130.021483602</error>
+        </vol>
+        <tr status="none" />
+        <sw status="hold" />
+        <pos status="free">
+          <value>964.794101716</value>
+          <error>0.0281892805253</error>
+        </pos>
+      </result>
+      <result>
+        <width status="equal">
+          <value>2.44335073578</value>
+          <error>0.0217334084914</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+        <vol status="free">
+          <value>17873.8164815</value>
+          <error>173.174545922</error>
+        </vol>
+        <tr status="none" />
+        <sw status="hold" />
+        <pos status="free">
+          <value>968.996972434</value>
+          <error>0.0118694918294</error>
+        </pos>
+      </result>
+    </fit>
+    <fit bgDegree="1" peakModel="theuerkauf">
+      <background>
+        <p1>
+          <cal>1700</cal>
+          <uncal>1700.0</uncal>
+        </p1>
+        <p2>
+          <cal>1710</cal>
+          <uncal>1710.0</uncal>
+        </p2>
+      </background>
+      <background>
+        <p1>
+          <cal>1800</cal>
+          <uncal>1800.0</uncal>
+        </p1>
+        <p2>
+          <cal>1810</cal>
+          <uncal>1810.0</uncal>
+        </p2>
+      </background>
+      <region>
+        <p1>
+          <cal>1750</cal>
+          <uncal>1750.0</uncal>
+        </p1>
+        <p2>
+          <cal>1780</cal>
+          <uncal>1780.0</uncal>
+        </p2>
+      </region>
+      <peak>
+        <p1>
+          <cal>1764.58977314</cal>
+          <uncal>1764.58977314</uncal>
+        </p1>
+      </peak>
+      <peak>
+        <p1>
+          <cal>1771.27278143</cal>
+          <uncal>1771.27278143</uncal>
+        </p1>
+      </peak>
+      <result>
+        <width status="equal">
+          <value>2.95605142893</value>
+          <error>0.0259090018005</error>
+        </width>
+        <tl status="free">
+          <value>1.18565996586</value>
+          <error>0.033719879479</error>
+        </tl>
+        <sh status="none" />
+        <vol status="free">
+          <value>32112.1174655</value>
+          <error>189.536743025</error>
+        </vol>
+        <tr status="none" />
+        <sw status="hold" />
+        <pos status="free">
+          <value>1764.58977314</value>
+          <error>0.013084266001</error>
+        </pos>
+      </result>
+      <result>
+        <width status="equal">
+          <value>2.95605142893</value>
+          <error>0.0259090018005</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+        <vol status="free">
+          <value>2117.61510759</value>
+          <error>63.7783016598</error>
+        </vol>
+        <tr status="none" />
+        <sw status="hold" />
+        <pos status="free">
+          <value>1771.27278143</value>
+          <error>0.0470804115902</error>
+        </pos>
+      </result>
+    </fit>
+  </spectrum>
+</hdtv>
