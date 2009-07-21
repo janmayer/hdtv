@@ -119,7 +119,7 @@ class FitInterface:
             self.window.viewport.SetStatusText("No fits available")
             
             
-    def _HotkeyShow(self, arg):
+    def _HotkeyShow(self, args):
         """
         Show wrapper for use with a Hotkey (internal use)
         """
@@ -127,10 +127,17 @@ class FitInterface:
             self.window.viewport.SetStatusText("No active spectrum")
             return
         try:
-            ids = [int(a) for a in arg.split()]
-            self.spectra[self.spectra.activeID].ShowObjects(ids)        
+            ids = hdtv.cmdhelper.ParseRange(args)
+            if ids == "NONE":
+                self.spectra[self.spectra.activeID].HideAll()
+            elif ids == "ALL":
+                self.spectra[self.spectra.activeID].ShowAll()
+            else:
+                self.spectra[self.spectra.activeID].ShowObjects(ids)
+        except AttributeError:
+            self.window.viewport.SetStatusText("No fits available for active spectrum")
         except ValueError:
-            self.window.viewport.SetStatusText("Invalid fit identifier: %s" % arg)
+            self.window.viewport.SetStatusText("Invalid fit identifier: %s" % args)
 
     def _HotkeyActivate(self, arg):
         """
