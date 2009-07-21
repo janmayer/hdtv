@@ -51,19 +51,38 @@ class EEPeak {
     
     inline double GetPos()          { return fPos.Value(fFunc); };
     inline double GetPosError()     { return fPos.Error(fFunc); };
+    inline void RestorePos(double value, double error)
+        { RestoreParam(fPos, value, error); };
+    
     inline double GetAmp()          { return fAmp.Value(fFunc); };
     inline double GetAmpError()     { return fAmp.Error(fFunc); };
+    inline void RestoreAmp(double value, double error)
+        { RestoreParam(fAmp, value, error); };
+    
     inline double GetSigma1()       { return fSigma1.Value(fFunc); };
     inline double GetSigma1Error()  { return fSigma1.Error(fFunc); };
+    inline void RestoreSigma1(double value, double error)
+        { RestoreParam(fSigma1, value, error); };
+    
     inline double GetSigma2()       { return fSigma2.Value(fFunc); };
     inline double GetSigma2Error()  { return fSigma2.Error(fFunc); };
+    inline void RestoreSigma2(double value, double error)
+        { RestoreParam(fSigma2, value, error); };
+    
     inline double GetEta()          { return fEta.Value(fFunc); };
     inline double GetEtaError()     { return fEta.Error(fFunc); };
+    inline void RestoreEta(double value, double error)
+        { RestoreParam(fEta, value, error); };
+    
     inline double GetGamma()        { return fGamma.Value(fFunc); };
     inline double GetGammaError()   { return fGamma.Error(fFunc); };
+    inline void RestoreGamma(double value, double error)
+        { RestoreParam(fGamma, value, error); };
     
     inline double GetVol()          { return fVol; }
     inline double GetVolError()     { return fVolError; }
+    inline void RestoreVol(double value, double error)
+        { fVol = value; fVolError = error; };
                                                 
     inline void SetSumFunc(TF1 *func) { fFunc = func; }
     
@@ -76,6 +95,8 @@ class EEPeak {
     double fVol, fVolError;
     TF1 *fFunc;
     std::auto_ptr<TF1> fPeakFunc;
+    
+    void RestoreParam(const Param& param, double value, double error);
     
     static const double DECOMP_FUNC_WIDTH;
 };
@@ -91,6 +112,8 @@ class EEFitter : public Fitter {
     inline double GetChisquare() { return fChisquare; }
     inline TF1* GetSumFunc() { return fSumFunc.get(); }
     TF1* GetBgFunc();
+    void Restore(const Background& bg, double ChiSquare);
+    void Restore(int intBgDeg, double ChiSquare);
     
     // For debugging only
     //inline double GetVol()          { return fInt; }
@@ -104,6 +127,7 @@ class EEFitter : public Fitter {
     double Eval(double *x, double *p);
     double EvalBg(double *x, double *p);
     void _Fit(TH1& hist);
+    void _Restore(double ChiSquare);
   
     int fIntBgDeg;
     double fMin, fMax;

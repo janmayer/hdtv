@@ -442,34 +442,19 @@ void TheuerkaufFitter::_Fit(TH1& hist)
 
 void TheuerkaufFitter::Restore(const Background& bg, double ChiSquare)
 {
-
   // Restore the fit, using the given background function
+
   fBackground.reset(bg.Clone());
   fIntBgDeg = -1;
 
-  // Create fit function
-  fSumFunc.reset(new TF1(GetFuncUniqueName("f", this).c_str(),
-          this, &TheuerkaufFitter::Eval, fMin, fMax,
-          fNumParams, "TheuerkaufFitter", "Eval"));
-
-  std::vector<TheuerkaufPeak>::iterator iter;
-  for(iter = fPeaks.begin(); iter != fPeaks.end(); iter ++) {
-      iter->SetSumFunc(fSumFunc.get());
-  }
-
-  // Store Chi^2
-  fChisquare = ChiSquare;
-  fSumFunc->SetChisquare(ChiSquare);
-
-  // Finalize fitter
-  fFinal = true;
+  _Restore(ChiSquare);
 }
 
 
 void TheuerkaufFitter::Restore(int intBgDeg, double ChiSquare)
 {
-
   // Restore the fit, using the given background function
+
   fBackground.reset();
   fIntBgDeg = intBgDeg;
 
@@ -478,7 +463,14 @@ void TheuerkaufFitter::Restore(int intBgDeg, double ChiSquare)
   if(fIntBgDeg >= 0) {
        fNumParams += (fIntBgDeg + 1);
   }
-
+  
+  _Restore(ChiSquare);
+}
+  
+void TheuerkaufFitter::_Restore(double ChiSquare)
+{
+  // Internal worker function to restore the fit
+  
   // Create fit function
   fSumFunc.reset(new TF1(GetFuncUniqueName("f", this).c_str(),
           this, &TheuerkaufFitter::Eval, fMin, fMax,

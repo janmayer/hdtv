@@ -120,8 +120,6 @@ class TheuerkaufPeak {
 
     inline void SetSumFunc(TF1 *func) { fFunc = func; }
 
-    void RestoreParam(const Param& param, double value, double error);
-
     TF1* GetPeakFunc();
 
   private:
@@ -134,6 +132,8 @@ class TheuerkaufPeak {
     
     double fCachedNorm;
     double fCachedSigma, fCachedTL, fCachedTR;
+    
+    void RestoreParam(const Param& param, double value, double error);
     
     static const double DECOMP_FUNC_WIDTH;
 };
@@ -161,6 +161,7 @@ class TheuerkaufFitter : public Fitter {
     double Eval(double *x, double *p);
     double EvalBg(double *x, double *p);
     void _Fit(TH1& hist);
+    void _Restore(double ChiSquare);
 
     int fIntBgDeg;
     double fMin, fMax;
