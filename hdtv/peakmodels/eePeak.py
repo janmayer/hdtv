@@ -177,7 +177,7 @@ class PeakModelEE(PeakModel):
         cpeak.RestorePos(peak.pos.value, peak.pos.error)
         cpeak.RestoreAmp(peak.amp.value,peak.amp.error)
         cpeak.RestoreSigma1(peak.sigma1.value,peak.sigma1.error)
-        cpeak.RestoreSigma2(peak.sigma1.value,peak.sigma2.error)
+        cpeak.RestoreSigma2(peak.sigma2.value,peak.sigma2.error)
         cpeak.RestoreEta(peak.eta.value,peak.eta.error)
         cpeak.RestoreGamma(peak.gamma.value,peak.gamma.error)
         cpeak.RestoreVol(peak.vol.value,peak.vol.error)
