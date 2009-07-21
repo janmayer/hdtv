@@ -500,6 +500,8 @@ class CommandLine:
         """
         print "Execute file: " + fname
         
+        fname = fname.rstrip() # Remove trailing whitespaces
+        
         file = None
         try:
             file = open(fname, "r")
