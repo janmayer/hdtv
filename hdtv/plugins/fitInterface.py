@@ -468,14 +468,14 @@ class TvFitInterface:
         
         hdtv.cmdline.AddCommand("fit list", self.FitList, nargs=0, usage="fit list")
         hdtv.cmdline.AddCommand("fit show", self.FitShow, minargs=1)
-        hdtv.cmdline.AddCommand("fit print", self.FitPrint, minargs=1)
+        hdtv.cmdline.AddCommand("fit print", self.FitPrint, minargs=1, level=2)
         hdtv.cmdline.AddCommand("fit delete", self.FitDelete, minargs=1)
         hdtv.cmdline.AddCommand("fit activate", self.FitActivate, nargs=1)
         hdtv.cmdline.AddCommand("fit copy", self.FitCopy, minargs=1)
         hdtv.cmdline.AddCommand("fit multi", self.FitMulti, minargs=1)
         hdtv.cmdline.AddCommand("fit param background degree", self.FitParamBgDeg, nargs=1)
-        hdtv.cmdline.AddCommand("fit param status", self.FitParamStatus, nargs=0)
-        hdtv.cmdline.AddCommand("fit param reset", self.FitParamReset, nargs=0)
+        hdtv.cmdline.AddCommand("fit status", self.FitStatus, nargs=0)
+        hdtv.cmdline.AddCommand("fit reset", self.FitReset, nargs=0)
         hdtv.cmdline.AddCommand("fit function peak activate", self.FitSetPeakModel,
                                 completer=self.PeakModelCompleter, nargs=1)
         
@@ -676,10 +676,10 @@ class TvFitInterface:
             return False
         self.fitIf.SetBgDeg(bgdeg)
 
-    def FitParamStatus(self, args):
+    def FitStatus(self, args):
         self.fitIf.ShowFitStatus()
 
-    def FitParamReset(self, args):
+    def FitReset(self, args):
         self.fitIf.ResetParameters()
     
     def FitSetPeakModel(self, args):
