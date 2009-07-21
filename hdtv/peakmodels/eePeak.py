@@ -178,8 +178,8 @@ class PeakModelEE(PeakModel):
         cpeak.RestoreAmp(peak.amp.value,peak.amp.error)
         cpeak.RestoreSigma1(peak.sigma1.value,peak.sigma1.error)
         cpeak.RestoreSigma2(peak.sigma1.value,peak.sigma2.error)
-        cpeak.RestoreEta(peak.Eta.value,peak.Eta.error)
-        cpeak.RestoreGamma(peak.Gamma.value,peak.Gamma.error)
+        cpeak.RestoreEta(peak.eta.value,peak.eta.error)
+        cpeak.RestoreGamma(peak.gamma.value,peak.gamma.error)
         cpeak.RestoreVol(peak.vol.value,peak.vol.error)
     
     def ResetParamStatus(self):

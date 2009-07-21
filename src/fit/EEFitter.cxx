@@ -78,6 +78,26 @@ EEPeak& EEPeak::operator=(const EEPeak& src)
   return *this;
 }
 
+void EEPeak::RestoreParam(const Param& param, double value, double error)
+{
+    // Restores parameters and error for fit function.
+    // Warnings:    Restore function of corresponding fitter has to be called
+    //              beforehand!
+
+    // Note: same as TheuerkaufPeak::RestoreParam. Merge?
+
+    if(fFunc != NULL) {
+        fFunc->SetParameter(param._Id(), value);
+        fFunc->SetParError(param._Id(), error);
+    }
+
+    if(fPeakFunc.get()) {
+        fPeakFunc->SetParameter(param._Id(), value);
+        fPeakFunc->SetParError(param._Id(), error);
+    }
+
+}
+
 double EEPeak::Eval(double *x, double* p)
 {
   double dx = *x - fPos.Value(p);
@@ -373,10 +393,11 @@ void EEFitter::_Fit(TH1& hist)
   // Init fit parameters
   // Note: this may set parameters several times, but that should not matter
   std::vector<EEPeak>::iterator iter;
-  double amp;
   for(iter = fPeaks.begin(); iter != fPeaks.end(); iter ++) {
-    // FIXME: use FindBin()
-    amp = (double) hist.GetBinContent(((int)TMath::Ceil(iter->fPos._Value() - 0.5)) + 1);
+    double amp = hist.GetBinContent(hist.FindBin(iter->fPos._Value()));
+    if(fBackground.get() != 0)
+      amp -= fBackground->Eval(iter->fPos._Value());
+    
 	SetParameter(*fSumFunc, iter->fPos);
 	SetParameter(*fSumFunc, iter->fAmp, amp);
 	SetParameter(*fSumFunc, iter->fSigma1, 1.0);
@@ -414,6 +435,54 @@ void EEFitter::_Fit(TH1& hist)
   fInt = func->Integral(pos - 10. * sigma1, pos + 5. * sigma1);
   fIntError = func->IntegralError(pos - 10. * sigma1, pos + 5. * sigma1);
 } */
+
+void EEFitter::Restore(const Background& bg, double ChiSquare)
+{
+  // Restore the fit, using the given background function
+
+  fBackground.reset(bg.Clone());
+  fIntBgDeg = -1;
+
+  _Restore(ChiSquare);
+}
+
+void EEFitter::Restore(int intBgDeg, double ChiSquare)
+{
+  // Restore the fit, using the given background function
+
+  fBackground.reset();
+  fIntBgDeg = intBgDeg;
+
+  // Allocate additional parameters for internal polynomial background
+  // Note that a polynomial of degree n has n+1 parameters!
+  if(fIntBgDeg >= 0) {
+       fNumParams += (fIntBgDeg + 1);
+  }
+  
+  _Restore(ChiSquare);
+}
+
+void EEFitter::_Restore(double ChiSquare)
+{
+  // Internal worker function to restore the fit
+  
+  // Create fit function
+  fSumFunc.reset(new TF1(GetFuncUniqueName("f", this).c_str(),
+          this, &EEFitter::Eval, fMin, fMax,
+          fNumParams, "EEFitter", "Eval"));
+
+  std::vector<EEPeak>::iterator iter;
+  for(iter = fPeaks.begin(); iter != fPeaks.end(); iter ++) {
+      iter->SetSumFunc(fSumFunc.get());
+  }
+
+  // Store Chi^2
+  fChisquare = ChiSquare;
+  fSumFunc->SetChisquare(ChiSquare);
+
+  // Finalize fitter
+  fFinal = true;
+}
 
 } // end namespace Fit
 } // end namespace HDTV
