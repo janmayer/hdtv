@@ -145,7 +145,7 @@ class PeakModelEE(PeakModel):
                                  "sigma2": [ float, "free", "equal" ],
                                  "eta":    [ float, "free", "equal" ],
                                  "gamma":  [ float, "free", "equal" ],
-                                 "vol":    ["free"] }
+                                 "vol":    ["calculated"] }
         self.ResetParamStatus()
         self.name = "ee"
         self.Peak = EEPeak
@@ -192,7 +192,7 @@ class PeakModelEE(PeakModel):
         self.fParStatus["sigma2"] = "equal"
         self.fParStatus["eta"] = "equal"
         self.fParStatus["gamma"] = "equal"
-        self.fParStatus["vol"] = "free"
+        self.fParStatus["vol"] = "calculated"
     
     def Uncal(self, parname, value, pos_uncal, cal):
         """

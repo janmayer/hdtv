@@ -503,12 +503,14 @@ class TvFitInterface:
             return lambda args: self.fitIf.SetParameter(param," ".join(args))
         # create new commands 
         for param in fitter.OrderedParamKeys():
-            hdtv.cmdline.AddCommand("fit param %s" % param, MakeSetFunction(param), minargs=1)
+            if len(fitter.fValidParStatus[param])>1:
+                hdtv.cmdline.AddCommand("fit param %s" % param, MakeSetFunction(param), minargs=1)
 
     def UnregisterFitParameter(self, fitter):
         # Unregister old parameters
         for param in fitter.OrderedParamKeys():
-            hdtv.cmdline.RemoveCommand("fit param %s" % param)
+            if len(fitter.fValidParStatus[param])>1:
+                hdtv.cmdline.RemoveCommand("fit param %s" % param)
 
 
     def FitWrite(self, args):
@@ -684,7 +686,6 @@ class TvFitInterface:
     
     def FitSetPeakModel(self, args):
         self.fitIf.SetPeakModel(args[0].lower())
-
 
     def PeakModelCompleter(self, text):
         return hdtv.util.GetCompleteOptions(text, hdtv.fitter.gPeakModels.iterkeys())

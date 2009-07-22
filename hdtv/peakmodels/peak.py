@@ -79,7 +79,7 @@ class PeakModel:
                 sep = ""
                 for stat in status:
                     statstr += sep
-                    if stat in ("free", "equal", "hold", "none"):
+                    if stat in ("free", "equal", "hold", "none", "calculated"):
                         statstr += stat
                     else:
                         statstr += "%.3f" % stat
@@ -96,6 +96,8 @@ class PeakModel:
                     statstr += "%s: held at default value\n" % name
                 elif status == "none":
                     statstr += "%s: none (disabled)\n" % name
+                elif status == "calculated":
+                    statstr += "%s: calculated\n" %name
                 else:
                     statstr += "%s: fixed at %.3f\n" % (name, status)
                     
@@ -134,15 +136,14 @@ class PeakModel:
     
         # If status was a keyword, see if this setting is legal for the
         #  parameter in question
-        if not stat is None:
-            if stat in self.fValidParStatus[parname]:
-                return stat
-            else:
-                raise RuntimeError, "Invalid status %s for parameter %s" % (stat, parname)
-        # If status was not a keyword, try to parse it as a string
-        else:
+        if not stat is None and stat in self.fValidParStatus[parname]:
+            return stat
+        # If status was not a keyword, try to parse it as a float
+        if float in self.fValidParStatus[parname]:
             return float(status)
-        
+        # if it is nothing of the above
+        raise RuntimeError, "Invalid status %s for parameter %s" % (status, parname)
+
         
     def SetParameter(self, parname, status):
         """
