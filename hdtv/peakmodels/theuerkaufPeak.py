@@ -79,7 +79,7 @@ class TheuerkaufPeak(Drawable):
         text += "Volume:      " + self.vol.fmt() + "\n"
         text += "FWHM:        " + self.width_cal.fmt() + "\n"
         # Note: do not use == or != when testing for None
-        # those operators use cmp, which is not garanteed to handle None
+        # those operators use cmp, which is not guaranteed to handle None
         if not self.tl is None:
             text += "Left Tail:   " + self.tl.fmt() + "\n"
         else:
