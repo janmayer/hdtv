@@ -26,16 +26,12 @@
 import os
 import stat
 import ROOT
+import hdtv
 
 class DLImportError(Exception):
     pass
 
-
-libpath = __file__.split(os.sep)
-libpath[-1]='clib'
-libpath = os.sep.join(libpath)
-path = [libpath]
-
+path = [hdtv.clibpath]
 
 def FindLibrary(name):
     """
