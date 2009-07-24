@@ -20,6 +20,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 import math
+import re
 
 def GetCompleteOptions(begin, options):
     l = len(begin)
@@ -29,15 +30,21 @@ class ErrValue:
     """
     A value with an error
     
+    values may be given as floats or strings containing value and error in
+    the form "12.3456(78)" if no error is given.
+     
     Beware: Error propagation is only working for statistically independant 
     values for now!
     """
-    def __init__(self, value, error):
-        self.value = value
-        try:
+    def __init__(self, value, error=None):
+        
+        if error:
             self.error = abs(error) # Errors are always positive
-        except TypeError:
-            self.error = None
+            self.value = float(value)
+        else:
+            tmp = self._fromString(value)
+            self.value = tmp[0]
+            self.error = tmp[1]    
             
         try:
             self.rel_error = self.error / self.value * 100.0 # Error in percent
@@ -122,10 +129,12 @@ class ErrValue:
     
     def _sanitize(self, val):
         """
-        * Convert floats to ErrValue with error=0, if necessary
+        * Convert floats or strings to ErrValue
         * Return .error=0 for .error==None values to be able to do calculations
         """
         ret = ErrValue(0, 0)
+        
+        val = self.fromString(val)
         
         try:
             ret.value = val.value
@@ -136,12 +145,36 @@ class ErrValue:
         except AttributeError:
             ret.value = val
             ret.error = 0
-        
+            
         return ret
         
         
     def __abs__(self):
         return ErrValue(abs(self.value), self.error)
+    
+    def _fromString(self, strvalue):
+        """
+        Convert values with error given as strings (e.g. "0.1234(56)") to
+        ErrValues
+        """
+        
+        try: # Try to convert string values like "0.1234(56)" into numbers
+            # TODO: Handle decimal seperator properly, depending on locale
+            val_string = re.match(r"([0-9\.]+)\(([0-9]+)\)", strvalue)
+            value = float(val_string.group(1))
+            error = float(val_string.group(2))
+            tmp = value
+            while tmp % 1 != 0: # Determine magnitude of error
+                tmp *= 10
+                error /=10
+        except TypeError: # No string given
+            return (strvalue, None)
+        except AttributeError: # String does not contain error
+            value = float(strvalue)
+            error = None
+        
+        return (value, error)
+        
     
     def fmt(self):
     
