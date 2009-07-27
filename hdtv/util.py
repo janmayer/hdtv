@@ -90,17 +90,27 @@ class ErrValue:
         ret.value = val1.value + val2.value
         ret.error = math.sqrt(math.pow(val1.error, 2) + math.pow(val2.error, 2))
         return ret
+
+    def __radd__(self, other):
+        return self.__add__(other)
     
-    def __sub__(self, other):
+    
+    def __difference(self, minuend, subtrahend):
         """Subtract two values with error propagation"""
-        val1 = self._sanitize(self)
-        val2 = self._sanitize(other)
+        val1 = self._sanitize(minuend)
+        val2 = self._sanitize(subtrahend)
         ret  = ErrValue(0,0)
         
         ret.value = val1.value - val2.value
         ret.error = math.sqrt(math.pow(val1.error, 2) + math.pow(val2.error, 2))
 
         return ret
+
+    def __sub__(self, other):
+        return self.__difference(self, other)
+    
+    def __rsub__(self, other):
+        return self.__difference(other, self)
 
     def __mul__(self, other):
         """Multiply two values with error propagation"""
@@ -113,16 +123,26 @@ class ErrValue:
                               + math.pow((val2.value * val1.error), 2))
         return ret
 
-    def __div__(self, other):
+    def __rmul__(self, other):
+        return self.__mul__(other)
+    
+    
+    def __quotient(self, dividend, divisor):
         """Divide two values with error propagation"""
-        val1 = self._sanitize(self)
-        val2 = self._sanitize(other)
+        val1 = self._sanitize(dividend)
+        val2 = self._sanitize(divisor)
         ret  = ErrValue(0,0)
         
         ret.value = val1.value / val2.value
         ret.error = math.sqrt(math.pow((val1.error / val2.value), 2) \
                               + math.pow((val1.value * val2.error / math.pow(val2.value,2)), 2))
         return ret
+        
+    def __div__(self, other):
+        return self.__quotient(self, other)
+    
+    def __rdiv__(self, other):
+        return self.__quotient(other, self)
     
     def __float__(self):
         return float(self.value)
@@ -133,9 +153,7 @@ class ErrValue:
         * Return .error=0 for .error==None values to be able to do calculations
         """
         ret = ErrValue(0, 0)
-        
-        val = self.fromString(val)
-        
+               
         try:
             ret.value = val.value
             ret.error = abs(val.error)
