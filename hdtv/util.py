@@ -90,6 +90,10 @@ class ErrValue:
         ret.value = val1.value + val2.value
         ret.error = math.sqrt(math.pow(val1.error, 2) + math.pow(val2.error, 2))
         return ret
+
+    def __radd__(self, other):
+        return self.__add__(other)
+    
     
     def __sub__(self, other):
         """Subtract two values with error propagation"""
@@ -102,6 +106,9 @@ class ErrValue:
 
         return ret
 
+    def __rsub__(self, other):
+        return self.__sub__(other)
+
     def __mul__(self, other):
         """Multiply two values with error propagation"""
         val1 = self._sanitize(self)
@@ -113,6 +120,9 @@ class ErrValue:
                               + math.pow((val2.value * val1.error), 2))
         return ret
 
+    def __rmul__(self, other):
+        return self.__mul__(other)
+    
     def __div__(self, other):
         """Divide two values with error propagation"""
         val1 = self._sanitize(self)
@@ -124,6 +134,9 @@ class ErrValue:
                               + math.pow((val1.value * val2.error / math.pow(val2.value,2)), 2))
         return ret
     
+    def __rdiv__(self, other):
+        return self.__div__(other)
+    
     def __float__(self):
         return float(self.value)
     
@@ -133,7 +146,7 @@ class ErrValue:
         * Return .error=0 for .error==None values to be able to do calculations
         """
         ret = ErrValue(0, 0)
-        
+               
         try:
             ret.value = val.value
             ret.error = abs(val.error)
