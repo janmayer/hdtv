@@ -134,8 +134,6 @@ class ErrValue:
         """
         ret = ErrValue(0, 0)
         
-        val = self.fromString(val)
-        
         try:
             ret.value = val.value
             ret.error = abs(val.error)
