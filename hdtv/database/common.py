@@ -59,15 +59,15 @@ class _Elements(object):
     def __call__(self, Z=None, symbol=None, name=None):
         
         if symbol:
-            for e in self._storage:
-                if e.symbol == symbol:
-                    return e     
+            for z in self._storage:
+                if self._storage[z].symbol.lower() == symbol.lower():
+                    return self._storage[z]      
         if name:
-            for e in self._storage:
-                if e.name == name:
-                    return e 
+            for z in self._storage:
+                if self._storage[z].name.lower() == name.lower():
+                    return self._storage[z]
         else:
-            return self._storage.get(Z) 
+            return self._storage[Z]
 
 class _Nuclide(_Element):
     
