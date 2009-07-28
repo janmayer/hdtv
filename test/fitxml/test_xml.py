@@ -106,14 +106,14 @@ __main__.f.KeepFit()
 
 
 ## 5.) ee peak (just proof of concept, not a thorough test)
-#__main__.f.SetPeakModel("ee")
-#__main__.f.ResetParameters()
-#fit = __main__.f.GetActiveFit()
-#fit.PutRegionMarker(1115)
-#fit.PutRegionMarker(1125)
-#fit.PutPeakMarker(1120)
-#__main__.f.Fit()
-#__main__.f.KeepFit()
+__main__.f.SetPeakModel("ee")
+__main__.f.ResetParameters()
+fit = __main__.f.GetActiveFit()
+fit.PutRegionMarker(1115)
+fit.PutRegionMarker(1125)
+fit.PutPeakMarker(1120)
+__main__.f.Fit()
+__main__.f.KeepFit()
 
 
 print 'Saving fits to file %s' % testXML

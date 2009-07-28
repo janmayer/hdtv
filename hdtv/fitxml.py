@@ -346,7 +346,7 @@ class FitXml:
                         errorElement = paramElement.find("error")
                         error = float(errorElement.text)
                         status = paramElement.get("status")
-                        if status in ["free", "equal"]:
+                        if status in ["free", "equal", "calculated"]:
                             free = True
                         else:
                             free = False

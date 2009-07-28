@@ -341,7 +341,7 @@
           <sw status="hold" />
           <pos status="hold">
             <value>965.0</value>
-            <error>0.0</error>
+            <error>0</error>
           </pos>
         </uncal>
         <cal>
@@ -359,7 +359,7 @@
           <sw status="hold" />
           <pos status="hold">
             <value>965.0</value>
-            <error>0.0</error>
+            <error>0</error>
           </pos>
         </cal>
       </peak>
@@ -379,7 +379,7 @@
           <sw status="hold" />
           <pos status="hold">
             <value>970.0</value>
-            <error>0.0</error>
+            <error>0</error>
           </pos>
         </uncal>
         <cal>
@@ -397,7 +397,7 @@
           <sw status="hold" />
           <pos status="hold">
             <value>970.0</value>
-            <error>0.0</error>
+            <error>0</error>
           </pos>
         </cal>
       </peak>
@@ -529,6 +529,86 @@
             <value>1771.2968247</value>
             <error>0.048529748867</error>
           </pos>
+        </cal>
+      </peak>
+    </fit>
+    <fit bgDegree="1" chi="70.5703043717" peakModel="ee">
+      <regionMarker>
+        <begin>
+          <cal>1115</cal>
+          <uncal>1115.0</uncal>
+        </begin>
+        <end>
+          <cal>1125</cal>
+          <uncal>1125.0</uncal>
+        </end>
+      </regionMarker>
+      <peakMarker>
+        <position>
+          <cal>1120.55374398</cal>
+          <uncal>1120.55374398</uncal>
+        </position>
+      </peakMarker>
+      <peak>
+        <uncal>
+          <vol status="calculated">
+            <value>29235.4615704</value>
+            <error>239.208735706</error>
+          </vol>
+          <pos status="free">
+            <value>1120.55374398</value>
+            <error>0.0233093954295</error>
+          </pos>
+          <eta status="equal">
+            <value>3.83665087993</value>
+            <error>3.01224217751</error>
+          </eta>
+          <amp status="free">
+            <value>10291.0081434</value>
+            <error>87.1768517671</error>
+          </amp>
+          <sigma1 status="equal">
+            <value>1.50962421263</value>
+            <error>0.0247216977942</error>
+          </sigma1>
+          <gamma status="equal">
+            <value>8.18540198041</value>
+            <error>6.24288325203</error>
+          </gamma>
+          <sigma2 status="equal">
+            <value>1.1591977245</value>
+            <error>0.0203869677626</error>
+          </sigma2>
+        </uncal>
+        <cal>
+          <vol status="calculated">
+            <value>29235.4615704</value>
+            <error>239.208735706</error>
+          </vol>
+          <pos status="free">
+            <value>1120.55374398</value>
+            <error>0.0233093954295</error>
+          </pos>
+          <eta status="equal">
+            <value>3.83665087993</value>
+            <error>3.01224217751</error>
+          </eta>
+          <amp status="free">
+            <value>10291.0081434</value>
+            <error>87.1768517671</error>
+          </amp>
+          <sigma1 status="equal">
+            <value>1.50962421263</value>
+            <error>0.0247216977942</error>
+          </sigma1>
+          <gamma status="equal">
+            <value>8.18540198041</value>
+            <error>6.24288325203</error>
+          </gamma>
+          <sigma2 status="equal">
+            <value>1.1591977245</value>
+            <error>0.0203869677626</error>
+          </sigma2>
         </cal>
       </peak>
     </fit>

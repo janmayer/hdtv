@@ -133,6 +133,8 @@ class PeakModel:
             stat = "none"
         elif "hold"[0:len(status)] == status:
             stat = "hold"
+        elif "calculated"[0:len(status)]==status:
+            stat = "calculated"
     
         # If status was a keyword, see if this setting is legal for the
         #  parameter in question
