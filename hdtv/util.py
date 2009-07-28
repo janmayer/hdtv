@@ -25,7 +25,21 @@ import re
 def GetCompleteOptions(begin, options):
     l = len(begin)
     return [o + " " for o in options if o[0:l] == begin]
+
+def Median(values):
+    """
+    Calculate Median of list
+    """
+    values.sort()
+    n = len(values)
+    if not n:
+        return None
     
+    if n % 2 == 0: 
+        return (values[(n-1)/2] + values[n/2]) * 0.5
+    else:
+        return values[n/2]
+
 class ErrValue:
     """
     A value with an error
