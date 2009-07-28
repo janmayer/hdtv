@@ -71,6 +71,8 @@ class _Elements(object):
 
 class _Nuclide(_Element):
     
+    __slots__ = ("id", "element", "A", "M", "sigma", "abundance")
+
     def __init__(self, element, A, abundance=None, sigma=None, M=None):
         
         super(_Nuclide, self).__init__(element.Z, element.symbol, element.name, M=None) # M is different for nuclides and elements

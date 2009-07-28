@@ -10,7 +10,8 @@ class PGAAGamma(Gamma):
         given as tuple (Z, A)
     """
     k0_norm = None
-    
+    __slots__ = ("id", "nuclide", "energy", "sigma", "intensity", "halflife")
+
     def __init__(self, nuclide, energy, sigma, intensity, halflife, k0_comp):
         
         super(PGAAGamma, self).__init__(nuclide, energy, sigma, intensity)
