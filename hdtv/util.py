@@ -53,20 +53,28 @@ class ErrValue:
     def __init__(self, value, error=None):
         
         if error:
-            self.error = abs(error) # Errors are always positive
+            self._error = abs(error) # Errors are always positive
             self.value = float(value)
         else:
             tmp = self._fromString(value)
             self.value = tmp[0]
-            self.error = tmp[1]    
+            self._error = tmp[1]    
             
         try:
-            self.rel_error = self.error / self.value * 100.0 # Error in percent
+            self.rel_error = self._error / self.value * 100.0 # Error in percent
         except (ZeroDivisionError, TypeError):
             self.rel_error = None
-            
+    
+    def get_error(self):
+        if self._error:
+            return self._error
+        else:
+            return 0
+    
+    error = property(get_error)
+    
     def __repr__(self):
-        return "ErrValue(" + repr(self.value) + ", " + repr(self.error) + ")"
+        return "ErrValue(" + repr(self.value) + ", " + repr(self._error) + ")"
     
     def __str__(self):
         return self.fmt()
@@ -182,7 +190,7 @@ class ErrValue:
         
         
     def __abs__(self):
-        return ErrValue(abs(self.value), self.error)
+        return ErrValue(abs(self.value), self._error)
     
     def _fromString(self, strvalue):
         """
@@ -212,7 +220,7 @@ class ErrValue:
     
         try:
             # Call fmt_no_error() for values without error
-            if self.error == None:
+            if self._error == None:
                 return self.fmt_no_error()
 
             # Check and store sign
@@ -224,7 +232,7 @@ class ErrValue:
                 value = self.value
                 
             # Errors are always positive
-            error = abs(self.error)
+            error = abs(self._error)
         
             # Check whether to switch to scientific notation
             # Catch the case where value is zero
