@@ -500,7 +500,12 @@ class TvFitInterface:
     def RegisterFitParameter(self, fitter):
         # we need to create the function outside the loop
         def MakeSetFunction(param):
-            return lambda args: self.fitIf.SetParameter(param," ".join(args))
+            def f(args):
+                try:
+                    self.fitIf.SetParameter(param," ".join(args))
+                except ValueError, msg:
+                    print "Error: %s" % msg
+            return f
         # create new commands 
         for param in fitter.OrderedParamKeys():
             if len(fitter.fValidParStatus[param])>1:

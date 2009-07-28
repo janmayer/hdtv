@@ -137,8 +137,8 @@ class PeakModelEE(PeakModel):
         self.fOrderedParamKeys = ["pos", "amp", "sigma1", "sigma2", "eta", "gamma", "vol"]
         self.fParStatus = { "pos": None, "amp": None, "sigma1": None, "sigma2": None,
                             "eta": None, "gamma": None, "vol":None }
-        # volume is not a fit parameter, but is must be in this list
-        # because it is a property of an EEPeak
+        # Note that volume is not a true fit parameter, but calculated from
+        # the other parameters after the fit
         self.fValidParStatus = { "pos":    [ float, "free", "hold" ],
                                  "amp":    [ float, "free", "hold" ],
                                  "sigma1": [ float, "free", "equal" ],

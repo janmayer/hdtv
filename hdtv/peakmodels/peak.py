@@ -97,7 +97,7 @@ class PeakModel:
                 elif status == "none":
                     statstr += "%s: none (disabled)\n" % name
                 elif status == "calculated":
-                    statstr += "%s: calculated\n" %name
+                    statstr += "%s: calculated from fit result\n" %name
                 else:
                     statstr += "%s: fixed at %.3f\n" % (name, status)
                     
@@ -116,6 +116,7 @@ class PeakModel:
     def ParseParamStatus(self, parname, status):
         """
         Parse a parameter status specification string
+        Raises ValueError when the status is not legal for this parameter
         """
         # Case-insensitive matching
         status = status.strip().lower()
@@ -136,25 +137,37 @@ class PeakModel:
         elif "calculated"[0:len(status)]==status:
             stat = "calculated"
     
-        # If status was a keyword, see if this setting is legal for the
-        #  parameter in question
-        if not stat is None and stat in self.fValidParStatus[parname]:
+        # If status was a keyword, see if this setting is legal for the parameter 
+        if not stat is None:
+            if not stat in self.fValidParStatus[parname]:
+                msg = "Status %s not allowed for parameter %s" % (stat, parname)
+                raise ValueError, msg
             return stat
-        # If status was not a keyword, try to parse it as a float
-        if float in self.fValidParStatus[parname]:
-            return float(status)
-        # if it is nothing of the above
-        raise RuntimeError, "Invalid status %s for parameter %s" % (status, parname)
-
+            
+        #If status was not a keyword, try to parse it as a float. If that
+        # fails, we are out of options.
+        try:
+            val = float(status)
+        except ValueError:
+            msg = "Failed to parse status specifier `%s'" % status
+            raise ValueError, msg
+                
+        # Check if a numeric value is legal for the parameter
+        if not float in self.fValidParStatus[parname]:
+            msg = "Invalid status %s for parameter %s" % (status, parname)
+            raise ValueError, msg
+        return val
+        
         
     def SetParameter(self, parname, status):
         """
-        Set status for a certain parameter
+        Set status for a certain parameter. Status is a string describing the
+        desired status. Raises ValueError in case of invalid input.
         """
         parname = parname.strip().lower()
         
         if not parname in self.fValidParStatus.keys():
-            raise RuntimeError, "Invalid parameter name"
+            raise ValueError, "Invalid parameter name"
             
         if "," in status:
             self.fParStatus[parname] = map(lambda s: self.ParseParamStatus(parname, s),
