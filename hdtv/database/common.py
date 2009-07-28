@@ -24,7 +24,7 @@ class _Element(object):
         text += "Name:          " + str(self.name) + "\n"
         text += "Z:             " + str(self.Z)   + " \n"
         text += "Symbol:        " + self.symbol + " \n"
-        text += "atom. Weight:  " + str(self.M) + " \n"
+        text += "atomic Mass:   " + str(self.M) + " u \n"
         return text
         
 
@@ -85,12 +85,12 @@ class _Nuclide(_Element):
         
     def __str__(self):
         text = str()
-        text += "id:        " + self.id  + "\n"
-        text += "Z:         " + str(self.Z)   + " \n"
-        text += "A:         " + str(self.A)   + "\n"
-        text += "M:         " + str(self.M)   + " u\n"
-        text += "Abundance: " + str(self.abundance * 100.0) + " %\n"
-        text += "σ_0:       " + str(self.sigma)   + " b\n"
+        text += "id:            " + self.id  + "\n"
+        text += "Z:             " + str(self.Z)   + " \n"
+        text += "A:             " + str(self.A)   + "\n"
+        text += "atomic Mass:   " + str(self.M)   + " u\n"
+        text += "Abundance:     " + str(self.abundance * 100.0) + " %\n"
+        text += "σ_0:           " + str(self.sigma)   + " b\n"
         return text
 
 
