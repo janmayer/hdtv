@@ -157,6 +157,7 @@ class Gamma(object):
     __slots__ = ("id", "nuclide", "energy", "sigma", "intensity")
      
     def __init__(self, nuclide, energy, sigma, intensity):
+        self.id = str(nuclide.id) + "@" + str(energy)
         self.nuclide = nuclide
         self.energy = energy
         self.sigma = sigma
