@@ -50,31 +50,26 @@ class ErrValue:
     Beware: Error propagation is only working for statistically independant 
     values for now!
     """
-    def __init__(self, value, error=None):
-        
-        if error:
-            self._error = abs(error) # Errors are always positive
-            self.value = float(value)
-        else:
+    def __init__(self, value, error=0):
+                
+        if isinstance(value, str):
             tmp = self._fromString(value)
             self.value = tmp[0]
-            self._error = tmp[1]    
-            
+            self.error = tmp[1]
+        else:
+            try:
+                self.error = abs(error) # Errors are always positive
+            except TypeError:
+                self.error = error
+            self.value = value    
         try:
-            self.rel_error = self._error / self.value * 100.0 # Error in percent
+            self.rel_error = self.error / self.value * 100.0 # Error in percent
         except (ZeroDivisionError, TypeError):
             self.rel_error = None
     
-    def get_error(self):
-        if self._error:
-            return self._error
-        else:
-            return 0
-    
-    error = property(get_error)
     
     def __repr__(self):
-        return "ErrValue(" + repr(self.value) + ", " + repr(self._error) + ")"
+        return "ErrValue(" + repr(self.value) + ", " + repr(self.error) + ")"
     
     def __str__(self):
         return self.fmt()
@@ -88,7 +83,7 @@ class ErrValue:
         val2 = self._sanitize(other)
         
         # Do the comparison
-        if (abs(val1.value - val2.value) <= (abs(val1.error) + abs(val2.error))):
+        if (abs(val1.value - val2.value) <= (val1.error + val2.error)):
             return True
         else:
             return False
@@ -190,7 +185,7 @@ class ErrValue:
         
         
     def __abs__(self):
-        return ErrValue(abs(self.value), self._error)
+        return ErrValue(abs(self.value), self.error)
     
     def _fromString(self, strvalue):
         """
@@ -211,7 +206,7 @@ class ErrValue:
             return (strvalue, None)
         except AttributeError: # String does not contain error
             value = float(strvalue)
-            error = None
+            error = 0
         
         return (value, error)
         
@@ -220,7 +215,7 @@ class ErrValue:
     
         try:
             # Call fmt_no_error() for values without error
-            if self._error == None:
+            if self.error == 0:
                 return self.fmt_no_error()
 
             # Check and store sign
@@ -231,8 +226,7 @@ class ErrValue:
                 sgn = ""
                 value = self.value
                 
-            # Errors are always positive
-            error = abs(self._error)
+            error = self.error
         
             # Check whether to switch to scientific notation
             # Catch the case where value is zero
