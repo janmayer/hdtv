@@ -26,15 +26,17 @@ class _Element(object):
         text += "Symbol:        " + self.symbol + " \n"
         text += "atomic Mass:   " + str(self.M) + " u \n"
         return text
-        
 
-class _Elements(object):
+class _Elements(list):
     """
     Read and hold complete elements list
     """
+    
     def __init__(self, csvfile=os.path.join(hdtv.datadir, "elements.dat")):
-        
-        self._storage = dict()
+
+        super(_Elements, self).__init__()
+
+        tmp = list()
         
         try:
             datfile = open(csvfile, "rb")
@@ -49,25 +51,62 @@ class _Elements(object):
                     Mass = ErrValue(line[3].strip())
                 except ValueError:
                     Mass = None
-                element = dict({Z: _Element(Z, Symbol, Name, Mass)})
-                self._storage.update(element)
+                element = _Element(Z, Symbol, Name, Mass)
+                tmp.append(element)
         except csv.Error, e:
             print 'file %s, line %d: %s' % (filename, reader.line_num, e)
         finally:
             datfile.close()
+            
+        # Now store elements finally
+        maxZ = max(tmp, key=lambda x: x.Z) # Get highest Z
+        for i in range(maxZ.Z):
+            self.append(None)
+
+        for e in tmp:
+            self[e.Z] = e
 
     def __call__(self, Z=None, symbol=None, name=None):
         
         if symbol:
-            for z in self._storage:
-                if self._storage[z].symbol.lower() == symbol.lower():
-                    return self._storage[z]      
+            for z in self:
+                try:
+                    if z.symbol.lower() == symbol.lower():
+                        return z
+                except AttributeError:
+                    pass      
         if name:
-            for z in self._storage:
-                if self._storage[z].name.lower() == name.lower():
-                    return self._storage[z]
-        else:
-            return self._storage[Z]
+            for z in self:
+                try:
+                    if z.name.lower() == name.lower():
+                        return z
+                except AttributeError:
+                    pass
+                
+        if Z:
+            return self[Z]
+        
+        return self
+    
+    def __setitem__(self, index, value):
+        if index == 0:
+            return None
+        
+        if index > 0:
+            index = index - 1
+        
+        return super(_Elements, self).__setitem__(index, value)
+        
+    def __getitem__(self, index):
+        if index == 0:
+            return None
+        
+        if index > 0:
+            index = index - 1
+        
+        return super(_Elements, self).__getitem__(index)
+    
+
 
 class _Nuclide(_Element):
     
