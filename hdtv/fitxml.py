@@ -192,41 +192,45 @@ class FitXml:
         for fname in fnames:
             path = os.path.expanduser(fname)
             for filename in glob.glob(path):
-                tree = ET.parse(filename)
-                root = tree.getroot()
-                if root.get("version").startswith("0"):
-                    print "The XML version of %s is old." %fname
-                    do_fit = None
-                    while not do_fit in ["Y","y","N","n",""]:
-                        question = "Do you want to update it to the current version? [Y/n]"
-                        print "The old files will be kept as backup with the suffix _v0"
-                        print "The conversion will take some time..."
-                        do_fit = raw_input(question)
-                    if do_fit in ["Y","y",""]:
-                        # we first have to delete all fits, that are already open,
-                        # because otherwise they also will be saved in the new file                        
-                        tmp = self.CreateXML()
-                        for spectra in self.spectra.values():
-                            try:
-                                spectra.RemoveAll()
-                            except AttributeError:
-                                # there are no fits for that spectrum
-                                pass
-                        # then we can deal with the old file and do all the fits
-                        self.ReadFitlist_v0(root, True)
-                        # backup old file
-                        os.rename(filename, "%s_v0" %filename)
-                        # and write the new file
-                        self.WriteFitlist(filename)
-                        # afterwards we restore again all the other fits
-                        v = VERSION.split('.')[0]
-                        newest_ReadFunc = getattr(self, "ReadFitlist_v%s" %v)
-                        newest_ReadFunc(tmp)                       
-                    else:
-                        self.ReadFitlist_v0(root)
-                if root.get("version").startswith("1"):
-                    self.ReadFitlist_v1(root)
-
+                try:
+                    tree = ET.parse(filename)
+                    root = tree.getroot()
+                
+                    if root.get("version").startswith("0"):
+                        print "The XML version of %s is old." %fname
+                        do_fit = None
+                        while not do_fit in ["Y","y","N","n",""]:
+                            question = "Do you want to update it to the current version? [Y/n]"
+                            print "The old files will be kept as backup with the suffix _v0"
+                            print "The conversion will take some time..."
+                            do_fit = raw_input(question)
+                        if do_fit in ["Y","y",""]:
+                            # we first have to delete all fits, that are already open,
+                            # because otherwise they also will be saved in the new file                        
+                            tmp = self.CreateXML()
+                            for spectra in self.spectra.values():
+                                try:
+                                    spectra.RemoveAll()
+                                except AttributeError:
+                                    # there are no fits for that spectrum
+                                    pass
+                            # then we can deal with the old file and do all the fits
+                            self.ReadFitlist_v0(root, True)
+                            # backup old file
+                            os.rename(filename, "%s_v0" %filename)
+                            # and write the new file
+                            self.WriteFitlist(filename)
+                            # afterwards we restore again all the other fits
+                            v = VERSION.split('.')[0]
+                            newest_ReadFunc = getattr(self, "ReadFitlist_v%s" %v)
+                            newest_ReadFunc(tmp)                       
+                        else:
+                            self.ReadFitlist_v0(root)
+                    if root.get("version").startswith("1"):
+                        self.ReadFitlist_v1(root)
+                except SyntaxError, e:
+                    print "Error reading \'" + filename + "\':\n\t", e
+                    
     def _getPosFromElement(self, XMLelement, fit=None):
         """
         Read position in energy domain from XML element.
