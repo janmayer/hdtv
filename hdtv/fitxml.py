@@ -256,6 +256,7 @@ class FitXml:
             * calibrated and uncalibrated values for each peak parameter
         """
         spectra = self.spectra
+        do_fit = None
         # <spectrum>
         for specElement in root.getiterator():
             name = specElement.get("name")
@@ -280,9 +281,10 @@ class FitXml:
             except AttributeError:
                 # No calibration was saved
                 print "Could not read calibration for spectrum ", name 
-            
+                
             # <fit>
             for fitElement in specElement:
+                restore_success = True
                 peakModel = fitElement.get("peakModel")
                 bgdeg = int(fitElement.get("bgDegree"))
                 fitter = hdtv.fitter.Fitter(peakModel, bgdeg)
@@ -375,18 +377,29 @@ class FitXml:
                         parameter[name] = hdtv.peakmodels.FitValue(value, error, free)
                     try:
                         peak = fit.fitter.peakModel.Peak(cal=spec.cal, **parameter)
-                    except TypeError, e:
-                        print "Could not restore peak with parameters:\n\t", parameter
-                        continue
+                    except TypeError:
+                        restore_success = False
+                        continue       
                     fit.peaks.append(peak)
                 # make sure the peaks are in the right order
                 fit.peaks.sort()
+
                 try:
                     fit.Restore(spec, silent=True)
                     spec.Add(fit)
                 except TypeError:
-                    print "Could not restore fit", fit
-                
+                    restore_success = False
+                    
+                if not restore_success:
+                    if do_fit not in ["A", "a"]:
+                        do_fit = None
+                    while not do_fit in ["Y","y","N","n","", "A", "a"]:
+                        question = "Could not restore fit. Refit? [Y(es)/n(o)/a(lways)]"
+                        do_fit = raw_input(question)
+                    if do_fit in ["Y", "y", "", "A", "a"]:
+                        fit.FitPeakFunc(spec)
+                        spec.Add(fit)
+                        
                 if not sid in spectra.visible:
                     fit.Hide()
                 
