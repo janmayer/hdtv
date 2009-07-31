@@ -247,6 +247,24 @@ class FitInterface:
         self.UpdateFitPanel()
 
     
+    def FocusFit(self, ID):
+        """
+        Focus one fit
+        """
+        if self.spectra.activeID==None:
+            print "There is no active spectrum"
+            return 
+        spec = self.spectra[self.spectra.activeID]
+        
+        if not hasattr(spec, "activeID"):
+            print 'There are no fits for this spectrum'
+            return
+        if not self.spectra.activeID in self.spectra.visible:
+            print 'Warning: active spectrum (id=%s) is not visible' %self.spectra.activeID
+        spec.FocusObject(ID)
+        if self.spectra.activeID in self.spectra.visible and spec.activeID:
+            spec[spec.activeID].Show()
+
     def KeepFit(self):
         """
         Keep this fit, 
@@ -468,6 +486,7 @@ class TvFitInterface:
         
         hdtv.cmdline.AddCommand("fit list", self.FitList, nargs=0, usage="fit list")
         hdtv.cmdline.AddCommand("fit show", self.FitShow, minargs=1)
+        hdtv.cmdline.AddCommand("fit focus", self.FitFocus, minargs=0, usage="fit focus [<id>]")
         hdtv.cmdline.AddCommand("fit print", self.FitPrint, minargs=1, level=2)
         hdtv.cmdline.AddCommand("fit delete", self.FitDelete, minargs=1)
         hdtv.cmdline.AddCommand("fit activate", self.FitActivate, nargs=1)
@@ -601,8 +620,8 @@ class TvFitInterface:
             return False
         except: 
             print "Usage: fit show <ids>|all|none"
-            return False
-    
+            return False  
+        
     def FitPrint(self, args):
         try:
             spec = self.spectra[self.spectra.activeID]
@@ -643,7 +662,22 @@ class TvFitInterface:
             print "Usage: fit activate <id>|none"
             return False
 
-
+    def FitFocus(self, args):
+        """
+        Focus a fit
+        
+        If no fit is given focus the active fit
+        """
+        try:
+            if len(args) == 0:
+                ID = None
+            else:
+                ID = int(args[0])
+                    
+            self.fitIf.FocusFit(ID)
+        except:
+            return "USAGE"
+        
     def FitCopy(self, args):
         try:
             ids = hdtv.cmdhelper.ParseRange(args)

@@ -401,8 +401,10 @@ class FitXml:
                         question = "Could not restore fit. Refit? [Y(es)/n(o)/a(lways)]"
                         do_fit = raw_input(question)
                     if do_fit in ["Y", "y", "", "A", "a"]:
+                        fit.Focus()
                         fit.FitPeakFunc(spec)
                         spec.Add(fit)
+                        
                         
                 if not sid in spectra.visible:
                     fit.Hide()
