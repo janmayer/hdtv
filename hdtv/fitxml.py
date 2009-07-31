@@ -382,7 +382,7 @@ class FitXml:
                 # make sure the peaks are in the right order
                 fit.peaks.sort()
                 try:
-                    fit.Restore(spec)
+                    fit.Restore(spec, silent=True)
                     spec.Add(fit)
                 except TypeError:
                     print "Could not restore fit", fit
