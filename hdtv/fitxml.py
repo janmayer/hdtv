@@ -230,6 +230,8 @@ class FitXml:
                         self.ReadFitlist_v1(root)
                 except SyntaxError, e:
                     print "Error reading \'" + filename + "\':\n\t", e
+                else:
+                    print "\'" + filename + "\' loaded."
                     
     def _getPosFromElement(self, XMLelement, fit=None):
         """
