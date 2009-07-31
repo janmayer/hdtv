@@ -279,7 +279,7 @@ class FitXml:
                 spec.SetCal(calibration)
             except AttributeError:
                 # No calibration was saved
-                pass
+                print "Could not read calibration for spectrum ", name 
             
             # <fit>
             for fitElement in specElement:
