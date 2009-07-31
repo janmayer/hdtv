@@ -260,6 +260,15 @@ class FitXml:
                     spec = spectra[sid]
             # maybe the spectrum that is referred to in XML is currently not loaded
             if spec is None: continue
+            # read and set calibration
+
+            try:
+                calibration = map(float, specElement.get("calibration").split())
+                spec.SetCal(calibration)
+            except AttributeError:
+                # No calibration was saved
+                pass
+            
             # <fit>
             for fitElement in specElement:
                 peakModel = fitElement.get("peakModel")
