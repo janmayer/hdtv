@@ -200,7 +200,7 @@ class Fit(Drawable):
             # print result
             print "\n"+6*" "+str(self)
 
-    def Restore(self, spec):
+    def Restore(self, spec, silent=False):
         if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
             backgrounds = [[m.p1, m.p2] for m in self.bgMarkers]
             self.fitter.RestoreBackground(spec, backgrounds, self.bgCoeffs, self.bgChi)
@@ -217,7 +217,8 @@ class Fit(Drawable):
         self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.region)
         self.dispPeakFunc.SetCal(spec.cal)
         # print result
-        print "\n"+6*" "+str(self)
+        if not silent:
+            print "\n"+6*" "+str(self)
 
 
     def Draw(self, viewport):

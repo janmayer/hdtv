@@ -227,6 +227,18 @@ class FitXml:
                 if root.get("version").startswith("1"):
                     self.ReadFitlist_v1(root)
 
+    def _getPosFromElement(self, XMLelement, fit=None):
+        """
+        Read position in energy domain from XML element.
+        """
+        try:
+            pos = float(XMLelement.find("uncal").text)
+            pos = fit.cal.Ch2E(pos)    
+        except AttributeError:
+            # Try to read "cal" element if "uncal" element does not exist
+            pos = float(XMLelement.find("cal").text)
+        return pos
+                    
 
     def ReadFitlist_v1(self, root):
         """
@@ -244,6 +256,7 @@ class FitXml:
             * calibrated and uncalibrated values for each peak parameter
         """
         spectra = self.spectra
+        do_fit = None
         # <spectrum>
         for specElement in root.getiterator():
             name = specElement.get("name")
@@ -260,8 +273,18 @@ class FitXml:
                     spec = spectra[sid]
             # maybe the spectrum that is referred to in XML is currently not loaded
             if spec is None: continue
+            # read and set calibration
+
+            try:
+                calibration = map(float, specElement.get("calibration").split())
+                spec.SetCal(calibration)
+            except AttributeError:
+                # No calibration was saved
+                print "Could not read calibration for spectrum ", name 
+                
             # <fit>
             for fitElement in specElement:
+                restore_success = True
                 peakModel = fitElement.get("peakModel")
                 bgdeg = int(fitElement.get("bgDegree"))
                 fitter = hdtv.fitter.Fitter(peakModel, bgdeg)
@@ -271,7 +294,7 @@ class FitXml:
                     uncalElement = peakElement.find("uncal")
                     for paramElement in uncalElement:
                         parname = paramElement.tag
-                        status = paramElement.get("status")
+                        status = paramElement.get("status", "free")
                         try:
                             params[parname].append(status)
                         except KeyError:
@@ -289,29 +312,30 @@ class FitXml:
                 # <bgMarker>
                 for bgElement in fitElement.findall("bgMarker"):
                     # Read begin marker
-                    beginElement = bgElement.find("begin");
-                    begin = float(beginElement.find("uncal").text)
-                    fit.PutBgMarker(fit.cal.Ch2E(begin))
+                    beginElement = bgElement.find("begin")
+                    begin = self._getPosFromElement(beginElement, fit)   
+                    fit.PutBgMarker(begin)
+                    
                     # Read end marker
                     endElement = bgElement.find("end");
-                    end = float(endElement.find("uncal").text)
-                    fit.PutBgMarker(fit.cal.Ch2E(end))
+                    end = self._getPosFromElement(endElement, fit)
+                    fit.PutBgMarker(end)
                 # <regionMarker>
                 for regionElement in fitElement.findall("regionMarker"):
                     # Read begin marker
                     beginElement = regionElement.find("begin");
-                    begin = float(beginElement.find("uncal").text)
-                    fit.PutRegionMarker(fit.cal.Ch2E(begin))
+                    begin = self._getPosFromElement(beginElement, fit)
+                    fit.PutRegionMarker(begin)
                     # Read end marker
                     endElement = regionElement.find("end");
-                    end = float(endElement.find("uncal").text)
-                    fit.PutRegionMarker(fit.cal.Ch2E(end))
+                    end = self._getPosFromElement(endElement, fit)
+                    fit.PutRegionMarker(end)
                 # <peakMarker>
                 for peakElement in fitElement.findall("peakMarker"):
                     # Read position marker
                     posElement = peakElement.find("position")
-                    pos = float(posElement.find("uncal").text)
-                    fit.PutPeakMarker(fit.cal.Ch2E(pos))
+                    pos = self._getPosFromElement(posElement, fit)
+                    fit.PutPeakMarker(pos)
                 # <background>
                 bgElement = fitElement.find("background")
                 if bgElement:
@@ -345,22 +369,37 @@ class FitXml:
                         # <error>
                         errorElement = paramElement.find("error")
                         error = float(errorElement.text)
-                        status = paramElement.get("status")
+                        status = paramElement.get("status", "free")
                         if status in ["free", "equal", "calculated"]:
                             free = True
                         else:
                             free = False
                         parameter[name] = hdtv.peakmodels.FitValue(value, error, free)
                     try:
-                        peak =fit.fitter.peakModel.Peak(cal=spec.cal, **parameter)
+                        peak = fit.fitter.peakModel.Peak(cal=spec.cal, **parameter)
                     except TypeError:
-                        print parameter
-                        continue
+                        restore_success = False
+                        continue       
                     fit.peaks.append(peak)
                 # make sure the peaks are in the right order
                 fit.peaks.sort()
-                fit.Restore(spec)
-                spec.Add(fit)
+
+                try:
+                    fit.Restore(spec, silent=True)
+                    spec.Add(fit)
+                except TypeError:
+                    restore_success = False
+                    
+                if not restore_success:
+                    if do_fit not in ["A", "a"]:
+                        do_fit = None
+                    while not do_fit in ["Y","y","N","n","", "A", "a"]:
+                        question = "Could not restore fit. Refit? [Y(es)/n(o)/a(lways)]"
+                        do_fit = raw_input(question)
+                    if do_fit in ["Y", "y", "", "A", "a"]:
+                        fit.FitPeakFunc(spec)
+                        spec.Add(fit)
+                        
                 if not sid in spectra.visible:
                     fit.Hide()
                 
