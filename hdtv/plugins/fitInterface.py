@@ -457,42 +457,62 @@ class TvFitInterface:
 #        hdtv.cmdline.AddCommand("fit copy", self.FitCopy, minargs=1)
 #        hdtv.cmdline.AddCommand("fit multi", self.FitMulti, minargs=1)
 
-        hdtv.cmdline.AddCommand("fit status", lambda args: self.FitStatus(args, default=False), nargs=0)
-        hdtv.cmdline.AddCommand("fit default status", lambda args: self.FitStatus(args, default=True), nargs=0)
-        hdtv.cmdline.AddCommand("fit reset", lambda args: self.FitReset(args, default=False), nargs=0)
-        hdtv.cmdline.AddCommand("fit default reset", lambda args: self.FitReset(args, default=True), nargs=0)
-        hdtv.cmdline.AddCommand("fit function peak activate", 
-                                lambda args: self.FitSetPeakModel(args, default=False),
-                                completer=self.PeakModelCompleter, nargs=1)
-        hdtv.cmdline.AddCommand("fit default function peak activate", 
-                                lambda args: self.FitSetPeakModel(args, default=True),
-                                completer=self.PeakModelCompleter, nargs=1, level=2)
-        hdtv.cmdline.AddCommand("fit param", 
-                                lambda args: self.FitParam(args, default=False),
-                                completer = lambda text: self.ParamCompleter(text, default=False),
-                                minargs=1)
-        hdtv.cmdline.AddCommand("fit default param", 
-                                lambda args:self.FitParam(args, default=True),
-                                completer=lambda text: self.ParamCompleter(text, default=True),
-                                minargs=1, level=2)
-
+        prog = "fit status"
+        description="Show status of fit parameter"
+        usage = "%prog [OPTIONS]"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        parser.add_option("-d", "--default", action="store_true", default=False, 
+                            help="show status of default fitter")
+        hdtv.cmdline.AddCommand(prog, self.FitStatus, nargs=0, parser=parser)
         
+        prog = "fit reset"
+        description="Reset status of fit parameter to hardcoded defaults"
+        usage = "%prog [OPTIONS]"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        parser.add_option("-d", "--default", action="store_true", default=False, 
+                            help="reset default fitter")
+        hdtv.cmdline.AddCommand(prog, self.FitReset, nargs=0, parser=parser)
+        
+        prog = "fit param"
+        description="set fit parameter"
+        usage = "%prog [OPTIONS] parname status"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        parser.add_option("-d", "--default", action="store_true", default=False, 
+                            help="edit default fitter")
+        hdtv.cmdline.AddCommand(prog, self.FitParam, 
+                                completer=self.ParamCompleter, 
+                                parser=parser, minargs=1)
+        
+        prog = "fit function peak activate"
+        description = "selects which peak model to use"
+        usage = "%prog [OPTIONS] name"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        parser.add_option("-d", "--default", action="store_true", default=False, 
+                            help="change default fitter")
+        hdtv.cmdline.AddCommand(prog, self.FitSetPeakModel, 
+                                completer= self.PeakModelCompleter, 
+                                parser=parser, minargs=1)
+        
+   
         # calibration command
-        parser = hdtv.cmdline.HDTVOptionParser(prog="calibration position assign",
-                     description=
-"""Calibrate the active spectrum by asigning energies to fitted peaks, peaks are specified by their index and the peak number within the peak (if number is ommitted the first (and only?) peak is taken).""",
-                     usage="%prog [OPTIONS] <id0> <E0> [<od1> <E1> ...]")
-        parser.add_option("-s", "--spec", action="store",
-                          default="all", help="spectrum ids to apply calibration to")
-        parser.add_option("-d", "--degree", action="store",
-                          default="1", help="degree of calibration polynomial fitted [default: %default]")
-        parser.add_option("-f", "--show-fit", action="store_true",
-                          default=False, help="show fit used to obtain calibration")
-        parser.add_option("-r", "--show-residual", action="store_true",
-                          default=False, help="show residual of calibration fit")
-        parser.add_option("-t", "--show-table", action="store_true",
-                          default=False, help="print table of energies given and energies obtained from fit")
-        hdtv.cmdline.AddCommand("calibration position assign", self.CalPosAssign, minargs=2, parser=parser)
+        prog = "calibration position assign"
+        description = "Calibrate the active spectrum by asigning energies to fitted peaks. "
+        description+= "peaks are specified by their index and the peak number within the peak "
+        description+= "(if number is ommitted the first (and only?) peak is taken)."
+        usage = "%prog [OPTIONS] <id0> <E0> [<od1> <E1> ...]"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        parser.add_option("-s", "--spec", action="store", default="all", 
+                        help="spectrum ids to apply calibration to")
+        parser.add_option("-d", "--degree", action="store", default="1", 
+                        help="degree of calibration polynomial fitted [default: %default]")
+        parser.add_option("-f", "--show-fit", action="store_true",default=False, 
+                        help="show fit used to obtain calibration")
+        parser.add_option("-r", "--show-residual", action="store_true",default=False, 
+                        help="show residual of calibration fit")
+        parser.add_option("-t", "--show-table", action="store_true", default=False, 
+                        help="print table of energies given and energies obtained from fit")
+        hdtv.cmdline.AddCommand("calibration position assign", self.CalPosAssign, 
+                                parser=parser, minargs=2)
 
     
     def FitWrite(self, args):
@@ -625,6 +645,22 @@ class TvFitInterface:
             print "Usage: fit activate <id>|none"
             return False
 
+    def ParseIDs(self, strings):
+        """
+        Parse IDs, raises a ValueError if parsing fails
+        """
+        ids = hdtv.cmdhelper.ParseRange(strings, ["ALL", "NONE", "ACTIVE"])
+        if ids=="NONE":
+            return []
+        elif ids=="ACTIVE":
+            if self.spectra.activeID==None:
+                print "Error: no active spectrum"
+                return False
+            else:
+                ids = [self.spectra.activeID]
+        elif ids=="ALL":
+            ids = self.spectra.keys()
+        return ids
 
 #    def FitCopy(self, args):
 #        try:
@@ -637,7 +673,6 @@ class TvFitInterface:
 #        except: 
 #            print "Usage: fit copy <ids>|all"
 #            return False
-
 
 #    def FitMulti(self, args):
 #        try:
@@ -652,13 +687,13 @@ class TvFitInterface:
 #        self.fitIf.FitMultiSpectra(ids)
 
 
-    def FitStatus(self, args, default=False):
-        self.fitIf.ShowFitStatus(default)
+    def FitStatus(self, args, options):
+        self.fitIf.ShowFitStatus(options.default)
 
-    def FitReset(self, args, default=False):
-        self.fitIf.ResetParameters(default)
+    def FitReset(self, args, options):
+        self.fitIf.ResetParameters(options.default)
     
-    def FitSetPeakModel(self, args, default=False):
+    def FitSetPeakModel(self, args, options):
         name = args[0].lower()
         # complete the model name if needed
         models = self.PeakModelCompleter(name)
@@ -668,16 +703,19 @@ class TvFitInterface:
         else:
             name = models[0]
             name = name.strip()
-            self.fitIf.SetPeakModel(name, default)
+            self.fitIf.SetPeakModel(name, options.default)
 
     def PeakModelCompleter(self, text):
+        """
+        Creates a completer for all possible peak models
+        """
         return hdtv.util.GetCompleteOptions(text, hdtv.fitter.gPeakModels.iterkeys())
 
-    def FitParam(self, args, default=False):
+    def FitParam(self, args, options):
         # first argument is parameter name
         param = args.pop(0)
         # complete the parameter name if needed
-        parameter= self.ParamCompleter(param, default)
+        parameter= self.ParamCompleter(param)
         # check for unambiguity
         if len(parameter)>1:
             print "Error: parameter name %s is ambiguous" %param
@@ -685,34 +723,22 @@ class TvFitInterface:
             param = parameter[0]
             param = param.strip()
             try:
-                self.fitIf.SetParameter(param," ".join(args), default)
+                self.fitIf.SetParameter(param," ".join(args), options.default)
             except ValueError, msg:
                 print "Error: %s" % msg
         
-    def ParamCompleter(self, text, default=False):
-        if default:
-            fitter = self.fitIf.defaultFitter
-        else:
-            fitter = self.fitIf.GetActiveFit().fitter
-        return hdtv.util.GetCompleteOptions(text, fitter.params)
-
-    def ParseIDs(self, strings):
-        # Parse IDs
-        # Raises a ValueError if parsing fails
-        ids = hdtv.cmdhelper.ParseRange(strings, ["ALL", "NONE", "ACTIVE"])
-        if ids=="NONE":
-            return []
-        elif ids=="ACTIVE":
-            if self.spectra.activeID==None:
-                print "Error: no active spectrum"
-                return False
-            else:
-                ids = [self.spectra.activeID]
-        elif ids=="ALL":
-            ids = self.spectra.keys()
-        return ids
-
-
+    def ParamCompleter(self, text):
+        """
+        Creates a completer for all possible parameter names
+        If the different peak models are used for active fitter and default fitter,
+        options for both peak models are presented to the user.
+        """
+        defaultParams = set(self.fitIf.defaultFitter.params)
+        activeParams  = set(self.fitIf.GetActiveFit().fitter.params)
+        params = set.union(defaultParams, activeParams)
+        return hdtv.util.GetCompleteOptions(text, params)
+        
+        
     def CalPosAssign(self, args, options):
         """ 
         Calibrate the active spectrum by assigning energies to fitted peaks
