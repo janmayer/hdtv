@@ -106,12 +106,12 @@ class PeakModel:
     def CheckParStatusLen(self, minlen):
         """
         Checks if each parameter status provided on a peak-by-peak basis
-        has at least minlen entires. Raises a RuntimeError with an appropriate
+        has at least minlen entires. Raises a ValueError with an appropriate
         error message if the check fails.
         """
         for (parname, status) in self.fParStatus.iteritems():
             if type(status) == list and len(status) < minlen:
-                raise RuntimeError, "Not enough values for status of %s" % parname
+                raise ValueError, "Not enough values for status of %s" % parname
         
     def ParseParamStatus(self, parname, status):
         """
@@ -167,7 +167,7 @@ class PeakModel:
         parname = parname.strip().lower()
         
         if not parname in self.fValidParStatus.keys():
-            raise ValueError, "Invalid parameter name"
+            raise ValueError, "Invalid parameter name %s" % parname
             
         if "," in status:
             self.fParStatus[parname] = map(lambda s: self.ParseParamStatus(parname, s),
