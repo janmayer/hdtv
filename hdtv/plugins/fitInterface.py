@@ -449,16 +449,41 @@ class TvFitInterface:
         self.fitIf = fitInterface
         self.spectra = self.fitIf.spectra
         
-        hdtv.cmdline.AddCommand("fit list", self.FitList, nargs=0, usage="fit list")
-        hdtv.cmdline.AddCommand("fit show", self.FitShow, minargs=1)
-        hdtv.cmdline.AddCommand("fit print", self.FitPrint, minargs=1, level=2)
-        hdtv.cmdline.AddCommand("fit delete", self.FitDelete, minargs=1)
-        hdtv.cmdline.AddCommand("fit activate", self.FitActivate, nargs=1)
+        prog = "fit list"
+        description = "show a list of all fits"
+        usage="%prog"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.FitList, nargs=0,parser=parser)
+        
+        prog = "fit show"
+        description = "display fits"
+        usage="%prog none|all|<ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.FitShow, minargs=1, parser=parser)
+        
+        prog = "fit print"
+        description = "print fit results"
+        usage="%prog none|all|<ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.FitPrint, minargs=1, parser=parser, level=2)
+        
+        prog = "fit delete"
+        description = "delete fits"
+        usage="%prog all|<ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.FitDelete, minargs=1, parser=parser)
+        
+        prog = "fit activate"
+        description = "activate fit for further work"
+        usage = "%prog <id>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.FitActivate, nargs=1, parser=parser)
+        
 #        hdtv.cmdline.AddCommand("fit copy", self.FitCopy, minargs=1)
 #        hdtv.cmdline.AddCommand("fit multi", self.FitMulti, minargs=1)
 
         prog = "fit param"
-        description="set fit parameter"
+        description="show status of fit parameter, reset or set parameter"
         usage = "%prog [OPTIONS] status | reset | parname status"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
         parser.add_option("-d", "--default", action="store_true", default=False, 
@@ -476,8 +501,7 @@ class TvFitInterface:
         hdtv.cmdline.AddCommand(prog, self.FitSetPeakModel, 
                                 completer= self.PeakModelCompleter, 
                                 parser=parser, minargs=1)
-        
-   
+
         # calibration command
         prog = "calibration position assign"
         description = "Calibrate the active spectrum by asigning energies to fitted peaks. "
@@ -498,31 +522,7 @@ class TvFitInterface:
         hdtv.cmdline.AddCommand("calibration position assign", self.CalPosAssign, 
                                 parser=parser, minargs=2)
 
-    
-    def FitWrite(self, args):
-        """
-        Write a list of all fits belonging to the active spectrum to an XML file
-        """
-        try:
-            spec = self.spectra[self.spectra.activeID]
-            if self.spectra.activeID in self.spectra.visible:
-                visible = True
-            else:
-                visible = False
-        except KeyError:
-            print "No active spectrum"
-            return False
-        except AttributeError:
-            print "There are no fits for this spectrum"
-            return False
-        except:
-            return "USAGE"
-            
-        print 'Dumping fits belonging to %s (visible=%s):' %(str(spec), visible)
-        hdtv.fitio.FitIO().Write(spec)
-
-
-    def FitList(self, args):
+    def FitList(self, args, options):
         """
         Print a list of all fits belonging to the active spectrum 
         """
@@ -543,7 +543,7 @@ class TvFitInterface:
         except:
             return "USAGE"
         
-    def FitDelete(self, args):
+    def FitDelete(self, args, options):
         """ 
         Delete fits
         """
@@ -564,7 +564,7 @@ class TvFitInterface:
             print "Usage: fit delete <ids>|all"
             return False
     
-    def FitShow(self, args):
+    def FitShow(self, args, options):
         """
         Show Fits
         """
@@ -589,7 +589,7 @@ class TvFitInterface:
             print "Usage: fit show <ids>|all|none"
             return False
     
-    def FitPrint(self, args):
+    def FitPrint(self, args, options):
         try:
             spec = self.spectra[self.spectra.activeID]
         except KeyError:
@@ -614,7 +614,7 @@ class TvFitInterface:
             print "Usage: fit print <ids>|all"
             return False
 
-    def FitActivate(self, args):
+    def FitActivate(self, args, options):
         """
         Activate one spectrum
         """
