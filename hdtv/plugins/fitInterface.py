@@ -457,28 +457,12 @@ class TvFitInterface:
 #        hdtv.cmdline.AddCommand("fit copy", self.FitCopy, minargs=1)
 #        hdtv.cmdline.AddCommand("fit multi", self.FitMulti, minargs=1)
 
-        prog = "fit status"
-        description="Show status of fit parameter"
-        usage = "%prog [OPTIONS]"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
-        parser.add_option("-d", "--default", action="store_true", default=False, 
-                            help="show status of default fitter")
-        hdtv.cmdline.AddCommand(prog, self.FitStatus, nargs=0, parser=parser)
-        
-        prog = "fit reset"
-        description="Reset status of fit parameter to hardcoded defaults"
-        usage = "%prog [OPTIONS]"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
-        parser.add_option("-d", "--default", action="store_true", default=False, 
-                            help="reset default fitter")
-        hdtv.cmdline.AddCommand(prog, self.FitReset, nargs=0, parser=parser)
-        
         prog = "fit param"
         description="set fit parameter"
-        usage = "%prog [OPTIONS] parname status"
+        usage = "%prog [OPTIONS] status | reset | parname status"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
         parser.add_option("-d", "--default", action="store_true", default=False, 
-                            help="edit default fitter")
+                            help="act on default fitter")
         hdtv.cmdline.AddCommand(prog, self.FitParam, 
                                 completer=self.ParamCompleter, 
                                 parser=parser, minargs=1)
@@ -687,12 +671,6 @@ class TvFitInterface:
 #        self.fitIf.FitMultiSpectra(ids)
 
 
-    def FitStatus(self, args, options):
-        self.fitIf.ShowFitStatus(options.default)
-
-    def FitReset(self, args, options):
-        self.fitIf.ResetParameters(options.default)
-    
     def FitSetPeakModel(self, args, options):
         name = args[0].lower()
         # complete the model name if needed
@@ -719,11 +697,17 @@ class TvFitInterface:
         # check for unambiguity
         if len(parameter)>1:
             print "Error: parameter name %s is ambiguous" %param
-        elif len(parameter)==0:
+            return
+        if len(parameter)==0:
             print "Error: parameter name %s is not valid" %param
+            return
+        param = parameter[0]
+        param = param.strip()
+        if param=="status":
+            self.fitIf.ShowFitStatus(options.default)
+        elif param=="reset":
+            self.fitIf.ResetParameters(options.default)
         else:
-            param = parameter[0]
-            param = param.strip()
             try:
                 self.fitIf.SetParameter(param," ".join(args), options.default)
             except ValueError, msg:
@@ -735,9 +719,10 @@ class TvFitInterface:
         If the different peak models are used for active fitter and default fitter,
         options for both peak models are presented to the user.
         """
+        params = set(["status","reset"])
         defaultParams = set(self.fitIf.defaultFitter.params)
         activeParams  = set(self.fitIf.GetActiveFit().fitter.params)
-        params = set.union(defaultParams, activeParams)
+        params = set.union(params, defaultParams, activeParams)
         return hdtv.util.GetCompleteOptions(text, params)
         
         
