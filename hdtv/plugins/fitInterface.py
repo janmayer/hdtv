@@ -376,23 +376,24 @@ class FitInterface:
     def SetParameter(self, parname, status, default=False):
         if default:
             self.defaultFitter.SetParameter(parname, status)
-        else:
-            fit = self.GetActiveFit()
+        fit = self.GetActiveFit()
+        try:
             fit.fitter.SetParameter(parname, status)
             fit.Refresh()
             # Update fitPanel
             self.UpdateFitPanel()
+        except ValueError:
+            pass
 
 
     def ResetParameters(self, default=False):
         if default:
             self.defaultFitter.ResetParamStatus()
-        else:
-            fit = self.GetActiveFit()
-            fit.fitter.ResetParamStatus()
-            fit.Refresh()
-            # Update fitPanel
-            self.UpdateFitPanel()
+        fit = self.GetActiveFit()
+        fit.fitter.ResetParamStatus()
+        fit.Refresh()
+        # Update fitPanel
+        self.UpdateFitPanel()
 
 
     def SetPeakModel(self, peakmodel, default=False):
@@ -402,12 +403,11 @@ class FitInterface:
         # Set new peak model
         if default:
             self.defaultFitter.SetPeakModel(peakmodel)
-        else:
-            fit = self.GetActiveFit()
-            fit.fitter.SetPeakModel(peakmodel)
-            fit.Refresh()
-            # Update fit panel
-            self.UpdateFitPanel()
+        fit = self.GetActiveFit()
+        fit.fitter.SetPeakModel(peakmodel)
+        fit.Refresh()
+        # Update fit panel
+        self.UpdateFitPanel()
             
 
     def UpdateFitPanel(self):
@@ -719,6 +719,8 @@ class TvFitInterface:
         # check for unambiguity
         if len(parameter)>1:
             print "Error: parameter name %s is ambiguous" %param
+        elif len(parameter)==0:
+            print "Error: parameter name %s is not valid" %param
         else:
             param = parameter[0]
             param = param.strip()

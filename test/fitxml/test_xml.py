@@ -37,8 +37,8 @@ testXML = os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.xml")
 __main__.s.LoadSpectra(testspectrum)
 
 # 0.) all parameter free, just one peak, no background, theuerkauf modell
-__main__.f.SetPeakModel("theuerkauf")
-__main__.f.ResetParameters()
+__main__.f.SetPeakModel("theuerkauf", default=True)
+__main__.f.ResetParameters(default=True)
 fit = __main__.f.GetActiveFit()
 fit.PutRegionMarker(1450)
 fit.PutRegionMarker(1470)
@@ -47,7 +47,6 @@ __main__.f.Fit()
 __main__.f.KeepFit()
 
 # 1.) all parameter free, just one peak, background
-__main__.f.ResetParameters()
 fit = __main__.f.GetActiveFit()
 fit.PutRegionMarker(500)
 fit.PutRegionMarker(520)
@@ -61,7 +60,6 @@ __main__.f.KeepFit()
 
 
 # 2.) all parameter free, more than one peak
-__main__.f.ResetParameters()
 fit = __main__.f.GetActiveFit()
 fit.PutRegionMarker(1395)
 fit.PutRegionMarker(1415)
@@ -75,7 +73,6 @@ __main__.f.Fit()
 __main__.f.KeepFit()
 
 # 3.) one parameter status!=free, but equal for all peaks
-__main__.f.ResetParameters()
 fit = __main__.f.GetActiveFit()
 fit.PutRegionMarker(960)
 fit.PutRegionMarker(975)
@@ -91,7 +88,6 @@ __main__.f.KeepFit()
 
 
 # 4.) different parameter status for each peak
-__main__.f.ResetParameters()
 fit = __main__.f.GetActiveFit()
 fit.PutRegionMarker(1750)
 fit.PutRegionMarker(1780)
@@ -107,7 +103,6 @@ __main__.f.KeepFit()
 
 ## 5.) ee peak (just proof of concept, not a thorough test)
 __main__.f.SetPeakModel("ee")
-__main__.f.ResetParameters()
 fit = __main__.f.GetActiveFit()
 fit.PutRegionMarker(1115)
 fit.PutRegionMarker(1125)
