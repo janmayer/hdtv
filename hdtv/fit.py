@@ -311,9 +311,17 @@ class Fit(Drawable):
         for c in self.regionMarkers.collection:
             region_markers.append(c.p1)
             region_markers.append(c.p2)
+        
+        try:
+            region_right = max(region_markers)
+            region_left = min(region_markers)
             
-        region_right = max(region_markers)
-        region_left = min(region_markers)
+        except ValueError: # No region marker, use peak marker instead
+            for c in self.peakMarkers.collection:
+                region_markers.append(c.p1)
+                region_right = max(region_markers)
+                region_left = min(region_markers)
+            
         view_middle = (region_right+region_left)/2
         
         # Calculate width of background region
@@ -323,11 +331,14 @@ class Fit(Drawable):
             bg_markers.append(c.p2)
         
         if not view_width: 
-            bg_right = max(bg_markers)
-            bg_left = min(bg_markers)
-            view_width = max([abs(bg_right - view_middle), abs(view_middle-bg_left)])
-            # add 30% to view_width
-            view_width *= 1.3
+            try:
+                bg_right = max(bg_markers)
+                bg_left = min(bg_markers)
+                view_width = 2*max([abs(bg_right - view_middle), abs(view_middle-bg_left)])
+            except ValueError: # No background marker
+                view_width = region_right - region_left
+        # add 30% to view_width
+        view_width *= 1.3
         
         self.viewport.SetXVisibleRegion(view_width)
         self.viewport.SetXCenter(view_middle)
