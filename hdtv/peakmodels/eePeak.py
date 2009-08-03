@@ -89,17 +89,24 @@ class EEPeak(Drawable):
             raise AttributeError, name 
 
     def __str__(self):
+        return self.formated_str(verbose=False)
+
+
+    def formated_str(self, verbose=False):
         """
         formated printing of all attributes
         """
         text = str()
-        text += "Pos:    " + self.pos.fmt() + "\n"
-        text += "Amp:    " + self.amp.fmt() + "\n"
-        text += "Sigma1: " + self.sigma1.fmt() + "\n"
-        text += "Sigma2: " + self.sigma2.fmt() + "\n"
-        text += "Eta:    " + self.eta.fmt() + "\n"
-        text += "Gamma:  " + self.gamma.fmt() + "\n"
-        text += "Volume: " + self.vol.fmt() + "\n"
+        if verbose:
+            text += "Pos:    " + self.pos.fmt() + "\n"
+            text += "Amp:    " + self.amp.fmt() + "\n"
+            text += "Sigma1: " + self.sigma1.fmt() + "\n"
+            text += "Sigma2: " + self.sigma2.fmt() + "\n"
+            text += "Eta:    " + self.eta.fmt() + "\n"
+            text += "Gamma:  " + self.gamma.fmt() + "\n"
+            text += "Volume: " + self.vol.fmt() + "\n"
+        else:
+            text += "Peak@ %s \n" %self.pos_cal.fmt()
         return text
     
     

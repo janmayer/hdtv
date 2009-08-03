@@ -71,29 +71,36 @@ class TheuerkaufPeak(Drawable):
             raise AttributeError, name 
 
     def __str__(self):
+        return self.formated_str(verbose=False)
+        
+    def formated_str(self, verbose=False):
         """
         print the properties of this peak in a nicely formated way
         """
         text = str()
-        text += "Pos:         " + self.pos_cal.fmt() + "\n"
-        text += "Volume:      " + self.vol.fmt() + "\n"
-        text += "FWHM:        " + self.width_cal.fmt() + "\n"
-        # Note: do not use == or != when testing for None
-        # those operators use cmp, which is not guaranteed to handle None
-        if not self.tl is None:
-            text += "Left Tail:   " + self.tl.fmt() + "\n"
+        if verbose:
+            text += "Pos:         " + self.pos_cal.fmt() + "\n"
+            text += "Volume:      " + self.vol.fmt() + "\n"
+            text += "FWHM:        " + self.width_cal.fmt() + "\n"
+            # Note: do not use == or != when testing for None
+            # those operators use cmp, which is not guaranteed to handle None
+            if not self.tl is None:
+                text += "Left Tail:   " + self.tl.fmt() + "\n"
+            else:
+                text += "Left Tail:   None\n"
+            if not self.tr is None:
+                text += "Right Tail:  " + self.tr.fmt() + "\n"
+            else:
+                text += "Right Tail:  None\n"
+            if not self.sh is None:
+                text += "Step height: " + self.sh.fmt() + "\n"
+                text += "Step width:  " + self.sw.fmt() + "\n"
+            else:
+                text += "Step:        None\n"
         else:
-            text += "Left Tail:   None\n"
-        if not self.tr is None:
-            text += "Right Tail:  " + self.tr.fmt() + "\n"
-        else:
-            text += "Right Tail:  None\n"
-        if not self.sh is None:
-            text += "Step height: " + self.sh.fmt() + "\n"
-            text += "Step width:  " + self.sw.fmt() + "\n"
-        else:
-            text += "Step:        None\n"
+            text += "Peak@ %s \n" %self.pos_cal.fmt()
         return text
+        
 
     def __cmp__(self, other):
         """

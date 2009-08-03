@@ -405,7 +405,6 @@ class FitInterface:
             self.defaultFitter.SetPeakModel(peakmodel)
         fit = self.GetActiveFit()
         fit.fitter.SetPeakModel(peakmodel)
-        fit.Refresh()
         # Update fit panel
         self.UpdateFitPanel()
             
@@ -450,18 +449,19 @@ class TvFitInterface:
         self.spectra = self.fitIf.spectra
         
         prog = "fit list"
-        description = "show a list of all fits"
+        description = "show a list of all fits belonging to the active spectrum"
         usage="%prog"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
-        # FIXME: add option --long, make short the default
-        # FIXME: add option --visible
+        parser.add_option("-l", "--long", action="store_true",default=False, 
+                        help="show more details")
+        parser.add_option("-v","--visible", action="store_true", default=False,
+                        help = "only list visible fit")
         hdtv.cmdline.AddCommand(prog, self.FitList, nargs=0,parser=parser)
         
         prog = "fit show"
         description = "display fits"
         usage="%prog none|all|<ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
-        # FIXME: include print here, remove extra command
         # TODO: add option to show the fit, that is closest to a certain value
         hdtv.cmdline.AddCommand(prog, self.FitShow, minargs=1, parser=parser)
         
@@ -544,7 +544,7 @@ class TvFitInterface:
         else:
             visible = False
         print 'Fits belonging to %s (visible=%s):' %(str(spec), visible)
-        spec.ListObjects()
+        spec.ListObjects(verbose=options.long, visible_only=options.visible)
         
     def FitDelete(self, args, options):
         """ 
@@ -565,8 +565,12 @@ class TvFitInterface:
             print "Warning: active spectrum is not visible, no action taken"
             return
         ids = self.ParseFitIds(args)
+        print ids
         if len(ids)>0:
-            self.spectra[self.spectra.activeID].ShowObjects(ids)
+            spec = self.spectra[self.spectra.activeID]
+            spec.ShowObjects(ids)
+            for ID in ids:
+                print "Fit %d:" %ID, spec[ID].formated_str(verbose=True)
 
     def FitPrint(self, args, options):
         """
@@ -576,7 +580,7 @@ class TvFitInterface:
         if len(ids)>0:
             spec = self.spectra[self.spectra.activeID]
             for ID in ids:
-                print "Fit %d:" %ID, str(spec[ID])
+                print "Fit %d:" %ID, spec[ID].formated_str(verbose=True)
 
     def FitActivate(self, args, options):
         """
@@ -594,7 +598,7 @@ class TvFitInterface:
 
     def ParseFitIds(self, idStrings):
         """
-        Parse fit IDs, raises a ValueError if parsing fails
+        Parse fit IDs, allowed keywords are ALL, NONE, ACTIVE, VISIBLE
         """
         special = ["ALL","NONE","ACTIVE","VISIBLE"]
         # first check if there is an active spectrum
@@ -622,19 +626,20 @@ class TvFitInterface:
                 print "Warning: There is no active fit."
                 return list()
             else:
-                return spec.activeID
+                return [spec.activeID]
         if ids=="ALL":
             return spec.keys()
         if ids=="VISIBLE":
-            return spec.visible
+            return list(spec.visible)
         fits = list()
-        # else filter non-existing ids 
+        # else filter non-existing ids
+        valid_ids = list() 
         for ID in ids:
             if not ID in spec.keys():
-                ids.remove(ID)
                 print "Warning: no fit with id %s" %ID
-                continue
-        return ids
+            else:
+                valid_ids.append(ID)
+        return valid_ids
 
 
 #    def FitCopy(self, args):
