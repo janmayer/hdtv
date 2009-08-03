@@ -337,8 +337,8 @@ class Fit(Drawable):
                 view_width = 2*max([abs(bg_right - view_middle), abs(view_middle-bg_left)])
             except ValueError: # No background marker
                 view_width = region_right - region_left
-        # add 30% to view_width
-        view_width *= 1.3
+            # add 30% to view_width
+            view_width *= 1.3
         
         self.viewport.SetXVisibleRegion(view_width)
         self.viewport.SetXCenter(view_middle)
