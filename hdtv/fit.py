@@ -251,17 +251,19 @@ class Fit(Drawable):
             if not self.showDecomp:
                 peak.Hide()
         self.viewport.UnlockUpdate()
-        
+
 
     def Refresh(self):
         """
         Refresh
         """
-        # repeat the fits
-        if self.dispBgFunc:
-            self.FitBgFunc(self.fitter.spec)
+        # repeat the fits)
         if self.dispPeakFunc:
+            # this includes the background fit
             self.FitPeakFunc(self.fitter.spec)
+        elif self.dispBgFunc:
+            # maybe there was only a background fit
+            self.FitBgFunc(self.fitter.spec)
         if not self.viewport:
             return
         self.viewport.LockUpdate()
@@ -272,7 +274,7 @@ class Fit(Drawable):
             self.dispBgFunc.Draw(self.viewport)
         # draw peaks
         for peak in self.peaks:
-            peak.Draw()
+            peak.Draw(self.viewport)
             if not self.showDecomp:
                 peak.Hide()
         # draw the markers (do this after the fit, 

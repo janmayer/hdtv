@@ -360,51 +360,95 @@ class FitInterface:
             self.fitPanel.SetDecomp(stat)
         
 
-    def ShowFitStatus(self, default=False):
+    def ShowFitStatus(self, default=False, ids=[]):
         if default:
-            fitter = self.defaultFitter
+            ids.extend("d")
         else:
-            fitter = self.GetActiveFit().fitter
+            ids.extend("a")
         statstr = str()
-        statstr += "Background model: polynomial, deg=%d\n" % fitter.bgdeg
-        statstr += "Peak model: %s\n" % fitter.peakModel.name
-        statstr += "\n"
-        statstr += fitter.OptionsStr()
+        for ID in ids:
+            if ID=="a":
+                fitter = self.GetActiveFit().fitter
+                statstr+="active fitter: \n"
+            elif ID=="d":
+                fitter = self.defaultFitter
+                statstr+="default fitter: \n"
+            else:
+                fitter = self.spectra[self.spectra.activeID][ID].fitter
+                statstr+= "fitter status of fit id %d: \n" % ID
+            statstr += "Background model: polynomial, deg=%d\n" % fitter.bgdeg
+            statstr += "Peak model: %s\n" % fitter.peakModel.name
+            statstr += "\n"
+            statstr += fitter.OptionsStr()
+            statstr += "\n\n"
         print statstr
 
 
-    def SetParameter(self, parname, status, default=False):
+    def SetParameter(self, parname, status, default=False, ids=[]):
+        """
+        Sets status of fit parameter
+        If not specified otherwise only the active fiter will be changed,
+        if default=True, also the default fitter will be changed,
+        if a list of fits is given, we try to set the parameter status also 
+        for this fits. Be aware that failures for the fits from the list will
+        be silently ignored.
+        """
+        # default fit
         if default:
-            self.defaultFitter.SetParameter(parname, status)
+            try:
+                self.defaultFitter.SetParameter(parname, status)
+            except ValueError, msg:
+                print "Error concerning default Fit: %s" % msg
+        # active fit
         fit = self.GetActiveFit()
         try:
             fit.fitter.SetParameter(parname, status)
             fit.Refresh()
-            # Update fitPanel
-            self.UpdateFitPanel()
-        except ValueError:
-            pass
+        except ValueError, msg:
+            print "Error concerning active Fit: %s" % msg
+        # fit list
+        for ID in ids:
+            try:
+                fit = self.spectra[self.spectra.activeID][ID]
+                fit.fitter.SetParameter(parname, status)
+                fit.Refresh()
+            except ValueError:
+                pass
+        # Update fitPanel
+        self.UpdateFitPanel()
+ 
 
-
-    def ResetParameters(self, default=False):
+    def ResetParameters(self, default=False, ids=[]):
         if default:
             self.defaultFitter.ResetParamStatus()
+        # active Fit
         fit = self.GetActiveFit()
         fit.fitter.ResetParamStatus()
         fit.Refresh()
+        # fit list
+        for ID in ids:
+            fit = self.spectra[self.spectra.activeID][ID]
+            fit.fitter.ResetParamStatus()
+            fit.Refresh()
         # Update fitPanel
         self.UpdateFitPanel()
 
 
-    def SetPeakModel(self, peakmodel, default=False):
+    def SetPeakModel(self, peakmodel, default=False, ids=[]):
         """
         Set the peak model (function used for fitting peaks)
         """
-        # Set new peak model
+        # default
         if default:
             self.defaultFitter.SetPeakModel(peakmodel)
+        # active fit
         fit = self.GetActiveFit()
         fit.fitter.SetPeakModel(peakmodel)
+        fit.Refresh()
+        for ID in ids:
+            fit = self.spectra[self.spectra.activeID][ID]
+            fit.fitter.SetPeakModel(peakmodel)
+            fit.Refresh()
         # Update fit panel
         self.UpdateFitPanel()
             
@@ -494,7 +538,8 @@ class TvFitInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
         parser.add_option("-d", "--default", action="store_true", default=False, 
                             help="act on default fitter")
-        # FIXME: add option to change parameter for several fits
+        parser.add_option("-f","--fit", action="store", default="none",
+                            help="change parameter of selected fit and refit")
         hdtv.cmdline.AddCommand(prog, self.FitParam, 
                                 completer=self.ParamCompleter, 
                                 parser=parser, minargs=1)
@@ -505,6 +550,8 @@ class TvFitInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
         parser.add_option("-d", "--default", action="store_true", default=False, 
                             help="change default fitter")
+        parser.add_option("-f","--fit", action="store", default="none",
+                            help="change selected fits and refit")
         hdtv.cmdline.AddCommand(prog, self.FitSetPeakModel, 
                                 completer= self.PeakModelCompleter, 
                                 parser=parser, minargs=1)
@@ -677,7 +724,8 @@ class TvFitInterface:
         else:
             name = models[0]
             name = name.strip()
-            self.fitIf.SetPeakModel(name, options.default)
+            ids = self.ParseFitIds(options.fit)
+            self.fitIf.SetPeakModel(name, options.default, ids)
 
     def PeakModelCompleter(self, text):
         """
@@ -699,13 +747,14 @@ class TvFitInterface:
             return
         param = parameter[0]
         param = param.strip()
+        ids = self.ParseFitIds(options.fit)
         if param=="status":
-            self.fitIf.ShowFitStatus(options.default)
+            self.fitIf.ShowFitStatus(options.default, ids)
         elif param=="reset":
-            self.fitIf.ResetParameters(options.default)
+            self.fitIf.ResetParameters(options.default, ids)
         else:
             try:
-                self.fitIf.SetParameter(param," ".join(args), options.default)
+                self.fitIf.SetParameter(param," ".join(args), options.default, ids)
             except ValueError, msg:
                 print "Error: %s" % msg
         
