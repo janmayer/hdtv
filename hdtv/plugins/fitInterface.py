@@ -453,17 +453,21 @@ class TvFitInterface:
         description = "show a list of all fits"
         usage="%prog"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        # FIXME: add option --long, make short the default
+        # FIXME: add option --visible
         hdtv.cmdline.AddCommand(prog, self.FitList, nargs=0,parser=parser)
         
         prog = "fit show"
         description = "display fits"
         usage="%prog none|all|<ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        # FIXME: include print here, remove extra command
+        # TODO: add option to show the fit, that is closest to a certain value
         hdtv.cmdline.AddCommand(prog, self.FitShow, minargs=1, parser=parser)
         
         prog = "fit print"
         description = "print fit results"
-        usage="%prog none|all|<ids>"
+        usage="%prog all|<ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
         hdtv.cmdline.AddCommand(prog, self.FitPrint, minargs=1, parser=parser, level=2)
         
@@ -477,6 +481,8 @@ class TvFitInterface:
         description = "activate fit for further work"
         usage = "%prog <id>"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        # TODO: add option to re-activate newest fit
+        # TODO: add option to activate the fit, that is closest to a certain value
         hdtv.cmdline.AddCommand(prog, self.FitActivate, nargs=1, parser=parser)
         
 #        hdtv.cmdline.AddCommand("fit copy", self.FitCopy, minargs=1)
@@ -488,6 +494,7 @@ class TvFitInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
         parser.add_option("-d", "--default", action="store_true", default=False, 
                             help="act on default fitter")
+        # FIXME: add option to change parameter for several fits
         hdtv.cmdline.AddCommand(prog, self.FitParam, 
                                 completer=self.ParamCompleter, 
                                 parser=parser, minargs=1)
@@ -528,123 +535,107 @@ class TvFitInterface:
         """
         try:
             spec = self.spectra[self.spectra.activeID]
-            if self.spectra.activeID in self.spectra.visible:
-                visible = True
-            else:
-                visible = False
-            print 'Fits belonging to %s (visible=%s):' %(str(spec), visible)
-            spec.ListObjects()
         except KeyError:
             print "No active spectrum"
-            return False
         except AttributeError:
             print "There are no fits for this spectrum"
-            return False
-        except:
-            return "USAGE"
+        if self.spectra.activeID in self.spectra.visible:
+            visible = True
+        else:
+            visible = False
+        print 'Fits belonging to %s (visible=%s):' %(str(spec), visible)
+        spec.ListObjects()
         
     def FitDelete(self, args, options):
         """ 
         Delete fits
         """
-        try:
-            ids = hdtv.cmdhelper.ParseRange(args)
-            if ids == "NONE":
-                return
-            elif ids == "ALL":
-                ids = self.spectra[self.spectra.activeID].keys()
+        if not self.spectra.activeID in self.spectra.visible:
+            print "Warning: active spectrum is not visible, no action taken"
+            return
+        ids = self.ParseFitIds(args)
+        if len(ids)>0:
             self.spectra[self.spectra.activeID].RemoveObjects(ids)
-        except KeyError:
-            print "No active spectrum"
-            return False
-        except AttributeError:
-            print "There are no fits for this spectrum"
-            return False
-        except:
-            print "Usage: fit delete <ids>|all"
-            return False
     
     def FitShow(self, args, options):
         """
         Show Fits
         """
-        try:
-            ids = hdtv.cmdhelper.ParseRange(args)
-            if not self.spectra.activeID in self.spectra.visible:
-                print "Warning: active spectrum is not visible, no action taken"
-                return True
-            if ids == "NONE":
-                self.spectra[self.spectra.activeID].HideAll()
-            elif ids == "ALL":
-                self.spectra[self.spectra.activeID].ShowAll()
-            else:
-                self.spectra[self.spectra.activeID].ShowObjects(ids)
-        except KeyError:
-            print "No active spectrum"
-            return False
-        except AttributeError:
-            print "There are no fits for this spectrum"
-            return False
-        except: 
-            print "Usage: fit show <ids>|all|none"
-            return False
-    
+        if not self.spectra.activeID in self.spectra.visible:
+            print "Warning: active spectrum is not visible, no action taken"
+            return
+        ids = self.ParseFitIds(args)
+        if len(ids)>0:
+            self.spectra[self.spectra.activeID].ShowObjects(ids)
+
     def FitPrint(self, args, options):
-        try:
+        """
+        Print fit results
+        """
+        ids = self.ParseFitIds(args)
+        if len(ids)>0:
             spec = self.spectra[self.spectra.activeID]
-        except KeyError:
-            print "No active spectrum"
-            return False
-        try:
-            ids = hdtv.cmdhelper.ParseRange(args)
-            if ids == "NONE":
-                return
-            if ids == "ALL":
-                ids = spec.keys()
             for ID in ids:
-                try:
-                    print str(spec[ID])
-                except KeyError:
-                    print "Warning: No fit with id %s" %ID
-                    continue
-        except AttributeError:
-            print "There are no fits for this spectrum"
-            return False
-        except: 
-            print "Usage: fit print <ids>|all"
-            return False
+                print "Fit %d:" %ID, str(spec[ID])
 
     def FitActivate(self, args, options):
         """
         Activate one spectrum
         """
         try:
-            ID = hdtv.cmdhelper.ParseRange(args)
+            ID = hdtv.cmdhelper.ParseRange(args, special=["NONE"])
             if ID=="NONE":
                 ID = None
             else:
                 ID = int(args[0])
             self.fitIf.ActivateFit(ID)
         except ValueError:
-            print "Usage: fit activate <id>|none"
-            return False
+            print "Error: Invalid id %s" %ID
 
-    def ParseIDs(self, strings):
+    def ParseFitIds(self, idStrings):
         """
-        Parse IDs, raises a ValueError if parsing fails
+        Parse fit IDs, raises a ValueError if parsing fails
         """
-        ids = hdtv.cmdhelper.ParseRange(strings, ["ALL", "NONE", "ACTIVE"])
+        special = ["ALL","NONE","ACTIVE","VISIBLE"]
+        # first check if there is an active spectrum
+        try:
+            spec = self.spectra[self.spectra.activeID]
+        except KeyError:
+            print "Warning: No active spectrum, no action taken."
+            return list()
+        # then check if there are any fits for that spectrum
+        try:
+            spec.activeID
+        except AttributeError:
+            print "Warning: There are no fits for this spectrum, no action taken."
+        # then parse the arguments
+        try:
+            ids = hdtv.cmdhelper.ParseRange(idStrings, special)
+        except ValueError, msg:
+            print msg
+            return list()
+        # processing different cases
         if ids=="NONE":
-            return []
-        elif ids=="ACTIVE":
-            if self.spectra.activeID==None:
-                print "Error: no active spectrum"
-                return False
+            return list()
+        if ids=="ACTIVE":
+            if spec.activeID is None:
+                print "Warning: There is no active fit."
+                return list()
             else:
-                ids = [self.spectra.activeID]
-        elif ids=="ALL":
-            ids = self.spectra.keys()
+                return spec.activeID
+        if ids=="ALL":
+            return spec.keys()
+        if ids=="VISIBLE":
+            return spec.visible
+        fits = list()
+        # else filter non-existing ids 
+        for ID in ids:
+            if not ID in spec.keys():
+                ids.remove(ID)
+                print "Warning: no fit with id %s" %ID
+                continue
         return ids
+
 
 #    def FitCopy(self, args):
 #        try:
@@ -742,7 +733,7 @@ class TvFitInterface:
             if len(args) % 2 != 0:
                 print "Error: number of parameters must be even"
                 return "USAGE"
-            ids = self.ParseIDs(options.spec)
+            ids = self.ParseSpecIDs(options.spec)
             if ids == False:
                 return
             degree = int(options.degree)
@@ -779,6 +770,23 @@ class TvFitInterface:
                     print "Warning: there is no spectrum with id: %s" %ID
             self.fitIf.window.Expand()        
             return True
+
+    def ParseSpecIDs(self, strings):
+        """
+        Parse IDs of spectra, raises a ValueError if parsing fails
+        """
+        ids = hdtv.cmdhelper.ParseRange(strings, ["ALL", "NONE", "ACTIVE"])
+        if ids=="NONE":
+            return []
+        elif ids=="ACTIVE":
+            if self.spectra.activeID==None:
+                print "Error: no active spectrum"
+                return False
+            else:
+                ids = [self.spectra.activeID]
+        elif ids=="ALL":
+            ids = self.spectra.keys()
+        return ids
 
 
 # plugin initialisation

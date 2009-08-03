@@ -41,9 +41,12 @@ def ParseRange(strings, special=["ALL", "NONE"]):
     
     # Test for special strings (case-insensitive)
     special = [s.upper() for s in special]
-    if len(parts) == 1 and parts[0].upper() in special:
-        return parts[0].upper()
-    
+    if len(parts) == 1:
+        part=parts[0].upper()
+        for s in special:
+            if s.startswith(part):
+                return s
+  
     # Parse ranges
     values = set()
     for part in parts:
