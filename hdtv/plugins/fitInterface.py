@@ -247,6 +247,24 @@ class FitInterface:
         self.UpdateFitPanel()
 
     
+    def FocusFit(self, ID):
+        """
+        Focus one fit
+        """
+        if self.spectra.activeID==None:
+            print "There is no active spectrum"
+            return 
+        spec = self.spectra[self.spectra.activeID]
+        
+        if not hasattr(spec, "activeID"):
+            print 'There are no fits for this spectrum'
+            return
+        if not self.spectra.activeID in self.spectra.visible:
+            print 'Warning: active spectrum (id=%s) is not visible' %self.spectra.activeID
+        spec.FocusObject(ID)
+        if self.spectra.activeID in self.spectra.visible and spec.activeID:
+            spec[spec.activeID].Show()
+
     def KeepFit(self):
         """
         Keep this fit, 
@@ -509,6 +527,12 @@ class TvFitInterface:
         # TODO: add option to show the fit, that is closest to a certain value
         hdtv.cmdline.AddCommand(prog, self.FitShow, minargs=1, parser=parser)
         
+        prog = "fit focus"
+        description = "focus on fit with id"
+        usage = "fit focus [<id>]"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.FitFocus, minargs=0, parser=parser)
+        
         prog = "fit print"
         description = "print fit results"
         usage="%prog all|<ids>"
@@ -643,6 +667,19 @@ class TvFitInterface:
         except ValueError:
             print "Error: Invalid id %s" %ID
 
+    def FitFocus(self, args, options):
+        """
+        Focus a fit. If no fit is given focus the active fit
+        """
+        try:
+            if len(args) == 0:
+                ID = None
+            else:
+                ID = int(args[0])
+            self.fitIf.FocusFit(ID)
+        except ValueError:
+            print "Error: Invalid id %s" %ID
+
     def ParseFitIds(self, idStrings):
         """
         Parse fit IDs, allowed keywords are ALL, NONE, ACTIVE, VISIBLE
@@ -726,6 +763,7 @@ class TvFitInterface:
             name = name.strip()
             ids = self.ParseFitIds(options.fit)
             self.fitIf.SetPeakModel(name, options.default, ids)
+
 
     def PeakModelCompleter(self, text):
         """

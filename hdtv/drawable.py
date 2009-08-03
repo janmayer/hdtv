@@ -439,6 +439,29 @@ class DrawableCompound(UserDict.DictMixin):
                     print "Warning: ID %s not found" % ID
         self.viewport.UnlockUpdate()
 
+    
+    def FocusObject(self, ID=None):
+        """
+        If ID is not given: Focus active object
+        """
+        if ID is None:
+            ID = self.activeID
+        
+        if ID is None:
+            print "No active object"
+            return
+        
+        if ID not in self.visible:
+            try:
+                self.objects[ID].Show()
+            except KeyError:
+                print "Warning: ID %s not found" % ID
+                return
+        try:
+            self.objects[ID].Focus()
+        except AttributeError:
+            print "Cannot focus this object"
+        
     def ShowNext(self, nb=1):
         """
         Show next object (by index)
