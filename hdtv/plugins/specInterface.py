@@ -380,7 +380,10 @@ to only fit the calibration.""",
                 self.spectra.ShowLast()
             else:
                 self.spectra.ShowObjects(ids)
-            ID = list(self.spectra.visible)[0]
+            try:
+                ID = list(self.spectra.visible)[0]
+            except IndexError:
+                ID = None
             self.spectra.ActivateObject(ID)
         except:
             return "USAGE"
