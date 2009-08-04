@@ -170,9 +170,16 @@ void Painter::DrawXMarker(XMarker *marker, int x1, int x2)
 
   // Draw first marker of the pair
   xm1 = EtoX(marker->GetE1());
-  if(xm1 >= x1 && xm1 <= x2)
+  if(xm1 >= x1 && xm1 <= x2) {
 	gVirtualX->DrawLine(fDrawable, marker->GetGC_1()->GetGC(), 
 						xm1, fYBase, xm1, fYBase - fHeight);
+
+    if(!marker->GetTitle().empty())
+	  DrawString(marker->GetGC_1()->GetGC(),
+	             xm1 + 2, fYBase - fHeight + 2,
+	             marker->GetTitle().c_str(), marker->GetTitle().size(),
+	             kLeft, kTop);
+  }
 
   if(marker->GetN() > 1) {
 	// Draw second marker of the pair
@@ -563,7 +570,7 @@ void Painter::DrawYScale()
 	DrawYLinearScale();
 }
 
-void Painter::DrawString(GContext_t gc, int x, int y, char *str, size_t len,
+void Painter::DrawString(GContext_t gc, int x, int y, const char *str, size_t len,
 							   HTextAlign hAlign, VTextAlign vAlign)
 {
   int max_ascent, max_descent;

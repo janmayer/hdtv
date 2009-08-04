@@ -39,6 +39,7 @@ class Marker(Drawable):
         self.connecttop = connecttop
         self.p1 = p1
         self.p2 = None
+        self.title = ""
         
     def __str__(self):
         if self.p2:
@@ -78,6 +79,8 @@ class Marker(Drawable):
         if not self.color:
             self.color = hdtv.color.zoom
         self.displayObj = constructor(n, p1, p2, self.color)
+        if self.title != "":
+            self.displayObj.SetTitle(self.title)
         if self.xytype=="X":
             # calibration makes only sense on the X axis
             self.displayObj.SetCal(self.cal)
@@ -137,6 +140,15 @@ class Marker(Drawable):
         if self.p2:
             self.p2 = cal.Ch2E(self.cal.E2Ch(self.p2))
         Drawable.SetCal(self, cal)
+        
+
+    def SetTitle(self, title):
+        """
+        Set the title of the marker (a string to be displayed aside it)
+        """
+        self.title = title
+        if self.displayObj:
+            self.displayObj.SetTitle(self.title)
 
 
 class MarkerCollection(Drawable):

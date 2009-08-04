@@ -278,6 +278,7 @@ class FitInterface:
         if not hasattr(spec, "activeID") or spec.activeID==None:
             # do the fit
             self.Fit(peaks=True)
+        spec[spec.activeID].SetTitle(str(spec.activeID))
         spec[spec.activeID].SetColor(spec.color)
         # remove the fit, if it is empty (=nothing fitted)
         if len(spec[spec.activeID].peaks)==0:

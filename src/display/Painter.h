@@ -144,7 +144,7 @@ class Painter {
   void DrawYLogScale();
   void _DrawYLogScale(int minDist, int sgn, double cMin, double cMax);
   void DrawYMajorTic(double c, bool drawLine=true);
-  void DrawString(GContext_t gc, int x, int y, char *str, size_t len,
+  void DrawString(GContext_t gc, int x, int y, const char *str, size_t len,
 				  HTextAlign hAlign, VTextAlign vAlign);
   inline void DrawYMinorTic(double c);
   double GetCountsAtPixel(DisplaySpec *dSpec, Int_t x);

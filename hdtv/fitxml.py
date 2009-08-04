@@ -393,7 +393,8 @@ class FitXml:
                 if restore_success:
                     try:
                         fit.Restore(spec, silent=True)
-                        spec.Add(fit)
+                        ID = spec.Add(fit)
+                        fit.SetTitle(str(ID))
                     except TypeError:
                         restore_success = False
                     
@@ -407,8 +408,9 @@ class FitXml:
                         if do_fit in ["Y", "y", "", "A", "a"]:
                             spec.viewport.UnlockUpdate()
                             fit.FitPeakFunc(spec)
-                            spec.Add(fit)
+                            ID = spec.Add(fit)
                             fit.Focus()
+                            fit.SetTitle(str(ID))
                             spec.viewport.LockUpdate()
                         
                 if not sid in spectra.visible:

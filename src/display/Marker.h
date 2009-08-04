@@ -60,14 +60,24 @@ class Marker: public DisplayObj {
     inline void SetDash(bool dash1, bool dash2=false)
       { fDash1 = dash1; fDash2 = dash2; Update(); }
     void SetColor(int col);
-      
+    inline void SetTitle(const char *title) {
+      fTitle = title;
+      Update();
+    };
+    inline void SetTitle(const std::string &title) {
+      fTitle = title;
+      Update();
+    };
+    inline const std::string& GetTitle() const { return fTitle; }
+
     // HDTV::Display:: required for CINT
     virtual std::list<HDTV::Display::DisplayObj *>& GetList(DisplayStack *stack);
   
   protected:
     void InitGC(int col);
     void FreeGC();
-  
+    std::string fTitle;
+
     bool fDash1, fDash2;
     TGGC *fGC, *fDashedGC;
     double fP1, fP2;

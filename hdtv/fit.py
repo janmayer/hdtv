@@ -405,7 +405,20 @@ class Fit(Drawable):
         if self.viewport:
             self.viewport.UnlockUpdate()
 
-
+    def SetTitle(self, ID):
+        """
+        Set title of fit and display it near peak markers
+        """
+        if self.viewport:
+            self.viewport.LockUpdate()
+        
+        for p in self.peakMarkers:
+            p.SetTitle("#" + ID)
+        
+        if self.viewport:
+            self.viewport.UnlockUpdate()
+        
+            
     def SetColor(self, color=None, active=False):
         if self.viewport:
             self.viewport.LockUpdate()
