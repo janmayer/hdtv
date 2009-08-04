@@ -287,7 +287,7 @@ class FitXml:
             except AttributeError:
                 # No calibration was saved
                 print "Could not read calibration for spectrum ", name 
-                
+            spec.viewport.LockUpdate() 
             # <fit>
             for fitElement in specElement:
                 restore_success = True
@@ -405,13 +405,15 @@ class FitXml:
                             question = "Could not restore fit. Refit? [(Y)es/(n)o/(a)lways/ne(v)er]"
                             do_fit = raw_input(question)
                         if do_fit in ["Y", "y", "", "A", "a"]:
+                            spec.viewport.UnlockUpdate()
                             fit.FitPeakFunc(spec)
                             spec.Add(fit)
                             fit.Focus()
+                            spec.viewport.LockUpdate()
                         
                 if not sid in spectra.visible:
                     fit.Hide()
-                
+            spec.viewport.UnlockUpdate()
 
     def ReadFitlist_v0(self, root, do_fit=False):
         """
