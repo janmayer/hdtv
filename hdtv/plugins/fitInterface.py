@@ -224,6 +224,7 @@ class FitInterface:
         """
         Activate one fit
         """
+        print "ActivateFit ID", ID
         if self.spectra.activeID==None:
             print "There is no active spectrum"
             return 

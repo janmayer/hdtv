@@ -260,7 +260,7 @@ class DrawableCompound(UserDict.DictMixin):
         """
         self.viewport.LockUpdate()
         # lowlight previously active object
-        if not self.activeID is None:
+        if not (self.activeID is None):
             self.objects[self.activeID].SetColor(active=False)
         # set new active object
         if ID is None:
@@ -269,6 +269,8 @@ class DrawableCompound(UserDict.DictMixin):
             self.objects[ID].SetColor(active=True)
             self.objects[ID].ToTop()
             self.activeID = ID
+            if not ID in self.visible: # Show if not visible
+                self.ShowObjects(ID)
         else:
             print "Warning, invalid id %s" %ID
         self.viewport.UnlockUpdate()

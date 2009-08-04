@@ -290,8 +290,13 @@ class Fit(Drawable):
             return
         self.viewport.LockUpdate()
         self.peakMarkers.Show()
-        self.regionMarkers.Show()
-        self.bgMarkers.Show()
+        try:
+            if self.fitter.spec.GetActiveObject() == self: # Is this fit the active fit?
+                self.regionMarkers.Show()
+                self.bgMarkers.Show()
+        except AttributeError: # Fitter not yet initialized
+            self.regionMarkers.Show()
+            self.bgMarkers.Show()
         if self.dispPeakFunc:
             self.dispPeakFunc.Show()
         if self.dispBgFunc:
