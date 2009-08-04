@@ -636,12 +636,13 @@ class TvFitInterface:
             print "Warning: active spectrum is not visible, no action taken"
             return
         ids = self.ParseFitIds(args)
-        print ids
+        spec = self.spectra[self.spectra.activeID]
         if len(ids)>0:
-            spec = self.spectra[self.spectra.activeID]
             spec.ShowObjects(ids)
             for ID in ids:
                 print "Fit %d:" %ID, spec[ID].formated_str(verbose=True)
+        else:
+            spec.HideAll()
 
     def FitPrint(self, args, options):
         """
