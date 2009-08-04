@@ -389,12 +389,13 @@ class FitXml:
                     fit.peaks.append(peak)
                 # make sure the peaks are in the right order
                 fit.peaks.sort()
-
-                try:
-                    fit.Restore(spec, silent=True)
-                    spec.Add(fit)
-                except TypeError:
-                    restore_success = False
+                
+                if restore_success:
+                    try:
+                        fit.Restore(spec, silent=True)
+                        spec.Add(fit)
+                    except TypeError:
+                        restore_success = False
                     
                 if not restore_success:
                     if do_fit not in ["V", "v"]: # Ne(v)er
