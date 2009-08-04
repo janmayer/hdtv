@@ -529,7 +529,7 @@ class CommandLine:
         self.fPyMore = False
             
         readline.set_completer(self.Complete)
-        readline.set_completer_delims(readline.get_completer_delims() + os.sep)
+        readline.set_completer_delims(" \t" + os.sep)
         readline.parse_and_bind("tab: complete")
         
         while(self.fKeepRunning):
