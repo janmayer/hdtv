@@ -97,13 +97,15 @@ class Marker(Drawable):
                 p2 = self.cal.E2Ch(self.p2)
                 self.displayObj.SetN(2)
                 self.displayObj.SetPos(p1, p2)
-                self.displayObj.SetCal(self.cal)
+                if self.xytype == "X": # calibration makes only sense on the X axis
+                    self.displayObj.SetCal(self.cal)
             else:
                 # on the C++ side all values must be uncalibrated
                 p1 = self.cal.E2Ch(self.p1)
                 self.displayObj.SetN(1)
                 self.displayObj.SetPos(p1)
-                self.displayObj.SetCal(self.cal)
+                if self.xytype == "X": # calibration makes only sense on the X axis
+                    self.displayObj.SetCal(self.cal)
 
     def Copy(self, cal=None):
         """
