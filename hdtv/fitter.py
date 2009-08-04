@@ -147,8 +147,11 @@ class Fitter:
             try:
                 deg = int(status)
             except ValueError:
-                msg = "Failed to parse status specifier `%s'" % status
-                raise ValueError, msg
+                try: # HACK! 'background degree <degree>' should still be possible
+                    deg = int(status.split()[1])
+                except ValueError:
+                    msg = "Failed to parse status specifier `%s'" % status
+                    raise ValueError, msg
             self.bgdeg = deg
         else:
             # all other parnames are treated in the peakmodel
