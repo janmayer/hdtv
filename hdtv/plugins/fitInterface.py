@@ -556,7 +556,7 @@ class TvFitInterface:
 #        hdtv.cmdline.AddCommand("fit copy", self.FitCopy, minargs=1)
 #        hdtv.cmdline.AddCommand("fit multi", self.FitMulti, minargs=1)
 
-        prog = "fit param"
+        prog = "fit parameter"
         description="show status of fit parameter, reset or set parameter"
         usage = "%prog [OPTIONS] status | reset | parname status"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
