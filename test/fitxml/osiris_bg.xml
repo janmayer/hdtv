@@ -341,7 +341,7 @@
           <sw status="hold" />
           <pos status="hold">
             <value>965.0</value>
-            <error>0</error>
+            <error>0.0</error>
           </pos>
         </uncal>
         <cal>
@@ -359,7 +359,7 @@
           <sw status="hold" />
           <pos status="hold">
             <value>965.0</value>
-            <error>0</error>
+            <error>0.0</error>
           </pos>
         </cal>
       </peak>
@@ -379,7 +379,7 @@
           <sw status="hold" />
           <pos status="hold">
             <value>970.0</value>
-            <error>0</error>
+            <error>0.0</error>
           </pos>
         </uncal>
         <cal>
@@ -397,7 +397,7 @@
           <sw status="hold" />
           <pos status="hold">
             <value>970.0</value>
-            <error>0</error>
+            <error>0.0</error>
           </pos>
         </cal>
       </peak>

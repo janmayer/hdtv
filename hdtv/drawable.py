@@ -230,7 +230,7 @@ class DrawableCompound(UserDict.DictMixin):
         return ID
 
         
-    def ListObjects(self, visible_only=False):
+    def ListObjects(self, verbose=False, visible_only=False):
         """
         List all objects in a human readable way
         """
@@ -248,8 +248,11 @@ class DrawableCompound(UserDict.DictMixin):
             else:
                 stat += " "
             if not visible_only or visible:
-                print "%d %s %s" % (ID, stat, obj)
-            
+                try:
+                    print "%d %s %s" % (ID, stat, obj.formated_str(verbose))
+                except AttributeError:
+                    # just use normal str if no formated_str function exists
+                    print "%d %s %s" % (ID, stat, obj)
 
     def ActivateObject(self, ID=None):
         """

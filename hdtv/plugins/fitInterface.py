@@ -309,63 +309,63 @@ class FitInterface:
         self.UpdateFitPanel()
         
     
-    def FitMultiSpectra(self, ids):
-        """
-        Use the fit markers of the active fit to fit multiple spectra.
-        The spectra that should be fitted are given by the parameter ids.
-        """
-        if isinstance(ids, int):
-            ids = [ids]
-        self.window.viewport.LockUpdate()
-        self.CopyActiveFit(ids)
-        for ID in ids:
-            spec = self.spectra[ID]
-            fit = spec[spec.activeID]
-            if len(fit.bgMarkers)>0:
-                fit.FitBgFunc(spec)
-            fit.FitPeakFunc(spec)
-            fit.Draw(self.window.viewport)
-            if not ID in self.spectra.visible:
-                fit.Hide()
-        self.window.viewport.UnlockUpdate()
+#    def FitMultiSpectra(self, ids):
+#        """
+#        Use the fit markers of the active fit to fit multiple spectra.
+#        The spectra that should be fitted are given by the parameter ids.
+#        """
+#        if isinstance(ids, int):
+#            ids = [ids]
+#        self.window.viewport.LockUpdate()
+#        self.CopyActiveFit(ids)
+#        for ID in ids:
+#            spec = self.spectra[ID]
+#            fit = spec[spec.activeID]
+#            if len(fit.bgMarkers)>0:
+#                fit.FitBgFunc(spec)
+#            fit.FitPeakFunc(spec)
+#            fit.Draw(self.window.viewport)
+#            if not ID in self.spectra.visible:
+#                fit.Hide()
+#        self.window.viewport.UnlockUpdate()
 
 
-    def CopyActiveFit(self, ids):
-        """
-        Copy active fit to other spectra which are defined by the parameter ids
-        """
-        if isinstance(ids, int):
-            ids = [ids]
-        self.window.viewport.LockUpdate()
-        # get active fit to make the copies
-        fit = self.GetActiveFit()
-        for ID in ids:
-            try:
-                spec = self.spectra[ID]
-            except KeyError:
-                print "Warning: ID %s not found" % ID
-                continue
-            # do not copy, if active fit belongs already to this spectrum
-            if not fit.fitter.spec == spec:
-                try:
-                    # deactive all objects
-                    spec.ActivateObject(None)
-                except AttributeError:
-                    # create SpectrumCompound object 
-                    spec = SpectrumCompound(self.window.viewport, spec)
-                    # replace the simple spectrum object by the SpectrumCompound
-                    self.spectra[ID]=spec
-                fitID=spec.Add(fit.Copy(cal=spec.cal, color=spec.color))
-                if not ID in self.spectra.visible:
-                    spec[fitID].Hide()
-                spec.ActivateObject(fitID)
-        # clear pending Fit, if there is one
-        # Note: we have to keep this until now, 
-        # as it may be the template for all the copies 
-        if self.activeFit:
-            self.activeFit.Remove()
-            self.activeFit= None
-        self.window.viewport.UnlockUpdate()    
+#    def CopyActiveFit(self, ids):
+#        """
+#        Copy active fit to other spectra which are defined by the parameter ids
+#        """
+#        if isinstance(ids, int):
+#            ids = [ids]
+#        self.window.viewport.LockUpdate()
+#        # get active fit to make the copies
+#        fit = self.GetActiveFit()
+#        for ID in ids:
+#            try:
+#                spec = self.spectra[ID]
+#            except KeyError:
+#                print "Warning: ID %s not found" % ID
+#                continue
+#            # do not copy, if active fit belongs already to this spectrum
+#            if not fit.fitter.spec == spec:
+#                try:
+#                    # deactive all objects
+#                    spec.ActivateObject(None)
+#                except AttributeError:
+#                    # create SpectrumCompound object 
+#                    spec = SpectrumCompound(self.window.viewport, spec)
+#                    # replace the simple spectrum object by the SpectrumCompound
+#                    self.spectra[ID]=spec
+#                fitID=spec.Add(fit.Copy(cal=spec.cal, color=spec.color))
+#                if not ID in self.spectra.visible:
+#                    spec[fitID].Hide()
+#                spec.ActivateObject(fitID)
+#        # clear pending Fit, if there is one
+#        # Note: we have to keep this until now, 
+#        # as it may be the template for all the copies 
+#        if self.activeFit:
+#            self.activeFit.Remove()
+#            self.activeFit= None
+#        self.window.viewport.UnlockUpdate()    
 
 
     def SetDecomp(self, stat=True):
@@ -378,65 +378,95 @@ class FitInterface:
             self.fitPanel.SetDecomp(stat)
         
 
-    def SetBgDeg(self, bgdeg):
-        # change default fitter
-        self.defaultFitter.bgdeg = bgdeg
-        # and for active fit
-        fit = self.GetActiveFit()
-        fit.fitter.bgdeg = bgdeg
-        fit.Refresh()
-        # Update fitPanel
-        self.UpdateFitPanel()
-
-
-    def ShowFitStatus(self):
-        fitter = self.GetActiveFit().fitter
+    def ShowFitStatus(self, default=False, ids=[]):
+        if default:
+            ids.extend("d")
+        else:
+            ids.extend("a")
         statstr = str()
-        statstr += "Background model: polynomial, deg=%d\n" % fitter.bgdeg
-        statstr += "Peak model: %s\n" % fitter.peakModel.name
-        statstr += "\n"
-        statstr += fitter.OptionsStr()
+        for ID in ids:
+            if ID=="a":
+                fitter = self.GetActiveFit().fitter
+                statstr+="active fitter: \n"
+            elif ID=="d":
+                fitter = self.defaultFitter
+                statstr+="default fitter: \n"
+            else:
+                fitter = self.spectra[self.spectra.activeID][ID].fitter
+                statstr+= "fitter status of fit id %d: \n" % ID
+            statstr += "Background model: polynomial, deg=%d\n" % fitter.bgdeg
+            statstr += "Peak model: %s\n" % fitter.peakModel.name
+            statstr += "\n"
+            statstr += fitter.OptionsStr()
+            statstr += "\n\n"
         print statstr
 
 
-    def SetParameter(self, parname, status):
-        # change default fitter
-        self.defaultFitter.SetParameter(parname, status)
-        # and active fit
+    def SetParameter(self, parname, status, default=False, ids=[]):
+        """
+        Sets status of fit parameter
+        If not specified otherwise only the active fiter will be changed,
+        if default=True, also the default fitter will be changed,
+        if a list of fits is given, we try to set the parameter status also 
+        for this fits. Be aware that failures for the fits from the list will
+        be silently ignored.
+        """
+        # default fit
+        if default:
+            try:
+                self.defaultFitter.SetParameter(parname, status)
+            except ValueError, msg:
+                print "Error concerning default Fit: %s" % msg
+        # active fit
         fit = self.GetActiveFit()
-        fit.fitter.SetParameter(parname, status)
-        fit.Refresh()
+        try:
+            fit.fitter.SetParameter(parname, status)
+            fit.Refresh()
+        except ValueError, msg:
+            print "Error concerning active Fit: %s" % msg
+        # fit list
+        for ID in ids:
+            try:
+                fit = self.spectra[self.spectra.activeID][ID]
+                fit.fitter.SetParameter(parname, status)
+                fit.Refresh()
+            except ValueError:
+                pass
         # Update fitPanel
         self.UpdateFitPanel()
+ 
 
-
-    def ResetParameters(self):
-        # change default fitter
-        self.defaultFitter.ResetParamStatus()
-        # and active fit
+    def ResetParameters(self, default=False, ids=[]):
+        if default:
+            self.defaultFitter.ResetParamStatus()
+        # active Fit
         fit = self.GetActiveFit()
         fit.fitter.ResetParamStatus()
         fit.Refresh()
+        # fit list
+        for ID in ids:
+            fit = self.spectra[self.spectra.activeID][ID]
+            fit.fitter.ResetParamStatus()
+            fit.Refresh()
         # Update fitPanel
         self.UpdateFitPanel()
 
 
-    def SetPeakModel(self, peakmodel):
+    def SetPeakModel(self, peakmodel, default=False, ids=[]):
         """
         Set the peak model (function used for fitting peaks)
         """
+        # default
+        if default:
+            self.defaultFitter.SetPeakModel(peakmodel)
+        # active fit
         fit = self.GetActiveFit()
-        fitter = fit.fitter
-        if self.tv:
-            # Unregister old parameter
-            self.tv.UnregisterFitParameter(fitter)
-        # Set new peak model
-        self.defaultFitter.SetPeakModel(peakmodel)
-        fitter.SetPeakModel(peakmodel)
-        if self.tv:
-            # Register new parameter
-            self.tv.RegisterFitParameter(fitter)
+        fit.fitter.SetPeakModel(peakmodel)
         fit.Refresh()
+        for ID in ids:
+            fit = self.spectra[self.spectra.activeID][ID]
+            fit.fitter.SetPeakModel(peakmodel)
+            fit.Refresh()
         # Update fit panel
         self.UpdateFitPanel()
             
@@ -479,274 +509,306 @@ class TvFitInterface:
     def __init__(self, fitInterface):
         self.fitIf = fitInterface
         self.spectra = self.fitIf.spectra
-
-
-        # register tv commands
-        self.RegisterFitParameter(self.fitIf.defaultFitter)
         
-        hdtv.cmdline.AddCommand("fit list", self.FitList, nargs=0, usage="fit list")
-        hdtv.cmdline.AddCommand("fit show", self.FitShow, minargs=1)
-        hdtv.cmdline.AddCommand("fit focus", self.FitFocus, minargs=0, usage="fit focus [<id>]")
-        hdtv.cmdline.AddCommand("fit print", self.FitPrint, minargs=1, level=2)
-        hdtv.cmdline.AddCommand("fit delete", self.FitDelete, minargs=1)
-        hdtv.cmdline.AddCommand("fit activate", self.FitActivate, nargs=1)
-        hdtv.cmdline.AddCommand("fit copy", self.FitCopy, minargs=1)
-        hdtv.cmdline.AddCommand("fit multi", self.FitMulti, minargs=1)
-        hdtv.cmdline.AddCommand("fit param background degree", self.FitParamBgDeg, nargs=1)
-        hdtv.cmdline.AddCommand("fit status", self.FitStatus, nargs=0)
-        hdtv.cmdline.AddCommand("fit reset", self.FitReset, nargs=0)
-        hdtv.cmdline.AddCommand("fit function peak activate", self.FitSetPeakModel,
-                                completer=self.PeakModelCompleter, nargs=1)
+        prog = "fit list"
+        description = "show a list of all fits belonging to the active spectrum"
+        usage="%prog"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        parser.add_option("-l", "--long", action="store_true",default=False, 
+                        help="show more details")
+        parser.add_option("-v","--visible", action="store_true", default=False,
+                        help = "only list visible fit")
+        hdtv.cmdline.AddCommand(prog, self.FitList, nargs=0,parser=parser)
         
+        prog = "fit show"
+        description = "display fits"
+        usage="%prog none|all|<ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        # TODO: add option to show the fit, that is closest to a certain value
+        hdtv.cmdline.AddCommand(prog, self.FitShow, minargs=1, parser=parser)
+        
+        prog = "fit focus"
+        description = "focus on fit with id"
+        usage = "fit focus [<id>]"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.FitFocus, minargs=0, parser=parser)
+        
+        prog = "fit print"
+        description = "print fit results"
+        usage="%prog all|<ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.FitPrint, minargs=1, parser=parser, level=2)
+        
+        prog = "fit delete"
+        description = "delete fits"
+        usage="%prog all|<ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.FitDelete, minargs=1, parser=parser)
+        
+        prog = "fit activate"
+        description = "activate fit for further work"
+        usage = "%prog <id>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        # TODO: add option to re-activate newest fit
+        # TODO: add option to activate the fit, that is closest to a certain value
+        hdtv.cmdline.AddCommand(prog, self.FitActivate, nargs=1, parser=parser)
+        
+#        hdtv.cmdline.AddCommand("fit copy", self.FitCopy, minargs=1)
+#        hdtv.cmdline.AddCommand("fit multi", self.FitMulti, minargs=1)
+
+        prog = "fit param"
+        description="show status of fit parameter, reset or set parameter"
+        usage = "%prog [OPTIONS] status | reset | parname status"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        parser.add_option("-d", "--default", action="store_true", default=False, 
+                            help="act on default fitter")
+        parser.add_option("-f","--fit", action="store", default="none",
+                            help="change parameter of selected fit and refit")
+        hdtv.cmdline.AddCommand(prog, self.FitParam, 
+                                completer=self.ParamCompleter, 
+                                parser=parser, minargs=1)
+        
+        prog = "fit function peak activate"
+        description = "selects which peak model to use"
+        usage = "%prog [OPTIONS] name"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        parser.add_option("-d", "--default", action="store_true", default=False, 
+                            help="change default fitter")
+        parser.add_option("-f","--fit", action="store", default="none",
+                            help="change selected fits and refit")
+        hdtv.cmdline.AddCommand(prog, self.FitSetPeakModel, 
+                                completer= self.PeakModelCompleter, 
+                                parser=parser, minargs=1)
+
         # calibration command
-        parser = hdtv.cmdline.HDTVOptionParser(prog="calibration position assign",
-                     description=
-"""Calibrate the active spectrum by asigning energies to fitted peaks, peaks are specified by their index and the peak number within the peak (if number is ommitted the first (and only?) peak is taken).""",
-                     usage="%prog [OPTIONS] <id0> <E0> [<od1> <E1> ...]")
-        parser.add_option("-s", "--spec", action="store",
-                          default="all", help="spectrum ids to apply calibration to")
-        parser.add_option("-d", "--degree", action="store",
-                          default="1", help="degree of calibration polynomial fitted [default: %default]")
-        parser.add_option("-f", "--show-fit", action="store_true",
-                          default=False, help="show fit used to obtain calibration")
-        parser.add_option("-r", "--show-residual", action="store_true",
-                          default=False, help="show residual of calibration fit")
-        parser.add_option("-t", "--show-table", action="store_true",
-                          default=False, help="print table of energies given and energies obtained from fit")
-        hdtv.cmdline.AddCommand("calibration position assign", self.CalPosAssign, minargs=2, parser=parser)
-    
-    
-    def RegisterFitParameter(self, fitter):
-        # we need to create the function outside the loop
-        def MakeSetFunction(param):
-            def f(args):
-                try:
-                    self.fitIf.SetParameter(param," ".join(args))
-                except ValueError, msg:
-                    print "Error: %s" % msg
-            return f
-        # create new commands 
-        for param in fitter.OrderedParamKeys():
-            if len(fitter.fValidParStatus[param])>1:
-                hdtv.cmdline.AddCommand("fit param %s" % param, MakeSetFunction(param), minargs=1)
+        prog = "calibration position assign"
+        description = "Calibrate the active spectrum by asigning energies to fitted peaks. "
+        description+= "peaks are specified by their index and the peak number within the peak "
+        description+= "(if number is ommitted the first (and only?) peak is taken)."
+        usage = "%prog [OPTIONS] <id0> <E0> [<od1> <E1> ...]"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        parser.add_option("-s", "--spec", action="store", default="all", 
+                        help="spectrum ids to apply calibration to")
+        parser.add_option("-d", "--degree", action="store", default="1", 
+                        help="degree of calibration polynomial fitted [default: %default]")
+        parser.add_option("-f", "--show-fit", action="store_true",default=False, 
+                        help="show fit used to obtain calibration")
+        parser.add_option("-r", "--show-residual", action="store_true",default=False, 
+                        help="show residual of calibration fit")
+        parser.add_option("-t", "--show-table", action="store_true", default=False, 
+                        help="print table of energies given and energies obtained from fit")
+        hdtv.cmdline.AddCommand("calibration position assign", self.CalPosAssign, 
+                                parser=parser, minargs=2)
 
-    def UnregisterFitParameter(self, fitter):
-        # Unregister old parameters
-        for param in fitter.OrderedParamKeys():
-            if len(fitter.fValidParStatus[param])>1:
-                hdtv.cmdline.RemoveCommand("fit param %s" % param)
-
-
-    def FitWrite(self, args):
-        """
-        Write a list of all fits belonging to the active spectrum to an XML file
-        """
-        try:
-            spec = self.spectra[self.spectra.activeID]
-            if self.spectra.activeID in self.spectra.visible:
-                visible = True
-            else:
-                visible = False
-        except KeyError:
-            print "No active spectrum"
-            return False
-        except AttributeError:
-            print "There are no fits for this spectrum"
-            return False
-        except:
-            return "USAGE"
-            
-        print 'Dumping fits belonging to %s (visible=%s):' %(str(spec), visible)
-        hdtv.fitio.FitIO().Write(spec)
-
-
-    def FitList(self, args):
+    def FitList(self, args, options):
         """
         Print a list of all fits belonging to the active spectrum 
         """
         try:
             spec = self.spectra[self.spectra.activeID]
-            if self.spectra.activeID in self.spectra.visible:
-                visible = True
-            else:
-                visible = False
-            print 'Fits belonging to %s (visible=%s):' %(str(spec), visible)
-            spec.ListObjects()
         except KeyError:
             print "No active spectrum"
-            return False
         except AttributeError:
             print "There are no fits for this spectrum"
-            return False
-        except:
-            return "USAGE"
+        if self.spectra.activeID in self.spectra.visible:
+            visible = True
+        else:
+            visible = False
+        print 'Fits belonging to %s (visible=%s):' %(str(spec), visible)
+        spec.ListObjects(verbose=options.long, visible_only=options.visible)
         
-    def FitDelete(self, args):
+    def FitDelete(self, args, options):
         """ 
         Delete fits
         """
-        try:
-            ids = hdtv.cmdhelper.ParseRange(args)
-            if ids == "NONE":
-                return
-            elif ids == "ALL":
-                ids = self.spectra[self.spectra.activeID].keys()
+        if not self.spectra.activeID in self.spectra.visible:
+            print "Warning: active spectrum is not visible, no action taken"
+            return
+        ids = self.ParseFitIds(args)
+        if len(ids)>0:
             self.spectra[self.spectra.activeID].RemoveObjects(ids)
-        except KeyError:
-            print "No active spectrum"
-            return False
-        except AttributeError:
-            print "There are no fits for this spectrum"
-            return False
-        except:
-            print "Usage: fit delete <ids>|all"
-            return False
     
-    def FitShow(self, args):
+    def FitShow(self, args, options):
         """
         Show Fits
         """
-        try:
-            ids = hdtv.cmdhelper.ParseRange(args)
-            if not self.spectra.activeID in self.spectra.visible:
-                print "Warning: active spectrum is not visible, no action taken"
-                return True
-            if ids == "NONE":
-                self.spectra[self.spectra.activeID].HideAll()
-            elif ids == "ALL":
-                self.spectra[self.spectra.activeID].ShowAll()
-            else:
-                self.spectra[self.spectra.activeID].ShowObjects(ids)
-        except KeyError:
-            print "No active spectrum"
-            return False
-        except AttributeError:
-            print "There are no fits for this spectrum"
-            return False
-        except: 
-            print "Usage: fit show <ids>|all|none"
-            return False  
-        
-    def FitPrint(self, args):
-        try:
+        if not self.spectra.activeID in self.spectra.visible:
+            print "Warning: active spectrum is not visible, no action taken"
+            return
+        ids = self.ParseFitIds(args)
+        print ids
+        if len(ids)>0:
             spec = self.spectra[self.spectra.activeID]
-        except KeyError:
-            print "No active spectrum"
-            return False
-        try:
-            ids = hdtv.cmdhelper.ParseRange(args)
-            if ids == "NONE":
-                return
-            if ids == "ALL":
-                ids = spec.keys()
+            spec.ShowObjects(ids)
             for ID in ids:
-                try:
-                    print str(spec[ID])
-                except KeyError:
-                    print "Warning: No fit with id %s" %ID
-                    continue
-        except AttributeError:
-            print "There are no fits for this spectrum"
-            return False
-        except: 
-            print "Usage: fit print <ids>|all"
-            return False
+                print "Fit %d:" %ID, spec[ID].formated_str(verbose=True)
 
-    def FitActivate(self, args):
+    def FitPrint(self, args, options):
+        """
+        Print fit results
+        """
+        ids = self.ParseFitIds(args)
+        if len(ids)>0:
+            spec = self.spectra[self.spectra.activeID]
+            for ID in ids:
+                print "Fit %d:" %ID, spec[ID].formated_str(verbose=True)
+
+    def FitActivate(self, args, options):
         """
         Activate one spectrum
         """
         try:
-            ID = hdtv.cmdhelper.ParseRange(args)
+            ID = hdtv.cmdhelper.ParseRange(args, special=["NONE"])
             if ID=="NONE":
                 ID = None
             else:
                 ID = int(args[0])
             self.fitIf.ActivateFit(ID)
         except ValueError:
-            print "Usage: fit activate <id>|none"
-            return False
+            print "Error: Invalid id %s" %ID
 
-    def FitFocus(self, args):
+    def FitFocus(self, args, options):
         """
-        Focus a fit
-        
-        If no fit is given focus the active fit
+        Focus a fit. If no fit is given focus the active fit
         """
         try:
             if len(args) == 0:
                 ID = None
             else:
                 ID = int(args[0])
-                    
             self.fitIf.FocusFit(ID)
-        except:
-            return "USAGE"
-        
-    def FitCopy(self, args):
-        try:
-            ids = hdtv.cmdhelper.ParseRange(args)
-            if ids == "NONE":
-                return
-            if ids == "ALL":
-                ids = self.spectra.keys()
-            self.fitIf.CopyActiveFit(ids)
-        except: 
-            print "Usage: fit copy <ids>|all"
-            return False
-
-
-    def FitMulti(self, args):
-        try:
-            ids = hdtv.cmdhelper.ParseRange(args, ["all", "shown"])
         except ValueError:
-            print "Usage: fit multi <ids>|all|shown"
-            return False
-        if ids == "ALL":
-            ids = self.spectra.keys()
-        elif ids =="SHOWN":
-            ids = list(self.spectra.visible)
-        self.fitIf.FitMultiSpectra(ids)
+            print "Error: Invalid id %s" %ID
 
-
-    def FitParamBgDeg(self, args):
+    def ParseFitIds(self, idStrings):
+        """
+        Parse fit IDs, allowed keywords are ALL, NONE, ACTIVE, VISIBLE
+        """
+        special = ["ALL","NONE","ACTIVE","VISIBLE"]
+        # first check if there is an active spectrum
         try:
-            bgdeg = int(args[0])
-        except ValueError:
-            print "Usage: fit parameter background degree <deg>"
-            return False
-        self.fitIf.SetBgDeg(bgdeg)
+            spec = self.spectra[self.spectra.activeID]
+        except KeyError:
+            print "Warning: No active spectrum, no action taken."
+            return list()
+        # then check if there are any fits for that spectrum
+        try:
+            spec.activeID
+        except AttributeError:
+            print "Warning: There are no fits for this spectrum, no action taken."
+        # then parse the arguments
+        try:
+            ids = hdtv.cmdhelper.ParseRange(idStrings, special)
+        except ValueError, msg:
+            print msg
+            return list()
+        # processing different cases
+        if ids=="NONE":
+            return list()
+        if ids=="ACTIVE":
+            if spec.activeID is None:
+                print "Warning: There is no active fit."
+                return list()
+            else:
+                return [spec.activeID]
+        if ids=="ALL":
+            return spec.keys()
+        if ids=="VISIBLE":
+            return list(spec.visible)
+        fits = list()
+        # else filter non-existing ids
+        valid_ids = list() 
+        for ID in ids:
+            if not ID in spec.keys():
+                print "Warning: no fit with id %s" %ID
+            else:
+                valid_ids.append(ID)
+        return valid_ids
 
-    def FitStatus(self, args):
-        self.fitIf.ShowFitStatus()
 
-    def FitReset(self, args):
-        self.fitIf.ResetParameters()
-    
-    def FitSetPeakModel(self, args):
-        self.fitIf.SetPeakModel(args[0].lower())
+#    def FitCopy(self, args):
+#        try:
+#            ids = hdtv.cmdhelper.ParseRange(args)
+#            if ids == "NONE":
+#                return
+#            if ids == "ALL":
+#                ids = self.spectra.keys()
+#            self.fitIf.CopyActiveFit(ids)
+#        except: 
+#            print "Usage: fit copy <ids>|all"
+#            return False
+
+#    def FitMulti(self, args):
+#        try:
+#            ids = hdtv.cmdhelper.ParseRange(args, ["all", "shown"])
+#        except ValueError:
+#            print "Usage: fit multi <ids>|all|shown"
+#            return False
+#        if ids == "ALL":
+#            ids = self.spectra.keys()
+#        elif ids =="SHOWN":
+#            ids = list(self.spectra.visible)
+#        self.fitIf.FitMultiSpectra(ids)
+
+
+    def FitSetPeakModel(self, args, options):
+        name = args[0].lower()
+        # complete the model name if needed
+        models = self.PeakModelCompleter(name)
+        # check for unambiguity
+        if len(models)>1:
+            print "Error: peak model name %s is ambiguous" %name
+        else:
+            name = models[0]
+            name = name.strip()
+            ids = self.ParseFitIds(options.fit)
+            self.fitIf.SetPeakModel(name, options.default, ids)
+
 
     def PeakModelCompleter(self, text):
+        """
+        Creates a completer for all possible peak models
+        """
         return hdtv.util.GetCompleteOptions(text, hdtv.fitter.gPeakModels.iterkeys())
-            
 
-    def ParseIDs(self, strings):
-        # Parse IDs
-        # Raises a ValueError if parsing fails
-        ids = hdtv.cmdhelper.ParseRange(strings, ["ALL", "NONE", "ACTIVE"])
-        if ids=="NONE":
-            return []
-        elif ids=="ACTIVE":
-            if self.spectra.activeID==None:
-                print "Error: no active spectrum"
-                return False
-            else:
-                ids = [self.spectra.activeID]
-        elif ids=="ALL":
-            ids = self.spectra.keys()
-        return ids
-
-
+    def FitParam(self, args, options):
+        # first argument is parameter name
+        param = args.pop(0)
+        # complete the parameter name if needed
+        parameter= self.ParamCompleter(param)
+        # check for unambiguity
+        if len(parameter)>1:
+            print "Error: parameter name %s is ambiguous" %param
+            return
+        if len(parameter)==0:
+            print "Error: parameter name %s is not valid" %param
+            return
+        param = parameter[0]
+        param = param.strip()
+        ids = self.ParseFitIds(options.fit)
+        if param=="status":
+            self.fitIf.ShowFitStatus(options.default, ids)
+        elif param=="reset":
+            self.fitIf.ResetParameters(options.default, ids)
+        else:
+            try:
+                self.fitIf.SetParameter(param," ".join(args), options.default, ids)
+            except ValueError, msg:
+                print "Error: %s" % msg
+        
+    def ParamCompleter(self, text):
+        """
+        Creates a completer for all possible parameter names
+        If the different peak models are used for active fitter and default fitter,
+        options for both peak models are presented to the user.
+        """
+        params = set(["status","reset"])
+        defaultParams = set(self.fitIf.defaultFitter.params)
+        activeParams  = set(self.fitIf.GetActiveFit().fitter.params)
+        params = set.union(params, defaultParams, activeParams)
+        return hdtv.util.GetCompleteOptions(text, params)
+        
+        
     def CalPosAssign(self, args, options):
         """ 
         Calibrate the active spectrum by assigning energies to fitted peaks
@@ -763,7 +825,7 @@ class TvFitInterface:
             if len(args) % 2 != 0:
                 print "Error: number of parameters must be even"
                 return "USAGE"
-            ids = self.ParseIDs(options.spec)
+            ids = self.ParseSpecIDs(options.spec)
             if ids == False:
                 return
             degree = int(options.degree)
@@ -800,6 +862,23 @@ class TvFitInterface:
                     print "Warning: there is no spectrum with id: %s" %ID
             self.fitIf.window.Expand()        
             return True
+
+    def ParseSpecIDs(self, strings):
+        """
+        Parse IDs of spectra, raises a ValueError if parsing fails
+        """
+        ids = hdtv.cmdhelper.ParseRange(strings, ["ALL", "NONE", "ACTIVE"])
+        if ids=="NONE":
+            return []
+        elif ids=="ACTIVE":
+            if self.spectra.activeID==None:
+                print "Error: no active spectrum"
+                return False
+            else:
+                ids = [self.spectra.activeID]
+        elif ids=="ALL":
+            ids = self.spectra.keys()
+        return ids
 
 
 # plugin initialisation

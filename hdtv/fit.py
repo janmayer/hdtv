@@ -59,17 +59,19 @@ class Fit(Drawable):
         
         
     def __str__(self):
+        return self.formated_str(verbose=False)
+        
+    def formated_str(self, verbose=True):
         i=0
         text = str()
         for peak in self.peaks:
             text += ("\nPeak %d:" %i).ljust(10)
-            peakstr = str(peak).strip()
+            peakstr = peak.formated_str(verbose).strip()
             peakstr = peakstr.split("\n")
             peakstr =("\n".ljust(10)).join(peakstr)
             text += peakstr
             i+=1
         return text
-        
     
     def PutPeakMarker(self, pos):
         if self.dispPeakFunc:
@@ -198,7 +200,7 @@ class Fit(Drawable):
             for (marker, peak) in zip(self.peakMarkers, self.peaks):
                 marker.p1 = peak.pos_cal.value
             # print result
-            print "\n"+6*" "+str(self)
+            print "\n"+6*" "+self.formated_str(verbose=True)
 
     def Restore(self, spec, silent=False):
         if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
@@ -249,17 +251,19 @@ class Fit(Drawable):
             if not self.showDecomp:
                 peak.Hide()
         self.viewport.UnlockUpdate()
-        
+
 
     def Refresh(self):
         """
         Refresh
         """
-        # repeat the fits
-        if self.dispBgFunc:
-            self.FitBgFunc(self.fitter.spec)
+        # repeat the fits)
         if self.dispPeakFunc:
+            # this includes the background fit
             self.FitPeakFunc(self.fitter.spec)
+        elif self.dispBgFunc:
+            # maybe there was only a background fit
+            self.FitBgFunc(self.fitter.spec)
         if not self.viewport:
             return
         self.viewport.LockUpdate()
@@ -270,7 +274,7 @@ class Fit(Drawable):
             self.dispBgFunc.Draw(self.viewport)
         # draw peaks
         for peak in self.peaks:
-            peak.Draw()
+            peak.Draw(self.viewport)
             if not self.showDecomp:
                 peak.Hide()
         # draw the markers (do this after the fit, 

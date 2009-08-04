@@ -37,6 +37,14 @@ class Fitter:
         # degree of internal background , used when no background is set
         self.intBgDeg = 0 
     
+    @property
+    def params(self):
+        params = ["background"]
+        for param in self.peakModel.OrderedParamKeys():
+            if len(self.peakModel.fValidParStatus[param])>1:
+                params.append(param)
+        return params
+    
     def __getattr__(self, name):
         # Look in peakModell for unknown attributes
         return getattr(self.peakModel, name)
@@ -131,7 +139,22 @@ class Fitter:
         self.peakModel = model()
         self.peakFitter = None
         
-    
+    def SetParameter(self, parname, status):
+        """
+        Sets the parameter status for fitting.
+        """
+        if parname=="background":
+            try:
+                deg = int(status)
+            except ValueError:
+                msg = "Failed to parse status specifier `%s'" % status
+                raise ValueError, msg
+            self.bgdeg = deg
+        else:
+            # all other parnames are treated in the peakmodel
+            self.peakModel.SetParameter(parname, status)
+        
+
     def Copy(self):
         """
         Create a copy of this fitter

@@ -106,12 +106,12 @@ class PeakModel:
     def CheckParStatusLen(self, minlen):
         """
         Checks if each parameter status provided on a peak-by-peak basis
-        has at least minlen entires. Raises a RuntimeError with an appropriate
+        has at least minlen entires. Raises a ValueError with an appropriate
         error message if the check fails.
         """
         for (parname, status) in self.fParStatus.iteritems():
             if type(status) == list and len(status) < minlen:
-                raise RuntimeError, "Not enough values for status of %s" % parname
+                raise ValueError, "Not enough values for status of %s" % parname
         
     def ParseParamStatus(self, parname, status):
         """
@@ -140,7 +140,7 @@ class PeakModel:
         # If status was a keyword, see if this setting is legal for the parameter 
         if not stat is None:
             if not stat in self.fValidParStatus[parname]:
-                msg = "Status %s not allowed for parameter %s" % (stat, parname)
+                msg = "Status %s not allowed for parameter %s in peak model %s" % (stat, parname, self.name)
                 raise ValueError, msg
             return stat
             
@@ -154,7 +154,7 @@ class PeakModel:
                 
         # Check if a numeric value is legal for the parameter
         if not float in self.fValidParStatus[parname]:
-            msg = "Invalid status %s for parameter %s" % (status, parname)
+            msg = "Invalid status %s for parameter %s in peak model %s" % (status, parname, self.name)
             raise ValueError, msg
         return val
         
@@ -167,7 +167,7 @@ class PeakModel:
         parname = parname.strip().lower()
         
         if not parname in self.fValidParStatus.keys():
-            raise ValueError, "Invalid parameter name"
+            raise ValueError, "Invalid parameter name %s for peak model %s" % (parname, self.name)
             
         if "," in status:
             self.fParStatus[parname] = map(lambda s: self.ParseParamStatus(parname, s),
