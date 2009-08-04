@@ -397,16 +397,16 @@ class FitXml:
                     restore_success = False
                     
                 if not restore_success:
-                    if do_fit not in ["A", "a"]:
-                        do_fit = None
-                    while not do_fit in ["Y","y","N","n","", "A", "a"]:
-                        question = "Could not restore fit. Refit? [Y(es)/n(o)/a(lways)]"
-                        do_fit = raw_input(question)
-                    if do_fit in ["Y", "y", "", "A", "a"]:
-                        fit.Focus()
-                        fit.FitPeakFunc(spec)
-                        spec.Add(fit)
-                        
+                    if do_fit not in ["V", "v"]: # Ne(v)er
+                        if do_fit not in ["A", "a"]: # (A)lways
+                            do_fit = None
+                        while not do_fit in ["Y","y","N","n","", "A", "a", "V", "v"]:
+                            question = "Could not restore fit. Refit? [(Y)es/(n)o/(a)lways/ne(v)er]"
+                            do_fit = raw_input(question)
+                        if do_fit in ["Y", "y", "", "A", "a"]:
+                            fit.FitPeakFunc(spec)
+                            spec.Add(fit)
+                            fit.Focus()
                         
                 if not sid in spectra.visible:
                     fit.Hide()
