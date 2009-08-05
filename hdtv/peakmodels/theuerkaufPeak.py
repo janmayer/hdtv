@@ -80,6 +80,7 @@ class TheuerkaufPeak(Drawable):
         text = str()
         if verbose:
             text += "Pos:         " + self.pos_cal.fmt() + "\n"
+            text += "Channel:     " + self.pos.fmt() + "\n"
             text += "Volume:      " + self.vol.fmt() + "\n"
             text += "FWHM:        " + self.width_cal.fmt() + "\n"
             # Note: do not use == or != when testing for None

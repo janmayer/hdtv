@@ -98,13 +98,14 @@ class EEPeak(Drawable):
         """
         text = str()
         if verbose:
-            text += "Pos:    " + self.pos.fmt() + "\n"
-            text += "Amp:    " + self.amp.fmt() + "\n"
-            text += "Sigma1: " + self.sigma1.fmt() + "\n"
-            text += "Sigma2: " + self.sigma2.fmt() + "\n"
-            text += "Eta:    " + self.eta.fmt() + "\n"
-            text += "Gamma:  " + self.gamma.fmt() + "\n"
-            text += "Volume: " + self.vol.fmt() + "\n"
+            text += "Pos:         " + self.pos_cal.fmt() + "\n"
+            text += "Channel:     " + self.pos.fmt() + "\n"
+            text += "Amp:         " + self.amp.fmt() + "\n"
+            text += "Sigma1:      " + self.sigma1.fmt() + "\n"
+            text += "Sigma2:      " + self.sigma2.fmt() + "\n"
+            text += "Eta:         " + self.eta.fmt() + "\n"
+            text += "Gamma:       " + self.gamma.fmt() + "\n"
+            text += "Volume:      " + self.vol.fmt() + "\n"
         else:
             text += "Peak@ %s \n" %self.pos_cal.fmt()
         return text
