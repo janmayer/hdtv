@@ -5,3 +5,14 @@
 * Write Documentation
 * Write some test programs to check correct behavior of program/library (in test/)
 * Marker should be saved in channels internally. Should fix "Warning: Solver failed to converge in Calibration::E2Ch()." messages with some calibrations.
+* Fix "spec read"
+* Fix Fit report in "Fit" window
+* Allow "fit par width hold(!) 2.5"
+* Save fit id in XML and restore correctly
+* view_width for "fit focus" as config option
+* command to set peak/region/background marker from command line
+* fit hide XX command
+* Bundle "cal pos" commands in one plugin
+* Read energy<->channel table from file for calibration
+* database/lib lookup command
+* Hotkey to activate fit under mouse pointer

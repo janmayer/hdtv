@@ -27,6 +27,7 @@ import hdtv.cmdline
 import hdtv.cmdhelper
 import hdtv.color
 import hdtv.cal
+import hdtv.util
  
 from hdtv.spectrum import Spectrum, FileSpectrum
 from hdtv.specreader import SpecReaderError
@@ -297,9 +298,10 @@ to only fit the calibration.""",
                           default=False, help="show residual of calibration fit")
         parser.add_option("-t", "--show-table", action="store_true",
                           default=False, help="print table of energies given and energies obtained from fit")
-        hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, minargs=2,
-                                parser=parser)
-        
+        parser.add_option("-i", "--input-file", action="store", 
+                          default = None, help="get channel<->energy paris from file")
+        hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, minargs=0,
+                                parser=parser, fileargs=True)
         
         parser = hdtv.cmdline.HDTVOptionParser(prog="calibration position set",
                                                usage="%prog [OPTIONS] <p0> <p1> [<p2> ...]")
@@ -489,10 +491,14 @@ to only fit the calibration.""",
         Create calibration from pairs of channel and energy
         """
         try:
-            if len(args) % 2 != 0:
-                print "Error: number of parameters must be even"
-                return "USAGE"
-            pairs = [[float(args[p]),float(args[p+1])] for p in range(0,len(args),2)]
+            if not options.input_file is None: # Read from file
+                pairs = hdtv.util.Pairs(float)     
+                pairs.fromFile(options.input_file)
+            else:
+                if len(args) % 2 != 0: # Read from command line
+                    print "Error: number of parameters must be even"
+                    return "USAGE"
+                pairs = [[float(args[p]),float(args[p+1])] for p in range(0,len(args),2)]
             ids = self.ParseIDs(options.spec)
             if ids == False:
                 return
