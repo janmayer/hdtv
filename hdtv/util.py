@@ -21,6 +21,8 @@
 
 import math
 import re
+import os
+import glob
 
 def GetCompleteOptions(begin, options):
     l = len(begin)
@@ -345,5 +347,79 @@ class Linear:
         l.p0 = point[1] - l.p1 * point[0]
         return l
 
+class TxtFile(object):
+    """
+    Handle txt files, ignoring commented lines
+    """
+    def __init__(self, filename, mode="r"):
+                
+        self.lines = list()  
+        self.mode = mode
+        self.filename = os.path.expanduser(filename) 
+        self.fd = None
+        
+    def read(self, verbose=False):
+        try:
+            self.fd = open(self.filename, self.mode)
 
+            for line in self.fd:
+                line = line.rstrip('\r\n')
+                if verbose:
+                    print "file>", line
+                
+                # Strip comments 
+                line = line.split("#")[0] 
+                if line == "":
+                    continue
+                self.lines.append(line)
+                
+        except IOError, msg:
+            print "Error opening file:", msg
+        except: # Let MainLoop handle other exceptions
+            raise
+        finally:
+            if not self.fd is None:
+                self.fd.close()
+                
+    def write(self, line):
+        """
+        TODO
+        """
+        pass
+    
+class Pairs(list):
+    """
+    List of pair values
+    """
+    def __init__(self, conv_func):
+        
+        super(Pairs, self).__init__()
+        self.conv_func = conv_func # Conversion function, e.g. float
+        
+    def add(self, x, y):
+        """
+        Add a pair
+        """
+        self.append([x, y])
+        
+    def remove(self, pair):
+        """
+        TODO
+        """
+        pass
+        
+    def fromFile(self, fname):
+        """
+        Read pairs from file
+        """    
+        file = TxtFile(fname)
+        file.read()
+        for line in file.lines:
+            pair = line.split()
+            try:
+                self.add(self.conv_func(pair[0]), self.conv_func(pair[1]))
+            except ValueError:
+                print "Invalid Line in", fname, ":", line
+        
+        
 
