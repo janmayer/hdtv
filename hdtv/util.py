@@ -393,7 +393,7 @@ class Pairs(list):
     """
     List of pair values
     """
-    def __init__(self, conv_func):
+    def __init__(self, conv_func=lambda x: x): # default conversion is "identity" -> No conversion
         
         super(Pairs, self).__init__()
         self.conv_func = conv_func # Conversion function, e.g. float
@@ -402,7 +402,7 @@ class Pairs(list):
         """
         Add a pair
         """
-        self.append([x, y])
+        self.append([self.conv_func(x), self.conv_func(y)])
         
     def remove(self, pair):
         """
@@ -419,7 +419,7 @@ class Pairs(list):
         for line in file.lines:
             pair = line.split()
             try:
-                self.add(self.conv_func(pair[0]), self.conv_func(pair[1]))
+                self.add(pair[0], pair[1])
             except ValueError:
                 print "Invalid Line in", fname, ":", line
         
