@@ -79,7 +79,7 @@ class CalibrationFitter:
             raise RuntimeError, "No calibration available (did you call FitCal()?)"
         
         s = "Calibration: "
-        s += " ".join(["%.6f" % x for x in self.calib.GetCoeffs()])
+        s += " ".join(["%.6e" % x for x in self.calib.GetCoeffs()])
         s += "\n"
         s += "Chi^2: %.4f" % self.chi2
         
