@@ -363,9 +363,16 @@ class TxtFile(object):
     def read(self, verbose=False):
         try:
             self.fd = open(self.filename, self.mode)
-
+            prev_line = ""
             for line in self.fd:
-                line = line.rstrip('\r\n')
+                line = line.rstrip('\r\n ')
+                if len(line) > 0 and line[-1] == '\\': # line is continued on next line
+                    prev_line += line.rstrip('\\') 
+                    continue
+                else:
+                    if prev_line != "":
+                        line = prev_line + " " + line
+                    prev_line = ""
                 if verbose:
                     print "file>", line
                 
