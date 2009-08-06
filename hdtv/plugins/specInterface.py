@@ -491,14 +491,15 @@ to only fit the calibration.""",
         Create calibration from pairs of channel and energy
         """
         try:
-            if not options.input_file is None: # Read from file
-                pairs = hdtv.util.Pairs(float)     
+            pairs = hdtv.util.Pairs(float)
+            if not options.input_file is None: # Read from file     
                 pairs.fromFile(options.input_file)
             else:
                 if len(args) % 2 != 0: # Read from command line
                     print "Error: number of parameters must be even"
                     return "USAGE"
-                pairs = [[float(args[p]),float(args[p+1])] for p in range(0,len(args),2)]
+                for p in range(0,len(args),2):
+                    pairs.add(args[p], args[p+1])
             ids = self.ParseIDs(options.spec)
             if ids == False:
                 return
