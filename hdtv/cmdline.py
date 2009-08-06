@@ -31,6 +31,7 @@ import atexit
 import subprocess
 import pwd
 import optparse
+import hdtv.util
 
 import readline
 import ROOT
@@ -500,24 +501,12 @@ class CommandLine:
         """
         print "Execute file: " + fname
         
-        fname = fname.rstrip() # Remove trailing whitespaces
-        
-        file = None
-        try:
-            file = open(fname, "r")
-            for line in file:
-                line = line.rstrip('\n')
-                print "file>", line
-                ExecCommand(line)
-        except IOError, msg:
-            print "Error opening file:", msg
-        except: # Let MainLoop handle other exceptions
-            raise
-        finally:
-            if file:
-                file.close()
-            
-        
+        file = hdtv.util.TxtFile(fname)
+        file.read()
+        for line in file.lines:
+            print "file>", line
+            ExecCommand(line)            
+    
     def ExecShell(self, cmd):
         subprocess.call(cmd, shell=True)
             
