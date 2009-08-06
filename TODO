@@ -4,3 +4,4 @@
 * Check LICENSE
 * Write Documentation
 * Write some test programs to check correct behavior of program/library (in test/)
+* Marker should be saved in channels internally. Should fix "Warning: Solver failed to converge in Calibration::E2Ch()." messages with some calibrations.
