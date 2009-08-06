@@ -347,6 +347,7 @@ class Linear:
         l.p0 = point[1] - l.p1 * point[0]
         return l
 
+
 class TxtFile(object):
     """
     Handle txt files, ignoring commented lines
@@ -355,6 +356,7 @@ class TxtFile(object):
                 
         self.lines = list()  
         self.mode = mode
+        filename = filename.rstrip() # TODO: this has to be handled properly (escaped whitespaces, etc...)
         self.filename = os.path.expanduser(filename) 
         self.fd = None
         
