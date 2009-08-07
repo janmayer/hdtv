@@ -159,7 +159,7 @@ class PeakFinder:
              
              fit.peaks.append(peak)
              if autofit:          
-                 fit.FitPeakFunc(spec)
+                 fit.FitPeakFunc(spec, silent=True)
            
              ID = spec.Add(fit)
              fit.Focus(view_width = region_width * 10)

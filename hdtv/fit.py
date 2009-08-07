@@ -137,7 +137,7 @@ class Fit(Drawable):
                 self.bgCoeffs.append(hdtv.util.ErrValue(value, error))
             
             
-    def FitPeakFunc(self, spec):
+    def FitPeakFunc(self, spec, silent=False):
         """
         Do the actual peak fit and extract the functions for display
         Note: You still need to call Draw afterwards.
@@ -200,7 +200,8 @@ class Fit(Drawable):
             for (marker, peak) in zip(self.peakMarkers, self.peaks):
                 marker.p1 = peak.pos_cal.value
             # print result
-            print "\n"+6*" "+self.formated_str(verbose=True)
+            if not silent:
+                print "\n"+6*" "+self.formated_str(verbose=True)
 
     def Restore(self, spec, silent=False):
         if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
