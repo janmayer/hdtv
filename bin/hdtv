@@ -37,6 +37,8 @@ import hdtv.plugins.rootfile
 import hdtv.plugins.config
 import hdtv.plugins.fitlist
 
+
+import hdtv.plugins.peakfinder
 try:
     import startup
 except ImportError:
