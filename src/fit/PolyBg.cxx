@@ -96,7 +96,7 @@ void PolyBg::Fit(TH1& hist)
     fitFunc.SetParameter(i, 0.0);
   
   // Fit
-  hist.Fit(&fitFunc, "RQN");
+  hist.Fit(&fitFunc, "RQNWW");
   
   // Copy chisquare
   fChisquare = fitFunc.GetChisquare();
