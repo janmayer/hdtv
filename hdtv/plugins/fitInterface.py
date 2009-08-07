@@ -45,6 +45,11 @@ class FitInterface:
         # tv commands
         self.tv = TvFitInterface(self)
 
+        # Register configuration variables for fit interface
+        opt = hdtv.options.Option(default = 20.0)
+        hdtv.options.RegisterOption("fit.quickfit.region", opt) # default region width for quickfit      
+        
+
         # fit panel
         self.fitPanel = FitPanel()
         self.fitPanel.fFitHandler = self.Fit
@@ -88,8 +93,9 @@ class FitInterface:
         self.ClearFit()
         fit = self.GetActiveFit()
         pos = self.window.viewport.GetCursorX()
-        fit.PutRegionMarker(pos - 10.)
-        fit.PutRegionMarker(pos + 10.)
+        region_width = hdtv.options.Get("fit.quickfit.region")
+        fit.PutRegionMarker(pos - region_width/2.)
+        fit.PutRegionMarker(pos + region_width/2.)
         fit.PutPeakMarker(pos)
         self.Fit()
         
