@@ -21,6 +21,7 @@
 import ROOT
 import hdtv.cmdline
 import hdtv.cmdhelper
+import hdtv.options
 
 from hdtv.spectrum import SpectrumCompound
 from hdtv.marker import MarkerCollection
@@ -512,6 +513,10 @@ class TvFitInterface:
         self.fitIf = fitInterface
         self.spectra = self.fitIf.spectra
         
+        # Register configuration variables for fit list
+        opt = hdtv.options.Option(default = "ID")
+        hdtv.options.RegisterOption("fit.list.sort_key", opt)      
+        
         prog = "fit list"
         description = "show a list of all fits belonging to the active spectrum"
         usage="%prog"
@@ -520,6 +525,8 @@ class TvFitInterface:
                         help="show more details")
         parser.add_option("-v","--visible", action="store_true", default=False,
                         help = "only list visible fit")
+        parser.add_option("-k","--key-sort", action="store", default="",
+                        help = "sort by key")
         hdtv.cmdline.AddCommand(prog, self.FitList, nargs=0,parser=parser)
         
         prog = "fit show"
@@ -610,14 +617,42 @@ class TvFitInterface:
             spec = self.spectra[self.spectra.activeID]
         except KeyError:
             print "No active spectrum"
+            return False
         except AttributeError:
             print "There are no fits for this spectrum"
+            return False
         if self.spectra.activeID in self.spectra.visible:
             visible = True
         else:
             visible = False
         print 'Fits belonging to %s (visible=%s):' %(str(spec), visible)
-        spec.ListObjects(verbose=options.long, visible_only=options.visible)
+         
+         # Sort
+        objects = list()
+        if options.key_sort != "":
+            key = options.key_sort
+        else:
+            key = hdtv.options.Get("fit.list.sort_key")
+        
+        for (ID, obj) in spec.objects.iteritems():
+            objects.append([ID, obj])
+        
+        try:
+            if key.upper() == "ID":
+                objects.sort(key=lambda x: x[0])
+            else:  
+                objects.sort(key=lambda x: getattr(x[1].peaks[0], key))
+        except AttributeError:
+            print "No such attribute: ", key
+            print "Valid attributes are: "
+            # TODO: Proper formatting of valid keys!
+            # TODO: Fix behaviour for mixture of different peak models with different parameters
+            print objects[0][1].fitter.peakModel.fOrderedParamKeys
+            return False
+    
+        for obj in objects:
+            ID = obj[0]
+            spec.PrintObject(ID, verbose=options.long, if_visible=options.visible)
         
     def FitDelete(self, args, options):
         """ 
@@ -629,6 +664,7 @@ class TvFitInterface:
         ids = self.ParseFitIds(args)
         if len(ids)>0:
             self.spectra[self.spectra.activeID].RemoveObjects(ids)
+
     
     def FitShow(self, args, options):
         """

@@ -229,31 +229,38 @@ class DrawableCompound(UserDict.DictMixin):
             ID += 1
         return ID
 
+    def PrintObject(self, ID, verbose=False, if_visible=False):
+        """
+        Print object properties
+        """
+        stat = " "
+        visible = False
+        obj = self.objects[ID]
         
+        if ID == self.activeID:
+            stat += "A"
+            visible = True
+        else:
+            stat += " "
+        if ID in self.visible:
+            stat += "V"
+            visible = True
+        else:
+            stat += " "
+        if not if_visible or visible:
+            try:
+                print "%d %s %s" % (ID, stat, obj.formated_str(verbose))
+            except AttributeError:
+                # just use normal str if no formated_str function exists
+                print "%d %s %s" % (ID, stat, obj)
+
     def ListObjects(self, verbose=False, visible_only=False):
         """
         List all objects in a human readable way
         """
-        for (ID, obj) in self.objects.iteritems():
-            stat = " "
-            visible = False
-            if ID == self.activeID:
-                stat += "A"
-                visible = True
-            else:
-                stat += " "
-            if ID in self.visible:
-                stat += "V"
-                visible = True
-            else:
-                stat += " "
-            if not visible_only or visible:
-                try:
-                    print "%d %s %s" % (ID, stat, obj.formated_str(verbose))
-                except AttributeError:
-                    # just use normal str if no formated_str function exists
-                    print "%d %s %s" % (ID, stat, obj)
-
+        for ID in self.objects.keys():
+            self.PrintObject(ID, verbose=verbose, if_visible=visible_only)
+            
     def ActivateObject(self, ID=None):
         """
         Activates the object with id ID, while also highlighting it
