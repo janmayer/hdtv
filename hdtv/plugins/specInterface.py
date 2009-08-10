@@ -475,7 +475,7 @@ to only fit the calibration.""",
         Multiply spectrum
         """
         try:
-            factor = float(args[0])
+            factor = float(eval(args[0]))
             ids = hdtv.cmdhelper.ParseRange(args[1:])
             
             if len(ids) == 0:
