@@ -314,7 +314,10 @@ class FitXml:
                         status = ','.join(status)
                     fitter.SetParameter(parname, status)
                 fit = hdtv.fit.Fit(fitter, spec.color, spec.cal)
-                fit.chi = float(fitElement.get("chi"))
+                try:
+                    fit.chi = float(fitElement.get("chi"))
+                except ValueError:
+                    restore_success = False
                 # <bgMarker>
                 for bgElement in fitElement.findall("bgMarker"):
                     # Read begin marker
