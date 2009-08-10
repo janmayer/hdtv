@@ -433,9 +433,11 @@ to only fit the calibration.""",
                 sid = self.specIf.CopySpectrum(ids.pop(), addTo)
             
             for i in ids:
-                print "Adding", i, "to", addTo
-                self.spectra[addTo].Plus(self.spectra[i])
-
+                try:
+                    print "Adding", i, "to", addTo
+                    self.spectra[addTo].Plus(self.spectra[i])
+                except KeyError:
+                    print "Could not add", i
         except (IndexError, ValueError):
             return "USAGE"
 
@@ -459,9 +461,11 @@ to only fit the calibration.""",
                 sid = self.specIf.CopySpectrum(ids.pop(), subFrom)
             
             for i in ids:
-                print "Substracting", i, "from", subFrom
-                self.spectra[subFrom].Minus(self.spectra[i])
-
+                try:
+                    print "Substracting", i, "from", subFrom
+                    self.spectra[subFrom].Minus(self.spectra[i])
+                except KeyError:
+                    print "Could not substract", i
         except (IndexError, ValueError):
             return "USAGE"
     
