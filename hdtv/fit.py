@@ -326,19 +326,22 @@ class Fit(Drawable):
             
         # Calculate middle of region
         region_markers = list()
+        
+        # Get maximum of region markers, peak markers and peaks
         for c in self.regionMarkers.collection:
             region_markers.append(c.p1)
             region_markers.append(c.p2)
-        
+        for c in self.peakMarkers.collection:
+            region_markers.append(c.p1)
+        for p in self.peaks:
+            region_markers.append(p.pos)
+    
         try:
             region_right = max(region_markers)
             region_left = min(region_markers)
-            
-        except ValueError: # No region marker, use peak marker instead
-            for c in self.peakMarkers.collection:
-                region_markers.append(c.p1)
-                region_right = max(region_markers)
-                region_left = min(region_markers)
+        except ValueError: # Nothing valid found
+            print "Cannot focus fit"
+            return False
             
         view_middle = (region_right+region_left)/2
         
