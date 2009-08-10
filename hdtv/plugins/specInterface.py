@@ -346,7 +346,7 @@ to only fit the calibration.""",
             elif ids == "ALL":
                 ids = self.spectra.keys()
             self.spectra.RemoveObjects(ids)
-        except:
+        except ValueError:
             return "USAGE"
                     
 
@@ -387,7 +387,7 @@ to only fit the calibration.""",
             except IndexError:
                 ID = None
             self.spectra.ActivateObject(ID)
-        except:
+        except ValueError:
             return "USAGE"
 
             
@@ -403,7 +403,7 @@ to only fit the calibration.""",
                 self.spectra.RefreshVisible()
             else:
                 self.spectra.Refresh(ids)
-        except:
+        except ValueError:
             return "USAGE"
 
             
@@ -448,7 +448,7 @@ to only fit the calibration.""",
         for ID in ids:
             try:
                 self.spectra[ID].SetNorm(norm)
-            except KetError:
+            except KeyError:
                 print "Warning: there is no spectrum with id: %s" % ID
                 
     def ParseIDs(self, strings):
