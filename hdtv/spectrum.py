@@ -54,6 +54,29 @@ class Spectrum(Drawable):
         if self.fHist:
             return self.fHist.GetName()
 
+    # TODO: sumw2 function should be called at some point for correct error handling
+    def Plus(self, spec):
+        """
+        Add other spectrum to this one
+        """ 
+        self.fHist.Add(spec.fHist, 1.0)
+        self.SetHist(self.fHist)
+
+    def Minus(self, spec):
+        """
+        Substract other spectrum from this one
+        """ 
+        self.fHist.Add(spec.fHist, -1.0)
+        self.SetHist(self.fHist)
+    
+    def Multiply(self, factor):
+        """
+        Multiply spectrum with factor
+        """ 
+        self.fHist.Scale(factor)
+        self.SetHist(self.fHist)
+        
+        
     def Draw(self, viewport):
         """
         Draw this spectrum to the viewport
@@ -96,6 +119,7 @@ class Spectrum(Drawable):
     def SetNorm(self, norm):
         "Set the normalization factor for displaying this spectrum"
         self.norm = norm
+        self.SetHist(self.fHist)
         if self.displayObj:
             self.displayObj.SetNorm(self.norm)
         

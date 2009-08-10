@@ -187,7 +187,20 @@ class SpecInterface:
                     return obj
         return None
             
-
+    def CopySpectrum(self, ID, copyTo=None):
+        """
+        Copy spectrum
+        
+        Return ID of new spectrum
+        """
+        if copyTo is None:              
+            copyTo = self.spectra.GetFreeID()
+        spec = Spectrum(self.spectra[ID].fHist, cal=self.spectra[ID].cal)
+        sid = self.spectra.Insert(spec, copyTo)
+        spec.SetColor(hdtv.color.ColorForID(sid))
+        print "Copied spectrum", ID, "to", sid
+            
+    
     def GetCalsFromList(self, fname):
         """
         Reads calibrations from a calibration list file. The file has the format
@@ -272,6 +285,29 @@ class TvSpecInterface:
         hdtv.cmdline.AddCommand("spectrum normalization", self.SpectrumNormalization,
                                 minargs=1,
                                 usage="%prog [ids] <norm>")
+
+
+        prog = "spectrum add"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog,
+                                               usage="%prog [OPTIONS] <target-id> <ids>|all")
+        hdtv.cmdline.AddCommand(prog, self.SpectrumAdd, minargs=2, fileargs=False, parser=parser)
+
+        prog = "spectrum substract"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog,
+                                               usage="%prog [OPTIONS] <target-id> <ids>|all")
+        hdtv.cmdline.AddCommand(prog, self.SpectrumSub, minargs=2, fileargs=False, parser=parser)
+        
+        prog = "spectrum multiply"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog,
+                                               usage="%prog [OPTIONS] <factor> <ids>|all")
+        hdtv.cmdline.AddCommand(prog, self.SpectrumMultiply, minargs=1, fileargs=False, parser=parser)
+        
+        
+        prog = "spectrum copy"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog,
+                                               usage="%prog <ids>")
+        hdtv.cmdline.AddCommand(prog, self.SpectrumCopy, fileargs=False, parser=parser)
+        
 
         # calibration commands
         parser = hdtv.cmdline.HDTVOptionParser(prog="calibration position read",
@@ -360,7 +396,102 @@ to only fit the calibration.""",
         except ValueError:
             return "USAGE"
         
-        
+    def SpectrumCopy(self, args, options):
+        """
+        Copy spectra
+        """
+        try:
+            ids = hdtv.cmdhelper.ParseRange(args)
+            if ids == "NONE":
+                return
+            elif ids == "ALL":
+                ids = self.spectra.keys()
+                        
+            for ID in ids:                
+                self.specIf.CopySpectrum(ID)
+            
+        except ValueError:
+            return "USAGE"
+    
+    def SpectrumAdd(self, args, options):
+        """
+        Add spectra (spec1 + spec2, ...)
+        """
+        try:
+            addTo = int(args[0])
+            ids = hdtv.cmdhelper.ParseRange(args[1:])
+            
+            if ids == "NONE":
+                return
+            elif ids == "ALL":
+                ids = self.spectra.keys()
+
+                if addTo in ids:
+                    ids.remove(addTo)                
+                
+            if not addTo in self.spectra.keys():
+                sid = self.specIf.CopySpectrum(ids.pop(), addTo)
+            
+            for i in ids:
+                print "Adding", i, "to", addTo
+                self.spectra[addTo].Plus(self.spectra[i])
+
+        except (IndexError, ValueError):
+            return "USAGE"
+
+    def SpectrumSub(self, args, options):
+        """
+        Substract spectra (spec1 - spec2, ...)
+        """
+        try:
+            subFrom = int(args[0])
+            ids = hdtv.cmdhelper.ParseRange(args[1:])
+            
+            if ids == "NONE":
+                return
+            elif ids == "ALL":
+                ids = self.spectra.keys()
+
+                if subFrom in ids:
+                    ids.remove(subFrom)                
+            
+            if not subFrom in self.spectra.keys():
+                sid = self.specIf.CopySpectrum(ids.pop(), subFrom)
+            
+            for i in ids:
+                print "Substracting", i, "from", subFrom
+                self.spectra[subFrom].Minus(self.spectra[i])
+
+        except (IndexError, ValueError):
+            return "USAGE"
+    
+    
+    def SpectrumMultiply(self, args, options):
+        """
+        Multiply spectrum
+        """
+        try:
+            factor = float(args[0])
+            ids = hdtv.cmdhelper.ParseRange(args[1:])
+            
+            if len(ids) == 0:
+                ids = [self.spectra.activeID]
+            if ids == "NONE":
+                return
+            elif ids == "ALL":
+                ids = self.spectra.keys()
+            
+            for i in ids:
+                if i in self.spectra.keys():
+                    print "Multiplying", i, "with", factor
+                    self.spectra[i].Multiply(factor)
+                else:
+                    print "Cannot multiply spectrum", i, "(Does not exist)"
+
+        except (IndexError, ValueError):
+            return "USAGE"
+    
+    
     def SpectrumShow(self, args):
         """
         Shows spectra
