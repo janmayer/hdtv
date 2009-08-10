@@ -14,3 +14,4 @@
 * Bundle "cal pos" commands in one plugin
 * database/lib lookup command
 * Hotkey to activate fit under mouse pointer
+* Fits without background fit are not restored properly

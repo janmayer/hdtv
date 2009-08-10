@@ -83,8 +83,8 @@ class PeakFinder:
         
         # replace the simple spectrum object by the SpectrumCompound
         # TODO: Is this sensible? I don't get the logic, but it works.
-        self.spectra[sid] = spec
-        spec = self.spectra[sid]
+        #self.spectra[sid] = spec
+        #spec = self.spectra[sid]
         
 
         try:
@@ -119,7 +119,7 @@ class PeakFinder:
         hist.SetAxisRange(start, end)
         num_peaks = tSpec.Search(hist, sigma_Ch, "goff", threshold)
         foundpeaks = tSpec.GetPositionX()
-
+        
         # Background fit
         # TODO: draw background
         hbg = tSpec.Background(hist, 20, "goff")
@@ -161,8 +161,8 @@ class PeakFinder:
              if autofit:          
                  fit.FitPeakFunc(spec, silent=True)
            
-             ID = spec.Add(fit)
-             fit.Focus(view_width = region_width * 10)
+             ID = self.spectra[sid].Add(fit)
+#             fit.Focus(view_width = region_width * 10)
              fit.SetTitle(str(ID) + "(*)")
         
         print "Found", num_peaks, "peaks"

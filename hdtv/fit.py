@@ -449,8 +449,8 @@ class Fit(Drawable):
                 peak.SetColor(hdtv.color.peak)
         else:
             self.regionMarkers.Hide()
-            self.peakMarkers.Hide()
-            self.bgMarkers.SetColor(self.color)
+            self.peakMarkers.SetColor(self.color)
+            self.bgMarkers.Hide()
             if self.dispPeakFunc:
                 self.dispPeakFunc.SetColor(self.color)
             if self.dispBgFunc:
