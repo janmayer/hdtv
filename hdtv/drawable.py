@@ -273,9 +273,9 @@ class DrawableCompound(UserDict.DictMixin):
         if ID is None:
             self.activeID=None
         elif ID in self.keys():
+            self.activeID = ID
             self.objects[ID].SetColor(active=True)
             self.objects[ID].ToTop()
-            self.activeID = ID
             if not ID in self.visible: # Show if not visible
                 self.ShowObjects(ID)
         else:

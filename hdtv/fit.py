@@ -241,6 +241,14 @@ class Fit(Drawable):
         self.peakMarkers.Draw(self.viewport)
         self.regionMarkers.Draw(self.viewport)
         self.bgMarkers.Draw(self.viewport)
+        try:
+            if self.fitter.spec.GetActiveObject() != self: # Show markers only on active fit
+                self.regionMarkers.Hide()
+                self.bgMarkers.Hide()      
+        except AttributeError: # Fitter not yet initialized
+            self.regionMarkers.Show()
+            self.bgMarkers.Show()
+        
         # draw fit func, if available
         if self.dispPeakFunc:
             self.dispPeakFunc.Draw(self.viewport)
