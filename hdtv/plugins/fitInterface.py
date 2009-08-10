@@ -542,6 +542,14 @@ class TvFitInterface:
         # TODO: add option to show the fit, that is closest to a certain value
         hdtv.cmdline.AddCommand(prog, self.FitShow, minargs=1, parser=parser)
         
+        prog = "fit hide"
+        description = "hide fits"
+        usage="%prog all|<ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        # TODO: add option to show the fit, that is closest to a certain value
+        hdtv.cmdline.AddCommand(prog, self.FitHide, parser=parser)
+        
+        
         prog = "fit focus"
         description = "focus on fit with id"
         usage = "fit focus [<id>]"
@@ -670,6 +678,20 @@ class TvFitInterface:
         ids = self.ParseFitIds(args)
         if len(ids)>0:
             self.spectra[self.spectra.activeID].RemoveObjects(ids)
+
+    def FitHide(self, args, options):
+        """
+        Hide Fits
+        """
+        if not self.spectra.activeID in self.spectra.visible:
+            print "Warning: active spectrum is not visible, no action taken"
+            return
+        ids = self.ParseFitIds(args)
+        spec = self.spectra[self.spectra.activeID]
+        if len(ids)>0:
+            spec.HideObjects(ids)
+        else:
+            spec.HideAll()
 
     
     def FitShow(self, args, options):
