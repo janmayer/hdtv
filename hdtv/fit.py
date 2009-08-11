@@ -334,7 +334,7 @@ class Fit(Drawable):
         for c in self.peakMarkers.collection:
             region_markers.append(c.p1)
         for p in self.peaks:
-            region_markers.append(p.pos)
+            region_markers.append(p.pos_cal)
     
         try:
             region_right = max(region_markers)
@@ -342,7 +342,7 @@ class Fit(Drawable):
         except ValueError: # Nothing valid found
             print "Cannot focus fit"
             return False
-            
+    
         view_middle = (region_right+region_left)/2
         
         # Calculate width of background region
@@ -360,7 +360,7 @@ class Fit(Drawable):
                 view_width = region_right - region_left
             # add 30% to view_width
             view_width *= 1.3
-        
+
         self.viewport.SetXVisibleRegion(view_width)
         self.viewport.SetXCenter(view_middle)
         
