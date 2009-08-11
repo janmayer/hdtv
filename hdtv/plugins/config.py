@@ -28,6 +28,11 @@ def ConfigVarCompleter(text):
 
 def ConfigSet(args):
     try:
+        if args[1].lower() == "true":
+            args[1] = True
+        elif args[1].lower() == "false":
+            args[1] = False
+        
         hdtv.options.Set(args[0], args[1])
     except KeyError:
         print "%s: no such option" % args[0]
