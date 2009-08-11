@@ -92,7 +92,14 @@ def Get(varname):
     """
     global variables
     return variables[varname].Get()
-    
+
+def Reset(varname):
+    """
+    Resets the value of the variable varname to default. Raises a KeyError if it does not exist.
+    """
+    global variables
+    return variables[varname].Reset()
+        
 def Show(varname):
     """
     Shows the value of the variable varname

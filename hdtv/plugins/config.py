@@ -43,11 +43,23 @@ def ConfigShow(args):
         except KeyError:
             print "%s: no such option" % args[0]
     
+def ConfigReset(args):
+    if len(args) == 0:
+        print hdtv.options.Str(),
+    else:
+        try:
+            hdtv.options.Reset(args[0])
+        except KeyError:
+            print "%s: no such option" % args[0]
+
 
 hdtv.cmdline.AddCommand("config set", ConfigSet, nargs=2,
                         usage="%prog <variable> <value>",
                         completer=ConfigVarCompleter)
 hdtv.cmdline.AddCommand("config show", ConfigShow, maxargs=1,
+                        usage="%prog [variable]",
+                        completer=ConfigVarCompleter)
+hdtv.cmdline.AddCommand("config reset", ConfigReset, maxargs=1,
                         usage="%prog [variable]",
                         completer=ConfigVarCompleter)
                         
