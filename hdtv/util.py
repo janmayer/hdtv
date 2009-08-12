@@ -196,15 +196,39 @@ class ErrValue:
         """
         
         try: # Try to convert string values like "0.1234(56)" into numbers
+            
+            strvalue = strvalue.strip() # Strip whitespaces
+            
+            # Extract exponent
+            match = re.match(r".*[eE](\-?[0-9]*\.?[0-9]*).*" , strvalue)
+            try:
+                exp = float(match.group(1))
+            except AttributeError:
+                exp = 0.0
+                
+            # Extract error
+            match = re.match(r".*\(([0-9]+)\)", strvalue)
+            try:
+                err = match.group(1)
+            except AttributeError:
+                err = "0"
+
+                
+            # Extract value
             # TODO: Handle decimal seperator properly, depending on locale
-            val_string = re.match(r"([0-9\.]+)\(([0-9]+)\)", strvalue)
-            value = float(val_string.group(1))
-            error = float(val_string.group(2))
-            tmp = value
-            while tmp % 1 != 0: # Determine magnitude of error
-                tmp *= 10
-                error /=10
-        except TypeError: # No string given
+            match = re.match(r"^(\-?[0-9]*\.?([0-9]*)).*", strvalue)
+            
+            value = float(match.group(1)) * math.pow(10, exp)
+            
+            try:
+                decplaces = match.group(2)
+            except AttributeError:
+                decplaces = ""
+            
+            # Calculate magnitude of error
+            error = float(err) / math.pow(10,len(decplaces)) * math.pow(10, exp)
+
+        except TypeError: # No valid string given
             return (strvalue, None)
         except AttributeError: # String does not contain error
             value = float(strvalue)
@@ -246,7 +270,7 @@ class ErrValue:
             else:
                 # Use normal notation
                 suffix = ""
-                
+            
             # Find precision (number of digits after decimal point) needed such that the
             # error is given to at least two decimal places
             if error >= 10.:
@@ -264,7 +288,7 @@ class ErrValue:
                 prec = 20
             elif prec != prec:
                 prec = 3
-                
+
             return "%s%.*f(%.0f)%s" % (sgn, int(prec), value, error * 10 ** prec, suffix)
         
         except (ValueError, TypeError):
