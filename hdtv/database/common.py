@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import hdtv.cmdline
 from hdtv.util import ErrValue
+import hdtv.ui
 import csv
 import os
     
@@ -63,7 +64,7 @@ class _Elements(list):
                 element = _Element(Z, Symbol, Name, Mass)
                 tmp.append(element)
         except csv.Error, e:
-            print 'file %s, line %d: %s' % (filename, reader.line_num, e)
+            hdtv.ui.error('file %s, line %d: %s' % (filename, reader.line_num, e))
         finally:
             datfile.close()
             
@@ -187,10 +188,8 @@ class _Nuclides(object):
                 if not Z in self._storage:
                     self._storage[Z] = dict()
                 self._storage[Z][A] = _Nuclide(element, A, abundance = abd, sigma = sigma, M = M)
-#                print self._storage[Z][A]
-#                self._storage.update({Z: {A:nuclide}})
         except csv.Error, e:
-            print 'file %s, line %d: %s' % (filename, reader.line_num, e)      
+            hdtv.ui.error('file %s, line %d: %s' % (filename, reader.line_num, e))      
         finally:
             datfile.close()
 
@@ -262,7 +261,8 @@ class Gamma(object):
                 return cmp(self.id, other.id)
         else:
             return ret
-         
+
+# TODO: this should be an abstract baseclass!         
 class GammaLib(list):
     """
     Class for storing a gamma library
@@ -301,7 +301,7 @@ class GammaLib(list):
             try:
                 conv = fields_lower[key.lower()] # if this raises a KeyError it was an invalid argument
             except KeyError:
-                print "Invalid key", key
+                hdtv.ui.error("Invalid key " + str(key))
                 raise KeyError
             args_lower[key.lower()] = conv(value)
 
@@ -339,7 +339,7 @@ class GammaLib(list):
             if not sort_key is None:
                 results.sort(key = lambda x: getattr(x, sort_key), reverse = sort_reverse)
         except AttributeError:
-            print "Could not sort by\'" + sort_key + "\': No such key"    
+            hdtv.ui.warn("Could not sort by\'" + str(sort_key) + "\': No such key")    
             raise AttributeError
         
         return results

@@ -27,15 +27,15 @@
 import hdtv.cmdline
 import hdtv.options
 import hdtv.database
+import hdtv.ui
 import re
 
 class Database(object):
     
     def __init__(self):
         
-        print "loaded Database Lookup plugin"
-        
-        
+        hdtv.ui.msg("loaded Database Lookup plugin")
+
         self.opt = dict()
         # Register configuration variables for fit peakfind
         self.opt["db"] = hdtv.options.Option(default = "PGAAlib_IKI2000") # default database
@@ -92,20 +92,20 @@ class Database(object):
             # Check if it has already been opened
             dbname = dbname
             if self.database != getattr(hdtv.database, dbname): 
-                print "opening database", dbname
+                hdtv.ui.msg("opening database " + dbname)
                 self.database = getattr(hdtv.database, dbname)
                 self.database.open()
                 hdtv.options.Set("database.db", dbname)
-                print "\"" + self.database.description + "\" loaded\n"
+                hdtv.ui.msg("\"" + self.database.description + "\" loaded\n")
         except AttributeError:
-            print "No such database", dbname
+            hdtv.ui.msg("No such database" + dbname)
             return False               
         return True
     
     def List(self, args, options):
         
         for (db, desc) in hdtv.database.databases.items():
-            print  db + ": " + str(desc)
+            hdtv.ui.msg(db + ": " + str(desc))
         
         
     def Lookup(self, args, options):
@@ -120,7 +120,7 @@ class Database(object):
 
         try:
             lookupargs = dict()
-#            print self.database.fields
+
             # Valid arguments
             vargs = list()
             for v in self.database.fields:
@@ -133,9 +133,9 @@ class Database(object):
                     if m.group(1).lower() in vargs:
                         lookupargs[m.group(1)] = m.group(2)
                     else:
-                        print "Valid fields: ",
+                        hdtv.ui.msg("Valid fields: ", nl=False)
                         for key in self.database.fields.keys():
-                            print "\'" + str(key) + "\'",
+                            hdtv.ui.msg("\'" + str(key) + "\'", nl=False)
                 else:
                     try: # default
                         lookupargs['energy'] = float(a)
@@ -164,9 +164,9 @@ class Database(object):
                 return False
             
             for r in results:
-                print r
+                hdtv.ui.msg(str(r))
                 
-            print "Found", len(results), "results" 
+            hdtv.ui.msg("Found " + str(len(results)) + " results") 
 
         except ValueError:           
             return "USAGE"

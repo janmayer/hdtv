@@ -2,6 +2,7 @@
 # PGAA database from Institute of Isotopes, Hungarian Academey of Science, Budapest
 
 from . common import *
+import hdtv.ui
 
 class PGAAGamma(Gamma):
     """
@@ -89,7 +90,7 @@ class _PGAAlib_IKI2000(GammaLib):
                 gamma = PGAAGamma(Nuclides(Z, A), energy, sigma = sigma, intensity = intensity, halflife = halflife, k0_comp = self.k0_comp)
                 self.append(gamma)
         except csv.Error, e:
-            print ('file %s, line %d: %s' % (filename, reader.line_num, e))
+            hdtv.ui.error('file %s, line %d: %s' % (filename, reader.line_num, e))
         else:
             self.opened = True
         finally:
@@ -136,7 +137,7 @@ class _PromptGammas(GammaLib):
                 gamma = PGAAGamma(Nuclides(Z, A), energy, sigma = sigma, k0 = k0, k0_comp = self.k0_comp)
                 self.append(gamma)
         except csv.Error, e:
-            print ('file %s, line %d: %s' % (filename, reader.line_num, e))
+            hdtv.ui.error('file %s, line %d: %s' % (filename, reader.line_num, e))
         else:
             self.opened = True
         finally:
