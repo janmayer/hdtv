@@ -47,6 +47,7 @@ enum YScaleType {
 namespace HDTV {
 namespace Display {
 
+//! Class implementing a display widget for 1d objects (spectra, functions, ...)
 class View1D : public View {
   friend class DisplayObj;
   friend class DisplayBlock;

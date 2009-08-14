@@ -45,7 +45,7 @@
                Projection axis
 */
   
-  
+//! A ``virtual matrix'', i.e. a matrix that is not necessarily stored in memory  
 class VMatrix {
   public:
     VMatrix() : fFail(false) { };
@@ -78,7 +78,7 @@ class VMatrix {
     bool fFail;
 };
 
-// Projection
+//! ROOT TH2-backed VMatrix
 class RMatrix: public VMatrix {
   public:
     enum ProjAxis_t { PROJ_X, PROJ_Y };
@@ -111,6 +111,7 @@ class RMatrix: public VMatrix {
     ProjAxis_t fProjAxis;
 };
 
+//! MFile-histogram-backed VMatrix
 class MFMatrix: public VMatrix {
   public:
     MFMatrix(MFileHist *mat, int level);

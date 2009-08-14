@@ -30,6 +30,7 @@
 namespace HDTV {
 namespace Display {
 
+//! Wrapper around a ROOT TF1 object being displayed
 class DisplayFunc : public DisplayBlock {
   public:
   	DisplayFunc(TF1 *func, int col = DEFAULT_COLOR);

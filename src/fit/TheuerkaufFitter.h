@@ -20,15 +20,6 @@
  * 
  */
  
-/*
- * This is the ``standard'' peak shape used by the original ``TV'' program.
- * It is described in appendix B of 
- * Jürgen Theuerkauf: Die Analyse von zwei- und mehrdimensionalen
- * γγ-Koinzidenzspektren an Beispielen aus Hochspinexperimenten in der
- * Massengegend um 146Gd (PhD thesis, IKP Cologne, 1994).
- *
- */
-
 #ifndef __TheuerkaufFitter_h__
 #define __TheuerkaufFitter_h__
 
@@ -51,6 +42,13 @@ namespace Fit {
 
 class TheuerkaufFitter;
 
+//! ``Theuerkauf'' peak shape, useful for fitting peaks from HPGe detectors
+/** This is the ``standard'' peak shape used by the original ``TV'' program.
+ * It is described in appendix B of 
+ * Jürgen Theuerkauf: Die Analyse von zwei- und mehrdimensionalen
+ * γγ-Koinzidenzspektren an Beispielen aus Hochspinexperimenten in der
+ * Massengegend um 146Gd (PhD thesis, IKP Cologne, 1994).
+ */
 class TheuerkaufPeak {
   friend class TheuerkaufFitter;
   public:
@@ -138,6 +136,7 @@ class TheuerkaufPeak {
     static const double DECOMP_FUNC_WIDTH;
 };
 
+//! Fitting multiple TheuerkaufPeaks
 class TheuerkaufFitter : public Fitter {
   public:
     TheuerkaufFitter(double r1, double r2);

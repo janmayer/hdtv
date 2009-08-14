@@ -32,6 +32,7 @@ namespace Display {
 class DisplayStack;
 class View1D;
 
+//! An object being displayed in a View1D widget
 class DisplayObj {
   public:
     DisplayObj() : fVisible(true) { }

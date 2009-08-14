@@ -20,10 +20,6 @@
  * 
  */
  
-/* Polynomial background fitter
- * Supports fitting the background in several non-connected regions.
- */
- 
 #ifndef __PolyBg_h__
 #define __PolyBg_h__
 
@@ -37,6 +33,9 @@
 
 namespace HDTV {
 namespace Fit {
+
+//! Polynomial background fitter
+/** Supports fitting the background in several non-connected regions. */
 
 class PolyBg: public Background {
   public:

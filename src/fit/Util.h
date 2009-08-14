@@ -20,15 +20,6 @@
  * 
  */
  
-/*
- * This is the ``standard'' peak shape used by the original ``TV'' program.
- * It is described in appendix B of 
- * Jürgen Theuerkauf: Die Analyse von zwei- und mehrdimensionalen
- * γγ-Koinzidenzspektren an Beispielen aus Hochspinexperimenten in der
- * Massengegend um 146Gd (PhD thesis, IKP Cologne, 1994).
- *
- */
-
 #ifndef __Util_h__
 #define __Util_h__
 

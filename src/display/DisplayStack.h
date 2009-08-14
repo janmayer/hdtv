@@ -33,6 +33,7 @@ namespace Display {
 
 class View1D;
 
+//! An ordered list of objects being displayed
 class DisplayStack {
   public:
     DisplayStack(View1D *view) { fView = view; }

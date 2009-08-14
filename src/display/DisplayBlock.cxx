@@ -38,14 +38,14 @@ DisplayBlock::DisplayBlock(int col)
     fCal(),
     fNorm(1.0)
 {
-  // Constructor
+  //! Constructor
   
   InitGC(col);
 }
 
 DisplayBlock::~DisplayBlock()
 {
-  // Destructor
+  //! Destructor
 
   gClient->GetGCPool()->FreeGC(fGC);
 }
@@ -73,21 +73,21 @@ void DisplayBlock::SetColor(int col)
 
 void DisplayBlock::ToTop(View1D *view)
 {
-  // Move the object to the top of its list in view s display stack
+  //! Move the object to the top of its list in view s display stack
 
   ToTop(view->GetDisplayStack());
 }
 
 void DisplayBlock::ToBottom(View1D *view)
 {
-  // Move the object to the bottom of its list in view s display stack
+  //! Move the object to the bottom of its list in view s display stack
   
   ToBottom(view->GetDisplayStack());
 }
 
 void DisplayBlock::ToTop(DisplayStack *stack)
 {
-  // Move the object to the top of its list in the display stack
+  //! Move the object to the top of its list in the display stack
 
   DisplayStack::ObjList& list = GetList(stack);
   if(*list.rbegin() == this)
@@ -101,7 +101,7 @@ void DisplayBlock::ToTop(DisplayStack *stack)
 
 void DisplayBlock::ToTop()
 {
-  // Move the object to the top of its list in all display stacks it appears in
+  //! Move the object to the top of its list in all display stacks it appears in
 
   for(std::list<DisplayStack*>::iterator stack = fStacks.begin();
       stack != fStacks.end();
@@ -112,7 +112,7 @@ void DisplayBlock::ToTop()
 
 void DisplayBlock::ToBottom(DisplayStack *stack)
 {
-  // Move the object to the bottom of its list in the display stack
+  //! Move the object to the bottom of its list in the display stack
 
   DisplayStack::ObjList& list = GetList(stack);
   if(*list.begin() == this)
@@ -126,7 +126,7 @@ void DisplayBlock::ToBottom(DisplayStack *stack)
 
 void DisplayBlock::ToBottom()
 {
-  // Move the object to the bottom of its list in all display stacks it appears in
+  //! Move the object to the bottom of its list in all display stacks it appears in
 
   for(std::list<DisplayStack*>::iterator stack = fStacks.begin();
       stack != fStacks.end();
@@ -137,7 +137,7 @@ void DisplayBlock::ToBottom()
 
 double DisplayBlock::GetMinE()
 {
-  // Return the spectrums lower endpoint in energy units
+  //! Return the spectrums lower endpoint in energy units
 
   return TMath::Min(Ch2E((double) GetMinCh()),
 					Ch2E((double) GetMaxCh()));
@@ -145,7 +145,7 @@ double DisplayBlock::GetMinE()
 
 double DisplayBlock::GetMaxE()
 {
-  // Return the spectrums upper endpoint in energy units
+  //! Return the spectrums upper endpoint in energy units
 
   return TMath::Max(Ch2E((double) GetMinCh()),
 					Ch2E((double) GetMaxCh()));
@@ -153,7 +153,7 @@ double DisplayBlock::GetMaxE()
 
 double DisplayBlock::GetERange()
 {
-  // Returns the width of the spectrum in energy units
+  //! Returns the width of the spectrum in energy units
 
   return TMath::Abs(Ch2E((double) GetMinCh())
 					- Ch2E((double) GetMaxCh()));

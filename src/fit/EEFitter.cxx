@@ -80,9 +80,9 @@ EEPeak& EEPeak::operator=(const EEPeak& src)
 
 void EEPeak::RestoreParam(const Param& param, double value, double error)
 {
-    // Restores parameters and error for fit function.
-    // Warnings:    Restore function of corresponding fitter has to be called
-    //              beforehand!
+    //! Restores parameters and error for fit function.
+    //! Warnings:    Restore function of corresponding fitter has to be called
+    //!              beforehand!
 
     // Note: same as TheuerkaufPeak::RestoreParam. Merge?
 
@@ -145,11 +145,12 @@ TF1 *EEPeak::GetPeakFunc()
   return fPeakFunc.get();
 }
 
-// Initialize fVol and fVolError
-// The volume is the integral from -\infty to x_0 + 5 * \sigma_1
-//  (see email from Oleksiy Burda <burda@ikp.tu-darmstadt.de>, 2008-12-05)
 void EEPeak::StoreIntegral()
 {
+  //! Initialize fVol and fVolError
+  //! The volume is the integral from -\infty to x_0 + 5 * \sigma_1
+  //!  (see email from Oleksiy Burda <burda@ikp.tu-darmstadt.de>, 2008-12-05)
+
   // Get fitter
   TVirtualFitter* fitter = TVirtualFitter::GetFitter();
   if (fitter == 0) {

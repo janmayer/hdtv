@@ -69,6 +69,7 @@ class DisplayFunc;
 class XMarker;
 class YMarker;
 
+//! Helper class to do the actual painting of objects on screen
 class Painter {
  public:
   Painter();

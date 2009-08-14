@@ -36,6 +36,7 @@
 namespace HDTV {
 namespace Display {
 
+//! Class implementing a window (ROOT TGMainFrame) containing a View1D widget and a statusbar
 class Viewer : public TGMainFrame {
   // FIXME: uncommenting the following line causes the inherited CloseWindow()
   //  signal to stop working. The reason is not presently understood, however,

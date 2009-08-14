@@ -20,9 +20,6 @@
  * 
  */
  
-/* The position of a marker is considered to be in energy units if
-   no calibration is given, and in channel units otherwise. */
-
 #ifndef __XMarker_h__
 #define __XMarker_h__
 
@@ -35,6 +32,9 @@ namespace Display {
 
 class View1D;
 
+//! A vertical marker (marking a point on the X axis)
+/** Note: The position of a marker is considered to be in energy units if
+    no calibration is given, and in channel units otherwise. */
 class XMarker : public Marker {
   friend class Painter;
   public:

@@ -1,0 +1,9 @@
+/**
+\mainpage
+
+This is hdtv, a ROOT-based histogram fitting and analysis program.
+
+This documents the Python part of hdtv.
+\htmlonly The <a href="../../cxxapi/html/index.html">C++ part</a> is documented elsewhere.\endhtmlonly
+\latexonly See the cxxapi/ directory for the C++ part.\endlatexonly
+*/

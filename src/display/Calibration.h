@@ -28,6 +28,7 @@
 
 namespace HDTV {
 
+//! A calibration (channel-energy relationship) with a polynomial of an arbitrary degree
 class Calibration {
   public:
     Calibration() { }

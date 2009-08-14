@@ -28,8 +28,8 @@
 namespace HDTV {
 namespace Fit {
 
-// Common base class for all different fitters
-// Right now, it only handles parameter management
+//! Common base class for all different (foreground) fitters
+/** Right now, it only handles parameter management */
 class Fitter {
   public:
     Fitter();

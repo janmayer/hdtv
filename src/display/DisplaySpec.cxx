@@ -35,7 +35,7 @@ DisplaySpec::DisplaySpec(const TH1* hist, int col)
      fDrawOverflowBin(false),
      fID(-1)
 {
-  // Constructor
+  //! Constructor
 
   fHist.reset(dynamic_cast<TH1*>(hist->Clone()));
  
@@ -49,7 +49,7 @@ DisplaySpec::DisplaySpec(const TH1* hist, int col)
 
 void DisplaySpec::SetHist(const TH1* hist)
 {
-  // Set the histogram owned by this object to a copy of hist
+  //! Set the histogram owned by this object to a copy of hist
 
   fHist.reset(dynamic_cast<TH1*>(hist->Clone()));
   Update();
@@ -57,10 +57,10 @@ void DisplaySpec::SetHist(const TH1* hist)
 
 int DisplaySpec::GetRegionMaxBin(int b1, int b2)
 {
-  // Find the bin number of the bin between b1 and b2 (inclusive) which
-  // contains the most events
-  // b1 and b2 are raw bin numbers
-  // The region is clipped according to fDrawUnderflowBin and fDrawOverflowBin
+  //! Find the bin number of the bin between b1 and b2 (inclusive) which
+  //! contains the most events
+  //! b1 and b2 are raw bin numbers
+  //! The region is clipped according to fDrawUnderflowBin and fDrawOverflowBin
 
   int bin, max_bin;
   double y, max_y;
@@ -84,15 +84,15 @@ int DisplaySpec::GetRegionMaxBin(int b1, int b2)
 
 DisplayStack::ObjList& DisplaySpec::GetList(DisplayStack *stack)
 {
-  // Return the stacks object list where this kind of object should be inserted
+  //! Return the stacks object list where this kind of object should be inserted
 
   return stack->fSpectra;
 }
 
 double DisplaySpec::GetRegionMax(int b1, int b2)
 {
-  // Get the maximum counts in the region between bin b1 and bin b2 (inclusive)
-  // b1 and b2 are raw bin numbers
+  //! Get the maximum counts in the region between bin b1 and bin b2 (inclusive)
+  //! b1 and b2 are raw bin numbers
 
   int max_bin = GetRegionMaxBin(b1, b2);
 
@@ -100,14 +100,14 @@ double DisplaySpec::GetRegionMax(int b1, int b2)
   return fHist->GetBinContent(max_bin);
 }
 
-/* Gets the maximum count between bin b1 and bin b2, inclusive.
-   Employes caching to save time during scrolling operations. 
-
-   NOTE: For the caching to be effective, use this function ONLY for
-   scrolling operations.
-*/
 double DisplaySpec::GetMax_Cached(int b1, int b2)
 {
+  //! Gets the maximum count between bin b1 and bin b2, inclusive.
+  //! Employes caching to save time during scrolling operations. 
+  //!
+  //! NOTE: For the caching to be effective, use this function ONLY for
+  //! scrolling operations.
+
   int bin, newBin;
   double max, newMax=-1.0;
 

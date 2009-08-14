@@ -20,9 +20,6 @@
  * 
  */
  
-/* Base class for background fitters
- */
- 
 #ifndef __Background_h__
 #define __Background_h__
 
@@ -32,6 +29,7 @@
 namespace HDTV {
 namespace Fit {
 
+//! Base class for background fitters
 class Background
 {
   public:
