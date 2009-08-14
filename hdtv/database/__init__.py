@@ -1,4 +1,4 @@
 from common import *
 from PGAALibraries import *
 
-databases = {"PromptGammas" : PromptGammas.description, "PGAAlib_IKI2000" : PGAAlib_IKI2000.description}
+databases = {"promptgammas": PGAALibraries.PromptGammas, "pgaalib_iki2000": PGAALibraries.PGAAlib_IKI2000}

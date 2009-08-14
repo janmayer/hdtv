@@ -47,17 +47,18 @@ class PGAAGamma(Gamma):
         return text
 
 
-class _PGAAlib_IKI2000(GammaLib):
+class PGAAlib_IKI2000(GammaLib):
     """
     PGAA library of the Institute of Isotopes, Hungarian Academy of Sciences, Budapest
     """
     def __init__(self, csvfile = os.path.join(hdtv.datadir, "PGAAlib-IKI2000.dat"), has_header = True, k0_comp = (1, 1)):
     
-        super(_PGAAlib_IKI2000, self).__init__()
-        
+        super(PGAAlib_IKI2000, self).__init__()
+
         # fields of database with types
         # These must be lowercase!
         self.fields = {"symbol": str, "z": int , "a": int, "energy": float, "sigma": float, "intensity": float, "halflife": float, "k0": float}
+        self.name = "PGAAlib_IKI2000"
         self.description = "PGAA database, Inst. of Isotopes, Hungarian Academey of Science" 
         self.csvfile = csvfile
         self._has_header = has_header
@@ -95,20 +96,20 @@ class _PGAAlib_IKI2000(GammaLib):
             self.opened = True
         finally:
             file.close()
-
-
-
-class _PromptGammas(GammaLib):
+    
+        
+class PromptGammas(GammaLib):
     """
     Extensive Prompt-Gamma library
     """
     def __init__(self, csvfile = os.path.join(hdtv.datadir, "PromptGammas.dat"), has_header = True, k0_comp = (1, 1)):
     
-        super(_PromptGammas, self).__init__()
-        
+        super(PromptGammas, self).__init__()
+
         # fields of database with types
         # These must be lowercase!
-        self.fields = {"symbol": str, "z": int , "a": int, "energy": float, "sigma": float, "intensity": float, "k0": float}
+        self.fields = {"symbol": str, "z": int , "a": int, "energy": float, "sigma": float, "k0": float}
+        self.name = "PromptGammas"
         self.description = "Extensive Prompt-Gamma library" 
         self.csvfile = csvfile
         self._has_header = has_header
@@ -142,9 +143,3 @@ class _PromptGammas(GammaLib):
             self.opened = True
         finally:
             file.close()
-
-
-
-    
-PGAAlib_IKI2000 = _PGAAlib_IKI2000()
-PromptGammas = _PromptGammas()

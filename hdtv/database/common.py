@@ -287,6 +287,8 @@ class GammaLib(list):
          * sort_reverse: sort_reverse
          * "key: value" : key value pairs to find
         """
+        if not self.opened:
+            self.open()
         
         if fuzziness is None:
             fuzziness = self.fuzziness
