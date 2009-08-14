@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # PGAA database from Institute of Isotopes, Hungarian Academey of Science, Budapest
 
-from . common import *
+from hdtv.database.common import *
 import hdtv.ui
 
 class PGAAGamma(Gamma):
