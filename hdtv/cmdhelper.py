@@ -19,6 +19,65 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
+
+def GetCompleteOptions(begin, options):
+    l = len(begin)
+    return [o + " " for o in options if o[0:l] == begin]
+    
+def ParseSpecIDs(strings, spectra):
+    """
+    Parse IDs of spectra, raises a ValueError if parsing fails
+    """
+    ids = ParseRange(strings, ["ALL", "NONE", "ACTIVE"])
+    if ids=="NONE":
+        return []
+    elif ids=="ACTIVE":
+        if spectra.activeID==None:
+            print "Error: no active spectrum"
+            return []
+        else:
+            ids = [spectra.activeID]
+    elif ids=="ALL":
+        ids = spectra.keys()
+    return ids
+
+def ParseFitIds(strings, spec):
+    """
+    Parse fit IDs, allowed keywords are ALL, NONE, ACTIVE, VISIBLE
+    """
+    special = ["ALL","NONE","ACTIVE","VISIBLE"]
+    # parse the arguments
+    try:
+        ids = ParseRange(strings, special)
+    except ValueError, msg:
+        print msg
+        return list()
+    # processing different cases
+    if ids=="NONE":
+        return list()
+    if ids=="ACTIVE":
+        if not hasattr(spec, "activeID") or spec.activeID is None:
+            print "Warning: There is no active fit."
+            return list()
+        else:
+            return [spec.activeID]
+    # FIXME: this can be remove, when we use SpectrumCompound as default spectrum class
+    if not hasattr(spec, "activeID"):
+        return list()
+    if ids=="ALL":
+        return spec.keys()
+    if ids=="VISIBLE":
+        return list(spec.visible)
+    fits = list()
+    # else filter non-existing ids
+    valid_ids = list() 
+    for ID in ids:
+        if not ID in spec.keys():
+            print "Warning: no fit with id %s" %ID
+        else:
+            valid_ids.append(ID)
+    return valid_ids
+
 def ParseRange(strings, special=["ALL", "NONE"]):
     """
     Parse a string or a list of strings specifying (possibly many)
