@@ -39,14 +39,14 @@ def warn(text, newline=True):
     """
     Print a warning message
     """
-    text = "WARN: " + text
+    text = "WARNING: " + text
     msg(text)
     
 def error(text, newline=True):
     """
     Print a error message
     """
-    text = "ERR: " + text
+    text = "ERROR: " + text
     msg(text)
     
 def debug(text, newline=True):

@@ -22,6 +22,7 @@ import ROOT
 import hdtv.cmdline
 import hdtv.cmdhelper
 import hdtv.options
+import hdtv.ui
 
 from hdtv.spectrum import SpectrumCompound
 from hdtv.marker import MarkerCollection
@@ -34,7 +35,7 @@ class FitInterface:
     User interface for fitting 1-d spectra
     """
     def __init__(self, window, spectra, show_panel=True):
-        print "Loaded user interface for fitting of 1-d spectra"
+        hdtv.ui.msg("Loaded user interface for fitting of 1-d spectra")
         self.window = window
         self.spectra = spectra
 
@@ -203,7 +204,7 @@ class FitInterface:
         If there are background markers, a background fit it included.
         """
         if self.spectra.activeID==None:
-            print "There is no active spectrum"
+            hdtv.ui.error("There is no active spectrum")
             return 
         if self.fitPanel:
             self.fitPanel.Show()
@@ -231,16 +232,16 @@ class FitInterface:
         """
         Activate one fit
         """
-        print "ActivateFit ID", ID
+        hdtv.ui.msg("ActivateFit ID", ID)
         if self.spectra.activeID==None:
-            print "There is no active spectrum"
+            hdtv.ui.error("There is no active spectrum")
             return 
         spec = self.spectra[self.spectra.activeID]
         if not hasattr(spec, "activeID"):
-            print 'There are no fits for this spectrum'
+            hdtv.ui.error("There are no fits for this spectrum")
             return
         if not self.spectra.activeID in self.spectra.visible:
-            print 'Warning: active spectrum (id=%s) is not visible' %self.spectra.activeID
+            hdtv.ui.warn("Active spectrum (id=%s) is not visible" %self.spectra.activeID)
         if not spec.activeID==None:
             # keep current status of old fit
             self.KeepFit()
@@ -260,15 +261,16 @@ class FitInterface:
         Focus one fit
         """
         if self.spectra.activeID==None:
-            print "There is no active spectrum"
+            hdtv.ui.error("There is no active spectrum")
             return 
         spec = self.spectra[self.spectra.activeID]
         
         if not hasattr(spec, "activeID"):
-            print 'There are no fits for this spectrum'
+            hdtv.ui.error("There are no fits for this spectrum")
             return
         if not self.spectra.activeID in self.spectra.visible:
-            print 'Warning: active spectrum (id=%s) is not visible' %self.spectra.activeID
+            hdtv.ui.warn("Active spectrum (id=%s) is not visible" %self.spectra.activeID)
+        
         spec.FocusObject(ID)
         if self.spectra.activeID in self.spectra.visible and spec.activeID:
             spec[spec.activeID].Show()
@@ -279,7 +281,7 @@ class FitInterface:
         """
         # get active spectrum
         if self.spectra.activeID==None:
-            print "There is no active spectrum"
+            hdtv.ui.error("There is no active spectrum")
             return 
         spec = self.spectra[self.spectra.activeID]
         if not hasattr(spec, "activeID") or spec.activeID==None:
@@ -408,7 +410,7 @@ class FitInterface:
             statstr += "\n"
             statstr += fitter.OptionsStr()
             statstr += "\n\n"
-        print statstr
+        hdtv.ui.msg(statstr)
 
 
     def SetParameter(self, parname, status, default=False, ids=[]):
@@ -425,14 +427,14 @@ class FitInterface:
             try:
                 self.defaultFitter.SetParameter(parname, status)
             except ValueError, msg:
-                print "Error concerning default Fit: %s" % msg
+                hdtv.ui.error("while editing default Fit: %s" % msg)
         # active fit
         fit = self.GetActiveFit()
         try:
             fit.fitter.SetParameter(parname, status)
             fit.Refresh()
         except ValueError, msg:
-            print "Error concerning active Fit: %s" % msg
+            hdtv.ui.error("while editing active Fit: %s" % msg)
         # fit list
         for ID in ids:
             try:
@@ -630,16 +632,16 @@ class TvFitInterface:
         try:
             spec = self.spectra[self.spectra.activeID]
         except KeyError:
-            print "No active spectrum"
+            hdtv.ui.error("No active spectrum")
             return False
         except AttributeError:
-            print "There are no fits for this spectrum"
+            hdtv.ui.error("There are no fits for this spectrum")
             return False
         if self.spectra.activeID in self.spectra.visible:
             visible = True
         else:
             visible = False
-        print 'Fits belonging to %s (visible=%s):' %(str(spec), visible)
+        hdtv.ui.msg('Fits belonging to %s (visible=%s):' %(str(spec), visible))
          
          # Sort
         objects = list()
@@ -657,11 +659,11 @@ class TvFitInterface:
             else:  
                 objects.sort(key=lambda x: getattr(x[1].peaks[0], key))
         except AttributeError:
-            print "No such attribute: ", key
-            print "Valid attributes are: "
+            hdtv.ui.error("No such attribute: ", key)
+            hdtv.ui.msg("Valid attributes are: ")
             # TODO: Proper formatting of valid keys!
             # TODO: Fix behaviour for mixture of different peak models with different parameters
-            print objects[0][1].fitter.peakModel.fOrderedParamKeys
+            hdtv.ui.msg(objects[0][1].fitter.peakModel.fOrderedParamKeys)
             return False
     
         for obj in objects:
@@ -673,10 +675,10 @@ class TvFitInterface:
         Delete fits
         """
         if self.spectra.activeID is None:
-            print "Warning: No active spectrum, no action taken."
+            hdtv.ui.warn("No active spectrum, no action taken.")
             return
         if not self.spectra.activeID in self.spectra.visible:
-            print "Warning: active spectrum is not visible, no action taken"
+            hdtv.ui.warn("Active spectrum is not visible, no action taken")
             return
         spec = self.spectra[self.spectra.activeID]
         ids = hdtv.cmdhelper.ParseFitIds(args, spec)
@@ -688,10 +690,10 @@ class TvFitInterface:
         Hide Fits
         """
         if self.spectra.activeID is None:
-            print "Warning: No active spectrum, no action taken."
+            hdtv.ui.warn("No active spectrum, no action taken.")
             return
         if not self.spectra.activeID in self.spectra.visible:
-            print "Warning: active spectrum is not visible, no action taken"
+            hdtv.ui.warn("Active spectrum is not visible, no action taken")
             return
         spec = self.spectra[self.spectra.activeID]
         ids = hdtv.cmdhelper.ParseFitIds(args,spec)
@@ -706,17 +708,17 @@ class TvFitInterface:
         Show Fits
         """
         if self.spectra.activeID is None:
-            print "Warning: No active spectrum, no action taken."
+            hdtv.ui.warn("No active spectrum, no action taken.")
             return
         if not self.spectra.activeID in self.spectra.visible:
-            print "Warning: active spectrum is not visible, no action taken"
+            hdtv.ui.warn("Active spectrum is not visible, no action taken")
             return
         spec = self.spectra[self.spectra.activeID]
         ids = hdtv.cmdhelper.ParseFitIds(args,spec)
         if len(ids)>0:
             spec.ShowObjects(ids)
             for ID in ids:
-                print "Fit %d:" %ID, spec[ID].formated_str(verbose=True)
+                hdtv.ui.msg("Fit %d:" %ID, spec[ID].formated_str(verbose=True))
         else:
             spec.HideAll()
 
@@ -725,12 +727,12 @@ class TvFitInterface:
         Print fit results
         """
         if self.spectra.activeID is None:
-            print "Warning: No active spectrum, no action taken."
+            hdtv.ui.warn("No active spectrum, no action taken.")
             return
         spec = self.spectra[self.spectra.activeID]
         ids = hdtv.cmdhelper.ParseFitIds(args, spec)
         for ID in ids:
-            print "Fit %d:" %ID, spec[ID].formated_str(verbose=True)
+            hdtv.ui.msg("Fit %d:" %ID, spec[ID].formated_str(verbose=True))
 
     def FitActivate(self, args, options):
         """
@@ -744,7 +746,7 @@ class TvFitInterface:
                 ID = int(args[0])
             self.fitIf.ActivateFit(ID)
         except ValueError:
-            print "Error: Invalid id %s" %ID
+            hdtv.ui.error("Invalid id %s" %ID)
 
     def FitFocus(self, args, options):
         """
@@ -757,7 +759,7 @@ class TvFitInterface:
                 ID = int(args[0])
             self.fitIf.FocusFit(ID)
         except ValueError:
-            print "Error: Invalid id %s" %ID
+            hdtv.ui.error("Invalid id %s" %ID)
 
 
 
@@ -792,7 +794,7 @@ class TvFitInterface:
         models = self.PeakModelCompleter(name)
         # check for unambiguity
         if len(models)>1:
-            print "Error: peak model name %s is ambiguous" %name
+            hdtv.ui.error("Peak model name %s is ambiguous" %name)
         else:
             name = models[0]
             name = name.strip()
@@ -815,10 +817,10 @@ class TvFitInterface:
         parameter= self.ParamCompleter(param)
         # check for unambiguity
         if len(parameter)>1:
-            print "Error: parameter name %s is ambiguous" %param
+            hdtv.ui.error("Parameter name %s is ambiguous" %param)
             return
         if len(parameter)==0:
-            print "Error: parameter name %s is not valid" %param
+            hdtv.ui.error("Parameter name %s is not valid" %param)
             return
         param = parameter[0]
         param = param.strip()
@@ -834,7 +836,7 @@ class TvFitInterface:
             try:
                 self.fitIf.SetParameter(param," ".join(args), options.default, ids)
             except ValueError, msg:
-                print "Error: %s" % msg
+                hdtv.ui.error(msg)
         
     def ParamCompleter(self, text):
         """
@@ -859,12 +861,12 @@ class TvFitInterface:
         If no number is given, the first peak in the fit is used.
         """
         if self.spectra.activeID == None:
-            print "Warning: No active spectrum, no action taken."
+            hdtv.ui.warn("No active spectrum, no action taken.")
             return False
         spec = self.spectra[self.spectra.activeID] 
         try:
             if len(args) % 2 != 0:
-                print "Error: number of parameters must be even"
+                hdtv.ui.error("Number of parameters must be even")
                 return "USAGE"
             ids = hdtv.cmdhelper.ParseSpecIDs(options.spec, self.spectra)
             if ids == False:
@@ -892,15 +894,15 @@ class TvFitInterface:
             cal = hdtv.cal.CalFromPairs(pairs, degree, options.show_table, 
                                         options.show_fit, options.show_residual)
         except (ValueError, RuntimeError), msg:
-            print "Error: " + str(msg)
+            hdtv.ui.error(msg)
             return False
         else:
             for ID in ids:
                 try:
                     self.spectra[ID].SetCal(cal)
-                    print "calibrated spectrum with id %d" %ID
+                    hdtv.ui.msg("Calibrated spectrum with id %d" %ID)
                 except KeyError:
-                    print "Warning: there is no spectrum with id: %s" %ID
+                    hdtv.ui.warn("There is no spectrum with id: %s" %ID)
             self.fitIf.window.Expand()        
             return True
 
