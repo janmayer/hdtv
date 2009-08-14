@@ -249,7 +249,7 @@ class Window(KeyHandler):
         self.AddHotkey(ROOT.kKey_i, lambda: self.EnterEditMode(prompt="Position: ",
                                                             handler=self.GoToPosition))
 
-
+        
         # Register configuration variables
         opt = hdtv.options.Option(default = self.viewport.GetYMinVisibleRegion(),
                                   parse = lambda(x): float(x),
@@ -257,19 +257,36 @@ class Window(KeyHandler):
 
         hdtv.options.RegisterOption("display.YMinVisibleRegion", opt)
         
+        prog = "window center"
+        description = "center window to position"
+        usage="%prog <pos>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        parser.add_option("-w", "--width", type="float", help="width of window", default=100.)
+        hdtv.cmdline.AddCommand(prog, self.GoToPosition, nargs=1,parser=parser)
+        
+        
 
     def YMinVisibleRegionChanged(self, opt):
         self.viewport.SetYMinVisibleRegion(opt.Get())
     
     
-    def GoToPosition(self, arg):
+    def GoToPosition(self, arg, options=None):
+        
+        try:
+            width=options.width
+        except AttributeError:
+            width = 100.
+            
         try:
             center = float(arg)
+        except TypeError:
+            center = float(arg[0])
         except ValueError:
             self.viewport.SetStatusText("Invalid position: %s" % arg)
             return
         
-        self.viewport.SetXVisibleRegion(100.)
+        
+        self.viewport.SetXVisibleRegion(width)
         self.viewport.SetXCenter(center)
         
 
