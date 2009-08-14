@@ -20,8 +20,9 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 import ROOT
 import dlmgr
-
 dlmgr.LoadLibrary("fit")
+
+import hdtv.peakmodels
 
 class Fitter:
     """
@@ -133,9 +134,8 @@ class Fitter:
         Model can be either a string, in which case it is used as a key into 
         the gPeakModels dictionary, or a PeakModel object.
         """
-        global gPeakModels
         if type(model) == str:
-            model = gPeakModels[model]
+            model = hdtv.peakmodels.PeakModels[model]
         self.peakModel = model()
         self.peakFitter = None
         
@@ -169,15 +169,6 @@ class Fitter:
         return new
     
     
-# global dictionary of available peak models
-def RegisterPeakModel(name, model):
-    gPeakModels[name] = model
-    
-gPeakModels = dict()
 
-import peakmodels
-
-RegisterPeakModel("theuerkauf", peakmodels.PeakModelTheuerkauf)
-RegisterPeakModel("ee", peakmodels.PeakModelEE)
 
 

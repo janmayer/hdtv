@@ -187,6 +187,7 @@ class FitXml:
         This function parses the xml tree to memory and checks the version
         and calls the appropriate function for further processing.
         """
+        self.spectra.viewport.LockUpdate()
         if type(fnames) in [str,unicode]:
             fnames = [fnames]
         for fname in fnames:
@@ -206,7 +207,7 @@ class FitXml:
                             do_fit = raw_input(question)
                         if do_fit in ["Y","y",""]:
                             # we first have to delete all fits, that are already open,
-                            # because otherwise they also will be saved in the new file                        
+                            # because otherwise they also will be saved in the new file 
                             tmp = self.CreateXML()
                             for spectra in self.spectra.values():
                                 try:
@@ -232,18 +233,76 @@ class FitXml:
                     print "Error reading \'" + filename + "\':\n\t", e
                 else:
                     print "\'" + filename + "\' loaded."
+                finally:
+                    self.spectra.viewport.UnlockUpdate()
                     
-    def _getPosFromElement(self, XMLelement, fit=None):
+    def _getPosFromElement(self, markerElement, fit=None):
         """
         Read position in energy domain from XML element.
         """
         try:
-            pos = float(XMLelement.find("uncal").text)
+            pos = float(markerElement.find("uncal").text)
             pos = fit.cal.Ch2E(pos)    
         except AttributeError:
             # Try to read "cal" element if "uncal" element does not exist
-            pos = float(XMLelement.find("cal").text)
+            pos = float(markerElement.find("cal").text)
         return pos
+    
+    def _readParamElement(self, paramElement):
+        """
+        Reads parameter info from a xml element and creates a FitValue object
+        """
+        # status
+        status = paramElement.get("status", "free")
+        if status in ["free", "equal", "calculated"]:
+            free = True
+        else:
+            free = False
+        # <value>
+        valueElement = paramElement.find("value")
+        if valueElement is None:
+            return None
+        value = float(valueElement.text)
+        # <error>
+        errorElement = paramElement.find("error")
+        error = float(errorElement.text)
+        return hdtv.peakmodels.FitValue(value, error, free)
+
+    def ReadPeaks(self, root):
+        """
+        Creates a list of peaks from xml data.
+        This function reads only the peak data and ignores everything else,
+        the peak objects are independent of a specific fit or spectrum and 
+        have a fixed calibration. 
+        Note: This is for standalone use, it is not possible to rstore fits 
+        with this list.
+        """
+        peaks = list()
+        for fitElement in root.findall("fit"):
+            peakmodel = hdtv.peakmodels.PeakModels(fitElement.get("peakModel"))
+            for peakElement in fitElement.findall("peak"):
+                # <uncal>
+                uncalElement = peakElement.find("uncal")
+                parameter = dict()
+                for paramElement in uncalElement:
+                    name = paramElement.tag
+                    parameter[name] = self._readParamElement(paramElement)
+                peak = peakmodel(cal=None, **parameter)
+                # additional parameter
+                parameter = dict()
+                # <cal>
+                for paramElement in peakElement.findall("cal"):
+                    name = paramElement.tag
+                    parameter[name] = self._readParamElement(paramElement)
+                # <more>
+                for paramElement in peakElement.findall("more"):
+                    name = paramElement.tag
+                    parameter[name] = self._readParamElement(paramElement)
+                for name in parameter.keys():
+                    print name
+                    setattr(peak, name, parameter[name])
+                peaks.append(peak)
+        return peaks
                     
 
     def ReadFitlist_v1(self, root):
@@ -280,39 +339,18 @@ class FitXml:
             # maybe the spectrum that is referred to in XML is currently not loaded
             if spec is None: continue
             # read and set calibration
-
             try:
                 calibration = map(float, specElement.get("calibration").split())
                 spec.SetCal(calibration)
             except AttributeError:
                 # No calibration was saved
-                print "Could not read calibration for spectrum ", name 
-            spec.viewport.LockUpdate() 
+                hdtv.ui.warn("Could not read calibration for spectrum ", name) 
             # <fit>
             for fitElement in specElement:
                 restore_success = True
                 peakModel = fitElement.get("peakModel")
                 bgdeg = int(fitElement.get("bgDegree"))
                 fitter = hdtv.fitter.Fitter(peakModel, bgdeg)
-                # <peak>
-                params = dict()
-                for peakElement in fitElement.findall("peak"):
-                    uncalElement = peakElement.find("uncal")
-                    for paramElement in uncalElement:
-                        parname = paramElement.tag
-                        status = paramElement.get("status", "free")
-                        try:
-                            params[parname].append(status)
-                        except KeyError:
-                            params[parname]=[status]
-                for parname in params.keys():
-                    status = params[parname]
-                    # check if all values in status are the same
-                    if status.count(status[0])==len(status):
-                        status = str(status[0])
-                    else:
-                        status = ','.join(status)
-                    fitter.SetParameter(parname, status)
                 fit = hdtv.fit.Fit(fitter, spec.color, spec.cal)
                 try:
                     fit.chi = float(fitElement.get("chi"))
@@ -324,7 +362,6 @@ class FitXml:
                     beginElement = bgElement.find("begin")
                     begin = self._getPosFromElement(beginElement, fit)   
                     fit.PutBgMarker(begin)
-                    
                     # Read end marker
                     endElement = bgElement.find("end");
                     end = self._getPosFromElement(endElement, fit)
@@ -363,35 +400,37 @@ class FitXml:
                     coeffs.sort()
                     fit.bgCoeffs = [c[1] for c in coeffs]
                 # <peak>
+                statusdict=dict()
                 for peakElement in fitElement.findall("peak"):
                     # <uncal>
                     uncalElement = peakElement.find("uncal")
                     parameter = dict()
                     for paramElement in uncalElement:
+                        # parameter value/error
                         name = paramElement.tag
-                        # <value>
-                        valueElement = paramElement.find("value")
-                        if valueElement is None:
-                            parameter[name]=None
-                            continue
-                        value = float(valueElement.text)
-                        # <error>
-                        errorElement = paramElement.find("error")
-                        error = float(errorElement.text)
+                        parameter[name] = self._readParamElement(paramElement)
+                        # parameter status
                         status = paramElement.get("status", "free")
-                        if status in ["free", "equal", "calculated"]:
-                            free = True
-                        else:
-                            free = False
-                        parameter[name] = hdtv.peakmodels.FitValue(value, error, free)
+                        try:
+                            statusdict[name].append(status)
+                        except KeyError:
+                            statusdict[name]=[status]
+                    # create peak
                     try:
                         peak = fit.fitter.peakModel.Peak(cal=spec.cal, **parameter)
                     except TypeError:
                         restore_success = False
-                        continue       
+                        continue
                     fit.peaks.append(peak)
-                # make sure the peaks are in the right order
-                fit.peaks.sort()
+                # set parameter status of fitter
+                for name in statusdict.keys():
+                    status = statusdict[name]
+                    # check if all values in status are the same
+                    if status.count(status[0])==len(status):
+                        status = str(status[0])
+                    else:
+                        status = ','.join(status)
+                    fitter.SetParameter(name, status)
                 
                 if restore_success:
                     try:
@@ -418,7 +457,7 @@ class FitXml:
                         
                 if not sid in spectra.visible:
                     fit.Hide()
-            spec.viewport.UnlockUpdate()
+
 
     def ReadFitlist_v0(self, root, do_fit=False):
         """

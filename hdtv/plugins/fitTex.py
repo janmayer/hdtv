@@ -19,12 +19,17 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
+import hdtv.ui
 import hdtv.cmdline
+import hdtv.cmdhelper
+
 
 class fitTex:
     """
     """
     def __init__(self):
+        hdtv.ui.msg("loading export fitlist to tex plugin")
+    
         self.spectra = specta
     
         prog = "fit tex"
@@ -55,7 +60,6 @@ class fitTex:
     
     def CollectPeaks(self,specs=None,fits=None):
         peaks = list()
-        
         # spectra that should be considered
         if specs:
             specIDs = hdtv.cmdhelper.ParseSpecID(specs, self.spectra)
@@ -63,11 +67,10 @@ class fitTex:
             # default is to use active spectrum
             specIDs = [self.spectra.activeID]
         else:
-            msg = "Error: please active a spectrum "
-            msg+= "or specify which spectrum to use by --specs option"
-            print msg
+            msg = "Please active a spectrum or "
+            msg+= "specify which spectrum to use by --specs option"
+            hdtv.error(msg)
             return
-        
         for specID in specIDs:
             spec = self.spectra[specID]
             if fits:
@@ -75,12 +78,15 @@ class fitTex:
             else:
                 # default is to print all fits
                 fitIDs = spec.keys()
-            
             for fitID in fitIDs:
+                fit = spec[fitID]
+                peaks.extend(fit.peaks)
+        return peaks
+                
                 
             
     def ReadXML(self, xmlname):
-        pass
+        
         
     
     
