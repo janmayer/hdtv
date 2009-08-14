@@ -335,7 +335,7 @@ to only fit the calibration.""",
         parser.add_option("-t", "--show-table", action="store_true",
                           default=False, help="print table of energies given and energies obtained from fit")
         parser.add_option("-i", "--input-file", action="store", 
-                          default = None, help="get channel<->energy paris from file")
+                          default = None, help="get channel<->energy pairs from file")
         hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, minargs=0,
                                 parser=parser, fileargs=True)
         
