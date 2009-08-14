@@ -33,21 +33,21 @@ const int DisplayObj::DEFAULT_COLOR = 3;
 
 DisplayObj::~DisplayObj()
 {
-  // Destructor
+  //! Destructor
 
   Remove();  // Remove object from all display stacks
 }
 
 DisplayStack::ObjList& DisplayObj::GetList(DisplayStack *stack)
 {
-  // Return the stacks object list where this kind of object should be inserted
+  //! Return the stacks object list where this kind of object should be inserted
 
   return stack->fMisc;
 }
 
 void DisplayObj::Update(bool force)
 {
-  // Update all display stacks that the object is presently on
+  //! Update all display stacks that the object is presently on
 
   if(!IsVisible() && !force)
     return;
@@ -62,7 +62,7 @@ void DisplayObj::Update(bool force)
 
 void DisplayObj::Draw(View1D *view)
 {
-  // Add the object to view s display stack
+  //! Add the object to view s display stack
 
   if(!view) {
     cout << "Error: Draw to NULL view: no action taken." << endl;
@@ -74,14 +74,14 @@ void DisplayObj::Draw(View1D *view)
 
 void DisplayObj::Remove(View1D *view)
 {
-  // Remove the object from view s display stack
+  //! Remove the object from view s display stack
 
   Remove(view->GetDisplayStack());
 }
 
 void DisplayObj::Draw(DisplayStack *stack)
 {
-  // Add the object to the display stack
+  //! Add the object to the display stack
 
   DisplayStack::ObjList& list = GetList(stack);
   list.insert(list.end(), this);
@@ -93,7 +93,7 @@ void DisplayObj::Draw(DisplayStack *stack)
 
 void DisplayObj::Remove(DisplayStack *stack)
 {
-  // Remove the object from the display stack
+  //! Remove the object from the display stack
 
   GetList(stack).remove(this);
   stack->Update();
@@ -102,7 +102,7 @@ void DisplayObj::Remove(DisplayStack *stack)
 
 void DisplayObj::Remove()
 {
-  // Remove the object from all display stacks it appears in
+  //! Remove the object from all display stacks it appears in
   
   // Note that we cannot use an iterator to traverse a changing list
   while(!fStacks.empty()) {

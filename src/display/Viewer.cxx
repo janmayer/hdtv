@@ -58,7 +58,7 @@ Viewer::Viewer(UInt_t w, UInt_t h, const char *title)
 
 Viewer::~Viewer()
 {
-  // Destructor
+  //! Destructor
 
   // This will delete all contained frames, and all layout hints.
   // DO NOT delete them again ``by hand''!

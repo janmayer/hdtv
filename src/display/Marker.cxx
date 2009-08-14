@@ -75,7 +75,7 @@ void Marker::FreeGC()
 
 void Marker::SetColor(int col)
 {
-  // Set color for this marker
+  //! Set color for this marker
 
   FreeGC();
   InitGC(col);
@@ -84,7 +84,7 @@ void Marker::SetColor(int col)
 
 DisplayStack::ObjList& Marker::GetList(DisplayStack *stack)
 {
-  // Return the stacks object list where this kind of object should be inserted
+  //! Return the stacks object list where this kind of object should be inserted
 
   return stack->fMarkers;
 }

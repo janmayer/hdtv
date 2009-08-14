@@ -31,7 +31,7 @@ namespace Fit {
 // *** TheuerkaufPeak ***
 TheuerkaufPeak::TheuerkaufPeak(const Param& pos, const Param& vol, const Param& sigma, const Param& tl, const Param& tr, const Param& sh, const Param& sw)
 {
-  // Constructor
+  //! Constructor
 
   fPos = pos;
   fVol = vol;
@@ -88,12 +88,12 @@ TheuerkaufPeak::TheuerkaufPeak(const TheuerkaufPeak& src)
     fFunc(src.fFunc),
     fPeakFunc(0)   // Do not copy the fPeakFunc pointer, it will be generated when needed.
 {
-  // Copy constructor
+  //! Copy constructor
 }
 
 TheuerkaufPeak& TheuerkaufPeak::operator= (const TheuerkaufPeak& src)
 {
-  // Assignment operator (handles self-assignment implicitly)
+  //! Assignment operator (handles self-assignment implicitly)
 
   fPos = src.fPos;
   fVol = src.fVol;
@@ -115,9 +115,9 @@ TheuerkaufPeak& TheuerkaufPeak::operator= (const TheuerkaufPeak& src)
 
 void TheuerkaufPeak::RestoreParam(const Param& param, double value, double error)
 {
-    // Restores parameters and error for fit function.
-    // Warnings:    Restore function of corresponding fitter has to be called
-    //              beforehand!
+    //! Restores parameters and error for fit function.
+    //! Warnings:    Restore function of corresponding fitter has to be called
+    //!              beforehand!
 
     if(fFunc != NULL) {
         fFunc->SetParameter(param._Id(), value);
@@ -185,7 +185,7 @@ double TheuerkaufPeak::EvalNoStep(double *x, double *p)
   
 double TheuerkaufPeak::EvalStep(double *x, double *p)
 {
-  // Step function
+  //! Step function
   double stepval = 0.0;
 
   if(fHasStep) {
@@ -235,7 +235,7 @@ double TheuerkaufPeak::GetNorm(double sigma, double tl, double tr)
 TheuerkaufFitter::TheuerkaufFitter(double r1, double r2)
  : Fitter()
 {
-  // Constructor
+  //! Constructor
 
   fMin = TMath::Min(r1, r2);
   fMax = TMath::Max(r1, r2);
@@ -248,7 +248,7 @@ TheuerkaufFitter::TheuerkaufFitter(double r1, double r2)
 
 void TheuerkaufFitter::AddPeak(const TheuerkaufPeak& peak)
 {
-  // Adds a peak to the peak list
+  //! Adds a peak to the peak list
   
   if(IsFinal())
     return;
@@ -259,7 +259,7 @@ void TheuerkaufFitter::AddPeak(const TheuerkaufPeak& peak)
 
 double TheuerkaufFitter::Eval(double *x, double *p)
 {
-  // Private: evaluation function for fit
+  //! Private: evaluation function for fit
   
   double sum = 0.0;
   
@@ -285,7 +285,7 @@ double TheuerkaufFitter::Eval(double *x, double *p)
 
 double TheuerkaufFitter::EvalBg(double *x, double *p)
 {
-  // Private: evaluation function for background
+  //! Private: evaluation function for background
   
   double sum = 0.0;
   
@@ -311,10 +311,10 @@ double TheuerkaufFitter::EvalBg(double *x, double *p)
 
 TF1* TheuerkaufFitter::GetBgFunc()
 {
-  // Return a pointer to a function describing this fits background, including
-  // any steps in peaks.
-  // The function remains owned by the TheuerkaufFitter and is only valid as long
-  // as the TheuerkaufFitter is.
+  //! Return a pointer to a function describing this fits background, including
+  //! any steps in peaks.
+  //! The function remains owned by the TheuerkaufFitter and is only valid as long
+  //! as the TheuerkaufFitter is.
   
   if(fBgFunc.get() != 0)
     return fBgFunc.get();
@@ -345,7 +345,7 @@ TF1* TheuerkaufFitter::GetBgFunc()
 
 void TheuerkaufFitter::Fit(TH1& hist, const Background& bg)
 {
-  // Do the fit, using the given background function
+  //! Do the fit, using the given background function
   
   // Refuse to fit twice
   if(IsFinal())
@@ -358,8 +358,8 @@ void TheuerkaufFitter::Fit(TH1& hist, const Background& bg)
 
 void TheuerkaufFitter::Fit(TH1& hist, int intBgDeg)
 {
-  // Do the fit, fitting a polynomial of degree intBgDeg for the background
-  // at the same time. Set intBgDeg to -1 to disable background completely.
+  //! Do the fit, fitting a polynomial of degree intBgDeg for the background
+  //! at the same time. Set intBgDeg to -1 to disable background completely.
   
   // Refuse to fit twice
   if(IsFinal())
@@ -372,7 +372,7 @@ void TheuerkaufFitter::Fit(TH1& hist, int intBgDeg)
 
 void TheuerkaufFitter::_Fit(TH1& hist)
 {
-  // Private: worker function to actually do the fit
+  //! Private: worker function to actually do the fit
   
   // Allocate additional parameters for internal polynomial background
   // Note that a polynomial of degree n has n+1 parameters!
@@ -442,7 +442,7 @@ void TheuerkaufFitter::_Fit(TH1& hist)
 
 void TheuerkaufFitter::Restore(const Background& bg, double ChiSquare)
 {
-  // Restore the fit, using the given background function
+  //! Restore the fit, using the given background function
 
   fBackground.reset(bg.Clone());
   fIntBgDeg = -1;
@@ -453,7 +453,7 @@ void TheuerkaufFitter::Restore(const Background& bg, double ChiSquare)
 
 void TheuerkaufFitter::Restore(int intBgDeg, double ChiSquare)
 {
-  // Restore the fit, using the given background function
+  //! Restore the fit, using the given background function
 
   fBackground.reset();
   fIntBgDeg = intBgDeg;
@@ -469,7 +469,7 @@ void TheuerkaufFitter::Restore(int intBgDeg, double ChiSquare)
   
 void TheuerkaufFitter::_Restore(double ChiSquare)
 {
-  // Internal worker function to restore the fit
+  //! Internal worker function to restore the fit
   
   // Create fit function
   fSumFunc.reset(new TF1(GetFuncUniqueName("f", this).c_str(),

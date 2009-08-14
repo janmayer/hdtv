@@ -30,7 +30,7 @@ namespace Fit {
 
 PolyBg::PolyBg(int bgdeg)
 {
-  // Constructor
+  //! Constructor
 
   fBgDeg = bgdeg;
   fChisquare = std::numeric_limits<double>::quiet_NaN();
@@ -41,7 +41,7 @@ PolyBg::PolyBg(const PolyBg& src)
    fBgDeg(src.fBgDeg),
    fChisquare(src.fChisquare)
 {
-  // Copy constructor
+  //! Copy constructor
 
   if(src.fFunc.get() != 0) {
     fFunc.reset(new TF1(GetFuncUniqueName("b", this).c_str(),
@@ -58,7 +58,7 @@ PolyBg::PolyBg(const PolyBg& src)
 
 PolyBg& PolyBg::operator= (const PolyBg& src)
 {
-  // Assignment operator
+  //! Assignment operator
 
   // Handle self assignment
   if(this == &src)
@@ -83,7 +83,7 @@ PolyBg& PolyBg::operator= (const PolyBg& src)
 
 void PolyBg::Fit(TH1& hist)
 {
-  // Fit the background function to the histogram hist
+  //! Fit the background function to the histogram hist
 
   // Create function to be used for fitting
   // Note that a polynomial of degree N has N+1 parameters
@@ -143,9 +143,9 @@ bool PolyBg::Restore(const TArrayD& values, const TArrayD& errors, double ChiSqu
 
 void PolyBg::AddRegion(double p1, double p2)
 {
-  // Adds a histogram region to be considered while fitting the
-  // background. If regions overlap, the values covered by two or
-  // more regions are still only considered once in the fit.
+  //! Adds a histogram region to be considered while fitting the
+  //! background. If regions overlap, the values covered by two or
+  //! more regions are still only considered once in the fit.
 
   std::list<double>::iterator iter, next;
   bool inside = false;
@@ -179,8 +179,8 @@ void PolyBg::AddRegion(double p1, double p2)
 
 double PolyBg::_EvalRegion(double *x, double *p)
 {
-  // Evaluate background function at position x, calling TH1::RejectPoint()
-  // if x lies outside the defined background region
+  //! Evaluate background function at position x, calling TH1::RejectPoint()
+  //! if x lies outside the defined background region
 
   std::list<double>::iterator iter;
 
@@ -202,7 +202,7 @@ double PolyBg::_EvalRegion(double *x, double *p)
 
 double PolyBg::_Eval(double *x, double *p)
 {
-  // Evaluate background function at position x
+  //! Evaluate background function at position x
 
   double bg;
   

@@ -39,6 +39,7 @@ namespace Fit {
 
 class EEFitter;
 
+//! Peak shape useful for fitting electron-electron scattering peaks
 class EEPeak {
   friend class EEFitter;
   public:
@@ -101,6 +102,7 @@ class EEPeak {
     static const double DECOMP_FUNC_WIDTH;
 };
 
+//! Fitting multiple EEPeaks
 class EEFitter : public Fitter {
   public:
     EEFitter(double r1, double r2);

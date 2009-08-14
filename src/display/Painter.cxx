@@ -50,7 +50,7 @@ Painter::Painter()
 
 void Painter::DrawFunction(DisplayFunc *dFunc, int x1, int x2)
 {
-  // Function to draw a DisplayFunc object
+  //! Function to draw a DisplayFunc object
 
   int x;
   int y;
@@ -90,7 +90,7 @@ void Painter::DrawFunction(DisplayFunc *dFunc, int x1, int x2)
 
 void Painter::DrawSpectrum(DisplaySpec *dSpec, int x1, int x2)
 {
-  // Function to draw a DisplaySpec object
+  //! Function to draw a DisplaySpec object
 
   int x;
   int y;
@@ -164,7 +164,7 @@ void Painter::DrawSpectrum(DisplaySpec *dSpec, int x1, int x2)
 
 void Painter::DrawXMarker(XMarker *marker, int x1, int x2)
 {
-  // Function to draw an XMarker object
+  //! Function to draw an XMarker object
   
   int xm1, xm2;
 
@@ -213,7 +213,7 @@ void Painter::DrawXMarker(XMarker *marker, int x1, int x2)
 
 void Painter::DrawYMarker(YMarker *marker, int x1, int x2)
 {
-  // Function to draw a YMarker object
+  //! Function to draw a YMarker object
   
   int y;
   
@@ -236,7 +236,7 @@ void Painter::DrawYMarker(YMarker *marker, int x1, int x2)
 
 void Painter::DrawIDList(std::list<DisplayObj*> objects)
 {
-  // Draw a colered list of IDs. This is a quick hack, really.
+  //! Draw a colered list of IDs. This is a quick hack, really.
   
   DisplaySpec* spec;
   int x = fXBase;
@@ -284,7 +284,7 @@ int Painter::GetYAtPixel(DisplaySpec *dSpec, Int_t x)
 
 double Painter::GetCountsAtPixel(DisplaySpec *dSpec, Int_t x)
 {
-  // Get counts at screen X position x
+  //! Get counts at screen X position x
   // FIXME: this could be significantly optimized...
   
   // Calculate the lower and upper edge of the screen bin in fractional
@@ -328,15 +328,16 @@ double Painter::GetCountsAtPixel(DisplaySpec *dSpec, Int_t x)
   }
 }
 
-/* Modified log function:
-          = log(x) + 1,    1 <= x
-ModLog(x) = x,            -1 <  x <   1
-          = -log(-x) - 1,       x <= -1
-          
-This function is continous with a continous first derivative,
-positive monotonic, and goes from R to R  */
 double Painter::ModLog(double x)
 {
+  //! Modified log function:
+  //!           = log(x) + 1,    1 <= x
+  //! ModLog(x) = x,            -1 <  x <   1
+  //!           = -log(-x) - 1,       x <= -1
+  //!
+  //! This function is continous with a continous first derivative,
+  //! positive monotonic, and goes from R to R
+  
   if(x > 1.0) {
     return TMath::Log(x) + 1.0;
   } else if(x > -1.0) {
@@ -346,9 +347,10 @@ double Painter::ModLog(double x)
   }
 }
 
-/* Inverse modified log (see definition above) */
 double Painter::InvModLog(double x)
 {
+  //! Inverse modified log (see Painter::ModLog for definition)
+  
   if(x > 1.0) {
     return TMath::Exp(x - 1.0);
   } else if(x > -1.0) {
@@ -412,10 +414,10 @@ double Painter::GetYAutoZoom(DisplaySpec *dSpec)
 
 void Painter::ClearTopXScale()
 {
-  // This function will clear the region containing the
-  // bottom X scale so that it can be redrawn with a different
-  // offset. We need to be careful not to affect the y scale,
-  // since it is not necessarily redrawn as well.
+  //! This function will clear the region containing the
+  //! bottom X scale so that it can be redrawn with a different
+  //! offset. We need to be careful not to affect the y scale,
+  //! since it is not necessarily redrawn as well.
   gVirtualX->FillRectangle(fDrawable, fClearGC,
 						   fXBase-2, fYBase-fHeight-11,
 						   fWidth+4, 9);
@@ -426,10 +428,10 @@ void Painter::ClearTopXScale()
 
 void Painter::ClearBottomXScale()
 {
-  // This function will clear the region containing the
-  // bottom X scale so that it can be redrawn with a different
-  // offset. We need to be careful not to affect the y scale,
-  // since it is not necessarily redrawn as well.
+  //! This function will clear the region containing the
+  //! bottom X scale so that it can be redrawn with a different
+  //! offset. We need to be careful not to affect the y scale,
+  //! since it is not necessarily redrawn as well.
   gVirtualX->FillRectangle(fDrawable, fClearGC,
 						   fXBase-2, fYBase+3,
 						   fWidth+4, 9);

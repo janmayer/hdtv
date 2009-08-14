@@ -97,7 +97,7 @@ Bool_t View2D::HandleMotion(Event_t *ev)
 
 Bool_t View2D::HandleButton(Event_t *ev)
 {
-  // Callback for mouse button events
+  //! Callback for mouse button events
 
   if(ev->fType == kButtonPress) {
 	switch(ev->fCode) {
@@ -354,8 +354,8 @@ void View2D::WeedTiles()
 
 void View2D::FlushTiles()
 {
-  // Destroy all tiles in the cache, causing them to be redrawn when needed
-  // (e.g. after a zoom level change)
+  //! Destroy all tiles in the cache, causing them to be redrawn when needed
+  //! (e.g. after a zoom level change)
 
   std::map<uint32_t,Pixmap_t>::iterator iter;
   
@@ -383,7 +383,7 @@ Pixmap_t View2D::GetTile(int x, int y)
 
 void View2D::Layout()
 {
-  // Callback for changes in size of our screen area
+  //! Callback for changes in size of our screen area
   
   int heightDelta = fHeight - fVPHeight - fTopBorder - fBottomBorder;
   

@@ -102,8 +102,8 @@ void Calibration::UpdateDerivative()
 
 double Calibration::Ch2E(double ch) const
 {
-  // Convert a channel to an energy, using the chosen energy
-  // calibration.
+  //! Convert a channel to an energy, using the chosen energy
+  //! calibration.
   
   // Catch special case of a trivial calibration
   if(fCal.empty())
@@ -120,8 +120,8 @@ double Calibration::Ch2E(double ch) const
 
 double Calibration::dEdCh(double ch) const
 {
-  // Calculate the slope of the calibration function, \frac{dE}{dCh},
-  // at position ch .
+  //! Calculate the slope of the calibration function, \frac{dE}{dCh},
+  //! at position ch .
 
   // Catch special case of a trivial calibration
   if(fCal.empty())
@@ -138,9 +138,9 @@ double Calibration::dEdCh(double ch) const
 
 double Calibration::E2Ch(double e) const
 {
-  // Convert an energy to a channel, using the chosen energy
-  // calibration.
-  // TODO: deal with slope == 0.0
+  //! Convert an energy to a channel, using the chosen energy
+  //! calibration.
+  //! TODO: deal with slope == 0.0
   
   // Catch special case of a trivial calibration
   if(fCal.empty())

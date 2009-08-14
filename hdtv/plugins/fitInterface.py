@@ -758,11 +758,6 @@ class TvFitInterface:
         except KeyError:
             print "Warning: No active spectrum, no action taken."
             return list()
-        # then check if there are any fits for that spectrum
-        try:
-            spec.activeID
-        except AttributeError:
-            print "Warning: There are no fits for this spectrum, no action taken."
         # then parse the arguments
         try:
             ids = hdtv.cmdhelper.ParseRange(idStrings, special)
@@ -773,11 +768,14 @@ class TvFitInterface:
         if ids=="NONE":
             return list()
         if ids=="ACTIVE":
-            if spec.activeID is None:
+            if not hasattr(spec, "activeID") or spec.activeID is None:
                 print "Warning: There is no active fit."
                 return list()
             else:
                 return [spec.activeID]
+        # FIXME: this can be remove, when we use SpectrumCompound as default spectrum class
+        if not hasattr(spec, "activeID"):
+            return list()
         if ids=="ALL":
             return spec.keys()
         if ids=="VISIBLE":
@@ -852,7 +850,9 @@ class TvFitInterface:
             return
         param = parameter[0]
         param = param.strip()
-        ids = self.ParseFitIds(options.fit)
+        ids =[]
+        if options.fit:
+            ids = self.ParseFitIds(options.fit)
         if param=="status":
             self.fitIf.ShowFitStatus(options.default, ids)
         elif param=="reset":
@@ -872,7 +872,7 @@ class TvFitInterface:
         params = set(["status","reset"])
         defaultParams = set(self.fitIf.defaultFitter.params)
         activeParams  = set(self.fitIf.GetActiveFit().fitter.params)
-        params = set.union(params, defaultParams, activeParams)
+        params = params.union(defaultParams).union(activeParams)
         return hdtv.util.GetCompleteOptions(text, params)
         
         

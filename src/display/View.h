@@ -20,8 +20,6 @@
  * 
  */
 
-/* View: Code shared between View1D and View2D */
-/* Presently, this implements mostly the XOR cursor. */
 #ifndef __View_h__
 #define __View_h__
 
@@ -31,6 +29,8 @@
 namespace HDTV {
 namespace Display {
 
+//! Code shared between View1D and View2D
+/** Presently, this implements mostly the XOR cursor. */
 class View : public TGFrame {
   public:
     View(const TGWindow *p, UInt_t w, UInt_t h);

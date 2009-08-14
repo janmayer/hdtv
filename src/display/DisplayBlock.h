@@ -30,9 +30,8 @@
 namespace HDTV {
 namespace Display {
 
-// DisplayBlock: common baseclass for DisplayFunc and DisplaySpec
+//! DisplayBlock: common baseclass for DisplayFunc and DisplaySpec
 // FIXME: think of a better name?
-
 class DisplayBlock: public DisplayObj
 {
   friend class Painter;

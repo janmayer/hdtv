@@ -76,15 +76,15 @@ View1D::View1D(const TGWindow *p, UInt_t w, UInt_t h)
 }
 
 View1D::~View1D() {
-  // Destructor
+  //! Destructor
 
   fClient->GetGCPool()->FreeGC(fCursorGC);   //?
 }
 
 void View1D::SetStatusBar(TGStatusBar *sb)
 {
-  // Sets the status bar on which to ouput our status messages.
-  // Set to NULL to not display any status messages at all.
+  //! Sets the status bar on which to ouput our status messages.
+  //! Set to NULL to not display any status messages at all.
 
   fStatusBar = sb;
   UpdateStatusScale();
@@ -92,7 +92,7 @@ void View1D::SetStatusBar(TGStatusBar *sb)
 
 void View1D::SetLogScale(Bool_t l)
 {
-  // Sets Y (counts) scale to logarithmic or linear
+  //! Sets Y (counts) scale to logarithmic or linear
 
   fPainter.SetLogScale(l);
   Update(true);
@@ -100,7 +100,7 @@ void View1D::SetLogScale(Bool_t l)
 
 void View1D::SetUseNorm(Bool_t n)
 {
-  // Sets whether to use normalization information included in histograms
+  //! Sets whether to use normalization information included in histograms
   
   fPainter.SetUseNorm(n);
   Update(true);
@@ -108,8 +108,8 @@ void View1D::SetUseNorm(Bool_t n)
 
 void View1D::YAutoScaleOnce(bool update)
 {
-  // Sets the Y (counts) scale according to the autoscale rules, but does
-  // not actually enable autoscale mode.
+  //! Sets the Y (counts) scale according to the autoscale rules, but does
+  //! not actually enable autoscale mode.
   DisplaySpec *spec;
 
   fYVisibleRegion = fYMinVisibleRegion;
@@ -173,7 +173,7 @@ void View1D::ShiftOffset(int dO)
 
 void View1D::ClearXScales()
 {
-  // Clear the top and the bottom X scale, if it exists
+  //! Clear the top and the bottom X scale, if it exists
 
   // Clear top X scale
   if(fTopScale != X_SCALE_NONE)
@@ -186,7 +186,7 @@ void View1D::ClearXScales()
 
 void View1D::DrawXScales(UInt_t x1, UInt_t x2)
 {
-  // Draw the top and the bottom X scale
+  //! Draw the top and the bottom X scale
 
   // Draw top X scale  
   switch(fTopScale) {
@@ -215,7 +215,7 @@ void View1D::DrawXScales(UInt_t x1, UInt_t x2)
 
 void View1D::SetViewMode(HDTV::Display::ViewMode vm)
 {
-  // Set the paint mode for spectra
+  //! Set the paint mode for spectra
 
   if(vm != fPainter.GetViewMode()) {
 	fPainter.SetViewMode(vm);
@@ -226,21 +226,21 @@ void View1D::SetViewMode(HDTV::Display::ViewMode vm)
 
 double View1D::GetCursorX()
 {
-  // Returns the X position of the cursor, in energy units.
+  //! Returns the X position of the cursor, in energy units.
 
   return fPainter.XtoE((Int_t) fCursorX);
 }
 
 double View1D::GetCursorY()
 {
-  // Returns the Y position of the cursor, in units of counts.
+  //! Returns the Y position of the cursor, in units of counts.
 
   return fPainter.YtoC(fCursorY);
 }
 
 void View1D::XZoomAroundCursor(double f)
 {
-  // Zooms the X (energy) axis around the current cursor position by a factor f.
+  //! Zooms the X (energy) axis around the current cursor position by a factor f.
 
   fXOffset += fPainter.GetXOffsetDelta(fCursorX, f);
   fXVisibleRegion /= f;
@@ -250,7 +250,7 @@ void View1D::XZoomAroundCursor(double f)
 
 void View1D::YZoomAroundCursor(double f)
 {
-  // Zooms the Y (counts) axis around the current cursor position by a factor f.
+  //! Zooms the Y (counts) axis around the current cursor position by a factor f.
 
   fYOffset += fPainter.GetYOffsetDelta(fCursorY, f);
   fYVisibleRegion /= f;
@@ -261,16 +261,16 @@ void View1D::YZoomAroundCursor(double f)
 
 void View1D::ToBegin(void)
 {
-  // Set the X (energy) axis offset such that its zero appears on the left edge
-  // of the visible area. Leaves the zoom unchanged.
+  //! Set the X (energy) axis offset such that its zero appears on the left edge
+  //! of the visible area. Leaves the zoom unchanged.
   
   SetXOffset(fMinEnergy);
 }
 
 void View1D::ShowAll(void)
 {
-  // Set the X (energy) axis zoom so that all spectra are fully visible.
-  // Shows a range from 0 to DEFAULT_MAX_ENERGY if the view contains no spectra.
+  //! Set the X (energy) axis zoom so that all spectra are fully visible.
+  //! Shows a range from 0 to DEFAULT_MAX_ENERGY if the view contains no spectra.
 
   fMinEnergy =   std::numeric_limits<double>::infinity();
   fMaxEnergy = - std::numeric_limits<double>::infinity();
@@ -305,15 +305,15 @@ void View1D::ShowAll(void)
 
 void View1D::LockUpdate()
 {
-  // Calls to Update() will not actually update the display any more.
+  //! Calls to Update() will not actually update the display any more.
   
   fUpdateLocked++;
 }
 
 void View1D::UnlockUpdate()
 {
-  // Calls to Update() will update the display again. If Update() was called in the
-  // meantime, this function will do the update.
+  //! Calls to Update() will update the display again. If Update() was called in the
+  //! meantime, this function will do the update.
 
   if(fUpdateLocked > 0)
     fUpdateLocked--;
@@ -324,7 +324,7 @@ void View1D::UnlockUpdate()
 
 void View1D::Update(bool forceRedraw)
 {
-  // Do an update if possible, or remember to do it once it becomes possible again.
+  //! Do an update if possible, or remember to do it once it becomes possible again.
   
   //cout << "View1D::Update() called, fUpdateLocked=" << fUpdateLocked << endl;
 
@@ -338,9 +338,9 @@ void View1D::Update(bool forceRedraw)
 
 void View1D::DoUpdate()
 {
-  // This function brings the viewport up-to-date after a change in any
-  // relevant parameters. It tries to do so with minimal effort,
-  // i.e. not by redrawing unconditionally.
+  //! This function brings the viewport up-to-date after a change in any
+  //! relevant parameters. It tries to do so with minimal effort,
+  //! i.e. not by redrawing unconditionally.
   
   double dO, dOPix;
   
@@ -423,7 +423,7 @@ void View1D::UpdateScrollbarRange(void)
 
 void View1D::SetXOffset(double offset)
 {
-  // Sets the offset of the X (energy) axis, in units of energy (??? FIXME).
+  //! Sets the offset of the X (energy) axis, in units of energy (??? FIXME).
 
   fXOffset = offset;
   Update();
@@ -431,7 +431,7 @@ void View1D::SetXOffset(double offset)
 
 void View1D::SetXCenter(double center)
 {
-   // Convenience function to set the center of the X (energy) axis
+   //! Convenience function to set the center of the X (energy) axis
    
    SetXOffset(center - fXVisibleRegion/2.);
 }
@@ -447,8 +447,8 @@ void View1D::SetYOffset(double offset)
 
 void View1D::ShiftXOffset(double f, bool update)
 {
-  // Shifts the offset of the X (energy) axis by a factor of f of the
-  // currently visible region.
+  //! Shifts the offset of the X (energy) axis by a factor of f of the
+  //! currently visible region.
 
   fXOffset += f * fXVisibleRegion;
   if(update)
@@ -458,8 +458,8 @@ void View1D::ShiftXOffset(double f, bool update)
 
 void View1D::ShiftYOffset(double f, bool update)
 {
-  // Shifts the offset of the Y (counts) axis by a factor of f of the
-  // currently visible region.
+  //! Shifts the offset of the Y (counts) axis by a factor of f of the
+  //! currently visible region.
 
   fYOffset += f * fYVisibleRegion;
   fYAutoScale = false;
@@ -469,9 +469,9 @@ void View1D::ShiftYOffset(double f, bool update)
 
 void View1D::SetYAutoScale(bool as, bool update)
 {
-  // Sets or unsets automatic scaling of the Y (counts) axis
-  // If automatic scaling is enabled, the Y axis will always range from
-  // zero to the number of counts in the maximum bin currently visible.
+  //! Sets or unsets automatic scaling of the Y (counts) axis
+  //! If automatic scaling is enabled, the Y axis will always range from
+  //! zero to the number of counts in the maximum bin currently visible.
 
   fYAutoScale = as;
   if(update)
@@ -480,7 +480,7 @@ void View1D::SetYAutoScale(bool as, bool update)
 
 void View1D::SetXVisibleRegion(double region, bool update)
 {
-  // Sets the X size of the visible region in units of energy
+  //! Sets the X size of the visible region in units of energy
 
   fXVisibleRegion = region;
   if(update)
@@ -489,7 +489,7 @@ void View1D::SetXVisibleRegion(double region, bool update)
 
 void View1D::SetYVisibleRegion(double region, bool update)
 {
-  // Sets the Y size of the visible region in units of counts
+  //! Sets the Y size of the visible region in units of counts
 
   fYVisibleRegion = region;
   if(update)
@@ -498,7 +498,7 @@ void View1D::SetYVisibleRegion(double region, bool update)
 
 void View1D::HandleScrollbar(Long_t parm)
 {
-  // Callback for scrollbar motion
+  //! Callback for scrollbar motion
 
   // Capture nonsense input (TODO: still required?)
   if(parm < 0)
@@ -514,7 +514,7 @@ void View1D::HandleScrollbar(Long_t parm)
 
 void View1D::UpdateStatusPos()
 {
-  // Update the cursor position in the status bar
+  //! Update the cursor position in the status bar
 
   char temp[32];
   
@@ -530,7 +530,7 @@ void View1D::UpdateStatusPos()
 
 void View1D::UpdateStatusScale()
 {
-  // Update Y autoscale status in the status bar
+  //! Update Y autoscale status in the status bar
 
   if(fStatusBar) {
     if(fYAutoScale && fPainter.GetUseNorm())
@@ -546,7 +546,7 @@ void View1D::UpdateStatusScale()
 
 void View1D::SetStatusText(const char *text)
 {
-  // Sets text to appear in the text section of the status bar
+  //! Sets text to appear in the text section of the status bar
 
   if(fStatusBar)
     fStatusBar->SetText(text, 2);
@@ -554,7 +554,7 @@ void View1D::SetStatusText(const char *text)
 
 Bool_t View1D::HandleMotion(Event_t *ev)
 {
-  // Callback for mouse motion
+  //! Callback for mouse motion
 
   bool cv = fCursorVisible;
   int accel = (ev->fState & kKeyControlMask) ? 10 : 1;
@@ -581,7 +581,7 @@ Bool_t View1D::HandleMotion(Event_t *ev)
 
 Bool_t View1D::HandleButton(Event_t *ev)
 {
-  // Callback for mouse button events
+  //! Callback for mouse button events
 
   if(ev->fType == kButtonPress) {
 	switch(ev->fCode) {
@@ -611,7 +611,7 @@ Bool_t View1D::HandleButton(Event_t *ev)
 
 Bool_t View1D::HandleCrossing(Event_t *ev)
 {
-  // Callback for mouse crossing events (mouse enters or leaves our screen area)
+  //! Callback for mouse crossing events (mouse enters or leaves our screen area)
 
   if(ev->fType == kEnterNotify) {
 	if(fCursorVisible) DrawCursor();
@@ -629,7 +629,7 @@ Bool_t View1D::HandleCrossing(Event_t *ev)
 
 void View1D::Layout(void)
 {
-  // Callback for changes in size of our screen area
+  //! Callback for changes in size of our screen area
 
   fPainter.SetBasePoint(fLeftBorder + 2, fHeight - fBottomBorder - 2);
   fPainter.SetSize(fWidth - fLeftBorder - fRightBorder - 4,
@@ -638,10 +638,10 @@ void View1D::Layout(void)
 
 void View1D::DoRedraw(void)
 {
-  // Redraws the Viewport completely.  If fNeedClear is set, it is
-  // cleared first, otherwise it is just redrawn. This is a callback for
-  // the windowing system. It should not be called directly, but via 
-  // gClient->NeedRedraw() .
+  //! Redraws the Viewport completely.  If fNeedClear is set, it is
+  //! cleared first, otherwise it is just redrawn. This is a callback for
+  //! the windowing system. It should not be called directly, but via 
+  //! gClient->NeedRedraw() .
 
   Bool_t cv;
   UInt_t x, y, w, h;

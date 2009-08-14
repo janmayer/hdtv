@@ -41,28 +41,28 @@ DisplayStack::~DisplayStack()
 
 void DisplayStack::Update()
 {
-  // Call Update() of corresponding view
+  //! Call Update() of corresponding view
   
   fView->Update(true);
 }
 
 void DisplayStack::LockUpdate()
 {
-  // Call LockUpdate() of corresponding view
+  //! Call LockUpdate() of corresponding view
 
   fView->LockUpdate();
 }
 
 void DisplayStack::UnlockUpdate()
 {
-  // Call UnlockUpdate() of corresponding view
+  //! Call UnlockUpdate() of corresponding view
 
   fView->UnlockUpdate();
 }
 
 inline void DisplayStack::RemoveList(ObjList& objects)
 {
-  // Paints all objects in the list given (internal use only)
+  //! Paints all objects in the list given (internal use only)
   
   // Note that we cannot use an iterator to traverse a changing list
   while(!objects.empty()) {
@@ -72,7 +72,7 @@ inline void DisplayStack::RemoveList(ObjList& objects)
 
 inline void DisplayStack::PaintList(ObjList& objects, UInt_t x1, UInt_t x2, Painter& painter)
 {
-  // Paints all objects in the list given (internal use only)
+  //! Paints all objects in the list given (internal use only)
   
   for(ObjList::iterator obj = objects.begin();
       obj != objects.end();
@@ -83,7 +83,7 @@ inline void DisplayStack::PaintList(ObjList& objects, UInt_t x1, UInt_t x2, Pain
 
 void DisplayStack::PaintRegion(UInt_t x1, UInt_t x2, Painter& painter)
 {
-  // Paints all objects in the stack
+  //! Paints all objects in the stack
   
   PaintList(fSpectra, x1, x2, painter);
   PaintList(fFunctions, x1, x2, painter);

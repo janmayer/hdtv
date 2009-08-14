@@ -28,6 +28,7 @@
 namespace HDTV {
 namespace Fit {
 
+//! Description of a fit parameter
 class Param {
   public:
     static inline Param Fixed(double val) { return Param(-1, val, false, true, true); }

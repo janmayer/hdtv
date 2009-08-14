@@ -31,6 +31,7 @@
 namespace HDTV {
 namespace Display {
 
+//! Class implementing a window (ROOT TGMainFrame) containting a View2D widget and a statusbar.
 class MTViewer : public TGMainFrame {
   public:
     MTViewer(UInt_t w, UInt_t h, TH2 *mat, const char *title);

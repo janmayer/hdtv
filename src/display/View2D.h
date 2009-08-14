@@ -20,7 +20,6 @@
  * 
  */
 
-/* View2D: Class implementing a scrollable matrix display */
 #ifndef __View2D_h__
 #define __View2D_h__
 
@@ -35,6 +34,7 @@
 namespace HDTV {
 namespace Display {
 
+//! View2D: Class implementing a scrollable matrix display
 class View2D : public View {
   public:
     View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat);

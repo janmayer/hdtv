@@ -39,6 +39,7 @@ namespace Display {
 class DisplayStack;
 class View1D;
 
+//! A marker (displayed as a horizontal or vertical line)
 class Marker: public DisplayObj {
   friend class Painter;
   friend class DisplayStack;

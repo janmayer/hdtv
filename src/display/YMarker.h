@@ -31,6 +31,7 @@ namespace Display {
 
 class View1D;
 
+//! A horizontal marker (marking a point on the Y axis)
 class YMarker : public Marker {
   public:
     YMarker(int n, double p1, double p2=0.0, int col=5);

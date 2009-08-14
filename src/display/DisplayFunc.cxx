@@ -37,7 +37,7 @@ DisplayFunc::DisplayFunc(TF1 *func, int col)
 
 DisplayStack::ObjList& DisplayFunc::GetList(DisplayStack *stack)
 {
-  // Return the stacks object list where this kind of object should be inserted
+  //! Return the stacks object list where this kind of object should be inserted
 
   return stack->fFunctions;
 }
