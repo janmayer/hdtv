@@ -24,9 +24,6 @@ import re
 import os
 import glob
 
-def GetCompleteOptions(begin, options):
-    l = len(begin)
-    return [o + " " for o in options if o[0:l] == begin]
 
 def Median(values):
     """

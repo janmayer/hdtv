@@ -672,22 +672,29 @@ class TvFitInterface:
         """ 
         Delete fits
         """
+        if self.spectra.activeID is None:
+            print "Warning: No active spectrum, no action taken."
+            return
         if not self.spectra.activeID in self.spectra.visible:
             print "Warning: active spectrum is not visible, no action taken"
             return
-        ids = self.ParseFitIds(args)
+        spec = self.spectra[self.spectra.activeID]
+        ids = hdtv.cmdhelper.ParseFitIds(args, spec)
         if len(ids)>0:
-            self.spectra[self.spectra.activeID].RemoveObjects(ids)
+            spec.RemoveObjects(ids)
 
     def FitHide(self, args, options):
         """
         Hide Fits
         """
+        if self.spectra.activeID is None:
+            print "Warning: No active spectrum, no action taken."
+            return
         if not self.spectra.activeID in self.spectra.visible:
             print "Warning: active spectrum is not visible, no action taken"
             return
-        ids = self.ParseFitIds(args)
         spec = self.spectra[self.spectra.activeID]
+        ids = hdtv.cmdhelper.ParseFitIds(args,spec)
         if len(ids)>0:
             spec.HideObjects(ids)
         else:
@@ -698,11 +705,14 @@ class TvFitInterface:
         """
         Show Fits
         """
+        if self.spectra.activeID is None:
+            print "Warning: No active spectrum, no action taken."
+            return
         if not self.spectra.activeID in self.spectra.visible:
             print "Warning: active spectrum is not visible, no action taken"
             return
-        ids = self.ParseFitIds(args)
         spec = self.spectra[self.spectra.activeID]
+        ids = hdtv.cmdhelper.ParseFitIds(args,spec)
         if len(ids)>0:
             spec.ShowObjects(ids)
             for ID in ids:
@@ -714,15 +724,17 @@ class TvFitInterface:
         """
         Print fit results
         """
-        ids = self.ParseFitIds(args)
-        if len(ids)>0:
-            spec = self.spectra[self.spectra.activeID]
-            for ID in ids:
-                print "Fit %d:" %ID, spec[ID].formated_str(verbose=True)
+        if self.spectra.activeID is None:
+            print "Warning: No active spectrum, no action taken."
+            return
+        spec = self.spectra[self.spectra.activeID]
+        ids = hdtv.cmdhelper.ParseFitIds(args, spec)
+        for ID in ids:
+            print "Fit %d:" %ID, spec[ID].formated_str(verbose=True)
 
     def FitActivate(self, args, options):
         """
-        Activate one spectrum
+        Activate one fit
         """
         try:
             ID = hdtv.cmdhelper.ParseRange(args, special=["NONE"])
@@ -747,48 +759,6 @@ class TvFitInterface:
         except ValueError:
             print "Error: Invalid id %s" %ID
 
-    def ParseFitIds(self, idStrings):
-        """
-        Parse fit IDs, allowed keywords are ALL, NONE, ACTIVE, VISIBLE
-        """
-        special = ["ALL","NONE","ACTIVE","VISIBLE"]
-        # first check if there is an active spectrum
-        try:
-            spec = self.spectra[self.spectra.activeID]
-        except KeyError:
-            print "Warning: No active spectrum, no action taken."
-            return list()
-        # then parse the arguments
-        try:
-            ids = hdtv.cmdhelper.ParseRange(idStrings, special)
-        except ValueError, msg:
-            print msg
-            return list()
-        # processing different cases
-        if ids=="NONE":
-            return list()
-        if ids=="ACTIVE":
-            if not hasattr(spec, "activeID") or spec.activeID is None:
-                print "Warning: There is no active fit."
-                return list()
-            else:
-                return [spec.activeID]
-        # FIXME: this can be remove, when we use SpectrumCompound as default spectrum class
-        if not hasattr(spec, "activeID"):
-            return list()
-        if ids=="ALL":
-            return spec.keys()
-        if ids=="VISIBLE":
-            return list(spec.visible)
-        fits = list()
-        # else filter non-existing ids
-        valid_ids = list() 
-        for ID in ids:
-            if not ID in spec.keys():
-                print "Warning: no fit with id %s" %ID
-            else:
-                valid_ids.append(ID)
-        return valid_ids
 
 
 #    def FitCopy(self, args):
@@ -826,15 +796,17 @@ class TvFitInterface:
         else:
             name = models[0]
             name = name.strip()
-            ids = self.ParseFitIds(options.fit)
+            ids = list()
+            if options.fit:
+                spec = self.spectra[self.spectra.activeID]
+                ids = hdtv.cmdhelper.ParseFitIds(options.fit, spec)
             self.fitIf.SetPeakModel(name, options.default, ids)
-
 
     def PeakModelCompleter(self, text):
         """
         Creates a completer for all possible peak models
         """
-        return hdtv.util.GetCompleteOptions(text, hdtv.fitter.gPeakModels.iterkeys())
+        return hdtv.cmdhelper.GetCompleteOptions(text, hdtv.fitter.gPeakModels.iterkeys())
 
     def FitParam(self, args, options):
         # first argument is parameter name
@@ -850,9 +822,10 @@ class TvFitInterface:
             return
         param = parameter[0]
         param = param.strip()
-        ids =[]
+        ids =list()
         if options.fit:
-            ids = self.ParseFitIds(options.fit)
+            spec = self.spectra[self.spectra.activeID]
+            ids = hdtv.cmdhelper.ParseFitIds(options.fit, spec)
         if param=="status":
             self.fitIf.ShowFitStatus(options.default, ids)
         elif param=="reset":
@@ -872,8 +845,9 @@ class TvFitInterface:
         params = set(["status","reset"])
         defaultParams = set(self.fitIf.defaultFitter.params)
         activeParams  = set(self.fitIf.GetActiveFit().fitter.params)
+        # create a list of all possible parameter names
         params = params.union(defaultParams).union(activeParams)
-        return hdtv.util.GetCompleteOptions(text, params)
+        return hdtv.cmdhelper.GetCompleteOptions(text, params)
         
         
     def CalPosAssign(self, args, options):
@@ -887,12 +861,12 @@ class TvFitInterface:
         if self.spectra.activeID == None:
             print "Warning: No active spectrum, no action taken."
             return False
-        spec = self.spectra[self.spectra.activeID]    
+        spec = self.spectra[self.spectra.activeID] 
         try:
             if len(args) % 2 != 0:
                 print "Error: number of parameters must be even"
                 return "USAGE"
-            ids = self.ParseSpecIDs(options.spec)
+            ids = hdtv.cmdhelper.ParseSpecIDs(options.spec, self.spectra)
             if ids == False:
                 return
             degree = int(options.degree)
@@ -929,23 +903,6 @@ class TvFitInterface:
                     print "Warning: there is no spectrum with id: %s" %ID
             self.fitIf.window.Expand()        
             return True
-
-    def ParseSpecIDs(self, strings):
-        """
-        Parse IDs of spectra, raises a ValueError if parsing fails
-        """
-        ids = hdtv.cmdhelper.ParseRange(strings, ["ALL", "NONE", "ACTIVE"])
-        if ids=="NONE":
-            return []
-        elif ids=="ACTIVE":
-            if self.spectra.activeID==None:
-                print "Error: no active spectrum"
-                return False
-            else:
-                ids = [self.spectra.activeID]
-        elif ids=="ALL":
-            ids = self.spectra.keys()
-        return ids
 
 
 # plugin initialisation
