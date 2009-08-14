@@ -28,6 +28,7 @@ import hdtv.cmdline
 import hdtv.fitter
 import hdtv.peakmodels
 import hdtv.options
+from hdtv.spectrum import SpectrumCompound
 import ROOT
 
 class PeakFinder:
@@ -58,6 +59,8 @@ class PeakFinder:
                         help = "do not fit found peaks")
         parser.add_option("-p", "--peak-model", action = "store", default = "theuerkauf",
                         help = "fit found peaks")
+        parser.add_option("-r", "--no-reject", action = "store_true", default = False,
+                        help = "reject fits with unreasonable values")
         
         hdtv.cmdline.AddCommand(prog, self.PeakSearch, parser = parser, minargs = 0, fileargs = False)
         
@@ -77,19 +80,19 @@ class PeakFinder:
         tSpec = ROOT.TSpectrum()
 
         #  hist = self.spectra.GetActiveObject().fHist
-        spec = hdtv.spectrum.SpectrumCompound(self.spectra[sid].viewport, self.spectra[sid])
+#        spec = hdtv.spectrum.SpectrumCompound(self.spectra[sid].viewport, self.spectra[sid])
+        spec = self.spectra[self.spectra.activeID]
         hist = spec.fHist
         
-        
-        # replace the simple spectrum object by the SpectrumCompound
-        # TODO: Is this sensible? I don't get the logic, but it works.
-        #self.spectra[sid] = spec
-        #spec = self.spectra[sid]
-        
+        if not hasattr(spec, "activeID"):
+            # create SpectrumCompound object 
+            spec = SpectrumCompound(self.spectra[sid].viewport, spec)
+            # replace the simple spectrum object by the SpectrumCompound
+            self.spectra[sid] = spec
 
         try:
             sigma_Ch = spec.cal.E2Ch(float(options.sigma))
-            sigma_E  = float(options.sigma) 
+            sigma_E = float(options.sigma) 
             threshold = float(options.threshold)
         except ValueError:
             print "Invalid sigma/threshold"
@@ -99,24 +102,24 @@ class PeakFinder:
         peakModel = options.peak_model
         bgdeg = 2
         
-        start = 0.0
-        end = spec.cal.Ch2E(hist.GetNbinsX())
+        start_E = 0.0
+        end_E = spec.cal.Ch2E(hist.GetNbinsX())
         try:
             if len(args) > 0:
-                start = spec.cal.E2Ch(float(args[0]))
-                print "new start", start
+                start_E = float(args[0])
+                start_Ch = spec.cal.E2Ch(start_E)
                 
             if len(args) == 2:
-                end = spec.cal.E2Ch(float(args[1]))
-                print "new end", end
+                end_E = float(args[1])
+                end_Ch = spec.cal.E2Ch(end_E)
         except ValueError:
             print "Invalid start/end arguments"
             return False
 
-        print "Search Peaks in region", start, "-", end, "(sigma=", sigma_E, "threshold=", threshold, "%)"
+        print "Search Peaks in region", start_E, "-", end_E, "(sigma=", sigma_E, "threshold=", threshold, "%)"
         
         # Invoke ROOT's peak finder
-        hist.SetAxisRange(start, end)
+        hist.SetAxisRange(start_Ch, end_Ch)
         num_peaks = tSpec.Search(hist, sigma_Ch, "goff", threshold)
         foundpeaks = tSpec.GetPositionX()
         
@@ -126,20 +129,32 @@ class PeakFinder:
 
         parameter = dict()
         
-        # Store peaks
+        # Sort by position
+        tmp = list()
         for i in range(0, num_peaks):
+            tmp.append(foundpeaks[i]) # convert from array to list
+        tmp.sort()
+        foundpeaks = tmp
+        
+        # Store peaks
+        
+        # TODO:
+        # * Reject negeative FWHM, Volume
+        # * Reject unreasonable FWHM
+        # * DOublet fitting
+        for p in foundpeaks:
              fitter = hdtv.fitter.Fitter(peakModel, bgdeg)
              fit = hdtv.fit.Fit(fitter)     
-             pos_E = spec.cal.Ch2E(foundpeaks[i])
-             pos_Ch = foundpeaks[i]
-             bin = hist.GetXaxis().FindBin(foundpeaks[i])
+             pos_E = spec.cal.Ch2E(p)
+             pos_Ch = p
+             bin = hist.GetXaxis().FindBin(pos_Ch)
              yp = hist.GetBinContent(bin)
              
          
              fit.PutPeakMarker(pos_E)
-             region_width = sigma_E * 3.
-             fit.PutRegionMarker(pos_E - region_width/2.)
-             fit.PutRegionMarker(pos_E + region_width/2.)
+             region_width = sigma_E * 5. # TODO: something sensible here
+             fit.PutRegionMarker(pos_E - region_width / 2.)
+             fit.PutRegionMarker(pos_E + region_width / 2.)
              free = True
              parameter["pos"] = hdtv.peakmodels.FitValue(pos_Ch, sigma_Ch / 2.0, free)
              parameter["width"] = hdtv.peakmodels.FitValue(sigma_Ch, 0, free)
@@ -151,19 +166,26 @@ class PeakFinder:
              parameter["sw"] = hdtv.peakmodels.FitValue(None, None, free)
              parameter["sh"] = hdtv.peakmodels.FitValue(None, None, free)
              try:
-                 peak = fit.fitter.peakModel.Peak(cal=spec.cal, **parameter)
+                 peak = fit.fitter.peakModel.Peak(cal = spec.cal, **parameter)
              except:
                  print "Error creating peak"
                  print parameter
                  continue
              
              fit.peaks.append(peak)
+             reject = False
              if autofit:          
-                 fit.FitPeakFunc(spec, silent=True)
-           
-             ID = self.spectra[sid].Add(fit)
-#             fit.Focus(view_width = region_width * 10)
-             fit.SetTitle(str(ID) + "(*)")
+                 fit.FitPeakFunc(spec, silent = True)
+                 if not options.no_reject:
+                     if len(fit.peaks) == 1: # TODO: Do something sensible for doublets (when we are fitting them here)
+                         if fit.peaks[0].width <= 0.0 or fit.peaks[0].vol <= 0.0 or fit.peaks[0].width > 7 * sigma_E:
+                             print "Rejecting peak @" + str(fit.peaks[0].pos_cal) + " keV ",
+                             print "(width =", fit.peaks[0].width, "vol =", fit.peaks[0].vol, ")"
+                             reject = True
+             
+             if not reject:
+                 ID = self.spectra[sid].Add(fit)
+                 fit.SetTitle(str(ID) + "(*)")
         
         print "Found", num_peaks, "peaks"
         return True
