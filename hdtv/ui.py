@@ -68,7 +68,7 @@ class Table(object):
     """
     Print tables
     """
-    def __init__(self, data, header = None, attrs = None, sortBy = None, reverseSort = False):
+    def __init__(self, data, attrs, header = None, sortBy = None, reverseSort = False):
         
         self.col_sep_char = "|"
         self.empty_field = "-"
