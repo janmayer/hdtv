@@ -227,7 +227,7 @@ class Gamma(object):
 
     def __str__(self):
         text = str()
-        text += "id:        " + str(self.nuclide.id) + "\n"
+        text += "id:        " + str(self.id) + "\n"
         text += "Energy:    " + str(self.energy) + " keV\n"
         if not self.sigma is None:
             text += "Sigma:     " + str(self.sigma) + " b\n"
@@ -296,7 +296,7 @@ class GammaLib(list):
         # convert keys to lowercase
         fields_lower = dict()
         args_lower = dict()
-        for (key, conv) in self.fields.items():
+        for (key, conv) in self.fParamConv.items():
             fields_lower[key.lower()] = conv
             
         for (key, value) in args.items():
@@ -312,7 +312,7 @@ class GammaLib(list):
 
         for (key, conv) in fields_lower.items():
             try:
-                fargs[key] = conv(args_lower[key]) # Convert as described in fields dict
+                fargs[key] = conv(args_lower[key]) # Convert as described in fParamConv dict
             except KeyError:
                 pass       
 
@@ -325,7 +325,7 @@ class GammaLib(list):
                 
         if len(fargs) == 0:
             return []
-                
+
         for (key, value) in fargs.items():
             if not value is None:
                 if isinstance(value, int): 
@@ -341,7 +341,7 @@ class GammaLib(list):
             if not sort_key is None:
                 results.sort(key = lambda x: getattr(x, sort_key), reverse = sort_reverse)
         except AttributeError:
-            hdtv.ui.warn("Could not sort by\'" + str(sort_key) + "\': No such key")    
+            hdtv.ui.warn("Could not sort by \'" + str(sort_key) + "\': No such key")    
             raise AttributeError
         
         return results
