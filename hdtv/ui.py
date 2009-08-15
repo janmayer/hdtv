@@ -62,7 +62,11 @@ def debug(text, newline = True):
         if newline:
             print ""
     
-    
+def newline():
+    """
+    Insert newline
+    """
+    msg("")
     
 class Table(object):
     """
