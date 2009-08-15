@@ -23,33 +23,35 @@
 # Basic user interface functions (Input/Output, etc)
 #-------------------------------------------------------------------------------
 
-DEBUG=False
+DEBUG = False
 
-def msg(text, newline=True):
+import sys
+
+def msg(text, newline = True):
     """
     Print a message
     
     newline: Append newline
     """
-    print text,
+    sys.stdout.write(text)
     if newline:
-        print ""
+        sys.stdout.write("\r\n")
     
-def warn(text, newline=True):
+def warn(text, newline = True):
     """
     Print a warning message
     """
     text = "WARN: " + text
     msg(text)
     
-def error(text, newline=True):
+def error(text, newline = True):
     """
     Print a error message
     """
     text = "ERR: " + text
     msg(text)
     
-def debug(text, newline=True):
+def debug(text, newline = True):
     """
     Print debug messages
     """
