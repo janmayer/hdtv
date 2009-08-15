@@ -24,9 +24,9 @@
 #-------------------------------------------------------------------------------
 
 DEBUG = False
-newline_chars = "\r\n"
 
 import sys
+import os
 
 def msg(text, newline = True):
     """
@@ -36,7 +36,7 @@ def msg(text, newline = True):
     """
     sys.stdout.write(text)
     if newline:
-        sys.stdout.write(newline_chars)
+        sys.stdout.write(os.linesep)
     
 def warn(text, newline = True):
     """
@@ -131,7 +131,7 @@ class Table(object):
         # Last column has no final col seperator
         header_line += str(self.header[-1].center(self.col_width[-1]))
 
-        text += header_line + newline_chars
+        text += header_line + os.linesep
 
         # Seperator between header and data
         header_sep_line = str()
@@ -144,7 +144,7 @@ class Table(object):
         for i in range(0, self.col_width[-1]):
             header_sep_line += self.header_sep_char
             
-        text += header_sep_line + newline_chars
+        text += header_sep_line + os.linesep
                 
         # Build lines
         for line in self.lines:
@@ -155,7 +155,7 @@ class Table(object):
             # Last column has no final col seperator
             line_str += str(" " + line[-1] + " ").rjust(self.col_width[-1])
             
-            text += line_str + newline_chars
+            text += line_str + os.linesep
             
         return text
 
