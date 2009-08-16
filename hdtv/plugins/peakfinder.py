@@ -79,16 +79,8 @@ class PeakFinder:
         sid = self.spectra.activeID
         tSpec = ROOT.TSpectrum()
 
-        #  hist = self.spectra.GetActiveObject().fHist
-#        spec = hdtv.spectrum.SpectrumCompound(self.spectra[sid].viewport, self.spectra[sid])
         spec = self.spectra[self.spectra.activeID]
         hist = spec.fHist
-        
-        if not hasattr(spec, "activeID"):
-            # create SpectrumCompound object 
-            spec = SpectrumCompound(self.spectra[sid].viewport, spec)
-            # replace the simple spectrum object by the SpectrumCompound
-            self.spectra[sid] = spec
 
         try:
             sigma_Ch = spec.cal.E2Ch(float(options.sigma))

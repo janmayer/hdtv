@@ -29,7 +29,7 @@ import hdtv.color
 import hdtv.cal
 import hdtv.util
  
-from hdtv.spectrum import Spectrum, FileSpectrum
+from hdtv.spectrum import Spectrum, FileSpectrum, SpectrumCompound
 from hdtv.specreader import SpecReaderError
 
 
@@ -150,7 +150,9 @@ class SpecInterface:
             
             for fname in files:
                 try:
-                    spec = FileSpectrum(fname, fmt)
+                    fspec = FileSpectrum(fname, fmt)
+                    # Create spectrum compund
+                    spec = SpectrumCompound(self.spectra.viewport, fspec)
                 except (OSError, SpecReaderError):
                     print "Warning: could not load %s'%s" % (fname, fmt)
                 else:
@@ -158,7 +160,7 @@ class SpecInterface:
                         sid = self.spectra.Add(spec)
                     else:
                         sid = self.spectra.Insert(spec, ID)
-
+                    
                     spec.SetColor(hdtv.color.ColorForID(sid))
                     loaded.append(sid)
                     

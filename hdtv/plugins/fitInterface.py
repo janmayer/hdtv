@@ -25,7 +25,6 @@ import hdtv.options
 import hdtv.util
 import hdtv.ui
 
-from hdtv.spectrum import SpectrumCompound
 from hdtv.marker import MarkerCollection
 from hdtv.fitter import Fitter
 from hdtv.fit import Fit
@@ -210,11 +209,6 @@ class FitInterface:
         if self.fitPanel:
             self.fitPanel.Show()
         spec = self.spectra[self.spectra.activeID]
-        if not hasattr(spec, "activeID"):
-            # create SpectrumCompound object 
-            spec = SpectrumCompound(self.window.viewport, spec)
-            # replace the simple spectrum object by the SpectrumCompound
-            self.spectra[self.spectra.activeID] = spec
         if spec.activeID == None:
             ID = spec.Add(self.GetActiveFit())
             self.activeFit = None
@@ -362,10 +356,7 @@ class FitInterface:
 #                    # deactive all objects
 #                    spec.ActivateObject(None)
 #                except AttributeError:
-#                    # create SpectrumCompound object 
-#                    spec = SpectrumCompound(self.window.viewport, spec)
-#                    # replace the simple spectrum object by the SpectrumCompound
-#                    self.spectra[ID]=spec
+#                     #TODO
 #                fitID=spec.Add(fit.Copy(cal=spec.cal, color=spec.color))
 #                if not ID in self.spectra.visible:
 #                    spec[fitID].Hide()
@@ -811,9 +802,6 @@ class TvFitInterface:
                 return list()
             else:
                 return [spec.activeID]
-        # FIXME: this can be remove, when we use SpectrumCompound as default spectrum class
-        if not hasattr(spec, "activeID"):
-            return list()
         if ids == "ALL":
             return spec.keys()
         if ids == "VISIBLE":
