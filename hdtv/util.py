@@ -38,9 +38,9 @@ def Median(values):
         return None
     
     if n % 2 == 0: 
-        return (values[(n-1)/2] + values[n/2]) * 0.5
+        return (values[(n - 1) / 2] + values[n / 2]) * 0.5
     else:
-        return values[n/2]
+        return values[n / 2]
 
 class ErrValue:
     """
@@ -52,7 +52,7 @@ class ErrValue:
     Beware: Error propagation is only working for statistically independant 
     values for now!
     """
-    def __init__(self, value, error=0):
+    def __init__(self, value, error = 0):
                 
         if isinstance(value, str):
             tmp = self._fromString(value)
@@ -104,7 +104,7 @@ class ErrValue:
         """Add two values with error propagation"""
         val1 = self._sanitize(self)
         val2 = self._sanitize(other)
-        ret  = ErrValue(0, 0)
+        ret = ErrValue(0, 0)
         
         ret.value = val1.value + val2.value
         ret.error = math.sqrt(math.pow(val1.error, 2) + math.pow(val2.error, 2))
@@ -118,7 +118,7 @@ class ErrValue:
         """Subtract two values with error propagation"""
         val1 = self._sanitize(minuend)
         val2 = self._sanitize(subtrahend)
-        ret  = ErrValue(0,0)
+        ret = ErrValue(0, 0)
         
         ret.value = val1.value - val2.value
         ret.error = math.sqrt(math.pow(val1.error, 2) + math.pow(val2.error, 2))
@@ -135,7 +135,7 @@ class ErrValue:
         """Multiply two values with error propagation"""
         val1 = self._sanitize(self)
         val2 = self._sanitize(other)
-        ret  = ErrValue(0,0)
+        ret = ErrValue(0, 0)
         
         ret.value = val1.value * val2.value
         ret.error = math.sqrt(math.pow((val1.value * val2.error), 2) \
@@ -150,11 +150,11 @@ class ErrValue:
         """Divide two values with error propagation"""
         val1 = self._sanitize(dividend)
         val2 = self._sanitize(divisor)
-        ret  = ErrValue(0,0)
+        ret = ErrValue(0, 0)
         
         ret.value = val1.value / val2.value
         ret.error = math.sqrt(math.pow((val1.error / val2.value), 2) \
-                              + math.pow((val1.value * val2.error / math.pow(val2.value,2)), 2))
+                              + math.pow((val1.value * val2.error / math.pow(val2.value, 2)), 2))
         return ret
         
     def __div__(self, other):
@@ -226,7 +226,7 @@ class ErrValue:
                 decplaces = ""
             
             # Calculate magnitude of error
-            error = float(err) / math.pow(10,len(decplaces)) * math.pow(10, exp)
+            error = float(err) / math.pow(10, len(decplaces)) * math.pow(10, exp)
 
         except TypeError: # No valid string given
             return (strvalue, None)
@@ -241,7 +241,7 @@ class ErrValue:
     
         try:
             # Call fmt_no_error() for values without error
-            if self.error == 0:
+            if self.error == 0 or self.error is None:
                 return self.fmt_no_error()
 
             # Check and store sign
@@ -301,7 +301,7 @@ class ErrValue:
         string = str(self.fmt()) + " [" + "%.*f" % (2, self.rel_error) + "%]"
         return string 
         
-    def fmt_no_error(self, prec=6):
+    def fmt_no_error(self, prec = 6):
         try:
             # Check and store sign
             if self.value < 0:
@@ -310,7 +310,7 @@ class ErrValue:
             else:
                 sgn = ""
                 value = self.value
-                
+            
             # Check whether to switch to scientific notation
             # Catch the case where value is zero
             try:
@@ -325,7 +325,7 @@ class ErrValue:
             else:
                 # Use normal notation
                 suffix = ""
-                
+
             return "%s%.*f%s" % (sgn, prec, value, suffix)
         except (ValueError, TypeError):
             return ""
@@ -334,7 +334,7 @@ class Linear:
     """
     A linear relationship, i.e. y = p1 * x + p0
     """
-    def __init__(self, p0=0., p1=0.):
+    def __init__(self, p0 = 0., p1 = 0.):
         self.p0 = p0
         self.p1 = p1
         
@@ -376,7 +376,7 @@ class TxtFile(object):
     """
     Handle txt files, ignoring commented lines
     """
-    def __init__(self, filename, mode="r"):
+    def __init__(self, filename, mode = "r"):
                 
         self.lines = list()  
         self.mode = mode
@@ -384,7 +384,7 @@ class TxtFile(object):
         self.filename = os.path.expanduser(filename) 
         self.fd = None
         
-    def read(self, verbose=False):
+    def read(self, verbose = False):
         try:
             self.fd = open(self.filename, self.mode)
             prev_line = ""
@@ -424,7 +424,7 @@ class Pairs(list):
     """
     List of pair values
     """
-    def __init__(self, conv_func=lambda x: x): # default conversion is "identity" -> No conversion
+    def __init__(self, conv_func = lambda x: x): # default conversion is "identity" -> No conversion
         
         super(Pairs, self).__init__()
         self.conv_func = conv_func # Conversion function, e.g. float
@@ -458,7 +458,8 @@ class Table(object):
     """
     Class for holing tables
     """
-    def __init__(self, data, attrs, header = None, sortBy = None, reverseSort = False):
+    def __init__(self, data, attrs, header = None, ignoreEmpty = True,
+                 sortBy = None, reverseSort = False):
         
         self.col_sep_char = "|"
         self.empty_field = "-"
@@ -470,7 +471,9 @@ class Table(object):
         self.sortBy = sortBy
         
         self._width = 0 # Width of table
-        self.col_width = list() # width of columns
+        self._col_width = list() # width of columns
+        
+        self._ignore_col = [not ignoreEmpty for a in attrs]
         
         # sort 
         if not sortBy is None:
@@ -486,7 +489,7 @@ class Table(object):
                 
         # Determine initial width of columns
         for header in self.header:
-            self.col_width.append(len(str(header)) + 2)
+            self._col_width.append(len(str(header)) + 2)
             
         # Build lines
         for d in data:
@@ -494,15 +497,17 @@ class Table(object):
             for i in range(0, len(attrs)):
                 try:
                     value = str(getattr(d, attrs[i]))
+                    if value is not "":
+                        self._ignore_col[i] = False
                     line.append(value)
-                    self.col_width[i] = max(self.col_width[i], len(value) + 2) # Store maximum col width
+                    self._col_width[i] = max(self._col_width[i], len(value) + 2) # Store maximum col width
                 except AttributeError:
                     line.append(self.empty_field)
             self.lines.append(line)
             
             
         # Determine table widths
-        for w in self.col_width:
+        for w in self._col_width:
             self._width += w
             self._width += len(self.col_sep_char)
 
@@ -512,23 +517,28 @@ class Table(object):
         # Build Header
         header_line = str()
         for col in range(0, len(self.header) - 1):
-            header_line += str(" " + self.header[col] + " ").center(self.col_width[col]) + self.col_sep_char 
+            if not self._ignore_col[col]:
+                header_line += str(" " + self.header[col] + " ").center(self._col_width[col]) + self.col_sep_char 
 
         # Last column has no final col seperator
-        header_line += str(self.header[-1].center(self.col_width[-1]))
+        if not self._ignore_col[-1]:
+            header_line += str(self.header[-1].center(self._col_width[-1]))
 
         text += header_line + os.linesep
 
         # Seperator between header and data
         header_sep_line = str()
-        for w in self.col_width[:-1]:
-            for i in range(0, w):
-                header_sep_line += self.header_sep_char
-            header_sep_line += self.crossing_char
+        for i in range(0, len(self._col_width) - 1):
+#            print "w:", w
+            if not self._ignore_col[i]:
+                for j in range(0, self._col_width[i]):
+                    header_sep_line += self.header_sep_char
+                header_sep_line += self.crossing_char
             
         # Last column has no final col seperator
-        for i in range(0, self.col_width[-1]):
-            header_sep_line += self.header_sep_char
+        if not self._ignore_col[-1]:
+            for i in range(0, self._col_width[-1]):
+                header_sep_line += self.header_sep_char
             
         text += header_sep_line + os.linesep
                 
@@ -536,10 +546,12 @@ class Table(object):
         for line in self.lines:
             line_str = ""
             for col in range(0, len(line) - 1):
-                line_str += str(" " + line[col] + " ").rjust(self.col_width[col]) + self.col_sep_char
+                if not self._ignore_col[col]:
+                    line_str += str(" " + line[col] + " ").rjust(self._col_width[col]) + self.col_sep_char
             
             # Last column has no final col seperator
-            line_str += str(" " + line[-1] + " ").rjust(self.col_width[-1])
+            if not self._ignore_col[-1]:
+                line_str += str(" " + line[-1] + " ").rjust(self._col_width[-1])
             
             text += line_str + os.linesep
             
