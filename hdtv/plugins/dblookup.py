@@ -222,7 +222,7 @@ class Database(object):
                 return False
             
             if len(results) > 0:
-                table = hdtv.ui.Table(results, header = self.database.fOrderedHeader,
+                table = hdtv.util.Table(results, header = self.database.fOrderedHeader,
                                       attrs = self.database.fOrderedParamKeys)
                 hdtv.ui.msg(str(table))
                 
