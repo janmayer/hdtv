@@ -458,7 +458,7 @@ class Table(object):
     """
     Class for holing tables
     """
-    def __init__(self, data, attrs, header = None, ignoreEmpty = True,
+    def __init__(self, data, attrs, header = None, ignoreEmptyCols = True,
                  sortBy = None, reverseSort = False):
         
         self.col_sep_char = "|"
@@ -473,7 +473,7 @@ class Table(object):
         self._width = 0 # Width of table
         self._col_width = list() # width of columns
         
-        self._ignore_col = [not ignoreEmpty for a in attrs]
+        self._ignore_col = [ignoreEmptyCols for i in range(0, len(attrs) + 1)] # One additional "border column"
         
         # sort 
         if not sortBy is None:
@@ -497,15 +497,14 @@ class Table(object):
             for i in range(0, len(attrs)):
                 try:
                     value = str(getattr(d, attrs[i]))
-                    if value is not "":
+                    if value is not "": # We have values in this columns -> don't ignore it
                         self._ignore_col[i] = False
                     line.append(value)
                     self._col_width[i] = max(self._col_width[i], len(value) + 2) # Store maximum col width
                 except AttributeError:
                     line.append(self.empty_field)
             self.lines.append(line)
-            
-            
+                        
         # Determine table widths
         for w in self._col_width:
             self._width += w
@@ -516,43 +515,34 @@ class Table(object):
         text = str()
         # Build Header
         header_line = str()
-        for col in range(0, len(self.header) - 1):
+        for col in range(0, len(self.header)):
             if not self._ignore_col[col]:
-                header_line += str(" " + self.header[col] + " ").center(self._col_width[col]) + self.col_sep_char 
-
-        # Last column has no final col seperator
-        if not self._ignore_col[-1]:
-            header_line += str(self.header[-1].center(self._col_width[-1]))
+                header_line += str(" " + self.header[col] + " ").center(self._col_width[col]) 
+            if not self._ignore_col[col + 1]:
+                header_line += self.col_sep_char 
 
         text += header_line + os.linesep
 
         # Seperator between header and data
         header_sep_line = str()
-        for i in range(0, len(self._col_width) - 1):
-#            print "w:", w
+        for i in range(0, len(self._col_width)):
             if not self._ignore_col[i]:
                 for j in range(0, self._col_width[i]):
                     header_sep_line += self.header_sep_char
-                header_sep_line += self.crossing_char
-            
-        # Last column has no final col seperator
-        if not self._ignore_col[-1]:
-            for i in range(0, self._col_width[-1]):
-                header_sep_line += self.header_sep_char
-            
+                if not self._ignore_col[i + 1]:
+                    header_sep_line += self.crossing_char
+                        
         text += header_sep_line + os.linesep
                 
         # Build lines
         for line in self.lines:
             line_str = ""
-            for col in range(0, len(line) - 1):
+            for col in range(0, len(line)):
                 if not self._ignore_col[col]:
-                    line_str += str(" " + line[col] + " ").rjust(self._col_width[col]) + self.col_sep_char
-            
-            # Last column has no final col seperator
-            if not self._ignore_col[-1]:
-                line_str += str(" " + line[-1] + " ").rjust(self._col_width[-1])
-            
+                    line_str += str(" " + line[col] + " ").rjust(self._col_width[col]) 
+                if not self._ignore_col[col + 1]:
+                    line_str += self.col_sep_char
+
             text += line_str + os.linesep
             
         return text
