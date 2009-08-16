@@ -657,6 +657,12 @@ class TvFitInterface:
 
         objects = list()
         
+        if not hasattr(spec, "objects"):
+            hdtv.ui.newline()
+            hdtv.ui.msg("[None]")
+            hdtv.ui.newline()
+            return
+        
         # Get fits
         for (ID, obj) in spec.objects.iteritems():
             
