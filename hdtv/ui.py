@@ -23,10 +23,8 @@
 # Basic user interface functions (Input/Output, etc)
 #-------------------------------------------------------------------------------
 
+import __main__
 DEBUG = False
-
-import sys
-import os
 
 def msg(text, newline = True):
     """
@@ -34,43 +32,32 @@ def msg(text, newline = True):
     
     newline: Append newline
     """
-    sys.stdout.write(text)
-    if newline:
-        sys.stdout.write(os.linesep)
+    __main__.ui.msg(text, newline = newline)
     
 def warn(text, newline = True):
     """
     Print a warning message
     """
-    text = "WARN: " + text
-    msg(text)
+    __main__.ui.warn(text, newline = newline)
+    
     
 def error(text, newline = True):
     """
     Print a error message
     """
-    text = "ERR: " + text
-    msg(text)
+    __main__.ui.error(text, newline = newline)
     
-def debug(text, newline = True):
+def debug(text, level = 1, newline = True):
     """
     Print debug messages
     """
-    if DEBUG:
-        text = "DEBUG: " + text
-        print text,
-        if newline:
-            print ""
+    __main__.ui.debug(text, level = level, newline = newline)
+    
     
 def newline():
     """
     Insert newline
     """
-    msg("")
-    
+    __main__.ui.newline()    
 
-        
 
-    
-    
-    

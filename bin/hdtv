@@ -28,6 +28,7 @@ hdtv.cmdline.SetReadlineHistory(configpath + "/hdtv_history")
 hdtv.cmdline.SetInteractiveDict(locals())
 
 # Import core plugins
+import hdtv.plugins.textInterface
 import hdtv.plugins.ls
 import hdtv.plugins.run
 import hdtv.plugins.specInterface 
