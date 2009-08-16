@@ -16,5 +16,4 @@
 * Fix reading of XML file: Fits with e.g. only background raise exception on reading
 * Warn when quitting and there are unsaved fits
 * Bugfix: when reading fits for spectra that are loaded, but not shown do not draw fits
-* don't set view to full after doing "cal pos enter"
 * Avoid double fits (e.g. when reading from XML)

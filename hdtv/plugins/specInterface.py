@@ -170,7 +170,8 @@ class SpecInterface:
         if len(loaded)>0:
             self.spectra.ActivateObject(loaded[-1])
         # Update viewport if required
-        self.window.Expand()
+        if len(self.spectra.objects) == 1: # Expand window if it is the only spectrum
+            self.window.Expand()
         self.window.viewport.UnlockUpdate()
         return loaded
 
@@ -245,7 +246,7 @@ class SpecInterface:
                 print "calibrated spectrum with id %d" %ID
             except KeyError:
                 print "Warning: there is no spectrum with id: %s" %ID
-        self.window.Expand()
+#        self.window.Expand()
 
 class TvSpecInterface:
     """
