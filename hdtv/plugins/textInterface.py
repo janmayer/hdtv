@@ -41,9 +41,10 @@ class TextInterface(object):
         
         for (key, opt) in self.opt.items():
             hdtv.options.RegisterOption(key, opt) 
-        
-        self.canvasheight = height
-        self.canvaswidth = width
+
+        self._fallback_canvasheight = height
+        self._fallback_canvaswidth = width       
+        self._updateTerminalSize(None, None)
                     
         self.stdout = sys.stdout
         self.stderr = sys.stderr
@@ -73,7 +74,7 @@ class TextInterface(object):
         Message output
         """
         lines = len(text.splitlines())        
-        
+
         if lines > self.canvasheight:
             self.page(text)
         else:
@@ -135,10 +136,11 @@ class TextInterface(object):
             try:
                 cr = (env['LINES'], env['COLUMNS'])
             except:
-                cr = (25, 80)
+                cr = (self._fallback_canvasheight, self._fallback_canvaswidth)
 
-        self.canvaswidth = cr[0]
-        self.canvasheight = cr[1]
+        self.canvasheight = cr[0]
+        self.canvaswidth = cr[1]
+
 
 # initialization
 import __main__
