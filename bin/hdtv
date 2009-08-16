@@ -44,6 +44,16 @@ try:
     import startup
 except ImportError:
     pass
-
+    
+hdtv.ui.newline()
+hdtv.ui.msg("=========================================================")
+hdtv.ui.msg(" HDTV - Nuclear Spectrum Analysis Tool")
+hdtv.ui.newline()
+hdtv.ui.msg("  Copyleft: Institut for Nuclear Physics, Cologne")
+hdtv.ui.msg("  Authors:  Norbert Braun, Tanja Kotthaus, Ralf Schulze")
+hdtv.ui.newline()
+hdtv.ui.msg("  This software is licensed under the GPL.") 
+hdtv.ui.msg("=========================================================")
+hdtv.ui.newline()
 # Go
 hdtv.cmdline.MainLoop()
