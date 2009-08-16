@@ -223,7 +223,7 @@ class Database(object):
             
             if len(results) > 0:
                 table = hdtv.util.Table(results, header = self.database.fOrderedHeader,
-                                      attrs = self.database.fOrderedParamKeys)
+                                      keys = self.database.fOrderedParamKeys)
                 hdtv.ui.msg(str(table))
                 
             hdtv.ui.msg("Found " + str(len(results)) + " results") 

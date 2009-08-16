@@ -458,7 +458,7 @@ class Table(object):
     """
     Class for holing tables
     """
-    def __init__(self, data, attrs, header = None, ignoreEmptyCols = True,
+    def __init__(self, data, keys, header = None, ignoreEmptyCols = True,
                  sortBy = None, reverseSort = False):
         
         self.col_sep_char = "|"
@@ -473,35 +473,52 @@ class Table(object):
         self._width = 0 # Width of table
         self._col_width = list() # width of columns
         
-        self._ignore_col = [ignoreEmptyCols for i in range(0, len(attrs) + 1)] # One additional "border column"
+        self._ignore_col = [ignoreEmptyCols for i in range(0, len(keys) + 1)] # One additional "border column"
         
+        self.data = list()                   
+
+        for d in data:
+            if isinstance(d, dict):
+                tmp = d
+            else: # convert to dict
+                tmp = dict()
+                for k in keys:
+                    tmp[k] = getattr(d, k)
+            self.data.append(tmp)
+            
         # sort 
         if not sortBy is None:
-            data = data[:]
-            data.sort(key = lambda x: getattr(x, sortBy), reverse = reverseSort)
-            
-        if header is None: # No header given: set them from attrs
+            self.data.sort(key = lambda x: x[sortBy], reverse = reverseSort)
+
+        if header is None: # No header given: set them from keys
             self.header = list()
-            for a in attrs:
-                self.header.append(a)
+            for k in keys:
+                self.header.append(k)
         else:
             self.header = header
-                
+
         # Determine initial width of columns
         for header in self.header:
             self._col_width.append(len(str(header)) + 2)
             
         # Build lines
-        for d in data:
+        for d in self.data:
             line = list()
-            for i in range(0, len(attrs)):
+            for i in range(0, len(keys)):
                 try:
-                    value = str(getattr(d, attrs[i]))
-                    if value is not "": # We have values in this columns -> don't ignore it
+                    value = d[keys[i]]
+
+                    if value is None:
+                        value = ""
+                    else:
+                        value = str(value)
+                        
+                    if not value is "" : # We have values in this columns -> don't ignore it
                         self._ignore_col[i] = False
+                        
                     line.append(value)
                     self._col_width[i] = max(self._col_width[i], len(value) + 2) # Store maximum col width
-                except AttributeError:
+                except KeyError:
                     line.append(self.empty_field)
             self.lines.append(line)
                         
@@ -544,7 +561,7 @@ class Table(object):
                     line_str += self.col_sep_char
 
             text += line_str + os.linesep
-            
+   
         return text
 
      
