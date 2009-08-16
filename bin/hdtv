@@ -10,7 +10,19 @@ import os
 import ROOT
 
 # Get ~/.hdtv directory
-configpath = os.path.expanduser("~/.hdtv")
+try:
+    configpath = os.environ["HDTV_USER_PATH"]
+except KeyError:
+    configpath = os.path.expanduser("~/.hdtv")
+
+if not os.access(configpath, os.W_OK):   
+    try:
+        os.mkdir(configpath, 0755)
+    except OSError:
+        print >>sys.stderr, "Could not access config path", configpath
+        print >>sys.stderr, "Try setting HDTV_USER_PATH environment variable."
+        sys.exit(1)
+
 sys.path.append(configpath)
 sys.path.append(configpath + "/plugins")
 
