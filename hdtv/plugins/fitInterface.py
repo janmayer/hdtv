@@ -583,7 +583,7 @@ class TvFitInterface:
                             help = "act on default fitter")
         parser.add_option("-f", "--fit", action = "store", default = "none",
                             help = "change parameter of selected fit and refit")
-        hdtv.cmdline.AddCommand(prog, self.FitParam,
+        hdtv.cmdline.AddCommand(prog, self.FitParam, level = 0,
                                 completer = self.ParamCompleter,
                                 parser = parser, minargs = 1)
         
@@ -617,7 +617,7 @@ class TvFitInterface:
         parser.add_option("-t", "--show-table", action = "store_true", default = False,
                         help = "print table of energies given and energies obtained from fit")
         hdtv.cmdline.AddCommand("calibration position assign", self.CalPosAssign,
-                                parser = parser, minargs = 2)
+                                parser = parser, minargs = 2, level=0)
 
     def FitList(self, args, options):
         """

@@ -82,7 +82,7 @@ def pwd(args):
 
 
 print "loaded ls plugin"
-hdtv.cmdline.AddCommand("ls", ls, maxargs=1, dirargs=True)
-hdtv.cmdline.AddCommand("cd", cd, maxargs=1, dirargs=True)
-hdtv.cmdline.AddCommand("pwd", pwd, nargs=0) 
+hdtv.cmdline.AddCommand("ls", ls, level=2, maxargs=1, dirargs=True)
+hdtv.cmdline.AddCommand("cd", cd, level=2, maxargs=1, dirargs=True)
+hdtv.cmdline.AddCommand("pwd", pwd, level=2, nargs=0) 
 

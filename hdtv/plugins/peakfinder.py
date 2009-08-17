@@ -62,7 +62,7 @@ class PeakFinder:
         parser.add_option("-r", "--no-reject", action = "store_true", default = False,
                         help = "reject fits with unreasonable values")
         
-        hdtv.cmdline.AddCommand(prog, self.PeakSearch, parser = parser, minargs = 0, fileargs = False)
+        hdtv.cmdline.AddCommand(prog, self.PeakSearch, level = 4, parser = parser, minargs = 0, fileargs = False)
         
         
     def PeakSearch(self, args, options):

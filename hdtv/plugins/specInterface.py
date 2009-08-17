@@ -281,41 +281,41 @@ class TvSpecInterface:
         hdtv.cmdline.AddCommand("spectrum list", self.SpectrumList, nargs=0, parser=parser)
         
         hdtv.cmdline.AddCommand("spectrum delete", self.SpectrumDelete, minargs=1,
-                                usage="%prog <ids>")
+                                usage="%prog <ids>", level = 0)
         hdtv.cmdline.AddCommand("spectrum activate", self.SpectrumActivate, nargs=1,
-                                usage="%prog <id>")
+                                usage="%prog <id>", level = 0)
         hdtv.cmdline.AddCommand("spectrum show", self.SpectrumShow, minargs=1,
-                                usage="%prog <ids>|all|none")
+                                usage="%prog <ids>|all|none", level = 0)
         hdtv.cmdline.AddCommand("spectrum update", self.SpectrumUpdate, minargs=1,
-                                usage="%prog <ids>|all|shown")
+                                usage="%prog <ids>|all|shown", level = 0)
         hdtv.cmdline.AddCommand("spectrum write", self.SpectrumWrite, minargs=1, maxargs=2,
-                                usage="%prog <filename>'<format> [id]")
+                                usage="%prog <filename>'<format> [id]", level = 0)
         hdtv.cmdline.AddCommand("spectrum normalization", self.SpectrumNormalization,
-                                minargs=1,
+                                minargs=1, level = 0,
                                 usage="%prog [ids] <norm>")
 
 
         prog = "spectrum add"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog,
                                                usage="%prog [OPTIONS] <target-id> <ids>|all")
-        hdtv.cmdline.AddCommand(prog, self.SpectrumAdd, minargs=2, fileargs=False, parser=parser)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumAdd, level = 2, minargs=2, fileargs=False, parser=parser)
 
         prog = "spectrum substract"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog,
                                                usage="%prog [OPTIONS] <target-id> <ids>|all")
-        hdtv.cmdline.AddCommand(prog, self.SpectrumSub, minargs=2, fileargs=False, parser=parser)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumSub, level = 2, minargs=2, fileargs=False, parser=parser)
         
         prog = "spectrum multiply"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog,
                                                usage="%prog [OPTIONS] <factor> <ids>|all")
-        hdtv.cmdline.AddCommand(prog, self.SpectrumMultiply, minargs=1, fileargs=False, parser=parser)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumMultiply, level = 2, minargs=1, fileargs=False, parser=parser)
         
         
         prog = "spectrum copy"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog,
                                                usage="%prog <ids>")
         parser.add_option("-i", "--id", type="int", default=None, help="Copy to <id>")
-        hdtv.cmdline.AddCommand(prog, self.SpectrumCopy, fileargs=False, parser=parser)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumCopy, level = 2, fileargs=False, parser=parser)
         
 
         # calibration commands
@@ -323,7 +323,7 @@ class TvSpecInterface:
                                                usage="%prog [OPTIONS] <filename>")
         parser.add_option("-s", "--spec", action="store",
                           default="all", help="spectrum ids to apply calibration to")
-        hdtv.cmdline.AddCommand("calibration position read", self.CalPosRead, nargs=1,
+        hdtv.cmdline.AddCommand("calibration position read", self.CalPosRead, level = 0, nargs=1,
                                 fileargs=True, parser=parser)
         
         
@@ -345,20 +345,20 @@ to only fit the calibration.""",
                           default=False, help="print table of energies given and energies obtained from fit")
         parser.add_option("-i", "--input-file", action="store", 
                           default = None, help="get channel<->energy pairs from file")
-        hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, minargs=0,
-                                parser=parser, fileargs=True)
+        hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, level = 0,
+                                minargs=0, parser=parser, fileargs=True)
         
         parser = hdtv.cmdline.HDTVOptionParser(prog="calibration position set",
                                                usage="%prog [OPTIONS] <p0> <p1> [<p2> ...]")
         parser.add_option("-s", "--spec", action="store",
                           default="all", help="spectrum ids to apply calibration to")
-        hdtv.cmdline.AddCommand("calibration position set", self.CalPosSet, minargs=2,
-                                parser=parser)
+        hdtv.cmdline.AddCommand("calibration position set", self.CalPosSet, level = 0,
+                                minargs=2, parser=parser)
         
         
         hdtv.cmdline.AddCommand("calibration position getlist", self.CalPosGetlist, nargs=1,
                                 fileargs=True,
-                                usage="%prog <filename>")
+                                usage="%prog <filename>", level=0)
 
     
     def SpectrumList(self, args, options):
