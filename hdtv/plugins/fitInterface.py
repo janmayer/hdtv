@@ -535,6 +535,8 @@ class TvFitInterface:
         description = "display fits"
         usage = "%prog none|all|<ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
+                        help = "select spectra to work on")
         # TODO: add option to show the fit, that is closest to a certain value
         hdtv.cmdline.AddCommand(prog, self.FitShow, minargs = 1, parser = parser)
         
@@ -542,6 +544,8 @@ class TvFitInterface:
         description = "hide fits"
         usage = "%prog all|<ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
+                        help = "select spectra to work on")
         # TODO: add option to show the fit, that is closest to a certain value
         hdtv.cmdline.AddCommand(prog, self.FitHide, parser = parser)
         
@@ -713,38 +717,50 @@ class TvFitInterface:
         """
         Hide Fits
         """
-        if self.spectra.activeID is None:
-            hdtv.ui.warn("No active spectrum, no action taken.")
-            return
-        if not self.spectra.activeID in self.spectra.visible:
-            hdtv.ui.warn("Active spectrum is not visible, no action taken")
-            return
-        spec = self.spectra[self.spectra.activeID]
-        ids = hdtv.cmdhelper.ParseFitIds(args,spec)
-        if len(ids)>0:
-            spec.HideObjects(ids)
-        else:
-            spec.HideAll()
-
+        # FitHide is the same as FitShow, except that the spectrum selection is inverted
+        self.FitShow(args, options, inverse=True)
     
-    def FitShow(self, args, options):
+    def FitShow(self, args, options, inverse=False):
         """
         Show Fits
+        
+        inverse = True inverses the fit selection i.e. FitShow becomes FitHide
         """
-        if self.spectra.activeID is None:
-            hdtv.ui.warn("No active spectrum, no action taken.")
-            return
-        if not self.spectra.activeID in self.spectra.visible:
-            hdtv.ui.warn("Active spectrum is not visible, no action taken")
-            return
-        spec = self.spectra[self.spectra.activeID]
-        ids = hdtv.cmdhelper.ParseFitIds(args,spec)
-        if len(ids)>0:
-            spec.ShowObjects(ids)
-            for ID in ids:
-                hdtv.ui.msg("Fit %d:" %ID + str(spec[ID].formated_str(verbose=True)))
+        keywords = ["all", "active"]
+        try:
+            ids = hdtv.cmdhelper.ParseRange(options.spectrum, keywords)
+        except ValueError:
+            return "USAGE"
+
+        hdtv.ui.debug("FitShow: ids=" + str(ids), level=4)
+        if ids == "ACTIVE":
+            if self.spectra.activeID is None:
+                hdtv.ui.warn("No active spectrum, no action taken.")
+                return
+            if not self.spectra.activeID in self.spectra.visible:
+                hdtv.ui.warn("Active spectrum is not visible, no action taken")
+                return
+            sids = [self.spectra.activeID]
+            hdtv.ui.debug("FitShow: working on" + str(sids), level=4)
+        elif ids == "ALL":
+            sids = self.spectra.keys()
         else:
-            spec.HideAll()
+            sids = ids    
+        
+        for sid in sids:
+            try:
+                spec = self.spectra[sid]
+            except KeyError:
+                hdtv.msg.error("No spectrum " + str(sid))
+                continue
+            fids = hdtv.cmdhelper.ParseFitIds(args, spec)
+            if len(fids)>0:
+                if inverse:
+                    spec.HideObjects(fids)
+                else:
+                    spec.ShowObjects(fids)
+            else:
+                spec.HideAll()
 
     def FitPrint(self, args, options):
         """
