@@ -2,17 +2,8 @@
 * Customize README
 * Customize INSTALL
 * Check LICENSE
-* Write Documentation
 * Write some test programs to check correct behavior of program/library (in test/)
-* Fix Fit report in "Fit" window
-* Allow "fit par width hold(!) 2.5"
-* Save fit id in XML and restore correctly
+* Allow "fit par width hold(!) 2.5"0
 * view_width for "fit focus" as config option
-* command to set peak/region/background marker from command line
 * Bundle "cal pos" commands in one plugin
-* Hotkey to activate fit under mouse pointer
-* Fits without background fit are not restored properly
-* Fix reading of XML file: Fits with e.g. only background raise exception on reading
-* Warn when quitting and there are unsaved fits
 * Bugfix: when reading fits for spectra that are loaded, but not shown do not draw fits
-* Avoid double fits (e.g. when reading from XML)
