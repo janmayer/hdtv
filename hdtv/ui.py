@@ -24,7 +24,6 @@
 #-------------------------------------------------------------------------------
 
 import __main__
-DEBUG = False
 
 def msg(text, newline = True):
     """
@@ -53,11 +52,14 @@ def debug(text, level = 1, newline = True):
     """
     __main__.ui.debug(text, level = level, newline = newline)
     
+def debug_level(level = 0):
+    """
+    Set debug level
+    """
+    __main__.ui.DEBUG_LEVEL = level
     
 def newline():
     """
     Insert newline
     """
     __main__.ui.newline()    
-
-
