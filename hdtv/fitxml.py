@@ -274,7 +274,7 @@ class FitXml:
         This function reads only the peak data and ignores everything else,
         the peak objects are independent of a specific fit or spectrum and 
         have a fixed calibration. 
-        Note: This is for standalone use, it is not possible to rstore fits 
+        Note: This is for standalone use, it is not possible to restore fits 
         with this list.
         """
         peaks = list()

@@ -453,7 +453,7 @@ class Pairs(list):
         
 class Table(object):
     """
-    Class for holing tables
+    Class to store tables
     """
     def __init__(self, data, keys, header = None, ignoreEmptyCols = True,
                  sortBy = None, reverseSort = False):
