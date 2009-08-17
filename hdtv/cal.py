@@ -92,18 +92,20 @@ class CalibrationFitter:
         if self.calib == None:
             raise RuntimeError, "No calibration available (did you call FitCal()?)"
   
-        header = ["Channel", "E_given", "E_fit"]
-        keys = "channel", "e_given", "e_fit"
+        header = ["Channel", "E_given", "E_fit", "Residual"]
+        keys = "channel", "e_given", "e_fit", "residual"
         tabledata = list()
         
         for (ch, e_given) in self.pairs:
         
             tableline = dict()
             e_fit = self.calib.Ch2E(ch)
+            residual = e_given - e_fit
             
             tableline["channel"] = "%10.2f" % ch
             tableline["e_given"] = "%10.2f" % e_given
             tableline["e_fit"] = "%10.2f" % e_fit
+            tableline["residual"] = "%10.2f" % residual
             tabledata.append(tableline)
             
         return hdtv.util.Table(tabledata, keys, header = header, sortBy="channel")
