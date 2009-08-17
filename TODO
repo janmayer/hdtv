@@ -4,7 +4,6 @@
 * Check LICENSE
 * Write Documentation
 * Write some test programs to check correct behavior of program/library (in test/)
-* Fix "spec read"
 * Fix Fit report in "Fit" window
 * Allow "fit par width hold(!) 2.5"
 * Save fit id in XML and restore correctly
