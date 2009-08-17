@@ -40,7 +40,7 @@ class Database(object):
         self.database = None
         
         # Register configuration variables for fit peakfind
-        self.opt["db"] = hdtv.options.Option(default="PGAAlib_IKI2000", changeCallback = lambda x: self.Set(x)) # default database
+        self.opt["db"] = hdtv.options.Option(default = "PGAAlib_IKI2000", changeCallback = lambda x: self.Set(x)) # default database
         hdtv.options.RegisterOption("database.db", self.opt["db"])    
         
         # Set default database
@@ -64,7 +64,8 @@ class Database(object):
                         help = "Fuzziness for database lookup")
         parser.add_option("-k", "--sort-key", action = "store", default = None, # Default is handled via hdtv.options.Option
                         help = "Sort by key")
-        parser.add_option("-r", "--sort-reverse", action = "store_true", help = "Reverse sorting")
+        parser.add_option("-r", "--sort-reverse", action = "store_true", default = None,
+                           help = "Reverse sorting")
  
         hdtv.cmdline.AddCommand(prog, self.Lookup, parser = parser, minargs = 1, fileargs = False)
         
@@ -80,9 +81,14 @@ class Database(object):
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         hdtv.cmdline.AddCommand(prog, lambda args, opts: hdtv.options.Set("database.db", args[0]), parser = parser, nargs = 1, fileargs = False)
         
+        prog = "db info"
+        description = "Show info about database"
+        usage = "%prog <db>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        hdtv.cmdline.AddCommand(prog, self.Info, parser = parser, fileargs = False)        
         
-        
-    def Set(self, dbname=None, open=False):
+
+    def Set(self, dbname = None, open = False):
         """ 
         Set database Callback
         
@@ -108,6 +114,27 @@ class Database(object):
             hdtv.ui.error("No such database: " + dbname)
             return False
 
+    def Info(self, args, options):
+        """ 
+        Print info about database(s)
+        """
+        hdtv.ui.newline() # Newline
+        if len(args) == 0:
+            args = [hdtv.options.Get("database.db")]
+        
+        for dbs in args:
+            try:
+                db = hdtv.database.databases[dbs.lower()]()
+                hdtv.ui.msg("Database: " + db.name)
+                hdtv.ui.msg("Description: " + db.description)
+                self.showDBfields(db)
+                
+            except KeyError:
+                hdtv.ui.error("No such database: " + dbname)
+                return False
+        
+            hdtv.ui.newline() # Newline
+    
     def assureOpen(self):
         """
         assure that the database has been opened
@@ -116,7 +143,7 @@ class Database(object):
             if not self.database.opened:
                 self.database.open()
         except AttributeError:
-            self.Set(open=True)
+            self.Set(open = True)
             
     def List(self, args, options):
 
@@ -125,6 +152,20 @@ class Database(object):
         """
         for (name, db) in hdtv.database.databases.items():
             hdtv.ui.msg(name + ": " + db().description)
+        
+    def showDBfields(self, db=None):
+        """
+        Show fields of database db. If db==None show field of current database
+        """        
+        
+        text = "Valid fields: "
+        if db is None:
+            db = self.database
+        for key in db.fOrderedParamKeys[:-1]:
+            text += "\'" + str(key) + "\', "
+        
+        text += "\'" + str(db.fOrderedParamKeys[-1]) + "\'"
+        hdtv.ui.msg(text)
         
     def Lookup(self, args, options):
         """
@@ -141,7 +182,7 @@ class Database(object):
 
             # Valid arguments
             vargs = list()
-            for v in self.database.fields:
+            for v in self.database.fOrderedParamKeys:
                 vargs.append(v.lower())
             
             # parse arguments
@@ -151,9 +192,8 @@ class Database(object):
                     if m.group(1).lower() in vargs:
                         lookupargs[m.group(1)] = m.group(2)
                     else:
-                        hdtv.ui.msg("Valid fields: ", newline = False)
-                        for key in self.database.fields.keys():
-                            hdtv.ui.msg("\'" + str(key) + "\'", newline = False)
+                        self.showDBfields()
+                        return False
                 else:
                     try: # default
                         lookupargs['energy'] = float(a)
@@ -170,7 +210,7 @@ class Database(object):
                 lookupargs['sort_reverse'] = hdtv.options.Get("database.sort_reverse") 
             else:
                 lookupargs['sort_reverse'] = options.sort_reverse
-            
+             
             if options.fuzziness is None:
                 fuzziness = hdtv.options.Get("database.fuzziness")
             else:
@@ -181,8 +221,10 @@ class Database(object):
             except AttributeError:
                 return False
             
-            for r in results:
-                hdtv.ui.msg(str(r))
+            if len(results) > 0:
+                table = hdtv.util.Table(results, header = self.database.fOrderedHeader,
+                                      keys = self.database.fOrderedParamKeys)
+                hdtv.ui.msg(str(table))
                 
             hdtv.ui.msg("Found " + str(len(results)) + " results") 
 

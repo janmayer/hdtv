@@ -28,8 +28,9 @@ import hdtv.cmdhelper
 import hdtv.color
 import hdtv.cal
 import hdtv.util
+import hdtv.ui
  
-from hdtv.spectrum import Spectrum, FileSpectrum
+from hdtv.spectrum import Spectrum, FileSpectrum, SpectrumCompound
 from hdtv.specreader import SpecReaderError
 
 
@@ -150,7 +151,9 @@ class SpecInterface:
             
             for fname in files:
                 try:
-                    spec = FileSpectrum(fname, fmt)
+                    fspec = FileSpectrum(fname, fmt)
+                    # Create spectrum compund
+                    spec = SpectrumCompound(self.spectra.viewport, fspec)
                 except (OSError, SpecReaderError):
                     print "Warning: could not load %s'%s" % (fname, fmt)
                 else:
@@ -158,7 +161,7 @@ class SpecInterface:
                         sid = self.spectra.Add(spec)
                     else:
                         sid = self.spectra.Insert(spec, ID)
-
+                    
                     spec.SetColor(hdtv.color.ColorForID(sid))
                     loaded.append(sid)
                     
@@ -170,7 +173,8 @@ class SpecInterface:
         if len(loaded)>0:
             self.spectra.ActivateObject(loaded[-1])
         # Update viewport if required
-        self.window.Expand()
+        if len(self.spectra.objects) == 1: # Expand window if it is the only spectrum
+            self.window.Expand()
         self.window.viewport.UnlockUpdate()
         return loaded
 
@@ -193,9 +197,13 @@ class SpecInterface:
         
         Return ID of new spectrum
         """
+        
         if copyTo is None:              
             copyTo = self.spectra.GetFreeID()
+
+        hdtv.ui.debug("Copy spec " + str(ID) + " to " + str(copyTo), level=2)
         spec = Spectrum(self.spectra[ID].fHist, cal=self.spectra[ID].cal)
+        spec = SpectrumCompound(self.spectra[ID].viewport, spec)        
         sid = self.spectra.Insert(spec, copyTo)
         spec.SetColor(hdtv.color.ColorForID(sid))
         print "Copied spectrum", ID, "to", sid
@@ -245,7 +253,7 @@ class SpecInterface:
                 print "calibrated spectrum with id %d" %ID
             except KeyError:
                 print "Warning: there is no spectrum with id: %s" %ID
-        self.window.Expand()
+#        self.window.Expand()
 
 class TvSpecInterface:
     """
@@ -306,6 +314,7 @@ class TvSpecInterface:
         prog = "spectrum copy"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog,
                                                usage="%prog <ids>")
+        parser.add_option("-i", "--id", type="int", default=None, help="Copy to <id>")
         hdtv.cmdline.AddCommand(prog, self.SpectrumCopy, fileargs=False, parser=parser)
         
 
@@ -400,6 +409,7 @@ to only fit the calibration.""",
         """
         Copy spectra
         """
+        hdtv.ui.debug("SpectrumCopy: args= " + str(args) + " options= " + str(options), level=6)
         try:
             ids = hdtv.cmdhelper.ParseRange(args)
             if ids == "NONE":
@@ -407,9 +417,12 @@ to only fit the calibration.""",
             elif ids == "ALL":
                 ids = self.spectra.keys()
                         
-            for ID in ids:                
-                self.specIf.CopySpectrum(ID)
-            
+            for ID in ids:
+                try:                
+                    self.specIf.CopySpectrum(ID, copyTo=options.id)
+                except KeyError:
+                    hdtv.ui.error("No such spectrum: " + str(ID))
+                    
         except ValueError:
             return "USAGE"
     

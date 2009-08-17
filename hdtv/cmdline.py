@@ -398,8 +398,12 @@ class CommandLine:
             self.fReadlineExitHandler = True
             
     def WriteReadlineHistory(self):
-        readline.write_history_file(self.fReadlineHistory)
-        
+        try:
+            readline.write_history_file(self.fReadlineHistory)
+        except IOError:
+            hdtv.ui.error("Could not write \'" + self.fReadlineHistory + "\'")
+            sys.exit(1)
+            
     def RegisterInteractive(self, name, ref):
         self.fInteractiveLocals[name] = ref
         

@@ -36,7 +36,7 @@ class PeakFinder:
     def __init__(self, spectra):
         
         self.spectra = spectra
-        print "loaded PeakFinder plugin"
+        hdtv.ui.msg("loaded PeakFinder plugin")
         
         # Register configuration variables for fit peakfind
         opt = hdtv.options.Option(default = 2.5)
@@ -69,33 +69,25 @@ class PeakFinder:
 
         try:
             if not self.spectra.activeID in self.spectra.visible:
-                print "Warning: active spectrum is not visible, no action taken"
+                hdtv.ui.warn("Active spectrum is not visible, no action taken")
                 return True
         except KeyError:
-            print "No active spectrum"
+            hdtv.ui.error("No active spectrum")
             return False
         
 
         sid = self.spectra.activeID
         tSpec = ROOT.TSpectrum()
 
-        #  hist = self.spectra.GetActiveObject().fHist
-#        spec = hdtv.spectrum.SpectrumCompound(self.spectra[sid].viewport, self.spectra[sid])
         spec = self.spectra[self.spectra.activeID]
         hist = spec.fHist
-        
-        if not hasattr(spec, "activeID"):
-            # create SpectrumCompound object 
-            spec = SpectrumCompound(self.spectra[sid].viewport, spec)
-            # replace the simple spectrum object by the SpectrumCompound
-            self.spectra[sid] = spec
 
         try:
             sigma_Ch = spec.cal.E2Ch(float(options.sigma))
             sigma_E = float(options.sigma) 
             threshold = float(options.threshold)
         except ValueError:
-            print "Invalid sigma/threshold"
+            hdtv.ui.error("Invalid sigma/threshold")
             return False
         
         autofit = not options.no_fit
@@ -113,10 +105,10 @@ class PeakFinder:
                 end_E = float(args[1])
                 end_Ch = spec.cal.E2Ch(end_E)
         except ValueError:
-            print "Invalid start/end arguments"
+            hdtv.ui.error("Invalid start/end arguments")
             return False
 
-        print "Search Peaks in region", start_E, "-", end_E, "(sigma=", sigma_E, "threshold=", threshold, "%)"
+        hdtv.ui.msg("Search Peaks in region " + str(start_E) + "--" + str(end_E) + " (sigma=" + str(sigma_E) + " threshold=" + str(threshold*100) + " %)")
         
         # Invoke ROOT's peak finder
         hist.SetAxisRange(start_Ch, end_Ch)
@@ -168,8 +160,8 @@ class PeakFinder:
              try:
                  peak = fit.fitter.peakModel.Peak(cal = spec.cal, **parameter)
              except:
-                 print "Error creating peak"
-                 print parameter
+                 hdtv.ui.error("Error creating peak")
+                 hdtv.ui.debug("PeakSearch(): Fitter Parameter= " + str(parameter))
                  continue
              
              fit.peaks.append(peak)
@@ -179,15 +171,14 @@ class PeakFinder:
                  if not options.no_reject:
                      if len(fit.peaks) == 1: # TODO: Do something sensible for doublets (when we are fitting them here)
                          if fit.peaks[0].width <= 0.0 or fit.peaks[0].vol <= 0.0 or fit.peaks[0].width > 7 * sigma_E:
-                             print "Rejecting peak @" + str(fit.peaks[0].pos_cal) + " keV ",
-                             print "(width =", fit.peaks[0].width, "vol =", fit.peaks[0].vol, ")"
+                             hdtv.ui.msg("Rejecting peak @" + str(fit.peaks[0].pos_cal) + " keV (width = " + str(fit.peaks[0].width) + " vol = " + str(fit.peaks[0].vol) + ")")
                              reject = True
              
              if not reject:
                  ID = self.spectra[sid].Add(fit)
                  fit.SetTitle(str(ID) + "(*)")
         
-        print "Found", num_peaks, "peaks"
+        hdtv.ui.msg("Found " + str(num_peaks) + " peaks")
         return True
     
 # plugin initialisation

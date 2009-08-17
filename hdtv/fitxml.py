@@ -329,12 +329,6 @@ class FitXml:
             spec = None
             for sid in spectra.keys():
                 if spectra[sid].fHist.GetName()==name:
-                    # maybe we have to create a SpectrumCompound first
-                    if not hasattr(spectra[sid], "GetFreeID"):
-                        # create SpectrumCompound object 
-                        spec = hdtv.spectrum.SpectrumCompound(spectra[sid].viewport, spectra[sid])
-                        # replace the simple spectrum object by the SpectrumCompound
-                        spectra[sid]=spec
                     spec = spectra[sid]
             # maybe the spectrum that is referred to in XML is currently not loaded
             if spec is None: continue
@@ -476,12 +470,6 @@ class FitXml:
             spec = None
             for sid in spectra.keys():
                 if spectra[sid].fHist.GetName()==name:
-                    # maybe we have to create a SpectrumCompound first
-                    if not hasattr(spectra[sid], "GetFreeID"):
-                        # create SpectrumCompound object 
-                        spec = hdtv.spectrum.SpectrumCompound(spectra[sid].viewport, spectra[sid])
-                        # replace the simple spectrum object by the SpectrumCompound
-                        spectra[sid]=spec
                     spec = spectra[sid]
             # maybe the spectrum that is referred to in XML is currently not loaded
             if spec is None: continue
