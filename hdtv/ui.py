@@ -62,4 +62,8 @@ def newline():
     """
     Insert newline
     """
-    __main__.ui.newline()    
+    __main__.ui.newline()
+    
+# Line seperator
+linesep = __main__.ui.linesep
+        

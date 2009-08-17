@@ -51,6 +51,8 @@ class TextInterface(object):
         self.stdin = sys.stdin
         self.debugout = self.stderr
         
+        self.linesep = os.linesep
+        
         self.DEBUG_LEVEL = 0
         self.msg("loaded TextInterface")
         signal.signal(signal.SIGWINCH, self._updateTerminalSize)
@@ -81,7 +83,7 @@ class TextInterface(object):
             self.stdout.write(text)
 
         if newline:
-            self.stdout.write(os.linesep)
+            self.stdout.write(self.linesep)
             
     def warn(self, text, newline = True):
         """
@@ -109,7 +111,7 @@ class TextInterface(object):
       self.debugout.write(text)
         
       if newline:
-          self.debugout.write(os.linesep)
+          self.debugout.write(self.linesep)
     
     def newline(self):
         self.msg("", newline = True)
