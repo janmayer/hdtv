@@ -456,12 +456,14 @@ class Table(object):
     Class to store tables
     """
     def __init__(self, data, keys, header = None, ignoreEmptyCols = True,
-                 sortBy = None, reverseSort = False):
+                 sortBy = None, reverseSort = False, extra_header = None, extra_footer = None):
         
         self.col_sep_char = "|"
         self.empty_field = "-"
         self.header_sep_char = "-"
         self.crossing_char = "+"
+        self.extra_header = extra_header
+        self.extra_footer = extra_footer
         
         self.lines = list()
         
@@ -527,6 +529,9 @@ class Table(object):
     def __str__(self):
         
         text = str()
+        if not self.extra_header is None:
+            text += str(self.extra_header) + os.linesep
+            
         # Build Header
         header_line = str()
         for col in range(0, len(self.header)):
@@ -559,6 +564,9 @@ class Table(object):
 
             text += line_str + os.linesep
    
+        if not self.extra_footer is None:
+            text += str(self.extra_footer) + os.linesep
+            
         return text
 
      
