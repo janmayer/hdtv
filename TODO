@@ -1,9 +1,3 @@
-* Customize AUTHORS file
 * Customize README
 * Customize INSTALL
 * Check LICENSE
-* Write some test programs to check correct behavior of program/library (in test/)
-* Allow "fit par width hold(!) 2.5"0
-* view_width for "fit focus" as config option
-* Bundle "cal pos" commands in one plugin
-* Bugfix: when reading fits for spectra that are loaded, but not shown do not draw fits
