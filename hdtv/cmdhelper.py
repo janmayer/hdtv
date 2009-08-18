@@ -45,7 +45,7 @@ def ParseFitIds(strings, spec):
     """
     Parse fit IDs, allowed keywords are ALL, NONE, ACTIVE, VISIBLE
     """
-    special = ["ALL","NONE","ACTIVE","VISIBLE"]
+    special = ["ALL","NONE","ACTIVE","VISIBLE", "NEXT", "PREV"]
     # parse the arguments
     try:
         ids = ParseRange(strings, special)
@@ -55,15 +55,16 @@ def ParseFitIds(strings, spec):
     # processing different cases
     if ids=="NONE":
         return list()
-    if ids=="ACTIVE" or len(ids) == 0:
+    if ids in [ "ACTIVE", "NEXT", "PREV" ]:
         if not hasattr(spec, "activeID") or spec.activeID is None:
             print "Warning: There is no active fit."
             return list()
-        else:
-            return [spec.activeID]
-    # FIXME: this can be remove, when we use SpectrumCompound as default spectrum class
-    if not hasattr(spec, "activeID"):
-        return list()
+    if ids=="NEXT":
+        return [spec.nextID]
+    if ids=="PREV":
+        return [spec.prevID]
+    if ids=="ACTIVE" or len(ids) == 0:
+        return [spec.activeID]
     if ids=="ALL":
         return spec.keys()
     if ids=="VISIBLE":

@@ -151,6 +151,60 @@ class DrawableCompound(UserDict.DictMixin):
         self.objects = dict()
         self.visible = set()
         self.activeID = None
+        
+    @property
+    def nextID(self):
+        return self._nextID(onlyVisible = False)
+    
+    @property
+    def nextVisibleID(self):
+        return self._nextID(onlyVisible=True)
+
+    def _nextID(self, onlyVisible=False):
+        """
+        Get next ID after activeID
+        """
+        try:
+            if onlyVisible:
+                ids = list(self.visible)
+            else:
+                ids = self.keys()
+            print "draw ids", ids    
+            ids.sort()
+            nextIndex = (ids.index(self.activeID) + 1) % len(ids)
+            print "draw nextIn", nextIndex
+            nextID = ids[nextIndex]
+            print "draw nextID", nextID
+            return nextID
+        except ValueError:
+            return self.activeID
+
+    @property
+    def prevID(self):
+        return self._prevID(onlyVisible = False)
+    
+    @property
+    def prevVisibleID(self):
+        return self._prevID(onlyVisible=True)
+    
+    def _prevID(self, onlyVisible=False):
+        """
+        Get previous ID before activeID
+        """
+        try:
+            if onlyVisible:
+                ids = list(self.visible)
+            else:
+                ids = self.keys()
+            print "draw ids", ids    
+            ids.sort()
+            prevIndex = (ids.index(self.activeID) - 1) % len(ids)
+            prevID = ids[prevIndex]
+            print "draw nextID", prevID
+            return prevID
+        except ValueError:
+            return self.activeID
+
 
     def __getitem__(self, ID):
         return self.objects.__getitem__(ID)
