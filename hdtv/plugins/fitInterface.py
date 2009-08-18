@@ -656,7 +656,7 @@ class TvFitInterface:
                 hdtv.ui.error("No spectrum " + str(sid))
                 continue
             
-            result_header = "Fits in Spectrum " + str(sid) + hdtv.ui.linesep
+            result_header = "Fits in Spectrum " + str(sid) + " (" + str(spec) + ")" + hdtv.ui.linesep
             count_fits = 0
             count_peaks = 0
             
@@ -674,7 +674,7 @@ class TvFitInterface:
             
             if not hasattr(spec, "objects") or len(spec.objects) == 0:
                 hdtv.ui.newline()
-                hdtv.ui.msg("There are no fits for this spectrum")                
+                hdtv.ui.msg("Spectrum " + str(sid) + " (" + str(spec) + "): No fits")                
                 hdtv.ui.newline()
                 continue
             
