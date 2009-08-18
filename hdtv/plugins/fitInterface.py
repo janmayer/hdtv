@@ -820,14 +820,18 @@ class TvFitInterface:
         Focus a fit. If no fit is given focus the active fit
         """
         try:
-            if len(args) == 0:
-                ID = None
-            else:
-                ID = int(args[0])
+            ids = hdtv.cmdhelper.ParseFitIds(args, self.spectra[self.spectra.activeID])
+            if len(ids) > 1:
+                hdtv.ui.error("Cannot focus more than one fit")
+                return False
+            ID = ids[0]
             self.fitIf.FocusFit(ID)
-        except ValueError:
-            hdtv.ui.error("Invalid id %s" %ID)
-
+        except IndexError:
+            hdtv.ui.error("Invalid id")
+            return False
+        except KeyError:
+            hdtv.ui.error("No active spectrum")
+            return False
 
 #    def FitCopy(self, args):
 #        try:

@@ -31,7 +31,7 @@ def ParseSpecIDs(strings, spectra):
     ids = ParseRange(strings, ["ALL", "NONE", "ACTIVE"])
     if ids=="NONE":
         return []
-    elif ids=="ACTIVE":
+    elif ids=="ACTIVE" or len(ids) == 0:
         if spectra.activeID==None:
             print "Error: no active spectrum"
             return []
@@ -55,7 +55,7 @@ def ParseFitIds(strings, spec):
     # processing different cases
     if ids=="NONE":
         return list()
-    if ids=="ACTIVE":
+    if ids=="ACTIVE" or len(ids) == 0:
         if not hasattr(spec, "activeID") or spec.activeID is None:
             print "Warning: There is no active fit."
             return list()
