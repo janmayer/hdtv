@@ -19,6 +19,7 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
+import hdtv.ui
 
 def GetCompleteOptions(begin, options):
     l = len(begin)
@@ -33,7 +34,7 @@ def ParseSpecIDs(strings, spectra):
         return []
     elif ids=="ACTIVE" or len(ids) == 0:
         if spectra.activeID==None:
-            print "Error: no active spectrum"
+            hdtv.ui.error("no active spectrum")
             return []
         else:
             ids = [spectra.activeID]
@@ -57,7 +58,7 @@ def ParseFitIds(strings, spec):
         return list()
     if ids in [ "ACTIVE", "NEXT", "PREV" ]:
         if not hasattr(spec, "activeID") or spec.activeID is None:
-            print "Warning: There is no active fit."
+            hdtv.ui.warn("There is no active fit.")
             return list()
     if ids=="NEXT":
         return [spec.nextID]
@@ -74,7 +75,7 @@ def ParseFitIds(strings, spec):
     valid_ids = list() 
     for ID in ids:
         if not ID in spec.keys():
-            print "Warning: no fit with id %s" %ID
+            hdtv.ui.warn("Warning: no fit with id %s" %ID)
         else:
             valid_ids.append(ID)
     return valid_ids
