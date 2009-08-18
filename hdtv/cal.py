@@ -194,6 +194,7 @@ def MakeCalibration(cal):
     if not isinstance(cal, ROOT.HDTV.Calibration):
         if cal==None:
             cal = [0,1]
+        assert len(cal) > 1, "Calibration polynom " + str(cal) + " too short"
         calarray = ROOT.TArrayD(len(cal))
         for (i,c) in zip(range(0,len(cal)),cal):
             calarray[i] = c
@@ -205,7 +206,9 @@ def CalFromFile(fname):
     """
     Read calibration polynom from file
     
-    There should be one coefficient in each line, starting with p0
+    Allow formats are:
+        * One coefficient in each line, starting with p0
+        * Coefficients in one line, seperated by space, starting with p0
     """
     fname = os.path.expanduser(fname)
     try:
@@ -215,14 +218,23 @@ def CalFromFile(fname):
         return []
     try:
         calpoly = []
+        
         for line in f:
-            l = line.strip()
-            if l != "":
-                calpoly.append(float(l))
+            l = line.split()
+            if len(l) > 1: # One line cal file
+                for p in l:
+                    calpoly.append(float(p))
+                raise StopIteration
+            else:
+                if l != "":
+                    calpoly.append(float(l))
+                    
     except ValueError:
         f.close()
         print "Malformed calibration parameter file."
         raise ValueError
+    except StopIteration: # end file reading
+        pass
     f.close()
     return MakeCalibration(calpoly)
 
