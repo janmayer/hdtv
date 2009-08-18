@@ -337,13 +337,13 @@ to only fit the calibration.""",
                           default="all", help="spectrum ids to apply calibration to")
         parser.add_option("-d", "--degree", action="store",
                           default="1", help="degree of calibration polynomial fitted [default: %default]")
-        parser.add_option("-f", "--show-fit", action="store_true",
-                          default=False, help="show fit used to obtain calibration")
-        parser.add_option("-r", "--show-residual", action="store_true",
+        parser.add_option("-D", "--draw-fit", action="store_true",
+                          default=False, help="draw fit used to obtain calibration")
+        parser.add_option("-r", "--draw-residual", action="store_true",
                           default=False, help="show residual of calibration fit")
         parser.add_option("-t", "--show-table", action="store_true",
                           default=False, help="print table of energies given and energies obtained from fit")
-        parser.add_option("-i", "--input-file", action="store", 
+        parser.add_option("-f", "--file", action="store", 
                           default = None, help="get channel<->energy pairs from file")
         hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, level = 0,
                                 minargs=0, parser=parser, fileargs=True)
@@ -639,9 +639,9 @@ to only fit the calibration.""",
         Create calibration from pairs of channel and energy
         """
         try:
-            pairs = hdtv.util.Pairs(float)
-            if not options.input_file is None: # Read from file     
-                pairs.fromFile(options.input_file)
+            pairs = hdtv.util.Pairs(hdtv.util.ErrValue)
+            if not options.file is None: # Read from file     
+                pairs.fromFile(options.file)
             else:
                 if len(args) % 2 != 0: # Read from command line
                     print "Error: number of parameters must be even"
@@ -656,7 +656,7 @@ to only fit the calibration.""",
             return "USAGE"
         try:
             cal = hdtv.cal.CalFromPairs(pairs, degree, options.show_table, 
-                                        options.show_fit, options.show_residual)
+                                        options.draw_fit, options.draw_residual)
         except (ValueError, RuntimeError), msg:
             print "Error: " + str(msg)
             return False
