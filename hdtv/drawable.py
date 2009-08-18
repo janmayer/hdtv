@@ -169,12 +169,10 @@ class DrawableCompound(UserDict.DictMixin):
                 ids = list(self.visible)
             else:
                 ids = self.keys()
-            print "draw ids", ids    
+                
             ids.sort()
             nextIndex = (ids.index(self.activeID) + 1) % len(ids)
-            print "draw nextIn", nextIndex
             nextID = ids[nextIndex]
-            print "draw nextID", nextID
             return nextID
         except ValueError:
             return self.activeID
@@ -196,11 +194,10 @@ class DrawableCompound(UserDict.DictMixin):
                 ids = list(self.visible)
             else:
                 ids = self.keys()
-            print "draw ids", ids    
+            
             ids.sort()
             prevIndex = (ids.index(self.activeID) - 1) % len(ids)
             prevID = ids[prevIndex]
-            print "draw nextID", prevID
             return prevID
         except ValueError:
             return self.activeID
