@@ -313,7 +313,35 @@ class Fit(Drawable):
             for peak in self.peaks:
                 peak.Show()
         self.viewport.UnlockUpdate()
+    
+    @property
+    def xdimensions(self):
+        """
+        Return dimensions of fit in x-direction
         
+        returns: tuple (x_start, x_end)
+        """
+        
+        markers = list()
+        
+        # Get maximum of region markers, peak markers and peaks
+        for r in self.regionMarkers.collection:
+            markers.append(r.p1)
+            markers.append(r.p2)
+        for p in self.peakMarkers.collection:
+            markers.append(p.p1)
+        for p in self.peaks:
+            markers.append(p.pos_cal)
+        for b in self.bgMarkers.collection:
+            markers.append(b.p1)
+            markers.append(b.p2)
+    
+        x_start = min(markers)
+        x_end = max(markers)
+
+        return (x_start, x_end)
+    
+    
     def Focus(self, view_width=None):
         """
         Focus fit in middle of viewport
@@ -322,33 +350,21 @@ class Fit(Drawable):
         """
         if not self.viewport:
             return
-            
-        # Calculate middle of region
-        region_markers = list()
         
+        markers = list()
         # Get maximum of region markers, peak markers and peaks
-        for c in self.regionMarkers.collection:
-            region_markers.append(c.p1)
-            region_markers.append(c.p2)
-        for c in self.peakMarkers.collection:
-            region_markers.append(c.p1)
+        for r in self.regionMarkers.collection:
+            markers.append(r.p1)
+            markers.append(r.p2)
+        for p in self.peakMarkers.collection:
+            markers.append(p.p1)
         for p in self.peaks:
-            region_markers.append(p.pos_cal)
-    
-        try:
-            region_right = max(region_markers)
-            region_left = min(region_markers)
-        except ValueError: # Nothing valid found
-            print "Cannot focus fit"
-            return False
-    
-        view_middle = (region_right+region_left)/2
+            markers.append(p.pos_cal)
+
+        view_middle = (max(markers) + min(markers)) / 2
         
         # Calculate width of background region
         bg_markers = list()
-        for c in self.bgMarkers.collection:
-            bg_markers.append(c.p1)
-            bg_markers.append(c.p2)
         
         if not view_width: 
             try:
@@ -356,7 +372,7 @@ class Fit(Drawable):
                 bg_left = min(bg_markers)
                 view_width = 2*max([abs(bg_right - view_middle), abs(view_middle-bg_left)])
             except ValueError: # No background marker
-                view_width = region_right - region_left
+                view_width = max(markers) - min(markers)
             # add 30% to view_width
             view_width *= 1.3
 

@@ -26,6 +26,7 @@ import UserDict
 import hdtv.cal
 import hdtv.color
 import hdtv.dlmgr
+import hdtv.ui
 
 hdtv.dlmgr.LoadLibrary("display")
 
@@ -448,7 +449,50 @@ class DrawableCompound(UserDict.DictMixin):
                     print "Warning: ID %s not found" % ID
         self.viewport.UnlockUpdate()
 
-    
+
+    def isInVisibleRegion(self, ID):
+        """
+        Check if object is in the visible region of the viewport
+        """
+        xdim = self.objects[ID].xdimensions
+        
+        viewport_start = self.viewport.GetOffset()
+        viewport_end = viewport_start + self.viewport.GetXVisibleRegion()
+
+        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: object ID: %d" %ID, level=6)
+        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: viewport_start %d, viewport_end %d" 
+                       % (viewport_start, viewport_end), level=6)
+        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: object %d, starts at %d and ends at %d" 
+                       % (ID, xdim[0], xdim[1]), level=6)
+            
+        if (xdim[0] > viewport_start) and (xdim[1] < viewport_end):
+            hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: ID %d is visible" % ID, level=4)
+            return True
+        else:
+            hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: ID %d is *not* visible" % ID, level=4)
+            return False
+        
+        
+    def FocusObjects(self, ids):
+        """
+        Move and stretch viewport to show multiple objects
+        """
+        
+        xdimensions = ()
+        # Get dimensions of objects
+        for ID in ids:
+            xdimensions += self.objects[ID].xdimensions
+            
+        
+        view_width = max(xdimensions) - min(xdimensions)
+        view_width *= 1.1
+        if view_width < 100.:
+            view_width = 100. # TODO: make this configurable
+        view_center = (max(xdimensions) + min(xdimensions)) / 2.
+        
+        self.viewport.SetXVisibleRegion(view_width)
+        self.viewport.SetXCenter(view_center)
+        
     def FocusObject(self, ID=None):
         """
         If ID is not given: Focus active object

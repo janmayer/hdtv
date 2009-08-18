@@ -61,7 +61,8 @@ class View1D : public View {
   void ShiftXOffset(double f, bool update=true);
   void ShiftYOffset(double f, bool update=true);
   void SetStatusText(const char *text);
-  inline double GetOffset(void) { return fXOffset; }
+  inline double GetOffset() { return fXOffset; }
+  inline double GetXVisibleRegion(){ return fXVisibleRegion; }
   void HandleScrollbar(Long_t parm);
   void SetXVisibleRegion(double region, bool update=true);
   void SetYVisibleRegion(double region, bool update=true);

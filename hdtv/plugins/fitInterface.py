@@ -773,6 +773,8 @@ class TvFitInterface:
         else:
             sids = ids    
         
+        refocus = False
+        
         for sid in sids:
             try:
                 spec = self.spectra[sid]
@@ -785,6 +787,13 @@ class TvFitInterface:
                     spec.HideObjects(fids)
                 else:
                     spec.ShowObjects(fids)
+                    if sid == self.spectra.activeID:
+                        # Check if we have to refocus
+                        for i in fids:
+                            if not spec.isInVisibleRegion(i):
+                                refocus = True
+                if refocus:
+                    spec.FocusObjects(fids)
             else:
                 spec.HideAll()
 
