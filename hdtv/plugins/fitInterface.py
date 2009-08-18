@@ -228,7 +228,7 @@ class FitInterface:
         """
         Activate one fit
         """
-        hdtv.ui.msg("ActivateFit ID", ID)
+        hdtv.ui.msg("ActivateFit ID %s" %ID)
         if self.spectra.activeID==None:
             hdtv.ui.error("There is no active spectrum")
             return 
