@@ -498,6 +498,7 @@ class Table(object):
 
         # Determine initial width of columns
         for header in self.header:
+            # TODO: len fails on unicode characters (e.g. σ) -> str.decode(encoding)
             self._col_width.append(len(str(header)) + 2)
             
         # Build lines
@@ -516,6 +517,7 @@ class Table(object):
                         self._ignore_col[i] = False
                         
                     line.append(value)
+                    # TODO: len fails on unicode characters (e.g. σ) -> str.decode(encoding)
                     self._col_width[i] = max(self._col_width[i], len(value) + 2) # Store maximum col width
                 except KeyError:
                     line.append(self.empty_field)
@@ -524,7 +526,8 @@ class Table(object):
         # Determine table widths
         for w in self._col_width:
             self._width += w
-            self._width += len(self.col_sep_char)
+            # TODO: for unicode awareness we have to do something like len(col_sep_char.decode('utf-8')
+            self._width += len(self.col_sep_char) 
 
     def __str__(self):
         
