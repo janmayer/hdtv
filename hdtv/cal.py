@@ -31,6 +31,9 @@ class CalibrationFitter:
         self.pairs = []
         self.calib = None
         self.chi2 = None
+        self.__TF1 = None
+        self.__TF1_id = None
+        self.graph = ROOT.TGraph()
         
     def AddPair(self, ch, e):
         self.pairs.append([ch, e])
@@ -40,36 +43,66 @@ class CalibrationFitter:
         Use the reference peaks found in the histogram to fit the actual
         calibration function.
         If degree == 0, the linear coefficient of the polynomial is fixed at 1.
+        
+        If self.pairs contains ErrValues the channel error is respected 
         """
         if degree < 0:
             raise ValueError, "Degree cannot be negative"
 
-        if len(self.pairs) < degree+1:
+        if len(self.pairs) < degree + 1:
             raise RuntimeError, "You must specify at least as many channel/energy pairs as there are free parameters"
         
-        # Create ROOT linear fitter
-        if degree == 0:
-            linfit = ROOT.TLinearFitter(1, "pol1")
-            linfit.FixParameter(1, 1.0)
+        self.__TF1_id = "calfitter_" + hex(id(self)) # unique function ID
+
+        # Create ROOT function
+        if degree == 0:  
+            self.__TF1 = ROOT.TF1(self.__TF1_id, "pol1", 0, 0)
+            self.__TF1.FixParameter(1, 1.0) 
             degree = 1
         else:
-            linfit = ROOT.TLinearFitter(1, "pol%d" % degree, "")
+            self.__TF1 = ROOT.TF1(self.__TF1_id, "pol%d" % degree, 0, 0)
         
-        # Copy data into fitter
-        v = array('d', [0.0])
-            
+        # Prepare data for fitter
+        channels     = array('d')
+        channels_err = array('d')
+        energies     = array('d')
+        energies_err = array('d')
+
         for (ch,e) in self.pairs:
-            v[0] = ch
-            linfit.AddPoint(v,e)
-                    
+            ener = float(e)
+            # Store channels
+            try: # try to read from ErrValue
+                channel     = float(ch.value)
+                channel_err = float(ch.error)
+                channels.append(channel)
+                channels_err.append(channel_err)
+            except AttributeError:
+                channels.append(float(ch))
+                channel_err.append(0.0)
+            
+            # Store energies
+            try: # try to read from ErrValue
+                energy     = float(e.value)
+                energy_err = float(e.error)
+                energies.append(energy)
+                energies_err.append(energy_err)
+            except AttributeError:
+                enerigies.append(float(e))
+                energies_err.append(0.0)
+            
+        self.__TF1.SetRange(0, max(energies) * 1.1)
+        self.TGraph = ROOT.TGraphErrors(len(energies), channels, energies, channels_err, energies_err)
+        
+        fitoptions = "0" # Do not plot
+        fitoptions += "Q" # Quit
+
         # Do the fit
-        if linfit.Eval() != 0:
+        if self.TGraph.Fit(self.__TF1_id, fitoptions) != 0:
             raise RuntimeError, "Fit failed"
     
         # Save the fit result
-        self.calib = MakeCalibration([linfit.GetParameter(i) for i in range(0, degree+1)])
-    
-        self.chi2 = linfit.GetChisquare()
+        self.calib = MakeCalibration([self.__TF1.GetParameter(i) for i in range(0, degree+1)])
+        self.chi2 = self.__TF1.GetChisquare()
         
     def ResultStr(self):
         """
@@ -124,6 +157,7 @@ class CalibrationFitter:
         min_ch = self.pairs[0][0]
         max_ch = self.pairs[0][0]
         graph = ROOT.TGraph(len(self.pairs))
+#        graph = self.TGraph
         ROOT.SetOwnership(graph, False)
         
         i = 0
