@@ -477,7 +477,8 @@ class DrawableCompound(UserDict.DictMixin):
                 self.objects[ID].Show()
         self.visible=set(self.keys())
         self.viewport.UnlockUpdate()
-
+        return self.keys()
+    
     def ShowObjects(self, ids, clear=True):
         """
         Show objects on the display. 
@@ -499,6 +500,7 @@ class DrawableCompound(UserDict.DictMixin):
                 except KeyError:
                     print "Warning: ID %s not found" % ID
         self.viewport.UnlockUpdate()
+        return ids
 
 
     def isInVisibleRegion(self, ID):
@@ -584,9 +586,9 @@ class DrawableCompound(UserDict.DictMixin):
         index = ids.index(max(self.visible))
         ids = ids[index+1:index+nb+1]
         if len(ids)==0:
-            self.ShowFirst(nb)
-            return
+            return self.ShowFirst(nb)
         self.ShowObjects(ids, clear=True)
+        return ids
 
     def ShowPrev(self, nb=1):
         """
@@ -612,18 +614,19 @@ class DrawableCompound(UserDict.DictMixin):
             self.ShowLast(nb)
             return
         self.ShowObjects(ids, clear=True)
-
+        return ids
+    
     def ShowFirst(self, nb=1):
         """
         Show the first nb objects
         """
         if nb > len(self.objects):
-            self.ShowAll()
-            return
+            return self.ShowAll()
         ids = self.keys()
         ids.sort()
         ids = ids[:nb]
         self.ShowObjects(ids, clear=True)
+        return ids
 
     def ShowLast(self, nb=1):
         """
@@ -636,6 +639,7 @@ class DrawableCompound(UserDict.DictMixin):
         ids.sort()
         ids = ids[len(ids)-nb:]
         self.ShowObjects(ids, clear=True)
+        return ids
         
     def SetColor(self, color=None, active=False):
         """

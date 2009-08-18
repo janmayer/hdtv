@@ -781,17 +781,29 @@ class TvFitInterface:
             except KeyError:
                 hdtv.msg.error("No spectrum " + str(sid))
                 continue
-            fids = hdtv.cmdhelper.ParseFitIds(args, spec)
+            if args[0].upper() not in ("NEXT", "PREV") and not inverse:
+                fids = hdtv.cmdhelper.ParseFitIds(args, spec)
+            else:
+                fids = args
             if len(fids)>0:
                 if inverse:
                     spec.HideObjects(fids)
                 else:
-                    spec.ShowObjects(fids)
+                    if args[0].upper() == "NEXT":
+                        fids = spec.ShowNext() 
+                    elif args[0].upper() == "PREV":
+                        fids = spec.ShowPrev() 
+                    else :
+                        spec.ShowObjects(fids)
+                        
                     if sid == self.spectra.activeID:
                         # Check if we have to refocus
-                        for i in fids:
-                            if not spec.isInVisibleRegion(i):
-                                refocus = True
+                        try:
+                            for i in fids:
+                                if not spec.isInVisibleRegion(i):
+                                    refocus = True
+                        except TypeError:
+                            refocus = False
                 if refocus:
                     spec.FocusObjects(fids)
             else:
