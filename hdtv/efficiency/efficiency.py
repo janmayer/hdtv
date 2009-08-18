@@ -87,8 +87,9 @@ class _Efficiency(object):
         if quiet:
             fitopts += "Q"
 
-        self.TGraph.Fit(self.id, fitopts)
-
+        if self.TGraph.Fit(self.id, fitopts) != 0:
+            raise RuntimeError, "Fit failed"
+        
         # Final normalization
         if self._doNorm:
             self.norm = 1 / self.TF1.GetMaximum(0.0, 0.0)
