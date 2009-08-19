@@ -66,4 +66,4 @@ def newline():
     
 # Line seperator
 linesep = __main__.ui.linesep
-        
+
