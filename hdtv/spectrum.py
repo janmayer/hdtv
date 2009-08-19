@@ -49,10 +49,51 @@ class Spectrum(Drawable):
         self.ID = -1
         self.norm = 1.0
         self.fHist = hist
+        self.fEffCal = None
         
     def __str__(self):
         if self.fHist:
             return self.fHist.GetName()
+            
+    def GetTypeStr(self):
+        """
+        Return a string describing the type of this spectrum.
+        Should be overridden by subclasses.
+        """
+        if self.fHist:
+            return "spectrum"
+        else:
+            return "empty spectrum (no associated ROOT TH1 object)"
+            
+    def GetInfo(self):
+        """
+        Return a string describing this spectrum
+        """
+        s = "Spectrum type: %s\n" % self.GetTypeStr()
+        if not self.fHist:
+            return s
+        
+        s += "Name: %s\n" % str(self)
+        s += "Nbins: %d\n" % self.fHist.GetNbinsX()
+        xmin = self.fHist.GetXaxis().GetXmin()
+        xmax = self.fHist.GetXaxis().GetXmax()
+        
+        if self.cal and not self.cal.IsTrivial():
+            s += "Xmin: %.2f (cal)  %.2f (uncal)\n" % (self.cal.Ch2E(xmin), xmin)
+            s += "Xmax: %.2f (cal)  %.2f (uncal)\n" % (self.cal.Ch2E(xmax), xmax)
+        else:
+            s += "Xmin: %.2f\n" % xmin
+            s += "Xmax: %.2f\n" % xmax
+        
+        if not self.cal or self.cal.IsTrivial():
+            s += "Calibration: none\n"
+        elif type(self.cal) == ROOT.HDTV.Calibration:
+            s += "Calibration: Polynomial, degree %d\n" % self.cal.GetDegree()
+        else:
+            s += "Calibration: unknown\n"
+            
+        return s
+              
 
     # TODO: sumw2 function should be called at some point for correct error handling
     def Plus(self, spec):
@@ -195,6 +236,20 @@ class FileSpectrum(Spectrum):
         self.fFmt = fmt
         Spectrum.__init__(self, hist, color, cal)
         
+    def GetTypeStr(self):
+        """
+        Return a string describing the type of this spectrum.
+        """
+        return "spectrum, read from file"
+        
+    def GetInfo(self):
+        s = Spectrum.GetInfo(self)
+        s += "Filename: %s\n" % self.fFilename
+        if self.fFmt:
+            s += "File format: %s\n" % self.fFmt
+        else:
+            s += "File format: autodetected\n"
+        return s
     
     def Refresh(self):
         """
