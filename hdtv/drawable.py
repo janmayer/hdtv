@@ -161,6 +161,7 @@ class DrawableCompound(UserDict.DictMixin):
         
     def _get_activeID(self):
         return self.activeID
+    
     activeID = property(_get_activeID, _set_activeID)
     
     # nextID/prevID getter
@@ -170,9 +171,57 @@ class DrawableCompound(UserDict.DictMixin):
     
     @property
     def nextVisibleID(self):
-        return self._nextID(onlyVisible=True)
+        return self._nextID(onlyVisible = True)
 
-    def _nextID(self, onlyVisible=False):
+    @property
+    def firstID(self):
+        return self._firstID(onlyVisible = False)
+
+    @property
+    def firstVisibleID(self):
+        return self._firstID(onlyVisible = True)
+
+    @property
+    def lastID(self):
+        return self._lastID(onlyVisible = False)
+
+    @property
+    def lastVisibleID(self):
+        return self._lastID(onlyVisible = True)
+
+    def _firstID(self, onlyVisible = False):
+        if onlyVisible:
+            ids = list(self.visible)
+        else:
+            ids = self.keys()
+
+        try:
+            firstID = min(ids)
+        except ValueError:
+            firstID = self.activeID
+        
+        self._iteratorID = firstID
+        hdtv.ui.debug("hdtv.drawable.DrawableCompound: firstID=" + str(firstID), level=6)
+        return firstID
+        
+
+    def _lastID(self, onlyVisible = False):
+        if onlyVisible:
+            ids = list(self.visible)
+        else:
+            ids = self.keys()
+
+        try:
+            lastID = max(ids)
+        except ValueError:
+            lastID = self.activeID
+            
+        self._iteratorID = lastID
+        hdtv.ui.debug("hdtv.drawable.DrawableCompound: lastID=" + str(lastID), level=6)
+        return lastID
+        
+    
+    def _nextID(self, onlyVisible = False):
         """
         Get next ID after _iteratorID
         """
@@ -185,12 +234,14 @@ class DrawableCompound(UserDict.DictMixin):
             ids.sort()
             nextIndex = (ids.index(self._iteratorID) + 1) % len(ids)
             nextID = ids[nextIndex]
-            self._iteratorID = nextID
-            return nextID
-        except ValueError:
-            self._iteratorID = self.activeID
-            return self.activeID
 
+        except ValueError:
+                nextID = self.activeID if not self.activeID is None else self.firstID 
+            
+        hdtv.ui.debug("hdtv.drawable.DrawableCompound: nextID="+ str(nextID), level=6)
+        self._iteratorID = nextID
+        return nextID
+    
     @property
     def prevID(self):
         return self._prevID(onlyVisible = False)
@@ -212,12 +263,12 @@ class DrawableCompound(UserDict.DictMixin):
             ids.sort()
             prevIndex = (ids.index(self._iteratorID) - 1) % len(ids)
             prevID = ids[prevIndex]
-            self._iteratorID = prevID
-            return prevID
         except ValueError:
-            self._iteratorID = self.activeID
-            return self.activeID
+            prevID = self.activeID if not self.activeID is None else self.lastID
 
+        self._iteratorID = prevID
+        hdtv.ui.debug("hdtv.drawable.DrawableCompound: prevID=" + str(prevID), level=6)
+        return prevID
 
     def __getitem__(self, ID):
         return self.objects.__getitem__(ID)
@@ -267,7 +318,6 @@ class DrawableCompound(UserDict.DictMixin):
         """
         ID = self.GetFreeID()
         hdtv.ui.debug("hdtv.drawable.DrawableCompound.Add(): setting _iteratorID to %d" % ID)
-        self._iteratorID = ID
         self[ID] = obj
         if self.viewport:
             obj.SetColor(active=False)
@@ -287,7 +337,6 @@ class DrawableCompound(UserDict.DictMixin):
         if self.viewport:
             obj.Draw(self.viewport)
             self.visible.add(ID)
-        self._iteratorID = ID
         return ID
 
     def GetFreeID(self):
@@ -347,7 +396,7 @@ class DrawableCompound(UserDict.DictMixin):
             self.objects[ID].SetColor(active=True)
             # lowlight previously active object
             if not (prevActiveID is None):
-                self.objects[self.prevActiveID].SetColor(active=False)
+                self.objects[prevActiveID].SetColor(active=False)
             self.objects[ID].ToTop()
             if not ID in self.visible: # Show if not visible
                 self.ShowObjects(ID)
@@ -391,11 +440,14 @@ class DrawableCompound(UserDict.DictMixin):
         """
         Remove all 
         """
-        self.viewport.LockUpdate()
-        for ID in self.iterkeys():
-            self.pop(ID).Remove()
-        self._iteratorID = self.activeID
-        self.viewport.UnlockUpdate()
+#        self.viewport.LockUpdate()
+#        for ID in self.iterkeys():
+#            if ID == self._iteratorID:
+#                self._iteratorID = self.prevID
+#            self.pop(ID).Remove()
+#        self.viewport.UnlockUpdate()
+        ids = self.iterkeys()
+        self.RemoveObjects(ids)
 
     def RemoveObjects(self, ids):
         """
@@ -406,10 +458,11 @@ class DrawableCompound(UserDict.DictMixin):
             ids = [ids]
         for ID in ids:
             try:
+                if ID == self._iteratorID:
+                    self._iteratorID = self.prevID 
                 self.pop(ID).Remove()
             except KeyError:
-                print "Warning: ID %d not found" % ID
-        self._iteratorID = self.activeID
+                print "Warning: ID", str(ID), "not found"
         self.viewport.UnlockUpdate()
 
 

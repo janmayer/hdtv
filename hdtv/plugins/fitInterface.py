@@ -109,11 +109,10 @@ class FitInterface:
         if self.spectra.activeID == None:
             self.window.viewport.SetStatusText("No active spectrum")
             return
-        try:
-            self.spectra[self.spectra.activeID].ShowPrev()
-        except AttributeError:
-            self.window.viewport.SetStatusText("No fits available")
-            
+        
+        if not self.ShowFits([self.spectra[self.spectra.activeID].prevID], self.spectra.activeID):
+                        self.window.viewport.SetStatusText("No fits available")
+
             
     def _HotkeyShowNext(self):
         """
@@ -122,9 +121,8 @@ class FitInterface:
         if self.spectra.activeID == None:
             self.window.viewport.SetStatusText("No active spectrum")
             return
-        try:
-            self.spectra[self.spectra.activeID].ShowNext()
-        except AttributeError:
+        if not self.ShowFits([self.spectra[self.spectra.activeID].nextID], self.spectra.activeID):
+            print "bar"
             self.window.viewport.SetStatusText("No fits available")
             
             
@@ -136,15 +134,12 @@ class FitInterface:
             self.window.viewport.SetStatusText("No active spectrum")
             return
         try:
-            ids = hdtv.cmdhelper.ParseRange(args)
-            if ids == "NONE":
+            ids = hdtv.cmdhelper.ParseFitIds(args, self.spectra[self.spectra.activeID])
+            if len(ids) == 0:
                 self.spectra[self.spectra.activeID].HideAll()
-            elif ids == "ALL":
-                self.spectra[self.spectra.activeID].ShowAll()
             else:
-                self.spectra[self.spectra.activeID].ShowObjects(ids)
-        except AttributeError:
-            self.window.viewport.SetStatusText("No fits available for active spectrum")
+                if not self.ShowFits(ids, self.spectra.activeID):
+                    self.window.viewport.SetStatusText("No fits available for active spectrum")
         except ValueError:
             self.window.viewport.SetStatusText("Invalid fit identifier: %s" % args)
 
@@ -246,11 +241,38 @@ class FitInterface:
             self.activeFit = None
         # activate another fit
         spec.ActivateObject(ID)
-        if self.spectra.activeID in self.spectra.visible and spec.activeID:
+        if self.spectra.activeID in self.spectra.visible:
             spec[spec.activeID].Show()
+            if not spec.isInVisibleRegion(ID):
+                spec.FocusObject(ID)
         # update fitPanel
         self.UpdateFitPanel()
 
+    def ShowFits(self, ids, specID):
+        """ 
+        Show and focus fits if necessary
+        """
+        
+        if ids[0] is None or len(ids) == 0:
+            return False
+        
+        spec = self.spectra[specID]
+        
+        spec.ShowObjects(ids)
+        
+        # Check if we have to refocus the viewport
+        
+        refocus = False
+        
+        if specID == self.spectra.activeID:   
+            for i in ids:
+                if not spec.isInVisibleRegion(i):
+                    refocus = True
+            
+            if refocus:
+                spec.FocusObjects(ids)
+        
+        return True
     
     def FocusFits(self, ids):
         """
@@ -767,8 +789,6 @@ class TvFitInterface:
         else:
             sids = spec_ids    
         
-        refocus = False
-        
         for sid in sids:
             try:
                 spec = self.spectra[sid]
@@ -776,22 +796,11 @@ class TvFitInterface:
                 hdtv.msg.error("No spectrum " + str(sid))
                 continue
             fids = hdtv.cmdhelper.ParseFitIds(args, spec)
-            if len(fids)>0:
+            if len(fids) > 0:
                 if inverse:
                     spec.HideObjects(fids)
                 else:
-                    spec.ShowObjects(fids)
-                        
-                    if sid == self.spectra.activeID:
-                        # Check if we have to refocus
-                        try:
-                            for i in fids:
-                                if not spec.isInVisibleRegion(i):
-                                    refocus = True
-                        except TypeError:
-                            refocus = False
-                if refocus:
-                    spec.FocusObjects(fids)
+                    self.fitIf.ShowFits(fids, specID = sid)    
             else:
                 spec.HideAll()
 
@@ -842,7 +851,6 @@ class TvFitInterface:
         ids = hdtv.cmdhelper.ParseFitIds(args, self.spectra[self.spectra.activeID])
         
         if len(ids) > 0:
-            hdtv.ui.msg("Focus fit(s) " + str(ids))
             self.fitIf.FocusFits(ids)
         else:
             hdtv.ui.error("Nothing to focus")

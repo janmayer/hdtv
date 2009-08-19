@@ -46,34 +46,42 @@ def ParseFitIds(strings, spec):
     """
     Parse fit IDs, allowed keywords are ALL, NONE, ACTIVE, VISIBLE
     """
-    special = ["ALL","NONE","ACTIVE","VISIBLE", "NEXT", "PREV"]
+    special = ["ALL","NONE","ACTIVE","VISIBLE", "NEXT", "PREV", "FIRST", "LAST"]
     # parse the arguments
-    try:
-        ids = ParseRange(strings, special)
-    except ValueError, msg:
-        print msg
-        return list()
+#    try:
+    # TODO: we should throw HDTV exception here
+    ids = ParseRange(strings, special)
+#    except ValueError, msg:
+#        print msg
+#        return list()
+
     # processing different cases
     if ids=="NONE":
-        return list()
-    if ids in [ "ACTIVE" ]:
-        if not hasattr(spec, "activeID") or spec.activeID is None:
-            hdtv.ui.warn("There is no active fit.")
-            return list()
-    if ids=="NEXT":
-        return [spec.nextID]
-    if ids=="PREV":
-        return [spec.prevID]
-    if ids=="ACTIVE" or len(ids) == 0:
-        return [spec.activeID]
-    if ids=="ALL":
-        return spec.keys()
-    if ids=="VISIBLE":
-        return list(spec.visible)
+        ids = list()
+#    if ids in [ "ACTIVE" ]:
+#        if not hasattr(spec, "activeID") or spec.activeID is None:
+#            hdtv.ui.warn("There is no active fit.")
+#            return list()
+    elif ids == "NEXT":
+        ids = [spec.nextID]
+    elif ids == "PREV":
+        ids = [spec.prevID]
+    elif ids == "FIRST":
+        ids = [spec.firstID]
+    elif ids == "LAST":
+        ids = [spec.lastID]
+    elif ids == "ACTIVE" or len(ids) == 0:
+        ids = [spec.activeID]
+    elif ids=="ALL":
+        ids = spec.keys()
+    elif ids=="VISIBLE":
+        ids = list(spec.visible)
+        
     fits = list()
     # else filter non-existing ids
     valid_ids = list() 
     for ID in ids:
+        if ID is None: continue
         if not ID in spec.keys():
             hdtv.ui.warn("Warning: no fit with id %s" %ID)
         else:
