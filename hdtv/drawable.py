@@ -619,8 +619,8 @@ class DrawableCompound(UserDict.DictMixin):
         
         view_width = max(xdimensions) - min(xdimensions)
         view_width *= 1.2
-        if view_width < 100.:
-            view_width = 100. # TODO: make this configurable
+        if view_width < 50.:
+            view_width = 50. # TODO: make this configurable
         view_center = (max(xdimensions) + min(xdimensions)) / 2.
         
         self.viewport.SetXVisibleRegion(view_width)
