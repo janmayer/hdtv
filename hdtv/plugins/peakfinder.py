@@ -83,7 +83,9 @@ class PeakFinder:
         hist = spec.fHist
 
         try:
-            sigma_Ch = spec.cal.E2Ch(float(options.sigma))
+            sigma_Ch = spec.cal.E2Ch(float(options.sigma)) - spec.cal.E2Ch(float(0.0))
+            assert sigma_Ch > 0, "Sigma must be > 0"
+            print "sigma_ch", sigma_Ch
             sigma_E = float(options.sigma) 
             threshold = float(options.threshold)
         except ValueError:
@@ -94,8 +96,12 @@ class PeakFinder:
         peakModel = options.peak_model
         bgdeg = 2
         
+        # Init start and end region
         start_E = 0.0
-        end_E = spec.cal.Ch2E(hist.GetNbinsX())
+        start_Ch = spec.cal.E2Ch(start_E)
+        end_Ch = hist.GetNbinsX()
+        end_E = spec.cal.Ch2E(end_Ch)
+        
         try:
             if len(args) > 0:
                 start_E = float(args[0])
@@ -148,8 +154,8 @@ class PeakFinder:
              fit.PutRegionMarker(pos_E - region_width / 2.)
              fit.PutRegionMarker(pos_E + region_width / 2.)
              free = True
-             parameter["pos"] = hdtv.peakmodels.FitValue(pos_Ch, sigma_Ch / 2.0, free)
-             parameter["width"] = hdtv.peakmodels.FitValue(sigma_Ch, 0, free)
+             parameter["pos"] = hdtv.peakmodels.FitValue(pos_Ch, sigma_E / 2.0, free)
+             parameter["width"] = hdtv.peakmodels.FitValue(sigma_E, 0, free)
              parameter["vol"] = hdtv.peakmodels.FitValue(0, 0, free)
 #             parameter["vol"] = hdtv.peakmodels.FitValue(0, 0, free)
              free = False
@@ -173,6 +179,7 @@ class PeakFinder:
                          if fit.peaks[0].width <= 0.0 or fit.peaks[0].vol <= 0.0 or fit.peaks[0].width > 7 * sigma_E:
                              hdtv.ui.msg("Rejecting peak @" + str(fit.peaks[0].pos_cal) + " keV (width = " + str(fit.peaks[0].width) + " vol = " + str(fit.peaks[0].vol) + ")")
                              reject = True
+                             num_peaks -= 1
              
              if not reject:
                  ID = self.spectra[sid].Add(fit)

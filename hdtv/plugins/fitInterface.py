@@ -842,7 +842,7 @@ class TvFitInterface:
         ids = hdtv.cmdhelper.ParseFitIds(args, self.spectra[self.spectra.activeID])
         
         if len(ids) > 0:
-            print "focus ids", ids
+            hdtv.ui.msg("Focus fit(s) " + str(ids))
             self.fitIf.FocusFits(ids)
         else:
             hdtv.ui.error("Nothing to focus")
