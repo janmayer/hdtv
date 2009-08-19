@@ -35,8 +35,6 @@ class Fitter:
         self.spec = None
         self.peakFitter = None
         self.bgFitter = None
-        # degree of internal background , used when no background is set
-        self.intBgDeg = 0 
     
     @property
     def params(self):
@@ -100,7 +98,7 @@ class Fitter:
             self.peakFitter.Fit(self.spec.fHist, self.bgFitter)
         else:
             # internal background
-            self.peakFitter.Fit(self.spec.fHist, self.intBgDeg)
+            self.peakFitter.Fit(self.spec.fHist, self.bgdeg)
         
     def RestorePeaks(self, spec, region, peaks, chisquare):
         """
@@ -120,7 +118,7 @@ class Fitter:
             self.peakFitter.Restore(self.bgFitter, chisquare)
         else:
             # internal background
-            self.peakFitter.Restore(self.intBgDeg, chisquare)
+            self.peakFitter.Restore(self.bgdeg, chisquare)
         if not len(peaks)==self.peakFitter.GetNumPeaks():
             raise RuntimeError, "Number of peaks does not match"
         for i in range(0,len(peaks)):
