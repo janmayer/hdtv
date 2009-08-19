@@ -812,15 +812,19 @@ class TvFitInterface:
         """
         Activate one fit
         """
-        try:
-            ID = hdtv.cmdhelper.ParseRange(args, special = ["NONE"])
-            if ID == "NONE":
-                ID = None
-            else:
-                ID = int(args[0])
-            self.fitIf.ActivateFit(ID)
-        except ValueError:
-            hdtv.ui.error("Invalid id %s" %ID)
+        
+        if self.spectra.activeID==None:
+            hdtv.ui.error("There is no active spectrum")
+            return False
+        
+        ID = hdtv.cmdhelper.ParseFitIds(args, self.spectra[self.spectra.activeID])
+        
+        if len(ID) == 1:
+            self.fitIf.ActivateFit(ID[0])
+        elif len(ID) == 0:
+            hdtv.ui.error("Nothing to activate")
+        else:
+            hdtv.ui.error("Can only activate one fit")
 
     def FitFocus(self, args, options):
         """
