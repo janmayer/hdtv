@@ -334,15 +334,17 @@ class DrawableCompound(UserDict.DictMixin):
         Activates the object with id ID, while also highlighting it
         """
         self.viewport.LockUpdate()
-        # lowlight previously active object
-        if not (self.activeID is None):
-            self.objects[self.activeID].SetColor(active=False)
+
+        prevActiveID = self.activeID
         # set new active object
         if ID is None:
             self.activeID=None
         elif ID in self.keys():
             self.activeID = ID
             self.objects[ID].SetColor(active=True)
+            # lowlight previously active object
+            if not (prevActiveID is None):
+                self.objects[self.prevActiveID].SetColor(active=False)
             self.objects[ID].ToTop()
             if not ID in self.visible: # Show if not visible
                 self.ShowObjects(ID)
