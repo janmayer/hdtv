@@ -151,7 +151,19 @@ class DrawableCompound(UserDict.DictMixin):
         self.objects = dict()
         self.visible = set()
         self.activeID = None
+        self._iteratorID = self.activeID # This should keep track of ID for nextID, prevID
+    
+    # self.activeID getter and setter    
+    def _set_activeID(self, ID):
+        self.activeID = ID
+        hdtv.ui.debug("hdtv.drawable._set_activeID: Resetting iterator to %d", self.activeID, level=6)
+        self._iteratorID = self.activeID # Reset iterator
         
+    def _get_activeID(self):
+        return self.activeID
+    activeID = property(_get_activeID, _set_activeID)
+    
+    # nextID/prevID getter
     @property
     def nextID(self):
         return self._nextID(onlyVisible = False)
@@ -162,7 +174,7 @@ class DrawableCompound(UserDict.DictMixin):
 
     def _nextID(self, onlyVisible=False):
         """
-        Get next ID after activeID
+        Get next ID after _iteratorID
         """
         try:
             if onlyVisible:
@@ -171,10 +183,12 @@ class DrawableCompound(UserDict.DictMixin):
                 ids = self.keys()
                 
             ids.sort()
-            nextIndex = (ids.index(self.activeID) + 1) % len(ids)
+            nextIndex = (ids.index(self._iteratorID) + 1) % len(ids)
             nextID = ids[nextIndex]
+            self._iteratorID = nextID
             return nextID
         except ValueError:
+            self._iteratorID = self.activeID
             return self.activeID
 
     @property
@@ -187,7 +201,7 @@ class DrawableCompound(UserDict.DictMixin):
     
     def _prevID(self, onlyVisible=False):
         """
-        Get previous ID before activeID
+        Get previous ID before _iteratorID
         """
         try:
             if onlyVisible:
@@ -196,10 +210,12 @@ class DrawableCompound(UserDict.DictMixin):
                 ids = self.keys()
             
             ids.sort()
-            prevIndex = (ids.index(self.activeID) - 1) % len(ids)
+            prevIndex = (ids.index(self._iteratorID) - 1) % len(ids)
             prevID = ids[prevIndex]
+            self._iteratorID = prevID
             return prevID
         except ValueError:
+            self._iteratorID = self.activeID
             return self.activeID
 
 
@@ -499,6 +515,7 @@ class DrawableCompound(UserDict.DictMixin):
                     self.visible.add(ID)
                 except KeyError:
                     print "Warning: ID %s not found" % ID
+        self._iteratorID = min(ids)
         self.viewport.UnlockUpdate()
         return ids
 

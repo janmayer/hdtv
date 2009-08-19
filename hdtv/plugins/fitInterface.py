@@ -752,14 +752,14 @@ class TvFitInterface:
         
         inverse = True inverses the fit selection i.e. FitShow becomes FitHide
         """
-        keywords = ["all", "active"]
+        spec_keywords = ["all", "active"]
         try:
-            ids = hdtv.cmdhelper.ParseRange(options.spectrum, keywords)
+            spec_ids = hdtv.cmdhelper.ParseRange(options.spectrum, spec_keywords)
         except ValueError:
             return "USAGE"
 
-        hdtv.ui.debug("FitShow: ids=" + str(ids), level=4)
-        if ids == "ACTIVE":
+        hdtv.ui.debug("FitShow: spec ids=" + str(spec_ids), level=4)
+        if spec_ids == "ACTIVE":
             if self.spectra.activeID is None:
                 hdtv.ui.warn("No active spectrum, no action taken.")
                 return
@@ -767,11 +767,11 @@ class TvFitInterface:
                 hdtv.ui.warn("Active spectrum is not visible, no action taken")
                 return
             sids = [self.spectra.activeID]
-            hdtv.ui.debug("FitShow: working on" + str(sids), level=4)
-        elif ids == "ALL":
+            hdtv.ui.debug("FitShow: working on spectra " + str(sids), level=4)
+        elif spec_ids == "ALL":
             sids = self.spectra.keys()
         else:
-            sids = ids    
+            sids = spec_ids    
         
         refocus = False
         
@@ -781,20 +781,12 @@ class TvFitInterface:
             except KeyError:
                 hdtv.msg.error("No spectrum " + str(sid))
                 continue
-            if args[0].upper() not in ("NEXT", "PREV") and not inverse:
-                fids = hdtv.cmdhelper.ParseFitIds(args, spec)
-            else:
-                fids = args
+            fids = hdtv.cmdhelper.ParseFitIds(args, spec)
             if len(fids)>0:
                 if inverse:
                     spec.HideObjects(fids)
                 else:
-                    if args[0].upper() == "NEXT":
-                        fids = spec.ShowNext() 
-                    elif args[0].upper() == "PREV":
-                        fids = spec.ShowPrev() 
-                    else :
-                        spec.ShowObjects(fids)
+                    spec.ShowObjects(fids)
                         
                     if sid == self.spectra.activeID:
                         # Check if we have to refocus
