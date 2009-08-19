@@ -248,7 +248,7 @@ class FitInterface:
         # update fitPanel
         self.UpdateFitPanel()
 
-    def ShowFits(self, ids, specID):
+    def ShowFits(self, ids, specID, adjustViewport=False):
         """ 
         Show and focus fits if necessary
         """
@@ -261,17 +261,17 @@ class FitInterface:
         spec.ShowObjects(ids)
         
         # Check if we have to refocus the viewport
-        
-        refocus = False
-        
-        if specID == self.spectra.activeID:   
-            for i in ids:
-                if not spec.isInVisibleRegion(i):
-                    refocus = True
+        if adjustViewport:
+            refocus = False
             
-            if refocus:
-                spec.FocusObjects(ids)
-        
+            if specID == self.spectra.activeID:   
+                for i in ids:
+                    if not spec.isInVisibleRegion(i):
+                        refocus = True
+                
+                if refocus:
+                    spec.FocusObjects(ids)
+            
         return True
     
     def FocusFits(self, ids):
@@ -555,6 +555,8 @@ class TvFitInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-s", "--spectrum", action = "store", default = "active",
                         help = "select spectra to work on")
+        parser.add_option("-v", "--adjust-viewport", action = "store_true", default = False,
+                        help = "adjust viewport to include all fits")
         # TODO: add option to show the fit, that is closest to a certain value
         hdtv.cmdline.AddCommand(prog, self.FitShow, minargs = 1, parser = parser)
         
@@ -800,7 +802,7 @@ class TvFitInterface:
                 if inverse:
                     spec.HideObjects(fids)
                 else:
-                    self.fitIf.ShowFits(fids, specID = sid)    
+                    self.fitIf.ShowFits(fids, specID = sid, adjustViewport=options.adjust_viewport)    
             else:
                 spec.HideAll()
 
