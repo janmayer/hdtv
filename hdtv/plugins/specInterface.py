@@ -32,7 +32,7 @@ import hdtv.ui
  
 from hdtv.spectrum import Spectrum, FileSpectrum, SpectrumCompound
 from hdtv.specreader import SpecReaderError
-
+from copy import copy
 
 # Don't add created spectra to the ROOT directory
 ROOT.TH1.AddDirectory(ROOT.kFALSE)
@@ -202,7 +202,9 @@ class SpecInterface:
             copyTo = self.spectra.GetFreeID()
 
         hdtv.ui.debug("Copy spec " + str(ID) + " to " + str(copyTo), level=2)
-        spec = Spectrum(self.spectra[ID].fHist, cal=self.spectra[ID].cal)
+        hist = copy(self.spectra[ID].fHist)
+
+        spec = Spectrum(hist, cal=self.spectra[ID].cal)
         spec = SpectrumCompound(self.spectra[ID].viewport, spec)        
         sid = self.spectra.Insert(spec, copyTo)
         spec.SetColor(hdtv.color.ColorForID(sid))
@@ -400,8 +402,14 @@ to only fit the calibration.""",
         Activate one spectra
         """
         try:
-            ID = int(args[0])
-            self.spectra.ActivateObject(ID)
+            ids = hdtv.cmdhelper.ParseSpecIDs(args, self.spectra)
+
+            if len(ids) > 1:
+                hdtv.ui.error("Can only activate one spectrum")
+            elif len(ids) == 0:
+                self.spectra.ActivateObject(None)
+            else:
+                self.spectra.ActivateObject(min(ids))
         except ValueError:
             return "USAGE"
         

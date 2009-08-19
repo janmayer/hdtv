@@ -387,16 +387,17 @@ class DrawableCompound(UserDict.DictMixin):
         """
         self.viewport.LockUpdate()
 
-        prevActiveID = self.activeID
         # set new active object
         if ID is None:
+            # lowlight previously active object
+            if not self.activeID is None:
+                self.objects[self.activeID].SetColor(active=False)
             self.activeID=None
         elif ID in self.keys():
-            self.activeID = ID
+            if not self.activeID is None:
+                self.objects[self.activeID].SetColor(active=False)
             self.objects[ID].SetColor(active=True)
-            # lowlight previously active object
-            if not (prevActiveID is None):
-                self.objects[prevActiveID].SetColor(active=False)
+            self.activeID = ID
             self.objects[ID].ToTop()
             if not ID in self.visible: # Show if not visible
                 self.ShowObjects(ID)
