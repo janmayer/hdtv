@@ -266,6 +266,8 @@ class DrawableCompound(UserDict.DictMixin):
         Adds an object to the first free index (this also calls draw for the object)
         """
         ID = self.GetFreeID()
+        hdtv.ui.debug("hdtv.drawable.DrawableCompound.Add(): setting _iteratorID to %d" % ID)
+        self._iteratorID = ID
         self[ID] = obj
         if self.viewport:
             obj.SetColor(active=False)
@@ -285,6 +287,7 @@ class DrawableCompound(UserDict.DictMixin):
         if self.viewport:
             obj.Draw(self.viewport)
             self.visible.add(ID)
+        self._iteratorID = ID
         return ID
 
     def GetFreeID(self):
@@ -383,7 +386,7 @@ class DrawableCompound(UserDict.DictMixin):
         Remove 
         """
         self.RemoveAll()
-    
+        
     def RemoveAll(self):
         """
         Remove all 
@@ -391,6 +394,7 @@ class DrawableCompound(UserDict.DictMixin):
         self.viewport.LockUpdate()
         for ID in self.iterkeys():
             self.pop(ID).Remove()
+        self._iteratorID = self.activeID
         self.viewport.UnlockUpdate()
 
     def RemoveObjects(self, ids):
@@ -405,6 +409,7 @@ class DrawableCompound(UserDict.DictMixin):
                 self.pop(ID).Remove()
             except KeyError:
                 print "Warning: ID %d not found" % ID
+        self._iteratorID = self.activeID
         self.viewport.UnlockUpdate()
 
 
@@ -556,6 +561,8 @@ class DrawableCompound(UserDict.DictMixin):
             xdimensions += self.objects[ID].xdimensions
             if ID not in self.visible:
                 self.objects[ID].Show()
+        
+        self._iteratorID = min(ids)
         
         view_width = max(xdimensions) - min(xdimensions)
         view_width *= 1.2

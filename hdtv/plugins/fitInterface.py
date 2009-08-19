@@ -833,9 +833,12 @@ class TvFitInterface:
         
         assert self.spectra.activeID in self.spectra.visible, "Active objects should always be visible"
                 
+        if len(args) == 0:
+            args = ["active"]
         ids = hdtv.cmdhelper.ParseFitIds(args, self.spectra[self.spectra.activeID])
         
         if len(ids) > 0:
+            print "focus ids", ids
             self.fitIf.FocusFits(ids)
         else:
             hdtv.ui.error("Nothing to focus")

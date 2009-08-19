@@ -56,7 +56,7 @@ def ParseFitIds(strings, spec):
     # processing different cases
     if ids=="NONE":
         return list()
-    if ids in [ "ACTIVE", "NEXT", "PREV" ]:
+    if ids in [ "ACTIVE" ]:
         if not hasattr(spec, "activeID") or spec.activeID is None:
             hdtv.ui.warn("There is no active fit.")
             return list()
