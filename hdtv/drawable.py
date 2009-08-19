@@ -552,17 +552,19 @@ class DrawableCompound(UserDict.DictMixin):
         # Get dimensions of objects
         for ID in ids:
             xdimensions += self.objects[ID].xdimensions
-            
+            if ID not in self.visible:
+                self.objects[ID].Show()
         
         view_width = max(xdimensions) - min(xdimensions)
-        view_width *= 1.1
+        view_width *= 1.2
         if view_width < 100.:
             view_width = 100. # TODO: make this configurable
         view_center = (max(xdimensions) + min(xdimensions)) / 2.
         
         self.viewport.SetXVisibleRegion(view_width)
         self.viewport.SetXCenter(view_center)
-        
+    
+    
     def FocusObject(self, ID=None):
         """
         If ID is not given: Focus active object
@@ -571,19 +573,9 @@ class DrawableCompound(UserDict.DictMixin):
             ID = self.activeID
         
         if ID is None:
-            print "No active object"
+            hdtv.ui.error("No active object")
             return
-        
-        if ID not in self.visible:
-            try:
-                self.objects[ID].Show()
-            except KeyError:
-                print "Warning: ID %s not found" % ID
-                return
-        try:
-            self.objects[ID].Focus()
-        except AttributeError:
-            print "Cannot focus this object"
+        self.FocusObjects([ID])
         
     def ShowNext(self, nb=1):
         """

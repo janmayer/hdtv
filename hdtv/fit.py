@@ -341,43 +341,6 @@ class Fit(Drawable):
 
         return (x_start, x_end)
     
-    
-    def Focus(self, view_width=None):
-        """
-        Focus fit in middle of viewport
-        
-        width: viewport width, if None: automatic
-        """
-        if not self.viewport:
-            return
-        
-        markers = list()
-        # Get maximum of region markers, peak markers and peaks
-        for r in self.regionMarkers.collection:
-            markers.append(r.p1)
-            markers.append(r.p2)
-        for p in self.peakMarkers.collection:
-            markers.append(p.p1)
-        for p in self.peaks:
-            markers.append(p.pos_cal)
-
-        view_middle = (max(markers) + min(markers)) / 2
-        
-        # Calculate width of background region
-        bg_markers = list()
-        
-        if not view_width: 
-            try:
-                bg_right = max(bg_markers)
-                bg_left = min(bg_markers)
-                view_width = 2*max([abs(bg_right - view_middle), abs(view_middle-bg_left)])
-            except ValueError: # No background marker
-                view_width = max(markers) - min(markers)
-            # add 30% to view_width
-            view_width *= 1.3
-
-        self.viewport.SetXVisibleRegion(view_width)
-        self.viewport.SetXCenter(view_middle)
         
     def Hide(self):
         if not self.viewport:

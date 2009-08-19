@@ -252,21 +252,15 @@ class FitInterface:
         self.UpdateFitPanel()
 
     
-    def FocusFit(self, ID):
+    def FocusFits(self, ids):
         """
-        Focus one fit
+        Focus fits
         """
-        if self.spectra.activeID==None:
-            hdtv.ui.error("There is no active spectrum")
-            return 
+
         spec = self.spectra[self.spectra.activeID]
-        
-        if not hasattr(spec, "activeID"):
-            hdtv.ui.error("There are no fits for this spectrum")
-            return
-        if not self.spectra.activeID in self.spectra.visible:
-            hdtv.ui.warn("Active spectrum (id=%s) is not visible" %self.spectra.activeID)
-        spec.FocusObject(ID)
+
+        spec.FocusObjects(ids)
+
         if self.spectra.activeID in self.spectra.visible and spec.activeID:
             spec[spec.activeID].Show()
 
@@ -832,19 +826,19 @@ class TvFitInterface:
         """
         Focus a fit. If no fit is given focus the active fit
         """
-        try:
-            ids = hdtv.cmdhelper.ParseFitIds(args, self.spectra[self.spectra.activeID])
-            if len(ids) > 1:
-                hdtv.ui.error("Cannot focus more than one fit")
-                return False
-            ID = ids[0]
-            self.fitIf.FocusFit(ID)
-        except IndexError:
-            hdtv.ui.error("Invalid id")
+        
+        if self.spectra.activeID==None:
+            hdtv.ui.error("There is no active spectrum")
             return False
-        except KeyError:
-            hdtv.ui.error("No active spectrum")
-            return False
+        
+        assert self.spectra.activeID in self.spectra.visible, "Active objects should always be visible"
+                
+        ids = hdtv.cmdhelper.ParseFitIds(args, self.spectra[self.spectra.activeID])
+        
+        if len(ids) > 0:
+            self.fitIf.FocusFits(ids)
+        else:
+            hdtv.ui.error("Nothing to focus")
 
 #    def FitCopy(self, args):
 #        try:
