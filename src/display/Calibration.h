@@ -58,9 +58,10 @@ class Calibration {
 	void SetCal(const std::vector<double>& cal);
 	void SetCal(const TArrayD& cal);
 	
-	
-    	inline operator bool() const { return !fCal.empty(); }
+	inline operator bool() const { return !IsTrivial(); }
+	inline bool IsTrivial() const { return fCal.empty(); }
 	inline const std::vector<double>& GetCoeffs() const { return fCal; }
+	inline int GetDegree() const { return fCal.size() - 1; }
 	
     double Ch2E(double ch) const;
     double dEdCh(double ch) const;

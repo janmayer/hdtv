@@ -227,8 +227,7 @@ def MakeCalibration(cal):
     """
     if not isinstance(cal, ROOT.HDTV.Calibration):
         if cal==None:
-            cal = [0,1]
-        assert len(cal) > 1, "Calibration polynom " + str(cal) + " too short"
+            cal = []  # Trivial calibration, degree -1
         calarray = ROOT.TArrayD(len(cal))
         for (i,c) in zip(range(0,len(cal)),cal):
             calarray[i] = c

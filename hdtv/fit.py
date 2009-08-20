@@ -207,7 +207,6 @@ class Fit(Drawable):
             backgrounds = [[m.p1, m.p2] for m in self.bgMarkers]
             self.fitter.RestoreBackground(spec, backgrounds, self.bgCoeffs, self.bgChi)
         region = [self.regionMarkers[0].p1, self.regionMarkers[0].p2]
-        # remove peak marker that are outside of region
         region.sort()
         self.fitter.RestorePeaks(spec, region, self.peaks, self.chi)
         # get background function

@@ -34,7 +34,7 @@ class fitTex:
     
         prog = "fit tex"
         description = "create a table in latex format"
-        usage="%prog outfile
+        usage="%prog outfile"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
         parser.add_option("-c", "--columns", action="store",default="none", 
                           help="values to include as columns of the table")
@@ -86,64 +86,64 @@ class fitTex:
                 
             
     def ReadXML(self, xmlname):
+        pass
         
-        
     
     
     
 
 
-preamble=
-"""
-makeatletter
-\@ifundefined{standalonetrue}{\newif\ifstandalone}{}
-\@ifundefined{section}{\standalonetrue}{\standalonefalse}
-\makeatother
-\ifstandalone
+#preamble=
+#"""
+#makeatletter
+#\@ifundefined{standalonetrue}{\newif\ifstandalone}{}
+#\@ifundefined{section}{\standalonetrue}{\standalonefalse}
+#\makeatother
+#\ifstandalone
 
-\documentclass[12pt,twoside,a4paper]{report}
-\usepackage[ngerman]{babel}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{graphicx}
-\usepackage{a4}
-\usepackage[T1]{fontenc}
-\usepackage{ae,aecompl}
-\usepackage[utf8]{inputenc}
-\usepackage[font=small,labelfont=bf,textfont=it]{caption}
-\usepackage{longtable}
+#\documentclass[12pt,twoside,a4paper]{report}
+#\usepackage[ngerman]{babel}
+#\usepackage{amsmath}
+#\usepackage{amssymb}
+#\usepackage{graphicx}
+#\usepackage{a4}
+#\usepackage[T1]{fontenc}
+#\usepackage{ae,aecompl}
+#\usepackage[utf8]{inputenc}
+#\usepackage[font=small,labelfont=bf,textfont=it]{caption}
+#\usepackage{longtable}
 
 
-\begin{document}
-\fi
-\begin{center}
-\begin{longtable}{|l|l|l|}
-"""
+#\begin{document}
+#\fi
+#\begin{center}
+#\begin{longtable}{|l|l|l|}
+#"""
 
-headerlines = 
-"""
-\hline 
-\multicolumn{1}{|c|}{\textbf{Eins}} & 
-\multicolumn{1}{c|}{\textbf{Zwei}} & 
-\multicolumn{1}{c|}{\textbf{Drei}} \\ \hline 
-\endfirsthead
+#headerlines = 
+#"""
+#\hline 
+#\multicolumn{1}{|c|}{\textbf{Eins}} & 
+#\multicolumn{1}{c|}{\textbf{Zwei}} & 
+#\multicolumn{1}{c|}{\textbf{Drei}} \\ \hline 
+#\endfirsthead
 
-\hline
-\multicolumn{1}{|c|}{\textbf{Eins}} &
-\multicolumn{1}{c|}{\textbf{Zwei}} &
-\multicolumn{1}{c|}{\textbf{Drei}} \\ \hline 
-\endhead
-"""
+#\hline
+#\multicolumn{1}{|c|}{\textbf{Eins}} &
+#\multicolumn{1}{c|}{\textbf{Zwei}} &
+#\multicolumn{1}{c|}{\textbf{Drei}} \\ \hline 
+#\endhead
+#"""
 
-footerlines = 
-"""
-\hline 
-\multicolumn{3}{r}{{wird fortgesetzt...}} \\ 
-\endfoot
+#footerlines = 
+#"""
+#\hline 
+#\multicolumn{3}{r}{{wird fortgesetzt...}} \\ 
+#\endfoot
 
-\hline \hline
-\endlastfoot
-"""
+#\hline \hline
+#\endlastfoot
+#"""
 
 
 if not hasattr(__main__, "spectra"):

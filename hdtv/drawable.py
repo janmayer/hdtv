@@ -35,7 +35,7 @@ class Drawable:
         self.viewport = None
         self.displayObj = None
         self.color = hdtv.color.Highlight(color, active=False)
-        self.cal = hdtv.cal.MakeCalibration(cal) 
+        self.cal = hdtv.cal.MakeCalibration(cal)
 
 
     def __str__(self):

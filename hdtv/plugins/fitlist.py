@@ -32,10 +32,18 @@ if not hasattr(__main__, "spectra"):
     __main__.spectra = hdtv.drawable.DrawableCompound(__main__.window.viewport)
 __main__.fitxml = hdtv.fitxml.FitXml(__main__.spectra)
 
+prog = "fit write"
+description = "write fits to xml file"
+usage = "%prog filename"
+parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+hdtv.cmdline.AddCommand(prog, lambda args, options: __main__.fitxml.WriteFitlist(args[0]), 
+                        nargs=1, fileargs=True, parser=parser)
 
-hdtv.cmdline.AddCommand("fit write", lambda args: __main__.fitxml.WriteFitlist(args[0]), 
-                nargs=1, fileargs=True, usage="fit write <filename>")
-hdtv.cmdline.AddCommand("fit read", lambda args: __main__.fitxml.ReadFitlist(args[0]), 
-                nargs=1, fileargs=True, usage="fit read <filename>")
+prog = "fit read"
+description = "read fits from xml file"
+usage ="%prog filename"
+parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+hdtv.cmdline.AddCommand("fit read", lambda args, options: __main__.fitxml.ReadFitlist(args[0]), 
+                    nargs=1, fileargs=True, parser=parser)
 
 print "loaded fitlist plugin"

@@ -19,7 +19,14 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
+
 import hdtv.ui
+
+def Indent(s, indent=" "):
+    """
+    Re-format a (possibly multi-line) string such that each line is indented.
+    """
+    return indent + ("\n" + indent).join(s.splitlines()) + "\n"
 
 def GetCompleteOptions(begin, options):
     l = len(begin)

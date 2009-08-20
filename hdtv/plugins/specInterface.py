@@ -288,6 +288,8 @@ class TvSpecInterface:
                                 usage="%prog <id>", level = 0)
         hdtv.cmdline.AddCommand("spectrum show", self.SpectrumShow, minargs=1,
                                 usage="%prog <ids>|all|none", level = 0)
+        hdtv.cmdline.AddCommand("spectrum info", self.SpectrumInfo, maxargs=1,
+                                usage="%prog", level=0)
         hdtv.cmdline.AddCommand("spectrum update", self.SpectrumUpdate, minargs=1,
                                 usage="%prog <ids>|all|shown", level = 0)
         hdtv.cmdline.AddCommand("spectrum write", self.SpectrumWrite, minargs=1, maxargs=2,
@@ -545,7 +547,29 @@ to only fit the calibration.""",
             self.spectra.ActivateObject(ID)
         except ValueError:
             return "USAGE"
+            
+            
+    def SpectrumInfo(self, args):
+        """
+        Print info on spectrum objects
+        """
+        if len(args) == 0:
+            ids = hdtv.cmdhelper.ParseSpecIDs("active", self.spectra)
+        else:
+            ids = hdtv.cmdhelper.ParseSpecIDs(args[0], self.spectra)
+        
+        s = ""
+        for ID in ids:
+            try:
+                spec = self.spectra[ID]
+            except KeyError:
+                s += "Spectrum %d: ID not found\n" % ID
+                continue
+            s += "Spectrum %d:\n" % ID
+            s += hdtv.cmdhelper.Indent(spec.GetInfo(), "  ")
 
+        hdtv.ui.msg(s, newline=False)
+	
             
     def SpectrumUpdate(self, args):
         """
