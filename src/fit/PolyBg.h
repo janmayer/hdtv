@@ -26,6 +26,7 @@
 #include <TF1.h>
 #include <TH1.h>
 #include <list>
+#include <vector>
 #include <memory>
 #include <Riostream.h>
 
@@ -51,10 +52,10 @@ class PolyBg: public Background {
               std::numeric_limits<double>::quiet_NaN(); }
     inline int GetDegree()        { return fBgDeg; }
     inline double GetChisquare()  { return fChisquare; }
-    virtual double GetMin()
+    virtual double GetMin() const
       { return fBgRegions.empty() ? std::numeric_limits<double>::quiet_NaN() :
                   *(fBgRegions.begin()); }
-    virtual double GetMax()
+    virtual double GetMax() const
       { return fBgRegions.empty() ? std::numeric_limits<double>::quiet_NaN() :
                   *(fBgRegions.rbegin()); }
     
@@ -63,10 +64,10 @@ class PolyBg: public Background {
     void AddRegion(double p1, double p2);
     virtual PolyBg* Clone() const
       { return new PolyBg(*this); }    
-    virtual double Eval(double x)
-      { return fFunc.get() != 0 ? fFunc->Eval(x) : 0.0; }
     virtual TF1* GetFunc()
       { return fFunc.get(); }
+    virtual double Eval(double x) const;
+    virtual double EvalError(double x) const;
 
   private:
     double _EvalRegion(double *x, double *p);
@@ -77,6 +78,8 @@ class PolyBg: public Background {
     
     std::auto_ptr<TF1> fFunc;
     double fChisquare;
+    std::vector<double> fCoeff;
+    std::vector<std::vector<double> > fCovar;
 };
 
 } // end namespace Fit

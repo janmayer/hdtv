@@ -1,8 +1,13 @@
 # Makefile for HDTV::Fit
 include ../Makefile.def
 
-SOURCES= PolyBg.cxx Param.cxx Fitter.cxx TheuerkaufFitter.cxx EEFitter.cxx Util.cxx
-EXPHEADERS= Background.h PolyBg.h Param.h Fitter.h TheuerkaufFitter.h EEFitter.h
+# -Wwrite-strings causes a number of warnings that cannot be fixed with ROOT 5.18
+CPP=g++ -g -Wall -Wno-write-strings
+ROOTCINT=rootcint
+CFLAGS=$(shell root-config --cflags)
+LFLAGS=$(shell root-config --glibs)
+SOURCES= Integral.cxx PolyBg.cxx Param.cxx Fitter.cxx TheuerkaufFitter.cxx EEFitter.cxx Util.cxx
+EXPHEADERS= Integral.h Background.h PolyBg.h Param.h Fitter.h TheuerkaufFitter.h EEFitter.h
 HEADERS= $(EXPHEADERS)
 OBJ= $(SOURCES:.cxx=.o)
 MODNAME= fit
