@@ -379,18 +379,18 @@ class Fit(Drawable):
         
         
     def SetCal(self, cal):
-        cal=hdtv.cal.MakeCalibration(cal)
+        self.cal=hdtv.cal.MakeCalibration(cal)
         if self.viewport:
             self.viewport.LockUpdate()
-        self.peakMarkers.SetCal(cal)
-        self.regionMarkers.SetCal(cal)
-        self.bgMarkers.SetCal(cal)
+        self.peakMarkers.SetCal(self.cal)
+        self.regionMarkers.SetCal(self.cal)
+        self.bgMarkers.SetCal(self.cal)
         if self.dispPeakFunc:
-            self.dispPeakFunc.SetCal(cal)
+            self.dispPeakFunc.SetCal(self.cal)
         if self.dispBgFunc:
-            self.dispBgFunc.SetCal(cal)
+            self.dispBgFunc.SetCal(self.cal)
         for peak in self.peaks:
-            peak.SetCal(cal)
+            peak.SetCal(self.cal)
         if self.viewport:
             self.viewport.UnlockUpdate()
 

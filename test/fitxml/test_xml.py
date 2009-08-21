@@ -30,8 +30,8 @@ import __main__
 spectra = __main__.spectra
 spectra.RemoveAll()
 
-testspectrum= os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
-testXML = os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.xml")
+testspectrum= os.path.join(__main__.hdtvpath, "test", "calibration", "osiris_bg.spc")
+testXML = os.path.join(__main__.hdtvpath, "test", "calibration", "osiris_bg.xml")
 
 
 __main__.s.LoadSpectra(testspectrum)

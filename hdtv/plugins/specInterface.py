@@ -186,8 +186,9 @@ class SpecInterface:
         is returned. If there is none, None is returned.
         """
         for obj in self.spectra.objects.itervalues():
-            if obj.fHist != None and obj.fHist.GetName() == name:
+            if obj.name == name:
                 return obj
+        return None
             
     def CopySpectrum(self, ID, copyTo=None):
         """

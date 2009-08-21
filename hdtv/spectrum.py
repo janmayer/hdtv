@@ -52,9 +52,13 @@ class Spectrum(Drawable):
         self.fEffCal = None
         
     def __str__(self):
+        return self.name
+    
+    @property
+    def name(self):
         if self.fHist:
             return self.fHist.GetName()
-            
+        
     def GetTypeStr(self):
         """
         Return a string describing the type of this spectrum.
