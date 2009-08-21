@@ -1,9 +1,5 @@
 #pragma link C++ namespace HDTV;
 #pragma link C++ namespace HDTV::Fit;
-#pragma link C++ class HDTV::Fit::Integral;
-#pragma link C++ class HDTV::Fit::TH1Integral;
-#pragma link C++ class HDTV::Fit::BgIntegral;
-#pragma link C++ class HDTV::Fit::TH1BgsubIntegral;
 #pragma link C++ class HDTV::Fit::Background;
 #pragma link C++ class HDTV::Fit::PolyBg;
 #pragma link C++ class HDTV::Fit::Param;

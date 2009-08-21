@@ -186,10 +186,8 @@ class SpecInterface:
         is returned. If there is none, None is returned.
         """
         for obj in self.spectra.objects.itervalues():
-            if isinstance(obj, hdtv.spectrum.Spectrum):
-                if obj.fHist != None and obj.fHist.GetName() == name:
-                    return obj
-        return None
+            if obj.fHist != None and obj.fHist.GetName() == name:
+                return obj
             
     def CopySpectrum(self, ID, copyTo=None):
         """
@@ -238,9 +236,8 @@ class SpecInterface:
             except ValueError:
                 print "Warning: could not parse line %d of file %s: ignored." % (linenum, fname)
             else:
-                # FIXME: Maybe Norbert had different plans here?
                 spec = self.FindSpectrumByName(name)
-                if spec:
+                if not spec is None:
                     spec.SetCal(self.caldict[name])
         f.close()
         return True

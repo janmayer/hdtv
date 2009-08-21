@@ -23,9 +23,7 @@
 #include "PolyBg.h"
 #include "Util.h"
 #include <iostream>
-#include <cmath>
 #include <TError.h>
-#include <TVirtualFitter.h>
 
 namespace HDTV {
 namespace Fit {
@@ -86,10 +84,7 @@ PolyBg& PolyBg::operator= (const PolyBg& src)
 void PolyBg::Fit(TH1& hist)
 {
   //! Fit the background function to the histogram hist
-  
-  if(fBgDeg < 0)  // Degenerate case, no free parameters in fit
-    return;
-  
+
   // Create function to be used for fitting
   // Note that a polynomial of degree N has N+1 parameters
   TF1 fitFunc(GetFuncUniqueName("b_fit", this).c_str(),
@@ -106,25 +101,6 @@ void PolyBg::Fit(TH1& hist)
   // Copy chisquare
   fChisquare = fitFunc.GetChisquare();
   
-  // Copy parameters
-  fCoeff = std::vector<double>(fBgDeg+1);
-  for(int i=0; i<=fBgDeg; i++) {
-    fCoeff[i] = fitFunc.GetParameter(i);
-  }
-  
-  // Copy covariance matrix (needed for error evaluation)
-  TVirtualFitter* fitter = TVirtualFitter::GetFitter();
-  if (fitter == 0) {
-    Error("PolyBg::Fit", "No existing fitter after fit");
-  } else {
-    fCovar = std::vector<std::vector<double> >(fBgDeg+1, std::vector<double>(fBgDeg+1));
-    for(int i=0; i<=fBgDeg; i++) {
-      for(int j=0; j<=fBgDeg; j++) {
-        fCovar[i][j] = fitter->GetCovarianceMatrixElement(i, j);
-      }
-    }
-  }
-        
   // Copy parameters to new function
   fFunc.reset(new TF1(GetFuncUniqueName("b", this).c_str(),
                       this, &PolyBg::_Eval,
@@ -228,55 +204,13 @@ double PolyBg::_Eval(double *x, double *p)
 {
   //! Evaluate background function at position x
 
-  double bg = p[fBgDeg];
+  double bg;
+  
+  bg = p[fBgDeg];
   for(int i=fBgDeg-1; i>=0; i--)
     bg = bg * x[0] + p[i];
     
   return bg;
-}
-
-double PolyBg::Eval(double x) const
-{
-  // Return the value of the background function at position x
-  
-  if(fCoeff.empty())  // Nothing fitted yet...
-    return std::numeric_limits<double>::quiet_NaN();
-    
-  std::vector<double>::const_reverse_iterator c = fCoeff.rbegin();
-  double bg = *c++;
-  
-  while(c != fCoeff.rend())
-    bg = bg * x + *c++;
-
-  return bg;
-}
-
-double PolyBg::EvalError(double x) const
-{
-  // Returns the error of the value of the background function at position x
-  
-  if(fCovar.empty())  // Nothing fitted yet...
-    return std::numeric_limits<double>::quiet_NaN();
-
-  // Evaluate \sum_{i=0}^{fBgDeg} \sum_{j=0}^{fBgDeg} cov(c_i, c_j) x^i x^j
-  // via a dual Horner scheme
-  std::vector<std::vector<double> >::const_reverse_iterator cov_i;
-  double errsq = 0.0;
-  for(cov_i = fCovar.rbegin();
-      cov_i != fCovar.rend();
-      ++cov_i)
-  {
-    std::vector<double>::const_reverse_iterator cov_ij;
-    double errsq_i = 0.0;
-    for(cov_ij = (*cov_i).rbegin();
-        cov_ij != (*cov_i).rend();
-        ++cov_ij) {
-      errsq_i = errsq_i * x + *cov_ij;
-    }
-    errsq = errsq * x + errsq_i;
-  }
-  
-  return sqrt(errsq);
 }
 
 } // end namespace Fit
