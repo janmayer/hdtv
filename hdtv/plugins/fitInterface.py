@@ -223,18 +223,16 @@ class FitInterface:
         """
         Activate one fit
         """
-
-        hdtv.ui.msg("ActivateFit ID %s" %ID)
-
-        if self.spectra.activeID==None:
-            hdtv.ui.error("There is no active spectrum")
-            return 
         spec = self.spectra[self.spectra.activeID]
-        if not hasattr(spec, "activeID"):
-            hdtv.ui.error("There are no fits for this spectrum")
-            return
-        if not self.spectra.activeID in self.spectra.visible:
-            hdtv.ui.warn("Active spectrum (id=%s) is not visible" %self.spectra.activeID)
+        
+        # TODO: raise HDTV exception here
+#        if not hasattr(spec, "activeID"):
+#            hdtv.ui.error("There are no fits for this spectrum")
+#            return
+        
+        # Active objects should always be visible
+        assert self.spectra.activeID in self.spectra.visible, "Active spectrum not visible"
+
         if not spec.activeID==None:
             # keep current status of old fit
             self.KeepFit()
@@ -243,8 +241,12 @@ class FitInterface:
             self.activeFit = None
         # activate another fit
         spec.ActivateObject(ID)
-        if self.spectra.activeID in self.spectra.visible:
-            spec[spec.activeID].Show()
+        
+        if spec.activeID is not None: # If spec.activeID is None it was deactivation
+            if self.spectra.activeID in self.spectra.visible:
+                spec[spec.activeID].Show()
+
+        if ID is not None:
             if not spec.isInVisibleRegion(ID):
                 spec.FocusObject(ID)
         # update fitPanel
@@ -828,14 +830,22 @@ class TvFitInterface:
         
         if self.spectra.activeID==None:
             hdtv.ui.error("There is no active spectrum")
-            return False
+            return
         
-        ID = hdtv.cmdhelper.ParseFitIds(args, self.spectra[self.spectra.activeID])
+        spec = self.spectra[self.spectra.activeID]
+        
+        if not hasattr(spec, "activeID"):
+            hdtv.ui.error("There are no fits for this spectrum")
+            return
+
+        ID = hdtv.cmdhelper.ParseFitIds(args, spec)
         
         if len(ID) == 1:
+            hdtv.ui.msg("Activating fit %s" %ID)
             self.fitIf.ActivateFit(ID[0])
         elif len(ID) == 0:
-            hdtv.ui.error("Nothing to activate")
+            hdtv.ui.msg("Deactivating fit")
+            self.fitIf.ActivateFit(None)
         else:
             hdtv.ui.error("Can only activate one fit")
 
