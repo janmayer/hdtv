@@ -197,7 +197,7 @@ class FitInterface:
         """
         Fit the peak
         
-        If there are background markers, a background fit it included.
+        If there are background markers, a background fit is included.
         """
         if self.spectra.activeID==None:
             hdtv.ui.error("There is no active spectrum")

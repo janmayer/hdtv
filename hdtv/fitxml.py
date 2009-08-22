@@ -40,6 +40,7 @@ class FitXml:
       self.spectra = spectra
       self.version = VERSION.split('.')[0]
       self.RestoreFromXml = getattr(self, "RestoreFromXml_v%s" %self.version)
+      self.Xml2Fit = getattr(self, "Xml2Fit_v%s" %self.version)
     
     def WriteFitlist(self, fname, sids=None):
         """
@@ -410,6 +411,8 @@ class FitXml:
         """
         Read position in energy domain from XML element.
         """
+        # FIXME: I am not sure, if this makes sense, 
+        # as fits are without calibration until added to spectrum
         try:
             pos = float(markerElement.find("uncal").text)
             pos = fit.cal.Ch2E(pos)    

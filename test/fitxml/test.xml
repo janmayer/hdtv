@@ -1,0 +1,60 @@
+<hdtv version="1.0">
+  <spectrum calibration="" name="osiris_bg.spc">
+    <fit bgDegree="1" chi="2802.54973329" peakModel="theuerkauf">
+      <regionMarker>
+        <begin>
+          <cal>1450.16666667</cal>
+          <uncal>1450.16666667</uncal>
+        </begin>
+        <end>
+          <cal>1472.29012346</cal>
+          <uncal>1472.29012346</uncal>
+        </end>
+      </regionMarker>
+      <peakMarker>
+        <position>
+          <cal>1460.76272569</cal>
+          <uncal>1460.76272569</uncal>
+        </position>
+      </peakMarker>
+      <peak>
+        <uncal>
+          <width status="equal">
+            <value>2.94726207974</value>
+            <error>0.00750264400368</error>
+          </width>
+          <tl status="none" />
+          <sh status="none" />
+          <vol status="free">
+            <value>133103.917992</value>
+            <error>379.891580727</error>
+          </vol>
+          <tr status="none" />
+          <sw status="hold" />
+          <pos status="free">
+            <value>1460.76272569</value>
+            <error>0.00386595865333</error>
+          </pos>
+        </uncal>
+        <cal>
+          <width status="equal">
+            <value>2.94726207974</value>
+            <error>0.00750264400368</error>
+          </width>
+          <tl status="none" />
+          <sh status="none" />
+          <vol status="free">
+            <value>133103.917992</value>
+            <error>379.891580727</error>
+          </vol>
+          <tr status="none" />
+          <sw status="hold" />
+          <pos status="free">
+            <value>1460.76272569</value>
+            <error>0.00386595865333</error>
+          </pos>
+        </cal>
+      </peak>
+    </fit>
+  </spectrum>
+</hdtv>

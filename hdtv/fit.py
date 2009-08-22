@@ -56,7 +56,6 @@ class Fit(Drawable):
         self.dispPeakFunc = None
         self.dispBgFunc = None
         
-        
     def __str__(self):
         return self.formated_str(verbose=False)
         
@@ -203,6 +202,7 @@ class Fit(Drawable):
                 print "\n"+6*" "+self.formated_str(verbose=True)
 
     def Restore(self, spec, silent=False):
+        self.SetCal(spec.cal)
         if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
             backgrounds = [[m.p1, m.p2] for m in self.bgMarkers]
             self.fitter.RestoreBackground(spec, backgrounds, self.bgCoeffs, self.bgChi)
@@ -246,7 +246,6 @@ class Fit(Drawable):
         except AttributeError: # Fitter not yet initialized
             self.regionMarkers.Show()
             self.bgMarkers.Show()
-        
         # draw fit func, if available
         if self.dispPeakFunc:
             self.dispPeakFunc.Draw(self.viewport)
@@ -379,7 +378,7 @@ class Fit(Drawable):
         
         
     def SetCal(self, cal):
-        self.cal=hdtv.cal.MakeCalibration(cal)
+        self.cal = hdtv.cal.MakeCalibration(cal)
         if self.viewport:
             self.viewport.LockUpdate()
         self.peakMarkers.SetCal(self.cal)
@@ -442,7 +441,6 @@ class Fit(Drawable):
         Changes the internal (uncalibrated) values of the markers in such a way, 
         that the calibrated values are kept fixed, but a new calibration is used.
         """
-        self.cal = hdtv.cal.MakeCalibration(cal)
         self.peakMarkers.Recalibrate(cal)
         self.regionMarkers.Recalibrate(cal)
         self.bgMarkers.Recalibrate(cal)
