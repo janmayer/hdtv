@@ -193,53 +193,53 @@ class FitXml:
         return fitElement
         
         
-    def ReadFitlist(self, fnames):
+    def ReadFitlist(self, fname, sids=None):
         """
         Reads fitlist from xml files
         """
         self.spectra.viewport.LockUpdate()
-        if type(fnames) in [str,unicode]:
-            fnames = [fnames]
-        for fname in fnames:
-            path = os.path.expanduser(fname)
-            for filename in glob.glob(path):
-                try:
-                    tree = ET.parse(filename)
-                    root = tree.getroot()
-                    # old versions
-                    if root.get("version").startswith("0"):
-                        print "The XML version of %s is old." %fname
-                        do_fit = None
-                        while not do_fit in ["Y","y","N","n",""]:
-                            question = "Do you want to update it to the current version? [Y/n]"
-                            print "The old files will be kept as backup with the suffix _v0"
-                            print "The conversion will take some time..."
-                            do_fit = raw_input(question)
-                        if do_fit in ["Y","y",""]:
-                            # we first have to delete all fits, that are already open,
-                            # because otherwise they also will be saved in the new file 
-                            tmp = self.CreateXML()
-                            for spectra in self.spectra.values():
-                                spectra.RemoveAll()
-                            # then we can deal with the old file and do all the fits
-                            self.RestoreFromXml_v0(root, True)
-                            # backup old file
-                            os.rename(filename, "%s_v0" %filename)
-                            # and write the new file
-                            self.WriteFitlist(filename)
-                            # afterwards we restore again all the other fits
-                            self.RestoreFromXml(tmp)                       
-                        else:
-                            self.RestoreFromXml_v0(root)
-                    # current version
-                    if root.get("version").startswith(self.version):
-                        self.RestoreFromXml(root)
-                except SyntaxError, e:
-                    print "Error reading \'" + filename + "\':\n\t", e
+        if sids is None:
+            sids=self.spectra.keys()
+        try:
+            tree = ET.parse(fname)
+            root = tree.getroot()
+            if not root.tag=="hdtv" or root.get("version") is None:
+                e = "this is not a valid hdtv file"
+                raise SyntaxError, e
+            # old versions
+            if root.get("version").startswith("0"):
+                print "The XML version of %s is old." %fname
+                do_fit = None
+                while not do_fit in ["Y","y","N","n",""]:
+                    question = "Do you want to update it to the current version? [Y/n]"
+                    print "The old files will be kept as backup with the suffix _v0"
+                    print "The conversion will take some time..."
+                    do_fit = raw_input(question)
+                if do_fit in ["Y","y",""]:
+                    # we first have to delete all fits, that are already open,
+                    # because otherwise they also will be saved in the new file 
+                    tmp = self.CreateXml()
+                    for spectra in self.spectra.values():
+                        spectra.RemoveAll()
+                    # then we can deal with the old file and do all the fits
+                    self.RestoreFromXml_v0(root, True)
+                    # backup old file
+                    os.rename(fname, "%s_v0" %fname)
+                    # and write the new file
+                    self.WriteFitlist(fname)
+                    # afterwards we restore again all the other fits
+                    self.RestoreFromXml(tmp)                       
                 else:
-                    print "\'" + filename + "\' loaded."
-                finally:
-                    self.spectra.viewport.UnlockUpdate()
+                    self.RestoreFromXml_v0(root)
+            # current version
+            if root.get("version").startswith(self.version):
+                self.RestoreFromXml(root, sids)
+        except SyntaxError, e:
+            print "Error reading \'" + fname + "\':\n\t", e
+        else:
+            print "\'" + fname + "\' loaded."
+        finally:
+            self.spectra.viewport.UnlockUpdate()
         
     def RestoreFromXml_v1(self, root, sids=None):
         """
@@ -271,8 +271,8 @@ class FitXml:
             try:
                 specElement = index[spec.name]
             except KeyError:
-                msg ="No informations for spectrum %s (id=%d) in file" %(spec, sid)
-                hdtv.ui.warn(msg)
+            #    msg ="No informations for spectrum %s (id=%d) in file" %(spec, sid)
+            #    hdtv.ui.warn(msg)
                 continue
             try:
                 calibration = map(float, specElement.get("calibration").split())

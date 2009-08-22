@@ -49,12 +49,14 @@ def ParseSpecIDs(strings, spectra):
         ids = list(spectra.visible)
     elif ids=="ALL":
         ids = spectra.keys()
+        
     return ids
 
 def ParseFitIds(strings, spec):
     """
     Parse fit IDs, allowed keywords are ALL, NONE, ACTIVE, VISIBLE
     """
+    # TODO: maybe we can use this also for spectrum ids
     special = ["ALL","NONE","ACTIVE","VISIBLE", "NEXT", "PREV", "FIRST", "LAST"]
     # parse the arguments
 #    try:
@@ -92,7 +94,7 @@ def ParseFitIds(strings, spec):
     for ID in ids:
         if ID is None: continue
         if not ID in spec.keys():
-            hdtv.ui.warn("Warning: no fit with id %s" %ID)
+            hdtv.ui.warn("No fit with id %s in spectrum %s" %(ID, spec))
         else:
             valid_ids.append(ID)
     return valid_ids

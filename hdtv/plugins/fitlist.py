@@ -23,21 +23,31 @@
 # Write and Read Fitlist saved in xml format
 # 
 #-------------------------------------------------------------------------------
+import os
+import glob
+import hdtv.cmdline
+import hdtv.cmdhelper
+import hdtv.fitxml 
 
 import __main__
-import hdtv.cmdline
-import hdtv.fitxml 
 if not hasattr(__main__, "spectra"):
     import hdtv.drawable
     __main__.spectra = hdtv.drawable.DrawableCompound(__main__.window.viewport)
 __main__.fitxml = hdtv.fitxml.FitXml(__main__.spectra)
 
-
 def WriteFitlist(args, options):
     fname = os.path.expanduser(args[0])
-    
-    
+    sids = hdtv.cmdhelper.ParseSpecIDs(options.spectrum, __main__.spectra)
+    __main__.fitxml.WriteFitlist(fname, sids)
 
+def ReadFitlist(args, options):
+    fnames = list()
+    for fname in args:
+        path = os.path.expanduser(fname)
+    fnames.extend(glob.glob(path))
+    sids = hdtv.cmdhelper.ParseSpecIDs(options.spectrum, __main__.spectra)
+    for fname in fnames:
+        __main__.fitxml.ReadFitlist(fname, sids)
 
 prog = "fit write"
 description = "write fits to xml file"
@@ -45,14 +55,16 @@ usage = "%prog filename"
 parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
 parser.add_option("-s", "--spectrum", action = "store", default = "all",
                         help = "for which the fits should be saved (default=all)")
-hdtv.cmdline.AddCommand(prog, lambda args, options: __main__.fitxml.WriteFitlist(args[0]), 
-                        nargs=1, fileargs=True, parser=parser)
+hdtv.cmdline.AddCommand(prog, WriteFitlist, nargs=1, fileargs=True, parser=parser)
+
 
 prog = "fit read"
 description = "read fits from xml file"
 usage ="%prog filename"
 parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-hdtv.cmdline.AddCommand("fit read", lambda args, options: __main__.fitxml.ReadFitlist(args[0]), 
-                    nargs=1, fileargs=True, parser=parser)
+parser.add_option("-s", "--spectrum", action = "store", default = "all",
+                        help = "for which the fits should be read (default=all)")
+hdtv.cmdline.AddCommand("fit read", ReadFitlist, minargs=1, fileargs=True, parser=parser)
+
 
 print "loaded fitlist plugin"
