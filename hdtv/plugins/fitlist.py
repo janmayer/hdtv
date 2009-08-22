@@ -32,10 +32,19 @@ if not hasattr(__main__, "spectra"):
     __main__.spectra = hdtv.drawable.DrawableCompound(__main__.window.viewport)
 __main__.fitxml = hdtv.fitxml.FitXml(__main__.spectra)
 
+
+def WriteFitlist(args, options):
+    fname = os.path.expanduser(args[0])
+    
+    
+
+
 prog = "fit write"
 description = "write fits to xml file"
 usage = "%prog filename"
 parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+parser.add_option("-s", "--spectrum", action = "store", default = "all",
+                        help = "for which the fits should be saved (default=all)")
 hdtv.cmdline.AddCommand(prog, lambda args, options: __main__.fitxml.WriteFitlist(args[0]), 
                         nargs=1, fileargs=True, parser=parser)
 

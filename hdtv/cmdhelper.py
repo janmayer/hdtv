@@ -36,7 +36,7 @@ def ParseSpecIDs(strings, spectra):
     """
     Parse IDs of spectra, raises a ValueError if parsing fails
     """
-    ids = ParseRange(strings, ["ALL", "NONE", "ACTIVE"])
+    ids = ParseRange(strings, ["ALL", "NONE", "ACTIVE", "VISIBLE"])
     if ids=="NONE":
         return []
     elif ids=="ACTIVE" or len(ids) == 0:
@@ -45,6 +45,8 @@ def ParseSpecIDs(strings, spectra):
             return []
         else:
             ids = [spectra.activeID]
+    elif ids =="VISIBLE":
+        ids = list(spectra.visible)
     elif ids=="ALL":
         ids = spectra.keys()
     return ids

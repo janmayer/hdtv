@@ -50,7 +50,6 @@ class FitXml:
         """
         root = self.CreateXml(sids)
         # save to file
-        fname = os.path.expanduser(fname)
         tree = ET.ElementTree(root)
         tree.write(fname)
             

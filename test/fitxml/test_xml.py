@@ -60,7 +60,6 @@ __main__.fitxml.ReadFitlist(testXML)
 
 raw_input("Press enter to continue")
 
-spectra[0].RemoveAll()
 print "-------------------------------------------------------------------------"
 print "case 1: all parameter free, just one peak, background"
 print "-------------------------------------------------------------------------"
@@ -81,13 +80,12 @@ __main__.f.KeepFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
-__main__.spectra[0].RemoveObjects(spectra[0].keys())
+__main__.spectra[0].RemoveAll()
 print 'Reading fits from file %s' %testXML
 __main__.fitxml.ReadFitlist(testXML)
 
 raw_input("Press enter to continue")
 
-spectra[0].RemoveAll()
 print "-------------------------------------------------------------------------"
 print "case 1: all parameter free, more than one peak"
 print "-------------------------------------------------------------------------"
@@ -109,13 +107,12 @@ __main__.f.KeepFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
-__main__.spectra[0].RemoveObjects(spectra[0].keys())
+__main__.spectra[0].RemoveAll()
 print 'Reading fits from file %s' %testXML
 __main__.fitxml.ReadFitlist(testXML)
 
 raw_input("Press enter to continue")
 
-spectra[0].RemoveAll()
 print "-------------------------------------------------------------------------"
 print "case 3: one parameter status!=free, but equal for all peaks"
 print "-------------------------------------------------------------------------"
@@ -138,13 +135,12 @@ __main__.f.KeepFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
-__main__.spectra[0].RemoveObjects(spectra[0].keys())
+__main__.spectra[0].RemoveAll()
 print 'Reading fits from file %s' %testXML
 __main__.fitxml.ReadFitlist(testXML)
 
 raw_input("Press enter to continue")
 
-spectra[0].RemoveAll()
 print "-------------------------------------------------------------------------"
 print "case 4: different parameter status for each peak"
 print "-------------------------------------------------------------------------"
@@ -166,13 +162,12 @@ __main__.f.KeepFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
-__main__.spectra[0].RemoveObjects(spectra[0].keys())
+__main__.spectra[0].RemoveAll()
 print 'Reading fits from file %s' %testXML
 __main__.fitxml.ReadFitlist(testXML)
 
 raw_input("Press enter to continue")
 
-spectra[0].RemoveAll()
 print "-------------------------------------------------------------------------"
 print "case 5: ee peak (just proof of concept, not a thorough test)"
 print "-------------------------------------------------------------------------"
@@ -190,7 +185,7 @@ __main__.f.KeepFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
-__main__.spectra[0].RemoveObjects(spectra[0].keys())
+__main__.spectra[0].RemoveAll()
 print 'Reading fits from file %s' %testXML
 __main__.fitxml.ReadFitlist(testXML)
 
