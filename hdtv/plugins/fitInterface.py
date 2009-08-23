@@ -290,24 +290,25 @@ class FitInterface:
 
     def KeepFit(self):
         """
-        Keep this fit, 
+        Keep this fit 
         """
         # get active spectrum
         if self.spectra.activeID==None:
             hdtv.ui.error("There is no active spectrum")
             return 
         spec = self.spectra[self.spectra.activeID]
-        if not hasattr(spec, "activeID") or spec.activeID == None:
+        if spec.activeID == None:
             # do the fit
             self.Fit(peaks = True)
         spec[spec.activeID].SetTitle(str(spec.activeID))
         spec[spec.activeID].SetColor(spec.color)
         # remove the fit, if it is empty (=nothing fitted)
         if len(spec[spec.activeID].peaks) == 0:
-            spec.pop(spec.activeID)
+            hdtv.ui.warn('Fit is not valid, nothing saved')
+            fit = spec.pop(spec.activeID)
+            fit.Remove()
         # deactivate all objects
         spec.ActivateObject(None)
-        
 
     def ClearFit(self):
         """
