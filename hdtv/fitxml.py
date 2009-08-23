@@ -206,6 +206,7 @@ class FitXml:
             if not root.tag=="hdtv" or root.get("version") is None:
                 e = "this is not a valid hdtv file"
                 raise SyntaxError, e
+            count = 0
             # old versions
             if root.get("version").startswith("0"):
                 print "The XML version of %s is old." %fname
@@ -222,7 +223,7 @@ class FitXml:
                     for spectra in self.spectra.values():
                         spectra.RemoveAll()
                     # then we can deal with the old file and do all the fits
-                    self.RestoreFromXml_v0(root, True)
+                    count = self.RestoreFromXml_v0(root, True)
                     # backup old file
                     os.rename(fname, "%s_v0" %fname)
                     # and write the new file
@@ -230,14 +231,17 @@ class FitXml:
                     # afterwards we restore again all the other fits
                     self.RestoreFromXml(tmp)                       
                 else:
-                    self.RestoreFromXml_v0(root)
+                    count = self.RestoreFromXml_v0(root)
             # current version
             if root.get("version").startswith(self.version):
-                self.RestoreFromXml(root, sids)
+                count = self.RestoreFromXml(root, sids)
         except SyntaxError, e:
             print "Error reading \'" + fname + "\':\n\t", e
         else:
-            print "\'" + fname + "\' loaded."
+            if count==1:
+                print "1 fit from \'%s\' loaded." %fname
+            else:
+                print "%d fits from \'%s\' loaded." %(count, fname) 
         finally:
             self.spectra.viewport.UnlockUpdate()
         
@@ -257,6 +261,7 @@ class FitXml:
             * calibrated and uncalibrated values for each peak parameter
         """
         do_fit = None
+        count = 0
         # default is to look for all loaded spectra
         if sids is None:
             sids = self.spectra.keys()
@@ -285,6 +290,7 @@ class FitXml:
             fits = list()
             for fitElement in specElement.findall("fit"):
                 (fit, success) = self.Xml2Fit_v1(fitElement)
+                count = count+1
                 # restore fit
                 if success:
                     try:
@@ -311,6 +317,7 @@ class FitXml:
                 # finish this fit
                 if not sid in self.spectra.visible:
                     fit.Hide()
+            return count
 
     def Xml2Fit_v1(self, fitElement):
         """
@@ -486,6 +493,7 @@ class FitXml:
         must repeat the fit, if he/she wants to see the results again.
         (This should be improved in later versions.)
         """
+        count = 0
         spectra = self.spectra
         # <spectrum>
         for specElement in root.getiterator():
@@ -499,6 +507,7 @@ class FitXml:
             if spec is None: continue
             # <fit>
             for fitElement in specElement:
+                count = count+1
                 peakModel = fitElement.get("peakModel")
                 bgdeg = int(fitElement.get("bgDegree"))
                 fitter = hdtv.fitter.Fitter(peakModel, bgdeg)
@@ -561,6 +570,7 @@ class FitXml:
                 if do_fit:
                     fit.FitPeakFunc(spec)
                 spec.Add(fit)
+            return count
                 
 
     def indent(self, elem, level=0):
