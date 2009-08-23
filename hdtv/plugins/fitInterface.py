@@ -205,15 +205,18 @@ class FitInterface:
         if self.fitPanel:
             self.fitPanel.Show()
         spec = self.spectra[self.spectra.activeID]
-        if spec.activeID == None:
-            ID = spec.Add(self.GetActiveFit())
-            self.activeFit = None
-            spec.ActivateObject(ID)
-        fit = spec[spec.activeID]
+        fit = self.GetActiveFit()
         if not peaks and len(fit.bgMarkers) > 0:
+            # pur background fit
             fit.FitBgFunc(spec)
         if peaks:
+            # full fit
             fit.FitPeakFunc(spec)
+            # add to spectrum if it is a fresh fit
+            if spec.activeID == None:
+                ID = spec.Add(fit)
+                self.activeFit = None
+                spec.ActivateObject(ID)
         fit.Draw(self.window.viewport)
         # update fitPanel
         self.UpdateFitPanel()
@@ -236,6 +239,7 @@ class FitInterface:
         if not self.spectra.activeID in self.spectra.visible:
             hdtv.ui.warn("Active spectrum (id=%s) is not visible" %self.spectra.activeID)
         if not spec.activeID==None:
+            print spec.activeID
             # keep current status of old fit
             self.KeepFit()
         elif self.activeFit:

@@ -302,6 +302,7 @@ class SpectrumCompound(DrawableCompound):
         # as marker positions are uncalibrated, 
         # we need do a recalibration here
         fit.Recalibrate(self.cal)
+        fit.SetColor(self.spec.color,active=False)
         DrawableCompound.__setitem__(self, ID, fit)
 
         
