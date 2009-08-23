@@ -200,13 +200,13 @@ class FitXml:
         self.spectra.viewport.LockUpdate()
         if sids is None:
             sids=self.spectra.keys()
+        count = 0
         try:
             tree = ET.parse(fname)
             root = tree.getroot()
             if not root.tag=="hdtv" or root.get("version") is None:
                 e = "this is not a valid hdtv file"
                 raise SyntaxError, e
-            count = 0
             # old versions
             if root.get("version").startswith("0"):
                 print "The XML version of %s is old." %fname
@@ -243,7 +243,7 @@ class FitXml:
             if count==1:
                 print "1 fit from \'%s\' loaded." %fname
             else:
-                print "%d fits from \'%s\' loaded." %(count, fname) 
+                print "%s fits from \'%s\' loaded." %(count, fname) 
         finally:
             self.spectra.viewport.UnlockUpdate()
         
@@ -321,7 +321,7 @@ class FitXml:
                 # finish this fit
                 if not sid in self.spectra.visible:
                     fit.Hide()
-            return count
+        return count
 
     def Xml2Fit_v1(self, fitElement):
         """

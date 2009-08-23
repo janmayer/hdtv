@@ -53,8 +53,11 @@ def WriteFitlist(args, options):
 def ReadFitlist(args, options):
     fnames = list()
     for fname in args:
-        path = os.path.expanduser(fname)
-    fnames.extend(glob.glob(path))
+        fname = os.path.expanduser(fname)
+        more = glob.glob(fname)
+        if len(more)==0:
+            hdtv.ui.warn("no such file %s" %fname)
+        fnames.extend(more)
     sids = hdtv.cmdhelper.ParseSpecIDs(options.spectrum, __main__.spectra)
     for fname in fnames:
         __main__.fitxml.ReadFitlist(fname, sids, options.calibrate)
