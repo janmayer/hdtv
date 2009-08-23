@@ -37,6 +37,16 @@ __main__.fitxml = hdtv.fitxml.FitXml(__main__.spectra)
 
 def WriteFitlist(args, options):
     fname = os.path.expanduser(args[0])
+    if not options.force and os.path.exists(fname):
+        hdtv.ui.warn("This file already exists:")
+        overwrite = None
+        while not overwrite in ["Y","y","N","n","","B","b"]:
+            question = "Do you want to replace it [y,n] or backup it [B]:"
+            overwrite = raw_input(question)
+        if overwrite in ["b","B",""]:
+            os.rename(fname,"%s.back" %fname)
+        elif overwrite in ["n","N"]:
+            return 
     sids = hdtv.cmdhelper.ParseSpecIDs(options.spectrum, __main__.spectra)
     __main__.fitxml.WriteFitlist(fname, sids)
 
@@ -55,6 +65,8 @@ usage = "%prog filename"
 parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
 parser.add_option("-s", "--spectrum", action = "store", default = "all",
                         help = "for which the fits should be saved (default=all)")
+parser.add_option("-f","--force",action = "store_true", default=False,
+                        help = "overwrite existing files without asking")
 hdtv.cmdline.AddCommand(prog, WriteFitlist, nargs=1, fileargs=True, parser=parser)
 
 
