@@ -47,7 +47,7 @@ def ReadFitlist(args, options):
     fnames.extend(glob.glob(path))
     sids = hdtv.cmdhelper.ParseSpecIDs(options.spectrum, __main__.spectra)
     for fname in fnames:
-        __main__.fitxml.ReadFitlist(fname, sids)
+        __main__.fitxml.ReadFitlist(fname, sids, options.calibrate)
 
 prog = "fit write"
 description = "write fits to xml file"
@@ -63,7 +63,9 @@ description = "read fits from xml file"
 usage ="%prog filename"
 parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
 parser.add_option("-s", "--spectrum", action = "store", default = "all",
-                        help = "for which the fits should be read (default=all)")
+                        help = "spectra for which the fits should be read (default=all)")
+parser.add_option("-c", "--calibrate", action="store", default = "False",
+                        help = "load calibration that is stored in the xml file")
 hdtv.cmdline.AddCommand("fit read", ReadFitlist, minargs=1, fileargs=True, parser=parser)
 
 

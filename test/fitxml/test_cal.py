@@ -186,3 +186,66 @@ fit.Draw(spec.viewport)
 print fit
 
 __main__.window.GoToPosition(730)
+raw_input('Press enter to continue ')
+
+spec.RemoveAll()
+print "-------------------------------------------------------------------------"
+print "Case 7: Change calibration between Fit and Restore"
+print "-------------------------------------------------------------------------"
+print "SetCal"
+spec.SetCal([0,0.5])
+
+print "Fit"
+fit = __main__.f.GetActiveFit()
+fit.PutRegionMarker(725)
+fit.PutRegionMarker(735)
+fit.PutPeakMarker(730)
+__main__.f.Fit()
+
+print "Saving fits"
+__main__.f.KeepFit()
+__main__.fitxml.WriteFitlist(testXML)
+spec.RemoveAll()
+
+print "Change calibration"
+spec.SetCal([0,2])
+
+print "Reading fits"
+__main__.fitxml.ReadFitlist(testXML)
+
+print spec[0]
+__main__.window.GoToPosition(2920)
+raw_input('Press enter to continue ')
+
+spec.RemoveAll()
+print "-------------------------------------------------------------------------"
+print "Case 8: Load old calibration during Restore"
+print "-------------------------------------------------------------------------"
+print "SetCal"
+spec.SetCal([0,0.5])
+
+print "Fit"
+fit = __main__.f.GetActiveFit()
+fit.PutRegionMarker(725)
+fit.PutRegionMarker(735)
+fit.PutPeakMarker(730)
+__main__.f.Fit()
+
+print "Saving fits"
+__main__.f.KeepFit()
+__main__.fitxml.WriteFitlist(testXML)
+
+print "Change calibration"
+spec.SetCal([0,2])
+
+print spec[0]
+
+spec.RemoveAll()
+print "Reading fits"
+__main__.fitxml.ReadFitlist(testXML, calibrated=True)
+
+print spec[0]
+__main__.window.GoToPosition(730)
+
+
+

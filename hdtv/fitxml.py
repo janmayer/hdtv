@@ -193,7 +193,7 @@ class FitXml:
         return fitElement
         
         
-    def ReadFitlist(self, fname, sids=None):
+    def ReadFitlist(self, fname, sids=None, calibrated=False):
         """
         Reads fitlist from xml files
         """
@@ -210,9 +210,11 @@ class FitXml:
             # old versions
             if root.get("version").startswith("0"):
                 print "The XML version of %s is old." %fname
+                if calibrated:
+                    "This version does not support to load the calibration."
                 do_fit = None
                 while not do_fit in ["Y","y","N","n",""]:
-                    question = "Do you want to update it to the current version? [Y/n]"
+                    question = "Do you want to update to the current version? [Y/n]"
                     print "The old files will be kept as backup with the suffix _v0"
                     print "The conversion will take some time..."
                     do_fit = raw_input(question)
@@ -234,7 +236,7 @@ class FitXml:
                     count = self.RestoreFromXml_v0(root)
             # current version
             if root.get("version").startswith(self.version):
-                count = self.RestoreFromXml(root, sids)
+                count = self.RestoreFromXml(root, sids, calibrated)
         except SyntaxError, e:
             print "Error reading \'" + fname + "\':\n\t", e
         else:
@@ -245,7 +247,7 @@ class FitXml:
         finally:
             self.spectra.viewport.UnlockUpdate()
         
-    def RestoreFromXml_v1(self, root, sids=None):
+    def RestoreFromXml_v1(self, root, sids=None, calibrate=False):
         """
         Restores fits from xml file (version = 1.*) 
     
@@ -279,13 +281,15 @@ class FitXml:
             #    msg ="No informations for spectrum %s (id=%d) in file" %(spec, sid)
             #    hdtv.ui.warn(msg)
                 continue
-            try:
-                calibration = map(float, specElement.get("calibration").split())
-                spec.SetCal(calibration)
-            except AttributeError:
-                # No calibration was saved
-                msg ="Could not read calibration for spectrum %s (id=%d)" % (spec,sid)
-                hdtv.ui.warn(msg)
+            # load the calibration from file
+            if calibrate:
+                try:
+                    calibration = map(float, specElement.get("calibration").split())
+                    spec.SetCal(calibration)
+                except AttributeError:
+                    # No calibration was saved
+                    msg ="Could not read calibration for spectrum %s (id=%d)" % (spec,sid)
+                    hdtv.ui.warn(msg)
             # <fits>
             fits = list()
             for fitElement in specElement.findall("fit"):

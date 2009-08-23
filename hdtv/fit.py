@@ -441,6 +441,7 @@ class Fit(Drawable):
         Changes the internal (uncalibrated) values of the markers in such a way, 
         that the calibrated values are kept fixed, but a new calibration is used.
         """
+        self.cal = hdtv.cal.MakeCalibration(cal)
         self.peakMarkers.Recalibrate(cal)
         self.regionMarkers.Recalibrate(cal)
         self.bgMarkers.Recalibrate(cal)
