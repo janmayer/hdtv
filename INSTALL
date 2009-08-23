@@ -1,8 +1,10 @@
 Installation instructions for HDTV
 
-At the moment, HDTV can only be installed locally.
+1.) Install locally and run from source directory
 
-* Execute ``make'' in the src/ subdirectory.
-* Create a directory ~/.hdtv
-* Copy or link the hdtv/ directory into ~/.hdtv
-* Copy or link the bin/hdtv script into some directory in your $PATH
+* Execute "make" in the src subdirectory
+
+2.) Install into system (requires superuser's rights)
+
+* Run "python setup.py install"
+
