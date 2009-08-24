@@ -318,7 +318,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         # of the node above are potential completion candidates, if their
         # names begin with the last part of the path.
         last_path = ""
-        if buf != "" and buf[-1] != " ":
+        if buf != "" and not buf[-1].isspace():
                 last_path = path[-1]
                 path = path[0:-1]
         
@@ -341,7 +341,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                 if child.title[0:l] == text:
                     options.append(child.title + " ")
         # ... if not, we use the nodes registered autocomplete handler ...
-        elif "completer" in node.options and callable(node.options["completer"]):
+        elif not args and "completer" in node.options and callable(node.options["completer"]):
             options = node.options["completer"](text)
         # ... if that fails as well, we suggest files, but only if the command will
         # take files or directories as arguments.
