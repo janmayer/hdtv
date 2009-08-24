@@ -23,7 +23,7 @@ import hdtv.options
 import hdtv.cmdline
 import hdtv.util
 
-def ConfigVarCompleter(text):
+def ConfigVarCompleter(text, args=None):
     return hdtv.util.GetCompleteOptions(text, hdtv.options.variables.iterkeys())
 
 def ConfigSet(args):
