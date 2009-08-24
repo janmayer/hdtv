@@ -52,9 +52,13 @@ class Spectrum(Drawable):
         self.fEffCal = None
         
     def __str__(self):
+        return self.name
+    
+    @property
+    def name(self):
         if self.fHist:
             return self.fHist.GetName()
-            
+        
     def GetTypeStr(self):
         """
         Return a string describing the type of this spectrum.
@@ -282,6 +286,7 @@ class SpectrumCompound(DrawableCompound):
         DrawableCompound.__init__(self,viewport)
         self.spec = spec
         self.color = spec.color
+        self.cal = spec.cal
         
     def __getattr__(self, name):
         """
@@ -290,9 +295,14 @@ class SpectrumCompound(DrawableCompound):
         """
         return getattr(self.spec, name)
 
-    def __setitem__(self, ID, obj):
-        obj.Recalibrate(self.cal)
-        DrawableCompound.__setitem__(self, ID, obj)
+    def __setitem__(self, ID, fit):
+        """
+        Add a fit to this spectrum with ID
+        """
+        # as marker positions are uncalibrated, 
+        # we need do a recalibration here
+        fit.Recalibrate(self.cal)
+        DrawableCompound.__setitem__(self, ID, fit)
 
         
     def Refresh(self):
@@ -364,6 +374,7 @@ class SpectrumCompound(DrawableCompound):
                 self[ID].SetColor(color, active=False)
         
     def SetCal(self, cal):
+        self.cal = hdtv.cal.MakeCalibration(cal)
         self.spec.SetCal(cal)
         DrawableCompound.SetCal(self, cal)
 

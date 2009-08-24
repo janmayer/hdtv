@@ -56,7 +56,6 @@ class Fit(Drawable):
         self.dispPeakFunc = None
         self.dispBgFunc = None
         
-        
     def __str__(self):
         return self.formated_str(verbose=False)
         
@@ -203,6 +202,7 @@ class Fit(Drawable):
                 print "\n"+6*" "+self.formated_str(verbose=True)
 
     def Restore(self, spec, silent=False):
+        self.SetCal(spec.cal)
         if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
             backgrounds = [[m.p1, m.p2] for m in self.bgMarkers]
             self.fitter.RestoreBackground(spec, backgrounds, self.bgCoeffs, self.bgChi)
@@ -246,7 +246,6 @@ class Fit(Drawable):
         except AttributeError: # Fitter not yet initialized
             self.regionMarkers.Show()
             self.bgMarkers.Show()
-        
         # draw fit func, if available
         if self.dispPeakFunc:
             self.dispPeakFunc.Draw(self.viewport)
@@ -379,18 +378,18 @@ class Fit(Drawable):
         
         
     def SetCal(self, cal):
-        cal=hdtv.cal.MakeCalibration(cal)
+        self.cal = hdtv.cal.MakeCalibration(cal)
         if self.viewport:
             self.viewport.LockUpdate()
-        self.peakMarkers.SetCal(cal)
-        self.regionMarkers.SetCal(cal)
-        self.bgMarkers.SetCal(cal)
+        self.peakMarkers.SetCal(self.cal)
+        self.regionMarkers.SetCal(self.cal)
+        self.bgMarkers.SetCal(self.cal)
         if self.dispPeakFunc:
-            self.dispPeakFunc.SetCal(cal)
+            self.dispPeakFunc.SetCal(self.cal)
         if self.dispBgFunc:
-            self.dispBgFunc.SetCal(cal)
+            self.dispBgFunc.SetCal(self.cal)
         for peak in self.peaks:
-            peak.SetCal(cal)
+            peak.SetCal(self.cal)
         if self.viewport:
             self.viewport.UnlockUpdate()
 

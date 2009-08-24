@@ -591,9 +591,9 @@ class DrawableCompound(UserDict.DictMixin):
         viewport_end = viewport_start + self.viewport.GetXVisibleRegion()
 
         hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: object ID: %d" %ID, level=6)
-        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: viewport_start %d, viewport_end %d" 
+        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: viewport_start %s, viewport_end %s" 
                        % (viewport_start, viewport_end), level=6)
-        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: object %d, starts at %d and ends at %d" 
+        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: object %d, starts at %s and ends at %s" 
                        % (ID, xdim[0], xdim[1]), level=6)
             
         if (xdim[0] > viewport_start) and (xdim[1] < viewport_end):

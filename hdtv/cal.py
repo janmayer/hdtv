@@ -289,3 +289,8 @@ def CalFromPairs(pairs, degree=1, table=False, fit=False, residual=False):
         fitter.DrawCalResidual()
     return fitter.calib
 
+def GetCal(cal):
+    polynome = list()
+    for p in cal.GetCoeffs():
+        polynome.append(p)
+    return polynom

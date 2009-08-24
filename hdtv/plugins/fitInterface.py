@@ -197,7 +197,7 @@ class FitInterface:
         """
         Fit the peak
         
-        If there are background markers, a background fit it included.
+        If there are background markers, a background fit is included.
         """
         if self.spectra.activeID==None:
             hdtv.ui.error("There is no active spectrum")
@@ -292,24 +292,25 @@ class FitInterface:
 
     def KeepFit(self):
         """
-        Keep this fit, 
+        Keep this fit 
         """
         # get active spectrum
         if self.spectra.activeID==None:
             hdtv.ui.error("There is no active spectrum")
             return 
         spec = self.spectra[self.spectra.activeID]
-        if not hasattr(spec, "activeID") or spec.activeID == None:
+        if spec.activeID == None:
             # do the fit
             self.Fit(peaks = True)
         spec[spec.activeID].SetTitle(str(spec.activeID))
         spec[spec.activeID].SetColor(spec.color)
         # remove the fit, if it is empty (=nothing fitted)
         if len(spec[spec.activeID].peaks) == 0:
-            spec.pop(spec.activeID)
+            hdtv.ui.warn('Fit is not valid, nothing saved')
+            fit = spec.pop(spec.activeID)
+            fit.Remove()
         # deactivate all objects
         spec.ActivateObject(None)
-        
 
     def ClearFit(self):
         """
@@ -774,27 +775,7 @@ class TvFitInterface:
         
         inverse = True inverses the fit selection i.e. FitShow becomes FitHide
         """
-        spec_keywords = ["all", "active"]
-        try:
-            spec_ids = hdtv.cmdhelper.ParseRange(options.spectrum, spec_keywords)
-        except ValueError:
-            return "USAGE"
-
-        hdtv.ui.debug("FitShow: spec ids=" + str(spec_ids), level=4)
-        if spec_ids == "ACTIVE":
-            if self.spectra.activeID is None:
-                hdtv.ui.warn("No active spectrum, no action taken.")
-                return
-            if not self.spectra.activeID in self.spectra.visible:
-                hdtv.ui.warn("Active spectrum is not visible, no action taken")
-                return
-            sids = [self.spectra.activeID]
-            hdtv.ui.debug("FitShow: working on spectra " + str(sids), level=4)
-        elif spec_ids == "ALL":
-            sids = self.spectra.keys()
-        else:
-            sids = spec_ids    
-        
+        sids = hdtv.cmdhelper.ParseSpecIDs(options.spectrum, self.spectra)
         for sid in sids:
             try:
                 spec = self.spectra[sid]
@@ -806,7 +787,7 @@ class TvFitInterface:
                 if inverse:
                     spec.HideObjects(fids)
                 else:
-                    self.fitIf.ShowFits(fids, specID = sid, adjustViewport=options.adjust_viewport)    
+                    self.fitIf.ShowFits(fids, specID = sid, adjustViewport=options.adjust_viewport)
             else:
                 spec.HideAll()
 
@@ -974,8 +955,8 @@ class TvFitInterface:
             if len(args) % 2 != 0:
                 hdtv.ui.error("Number of parameters must be even")
                 return "USAGE"
-            ids = hdtv.cmdhelper.ParseSpecIDs(options.spec, self.spectra)
-            if ids == False:
+            sids = hdtv.cmdhelper.ParseSpecIDs(options.spec, self.spectra)
+            if len(sids)==0:
                 return
             degree = int(options.degree)
         except ValueError:
@@ -1003,7 +984,7 @@ class TvFitInterface:
             hdtv.ui.error(msg)
             return False
         else:
-            for ID in ids:
+            for ID in sids:
                 try:
                     self.spectra[ID].SetCal(cal)
                     hdtv.ui.msg("Calibrated spectrum with id %d" %ID)
