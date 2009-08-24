@@ -193,7 +193,7 @@ class FitXml:
         return fitElement
         
         
-    def ReadFitlist(self, fname, sids=None, calibrated=False):
+    def ReadFitlist(self, fname, sids=None, calibrate=False):
         """
         Reads fitlist from xml files
         """
@@ -236,14 +236,20 @@ class FitXml:
                     count = self.RestoreFromXml_v0(root)
             # current version
             if root.get("version").startswith(self.version):
-                count = self.RestoreFromXml(root, sids, calibrated)
+                count = self.RestoreFromXml(root, sids, calibrate)
         except SyntaxError, e:
             print "Error reading \'" + fname + "\':\n\t", e
         else:
-            if count==1:
-                print "1 fit from \'%s\' loaded." %fname
+            msg = "\'%s\' loaded" %(fname)
+            if calibrate:
+                msg+= " with calibration"
             else:
-                print "%s fits from \'%s\' loaded." %(count, fname) 
+                msg+= " without calibration"
+            if count ==1:
+                msg+= ": 1 fit restored."
+            else:
+                msg+= ": %d fits restored" %count
+            hdtv.ui.msg(msg)
         finally:
             self.spectra.viewport.UnlockUpdate()
         
