@@ -610,7 +610,7 @@ class TvFitInterface:
 
         prog = "fit parameter"
         description = "show status of fit parameter, reset or set parameter"
-        usage = "%prog [OPTIONS] status | reset | parname status"
+        usage = "%prog [OPTIONS] status | reset | parname <valuePeak1>, <valuePeak2>, ..."
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-d", "--default", action = "store_true", default = False,
                             help = "act on default fitter")
