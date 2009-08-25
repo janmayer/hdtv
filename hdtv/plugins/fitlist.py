@@ -79,7 +79,7 @@ usage ="%prog filename"
 parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
 parser.add_option("-s", "--spectrum", action = "store", default = "all",
                         help = "spectra for which the fits should be read (default=all)")
-parser.add_option("-c", "--calibrate", action="store", default = "False",
+parser.add_option("-c", "--calibrate", action="store_true", default = False,
                         help = "load calibration that is stored in the xml file")
 hdtv.cmdline.AddCommand("fit read", ReadFitlist, minargs=1, fileargs=True, parser=parser)
 

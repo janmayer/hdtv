@@ -160,10 +160,10 @@ class RootFile:
             self.rootfile.Close()
             self.rootfile = None
             
-    def RootGet_Completer(self, text):
+    def RootGet_Completer(self, text, args=None):
         return self.Completer(text, dirs_only=False)
         
-    def RootCd_Completer(self, text):
+    def RootCd_Completer(self, text, args=None):
         return self.Completer(text, dirs_only=True)
         
     def Completer(self, text, dirs_only):

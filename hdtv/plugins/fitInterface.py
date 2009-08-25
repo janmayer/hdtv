@@ -205,15 +205,18 @@ class FitInterface:
         if self.fitPanel:
             self.fitPanel.Show()
         spec = self.spectra[self.spectra.activeID]
-        if spec.activeID == None:
-            ID = spec.Add(self.GetActiveFit())
-            self.activeFit = None
-            spec.ActivateObject(ID)
-        fit = spec[spec.activeID]
+        fit = self.GetActiveFit()
         if not peaks and len(fit.bgMarkers) > 0:
+            # pur background fit
             fit.FitBgFunc(spec)
         if peaks:
+            # full fit
             fit.FitPeakFunc(spec)
+            # add to spectrum if it is a fresh fit
+            if spec.activeID == None:
+                ID = spec.Add(fit)
+                self.activeFit = None
+                spec.ActivateObject(ID)
         fit.Draw(self.window.viewport)
         # update fitPanel
         self.UpdateFitPanel()
@@ -234,6 +237,7 @@ class FitInterface:
         assert self.spectra.activeID in self.spectra.visible, "Active spectrum not visible"
 
         if not spec.activeID==None:
+            print spec.activeID
             # keep current status of old fit
             self.KeepFit()
         elif self.activeFit:
@@ -440,14 +444,14 @@ class FitInterface:
             try:
                 self.defaultFitter.SetParameter(parname, status)
             except ValueError, msg:
-                hdtv.ui.error("while editing default Fit: %s" % msg)
+                hdtv.ui.error("while editing default Fit: \n\t%s" % msg)
         # active fit
         fit = self.GetActiveFit()
         try:
             fit.fitter.SetParameter(parname, status)
             fit.Refresh()
         except ValueError, msg:
-            hdtv.ui.error("while editing active Fit: %s" % msg)
+            hdtv.ui.error("while editing active Fit: \n\t%s" % msg)
         # fit list
         for ID in ids:
             try:
@@ -891,11 +895,11 @@ class TvFitInterface:
                 ids = hdtv.cmdhelper.ParseFitIds(options.fit, spec)
             self.fitIf.SetPeakModel(name, options.default, ids)
 
-    def PeakModelCompleter(self, text):
+    def PeakModelCompleter(self, text, args=None):
         """
         Creates a completer for all possible peak models
         """
-        return hdtv.cmdhelper.GetCompleteOptions(text, hdtv.fitter.gPeakModels.iterkeys())
+        return hdtv.cmdhelper.GetCompleteOptions(text, hdtv.peakmodels.PeakModels.iterkeys())
 
     def FitParam(self, args, options):
         # first argument is parameter name
@@ -925,18 +929,44 @@ class TvFitInterface:
             except ValueError, msg:
                 hdtv.ui.error(msg)
         
-    def ParamCompleter(self, text):
+    def ParamCompleter(self, text, args=None):
         """
-        Creates a completer for all possible parameter names
+        Creates a completer for all possible parameter names 
+        or valid states for a parameter (args[0]: parameter name).
         If the different peak models are used for active fitter and default fitter,
         options for both peak models are presented to the user.
         """
-        params = set(["status", "reset"])
-        defaultParams = set(self.fitIf.defaultFitter.params)
-        activeParams  = set(self.fitIf.GetActiveFit().fitter.params)
-        # create a list of all possible parameter names
-        params = params.union(defaultParams).union(activeParams)
-        return hdtv.cmdhelper.GetCompleteOptions(text, params)
+        if not args:
+            params = set(["status", "reset"])
+            defaultParams = set(self.fitIf.defaultFitter.params)
+            activeParams  = set(self.fitIf.GetActiveFit().fitter.params)
+            # create a list of all possible parameter names
+            params = params.union(defaultParams).union(activeParams)
+            return hdtv.cmdhelper.GetCompleteOptions(text, params)
+        else:
+            param = args[0]
+            states = set()
+            # valid states for param in default fitter
+            defaultPM = self.fitIf.defaultFitter.peakModel
+            try:
+                defaultStates = set(defaultPM.fValidParStatus[param])
+                if len(defaultStates)>1:
+                    states.update(defaultStates)
+            except KeyError:
+                # param is not a parameter of the peak model of the default fitter
+                pass
+            # valid states for param in active fitter
+            activePM = self.fitIf.GetActiveFit().fitter.peakModel
+            try:
+                activeStates = activePM.fValidParStatus[param]
+                if len(activeStates)>1:
+                    states.update(activeStates)
+            except KeyError:
+                # param is not a parameter of the peak model of active fitter
+                pass
+            # remove <type: float> option
+            states.discard(float)
+            return hdtv.cmdhelper.GetCompleteOptions(text, states)
         
         
     def CalPosAssign(self, args, options):

@@ -22,6 +22,7 @@
 import hdtv.ui
 import hdtv.cmdline
 import hdtv.cmdhelper
+import hdtv.fitxml
 
 
 class fitTex:
@@ -144,7 +145,6 @@ class fitTex:
 #\hline \hline
 #\endlastfoot
 #"""
-
 
 if not hasattr(__main__, "spectra"):
     import hdtv.drawable

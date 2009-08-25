@@ -414,6 +414,8 @@ class Fit(Drawable):
             color = self.color
         self.color = hdtv.color.Highlight(color, active)
         if active:
+            self.regionMarkers.Show()
+            self.bgMarkers.Show()
             self.regionMarkers.SetColor(hdtv.color.region)
             self.peakMarkers.SetColor(hdtv.color.peak)
             self.bgMarkers.SetColor(hdtv.color.bg)
