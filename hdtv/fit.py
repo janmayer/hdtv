@@ -105,7 +105,10 @@ class Fit(Drawable):
         """
         Do the background fit and extract the function for display
         Note: You still need to call Draw afterwards.
-        """
+        """ 
+        # set calibration without changing position of markers,
+        # because the marker have been set by the user to calibrated values
+        self.Recalibrate(spec.cal)
         # remove old fit
         if self.dispBgFunc:
             self.dispBgFunc.Remove()
@@ -140,6 +143,9 @@ class Fit(Drawable):
         Do the actual peak fit and extract the functions for display
         Note: You still need to call Draw afterwards.
         """
+        # set calibration without changing position of markers,
+        # because the marker have been set by the user to calibrated values
+        self.Recalibrate(spec.cal)
         # remove old fit
         if self.dispBgFunc:
             self.dispBgFunc.Remove()
@@ -202,6 +208,9 @@ class Fit(Drawable):
                 print "\n"+6*" "+self.formatted_str(verbose=True)
 
     def Restore(self, spec, silent=False):
+        # set calibration also for the markers,
+        # as the marker position is set to uncalibrated values, 
+        # when read from xml fit list
         self.SetCal(spec.cal)
         if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
             backgrounds = [[m.p1, m.p2] for m in self.bgMarkers]
@@ -239,13 +248,18 @@ class Fit(Drawable):
         self.peakMarkers.Draw(self.viewport)
         self.regionMarkers.Draw(self.viewport)
         self.bgMarkers.Draw(self.viewport)
+        active = False
         try:
-            if self.fitter.spec.GetActiveObject() != self: # Show markers only on active fit
-                self.regionMarkers.Hide()
-                self.bgMarkers.Hide()      
-        except AttributeError: # Fitter not yet initialized
-            self.regionMarkers.Show()
-            self.bgMarkers.Show()
+            if self.fitter.spec.GetActiveObject() is self:
+                # fit is active 
+                active = True
+            if not self in self.fitter.spec.itervalues():
+                # fit not yet added to spec
+                active = True
+        except AttributeError: 
+            # Fitter not yet initialized
+            active = True
+        self.SetColor(active=active)
         # draw fit func, if available
         if self.dispPeakFunc:
             self.dispPeakFunc.Draw(self.viewport)
