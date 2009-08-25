@@ -542,19 +542,13 @@ class DrawableCompound(UserDict.DictMixin):
         """
         Show the whole object
         """
-        self.ShowAll()
+        return self.ShowAll()
         
     def ShowAll(self):
         """
         Show all 
         """
-        self.viewport.LockUpdate()
-        for ID in self.iterkeys():
-            if ID not in self.visible:
-                self.objects[ID].Show()
-        self.visible=set(self.keys())
-        self.viewport.UnlockUpdate()
-        return self.keys()
+        return self.ShowObjects(self.keys(), clear=True)
     
     def ShowObjects(self, ids, clear=True):
         """
@@ -576,6 +570,11 @@ class DrawableCompound(UserDict.DictMixin):
                     self.visible.add(ID)
                 except KeyError:
                     print "Warning: ID %s not found" % ID
+                    
+        # Check if active ID is still visible
+        if self.activeID not in self.visible:
+            self.ActivateObject(min(ids))
+        
         self._iteratorID = min(ids)
         self.viewport.UnlockUpdate()
         return ids
