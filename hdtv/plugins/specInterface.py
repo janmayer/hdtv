@@ -322,6 +322,10 @@ class TvSpecInterface:
         hdtv.cmdline.AddCommand(prog, self.SpectrumCopy, level = 2, fileargs=False, parser=parser)
         
 
+        prog = "spectrum name"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage="%prog <name>")
+        hdtv.cmdline.AddCommand(prog, self.SpectrumName, level = 2, fileargs = False, parser=parser)
+
         # calibration commands
         parser = hdtv.cmdline.HDTVOptionParser(prog="calibration position read",
                                                usage="%prog [OPTIONS] <filename>")
@@ -615,6 +619,16 @@ to only fit the calibration.""",
         except ValueError:
             return "USAGE"
             
+    def SpectrumName(self, args, options):
+        """
+        Give spectrum a name
+        """
+        if self.spectra.activeID is None:
+            print hdtv.ui.warn("No active spectrum")
+            
+        name = args[0]
+        self.spectra[self.spectra.activeID].spec.name = name
+        hdtv.ui.msg("Renamed spectrum %d to \'%s\'" % (self.spectra.activeID, name))
     
     def SpectrumNormalization(self, args):
         "Set normalization for spectrum"

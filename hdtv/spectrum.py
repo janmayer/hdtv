@@ -53,12 +53,16 @@ class Spectrum(Drawable):
         
     def __str__(self):
         return self.name
-    
-    @property
-    def name(self):
+
+    def _get_name(self):
         if self.fHist:
             return self.fHist.GetName()
         
+    def _set_name(self, name):
+        self.fHist.SetName(name)
+        
+    name = property(_get_name, _set_name)
+    
     def GetTypeStr(self):
         """
         Return a string describing the type of this spectrum.
@@ -287,7 +291,7 @@ class SpectrumCompound(DrawableCompound):
         self.spec = spec
         self.color = spec.color
         self.cal = spec.cal
-        
+    
     def __getattr__(self, name):
         """
         Dispatch everything which is unknown to this object 
