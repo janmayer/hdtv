@@ -300,6 +300,8 @@ class TvSpecInterface:
         prog = "spectrum add"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog,
                                                usage="%prog [OPTIONS] <target-id> <ids>|all")
+        parser.add_option("-n", "--normalize", action="store_true", 
+                          help="normalize <target-id> by dividing through number of added spectra afterwards")
         hdtv.cmdline.AddCommand(prog, self.SpectrumAdd, level = 2, minargs=2, fileargs=False, parser=parser)
 
         prog = "spectrum substract"
@@ -447,9 +449,11 @@ to only fit the calibration.""",
             elif ids == "ALL":
                 ids = self.spectra.keys()
 
-                if addTo in ids:
-                    ids.remove(addTo)                
-                
+            norm_fac = len(ids)
+            
+            if addTo in ids:
+                ids.remove(addTo)
+            
             if not addTo in self.spectra.keys():
                 sid = self.specIf.CopySpectrum(ids.pop(), addTo)
             
@@ -459,6 +463,11 @@ to only fit the calibration.""",
                     self.spectra[addTo].Plus(self.spectra[i])
                 except KeyError:
                     print "Could not add", i
+                    
+            if options.normalize:
+                print "Normalizing spectrum %d by 1/%d" % (addTo, norm_fac)
+                self.spectra[addTo].Multiply(1./norm_fac)
+                
         except (IndexError, ValueError):
             return "USAGE"
 
