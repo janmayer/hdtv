@@ -1,8 +1,8 @@
 # Makefile for HDTV::Fit
 include ../Makefile.def
 
-SOURCES= PolyBg.cxx Param.cxx Fitter.cxx TheuerkaufFitter.cxx EEFitter.cxx Util.cxx
-EXPHEADERS= Background.h PolyBg.h Param.h Fitter.h TheuerkaufFitter.h EEFitter.h
+SOURCES= Integral.cxx PolyBg.cxx Param.cxx Fitter.cxx TheuerkaufFitter.cxx EEFitter.cxx Util.cxx
+EXPHEADERS= Integral.h Background.h PolyBg.h Param.h Fitter.h TheuerkaufFitter.h EEFitter.h
 HEADERS= $(EXPHEADERS)
 OBJ= $(SOURCES:.cxx=.o)
 MODNAME= fit
