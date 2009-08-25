@@ -71,11 +71,11 @@ class TheuerkaufPeak(Drawable):
             raise AttributeError, name 
 
     def __str__(self):
-        return self.formated_str(verbose=False)
+        return self.formatted_str(verbose=False)
         
-    def formated_str(self, verbose=False):
+    def formatted_str(self, verbose=False):
         """
-        print the properties of this peak in a nicely formated way
+        print the properties of this peak in a nicely formatted way
         """
         text = str()
         if verbose:

@@ -25,7 +25,7 @@ import math
 
 class WiedenhoeferEff(_Efficiency):
     """
-    'Wunder' efficiency formula.
+    'Wiedenhoefer' efficiency formula.
     
     eff(E) = a * (E - c+ d * exp(-e * E))^-b 
     """

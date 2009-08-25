@@ -57,14 +57,14 @@ class Fit(Drawable):
         self.dispBgFunc = None
         
     def __str__(self):
-        return self.formated_str(verbose=False)
+        return self.formatted_str(verbose=False)
         
-    def formated_str(self, verbose=True):
+    def formatted_str(self, verbose=True):
         i=0
         text = str()
         for peak in self.peaks:
             text += ("\nPeak %d:" %i).ljust(10)
-            peakstr = peak.formated_str(verbose).strip()
+            peakstr = peak.formatted_str(verbose).strip()
             peakstr = peakstr.split("\n")
             peakstr =("\n".ljust(10)).join(peakstr)
             text += peakstr
@@ -199,7 +199,7 @@ class Fit(Drawable):
                 marker.p1 = peak.pos_cal.value
             # print result
             if not silent:
-                print "\n"+6*" "+self.formated_str(verbose=True)
+                print "\n"+6*" "+self.formatted_str(verbose=True)
 
     def Restore(self, spec, silent=False):
         self.SetCal(spec.cal)

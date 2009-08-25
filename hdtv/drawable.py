@@ -369,9 +369,9 @@ class DrawableCompound(UserDict.DictMixin):
             stat += " "
         if not if_visible or visible:
             try:
-                print "%d %s %s" % (ID, stat, obj.formated_str(verbose))
+                print "%d %s %s" % (ID, stat, obj.formatted_str(verbose))
             except AttributeError:
-                # just use normal str if no formated_str function exists
+                # just use normal str if no formatted_str function exists
                 print "%d %s %s" % (ID, stat, obj)
 
     def ListObjects(self, verbose=False, visible_only=False):

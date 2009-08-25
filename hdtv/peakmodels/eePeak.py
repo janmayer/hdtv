@@ -89,12 +89,12 @@ class EEPeak(Drawable):
             raise AttributeError, name 
 
     def __str__(self):
-        return self.formated_str(verbose=False)
+        return self.formatted_str(verbose=False)
 
 
-    def formated_str(self, verbose=False):
+    def formatted_str(self, verbose=False):
         """
-        formated printing of all attributes
+        formatted printing of all attributes
         """
         text = str()
         if verbose:
