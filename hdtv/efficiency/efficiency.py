@@ -21,21 +21,22 @@
 
 from __future__ import with_statement
 from hdtv.util import ErrValue
-from ROOT import TF1, TGraphErrors, TVirtualFitter
+from ROOT import TF1, TF2, TGraphErrors, TVirtualFitter
 import math
 import array
 import string
+import os
 
 class _Efficiency(object):
     
-    def __init__(self, num_pars=0, pars=list(), norm=True):
+    def __init__(self, num_pars = 0, pars = list(), norm = True):
         
          self._numPars = num_pars 
          self.fPars = pars
          self.fCov = [[None for j in range(self._numPars)] for i in range(self._numPars)] # Simple matrix replacement
 
          self._dEff_dP = list()
-         self.TGraph = None 
+         self.TGraph = TGraphErrors() 
          
          # Normalization factors
          self._doNorm = norm
@@ -44,7 +45,7 @@ class _Efficiency(object):
          self.TF1.SetRange(0, 10000) # Default range for efficiency function
 
          if self.fPars: # Parameters were given
-             map(lambda i: self.TF1.SetParameter(i+1, self.fPars[i]), range(1, len(pars))) # Set initial parameters
+             map(lambda i: self.TF1.SetParameter(i + 1, self.fPars[i]), range(1, len(pars))) # Set initial parameters
          else:
              self.fPars = [None for i in range(1, self._numPars + 1)]
              
@@ -60,7 +61,7 @@ class _Efficiency(object):
         error = self.error(E)
         return ErrValue(value, error)
 
-    def fit(self, energies, efficiencies, energy_errors=None, efficiency_errors=None, quiet=True):
+    def fit(self, energies, efficiencies, energy_errors = None, efficiency_errors = None, quiet = True):
         """
         Fit efficiency curve to values given by 'energies' and 'efficiencies'
         
@@ -100,11 +101,15 @@ class _Efficiency(object):
 #                delta_eff[i] *= self.norm
         
         self.TF1.SetRange(0, max(energies) * 1.1)
-        self.TGraph = TGraphErrors(len(energies), E, eff, delta_E, delta_eff)
+        self.TF1.SetParameter(0, 1) # Unset normalization for fitting
+#        self.TGraph = TGraphErrors(len(energies), E, eff, delta_E, delta_eff)
+        for i in range(0, len(efficiencies)):
+            self.TGraph.SetPoint(i, E[i], eff[i])
+            self.TGraph.SetPointError(i, delta_E[i], delta_eff[i])
         
         
         # Do the fit
-        fitopts = "N"
+        fitopts = "0"
         if quiet:
             fitopts += "Q"
 
@@ -113,12 +118,6 @@ class _Efficiency(object):
         
         # Final normalization
         if self._doNorm:
-            self.norm = 1 / self.TF1.GetMaximum(0.0, 0.0)
-            for i in range(len(eff)):
-                eff[i] *= self.norm
-                delta_eff[i] *= self.norm
-                self.TGraph = TGraphErrors(len(energies), E, eff, delta_E, delta_eff)
-            
             self.normalize()
 
         # Get parameter
@@ -134,10 +133,13 @@ class _Efficiency(object):
 ##                 self.fCov[i][j] = cov[i * self._numPars + j]
 
     def normalize(self):
-        if self._doNorm:
-            self.norm = 1.0 / self.TF1.GetMaximum(0.0, 0.0)
-            self.TF1.SetParameter(0, self.norm)
-            
+        # Normalize the efficiency funtion
+        self.norm = 1.0 / self.TF1.GetMaximum(0.0, 0.0)
+        self.TF1.SetParameter(0, self.norm)
+        normfunc = TF2("norm_" + hex(id(self)), "[0]*y")
+        normfunc.SetParameter(0, self.norm)
+        self.TGraph.Apply(normfunc)
+        
     def value(self, E):
         return self.TF1.Eval(E, 0.0, 0.0, 0.0)
     
@@ -164,7 +166,7 @@ class _Efficiency(object):
         
         return math.sqrt(res)
     
-    def fromfile(self, parfile, covfile=None):
+    def load(self, parfile, covfile = None):
         """
         Read parameter and covariance matrix from file
         """
@@ -202,3 +204,28 @@ class _Efficiency(object):
         
         if self._doNorm:
             self.normalize()
+
+    def save(self, parfile, covfile = None):
+        """
+        Save parameter and covariance matrix to files
+        """
+        
+        # Write paramter
+        pfile = open(parfile, "w")
+        for p in self.fPars:
+            pfile.write(str(p) + os.linesep) # TODO: Use hdtv.ui.linesep here
+        
+        pfile.close()
+        
+        # Write covariance matrix
+        if covfile is not None:
+            cfile = open(covfile, "w")
+            for i in range(0, self._numPars):
+                for j in range(0, self._numPars):
+                    cfile.write(str(self.fCov[i][j]) + " ")
+                cfile.write(os.linesep) # TODO: Use hdtv.ui.linesep here
+            cfile.close()
+        
+        
+        
+        

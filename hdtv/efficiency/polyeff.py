@@ -23,23 +23,21 @@ from . efficiency import _Efficiency
 from ROOT import TF1
 import math
 
-class WunderEff(_Efficiency):
+class PolyEff(_Efficiency):
     """
-    'Wunder' efficiency formula.
+    'Polynom' efficiency
     
-    eff(E) = (a*E + b/E) * exp(c*E + d/E) 
     """
-    def __init__(self, pars=list(), norm=True):
+    def __init__(self, pars = list(), norm = True):
         
-        self.id = "wundereff_" + hex(id(self))
-        self.TF1 = TF1(self.id, "[0] * ([1]*x + [2]/x) * exp([3]*x + [4]/x)", 0, 0) # [0] is normalization factor
+        self.id = "polyeff_" + hex(id(self))
+        self.TF1 = TF1(self.id, "[0] * ([1] + [2] * x + [3] * x^2 + [4] * x^3 + [5] * x^4)", 0, 0) # [0] is normalization factor
         
-        _Efficiency.__init__(self, num_pars=4, pars=pars, norm=norm)
-        
+        _Efficiency.__init__(self, num_pars = 5, pars = pars, norm = norm)
+
         # List of derivatives
-        self._dEff_dP = [None, None, None, None]
-        
-        self._dEff_dP[0] = lambda E, fPars: self.norm * E * math.exp(fPars[2]*E + fPars[3]/E)    # dEff/da
-        self._dEff_dP[1] = lambda E, fPars: self.norm * 1/E * math.exp(fPars[2]*E + fPars[3]/E)  # dEff/db
-        self._dEff_dP[2] = lambda E, fPars: self.norm * (fPars[0]*E + fPars[1]/E) * E * math.exp(fPars[2]*E + fPars[3]/E)  # dEff/dc
-        self._dEff_dP[3] = lambda E, fPars: self.norm * (fPars[0]*E + fPars[1]/E) * 1/E * math.exp(fPars[2]*E + fPars[3]/E)  # dEff/dd
+        self._dEff_dP[0] = lambda E, fPars: self.norm 
+        self._dEff_dP[1] = lambda E, fPars: self.norm * E
+        self._dEff_dP[2] = lambda E, fPars: self.norm * 2 * fPars[2] * E 
+        self._dEff_dP[3] = lambda E, fPars: self.norm * 3 * fPars[3] * math.pow(E, 2)
+        self._dEff_dP[4] = lambda E, fPars: self.norm * 4 * fPars[4] * math.pow(E, 3)
