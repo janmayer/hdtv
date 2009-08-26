@@ -297,8 +297,8 @@ class TvSpecInterface:
                                 usage="%prog <ids>|all|none|...", level = 0)
         hdtv.cmdline.AddCommand("spectrum hide", self.SpectrumHide, minargs=0,
                                 usage="%prog <ids>|all|none|...", level = 2)
-        hdtv.cmdline.AddCommand("spectrum info", self.SpectrumInfo, maxargs=0,
-                                usage="%prog", level=0)
+        hdtv.cmdline.AddCommand("spectrum info", self.SpectrumInfo, minargs=0,
+                                usage="%prog [ids]", level=0)
         hdtv.cmdline.AddCommand("spectrum update", self.SpectrumUpdate, minargs=0,
                                 usage="%prog <ids>|all|shown", level = 0)
         hdtv.cmdline.AddCommand("spectrum write", self.SpectrumWrite, minargs=1, maxargs=2,
@@ -605,6 +605,7 @@ to only fit the calibration.""",
                 continue
             s += "Spectrum %d:\n" % ID
             s += hdtv.cmdhelper.Indent(spec.GetInfo(), "  ")
+            s += hdtv.ui.linesep
 
         hdtv.ui.msg(s, newline=False)
 	
