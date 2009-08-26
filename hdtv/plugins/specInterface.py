@@ -297,7 +297,9 @@ class TvSpecInterface:
         hdtv.cmdline.AddCommand("spectrum activate", self.SpectrumActivate, nargs=1,
                                 usage="%prog <id>", level = 0)
         hdtv.cmdline.AddCommand("spectrum show", self.SpectrumShow, minargs=0,
-                                usage="%prog <ids>|all|none", level = 0)
+                                usage="%prog <ids>|all|none|...", level = 0)
+        hdtv.cmdline.AddCommand("spectrum hide", self.SpectrumHide, minargs=0,
+                                usage="%prog <ids>|all|none|...", level = 2)
         hdtv.cmdline.AddCommand("spectrum info", self.SpectrumInfo, maxargs=0,
                                 usage="%prog", level=0)
         hdtv.cmdline.AddCommand("spectrum update", self.SpectrumUpdate, minargs=0,
@@ -560,9 +562,17 @@ to only fit the calibration.""",
             return "USAGE"
     
     
-    def SpectrumShow(self, args):
+    def SpectrumHide(self, args):
+        """
+        Hides spectra
+        """
+        return self.SpectrumShow(args, inverse=True)
+    
+    def SpectrumShow(self, args, inverse=False):
         """
         Shows spectra
+        
+        When inverse == True SpectrumShow behaves like SpectrumHide
         """
 
         if len(args) == 0:
@@ -570,7 +580,10 @@ to only fit the calibration.""",
         else:
             ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
 
-        self.spectra.ShowObjects(ids)
+        if inverse:
+            self.spectra.HideObjects(ids)
+        else:
+            self.spectra.ShowObjects(ids)
 
         try:
             ID = min(self.spectra.visible)
