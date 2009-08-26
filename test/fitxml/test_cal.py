@@ -55,10 +55,8 @@ f = hdtv.fitxml.FitXml(spectra)
 fit.Restore(spec)
 
 print "Draw"
-ID = spec.GetFreeID()
-spec[ID]=fit
+ID = spec.Add(fit)
 spec.ActivateObject(ID)
-fit.Draw(spec.viewport)
 
 print fit
 
@@ -68,7 +66,7 @@ raw_input('Press enter to continue ')
 spec.RemoveAll()
 spec.SetCal(None)
 print "-------------------------------------------------------------------------"
-print "Case 2: set cal after Restore and Draw"
+print "Case 2: set cal after Restore"
 print "-------------------------------------------------------------------------"
 print "Restore fit"
 f = hdtv.fitxml.FitXml(spectra)
@@ -76,10 +74,8 @@ f = hdtv.fitxml.FitXml(spectra)
 fit.Restore(spec)
 
 print "Draw"
-ID = spec.GetFreeID()
-spec[ID]=fit
+ID = spec.Add(fit)
 spec.ActivateObject(ID)
-fit.Draw(spec.viewport)
 
 print "SetCal"
 spec.SetCal([0,2])
@@ -92,7 +88,7 @@ raw_input('Press enter to continue ')
 spec.RemoveAll()
 spec.SetCal(None)
 print "-------------------------------------------------------------------------"
-print "Case 3: set cal before Restore and Draw"
+print "Case 3: set cal before Restore"
 print "-------------------------------------------------------------------------"
 print "SetCal"
 spec.SetCal([0,0.5])
@@ -104,10 +100,8 @@ f = hdtv.fitxml.FitXml(spectra)
 fit.Restore(spec)
 
 print "Draw"
-ID = spec.GetFreeID()
-spec[ID]=fit
+ID = spec.Add(fit)
 spec.ActivateObject(ID)
-fit.Draw(spec.viewport)
 
 print fit
 
@@ -124,36 +118,24 @@ fit = __main__.f.GetActiveFit()
 fit.PutRegionMarker(1450)
 fit.PutRegionMarker(1470)
 fit.PutPeakMarker(1460)
-fit.FitPeakFunc(spec)
-
-print "Draw"
-ID = spec.GetFreeID()
-spec[ID]=fit
-spec.ActivateObject(ID)
-fit.Draw(spec.viewport)
-
-print fit
+__main__.f.Fit(peaks=True)
 
 __main__.window.GoToPosition(1460)
 raw_input('Press enter to continue ')
 
+__main__.f.ClearFit()
 spec.RemoveAll()
 spec.SetCal(None)
 print "-------------------------------------------------------------------------"
-print "Case 5: SetCal after Fit and Draw"
+print "Case 5: SetCal after Fit"
 print "-------------------------------------------------------------------------"
 print "Fit"
 fit = __main__.f.GetActiveFit()
 fit.PutRegionMarker(1450)
 fit.PutRegionMarker(1470)
 fit.PutPeakMarker(1460)
-fit.FitPeakFunc(spec)
 
-print "Draw"
-ID = spec.GetFreeID()
-spec[ID]=fit
-spec.ActivateObject(ID)
-fit.Draw(spec.viewport)
+__main__.f.Fit(peaks=True)
 
 print "SetCal"
 spec.SetCal([0,2])
@@ -163,9 +145,10 @@ print fit
 __main__.window.GoToPosition(2920)
 raw_input('Press enter to continue ')
 
+__main__.f.ClearFit()
 spec.RemoveAll()
 print "-------------------------------------------------------------------------"
-print "Case 6: SetCal before Fit and Draw"
+print "Case 6: SetCal before Fit"
 print "-------------------------------------------------------------------------"
 print "SetCal"
 spec.SetCal([0,0.5])
@@ -175,19 +158,15 @@ fit = __main__.f.GetActiveFit()
 fit.PutRegionMarker(725)
 fit.PutRegionMarker(735)
 fit.PutPeakMarker(730)
-fit.FitPeakFunc(spec)
 
-print "Draw"
-ID = spec.GetFreeID()
-spec[ID]=fit
-spec.ActivateObject(ID)
-fit.Draw(spec.viewport)
+__main__.f.Fit(peaks=True)
 
 print fit
 
 __main__.window.GoToPosition(730)
 raw_input('Press enter to continue ')
 
+__main__.f.ClearFit()
 spec.RemoveAll()
 print "-------------------------------------------------------------------------"
 print "Case 7: Change calibration between Fit and Restore"
@@ -217,6 +196,7 @@ print spec[0]
 __main__.window.GoToPosition(2920)
 raw_input('Press enter to continue ')
 
+__main__.f.ClearFit()
 spec.RemoveAll()
 print "-------------------------------------------------------------------------"
 print "Case 8: Load old calibration during Restore"
@@ -249,7 +229,7 @@ __main__.window.GoToPosition(730)
 
 raw_input("Press enter to continue ")
 
-
+__main__.f.ClearFit()
 spec.RemoveAll()
 print "-------------------------------------------------------------------------"
 print "Case 9: Pur background fit without calibration"
@@ -284,5 +264,8 @@ __main__.f.Fit(peaks=False)
 __main__.window.GoToPosition(730)
 
 raw_input("Press enter to continue ")
+
 __main__.f.ClearFit()
+spec.RemoveAll()
+
 
