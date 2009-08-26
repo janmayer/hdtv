@@ -599,6 +599,8 @@ class TvFitInterface:
         description = "delete fits"
         usage = "%prog all|<ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
+                        help = "spectrum ids to work on")
         hdtv.cmdline.AddCommand(prog, self.FitDelete, minargs = 1, parser = parser)
         
         prog = "fit activate"
@@ -759,16 +761,16 @@ class TvFitInterface:
         """ 
         Delete fits
         """
-        if self.spectra.activeID is None:
-            hdtv.ui.warn("No active spectrum, no action taken.")
+        
+        sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+        if len(sids)>0:
+            for s in sids:
+                spec = self.spectra[s]
+                ids = hdtv.cmdhelper.ParseIds(args, spec)
+                spec.RemoveObjects(ids)
+        else:
+            hdtv.ui.warn("Nothing to do (No spectra chosen or active)")
             return
-        if not self.spectra.activeID in self.spectra.visible:
-            hdtv.ui.warn("Active spectrum is not visible, no action taken")
-            return
-        spec = self.spectra[self.spectra.activeID]
-        ids = hdtv.cmdhelper.ParseFitIds(args, spec)
-        if len(ids)>0:
-            spec.RemoveObjects(ids)
 
     def FitHide(self, args, options):
         """
