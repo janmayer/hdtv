@@ -47,7 +47,7 @@ def WriteFitlist(args, options):
             os.rename(fname,"%s.back" %fname)
         elif overwrite in ["n","N"]:
             return 
-    sids = hdtv.cmdhelper.ParseSpecIDs(options.spectrum, __main__.spectra)
+    sids = hdtv.cmdhelper.ParseIds(options.spectrum, __main__.spectra)
     __main__.fitxml.WriteFitlist(fname, sids)
 
 def ReadFitlist(args, options):
@@ -58,7 +58,7 @@ def ReadFitlist(args, options):
         if len(more)==0:
             hdtv.ui.warn("no such file %s" %fname)
         fnames.extend(more)
-    sids = hdtv.cmdhelper.ParseSpecIDs(options.spectrum, __main__.spectra)
+    sids = hdtv.cmdhelper.ParseIds(options.spectrum, __main__.spectra)
     for fname in fnames:
         __main__.fitxml.ReadFitlist(fname, sids, options.calibrate)
 

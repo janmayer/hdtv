@@ -784,7 +784,7 @@ class TvFitInterface:
         
         inverse = True inverses the fit selection i.e. FitShow becomes FitHide
         """
-        sids = hdtv.cmdhelper.ParseSpecIDs(options.spectrum, self.spectra)
+        sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
         for sid in sids:
             try:
                 spec = self.spectra[sid]
@@ -996,7 +996,7 @@ class TvFitInterface:
             if len(args) % 2 != 0:
                 hdtv.ui.error("Number of parameters must be even")
                 return "USAGE"
-            sids = hdtv.cmdhelper.ParseSpecIDs(options.spec, self.spectra)
+            sids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
             if len(sids)==0:
                 return
             degree = int(options.degree)

@@ -63,7 +63,7 @@ class fitTex:
         peaks = list()
         # spectra that should be considered
         if specs:
-            specIDs = hdtv.cmdhelper.ParseSpecID(specs, self.spectra)
+            specIDs = hdtv.cmdhelper.ParseIds(specs, self.spectra)
         elif not self.spectra.activeID is None:
             # default is to use active spectrum
             specIDs = [self.spectra.activeID]
