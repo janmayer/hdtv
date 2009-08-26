@@ -72,11 +72,9 @@ class SpecInterface:
         ShowObjects wrapper for use with Hotkey
         """
         try:
-            ids = hdtv.cmdhelper.ParseRange(arg.split())
-            if ids == "NONE":
+            ids = hdtv.cmdhelper.ParseIds(arg, self.spectra)
+            if len(ids) == 0:
                 self.spectra.HideAll()
-            elif ids == "ALL":
-                self.spectra.ShowAll()
             else:
                 self.spectra.ShowObjects(ids)
         except ValueError:
@@ -88,8 +86,17 @@ class SpecInterface:
         ActivateObject wrapper for use with Hotkey
         """
         try:
-            ID = int(arg)
-            self.spectra.ActivateObject(ID)
+            ids = hdtv.cmdhelper.ParseIds(arg, self.spectra)
+            if len(ids) > 1:
+                self.window.viewport.SetStatusText("Cannot activate more than one spectrum")
+            elif len(ids) == 0: # Deactivate
+                oldactive = self.spectra.activeID
+                self.spectra.ActivateObject(None)
+                self.window.viewport.SetStatusText("Deactivated spectrum %d" % oldactive)
+            else:
+                ID = ids[0]
+                self.spectra.ActivateObject(ID)
+                self.window.viewport.SetStatusText("Activated spectrum %d" % self.spectra.activeID)
         except ValueError:
             self.window.viewport.SetStatusText("Invalid id: %s" % arg)
         except KeyError:
@@ -99,17 +106,22 @@ class SpecInterface:
         """
         Show next spectrum and activate it automatically
         """
-        self.spectra.ShowNext()
-        ID = list(self.spectra.visible)[0]
-        self.spectra.ActivateObject(ID)
+        self.spectra.ShowObjects(self.spectra.nextID)
+#        self.spectra.ShowNext()
+#        ID = list(self.spectra.visible)[0]
+        self.spectra.ActivateObject(self.spectra.nextID)
 
     def _HotkeyShowPrev(self):
         """
         Show previous spectrum and activate it automatically
         """
-        self.spectra.ShowPrev()
-        ID = list(self.spectra.visible)[0]
-        self.spectra.ActivateObject(ID)
+        self.spectra.ShowObjects(self.spectra.prevID)
+#        self.spectra.ShowNext()
+#        ID = list(self.spectra.visible)[0]
+        self.spectra.ActivateObject(self.spectra.prevID)
+#        self.spectra.ShowPrev()
+#        ID = list(self.spectra.visible)[0]
+#        self.spectra.ActivateObject(ID)
 
 
     def LoadSpectra(self, patterns, ID=None):
@@ -280,15 +292,15 @@ class TvSpecInterface:
                           default=False, help="list only visible (and active) spectra")
         hdtv.cmdline.AddCommand("spectrum list", self.SpectrumList, nargs=0, parser=parser)
         
-        hdtv.cmdline.AddCommand("spectrum delete", self.SpectrumDelete, minargs=1,
+        hdtv.cmdline.AddCommand("spectrum delete", self.SpectrumDelete, minargs=0,
                                 usage="%prog <ids>", level = 0)
         hdtv.cmdline.AddCommand("spectrum activate", self.SpectrumActivate, nargs=1,
                                 usage="%prog <id>", level = 0)
-        hdtv.cmdline.AddCommand("spectrum show", self.SpectrumShow, minargs=1,
+        hdtv.cmdline.AddCommand("spectrum show", self.SpectrumShow, minargs=0,
                                 usage="%prog <ids>|all|none", level = 0)
-        hdtv.cmdline.AddCommand("spectrum info", self.SpectrumInfo, maxargs=1,
+        hdtv.cmdline.AddCommand("spectrum info", self.SpectrumInfo, maxargs=0,
                                 usage="%prog", level=0)
-        hdtv.cmdline.AddCommand("spectrum update", self.SpectrumUpdate, minargs=1,
+        hdtv.cmdline.AddCommand("spectrum update", self.SpectrumUpdate, minargs=0,
                                 usage="%prog <ids>|all|shown", level = 0)
         hdtv.cmdline.AddCommand("spectrum write", self.SpectrumWrite, minargs=1, maxargs=2,
                                 usage="%prog <filename>'<format> [id]", level = 0)
@@ -302,23 +314,23 @@ class TvSpecInterface:
                                                usage="%prog [OPTIONS] <target-id> <ids>|all")
         parser.add_option("-n", "--normalize", action="store_true", 
                           help="normalize <target-id> by dividing through number of added spectra afterwards")
-        hdtv.cmdline.AddCommand(prog, self.SpectrumAdd, level = 2, minargs=2, fileargs=False, parser=parser)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumAdd, level = 2, minargs=1, fileargs=False, parser=parser)
 
         prog = "spectrum substract"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog,
                                                usage="%prog [OPTIONS] <target-id> <ids>|all")
-        hdtv.cmdline.AddCommand(prog, self.SpectrumSub, level = 2, minargs=2, fileargs=False, parser=parser)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumSub, level = 2, minargs=1, fileargs=False, parser=parser)
         
         prog = "spectrum multiply"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog,
-                                               usage="%prog [OPTIONS] <factor> <ids>|all")
+                                               usage="%prog [OPTIONS]  [ids]|all|... <factor>")
         hdtv.cmdline.AddCommand(prog, self.SpectrumMultiply, level = 2, minargs=1, fileargs=False, parser=parser)
         
         
         prog = "spectrum copy"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog,
                                                usage="%prog <ids>")
-        parser.add_option("-i", "--id", type="int", default=None, help="Copy to <id>")
+        parser.add_option("-i", "--id", action="store", default=None, help="Copy to <ids>")
         hdtv.cmdline.AddCommand(prog, self.SpectrumCopy, level = 2, fileargs=False, parser=parser)
         
 
@@ -393,12 +405,12 @@ to only fit the calibration.""",
         Deletes spectra 
         """
         try:
-            ids = hdtv.cmdhelper.ParseRange(args)
-            if ids == "NONE":
+            ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
+            if len(ids) == 0:
+                hdtv.ui.warn("Nothing to do")
                 return
-            elif ids == "ALL":
-                ids = self.spectra.keys()
             self.spectra.RemoveObjects(ids)
+
         except ValueError:
             return "USAGE"
                     
@@ -408,7 +420,7 @@ to only fit the calibration.""",
         Activate one spectra
         """
         try:
-            ids = hdtv.cmdhelper.ParseSpecIDs(args, self.spectra)
+            ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
 
             if len(ids) > 1:
                 hdtv.ui.error("Can only activate one spectrum")
@@ -418,24 +430,40 @@ to only fit the calibration.""",
                 self.spectra.ActivateObject(min(ids))
         except ValueError:
             return "USAGE"
-        
+
+
     def SpectrumCopy(self, args, options):
         """
         Copy spectra
         """
         hdtv.ui.debug("SpectrumCopy: args= " + str(args) + " options= " + str(options), level=6)
         try:
-            ids = hdtv.cmdhelper.ParseRange(args)
-            if ids == "NONE":
+            ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
+            
+            if len(ids) == 0:
+                hdtv.ui.warn("Nothing to do")
                 return
-            elif ids == "ALL":
-                ids = self.spectra.keys()
-                        
-            for ID in ids:
+            
+            targetids = list()
+            if options.id is not None:
+                targetids = hdtv.cmdhelper.ParseIds(options.id, self.spectra, only_existent=False)
+            if len(targetids) == 0:
+                targetids = [None for i in range(0,len(ids))]
+            elif len(targetids) == 1: # Only start ID is given
+                startID = targetids[0]
+                targetids = [i for i in range(startID, startID+len(ids))]
+            elif len(targetids) != len(ids):
+                hdtv.ui.error("Number of target ids does not match number of ids to copy")
+                return
+            
+            # TODO: unfortunately ParseRange() in ParseIDs() uses unsorted sets
+            ids.sort()
+            targetids.sort()
+            for i in range(0, len(ids)):
                 try:                
-                    self.specIf.CopySpectrum(ID, copyTo=options.id)
+                    self.specIf.CopySpectrum(ids[i], copyTo=targetids[i])
                 except KeyError:
-                    hdtv.ui.error("No such spectrum: " + str(ID))
+                    hdtv.ui.error("No such spectrum: " + str(ids[i]))
                     
         except ValueError:
             return "USAGE"
@@ -446,30 +474,30 @@ to only fit the calibration.""",
         """
         try:
             addTo = int(args[0])
-            ids = hdtv.cmdhelper.ParseRange(args[1:])
+            try:
+                ids = hdtv.cmdhelper.ParseIds(args[1:], self.spectra)
+            except KeyError:
+                hdtv.ui.msg("Adding active spectrum %d" % self.spectra.activeID)
+                ids = [self.spectra.activeID]
             
-            if ids == "NONE":
+            if len(ids) == 0:
+                hdtv.ui.warn("Nothing to do")
                 return
-            elif ids == "ALL":
-                ids = self.spectra.keys()
 
             norm_fac = len(ids)
-            
-            if addTo in ids:
-                ids.remove(addTo)
-            
+
             if not addTo in self.spectra.keys():
                 sid = self.specIf.CopySpectrum(ids.pop(), addTo)
             
             for i in ids:
                 try:
-                    print "Adding", i, "to", addTo
+                    hdtv.ui.msg("Adding " + str(i) + " to " + str(addTo))
                     self.spectra[addTo].Plus(self.spectra[i])
                 except KeyError:
-                    print "Could not add", i
+                    hdtv.ui.error("Could not add " + str(i))
                     
             if options.normalize:
-                print "Normalizing spectrum %d by 1/%d" % (addTo, norm_fac)
+                hdtv.ui.msg("Normalizing spectrum %d by 1/%d" % (addTo, norm_fac))
                 self.spectra[addTo].Multiply(1./norm_fac)
                 
         except (IndexError, ValueError):
@@ -481,25 +509,25 @@ to only fit the calibration.""",
         """
         try:
             subFrom = int(args[0])
-            ids = hdtv.cmdhelper.ParseRange(args[1:])
-            
-            if ids == "NONE":
+            try:
+                ids = hdtv.cmdhelper.ParseIds(args[1:], self.spectra)
+            except KeyError:
+                ids = [self.spectra.activeID]
+                hdtv.ui.msg("Substracting active spectrum %d" % self.spectra.activeID)
+                
+            if len(ids) == 0:
+                hdtv.ui.warn("Nothing to do")
                 return
-            elif ids == "ALL":
-                ids = self.spectra.keys()
 
-                if subFrom in ids:
-                    ids.remove(subFrom)                
-            
             if not subFrom in self.spectra.keys():
                 sid = self.specIf.CopySpectrum(ids.pop(), subFrom)
             
             for i in ids:
                 try:
-                    print "Substracting", i, "from", subFrom
+                    hdtv.ui.msg("Substracting " + str(i) + " from " + str(subFrom))
                     self.spectra[subFrom].Minus(self.spectra[i])
                 except KeyError:
-                    print "Could not substract", i
+                    hdtv.ui.error("Could not substract " + str(i))
         except (IndexError, ValueError):
             return "USAGE"
     
@@ -509,22 +537,24 @@ to only fit the calibration.""",
         Multiply spectrum
         """
         try:
-            factor = float(eval(args[0]))
-            ids = hdtv.cmdhelper.ParseRange(args[1:])
+            factor = float(eval(args[-1]))
+            
+            if len(args) == 1:
+                hdtv.ui.msg("Using active spectrum %d for multiplication" % self.spectra.activeID)
+                ids = [self.spectra.activeID]
+            else:
+                ids = hdtv.cmdhelper.ParseIds(args[:-1], self.spectra)
             
             if len(ids) == 0:
-                ids = [self.spectra.activeID]
-            if ids == "NONE":
+                hdtv.ui.warn("Nothing to do")
                 return
-            elif ids == "ALL":
-                ids = self.spectra.keys()
-            
+
             for i in ids:
                 if i in self.spectra.keys():
-                    print "Multiplying", i, "with", factor
+                    hdtv.ui.msg("Multiplying " + str(i) + " with " + str(factor))
                     self.spectra[i].Multiply(factor)
                 else:
-                    print "Cannot multiply spectrum", i, "(Does not exist)"
+                    hdtv.ui.error("Cannot multiply spectrum " + str(i) + " (Does not exist)")
 
         except (IndexError, ValueError):
             return "USAGE"
@@ -534,40 +564,27 @@ to only fit the calibration.""",
         """
         Shows spectra
         """
+
+        if len(args) == 0:
+            ids = self.spectra.keys()
+        else:
+            ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
+
+        self.spectra.ShowObjects(ids)
+
         try:
-            keywords = ["none", "all", "next", "prev", "first", "last"]
-            ids = hdtv.cmdhelper.ParseRange(args, keywords)
-            if ids == "NONE":
-                self.spectra.HideAll()
-            elif ids == "ALL":
-                self.spectra.ShowAll()
-            elif ids == "NEXT":
-                self.spectra.ShowNext()
-            elif ids == "PREV":
-                self.spectra.ShowPrev()
-            elif ids == "FIRST":
-                self.spectra.ShowFirst()
-            elif ids == "LAST":
-                self.spectra.ShowLast()
-            else:
-                self.spectra.ShowObjects(ids)
-            try:
-                ID = list(self.spectra.visible)[0]
-            except IndexError:
-                ID = None
-            self.spectra.ActivateObject(ID)
+            ID = min(self.spectra.visible)
         except ValueError:
-            return "USAGE"
+            ID = None
+            
+        self.spectra.ActivateObject(ID)
             
             
     def SpectrumInfo(self, args):
         """
         Print info on spectrum objects
         """
-        if len(args) == 0:
-            ids = hdtv.cmdhelper.ParseSpecIDs("active", self.spectra)
-        else:
-            ids = hdtv.cmdhelper.ParseSpecIDs(args[0], self.spectra)
+        ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
         
         s = ""
         for ID in ids:
@@ -587,13 +604,11 @@ to only fit the calibration.""",
         Refresh spectra
         """
         try:
-            ids = hdtv.cmdhelper.ParseRange(args, ["all", "shown"])
-            if ids == "ALL":
-                self.spectra.RefreshAll()
-            elif ids == "SHOWN":
-                self.spectra.RefreshVisible()
-            else:
-                self.spectra.Refresh(ids)
+            ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
+            if len(ids) == 0:
+                hdtv.ui.warn("Nothing to do")
+                return
+            self.spectra.Refresh(ids)
         except ValueError:
             return "USAGE"
 
@@ -602,6 +617,7 @@ to only fit the calibration.""",
         """
         Write Spectrum to File
         """
+        # TODO: should accept somthing like "spec write all" -> Utilize: hdtv.cmdhelper.ParseSpecIds
         try:
             (fname, fmt) = args[0].rsplit("'", 1)
             if len(args) == 1:
@@ -623,12 +639,20 @@ to only fit the calibration.""",
         """
         Give spectrum a name
         """
-        if self.spectra.activeID is None:
-            print hdtv.ui.warn("No active spectrum")
-            
-        name = args[0]
-        self.spectra[self.spectra.activeID].spec.name = name
-        hdtv.ui.msg("Renamed spectrum %d to \'%s\'" % (self.spectra.activeID, name))
+        ids = hdtv.cmdhelper.ParseIds(args[0], self.spectra)
+        
+        if len(ids) == 0:
+            hdtv.ui.warn("Nothing to do")
+            return
+        elif len(ids) > 1:
+            hdtv.ui.warn("Can only rename one spectrum at a time")
+            return
+        
+        ID = ids[0]
+                    
+        name = args[1]
+        self.spectra[ID].spec.name = name
+        hdtv.ui.msg("Renamed spectrum %d to \'%s\'" % (ID, name))
     
     def SpectrumNormalization(self, args):
         "Set normalization for spectrum"
@@ -636,12 +660,11 @@ to only fit the calibration.""",
             if len(args) == 1:
                 ids = [ self.spectra.activeID ]
             else:
-                ids = hdtv.cmdhelper.ParseRange(args[:-1])
-                if ids == "NONE":
-                    ids = []
-                elif ids == "ALL":
-                    ids = self.spectra.keys()
-            
+                ids = hdtv.cmdhelper.ParseIds(args[:-1], self.spectra)
+                if len(ids) == 0:
+                    hdtv.ui.warn("Nothing to do")
+                    return
+
             norm = float(args[-1])
         except ValueError:
             return "USAGE"
@@ -650,31 +673,16 @@ to only fit the calibration.""",
             try:
                 self.spectra[ID].SetNorm(norm)
             except KeyError:
-                print "Warning: there is no spectrum with id: %s" % ID
-                
-    def ParseIDs(self, strings):
-        # Parse IDs
-        # Raises a ValueError if parsing fails
-        ids = hdtv.cmdhelper.ParseRange(strings, ["ALL", "NONE", "ACTIVE"])
-        if ids=="NONE":
-            return []
-        elif ids=="ACTIVE":
-            if self.spectra.activeID==None:
-                print "Error: no active spectrum"
-                return False
-            else:
-                ids = [self.spectra.activeID]
-        elif ids=="ALL":
-            ids = self.spectra.keys()
-        return ids
-            
+                hdtv.ui.error("There is no spectrum with id: %s" % ID)
+
     def CalPosRead(self, args, options):
         """
         Read calibration from file
         """
         try:
-            ids = self.ParseIDs(options.spec)
-            if not ids:
+            ids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
+            if len(ids) == 0:
+                hdtv.ui.warn("Nothing to do")
                 return
             
             # Load calibration
@@ -701,8 +709,9 @@ to only fit the calibration.""",
                     return "USAGE"
                 for p in range(0,len(args),2):
                     pairs.add(args[p], args[p+1])
-            ids = self.ParseIDs(options.spec)
-            if ids == False:
+            ids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
+            if len(ids) == 0:
+                hdtv.ui.warn("Nothing to do")
                 return
             degree = int(options.degree)
         except ValueError:
@@ -711,7 +720,7 @@ to only fit the calibration.""",
             cal = hdtv.cal.CalFromPairs(pairs, degree, options.show_table, 
                                         options.draw_fit, options.draw_residual)
         except (ValueError, RuntimeError), msg:
-            print "Error: " + str(msg)
+            hdtv.ui.error(str(msg))
             return False
         else:
             self.specIf.ApplyCalibration(cal, ids)            
@@ -725,8 +734,9 @@ to only fit the calibration.""",
         """
         try:
             cal = [float(i) for i in args]
-            ids = self.ParseIDs(options.spec)
-            if not ids:
+            ids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
+            if len(ids) == 0:
+                hdtv.ui.warn("Nothing to do")
                 return
             
         except ValueError:

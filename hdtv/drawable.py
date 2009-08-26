@@ -573,9 +573,13 @@ class DrawableCompound(UserDict.DictMixin):
                     
         # Check if active ID is still visible
         if self.activeID not in self.visible:
-            self.ActivateObject(min(ids))
-        
-        self._iteratorID = min(ids)
+            self.ActivateObject(None)
+
+        try:
+            self._iteratorID = min(ids)
+        except ValueError:
+            self._iteratorID = self.activeID
+            
         self.viewport.UnlockUpdate()
         return ids
 

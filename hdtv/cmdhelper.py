@@ -32,31 +32,25 @@ def GetCompleteOptions(begin, options):
     l = len(begin)
     return [o + " " for o in options if o[0:l] == begin]
     
-def ParseSpecIDs(strings, spectra):
-    """
-    Parse IDs of spectra, raises a ValueError if parsing fails
-    """
-    ids = ParseRange(strings, ["ALL", "NONE", "ACTIVE", "VISIBLE"])
-    if ids=="NONE":
-        return []
-    elif ids=="ACTIVE" or len(ids) == 0:
-        if spectra.activeID==None:
-            hdtv.ui.error("no active spectrum")
-            return []
-        else:
-            ids = [spectra.activeID]
-    elif ids =="VISIBLE":
-        ids = list(spectra.visible)
-    elif ids=="ALL":
-        ids = spectra.keys()
-        
-    return ids
 
+# TODO: Maybe we should unite and ParseFitIds and ParseIds
 def ParseFitIds(strings, spec):
     """
-    Parse fit IDs, allowed keywords are ALL, NONE, ACTIVE, VISIBLE
+    Parse fit IDs
     """
-    # TODO: maybe we can use this also for spectrum ids
+    return ParseIds(strings, spec)
+
+def ParseIds(strings, spec, only_existent=True):
+    """
+    Parse Spectrum/Fit Ids
+    
+    Allowed keywords: "ALL","NONE","ACTIVE","VISIBLE", "NEXT", "PREV", "FIRST", "LAST"
+    
+    Raised ValueError on malformed Ids
+    
+    if only_existent is True only currently existing ids are returned
+    """
+    
     special = ["ALL","NONE","ACTIVE","VISIBLE", "NEXT", "PREV", "FIRST", "LAST"]
     # parse the arguments
 #    try:
@@ -89,14 +83,17 @@ def ParseFitIds(strings, spec):
         ids = list(spec.visible)
         
     fits = list()
-    # else filter non-existing ids
+    # filter non-existing ids
     valid_ids = list() 
-    for ID in ids:
-        if ID is None: continue
-        if not ID in spec.keys():
-            hdtv.ui.warn("No fit with id %s in spectrum %s" %(ID, spec))
-        else:
-            valid_ids.append(ID)
+    if only_existent:
+        for ID in ids:
+            if ID is None: continue
+            if not ID in spec.keys():
+                hdtv.ui.warn("Non-existent id %s" %ID)
+            else:
+                valid_ids.append(ID)
+    else:
+        map(valid_ids.append, ids)
     return valid_ids
 
 def ParseRange(strings, special=["ALL", "NONE"]):
