@@ -77,6 +77,8 @@ class SpecInterface:
                 self.spectra.HideAll()
             else:
                 self.spectra.ShowObjects(ids)
+                activateID = min(ids)
+                self.spectra.ActivateObject(activateID)
         except ValueError:
             self.window.viewport.SetStatusText("Invalid spectrum identifier: %s" % arg)
 
