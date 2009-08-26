@@ -106,22 +106,17 @@ class SpecInterface:
         """
         Show next spectrum and activate it automatically
         """
-        self.spectra.ShowObjects(self.spectra.nextID)
-#        self.spectra.ShowNext()
-#        ID = list(self.spectra.visible)[0]
-        self.spectra.ActivateObject(self.spectra.nextID)
+        nextID = self.spectra.nextID
+        self.spectra.ShowObjects(nextID)
+        self.spectra.ActivateObject(nextID)
 
     def _HotkeyShowPrev(self):
         """
         Show previous spectrum and activate it automatically
         """
-        self.spectra.ShowObjects(self.spectra.prevID)
-#        self.spectra.ShowNext()
-#        ID = list(self.spectra.visible)[0]
-        self.spectra.ActivateObject(self.spectra.prevID)
-#        self.spectra.ShowPrev()
-#        ID = list(self.spectra.visible)[0]
-#        self.spectra.ActivateObject(ID)
+        prevID = self.spectra.prevID
+        self.spectra.ShowObjects(prevID)
+        self.spectra.ActivateObject(prevID)
 
 
     def LoadSpectra(self, patterns, ID=None):
