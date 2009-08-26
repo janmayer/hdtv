@@ -50,7 +50,7 @@ __main__.window.GoToPosition(1460)
 
 raw_input("Press enter to continue")
 
-__main__.f.KeepFit()
+__main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
@@ -76,7 +76,7 @@ __main__.window.GoToPosition(511)
 
 raw_input("Press enter to continue")
 
-__main__.f.KeepFit()
+__main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
@@ -103,7 +103,7 @@ __main__.window.GoToPosition(1405)
 
 raw_input("Press enter to continue")
 
-__main__.f.KeepFit()
+__main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
@@ -131,7 +131,7 @@ __main__.window.GoToPosition(970)
 
 raw_input("Press enter to continue")
 
-__main__.f.KeepFit()
+__main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
@@ -158,7 +158,7 @@ __main__.window.GoToPosition(1770)
 
 raw_input("Press enter to continue")
 
-__main__.f.KeepFit()
+__main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
@@ -181,7 +181,7 @@ __main__.window.GoToPosition(1120)
 
 raw_input("Press enter to continue")
 
-__main__.f.KeepFit()
+__main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'

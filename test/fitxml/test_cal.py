@@ -182,7 +182,7 @@ fit.PutPeakMarker(730)
 __main__.f.Fit()
 
 print "Saving fits"
-__main__.f.KeepFit()
+__main__.f.StoreFit()
 __main__.fitxml.WriteFitlist(testXML)
 spec.RemoveAll()
 
@@ -212,7 +212,7 @@ fit.PutPeakMarker(730)
 __main__.f.Fit()
 
 print "Saving fits"
-__main__.f.KeepFit()
+__main__.f.StoreFit()
 __main__.fitxml.WriteFitlist(testXML)
 
 print "Change calibration"

@@ -62,6 +62,11 @@ __main__.spectra.ShowObjects([0])
 
 raw_input("Press enter to continue ")
 
+print "Activate first spectrum"
+__main__.spectra.ActivateObject(0)
+
+raw_input("Press enter to continue ")
+
 __main__.f.ClearFit()
 spec0.RemoveAll()
 spec1.RemoveAll()
@@ -78,7 +83,7 @@ fit.PutRegionMarker(725)
 fit.PutRegionMarker(735)
 fit.PutPeakMarker(730)
 __main__.f.Fit(peaks=True)
-__main__.f.KeepFit()
+__main__.f.StoreFit()
 
 __main__.window.GoToPosition(730)
 
@@ -91,6 +96,11 @@ raw_input("Press enter to continue ")
 
 print "Show again first spectrum"
 __main__.spectra.ShowObjects([0])
+
+raw_input("Press enter to continue ")
+
+print "Activate first spectrum"
+__main__.spectra.ActivateObject(0)
 
 raw_input("Press enter to continue ")
 
@@ -123,6 +133,11 @@ raw_input("Press enter to continue ")
 
 print "Show again first spectrum"
 __main__.spectra.ShowObjects([0])
+
+raw_input("Press enter to continue ")
+
+print "Activate first spectrum"
+__main__.spectra.ActivateObject(0)
 
 raw_input("Press enter to continue ")
 

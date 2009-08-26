@@ -75,7 +75,7 @@ class FitInterface:
         self.window.AddHotkey(ROOT.kKey_B, lambda: self.Fit(peaks = False))
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_B], self.ClearBackground)
         self.window.AddHotkey(ROOT.kKey_F, lambda: self.Fit(peaks = True))
-        self.window.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_F], self.KeepFit)
+        self.window.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_F], self.StoreFit)
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], self.ClearFit)
 #       self.window.AddHotkey(ROOT.kKey_I, self.Integrate)
         self.window.AddHotkey(ROOT.kKey_D, lambda: self.SetDecomp(True))
@@ -212,8 +212,16 @@ class FitInterface:
         if peaks:
             # full fit
             fit.FitPeakFunc(spec)
+        # if the fit is fresh, add it temporarly to the spectrum
+        # so that it is managed by the usual Show/Hide functions
+        # rely on ActivateFit and StoreFit to do garbage collection 
+        if spec.activeID == None: 
+            ID = spec.Add(fit) 
+            fit.SetTitle(str(ID))
+            self.activeFit = None 
+            spec.ActivateObject(ID)
         fit.Draw(self.window.viewport)
-        # Note: call KeepFit to add the fit to the spectrum
+        
         # update fitPanel
         self.UpdateFitPanel()
 
@@ -223,103 +231,87 @@ class FitInterface:
         Activate one fit
         """
         spec = self.spectra[self.spectra.activeID]
-        
         # TODO: raise HDTV exception here
 #        if not hasattr(spec, "activeID"):
 #            hdtv.ui.error("There are no fits for this spectrum")
 #            return
-        
         # Active objects should always be visible
         assert self.spectra.activeID in self.spectra.visible, "Active spectrum not visible"
-
+        # deal with former activated fit
         if not spec.activeID==None:
             hdtv.ui.msg("Save fit %d while deactivating it" %spec.activeID)
-            # keep current status of old fit
-            self.KeepFit()
+            # try to store current status of deactivated fit
+            # this will also do garbage collection if needed
+            self.StoreFit()
         elif self.activeFit:
             self.activeFit.Remove()
             self.activeFit = None
         # activate another fit
         spec.ActivateObject(ID)
-        
         if spec.activeID is not None: # If spec.activeID is None it was deactivation
             if self.spectra.activeID in self.spectra.visible:
                 spec[spec.activeID].Show()
-
         if ID is not None:
             if not spec.isInVisibleRegion(ID):
                 spec.FocusObject(ID)
         # update fitPanel
         self.UpdateFitPanel()
 
+
     def ShowFits(self, ids, specID, adjustViewport=False):
         """ 
         Show and focus fits if necessary
         """
-        
         if ids[0] is None or len(ids) == 0:
             return False
-        
         spec = self.spectra[specID]
-        
         spec.ShowObjects(ids)
-        
-        # Check if we have to refocus the viewport
+         # Check if we have to refocus the viewport
         if adjustViewport:
             refocus = False
-            
             if specID == self.spectra.activeID:   
                 for i in ids:
                     if not spec.isInVisibleRegion(i):
                         refocus = True
-                
                 if refocus:
                     spec.FocusObjects(ids)
-            
         return True
+        
     
     def FocusFits(self, ids):
         """
         Focus fits
         """
-
         spec = self.spectra[self.spectra.activeID]
-
         spec.FocusObjects(ids)
-
         if self.spectra.activeID in self.spectra.visible and spec.activeID:
             spec[spec.activeID].Show()
+            
 
-    def KeepFit(self):
+    def StoreFit(self):
         """
-        Keep this fit 
+        Store this fit or delete it, if it is invalid 
         """
         # get active spectrum
         if self.spectra.activeID==None:
             hdtv.ui.error("There is no active spectrum")
             return
         spec = self.spectra[self.spectra.activeID]
-        # fresh fit 
         if spec.activeID == None:
-            fit = self.GetActiveFit()
-            if len(fit.peaks)==0:
-                # remove the fit, if it is empty (=nothing fitted)
-                hdtv.ui.warn('Fit is not valid, nothing saved')
-                self.ClearFit()
-                return
-            # use Add here as it handles visibility correctly
-            ID = spec.Add(fit)
-            fit.SetTitle(str(ID))
-            self.activeFit = None
-        else: 
-            if len(spec[spec.activeID].peaks) == 0:
-                # remove the fit, if it is empty (=nothing fitted)
-                hdtv.ui.warn('Fit is not valid, nothing saved')
-                fit = spec.pop(spec.activeID)
-                fit.Remove()
-                return
+            # fresh fit, try to execute it
+            hdtv.ui.msg("Trying to execute active fit")
+            self.Fit(peaks=True)
+        # this will add the fit to the spectrum, 
+        # thus now there is in any case an activeID in spec
+        if len(spec[spec.activeID].peaks) == 0:
+            # do remove garbage (invalid fit)
+            hdtv.ui.warn('Fit is not valid, nothing saved')
+            fit = spec.pop(spec.activeID)
+            fit.Remove()
+            self.ClearFit()
         # deactivate all objects
         spec.ActivateObject(None)
+
 
     def ClearFit(self):
         """
