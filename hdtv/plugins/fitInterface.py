@@ -307,8 +307,7 @@ class FitInterface:
                 hdtv.ui.warn('Fit is not valid, nothing saved')
                 self.ClearFit()
                 return
-            ID = spec.GetFreeID()
-            spec[ID]=fit
+            ID = spec.Add(fit)
             fit.SetTitle(str(ID))
             self.activeFit = None
         else: 
