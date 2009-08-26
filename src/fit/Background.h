@@ -37,13 +37,15 @@ class Background
     virtual ~Background()  { }
     virtual Background* Clone() const
       { return new Background(); }
-    virtual double Eval(double x)
-      { return 0.0; }
     virtual TF1* GetFunc()
       { return NULL; }
-    virtual double GetMin()
+    virtual double GetMin() const
       { return std::numeric_limits<double>::quiet_NaN(); }
-    virtual double GetMax()
+    virtual double GetMax() const
+      { return std::numeric_limits<double>::quiet_NaN(); }
+    virtual double Eval(double x) const
+      { return std::numeric_limits<double>::quiet_NaN(); }
+    virtual double EvalError(double x) const
       { return std::numeric_limits<double>::quiet_NaN(); }
     
   private:

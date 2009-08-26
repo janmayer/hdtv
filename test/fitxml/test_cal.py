@@ -242,10 +242,47 @@ print spec[0]
 
 spec.RemoveAll()
 print "Reading fits"
-__main__.fitxml.ReadFitlist(testXML, calibrated=True)
+__main__.fitxml.ReadFitlist(testXML, calibrate=True)
 
 print spec[0]
 __main__.window.GoToPosition(730)
 
+raw_input("Press enter to continue ")
 
+
+spec.RemoveAll()
+print "-------------------------------------------------------------------------"
+print "Case 9: Pur background fit without calibration"
+print "-------------------------------------------------------------------------"
+spec.SetCal(None)
+fit = __main__.f.GetActiveFit()
+fit.PutBgMarker(1440)
+fit.PutBgMarker(1450)
+fit.PutBgMarker(1470)
+fit.PutBgMarker(1480)
+__main__.f.Fit(peaks=False)
+
+__main__.window.GoToPosition(1460)
+
+raw_input("Press enter to continue ")
+
+__main__.f.ClearFit()
+spec.RemoveAll()
+print "-------------------------------------------------------------------------"
+print "Case 9: Pur background fit with calibration"
+print "-------------------------------------------------------------------------"
+print "Set cal"
+spec.SetCal([0,0.5])
+
+fit = __main__.f.GetActiveFit()
+fit.PutBgMarker(720)
+fit.PutBgMarker(725)
+fit.PutBgMarker(735)
+fit.PutBgMarker(740)
+__main__.f.Fit(peaks=False)
+
+__main__.window.GoToPosition(730)
+
+raw_input("Press enter to continue ")
+__main__.f.ClearFit()
 

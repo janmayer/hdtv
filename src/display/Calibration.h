@@ -29,6 +29,17 @@
 namespace HDTV {
 
 //! A calibration (channel-energy relationship) with a polynomial of an arbitrary degree
+/** It should be noted that this class knows nothing about the binning of the
+ *  histogram it might belong to. In hdtv, a Calibration is used to convert an
+ *  energy to a channel, and the ROOT TAxis object of the respective histogram
+ *  is used to convert the channel to a bin.
+ *
+ *  For compatibility with the original TV program, functions that read spectra
+ *  from files where no information on the binning is recorded usually place
+ *  the center of the first visible bin (bin number 1 in ROOT) at channel 0.0.
+ *  This then corresponds to an energy E = cal0. However, this needs not be
+ *  true for spectra read e.g. from ROOT files.
+ */
 class Calibration {
   public:
     Calibration() { }

@@ -19,12 +19,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  * 
  */
- 
-/*
- * For compatibility with the original TV program, the Calibration class uses
- * a different bin numbering convention than ROOT: the center of the first visible
- * bin (bin number 1 in ROOT) is assumed to lie at E(0.0) = cal0.
- */
 
 #include "Calibration.h"
 #include <TMath.h>

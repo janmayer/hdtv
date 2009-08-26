@@ -1,6 +1,6 @@
 <hdtv version="1.0">
   <spectrum calibration="" name="osiris_bg.spc">
-    <fit bgDegree="1" chi="2889.25213649" peakModel="theuerkauf">
+    <fit bgDegree="1" chi="3644.0326511" peakModel="theuerkauf">
       <regionMarker>
         <begin>
           <cal>1450.0</cal>
@@ -13,43 +13,43 @@
       </regionMarker>
       <peakMarker>
         <position>
-          <cal>1460.76166717</cal>
-          <uncal>1460.76166717</uncal>
+          <cal>1460.75360876</cal>
+          <uncal>1460.75360876</uncal>
         </position>
       </peakMarker>
       <peak>
         <uncal>
           <vol status="free">
-            <value>133434.315231</value>
-            <error>379.836961696</error>
+            <value>134159.911238</value>
+            <error>374.565114896</error>
           </vol>
           <sw status="hold" />
           <tr status="none" />
           <pos status="free">
-            <value>1460.76166717</value>
-            <error>0.00386327832537</error>
+            <value>1460.75360876</value>
+            <error>0.00386090864544</error>
           </pos>
           <width status="equal">
-            <value>2.95644567115</value>
-            <error>0.00752808324086</error>
+            <value>2.97539251965</value>
+            <error>0.00735238384049</error>
           </width>
           <tl status="none" />
           <sh status="none" />
         </uncal>
         <cal>
           <vol status="free">
-            <value>133434.315231</value>
-            <error>379.836961696</error>
+            <value>134159.911238</value>
+            <error>374.565114896</error>
           </vol>
           <sw status="hold" />
           <tr status="none" />
           <pos status="free">
-            <value>1460.76166717</value>
-            <error>0.00386327832537</error>
+            <value>1460.75360876</value>
+            <error>0.00386090864544</error>
           </pos>
           <width status="equal">
-            <value>2.95644567115</value>
-            <error>0.00752808324086</error>
+            <value>2.97539251965</value>
+            <error>0.00735238384049</error>
           </width>
           <tl status="none" />
           <sh status="none" />

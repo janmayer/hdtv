@@ -57,14 +57,14 @@ class Fit(Drawable):
         self.dispBgFunc = None
         
     def __str__(self):
-        return self.formated_str(verbose=False)
+        return self.formatted_str(verbose=False)
         
-    def formated_str(self, verbose=True):
+    def formatted_str(self, verbose=True):
         i=0
         text = str()
         for peak in self.peaks:
             text += ("\nPeak %d:" %i).ljust(10)
-            peakstr = peak.formated_str(verbose).strip()
+            peakstr = peak.formatted_str(verbose).strip()
             peakstr = peakstr.split("\n")
             peakstr =("\n".ljust(10)).join(peakstr)
             text += peakstr
@@ -105,7 +105,10 @@ class Fit(Drawable):
         """
         Do the background fit and extract the function for display
         Note: You still need to call Draw afterwards.
-        """
+        """ 
+        # set calibration without changing position of markers,
+        # because the marker have been set by the user to calibrated values
+        self.Recalibrate(spec.cal)
         # remove old fit
         if self.dispBgFunc:
             self.dispBgFunc.Remove()
@@ -140,6 +143,9 @@ class Fit(Drawable):
         Do the actual peak fit and extract the functions for display
         Note: You still need to call Draw afterwards.
         """
+        # set calibration without changing position of markers,
+        # because the marker have been set by the user to calibrated values
+        self.Recalibrate(spec.cal)
         # remove old fit
         if self.dispBgFunc:
             self.dispBgFunc.Remove()
@@ -199,9 +205,12 @@ class Fit(Drawable):
                 marker.p1 = peak.pos_cal.value
             # print result
             if not silent:
-                print "\n"+6*" "+self.formated_str(verbose=True)
+                print "\n"+6*" "+self.formatted_str(verbose=True)
 
     def Restore(self, spec, silent=False):
+        # set calibration also for the markers,
+        # as the marker position is set to uncalibrated values, 
+        # when read from xml fit list
         self.SetCal(spec.cal)
         if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
             backgrounds = [[m.p1, m.p2] for m in self.bgMarkers]
@@ -239,13 +248,18 @@ class Fit(Drawable):
         self.peakMarkers.Draw(self.viewport)
         self.regionMarkers.Draw(self.viewport)
         self.bgMarkers.Draw(self.viewport)
+        active = False
         try:
-            if self.fitter.spec.GetActiveObject() != self: # Show markers only on active fit
-                self.regionMarkers.Hide()
-                self.bgMarkers.Hide()      
-        except AttributeError: # Fitter not yet initialized
-            self.regionMarkers.Show()
-            self.bgMarkers.Show()
+            if self.fitter.spec.GetActiveObject() is self:
+                # fit is active 
+                active = True
+            if not self in self.fitter.spec.itervalues():
+                # fit not yet added to spec
+                active = True
+        except AttributeError: 
+            # Fitter not yet initialized
+            active = True
+        self.SetColor(active=active)
         # draw fit func, if available
         if self.dispPeakFunc:
             self.dispPeakFunc.Draw(self.viewport)

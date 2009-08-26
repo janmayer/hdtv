@@ -212,12 +212,8 @@ class FitInterface:
         if peaks:
             # full fit
             fit.FitPeakFunc(spec)
-            # add to spectrum if it is a fresh fit
-            if spec.activeID == None:
-                ID = spec.Add(fit)
-                self.activeFit = None
-                spec.ActivateObject(ID)
         fit.Draw(self.window.viewport)
+        # Note: call KeepFit to add the fit to the spectrum
         # update fitPanel
         self.UpdateFitPanel()
 
@@ -301,18 +297,27 @@ class FitInterface:
         # get active spectrum
         if self.spectra.activeID==None:
             hdtv.ui.error("There is no active spectrum")
-            return 
+            return
         spec = self.spectra[self.spectra.activeID]
+        # fresh fit 
         if spec.activeID == None:
-            # do the fit
-            self.Fit(peaks = True)
-        spec[spec.activeID].SetTitle(str(spec.activeID))
-        spec[spec.activeID].SetColor(spec.color)
-        # remove the fit, if it is empty (=nothing fitted)
-        if len(spec[spec.activeID].peaks) == 0:
-            hdtv.ui.warn('Fit is not valid, nothing saved')
-            fit = spec.pop(spec.activeID)
-            fit.Remove()
+            fit = self.GetActiveFit()
+            if len(fit.peaks)==0:
+                # remove the fit, if it is empty (=nothing fitted)
+                hdtv.ui.warn('Fit is not valid, nothing saved')
+                self.ClearFit()
+                return
+            ID = spec.GetFreeID()
+            spec[ID]=fit
+            fit.SetTitle(str(ID))
+            self.activeFit = None
+        else: 
+            if len(spec[spec.activeID].peaks) == 0:
+                # remove the fit, if it is empty (=nothing fitted)
+                hdtv.ui.warn('Fit is not valid, nothing saved')
+                fit = spec.pop(spec.activeID)
+                fit.Remove()
+                return
         # deactivate all objects
         spec.ActivateObject(None)
 
@@ -614,7 +619,7 @@ class TvFitInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-d", "--default", action = "store_true", default = False,
                             help = "act on default fitter")
-        parser.add_option("-f", "--fit", action = "store", default = "none",
+        parser.add_option("-f", "--fit", action = "store", default = None,
                             help = "change parameter of selected fit and refit")
         hdtv.cmdline.AddCommand(prog, self.FitParam, level = 0,
                                 completer = self.ParamCompleter,
@@ -626,7 +631,7 @@ class TvFitInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-d", "--default", action = "store_true", default = False,
                             help = "change default fitter")
-        parser.add_option("-f", "--fit", action = "store", default = "none",
+        parser.add_option("-f", "--fit", action = "store", default = None,
                             help = "change selected fits and refit")
         hdtv.cmdline.AddCommand(prog, self.FitSetPeakModel,
                                 completer = self.PeakModelCompleter,
@@ -805,7 +810,7 @@ class TvFitInterface:
         spec = self.spectra[self.spectra.activeID]
         ids = hdtv.cmdhelper.ParseFitIds(args, spec)
         for ID in ids:
-            hdtv.ui.msg("Fit %d:" % ID + str(spec[ID].formated_str(verbose=True)))
+            hdtv.ui.msg("Fit %d:" % ID + str(spec[ID].formatted_str(verbose=True)))
 
 
     def FitActivate(self, args, options):
@@ -891,6 +896,9 @@ class TvFitInterface:
             name = name.strip()
             ids = list()
             if options.fit:
+                if self.spectra.activeID is None:
+                    hdtv.ui.warn("No active spectrum, no action taken.")
+                    return
                 spec = self.spectra[self.spectra.activeID]
                 ids = hdtv.cmdhelper.ParseFitIds(options.fit, spec)
             self.fitIf.SetPeakModel(name, options.default, ids)
@@ -917,6 +925,9 @@ class TvFitInterface:
         param = param.strip()
         ids =list()
         if options.fit:
+            if self.spectra.activeID is None:
+                hdtv.ui.warn("No active spectrum, no action taken.")
+                return
             spec = self.spectra[self.spectra.activeID]
             ids = hdtv.cmdhelper.ParseFitIds(options.fit, spec)
         if param=="status":
