@@ -233,7 +233,7 @@ class FitInterface:
         assert self.spectra.activeID in self.spectra.visible, "Active spectrum not visible"
 
         if not spec.activeID==None:
-            print spec.activeID
+            hdtv.ui.msg("Save fit %d while deactivating it" %spec.activeID)
             # keep current status of old fit
             self.KeepFit()
         elif self.activeFit:
@@ -307,6 +307,7 @@ class FitInterface:
                 hdtv.ui.warn('Fit is not valid, nothing saved')
                 self.ClearFit()
                 return
+            # use Add here as it handles visibility correctly
             ID = spec.Add(fit)
             fit.SetTitle(str(ID))
             self.activeFit = None
@@ -832,7 +833,7 @@ class TvFitInterface:
         ID = hdtv.cmdhelper.ParseFitIds(args, spec)
         
         if len(ID) == 1:
-            hdtv.ui.msg("Activating fit %s" %ID)
+            hdtv.ui.msg("Activating fit %s" %ID[0])
             self.fitIf.ActivateFit(ID[0])
         elif len(ID) == 0:
             hdtv.ui.msg("Deactivating fit")
