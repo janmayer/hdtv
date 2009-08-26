@@ -382,6 +382,8 @@ class CommandLine:
         self.fReadlineHistory = None
         self.fReadlineExitHandler = False
         
+        self._py_console = None
+        
     def ReadReadlineInit(self, filename):
         if os.path.isfile(filename):
             readline.read_init_file(filename)
@@ -509,15 +511,44 @@ class CommandLine:
         file.read()
         for line in file.lines:
             print "file>", line
-            ExecCommand(line)            
+            self.DoLine(line)
+            if self.fPyMore: # TODO: HACK: How should I teach this micky mouse language a python statement (e.g. "for ...:" has ended???
+                self.fPyMore = self._py_console.push("")
     
     def ExecShell(self, cmd):
         subprocess.call(cmd, shell=True)
+    
+    
+    def DoLine(self, line):
+        """
+        Deal with one line of input
+        """
+         # In Python mode, all commands need to be Python commands ...
+        if self.fPyMode or self.fPyMore:
+            cmd_type = "PYTHON"
+            cmd = line
+        # ... otherwise, the prefix decides.
+        else:
+            (cmd_type, cmd) = self.Unescape(line)
             
+        # Execute as appropriate type
+        if cmd_type == "HDTV":
+            self.fCommandTree.ExecCommand(cmd)
+        elif cmd_type == "PYTHON":
+            # The push() function returns a boolean indicating
+            #  whether further input from the user is required.
+            #  We set the python mode accordingly.
+            self.fPyMore = self._py_console.push(cmd)
+        elif cmd_type == "CMDFILE":
+            self.ExecCmdfile(cmd)
+        elif cmd_type == "SHELL":
+            self.ExecShell(cmd)
+    
     def MainLoop(self):
         self.fKeepRunning = True
         
-        py_console = code.InteractiveConsole(self.fInteractiveLocals)
+        self._py_console = self._py_console = code.InteractiveConsole(self.fInteractiveLocals)
+
         self.fPyMode = False
         self.fPyMore = False
             
@@ -561,7 +592,7 @@ class CommandLine:
                 #  If no command is being entered, we assume the user wants to exit
                 #  and explain how to do that correctly.
                 if self.fPyMore:
-                    py_console.resetbuffer()
+                    self._py_console.resetbuffer()
                     self.fPyMore = False
                     print ""
                 elif readline.get_line_buffer() != "":
@@ -572,26 +603,7 @@ class CommandLine:
             
             # Execute the command
             try:
-                # In Python mode, all commands need to be Python commands ...
-                if self.fPyMode or self.fPyMore:
-                    cmd_type = "PYTHON"
-                    cmd = s
-                # ... otherwise, the prefix decides.
-                else:
-                    (cmd_type, cmd) = self.Unescape(s)
-        
-                # Execute as appropriate type
-                if cmd_type == "HDTV":
-                    self.fCommandTree.ExecCommand(cmd)
-                elif cmd_type == "PYTHON":
-                    # The push() function returns a boolean indicating
-                    #  whether further input from the user is required.
-                    #  We set the python mode accordingly.
-                    self.fPyMore = py_console.push(cmd)
-                elif cmd_type == "CMDFILE":
-                    self.ExecCmdfile(cmd)
-                elif cmd_type == "SHELL":
-                    self.ExecShell(cmd)
+               self.DoLine(s)
                     
             except KeyboardInterrupt:
                 print "Aborted"
