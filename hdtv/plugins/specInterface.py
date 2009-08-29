@@ -42,7 +42,7 @@ class SpecInterface:
     User interface to work with 1-d spectra
     """
     def __init__(self, window, spectra):
-        print "Loaded user interface for working with 1-d spectra"
+        hdtv.ui.msg("Loaded user interface for working with 1-d spectra")
     
         self.window = window
         self.spectra= spectra
@@ -58,8 +58,8 @@ class SpecInterface:
         # register common tv hotkeys
         self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_p], self._HotkeyShowPrev)
         self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_n], self._HotkeyShowNext)
-        self.window.AddHotkey(ROOT.kKey_Equal, self.spectra.RefreshAll)
-        self.window.AddHotkey(ROOT.kKey_t, self.spectra.RefreshVisible)
+#        self.window.AddHotkey(ROOT.kKey_Equal, self.spectra.RefreshAll)
+#        self.window.AddHotkey(ROOT.kKey_t, self.spectra.RefreshVisible)
         self.window.AddHotkey(ROOT.kKey_n,
                 lambda: self.window.EnterEditMode(prompt="Show spectrum: ",
                                            handler=self._HotkeyShow))
@@ -135,7 +135,7 @@ class SpecInterface:
             patterns = [patterns]
 
         if ID != None and len(patterns) > 1:
-            print "Error: if you specify an ID, you can only give one pattern"
+            hdtv.ui.error("If you specify an ID, you can only give one pattern")
             self.window.viewport.UnlockUpdate()
             return
         
@@ -151,38 +151,38 @@ class SpecInterface:
             files = glob.glob(os.path.expanduser(fpat))
             
             if len(files) == 0:
-                print "Warning: %s: no such file" % fpat
+                hdtv.ui.warn("Warning: %s: no such file" % fpat)
             elif ID != None and len(files) > 1:
-                print "Error: pattern %s is ambiguous and you specified an ID" % fpat
+                hdtv.ui.error("Error: pattern %s is ambiguous and you specified an ID" % fpat)
                 break
                 
             files.sort()
             
             for fname in files:
                 try:
-                    fspec = FileSpectrum(fname, fmt)
+                    #fspec = FileSpectrum(fname, fmt)
                     # Create spectrum compund
-                    spec = SpectrumCompound(self.spectra.viewport, fspec)
+                    spec = SpectrumCompound(self.spectra.viewport, fname, fmt)
                 except (OSError, SpecReaderError):
-                    print "Warning: could not load %s'%s" % (fname, fmt)
+                    hdtv.ui.warn("Could not load %s'%s" % (fname, fmt))
                 else:
                     if ID == None:
                         sid = self.spectra.Add(spec)
                     else:
                         sid = self.spectra.Insert(spec, ID)
                     
-                    spec.SetColor(hdtv.color.ColorForID(sid))
+                    spec.color = hdtv.color.ColorForID(sid)
                     loaded.append(sid)
                     
                     if fmt == None:
-                        print "Loaded %s into %d" % (fname, sid)
+                        hdtv.ui.msg("Loaded %s into %d" % (fname, sid))
                     else:
-                        print "Loaded %s'%s into %d" % (fname, fmt, sid)
+                        hdtv.ui.msg("Loaded %s'%s into %d" % (fname, fmt, sid))
         
         if len(loaded)>0:
             self.spectra.ActivateObject(loaded[-1])
         # Update viewport if required
-        if len(self.spectra.objects) == 1: # Expand window if it is the only spectrum
+        if len(self.spectra) == 1: # Expand window if it is the only spectrum
             self.window.Expand()
         self.window.viewport.UnlockUpdate()
         return loaded
@@ -194,7 +194,7 @@ class SpecInterface:
         If there are several such objects, one of them (in undefined ordering)
         is returned. If there is none, None is returned.
         """
-        for obj in self.spectra.objects.itervalues():
+        for obj in self.spectra.itervalues():
             if obj.name == name:
                 return obj
         return None
@@ -215,8 +215,8 @@ class SpecInterface:
         spec = Spectrum(hist, cal=self.spectra[ID].cal)
         spec = SpectrumCompound(self.spectra[ID].viewport, spec)        
         sid = self.spectra.Insert(spec, copyTo)
-        spec.SetColor(hdtv.color.ColorForID(sid))
-        print "Copied spectrum", ID, "to", sid
+        spec.color = hdtv.color.ColorForID(sid)
+        hdtv.ui.msg("Copied spectrum", ID, "to", sid)
             
     
     def GetCalsFromList(self, fname):
@@ -229,7 +229,7 @@ class SpecInterface:
         try:
             f = open(fname, "r")
         except IOError, msg:
-            print "Error opening file: %s" % msg
+            hdtv.ui.error("Error opening file: %s" % msg)
             return False
         linenum = 0
         for l in f:
@@ -244,11 +244,11 @@ class SpecInterface:
                 coeff = [ float(s) for s in v.split() ]
                 self.caldict[name] = coeff
             except ValueError:
-                print "Warning: could not parse line %d of file %s: ignored." % (linenum, fname)
+                hdtv.ui.warn("Could not parse line %d of file %s: ignored." % (linenum, fname))
             else:
                 spec = self.FindSpectrumByName(name)
                 if not spec is None:
-                    spec.SetCal(self.caldict[name])
+                    spec.cal = self.caldict[name]
         f.close()
         return True
     
@@ -258,10 +258,10 @@ class SpecInterface:
         """
         for ID in ids:
             try:
-                self.spectra[ID].SetCal(cal)
-                print "calibrated spectrum with id %d" %ID
+                self.spectra[ID].cal = cal
+                hdtv.ui.msg("Calibrated spectrum with id %d" %ID)
             except KeyError:
-                print "Warning: there is no spectrum with id: %s" %ID
+                hdtv.ui.warn("There is no spectrum with id: %s" %ID)
 #        self.window.Expand()
 
 class TvSpecInterface:
@@ -642,13 +642,13 @@ to only fit the calibration.""",
             elif len(args)==2:
                 ID = int(args[1])
             else:
-                print "There is just one index possible here."
+                hdtv.ui.error("There is just one index possible here.")
                 raise ValueError
             try:
                 self.spectra[ID].WriteSpectrum(fname, fmt)
-                print "wrote spectrum with id %d to file %s" %(ID, fname)
+                hdtv.ui.msg("Wrote spectrum with id %d to file %s" %(ID, fname))
             except KeyError:
-                 print "Warning: there is no spectrum with id: %s" %ID
+                 hdtv.ui.warn("There is no spectrum with id: %s" %ID)
         except ValueError:
             return "USAGE"
             
@@ -725,7 +725,7 @@ to only fit the calibration.""",
                 pairs.fromFile(options.file)
             else:
                 if len(args) % 2 != 0: # Read from command line
-                    print "Error: number of parameters must be even"
+                    hdtv.ui.error("Number of parameters must be even")
                     return "USAGE"
                 for p in range(0,len(args),2):
                     pairs.add(args[p], args[p+1])
@@ -780,6 +780,7 @@ if not hasattr(__main__,"window"):
     __main__.window = hdtv.window.Window()
 if not hasattr(__main__, "spectra"):
     import hdtv.drawable
-    __main__.spectra = hdtv.drawable.DrawableCompound(__main__.window.viewport)
+    __main__.spectra = hdtv.drawable.DrawableCompound()
+    __main__.spectra.Draw(__main__.window.viewport)
 __main__.s = SpecInterface(__main__.window, __main__.spectra)
 

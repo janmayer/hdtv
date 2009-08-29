@@ -1021,7 +1021,7 @@ class TvFitInterface:
         else:
             for ID in sids:
                 try:
-                    self.spectra[ID].SetCal(cal)
+                    self.spectra[ID].cal = cal
                     hdtv.ui.msg("Calibrated spectrum with id %d" %ID)
                 except KeyError:
                     hdtv.ui.warn("There is no spectrum with id: %s" %ID)

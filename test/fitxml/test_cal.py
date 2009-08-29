@@ -64,7 +64,7 @@ __main__.window.GoToPosition(1460)
 raw_input('Press enter to continue ')
 
 spec.RemoveAll()
-spec.SetCal(None)
+spec.cal = None
 print "-------------------------------------------------------------------------"
 print "Case 2: set cal after Restore"
 print "-------------------------------------------------------------------------"
@@ -77,8 +77,8 @@ print "Draw"
 ID = spec.Add(fit)
 spec.ActivateObject(ID)
 
-print "SetCal"
-spec.SetCal([0,2])
+print "Calibrate"
+spec.cal = [0,2]
 
 print fit
 
@@ -86,12 +86,12 @@ __main__.window.GoToPosition(2920)
 raw_input('Press enter to continue ')
 
 spec.RemoveAll()
-spec.SetCal(None)
+spec.cal = None
 print "-------------------------------------------------------------------------"
 print "Case 3: set cal before Restore"
 print "-------------------------------------------------------------------------"
-print "SetCal"
-spec.SetCal([0,0.5])
+print "Calibrate"
+spec.cal = [0,0.5]
 
 
 print "Restore fit"
@@ -109,7 +109,7 @@ __main__.window.GoToPosition(730)
 raw_input('Press enter to continue ')
 
 spec.RemoveAll()
-spec.SetCal(None)
+spec.cal = None
 print "-------------------------------------------------------------------------"
 print "Case 4: Fit without calibration"
 print "-------------------------------------------------------------------------"
@@ -125,9 +125,9 @@ raw_input('Press enter to continue ')
 
 __main__.f.ClearFit()
 spec.RemoveAll()
-spec.SetCal(None)
+spec.cal = None
 print "-------------------------------------------------------------------------"
-print "Case 5: SetCal after Fit"
+print "Case 5: Calibrate after Fit"
 print "-------------------------------------------------------------------------"
 print "Fit"
 fit = __main__.f.GetActiveFit()
@@ -137,8 +137,8 @@ fit.PutPeakMarker(1460)
 
 __main__.f.Fit(peaks=True)
 
-print "SetCal"
-spec.SetCal([0,2])
+print "Calibrate"
+spec.cal = [0,2]
 
 print fit
 
@@ -148,10 +148,10 @@ raw_input('Press enter to continue ')
 __main__.f.ClearFit()
 spec.RemoveAll()
 print "-------------------------------------------------------------------------"
-print "Case 6: SetCal before Fit"
+print "Case 6: Calibrate before Fit"
 print "-------------------------------------------------------------------------"
-print "SetCal"
-spec.SetCal([0,0.5])
+print "Calibrate"
+spec.cal=[0,0.5]
 
 print "Fit"
 fit = __main__.f.GetActiveFit()
@@ -171,8 +171,8 @@ spec.RemoveAll()
 print "-------------------------------------------------------------------------"
 print "Case 7: Change calibration between Fit and Restore"
 print "-------------------------------------------------------------------------"
-print "SetCal"
-spec.SetCal([0,0.5])
+print "Calibrate"
+spec.cal= [0,0.5]
 
 print "Fit"
 fit = __main__.f.GetActiveFit()
@@ -187,7 +187,7 @@ __main__.fitxml.WriteFitlist(testXML)
 spec.RemoveAll()
 
 print "Change calibration"
-spec.SetCal([0,2])
+spec.cal =[0,2]
 
 print "Reading fits"
 __main__.fitxml.ReadFitlist(testXML)
@@ -201,8 +201,8 @@ spec.RemoveAll()
 print "-------------------------------------------------------------------------"
 print "Case 8: Load old calibration during Restore"
 print "-------------------------------------------------------------------------"
-print "SetCal"
-spec.SetCal([0,0.5])
+print "Calibrate"
+spec.cal=[0,0.5]
 
 print "Fit"
 fit = __main__.f.GetActiveFit()
@@ -216,7 +216,7 @@ __main__.f.StoreFit()
 __main__.fitxml.WriteFitlist(testXML)
 
 print "Change calibration"
-spec.SetCal([0,2])
+spec.cal =[0,2]
 
 print spec[0]
 
@@ -234,7 +234,7 @@ spec.RemoveAll()
 print "-------------------------------------------------------------------------"
 print "Case 9: Pur background fit without calibration"
 print "-------------------------------------------------------------------------"
-spec.SetCal(None)
+spec.cal=None
 fit = __main__.f.GetActiveFit()
 fit.PutBgMarker(1440)
 fit.PutBgMarker(1450)
@@ -252,7 +252,7 @@ print "-------------------------------------------------------------------------
 print "Case 9: Pur background fit with calibration"
 print "-------------------------------------------------------------------------"
 print "Set cal"
-spec.SetCal([0,0.5])
+spec.cal=[0,0.5]
 
 fit = __main__.f.GetActiveFit()
 fit.PutBgMarker(720)

@@ -40,13 +40,15 @@ class Fit(Drawable):
     """
 
     def __init__(self, fitter, color=None, cal=None):
-        Drawable.__init__(self, color, cal)
         self.regionMarkers = MarkerCollection("X", paired=True, maxnum=1,
-                                             color=hdtv.color.region, cal=self.cal)
+                                             color=hdtv.color.region, cal=cal)
+        self.regionMarkers.parent = self
         self.peakMarkers = MarkerCollection("X", paired=False, maxnum=None,
-                                             color=hdtv.color.peak, cal=self.cal)
+                                             color=hdtv.color.peak, cal=cal)
+        self.peakMarkers.parent = self
         self.bgMarkers = MarkerCollection("X", paired=True, maxnum=None,
-                                             color=hdtv.color.bg, cal=self.cal)
+                                             color=hdtv.color.bg, cal=cal)
+        self.bgMarkers.parent = self
         self.fitter = fitter
         self.peaks = []
         self.chi = None
@@ -55,7 +57,86 @@ class Fit(Drawable):
         self.showDecomp = False
         self.dispPeakFunc = None
         self.dispBgFunc = None
+        Drawable.__init__(self, color, cal)
+    
+    # calibration
+    def _set_cal(self, cal):
+        self._cal = hdtv.cal.MakeCalibration(cal)
+        if self.viewport:
+            self.viewport.LockUpdate()
+        self.peakMarkers.cal=cal
+        self.regionMarkers.cal = cal
+        self.bgMarkers.cal = cal
+        if self.dispPeakFunc:
+            self.dispPeakFunc.SetCal(self._cal)
+        if self.dispBgFunc:
+            self.dispBgFunc.SetCal(self._cal)
+        for peak in self.peaks:
+            peak.cal = cal
+        if self.viewport:
+            self.viewport.UnlockUpdate()
+    
+    def _get_cal(self):
+        return self._cal
         
+    cal = property(_get_cal,_set_cal)
+
+    # color
+    def _set_color(self, color):
+        self._activeColor = hdtv.color.Highlight(color, active=True)
+        self._passiveColor = hdtv.color.Highlight(color, active=False)
+        if self.viewport:
+            self.viewport.LockUpdate()
+        self.peakMarkers.color=color
+        self.regionMarkers.color = color
+        self.bgMarkers.color = color
+        if self.dispPeakFunc:
+            if self.active:
+                self.dispPeakFunc.SetColor(hdtv.color.region)
+            else:
+                self.dispPeakFunc.SetColor(self._passiveColor)
+        if self.dispBgFunc:
+            if self.active:
+                self.dispBgFunc.SetColor(hdtv.color.bg)
+            else:
+                self.dispBgFunc.SetColor(self._passiveColor)
+        for peak in self.peaks:
+            peak.color = color
+        if self.viewport:
+            self.viewport.UnlockUpdate()
+            
+    def _get_color(self):
+        return self._passiveColor
+        
+    color = property(_get_color, _set_color)
+
+
+    @property
+    def xdimensions(self):
+        """
+        Return dimensions of fit in x-direction
+        
+        returns: tuple (x_start, x_end)
+        """
+        markers = list()
+        # Get maximum of region markers, peak markers and peaks
+        for r in self.regionMarkers.collection:
+            markers.append(r.p1)
+            markers.append(r.p2)
+        for p in self.peakMarkers.collection:
+            markers.append(p.p1)
+        for p in self.peaks:
+            markers.append(p.pos_cal)
+        for b in self.bgMarkers.collection:
+            markers.append(b.p1)
+            markers.append(b.p2)
+        # calulate region limits
+        x_start = min(markers)
+        x_end = max(markers)
+        return (x_start, x_end)
+    
+    
+    
     def __str__(self):
         return self.formatted_str(verbose=False)
         
@@ -211,7 +292,7 @@ class Fit(Drawable):
         # set calibration also for the markers,
         # as the marker position is set to uncalibrated values, 
         # when read from xml fit list
-        self.SetCal(spec.cal)
+        self.cal = spec.cal
         if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
             backgrounds = [[m.p1, m.p2] for m in self.bgMarkers]
             self.fitter.RestoreBackground(spec, backgrounds, self.bgCoeffs, self.bgChi)
@@ -221,11 +302,11 @@ class Fit(Drawable):
         # get background function
         func = self.fitter.peakFitter.GetBgFunc()
         self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
-        self.dispBgFunc.SetCal(spec.cal)
+        self.dispBgFunc.SetCal(self.cal)
         # get peak function
         func = self.fitter.peakFitter.GetSumFunc()
         self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.region)
-        self.dispPeakFunc.SetCal(spec.cal)
+        self.dispPeakFunc.SetCal(self.cal)
         # print result
         if not silent:
             print "\n"+6*" "+str(self)
@@ -248,25 +329,22 @@ class Fit(Drawable):
         self.peakMarkers.Draw(self.viewport)
         self.regionMarkers.Draw(self.viewport)
         self.bgMarkers.Draw(self.viewport)
-        active = False
-        try:
-            if self.fitter.spec.GetActiveObject() is self:
-                # fit is active 
-                active = True
-            if not self in self.fitter.spec.itervalues():
-                # fit not yet added to spec
-                active = True
-        except AttributeError: 
-            # Fitter not yet initialized
-            active = True
-        self.SetColor(active=active)
         # draw fit func, if available
         if self.dispPeakFunc:
+            if self.active:
+                self.dispPeakFunc.SetColor(hdtv.color.region)
+            else:
+                self.dispPeakFunc.SetColor(self.color)
             self.dispPeakFunc.Draw(self.viewport)
         if self.dispBgFunc:
+            if self.active:
+                self.dispBgFunc.SetColor(hdtv.color.bg)
+            else:
+                self.dispBgFunc.SetColor(self.color)
             self.dispBgFunc.Draw(self.viewport)
         # draw peaks
         for peak in self.peaks:
+            peak.color=self.color
             peak.Draw(self.viewport)
             if not self.showDecomp:
                 peak.Hide()
@@ -277,7 +355,7 @@ class Fit(Drawable):
         """
         Refresh
         """
-        # repeat the fits)
+        # repeat the fits
         if self.dispPeakFunc:
             # this includes the background fit
             self.FitPeakFunc(self.fitter.spec)
@@ -309,51 +387,32 @@ class Fit(Drawable):
         if not self.viewport:
             return
         self.viewport.LockUpdate()
-        self.peakMarkers.Show()
-        try:
-            if self.fitter.spec.GetActiveObject() == self: # Is this fit the active fit?
-                self.regionMarkers.Show()
-                self.bgMarkers.Show()
-        except AttributeError: # Fitter not yet initialized
+        if self.active:
             self.regionMarkers.Show()
+            self.peakMarkers.Show()
             self.bgMarkers.Show()
+        else:
+            self.regionMarkers.Hide()
+            self.peakMarkers.Show()
+            self.bgMarkers.Hide()
         if self.dispPeakFunc:
+            if self.active:
+                self.dispPeakFunc.SetColor(hdtv.color.region)
+            else:
+                self.dispPeakFunc.SetColor(self.color)
             self.dispPeakFunc.Show()
         if self.dispBgFunc:
+            if self.active:
+                self.dispBgFunc.SetColor(hdtv.color.bg)
+            else:
+                self.dispBgFunc.SetColor(self.color)
             self.dispBgFunc.Show()
         if self.showDecomp:
             for peak in self.peaks:
                 peak.Show()
         self.viewport.UnlockUpdate()
-    
-    @property
-    def xdimensions(self):
-        """
-        Return dimensions of fit in x-direction
-        
-        returns: tuple (x_start, x_end)
-        """
-        
-        markers = list()
-        
-        # Get maximum of region markers, peak markers and peaks
-        for r in self.regionMarkers.collection:
-            markers.append(r.p1)
-            markers.append(r.p2)
-        for p in self.peakMarkers.collection:
-            markers.append(p.p1)
-        for p in self.peaks:
-            markers.append(p.pos_cal)
-        for b in self.bgMarkers.collection:
-            markers.append(b.p1)
-            markers.append(b.p2)
-    
-        x_start = min(markers)
-        x_end = max(markers)
 
-        return (x_start, x_end)
-    
-        
+
     def Hide(self):
         if not self.viewport:
             return
@@ -368,8 +427,8 @@ class Fit(Drawable):
         for peak in self.peaks:
             peak.Hide()
         self.viewport.UnlockUpdate()
-        
-        
+
+
     def Remove(self):
         if self.viewport:
             self.viewport.LockUpdate()
@@ -389,23 +448,16 @@ class Fit(Drawable):
         self.bgChi = None
         self.peaks = []
         self.chi = None
-        
-        
-    def SetCal(self, cal):
-        self.cal = hdtv.cal.MakeCalibration(cal)
-        if self.viewport:
-            self.viewport.LockUpdate()
-        self.peakMarkers.SetCal(self.cal)
-        self.regionMarkers.SetCal(self.cal)
-        self.bgMarkers.SetCal(self.cal)
-        if self.dispPeakFunc:
-            self.dispPeakFunc.SetCal(self.cal)
-        if self.dispBgFunc:
-            self.dispBgFunc.SetCal(self.cal)
-        for peak in self.peaks:
-            peak.SetCal(self.cal)
-        if self.viewport:
-            self.viewport.UnlockUpdate()
+
+    def GetActiveObjects(self):
+        """
+        Returns the presently active object
+        """
+        # FIXME: can be used for more differentiating
+        activeObjs = [self.peakMarkers, self.regionMarkers, self.bgMarkers, self.peaks]
+        if not self.activeID is None:
+            activeObjs.append(self[self.activeID])
+            return activeObjs
 
     def SetTitle(self, ID):
         """
@@ -419,48 +471,18 @@ class Fit(Drawable):
         
         if self.viewport:
             self.viewport.UnlockUpdate()
-        
-            
-    def SetColor(self, color=None, active=False):
-        if self.viewport:
-            self.viewport.LockUpdate()
-        if not color:
-            color = self.color
-        self.color = hdtv.color.Highlight(color, active)
-        if active:
-            self.regionMarkers.Show()
-            self.bgMarkers.Show()
-            self.regionMarkers.SetColor(hdtv.color.region)
-            self.peakMarkers.SetColor(hdtv.color.peak)
-            self.bgMarkers.SetColor(hdtv.color.bg)
-            if self.dispPeakFunc:
-                self.dispPeakFunc.SetColor(hdtv.color.region)
-            if self.dispBgFunc:
-                self.dispBgFunc.SetColor(hdtv.color.bg)
-            for peak in self.peaks:
-                peak.SetColor(hdtv.color.peak)
-        else:
-            self.regionMarkers.Hide()
-            self.peakMarkers.SetColor(self.color)
-            self.bgMarkers.Hide()
-            if self.dispPeakFunc:
-                self.dispPeakFunc.SetColor(self.color)
-            if self.dispBgFunc:
-                self.dispBgFunc.SetColor(self.color)
-            for peak in self.peaks:
-                peak.SetColor(self.color)
-        if self.viewport:
-            self.viewport.UnlockUpdate()
-            
+
+
     def Recalibrate(self, cal):
         """
         Changes the internal (uncalibrated) values of the markers in such a way, 
         that the calibrated values are kept fixed, but a new calibration is used.
         """
-        self.cal = hdtv.cal.MakeCalibration(cal)
+        self.cal = cal
         self.peakMarkers.Recalibrate(cal)
         self.regionMarkers.Recalibrate(cal)
         self.bgMarkers.Recalibrate(cal)
+
 
     def Copy(self, cal=None, color=None):
         cal = hdtv.cal.MakeCalibration(cal)
@@ -476,7 +498,7 @@ class Fit(Drawable):
             new.peakMarkers.append(newmarker)
         return new
 
-        
+
     def SetDecomp(self, stat=True):
         """
         Sets whether to display a decomposition of the fit

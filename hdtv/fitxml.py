@@ -291,7 +291,7 @@ class FitXml:
             if calibrate:
                 try:
                     calibration = map(float, specElement.get("calibration").split())
-                    spec.SetCal(calibration)
+                    spec.cal = calibration
                 except AttributeError:
                     # No calibration was saved
                     msg ="Could not read calibration for spectrum %s (id=%d)" % (spec,sid)

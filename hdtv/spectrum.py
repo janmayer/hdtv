@@ -44,16 +44,18 @@ class Spectrum(Drawable):
     
     A spectrum object can contain a number of fits.
     """
-    def __init__(self, hist, color=None, cal=None):
-        Drawable.__init__(self, color, cal)
+    def __init__(self, hist, color=hdtv.color.default, cal=None):
         self.ID = -1
         self.norm = 1.0
         self.fHist = hist
         self.fEffCal = None
+        Drawable.__init__(self, color, cal)
+        
         
     def __str__(self):
         return self.name
 
+    # name property
     def _get_name(self):
         if self.fHist:
             return self.fHist.GetName()
@@ -144,18 +146,18 @@ class Spectrum(Drawable):
         self.viewport.LockUpdate()
         # Show spectrum
         if self.displayObj is None and not self.fHist is None:
-            if self.color is None:
-                # set to default color
-                self.color = hdtv.color.spectrum
-            self.displayObj = ROOT.HDTV.Display.DisplaySpec(self.fHist, self.color)
+            if self.active:
+                color = self._activeColor
+            else:
+                color= self._passiveColor
+            self.displayObj = ROOT.HDTV.Display.DisplaySpec(self.fHist, color)
             self.displayObj.SetID(self.ID)
             self.displayObj.SetNorm(self.norm)
             self.displayObj.Draw(self.viewport)
-
             # add calibration
             if self.cal:
                 self.displayObj.SetCal(self.cal)
-        # finally update the viewport
+        # finally unlock the viewport
         self.viewport.UnlockUpdate()
         
         
@@ -173,14 +175,14 @@ class Spectrum(Drawable):
             self.displayObj.SetNorm(self.norm)
         
     
-    def Refresh(self):
-        """
-        Refresh the spectrum, i.e. reload the data inside it
-        """
-        # The generic spectrum class does not know about the origin of its
-        # bin data and thus cannot reload anything.
-        pass
-        
+#    def Refresh(self):
+#        """
+#        Refresh the spectrum, i.e. reload the data inside it
+#        """
+#        # The generic spectrum class does not know about the origin of its
+#        # bin data and thus cannot reload anything.
+#        pass
+#        
     
     def SetHist(self, hist):
         self.fHist = hist
@@ -196,7 +198,7 @@ class Spectrum(Drawable):
         try:
             SpecReader().WriteSpectrum(self.fHist, fname, fmt)
         except SpecReaderError, msg:
-            print "Error: Failed to write spectrum: %s (file: %s)" % (msg, fname)
+            hdtv.ui.error("Failed to write spectrum: %s (file: %s)" % (msg, fname))
             return False
         return True
 
@@ -232,17 +234,18 @@ class FileSpectrum(Spectrum):
         try:
             os.path.exists(fname)
         except OSError:
-            print "Error: File %s not found" % fname
+            hdtv.ui.error("File %s not found" % fname)
             raise
         # call to SpecReader to get the hist
         try:
             hist = SpecReader().GetSpectrum(fname, fmt)
         except SpecReaderError, msg:
-            print "Error: Failed to load spectrum: %s (file: %s)" % (msg, fname)
+            hdtv.error("Failed to load spectrum: %s (file: %s)" % (msg, fname))
             raise 
         self.fFilename = fname
         self.fFmt = fmt
         Spectrum.__init__(self, hist, color, cal)
+
         
     def GetTypeStr(self):
         """
@@ -266,19 +269,19 @@ class FileSpectrum(Spectrum):
         try:
             os.path.exists(self.fFilename)
         except OSError:
-            print "Warning: File %s not found, keeping previous data" % self.fFilename
+            hdtv.ui.warn("File %s not found, keeping previous data" % self.fFilename)
             return
         # call to SpecReader to get the hist
         try:
             hist = SpecReader().GetSpectrum(self.fFilename, self.fFmt)
         except SpecReaderError, msg:
-            print "Warning: Failed to load spectrum: %s (file: %s), keeping previous data" \
-                  % (msg, self.fFilename)
+            hdtv.ui.warn("Failed to load spectrum: %s (file: %s), keeping previous data" \
+                  % (msg, self.fFilename))
             return
         self.SetHist(hist)
         
 
-class SpectrumCompound(DrawableCompound):
+class SpectrumCompound(FileSpectrum, DrawableCompound):
     """ 
     This CompoundObject is a dictionary of Fits belonging to a spectrum.
     Everything that is not directed at the Fit dict is dispatched to the 
@@ -286,19 +289,10 @@ class SpectrumCompound(DrawableCompound):
     spectrum object, so that everything that has been written with a 
     spectrum object in mind will continue to work. 
     """
-    def __init__(self, viewport, spec):
-        DrawableCompound.__init__(self,viewport)
-        self.spec = spec
-        self.color = spec.color
-        self.cal = spec.cal
-    
-    def __getattr__(self, name):
-        """
-        Dispatch everything which is unknown to this object 
-        to the underlying spectrum
-        """
-        return getattr(self.spec, name)
-
+    def __init__(self, viewport, fname, fmt=None, color=hdtv.color.default, cal=None):
+        FileSpectrum.__init__(self, fname, fmt=None, color=color, cal=cal)
+        DrawableCompound.__init__(self)
+        
     def __setitem__(self, ID, fit):
         """
         Add a fit to this spectrum with ID
@@ -306,81 +300,93 @@ class SpectrumCompound(DrawableCompound):
         # as marker positions are uncalibrated, 
         # we need do a recalibration here
         fit.Recalibrate(self.cal)
-        fit.SetColor(self.spec.color,active=False)
+        fit.color = self.color
         DrawableCompound.__setitem__(self, ID, fit)
 
+    # cal property
+    def _set_cal(self, cal):
+        Spectrum._set_cal(self, cal)
+        for fit in self:
+            fit.cal = cal
         
-    def Refresh(self):
-        """
-        Refresh spectrum and fits
-        """
-        self.spec.Refresh()
-        DrawableCompound.Refresh(self)
+    def _get_cal(self):
+        return Spectrum._get_cal(self)
+        
+    cal = property(_get_cal, _set_cal)
+    
+    
+    # color property
+    def _set_color(self,color):
+        Spectrum._set_color(self, color)
+        for fit in self:
+            fit.color = color
+
+    def _get_color(self):
+        return Spectrum._get_color(self)
+
+    color = property(_get_color, _set_color)
+    
+        
+#    def Refresh(self):
+#        """
+#        Refresh spectrum and fits
+#        """
+#        self.spec.Refresh()
+#        DrawableCompound.Refresh(self)
         
         
     def Draw(self, viewport):
         """
         Draw spectrum and fits
         """
-        self.spec.Draw(viewport)
-        DrawableCompound.Draw(self, viewport)
+        Spectrum.Draw(self,viewport)
+        DrawableCompound.Draw(self,viewport)
         
-        
+    
+    # Show commands
     def Show(self):
         """
         Show the spectrum and all fits that are marked as visible
         """
-        self.spec.Show()
+        Spectrum.Show(self)
         # only show objects that have been visible before
-        for i in list(self.visible):
-            self.objects[i].Show()
-        
-            
+        for ID in list(self.visible):
+            self[ID].Show()
+
     def ShowAll(self):
         """
         Show spectrum and all fits
         """
+        Spectrum.Show(self)
         DrawableCompound.ShowAll(self)
         
+    # Remove commands
     def Remove(self):
         """
         Remove spectrum and fits
         """
-        self.spec.Remove()
+        Spectrum.Remove(self)
         DrawableCompound.Remove(self)
         
-        
+    
+    # Hide commands
     def Hide(self):
         """
         Hide the whole object,
         but remember which fits were visible
         """
         # hide the spectrum itself
-        self.spec.Hide()
+        Spectrum.Hide(self)
         # Hide all fits, but remember what was visible
         visible = self.visible.copy()
         DrawableCompound.Hide(self)
         self.visible = visible
 
-        
     def HideAll(self):
         """
         Hide only the fits
         """
         DrawableCompound.HideAll(self)
 
-
-    def SetColor(self, color=None, active=False):
-        self.spec.SetColor(color, active)
-        for ID in self.keys():
-            if active==True and ID==self.activeID:
-                self[ID].SetColor(color, active=True)
-            else:
-                self[ID].SetColor(color, active=False)
-        
-    def SetCal(self, cal):
-        self.cal = hdtv.cal.MakeCalibration(cal)
-        self.spec.SetCal(cal)
-        DrawableCompound.SetCal(self, cal)
 
 

@@ -26,14 +26,70 @@ spectra.RemoveAll()
 
 testspectrum= os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
 
-__main__.s.LoadSpectra(testspectrum)
-spec0 = spectra[0]
-spec0.SetCal([0,0.5])
+print "-------------------------------------------------------------------------"
+print "Case 0: Loading 5 spectra and switch back and forth between them"
+print "-------------------------------------------------------------------------"
 
+for i in range(0,5):
+    __main__.s.LoadSpectra(testspectrum)
+    spectra[i].cal=[0,(i+1)*0.5]
+spectra.ListObjects()
+    
+raw_input("Press enter to continue ")
 
-__main__.s.LoadSpectra(testspectrum)
-spec1 = spectra[1]
-spec1.SetCal([0,2])
+print "Show First"
+spectra.ShowFirst()
+spectra.ListObjects()
+
+raw_input("Press enter to continue ")
+
+for i in range(0,5):
+    print "Show Next (should be %d)" %((i+1)%5)
+    spectra.ShowNext()
+    spectra.ListObjects()
+    raw_input("Press enter to continue ")
+    
+print "Show Last"
+spectra.ShowLast()
+spectra.ListObjects()
+raw_input("Press enter to continue ")
+    
+for i in range(0,5):
+    print "Show Prev (should be %d)" %(4-(i+1)%5)
+    spectra.ShowPrev()
+    spectra.ListObjects()
+    raw_input("Press enter to continue ")
+    
+print "Show 3"
+spectra.ShowObjects(3)
+spectra.ListObjects()
+raw_input("Press enter to continue ")
+
+print "Show 1"
+spectra.ShowObjects(1)
+spectra.ListObjects()
+raw_input("Press enter to continue ")
+
+print "Show All"
+spectra.ShowAll()
+spectra.ListObjects()
+raw_input("Press enter to continue ")
+
+print "Activate 2"
+spectra.ActivateObject(2)
+spectra.ListObjects()
+raw_input("Press enter to continue ")
+
+print "Show only active"
+spectra.ShowObjects(spectra.activeID)
+spectra.ListObjects()
+raw_input("Press enter to continue ")
+
+print "Activate 4 (which was not visible)"
+spectra.ActivateObject(4)
+spectra.ListObjects()
+raw_input("Press enter to continue ")
+    
 
 print "-------------------------------------------------------------------------"
 print "Case 1: Fit and switch spectrum afterwards"
@@ -68,8 +124,7 @@ __main__.spectra.ActivateObject(0)
 raw_input("Press enter to continue ")
 
 __main__.f.ClearFit()
-spec0.RemoveAll()
-spec1.RemoveAll()
+spectra[0].RemoveAll()
 print "-------------------------------------------------------------------------"
 print "Case 2: Fit, store and switch spectrum afterwards"
 print "-------------------------------------------------------------------------"
@@ -105,8 +160,7 @@ __main__.spectra.ActivateObject(0)
 raw_input("Press enter to continue ")
 
 __main__.f.ClearFit()
-spec0.RemoveAll()
-spec1.RemoveAll()
+spectra[0].RemoveAll()
 print "-------------------------------------------------------------------------"
 print "Case 3: Background fit and switch spectrum afterwards"
 print "-------------------------------------------------------------------------"
@@ -142,5 +196,4 @@ __main__.spectra.ActivateObject(0)
 raw_input("Press enter to continue ")
 
 __main__.f.ClearFit()
-spec0.RemoveAll()
-spec1.RemoveAll()
+spectra.RemoveAll()
