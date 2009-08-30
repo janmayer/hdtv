@@ -41,8 +41,7 @@ class FitInterface:
         self.spectra = spectra
 
         self.defaultFitter = Fitter(peakModel = "theuerkauf", bgdeg = 1)
-        self.activeFit = Fit(self.defaultFitter.Copy())
-        self.activeFit.Draw(self.window.viewport)
+        self.activeFit = None
 
         # tv commands
         self.tv = TvFitInterface(self)
@@ -698,14 +697,14 @@ class TvFitInterface:
     
             objects = list()
             
-            if not hasattr(spec, "objects") or len(spec.objects) == 0:
+            if len(spec) == 0:
                 hdtv.ui.newline()
                 hdtv.ui.msg("Spectrum " + str(sid) + " (" + str(spec) + "): No fits")                
                 hdtv.ui.newline()
                 continue
             
             # Get fits
-            for (ID, obj) in spec.objects.iteritems():
+            for (ID, obj) in spec.iteritems():
                 
                 if options.visible: # Don't print on visible fits
                     if not ID in spec.visible:

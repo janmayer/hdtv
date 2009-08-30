@@ -174,7 +174,7 @@ class Marker(Drawable):
         Changes the uncalibrated values of the position in such a way, 
         that the calibrated values are kept fixed, but a new calibration is used.
         """
-        self.cal= cal
+        self._cal= cal
         self.Refresh()
 
 
@@ -202,6 +202,10 @@ class MarkerCollection(list):
     def __setitem__(self, m):
         m.parent = self
         list.__set_item__(self,m)
+        
+    def append(self, m):
+        m.parent = self
+        list.append(self,m)
 
     # color
     def _set_color(self, color):
@@ -225,6 +229,22 @@ class MarkerCollection(list):
         return self._cal
         
     cal = property(_get_cal,_set_cal)
+
+    # active property
+    @property
+    def active(self):
+        # an object is active, either when it is not belonging anywhere 
+        if self.parent is None:
+            return True
+        # or when its parent is active
+        if self.parent.active:
+            try:
+                # ask the parent for a decision
+                return (self.parent.GetActiveObject() is self)
+            except AttributeError:
+                # otherwise all objects of that parent are active
+                return True
+        return False
 
 
     def Draw(self, viewport):

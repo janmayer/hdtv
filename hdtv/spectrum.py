@@ -175,14 +175,14 @@ class Spectrum(Drawable):
             self.displayObj.SetNorm(self.norm)
         
     
-#    def Refresh(self):
-#        """
-#        Refresh the spectrum, i.e. reload the data inside it
-#        """
-#        # The generic spectrum class does not know about the origin of its
-#        # bin data and thus cannot reload anything.
-#        pass
-#        
+    def Refresh(self):
+        """
+        Refresh the spectrum, i.e. reload the data inside it
+        """
+        # The generic spectrum class does not know about the origin of its
+        # bin data and thus cannot reload anything.
+        pass
+        
     
     def SetHist(self, hist):
         self.fHist = hist
@@ -284,10 +284,6 @@ class FileSpectrum(Spectrum):
 class SpectrumCompound(FileSpectrum, DrawableCompound):
     """ 
     This CompoundObject is a dictionary of Fits belonging to a spectrum.
-    Everything that is not directed at the Fit dict is dispatched to the 
-    underlying spectrum. Thus from the outside this can be treated as an 
-    spectrum object, so that everything that has been written with a 
-    spectrum object in mind will continue to work. 
     """
     def __init__(self, viewport, fname, fmt=None, color=hdtv.color.default, cal=None):
         FileSpectrum.__init__(self, fname, fmt=None, color=color, cal=cal)
@@ -306,7 +302,7 @@ class SpectrumCompound(FileSpectrum, DrawableCompound):
     # cal property
     def _set_cal(self, cal):
         Spectrum._set_cal(self, cal)
-        for fit in self:
+        for fit in self.itervalues():
             fit.cal = cal
         
     def _get_cal(self):
@@ -318,7 +314,7 @@ class SpectrumCompound(FileSpectrum, DrawableCompound):
     # color property
     def _set_color(self,color):
         Spectrum._set_color(self, color)
-        for fit in self:
+        for fit in self.itervalues():
             fit.color = color
 
     def _get_color(self):
@@ -327,12 +323,12 @@ class SpectrumCompound(FileSpectrum, DrawableCompound):
     color = property(_get_color, _set_color)
     
         
-#    def Refresh(self):
-#        """
-#        Refresh spectrum and fits
-#        """
-#        self.spec.Refresh()
-#        DrawableCompound.Refresh(self)
+    def Refresh(self):
+        """
+        Refresh spectrum and fits
+        """
+        Spectrum.Refresh(self)
+        DrawableCompound.Refresh(self)
         
         
     def Draw(self, viewport):

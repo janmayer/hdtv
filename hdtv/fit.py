@@ -120,14 +120,14 @@ class Fit(Drawable):
         """
         markers = list()
         # Get maximum of region markers, peak markers and peaks
-        for r in self.regionMarkers.collection:
+        for r in self.regionMarkers:
             markers.append(r.p1)
             markers.append(r.p2)
-        for p in self.peakMarkers.collection:
+        for p in self.peakMarkers:
             markers.append(p.p1)
         for p in self.peaks:
             markers.append(p.pos_cal)
-        for b in self.bgMarkers.collection:
+        for b in self.bgMarkers:
             markers.append(b.p1)
             markers.append(b.p2)
         # calulate region limits
@@ -331,23 +331,14 @@ class Fit(Drawable):
         self.bgMarkers.Draw(self.viewport)
         # draw fit func, if available
         if self.dispPeakFunc:
-            if self.active:
-                self.dispPeakFunc.SetColor(hdtv.color.region)
-            else:
-                self.dispPeakFunc.SetColor(self.color)
             self.dispPeakFunc.Draw(self.viewport)
         if self.dispBgFunc:
-            if self.active:
-                self.dispBgFunc.SetColor(hdtv.color.bg)
-            else:
-                self.dispBgFunc.SetColor(self.color)
             self.dispBgFunc.Draw(self.viewport)
         # draw peaks
         for peak in self.peaks:
             peak.color=self.color
             peak.Draw(self.viewport)
-            if not self.showDecomp:
-                peak.Hide()
+        self.Show()
         self.viewport.UnlockUpdate()
 
 
@@ -387,7 +378,10 @@ class Fit(Drawable):
         if not self.viewport:
             return
         self.viewport.LockUpdate()
-        if self.active:
+        if self.active or len(self.peaks)==0:
+            # show all markers, if fit is active or if fit is unfinished,
+            # the second case can happen when switching to another spectrum,
+            # after executing only the background fit
             self.regionMarkers.Show()
             self.peakMarkers.Show()
             self.bgMarkers.Show()
@@ -395,6 +389,7 @@ class Fit(Drawable):
             self.regionMarkers.Hide()
             self.peakMarkers.Show()
             self.bgMarkers.Hide()
+        # coloring
         if self.dispPeakFunc:
             if self.active:
                 self.dispPeakFunc.SetColor(hdtv.color.region)
@@ -407,9 +402,11 @@ class Fit(Drawable):
             else:
                 self.dispBgFunc.SetColor(self.color)
             self.dispBgFunc.Show()
-        if self.showDecomp:
-            for peak in self.peaks:
+        for peak in self.peaks:
+            if self.showDecomp:
                 peak.Show()
+            else:
+                peak.Hide()
         self.viewport.UnlockUpdate()
 
 
@@ -449,15 +446,6 @@ class Fit(Drawable):
         self.peaks = []
         self.chi = None
 
-    def GetActiveObjects(self):
-        """
-        Returns the presently active object
-        """
-        # FIXME: can be used for more differentiating
-        activeObjs = [self.peakMarkers, self.regionMarkers, self.bgMarkers, self.peaks]
-        if not self.activeID is None:
-            activeObjs.append(self[self.activeID])
-            return activeObjs
 
     def SetTitle(self, ID):
         """
@@ -478,22 +466,25 @@ class Fit(Drawable):
         Changes the internal (uncalibrated) values of the markers in such a way, 
         that the calibrated values are kept fixed, but a new calibration is used.
         """
-        self.cal = cal
+        self._cal = cal
         self.peakMarkers.Recalibrate(cal)
         self.regionMarkers.Recalibrate(cal)
         self.bgMarkers.Recalibrate(cal)
 
 
     def Copy(self, cal=None, color=None):
+        """
+        Create new fit with identical markers
+        """
         cal = hdtv.cal.MakeCalibration(cal)
         new = Fit(self.fitter.Copy(), cal=cal, color=color)
-        for marker in self.bgMarkers.collection:
+        for marker in self.bgMarkers:
             newmarker = marker.Copy(cal)
             new.bgMarkers.append(newmarker)
-        for marker in self.regionMarkers.collection:
+        for marker in self.regionMarkers:
             newmarker = marker.Copy(cal)
             new.regionMarkers.append(newmarker)
-        for marker in self.peakMarkers.collection:
+        for marker in self.peakMarkers:
             newmarker = marker.Copy(cal)
             new.peakMarkers.append(newmarker)
         return new

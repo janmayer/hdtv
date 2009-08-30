@@ -97,12 +97,12 @@ class Drawable(object):
         self.viewport = viewport
 
  
- #    def Refresh(self):
-#        """
-#        Refresh the objects data 
-#        """
-#        pass
-#        
+    def Refresh(self):
+        """
+        Refresh the objects data 
+        """
+        pass
+        
 
     def Remove(self):
         """
@@ -501,41 +501,41 @@ class DrawableCompound(dict):
             self.viewport.UnlockUpdate()
 
 
-#    def Refresh(self):
-#        """
-#        Refresh all objects
-#        """
-#        self.viewport.LockUpdate()
-#        for obj in self.itervalues():
-#            obj.Refresh()
-#        self.viewport.UnlockUpdate()
+    def Refresh(self):
+        """
+        Refresh all objects
+        """
+        self.viewport.LockUpdate()
+        for obj in self.itervalues():
+            obj.Refresh()
+        self.viewport.UnlockUpdate()
         
-#    
-#    def RefreshAll(self):
-#        """
-#        Refresh all - just a wrapper for convenience
-#        """
-#        self.Refresh()
-#    
-#    def RefreshObjects(self, ids):
-#        """
-#        Refresh objects with ids
-#        """
-#        self.viewport.LockUpdate()
-#        if isinstance(ids, int):
-#            ids = [ids]
-#        for ID in ids:
-#            try:
-#                self[ID].Refresh
-#            except KeyError:
-#                print "Warning: ID %d not found" % ID
-#        self.viewport.UnlockUpdate()
-#    
-#    def RefreshVisible(self):
-#        """
-#        Refresh visible objects
-#        """
-#        self.RefreshObjects(self.visible)
+    
+    def RefreshAll(self):
+        """
+        Refresh all - just a wrapper for convenience
+        """
+        self.Refresh()
+    
+    def RefreshObjects(self, ids):
+        """
+        Refresh objects with ids
+        """
+        self.viewport.LockUpdate()
+        if isinstance(ids, int):
+            ids = [ids]
+        for ID in ids:
+            try:
+                self[ID].Refresh
+            except KeyError:
+                print "Warning: ID %d not found" % ID
+        self.viewport.UnlockUpdate()
+    
+    def RefreshVisible(self):
+        """
+        Refresh visible objects
+        """
+        self.RefreshObjects(self.visible)
     
     
     # Hide commands
