@@ -266,6 +266,7 @@ class MarkerCollection(list):
     def Remove(self):
         for marker in self:
             marker.Remove()
+            self.remove(marker)
         self.collection = list()
         
     def Refresh(self):
@@ -287,28 +288,22 @@ class MarkerCollection(list):
         """
         Put a marker to position pos, possibly completing a marker pair
         """
-        if not self.paired:
-            m = Marker(self.xytype, pos, self.color, self.cal, self.connecttop)
+        if self.IsPending():
+            pending = self[-1]
+            pending.p2 = pos
+            pending.Refresh()
+        elif self.IsFull():
+            pending = self.pop(0)
+            pending.p1 = pos
+            pending.p2 = None
+            pending.Refresh()
+            self.append(pending)
+        else:
+            m = Marker(self.xytype, pos, self._activeColor, self.cal,self.connecttop)
             if self.viewport:
                 m.Draw(self.viewport)
             self.append(m)
-        else:
-            if len(self)>0 and self[-1].p2==None:
-                pending = self[-1]
-                pending.p2 = pos
-                pending.Refresh()
-            elif self.maxnum and len(self)== self.maxnum:
-                pending = self.pop(0)
-                pending.p1 = pos
-                pending.p2 = None
-                pending.Refresh()
-                self.append(pending)
-            else:
-                pending = Marker(self.xytype, pos, self._activeColor, self.cal,\
-                                 self.connecttop)
-                if self.viewport:
-                    pending.Draw(self.viewport)
-                self.append(pending)
+            
                 
     def IsFull(self):
         """
@@ -331,20 +326,7 @@ class MarkerCollection(list):
             return False
         return (len(self) > 0 and self[-1].p2 == None)
     
-    
-    def Clear(self):
-        """
-        Remove all markers from this collection
-        """
-        if self.viewport != None:
-            self.viewport.LockUpdate()
-        for m in self:
-            m.Remove()
-            self.remove(m)
-        if self.viewport != None:
-            self.viewport.UnlockUpdate()
-        
-        
+
     def RemoveNearest(self, pos):
         """
         Remove the marker that is nearest to pos
