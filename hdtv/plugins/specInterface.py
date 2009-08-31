@@ -334,7 +334,7 @@ class TvSpecInterface:
         
 
         prog = "spectrum name"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage="%prog <name>")
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage="%prog [id] <name>")
         hdtv.cmdline.AddCommand(prog, self.SpectrumName, level = 2, fileargs = False, parser=parser)
 
         # calibration commands
@@ -656,21 +656,25 @@ to only fit the calibration.""",
         """
         Give spectrum a name
         """
-        try:
-            ids = hdtv.cmdhelper.ParseIds(args[0], self.spectra)
-        except ValueError:
-            return "USAGE"
+        if len(args) == 1:
+            ID = self.spectra.activeID
+            name = args[0]
+        else:
+            try:
+                ids = hdtv.cmdhelper.ParseIds(args[0], self.spectra)
+            except ValueError:
+                return "USAGE"
+            
+            if len(ids) == 0:
+                hdtv.ui.warn("Nothing to do")
+                return
+            elif len(ids) > 1:
+                hdtv.ui.warn("Can only rename one spectrum at a time")
+                return
+            
+            ID = ids[0]
+            name = args[1]
         
-        if len(ids) == 0:
-            hdtv.ui.warn("Nothing to do")
-            return
-        elif len(ids) > 1:
-            hdtv.ui.warn("Can only rename one spectrum at a time")
-            return
-        
-        ID = ids[0]
-                    
-        name = args[1]
         self.spectra[ID].spec.name = name
         hdtv.ui.msg("Renamed spectrum %d to \'%s\'" % (ID, name))
     
