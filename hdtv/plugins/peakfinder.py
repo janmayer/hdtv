@@ -43,7 +43,7 @@ class PeakFinder:
         hdtv.options.RegisterOption("fit.peakfind.sigma", opt)    
         opt = hdtv.options.Option(default = 0.05)
         hdtv.options.RegisterOption("fit.peakfind.threshold", opt)
-        opt = hdtv.options.Option(default = False)
+        opt = hdtv.options.Option(default = False, boolean=True)
         hdtv.options.RegisterOption("fit.peakfind.no_fit", opt)
         
         
