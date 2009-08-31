@@ -39,6 +39,12 @@ class Fit(Drawable):
     uncalibrated units. 
     """
 
+    # List of hook functions to be called before/after FitPeakFunc()
+    # These hook functions should accept a reference to the Fit class
+    # that calls them as first argument
+    FitPeakPreHooks = list()
+    FitPeakPostHooks = list()
+    
     def __init__(self, fitter, color=None, cal=None):
         self.regionMarkers = MarkerCollection("X", paired=True, maxnum=1,
                                              color=hdtv.color.region, cal=cal)
@@ -224,6 +230,10 @@ class Fit(Drawable):
         Do the actual peak fit and extract the functions for display
         Note: You still need to call Draw afterwards.
         """
+        # Call pre hooks
+        for func in Fit.FitPeakPreHooks:
+            func(self)
+        
         # set calibration without changing position of markers,
         # because the marker have been set by the user to calibrated values
         self.Recalibrate(spec.cal)
@@ -287,6 +297,10 @@ class Fit(Drawable):
             # print result
             if not silent:
                 print "\n"+6*" "+self.formatted_str(verbose=True)
+                
+        # Call pre hooks
+        for func in Fit.FitPeakPostHooks:
+            func(self)
 
     def Restore(self, spec, silent=False):
         # set calibration also for the markers,

@@ -30,6 +30,8 @@ import hdtv.database
 import hdtv.ui
 import re
 
+import hdtv.fit
+
 class Database(object):
     
     def __init__(self):
@@ -42,6 +44,10 @@ class Database(object):
         # Register configuration variables for fit peakfind
         self.opt["db"] = hdtv.options.Option(default = "PGAAlib_IKI2000", changeCallback = lambda x: self.Set(x)) # default database
         hdtv.options.RegisterOption("database.db", self.opt["db"])    
+
+        # Automatically lookup fitted peaks in database
+        self.opt["auto_lookup"] = hdtv.options.Option(default = False, boolean=True, changeCallback = lambda x: self.SetAutoLookup(x))
+        hdtv.options.RegisterOption("database.auto_lookup", self.opt["auto_lookup"])
         
         # Set default database
 #        hdtv.options.Reset("database.db")
@@ -52,7 +58,7 @@ class Database(object):
         self.opt["sort_key"] = hdtv.options.Option(default = None)
         hdtv.options.RegisterOption("database.sort_key", self.opt["sort_key"])
         
-        self.opt["sort_reverse"] = hdtv.options.Option(default = False)
+        self.opt["sort_reverse"] = hdtv.options.Option(default = False, boolean=True)
         hdtv.options.RegisterOption("database.sort_reverse", self.opt["sort_reverse"])
         
         # TODO: proper help
@@ -86,7 +92,31 @@ class Database(object):
         usage = "%prog <db>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         hdtv.cmdline.AddCommand(prog, self.Info, parser = parser, fileargs = False)        
-        
+
+    
+    def FitPeakPostHook(self, fitclass):
+        """
+        Hook for hdtv.fit.Fit.FitPeakFunc function to automatically list matching 
+        database entries
+        """
+        for p in fitclass.peaks:
+            self.Lookup(["energy=" + str(p.pos_cal.value)], None)
+
+    def SetAutoLookup(self, autolookup_opt):
+        """
+        Activate/Deactivate automatic lookup of peaks
+        """
+        if autolookup_opt.Get():
+            if self.FitPeakPostHook not in hdtv.fit.Fit.FitPeakPostHooks:
+                hdtv.fit.Fit.FitPeakPostHooks.append(self.FitPeakPostHook)
+                hdtv.ui.msg("Autolookup activated")
+        else:
+            try:
+                hdtv.fit.Fit.FitPeakPostHooks.remove(self.FitPeakPostHook)
+            except ValueError: # Ignore error for trying to remove nonexistant element
+                pass
+            else:
+                hdtv.ui.msg("Autolookup deactivated")
 
     def Set(self, dbname = None, open = False):
         """ 
@@ -201,17 +231,17 @@ class Database(object):
                     except ValueError:
                         return "USAGE"
 
-            if options.sort_key is None:
+            if options is None or options.sort_key is None:
                 lookupargs['sort_key'] = hdtv.options.Get("database.sort_key")
             else:
                 lookupargs['sort_key'] = options.sort_key
                 
-            if options.sort_reverse is None:
+            if options is None or options.sort_reverse is None:
                 lookupargs['sort_reverse'] = hdtv.options.Get("database.sort_reverse") 
             else:
                 lookupargs['sort_reverse'] = options.sort_reverse
              
-            if options.fuzziness is None:
+            if options is None or options.fuzziness is None:
                 fuzziness = hdtv.options.Get("database.fuzziness")
             else:
                 fuzziness = options.fuzziness
