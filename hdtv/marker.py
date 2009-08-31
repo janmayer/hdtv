@@ -33,14 +33,55 @@ class Marker(Drawable):
     possible to have markers that consist of a single marker, then the second 
     possition is None.
     """
-    def __init__(self, xytype, p1, color=None, cal=None, connecttop=True):
-        Drawable.__init__(self, color, cal)
+    def __init__(self, xytype, p1, color=hdtv.color.zoom, cal=None, connecttop=True):
+        # do not call Drawable.__init__ as that results in conflicts in _set_cal
+        self.viewport = None
+        self.parent = None
+        self.displayObj = None
         self.xytype = xytype
         self.connecttop = connecttop
         self.p1 = p1
         self.p2 = None
         self.title = ""
+        # active color is set here and should not be changed afterwards
+        self._activeColor = color
+        self._cal = hdtv.cal.MakeCalibration(cal)
+    
+    # calibration
+    def _set_cal(self, cal):
+        """
+        Changes the calibration of a marker
+        this changes also the values of p1 and p2, as they are calibrated values
+        """
+        cal = hdtv.cal.MakeCalibration(cal)
+        self.p1 = cal.Ch2E(self._cal.E2Ch(self.p1))
+        if self.p2:
+            self.p2 = cal.Ch2E(self._cal.E2Ch(self.p2))
+        self._cal = cal
+        if self.displayObj:
+            self.displayObj.SetCal(self._cal)
+
+    def _get_cal(self):
+        return self._cal
+    
+    cal = property(_get_cal, _set_cal)
+    
+    # color
+    def _set_color(self, color):
+        # active color is given at creation and should not change
+        self._passiveColor = hdtv.color.Highlight(color, active=False)
+        if self.displayObj:
+            if self.active:
+                self.displayObj.SetColor(self._activeColor)
+            else:
+                self.displayObj.SetColor(self._passiveColor)
+            
+    def _get_color(self):
+        return self._passiveColor
         
+    color = property(_get_color, _set_color)
+
+
     def __str__(self):
         if self.p2:
             return '%s marker at %s and %s' %(self.xytype, self.p1, self.p2)
@@ -76,16 +117,18 @@ class Marker(Drawable):
             constructor = ROOT.HDTV.Display.XMarker
         elif self.xytype == "Y":
             constructor = ROOT.HDTV.Display.YMarker
-        if not self.color:
-            self.color = hdtv.color.zoom
-        self.displayObj = constructor(n, p1, p2, self.color)
+        if self.active:
+            self.displayObj = constructor(n, p1, p2, self._activeColor)
+        else:
+            self.displayObj = constructor(n, p1, p2, self._passiveColor)
         if self.title != "":
             self.displayObj.SetTitle(self.title)
         if self.xytype=="X":
             # calibration makes only sense on the X axis
-            self.displayObj.SetCal(self.cal)
+            self.displayObj.SetCal(self._cal)
             self.displayObj.SetConnectTop(self.connecttop)
         self.displayObj.Draw(self.viewport)
+        
 
     def Refresh(self):
         """ 
@@ -109,6 +152,10 @@ class Marker(Drawable):
                 self.displayObj.SetPos(p1)
                 if self.xytype == "X": # calibration makes only sense on the X axis
                     self.displayObj.SetCal(self.cal)
+            if self.active:
+                self.displayObj.SetColor(self._activeColor)
+            else:
+                self.displayObj.SetColor(self._passiveColor)
 
     def Copy(self, cal=None):
         """
@@ -120,27 +167,16 @@ class Marker(Drawable):
         new = Marker(self.xytype, self.p1, self.color, cal)
         new.p2= self.p2
         return new
-        
+
 
     def Recalibrate(self, cal=None):
         """
         Changes the uncalibrated values of the position in such a way, 
         that the calibrated values are kept fixed, but a new calibration is used.
         """
-        self.cal= hdtv.cal.MakeCalibration(cal)
+        self._cal= cal
         self.Refresh()
-        
-        
-    def SetCal(self, cal):
-        """
-        Changes the calibration of a marker
-        this changes also the values of p1 and p2, as they are calibrated values
-        """
-        self.p1 = cal.Ch2E(self.cal.E2Ch(self.p1))
-        if self.p2:
-            self.p2 = cal.Ch2E(self.cal.E2Ch(self.p2))
-        Drawable.SetCal(self, cal)
-        
+
 
     def SetTitle(self, title):
         """
@@ -151,66 +187,100 @@ class Marker(Drawable):
             self.displayObj.SetTitle(self.title)
 
 
-class MarkerCollection(Drawable):
+class MarkerCollection(list):
     def __init__(self, xytype, paired=False, maxnum=None, color=None, cal=None, connecttop=True):
-        Drawable.__init__(self, color, cal)
+        list.__init__(self)
+        self.viewport = None
+        self.parent = None
         self.xytype = xytype
         self.paired = paired
         self.maxnum = maxnum
         self.connecttop = connecttop
-        self.collection = list()
+        self.cal = cal
+        self._activeColor = color
         
+    def __setitem__(self, m):
+        m.parent = self
+        list.__set_item__(self,m)
+        
+    def append(self, m):
+        m.parent = self
+        list.append(self,m)
+
+    # color
+    def _set_color(self, color):
+        # active color is given at creation and should not change
+        self._passiveColor = hdtv.color.Highlight(color, active=False)
+        for marker in self:
+            marker.color = color
+            
+    def _get_color(self):
+        return self._passiveColor
+        
+    color = property(_get_color, _set_color)
+
+    # calibration
+    def _set_cal(self, cal):
+        self._cal= hdtv.cal.MakeCalibration(cal)
+        for marker in self:
+            marker.cal = cal
+            
+    def _get_cal(self):
+        return self._cal
+        
+    cal = property(_get_cal,_set_cal)
+
+    # active property
+    @property
+    def active(self):
+        # an object is active, either when it is not belonging anywhere 
+        if self.parent is None:
+            return True
+        # or when its parent is active
+        if self.parent.active:
+            try:
+                # ask the parent for a decision
+                return (self.parent.GetActiveObject() is self)
+            except AttributeError:
+                # otherwise all objects of that parent are active
+                return True
+        return False
+
 
     def Draw(self, viewport):
         self.viewport = viewport
-        for marker in self.collection:
+        for marker in self:
             marker.Draw(self.viewport)
             
 
     def Show(self):
-        for marker in self.collection:
+        for marker in self:
             marker.Show()
             
 
     def Hide(self):
-        for marker in self.collection:
+        for marker in self:
             marker.Hide()
             
 
     def Remove(self):
-        for marker in self.collection:
+        for marker in self:
             marker.Remove()
         self.collection = list()
-            
-
-    def SetColor(self, color=None, active=False):
-        if not color:
-            # use old color
-            color = self.color
-        self.color=hdtv.color.Highlight(color, active)
-        for marker in self.collection:
-            marker.SetColor(self.color)
-            
-
-    def SetCal(self, cal):
-        self.cal= hdtv.cal.MakeCalibration(cal)
-        for marker in self.collection:
-            marker.SetCal(cal)
-
+        
+    def Refresh(self):
+        for marker in self:
+            marker.Refresh()
+        
 
     def Recalibrate(self, cal):
         """
         Changes the internal (uncalibrated) values of the positions in such a way, 
         that the calibrated values are kept fixed, but a new calibration is used.
         """
-        self.cal = hdtv.cal.MakeCalibration(cal)
-        for marker in self.collection:
+        self._cal = cal
+        for marker in self:
             marker.Recalibrate(cal)
-
-
-    def __getattr__(self, name):
-        # FIXME: include automatic remove when a marker is deleted
-        return getattr(self.collection, name)
 
 
     def PutMarker(self, pos):
@@ -221,24 +291,24 @@ class MarkerCollection(Drawable):
             m = Marker(self.xytype, pos, self.color, self.cal, self.connecttop)
             if self.viewport:
                 m.Draw(self.viewport)
-            self.collection.append(m)
+            self.append(m)
         else:
-            if len(self.collection)>0 and self.collection[-1].p2==None:
-                pending = self.collection[-1]
+            if len(self)>0 and self[-1].p2==None:
+                pending = self[-1]
                 pending.p2 = pos
                 pending.Refresh()
-            elif self.maxnum and len(self.collection)== self.maxnum:
-                pending = self.collection.pop(0)
+            elif self.maxnum and len(self)== self.maxnum:
+                pending = self.pop(0)
                 pending.p1 = pos
                 pending.p2 = None
                 pending.Refresh()
-                self.collection.append(pending)
+                self.append(pending)
             else:
-                pending = Marker(self.xytype, pos, self.color, self.cal,\
+                pending = Marker(self.xytype, pos, self._activeColor, self.cal,\
                                  self.connecttop)
                 if self.viewport:
                     pending.Draw(self.viewport)
-                self.collection.append(pending)
+                self.append(pending)
                 
     def IsFull(self):
         """
@@ -247,11 +317,10 @@ class MarkerCollection(Drawable):
         """
         if self.maxnum == None:
             return False
-            
-        if len(self.collection) > 0 and self.collection[-1].p2 == None:
+        if len(self) > 0 and self[-1].p2 == None:
             return False
-            
-        return len(self.collection) == self.maxnum
+        return len(self) == self.maxnum
+        
         
     def IsPending(self):
         """
@@ -260,17 +329,18 @@ class MarkerCollection(Drawable):
         """
         if not self.paired:
             return False
-        return (len(self.collection) > 0 and self.collection[-1].p2 == None)
+        return (len(self) > 0 and self[-1].p2 == None)
+    
     
     def Clear(self):
+        """
+        Remove all markers from this collection
+        """
         if self.viewport != None:
             self.viewport.LockUpdate()
-            
-        for m in self.collection:
+        for m in self:
             m.Remove()
-        
-        self.collection = list()
-        
+            self.remove(m)
         if self.viewport != None:
             self.viewport.UnlockUpdate()
         
@@ -281,11 +351,11 @@ class MarkerCollection(Drawable):
         If one of the members of a marker pair is nearest to pos, 
         both are removed
         """
-        if len(self.collection)==0:
-            print "Warning: no marker available, no action taken"
+        if len(self)==0:
+            hdtv.ui.warn("No marker available, no action taken")
             return
         index = dict()
-        for m in self.collection:
+        for m in self:
             diff = abs(pos-m.p1)
             index[diff] = m
             if self.paired and not m.p2==None:
@@ -293,8 +363,7 @@ class MarkerCollection(Drawable):
                 index[diff] = m
         nearest = index[min(index.keys())]
         nearest.Remove()
-        self.collection.remove(nearest)
+        self.remove(nearest)
         
     
-            
 

@@ -125,7 +125,7 @@ class EEPeak(Drawable):
         if self.viewport:
             if self.viewport == viewport:
                 # this has already been drawn
-                self.Refresh()
+                self.Show()
                 return
             else:
                 # Unlike the Display object of the underlying implementation,

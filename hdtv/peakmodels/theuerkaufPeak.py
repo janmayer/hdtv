@@ -116,9 +116,7 @@ class TheuerkaufPeak(Drawable):
         """
         if self.viewport:
             if self.viewport == viewport:
-                # this has already been drawn
-                self.Refresh()
-                return
+                self.Show()
             else:
                 # Unlike the Display object of the underlying implementation,
                 # python objects can only be drawn on a single viewport

@@ -248,7 +248,7 @@ class RootFile:
         if hist:
             spec = RMatrix(hist)
             sid = self.spectra.Add(spec)
-            spec.SetColor(hdtv.color.ColorForID(sid))
+            spec.color = hdtv.color.ColorForID(sid)
             self.spectra.ActivateObject(sid)
             self.window.Expand()        
     
@@ -272,11 +272,11 @@ class RootFile:
                 if isinstance(obj, ROOT.TH1):
                     spec = hdtv.spectrum.Spectrum(obj)
                     ID = self.spectra.Add(spec)
-                    spec.SetColor(hdtv.color.ColorForID(ID))
+                    spec.color = hdtv.color.ColorForID(ID)
                     
                     if options.load_cal:
                         if obj.GetName() in self.caldict:
-                            spec.SetCal(self.caldict[obj.GetName()])
+                            spec.color = self.caldict[obj.GetName()]
                         else:
                             print "Warning: no calibration found for %s" % obj.GetName()
                 
@@ -296,7 +296,7 @@ class RootFile:
     def Draw(self, hist):
         spec = hdtv.spectrum.Spectrum(hist)
         ID = self.spectra.Add(spec)
-        spec.SetColor(hdtv.color.ColorForID(ID))
+        spec.color = hdtv.color.ColorForID(ID)
         self.spectra.ActivateObject(ID)
 
 
