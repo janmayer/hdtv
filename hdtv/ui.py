@@ -68,8 +68,7 @@ class SimpleUI(object):
         
         if newline:
             self.stderr.write(self.linesep)
-    
-        self.msg(text, newline = newline)  
+  
         
     def debug(self, text, level = 1, newline = True):
           """
