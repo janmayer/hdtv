@@ -382,6 +382,12 @@ class TxtFile(object):
         self.fd = None
         
     def read(self, verbose = False):
+        """
+        Read text file to self.lines
+        
+        Comments are stripped and lines seperated by '\' are automatically
+        concatenated
+        """
         try:
             self.fd = open(self.filename, self.mode)
             prev_line = ""
@@ -395,7 +401,7 @@ class TxtFile(object):
                         line = prev_line + " " + line
                     prev_line = ""
                 if verbose:
-                    print "file>", line
+                    hdtv.ui.msg("file> " + str(line))
                 
                 # Strip comments 
                 line = line.split("#")[0] 
@@ -404,18 +410,32 @@ class TxtFile(object):
                 self.lines.append(line)
                 
         except IOError, msg:
-            print "Error opening file:", msg
+            raise IOError, "Error opening file:" + str(msg) 
         except: # Let MainLoop handle other exceptions
             raise
         finally:
             if not self.fd is None:
                 self.fd.close()
                 
-    def write(self, line):
+    def write(self):
         """
-        TODO
+        Write lines stored in self.lines to text file
+        
+        Newlines are automatically appended if necessary
         """
-        pass
+        try:
+            self.fd = open(self.filename, self.mode)
+            for line in self.lines:
+                line.rstrip('\r\n ')
+                line += os.linesep
+                self.fd.write(line)
+        except IOError, msg:
+            raise IOError, ("Error opening file: %s" % msg)
+        except:
+            raise
+        finally:
+            if not self.fd is None:
+                self.fd.close()
     
 class Pairs(list):
     """
