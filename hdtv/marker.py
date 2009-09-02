@@ -45,6 +45,7 @@ class Marker(Drawable):
         self.title = ""
         # active color is set here and should not be changed afterwards
         self._activeColor = color
+        self.color = color
         self._cal = hdtv.cal.MakeCalibration(cal)
     
     # calibration

@@ -220,15 +220,18 @@ class _RawSpectrum(Drawable):
             self.displayObj.ToBottom()
 
 
-class Spectrum(_RawSpectrum, DrawableCompound):
+class Spectrum(_RawSpectrum):
     """ 
     This CompoundObject is a dictionary of Fits belonging to a spectrum.
     """
     def __init__(self, hist, color=hdtv.color.default, cal=None):
 
+        self.fits = DrawableCompound()
         _RawSpectrum.__init__(self, hist, color=color, cal=cal)
-        DrawableCompound.__init__(self)
+#        DrawableCompound.__init__(self)
         
+        
+    # TODO: change this to AddFit(fit, ID=None)
     def __setitem__(self, ID, fit):
         """
         Add a fit to this spectrum with ID
@@ -237,12 +240,12 @@ class Spectrum(_RawSpectrum, DrawableCompound):
         # we need do a recalibration here
         fit.Recalibrate(self.cal)
         fit.color = self.color
-        DrawableCompound.__setitem__(self, ID, fit)
+        self.fits[ID] = fit
 
     # cal property
     def _set_cal(self, cal):
         _RawSpectrum._set_cal(self, cal)
-        for fit in self.itervalues():
+        for fit in self.fits.itervalues():
             fit.cal = cal
         
     def _get_cal(self):
@@ -254,7 +257,7 @@ class Spectrum(_RawSpectrum, DrawableCompound):
     # color property
     def _set_color(self,color):
         _RawSpectrum._set_color(self, color)
-        for fit in self.itervalues():
+        for fit in self.fits.itervalues():
             fit.color = color
 
     def _get_color(self):
@@ -268,15 +271,15 @@ class Spectrum(_RawSpectrum, DrawableCompound):
         Refresh spectrum and fits
         """
         _RawSpectrum.Refresh(self)
-        DrawableCompound.Refresh(self)
+        self.fits.Refresh()
         
         
     def Draw(self, viewport):
         """
         Draw spectrum and fits
         """
-        _RawSpectrum.Draw(self,viewport)
-        DrawableCompound.Draw(self,viewport)
+        _RawSpectrum.Draw(self, viewport)
+        self.fits.Draw(self.viewport)
         
     
     # Show commands
@@ -286,15 +289,15 @@ class Spectrum(_RawSpectrum, DrawableCompound):
         """
         _RawSpectrum.Show(self)
         # only show objects that have been visible before
-        for ID in list(self.visible):
-            self[ID].Show()
+        for ID in self.fits.visible:
+            self.fits[ID].Show()
 
     def ShowAll(self):
         """
         Show spectrum and all fits
         """
         _RawSpectrum.Show(self)
-        DrawableCompound.ShowAll(self)
+        self.fits.ShowAll()
         
     # Remove commands
     def Remove(self):
@@ -302,7 +305,7 @@ class Spectrum(_RawSpectrum, DrawableCompound):
         Remove spectrum and fits
         """
         _RawSpectrum.Remove(self)
-        DrawableCompound.Remove(self)
+        self.fits.Remove()
         
     
     # Hide commands
@@ -314,15 +317,16 @@ class Spectrum(_RawSpectrum, DrawableCompound):
         # hide the spectrum itself
         _RawSpectrum.Hide(self)
         # Hide all fits, but remember what was visible
-        visible = self.visible.copy()
-        DrawableCompound.Hide(self)
-        self.visible = visible
+        visible = self.fits.visible.copy()
+        self.fits.Hide()
+        self.fits.visible = visible
 
-    def HideAll(self):
-        """
-        Hide only the fits
-        """
-        DrawableCompound.HideAll(self)
+# TODO: remove
+#    def HideAll(self):
+#        """
+#        Hide only the fits
+#        """
+#        self.fits.HideAll()
 
 
         

@@ -181,7 +181,7 @@ class PeakFinder:
                              num_peaks -= 1
              
              if not reject:
-                 ID = self.spectra[sid].Add(fit)
+                 ID = self.spectra[sid].fits.Add(fit)
                  fit.SetTitle(str(ID) + "(*)")
         
         hdtv.ui.msg("Found " + str(num_peaks) + " peaks")

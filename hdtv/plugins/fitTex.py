@@ -78,9 +78,9 @@ class fitTex:
                 fitIDs = hdtv.cmdhelper.ParseFitID(fits, spec)
             else:
                 # default is to print all fits
-                fitIDs = spec.keys()
+                fitIDs = spec.fits.keys()
             for fitID in fitIDs:
-                fit = spec[fitID]
+                fit = spec.fits[fitID]
                 peaks.extend(fit.peaks)
         return peaks
                 

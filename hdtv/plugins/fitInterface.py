@@ -109,7 +109,7 @@ class FitInterface:
             self.window.viewport.SetStatusText("No active spectrum")
             return
         
-        if not self.ShowFits([self.spectra[self.spectra.activeID].prevID], self.spectra.activeID):
+        if not self.ShowFits([self.spectra[self.spectra.activeID].fits.prevID], self.spectra.activeID):
                         self.window.viewport.SetStatusText("No fits available")
 
             
@@ -120,7 +120,7 @@ class FitInterface:
         if self.spectra.activeID == None:
             self.window.viewport.SetStatusText("No active spectrum")
             return
-        if not self.ShowFits([self.spectra[self.spectra.activeID].nextID], self.spectra.activeID):
+        if not self.ShowFits([self.spectra[self.spectra.activeID].fits.nextID], self.spectra.activeID):
             print "bar"
             self.window.viewport.SetStatusText("No fits available")
             
@@ -133,9 +133,9 @@ class FitInterface:
             self.window.viewport.SetStatusText("No active spectrum")
             return
         try:
-            ids = hdtv.cmdhelper.ParseFitIds(args, self.spectra[self.spectra.activeID])
+            ids = hdtv.cmdhelper.ParseFitIds(args, self.spectra[self.spectra.activeID].fits)
             if len(ids) == 0:
-                self.spectra[self.spectra.activeID].HideAll()
+                self.spectra[self.spectra.activeID].fits.HideAll()
             else:
                 if not self.ShowFits(ids, self.spectra.activeID):
                     self.window.viewport.SetStatusText("No fits available for active spectrum")
@@ -182,10 +182,10 @@ class FitInterface:
         """
         Returns the currently active fit
         """
-        if not self.spectra.activeID == None:
+        if not self.spectra.activeID is None:
             spec = self.spectra[self.spectra.activeID]
-            if hasattr(spec, "activeID") and not spec.activeID == None:
-                return spec[spec.activeID]
+            if not spec.fits.activeID is None:
+                return spec.fits[spec.fits.activeID]
         if not self.activeFit:
             self.activeFit = Fit(self.defaultFitter.Copy())
             self.activeFit.Draw(self.window.viewport)
@@ -214,11 +214,11 @@ class FitInterface:
         # if the fit is fresh, add it temporarly to the spectrum
         # so that it is managed by the usual Show/Hide functions
         # rely on ActivateFit and StoreFit to do garbage collection 
-        if spec.activeID == None: 
-            ID = spec.Add(fit) 
+        if spec.fits.activeID == None: 
+            ID = spec.fits.Add(fit) 
             fit.SetTitle(str(ID))
             self.activeFit = None 
-            spec.ActivateObject(ID)
+            spec.fits.ActivateObject(ID)
         fit.Draw(self.window.viewport)
         
         # update fitPanel
@@ -246,13 +246,13 @@ class FitInterface:
             self.activeFit.Remove()
             self.activeFit = None
         # activate another fit
-        spec.ActivateObject(ID)
-        if spec.activeID is not None: # If spec.activeID is None it was deactivation
+        spec.fits.ActivateObject(ID)
+        if spec.fits.activeID is not None: # If spec.activeID is None it was deactivation
             if self.spectra.activeID in self.spectra.visible:
-                spec[spec.activeID].Show()
+                spec.fits[spec.fits.activeID].Show()
         if ID is not None:
-            if not spec.isInVisibleRegion(ID):
-                spec.FocusObject(ID)
+            if not spec.fits.isInVisibleRegion(ID):
+                spec.fits.FocusObject(ID)
         # update fitPanel
         self.UpdateFitPanel()
 
@@ -264,16 +264,16 @@ class FitInterface:
         if ids[0] is None or len(ids) == 0:
             return False
         spec = self.spectra[specID]
-        spec.ShowObjects(ids)
+        spec.fits.ShowObjects(ids)
          # Check if we have to refocus the viewport
         if adjustViewport:
             refocus = False
             if specID == self.spectra.activeID:   
                 for i in ids:
-                    if not spec.isInVisibleRegion(i):
+                    if not spec.fits.isInVisibleRegion(i):
                         refocus = True
                 if refocus:
-                    spec.FocusObjects(ids)
+                    spec.fits.FocusObjects(ids)
         return True
         
     
@@ -282,9 +282,9 @@ class FitInterface:
         Focus fits
         """
         spec = self.spectra[self.spectra.activeID]
-        spec.FocusObjects(ids)
-        if self.spectra.activeID in self.spectra.visible and spec.activeID:
-            spec[spec.activeID].Show()
+        spec.fits.FocusObjects(ids)
+        if self.spectra.activeID in self.spectra.visible and spec.fits.activeID:
+            spec.fits[spec.fits.activeID].Show()
             
 
     def StoreFit(self):
@@ -296,20 +296,20 @@ class FitInterface:
             hdtv.ui.error("There is no active spectrum")
             return
         spec = self.spectra[self.spectra.activeID]
-        if spec.activeID == None:
+        if spec.fits.activeID == None:
             # fresh fit, try to execute it
             hdtv.ui.msg("Trying to execute active fit")
             self.Fit(peaks=True)
         # this will add the fit to the spectrum, 
         # thus now there is in any case an activeID in spec
-        if len(spec[spec.activeID].peaks) == 0:
+        if len(spec.fits[spec.fits.activeID].peaks) == 0:
             # do remove garbage (invalid fit)
             hdtv.ui.warn('Fit is not valid, nothing saved')
-            fit = spec.pop(spec.activeID)
+            fit = spec.fits.pop(spec.fits.activeID)
             fit.Remove()
             self.ClearFit()
         # deactivate all objects
-        spec.ActivateObject(None)
+        spec.fits.ActivateObject(None)
 
 
     def ClearFit(self):
@@ -416,7 +416,7 @@ class FitInterface:
                 fitter = self.defaultFitter
                 statstr += "default fitter: \n"
             else:
-                fitter = self.spectra[self.spectra.activeID][ID].fitter
+                fitter = self.spectra[self.spectra.activeID].fits[ID].fitter
                 statstr += "fitter status of fit id %d: \n" % ID
             statstr += "Background model: polynomial, deg=%d\n" % fitter.bgdeg
             statstr += "Peak model: %s\n" % fitter.peakModel.name
@@ -451,7 +451,7 @@ class FitInterface:
         # fit list
         for ID in ids:
             try:
-                fit = self.spectra[self.spectra.activeID][ID]
+                fit = self.spectra[self.spectra.activeID].fits[ID]
                 fit.fitter.SetParameter(parname, status)
                 fit.Refresh()
             except ValueError:
@@ -469,7 +469,7 @@ class FitInterface:
         fit.Refresh()
         # fit list
         for ID in ids:
-            fit = self.spectra[self.spectra.activeID][ID]
+            fit = self.spectra[self.spectra.activeID].fits[ID]
             fit.fitter.ResetParamStatus()
             fit.Refresh()
         # Update fitPanel
@@ -488,7 +488,7 @@ class FitInterface:
         fit.fitter.SetPeakModel(peakmodel)
         fit.Refresh()
         for ID in ids:
-            fit = self.spectra[self.spectra.activeID][ID]
+            fit = self.spectra[self.spectra.activeID].fits[ID]
             fit.fitter.SetPeakModel(peakmodel)
             fit.Refresh()
         # Update fit panel
@@ -681,7 +681,7 @@ class TvFitInterface:
                 hdtv.ui.error("No spectrum " + str(sid))
                 continue
             
-            result_header = "Fits in Spectrum " + str(sid) + " (" + str(spec) + ")" + hdtv.ui.linesep
+            result_header = "Fits in Spectrum " + str(sid) + " (" + str(spec) + ")" + "\n"
             count_fits = 0
             count_peaks = 0
             
@@ -697,17 +697,17 @@ class TvFitInterface:
     
             objects = list()
             
-            if len(spec) == 0:
+            if len(spec.fits) == 0:
                 hdtv.ui.newline()
                 hdtv.ui.msg("Spectrum " + str(sid) + " (" + str(spec) + "): No fits")                
                 hdtv.ui.newline()
                 continue
             
             # Get fits
-            for (ID, obj) in spec.iteritems():
+            for (ID, obj) in spec.fits.iteritems():
                 
                 if options.visible: # Don't print on visible fits
-                    if not ID in spec.visible:
+                    if not ID in spec.fits.visible:
                         continue
                     
                 count_fits += 1
@@ -737,7 +737,7 @@ class TvFitInterface:
                             
                     objects.append(thispeak)
             
-            result_footer = hdtv.ui.linesep + str(count_peaks) + " peaks in " + str(count_fits) + " fits."
+            result_footer = "\n" + str(count_peaks) + " peaks in " + str(count_fits) + " fits."
             
             try:
                 table = hdtv.util.Table(objects, params, sortBy=key, reverseSort=options.reverse_sort,
@@ -758,8 +758,8 @@ class TvFitInterface:
         if len(sids)>0:
             for s in sids:
                 spec = self.spectra[s]
-                ids = hdtv.cmdhelper.ParseIds(args, spec)
-                spec.RemoveObjects(ids)
+                ids = hdtv.cmdhelper.ParseIds(args, spec.fits)
+                spec.fits.RemoveObjects(ids)
         else:
             hdtv.ui.warn("Nothing to do (No spectra chosen or active)")
             return
@@ -784,14 +784,14 @@ class TvFitInterface:
             except KeyError:
                 hdtv.msg.error("No spectrum " + str(sid))
                 continue
-            fids = hdtv.cmdhelper.ParseFitIds(args, spec)
-            if len(fids) > 0:
+            fitIDs = hdtv.cmdhelper.ParseFitIds(args, spec.fits)
+            if len(fitIDs) > 0:
                 if inverse:
-                    spec.HideObjects(fids)
+                    spec.fits.HideObjects(fitIDs)
                 else:
-                    self.fitIf.ShowFits(fids, specID = sid, adjustViewport=options.adjust_viewport)
+                    self.fitIf.ShowFits(fitIDs, specID = sid, adjustViewport=options.adjust_viewport)
             else:
-                spec.HideAll()
+                spec.fits.HideAll()
 
     def FitPrint(self, args, options):
         """
@@ -801,7 +801,7 @@ class TvFitInterface:
             hdtv.ui.warn("No active spectrum, no action taken.")
             return
         spec = self.spectra[self.spectra.activeID]
-        ids = hdtv.cmdhelper.ParseFitIds(args, spec)
+        ids = hdtv.cmdhelper.ParseFitIds(args, spec.fits)
         for ID in ids:
             hdtv.ui.msg("Fit %d:" % ID + str(spec[ID].formatted_str(verbose=True)))
 
@@ -821,7 +821,7 @@ class TvFitInterface:
             hdtv.ui.error("There are no fits for this spectrum")
             return
 
-        ID = hdtv.cmdhelper.ParseFitIds(args, spec)
+        ID = hdtv.cmdhelper.ParseFitIds(args, spec.fits)
         
         if len(ID) == 1:
             hdtv.ui.msg("Activating fit %s" %ID[0])
@@ -845,7 +845,7 @@ class TvFitInterface:
                 
         if len(args) == 0:
             args = ["active"]
-        ids = hdtv.cmdhelper.ParseFitIds(args, self.spectra[self.spectra.activeID])
+        ids = hdtv.cmdhelper.ParseFitIds(args, self.spectra[self.spectra.activeID].fits)
         
         if len(ids) > 0:
             self.fitIf.FocusFits(ids)
@@ -893,7 +893,7 @@ class TvFitInterface:
                     hdtv.ui.warn("No active spectrum, no action taken.")
                     return
                 spec = self.spectra[self.spectra.activeID]
-                ids = hdtv.cmdhelper.ParseFitIds(options.fit, spec)
+                ids = hdtv.cmdhelper.ParseFitIds(options.fit, spec.fits)
             self.fitIf.SetPeakModel(name, options.default, ids)
 
     def PeakModelCompleter(self, text, args=None):
@@ -922,7 +922,7 @@ class TvFitInterface:
                 hdtv.ui.warn("No active spectrum, no action taken.")
                 return
             spec = self.spectra[self.spectra.activeID]
-            ids = hdtv.cmdhelper.ParseFitIds(options.fit, spec)
+            ids = hdtv.cmdhelper.ParseFitIds(options.fit, spec.fits)
         if param=="status":
             self.fitIf.ShowFitStatus(options.default, ids)
         elif param == "reset":
@@ -1004,9 +1004,9 @@ class TvFitInterface:
                 if len(fitID) > 2:
                     raise ValueError
                 elif len(fitID) == 2:
-                    channel = spec[int(fitID[0])].peakMarkers[int(fitID[1])].p1
+                    channel = spec.fits[int(fitID[0])].peakMarkers[int(fitID[1])].p1
                 else:
-                    channel = spec[int(fitID[0])].peakMarkers[0].p1
+                    channel = spec.fits[int(fitID[0])].peakMarkers[0].p1
                 channel = spec.cal.E2Ch(channel)
                 channels.append(channel)
                 # parse energy

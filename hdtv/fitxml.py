@@ -72,7 +72,7 @@ class FitXml:
                 polynom += " %f "%p
             specElement.set("calibration", polynom.strip())
             # add fitElements
-            for fit in spec.itervalues():
+            for fit in spec.fits.itervalues():
                 specElement.append(self.Fit2Xml(fit))
         self.indent(root)
         return root
@@ -264,7 +264,7 @@ class FitXml:
                 ** <region>     -> <regionMarker>
                 ** <peak>       -> <peakMarker>
                 ** <result>     -> <peak>
-            * new node for the background polynome <background>
+            * new node for the background polynomial <background>
             * saved chisquare of the fits
             * calibrated and uncalibrated values for each peak parameter
         """
@@ -305,7 +305,7 @@ class FitXml:
                 if success:
                     try:
                         fit.Restore(spec, silent=True)
-                        ID = spec.Add(fit)
+                        ID = spec.fits.Add(fit)
                         fit.SetTitle(str(ID))
                     except TypeError:
                         success = False
@@ -320,7 +320,7 @@ class FitXml:
                         if do_fit in ["Y", "y", "", "A", "a"]:
                             spec.viewport.UnlockUpdate()
                             fit.FitPeakFunc(spec)
-                            ID = spec.Add(fit)
+                            ID = spec.fits.Add(fit)
                             fit.Focus()
                             fit.SetTitle(str(ID))
                             spec.viewport.LockUpdate()
@@ -579,7 +579,7 @@ class FitXml:
                     fit.PutPeakMarker(fit.cal.Ch2E(pos))
                 if do_fit:
                     fit.FitPeakFunc(spec)
-                spec.Add(fit)
+                spec.fits.Add(fit)
             return count
                 
 
