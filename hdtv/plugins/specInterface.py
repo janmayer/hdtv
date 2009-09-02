@@ -214,7 +214,7 @@ class SpecInterface:
         spec = Spectrum(hist, cal=self.spectra[ID].cal) 
         sid = self.spectra.Insert(spec, copyTo)
         spec.color = hdtv.color.ColorForID(sid)
-        hdtv.ui.msg("Copied spectrum", ID, "to", sid)
+        hdtv.ui.msg("Copied spectrum " + str(ID) + " to " + str(sid))
             
     
     def GetCalsFromList(self, fname):
