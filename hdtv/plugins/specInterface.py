@@ -30,7 +30,7 @@ import hdtv.cal
 import hdtv.util
 import hdtv.ui
  
-from hdtv.spectrum import Spectrum, FileSpectrum, SpectrumCompound
+from hdtv.spectrum import Spectrum, FileSpectrum
 from hdtv.specreader import SpecReaderError
 from copy import copy
 
@@ -160,9 +160,8 @@ class SpecInterface:
             
             for fname in files:
                 try:
-                    #fspec = FileSpectrum(fname, fmt)
                     # Create spectrum compund
-                    spec = SpectrumCompound(self.spectra.viewport, fname, fmt)
+                    spec = FileSpectrum(fname, fmt)
                 except (OSError, SpecReaderError):
                     hdtv.ui.warn("Could not load %s'%s" % (fname, fmt))
                 else:
@@ -212,8 +211,7 @@ class SpecInterface:
         hdtv.ui.debug("Copy spec " + str(ID) + " to " + str(copyTo), level=2)
         hist = copy(self.spectra[ID].fHist)
 
-        spec = Spectrum(hist, cal=self.spectra[ID].cal)
-        spec = SpectrumCompound(self.spectra[ID].viewport, spec)        
+        spec = Spectrum(hist, cal=self.spectra[ID].cal) 
         sid = self.spectra.Insert(spec, copyTo)
         spec.color = hdtv.color.ColorForID(sid)
         hdtv.ui.msg("Copied spectrum", ID, "to", sid)

@@ -28,7 +28,6 @@ import hdtv.cmdline
 import hdtv.fitter
 import hdtv.peakmodels
 import hdtv.options
-from hdtv.spectrum import SpectrumCompound
 import ROOT
 
 class PeakFinder:

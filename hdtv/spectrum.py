@@ -28,7 +28,7 @@ from hdtv.specreader import SpecReader, SpecReaderError
 
 hdtv.dlmgr.LoadLibrary("display")
 
-class Spectrum(Drawable):
+class _RawSpectrum(Drawable):
     """
     Spectrum object
     
@@ -49,6 +49,7 @@ class Spectrum(Drawable):
         self.norm = 1.0
         self.fHist = hist
         self.fEffCal = None
+        self.viewport = None
         Drawable.__init__(self, color, cal)
         
         
@@ -132,7 +133,7 @@ class Spectrum(Drawable):
         """
         Draw this spectrum to the viewport
         """
-        if self.viewport:
+        if not self.viewport is None:
             if self.viewport == viewport:
                 # this spectrum has already been drawn
                 self.Show()
@@ -219,6 +220,111 @@ class Spectrum(Drawable):
             self.displayObj.ToBottom()
 
 
+class Spectrum(_RawSpectrum, DrawableCompound):
+    """ 
+    This CompoundObject is a dictionary of Fits belonging to a spectrum.
+    """
+    def __init__(self, hist, color=hdtv.color.default, cal=None):
+
+        _RawSpectrum.__init__(self, hist, color=color, cal=cal)
+        DrawableCompound.__init__(self)
+        
+    def __setitem__(self, ID, fit):
+        """
+        Add a fit to this spectrum with ID
+        """
+        # as marker positions are uncalibrated, 
+        # we need do a recalibration here
+        fit.Recalibrate(self.cal)
+        fit.color = self.color
+        DrawableCompound.__setitem__(self, ID, fit)
+
+    # cal property
+    def _set_cal(self, cal):
+        _RawSpectrum._set_cal(self, cal)
+        for fit in self.itervalues():
+            fit.cal = cal
+        
+    def _get_cal(self):
+        return _RawSpectrum._get_cal(self)
+        
+    cal = property(_get_cal, _set_cal)
+    
+    
+    # color property
+    def _set_color(self,color):
+        _RawSpectrum._set_color(self, color)
+        for fit in self.itervalues():
+            fit.color = color
+
+    def _get_color(self):
+        return _RawSpectrum._get_color(self)
+
+    color = property(_get_color, _set_color)
+    
+        
+    def Refresh(self):
+        """
+        Refresh spectrum and fits
+        """
+        _RawSpectrum.Refresh(self)
+        DrawableCompound.Refresh(self)
+        
+        
+    def Draw(self, viewport):
+        """
+        Draw spectrum and fits
+        """
+        _RawSpectrum.Draw(self,viewport)
+        DrawableCompound.Draw(self,viewport)
+        
+    
+    # Show commands
+    def Show(self):
+        """
+        Show the spectrum and all fits that are marked as visible
+        """
+        _RawSpectrum.Show(self)
+        # only show objects that have been visible before
+        for ID in list(self.visible):
+            self[ID].Show()
+
+    def ShowAll(self):
+        """
+        Show spectrum and all fits
+        """
+        _RawSpectrum.Show(self)
+        DrawableCompound.ShowAll(self)
+        
+    # Remove commands
+    def Remove(self):
+        """
+        Remove spectrum and fits
+        """
+        _RawSpectrum.Remove(self)
+        DrawableCompound.Remove(self)
+        
+    
+    # Hide commands
+    def Hide(self):
+        """
+        Hide the whole object,
+        but remember which fits were visible
+        """
+        # hide the spectrum itself
+        _RawSpectrum.Hide(self)
+        # Hide all fits, but remember what was visible
+        visible = self.visible.copy()
+        DrawableCompound.Hide(self)
+        self.visible = visible
+
+    def HideAll(self):
+        """
+        Hide only the fits
+        """
+        DrawableCompound.HideAll(self)
+
+
         
 class FileSpectrum(Spectrum):
     """
@@ -280,109 +386,3 @@ class FileSpectrum(Spectrum):
             return
         self.SetHist(hist)
         
-
-class SpectrumCompound(FileSpectrum, DrawableCompound):
-    """ 
-    This CompoundObject is a dictionary of Fits belonging to a spectrum.
-    """
-    def __init__(self, viewport, fname, fmt=None, color=hdtv.color.default, cal=None):
-        FileSpectrum.__init__(self, fname, fmt=None, color=color, cal=cal)
-        DrawableCompound.__init__(self)
-        
-    def __setitem__(self, ID, fit):
-        """
-        Add a fit to this spectrum with ID
-        """
-        # as marker positions are uncalibrated, 
-        # we need do a recalibration here
-        fit.Recalibrate(self.cal)
-        fit.color = self.color
-        DrawableCompound.__setitem__(self, ID, fit)
-
-    # cal property
-    def _set_cal(self, cal):
-        Spectrum._set_cal(self, cal)
-        for fit in self.itervalues():
-            fit.cal = cal
-        
-    def _get_cal(self):
-        return Spectrum._get_cal(self)
-        
-    cal = property(_get_cal, _set_cal)
-    
-    
-    # color property
-    def _set_color(self,color):
-        Spectrum._set_color(self, color)
-        for fit in self.itervalues():
-            fit.color = color
-
-    def _get_color(self):
-        return Spectrum._get_color(self)
-
-    color = property(_get_color, _set_color)
-    
-        
-    def Refresh(self):
-        """
-        Refresh spectrum and fits
-        """
-        Spectrum.Refresh(self)
-        DrawableCompound.Refresh(self)
-        
-        
-    def Draw(self, viewport):
-        """
-        Draw spectrum and fits
-        """
-        Spectrum.Draw(self,viewport)
-        DrawableCompound.Draw(self,viewport)
-        
-    
-    # Show commands
-    def Show(self):
-        """
-        Show the spectrum and all fits that are marked as visible
-        """
-        Spectrum.Show(self)
-        # only show objects that have been visible before
-        for ID in list(self.visible):
-            self[ID].Show()
-
-    def ShowAll(self):
-        """
-        Show spectrum and all fits
-        """
-        Spectrum.Show(self)
-        DrawableCompound.ShowAll(self)
-        
-    # Remove commands
-    def Remove(self):
-        """
-        Remove spectrum and fits
-        """
-        Spectrum.Remove(self)
-        DrawableCompound.Remove(self)
-        
-    
-    # Hide commands
-    def Hide(self):
-        """
-        Hide the whole object,
-        but remember which fits were visible
-        """
-        # hide the spectrum itself
-        Spectrum.Hide(self)
-        # Hide all fits, but remember what was visible
-        visible = self.visible.copy()
-        DrawableCompound.Hide(self)
-        self.visible = visible
-
-    def HideAll(self):
-        """
-        Hide only the fits
-        """
-        DrawableCompound.HideAll(self)
-
-
-
