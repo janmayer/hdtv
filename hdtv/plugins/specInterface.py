@@ -740,6 +740,10 @@ to only fit the calibration.""",
             degree = int(options.degree)
         except ValueError:
             return "USAGE"
+        except IOError, msg:
+            hdtv.ui.error(str(msg))
+            return False
+        
         try:
             cal = hdtv.cal.CalFromPairs(pairs, degree, options.show_table, 
                                         options.draw_fit, options.draw_residual)
