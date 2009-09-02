@@ -44,7 +44,7 @@ class WiedenhoeverEff(_Efficiency):
         self._dEff_dP[1] = lambda E, fPars: self.norm * (-self.value(E)) * math.log(E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E)) # dEff/db
         self._dEff_dP[2] = lambda E, fPars: self.norm * self.value(E) * fPars[1] / (E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E))  # dEff/dc
         self._dEff_dP[3] = lambda E, fPars: self.norm * (-self.value(E)) * fPars[1] / (E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E)) * math.exp(-fPars[4] * E) # dEff/dd 
-        self._dEff_dP[4] = lambda E, fPars: self.norm * self.value(E) * fPars[1] / (E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E)) * fPars[3] * math.exp(-fPars[4] * E) * fPars[4] # dEff/de
+        self._dEff_dP[4] = lambda E, fPars: self.norm * self.value(E) * fPars[1] / (E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E)) * fPars[3] * math.exp(-fPars[4] * E) * E # dEff/de
         	
     # Compatibility functions for old code
     def eff(self, E):
