@@ -49,7 +49,7 @@ class _RawSpectrum(Drawable):
         self.norm = 1.0
         self.fHist = hist
         self.fEffCal = None
-        self.viewport = None
+
         Drawable.__init__(self, color, cal)
         
         
