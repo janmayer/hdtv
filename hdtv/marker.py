@@ -338,9 +338,8 @@ class MarkerCollection(list):
         """
         if self.viewport != None:
             self.viewport.LockUpdate()
-        for m in self:
-            m.Remove()
-            self.remove(m)
+        while self:
+            self.pop().Remove()
         if self.viewport != None:
             self.viewport.UnlockUpdate()
         

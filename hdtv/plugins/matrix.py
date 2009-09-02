@@ -93,7 +93,7 @@ class MFMatrix(Matrix):
         if result != ROOT.MFileHist.ERR_SUCCESS:
             raise SpecReaderError, mhist.GetErrorMsg()
 
-        self.vmat = ROOT.VMatrix(self.mhist, 0)
+        self.vmat = ROOT.MFMatrix(self.mhist, 0)
         
         # Load the projection (FIXME)
         mhist_pry = ROOT.MFileHist()
@@ -210,7 +210,7 @@ class MatrixInterface:
             
         cut = matrix.Cut()
         cutid = self.spectra.Add(cut)
-        cut.SetColor(hdtv.color.ColorForID(cutid))
+        cut.color = hdtv.color.ColorForID(cutid)
         self.spectra.ActivateObject(cutid)
         
         # Remove cut markers
@@ -235,13 +235,13 @@ class MatrixInterface:
 
         try:
             fname = os.path.expanduser(fname)
-            spec = Matrix(fname, fmt)
+            spec = MFMatrix(fname, fmt)
         except (OSError, SpecReaderError):
             print "Error: failed to open matrix %s" % args[0]
             return False
         
         sid = self.spectra.Add(spec)
-        spec.SetColor(hdtv.color.ColorForID(sid))
+        spec.color = hdtv.color.ColorForID(sid)
         self.spectra.ActivateObject(sid)
         self.window.Expand()
         
