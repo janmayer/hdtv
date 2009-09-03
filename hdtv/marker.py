@@ -33,7 +33,7 @@ class Marker(Drawable):
     possible to have markers that consist of a single marker, then the second 
     possition is None.
     """
-    def __init__(self, xytype, p1, color=hdtv.color.zoom, cal=None, connecttop=True):
+    def __init__(self, xytype, p1, color=hdtv.color.zoom, cal=None, connecttop=True, hasID=False):
         # do not call Drawable.__init__ as that results in conflicts in _set_cal
         self.viewport = None
         self.parent = None
@@ -42,7 +42,7 @@ class Marker(Drawable):
         self.connecttop = connecttop
         self.p1 = p1
         self.p2 = None
-        self.title = ""
+        self.hasID = hasID
         # active color is set here and should not be changed afterwards
         self._activeColor = color
         self.color = color
@@ -88,7 +88,22 @@ class Marker(Drawable):
             return '%s marker at %s and %s' %(self.xytype, self.p1, self.p2)
         else:
             return '%s marker at %s' %(self.xytype, self.p1)
+    
+    @property
+    def title(self):
+        title = str()
         
+        if self.hasID:
+            if self.parent is not None:
+                title = self.parent.title
+            
+            title += str(self.parent.index(self)) 
+        
+        else:
+            title = ""
+            
+        return title
+    
     def Draw(self, viewport):
         """ 
         Draw the marker
@@ -122,8 +137,8 @@ class Marker(Drawable):
             self.displayObj = constructor(n, p1, p2, self._activeColor)
         else:
             self.displayObj = constructor(n, p1, p2, self._passiveColor)
-        if self.title != "":
-            self.displayObj.SetTitle(self.title)
+        if self.hasID:
+            self.ShowTitle()
         if self.xytype=="X":
             # calibration makes only sense on the X axis
             self.displayObj.SetCal(self._cal)
@@ -157,6 +172,9 @@ class Marker(Drawable):
                 self.displayObj.SetColor(self._activeColor)
             else:
                 self.displayObj.SetColor(self._passiveColor)
+            
+            if self.hasID:
+                self.ShowTitle()
 
     def Copy(self, cal=None):
         """
@@ -179,17 +197,16 @@ class Marker(Drawable):
         self.Refresh()
 
 
-    def SetTitle(self, title):
+    def ShowTitle(self):
         """
-        Set the title of the marker (a string to be displayed aside it)
+        Show the title of the marker (a string to be displayed aside it)
         """
-        self.title = title
         if self.displayObj:
             self.displayObj.SetTitle(self.title)
 
 
 class MarkerCollection(list):
-    def __init__(self, xytype, paired=False, maxnum=None, color=None, cal=None, connecttop=True):
+    def __init__(self, xytype, paired=False, maxnum=None, color=None, cal=None, connecttop=True, hasIDs=False):
         list.__init__(self)
         self.viewport = None
         self.parent = None
@@ -199,7 +216,8 @@ class MarkerCollection(list):
         self.connecttop = connecttop
         self.cal = cal
         self._activeColor = color
-        
+        self.hasIDs = hasIDs
+
     def __setitem__(self, m):
         m.parent = self
         list.__set_item__(self,m)
@@ -208,6 +226,17 @@ class MarkerCollection(list):
         m.parent = self
         list.append(self,m)
 
+    @property
+    def title(self):
+        if self.hasIDs:
+            if not self.parent is None and not self.parent.title is None:
+                title = self.parent.title + "."
+            else:
+                title = "."
+        else:
+            title = ""
+        return title
+        
     # color
     def _set_color(self, color):
         # active color is given at creation and should not change
@@ -272,7 +301,6 @@ class MarkerCollection(list):
     def Refresh(self):
         for marker in self:
             marker.Refresh()
-        
 
     def Recalibrate(self, cal):
         """
@@ -289,10 +317,10 @@ class MarkerCollection(list):
         Put a marker to position pos, possibly completing a marker pair
         """
         if not self.paired:
-            m = Marker(self.xytype, pos, self.color, self.cal, self.connecttop)
+            m = Marker(self.xytype, pos, self.color, self.cal, self.connecttop, hasID = self.hasIDs)
+            self.append(m)
             if self.viewport:
                 m.Draw(self.viewport)
-            self.append(m)
         else:
             if len(self)>0 and self[-1].p2==None:
                 pending = self[-1]
@@ -306,7 +334,7 @@ class MarkerCollection(list):
                 self.append(pending)
             else:
                 pending = Marker(self.xytype, pos, self._activeColor, self.cal,\
-                                 self.connecttop)
+                                 self.connecttop, hasID = self.hasIDs)
                 if self.viewport:
                     pending.Draw(self.viewport)
                 self.append(pending)
@@ -364,6 +392,7 @@ class MarkerCollection(list):
         nearest = index[min(index.keys())]
         nearest.Remove()
         self.remove(nearest)
+        self.Refresh()
         
     
 

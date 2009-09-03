@@ -50,7 +50,7 @@ class Fit(Drawable):
                                              color=hdtv.color.region, cal=cal)
         self.regionMarkers.parent = self
         self.peakMarkers = MarkerCollection("X", paired=False, maxnum=None,
-                                             color=hdtv.color.peak, cal=cal)
+                                             color=hdtv.color.peak, cal=cal, hasIDs=True)
         self.peakMarkers.parent = self
         self.bgMarkers = MarkerCollection("X", paired=True, maxnum=None,
                                              color=hdtv.color.bg, cal=cal)
@@ -63,7 +63,16 @@ class Fit(Drawable):
         self.showDecomp = False
         self.dispPeakFunc = None
         self.dispBgFunc = None
+        self._title = None
         Drawable.__init__(self, color, cal)
+    
+    def _get_title(self):
+        return self._title
+    
+    def _set_title(self, title):
+        self._title = "#" + str(title)
+        
+    title = property(_get_title, _set_title)
     
     # calibration
     def _set_cal(self, cal):
@@ -86,7 +95,7 @@ class Fit(Drawable):
         return self._cal
         
     cal = property(_get_cal,_set_cal)
-
+    
     # color
     def _set_color(self, color):
         self._activeColor = hdtv.color.Highlight(color, active=True)
@@ -165,8 +174,7 @@ class Fit(Drawable):
         for peak in self.peaks:
             peak.Remove()
         self.peakMarkers.PutMarker(pos)
-        
-    
+
     def PutRegionMarker(self, pos):
         if self.dispPeakFunc:
             self.dispPeakFunc.Remove()
@@ -459,20 +467,6 @@ class Fit(Drawable):
         self.bgChi = None
         self.peaks = []
         self.chi = None
-
-
-    def SetTitle(self, ID):
-        """
-        Set title of fit and display it near peak markers
-        """
-        if self.viewport:
-            self.viewport.LockUpdate()
-        
-        for p in self.peakMarkers:
-            p.SetTitle("#" + ID)
-        
-        if self.viewport:
-            self.viewport.UnlockUpdate()
 
 
     def Recalibrate(self, cal):
