@@ -306,7 +306,8 @@ class FitXml:
                     try:
                         fit.Restore(spec, silent=True)
                         ID = spec.fits.Add(fit)
-                        fit.SetTitle(str(ID))
+                        fit.title = str(ID)
+                        fit.peakMarkers.Refresh()
                     except TypeError:
                         success = False
                 # deal with failure
@@ -321,8 +322,9 @@ class FitXml:
                             spec.viewport.UnlockUpdate()
                             fit.FitPeakFunc(spec)
                             ID = spec.fits.Add(fit)
+                            fit.title = str(ID)
+                            fit.peakMarkers.Refresh()
                             fit.Focus()
-                            fit.SetTitle(str(ID))
                             spec.viewport.LockUpdate()
                 # finish this fit
                 if not sid in self.spectra.visible:
