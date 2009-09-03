@@ -585,7 +585,7 @@ class TvSpecInterface:
             ID = ids[0]
             name = args[1]
         
-        self.spectra[ID].spec.name = name
+        self.spectra[ID].name = name
         hdtv.ui.msg("Renamed spectrum %d to \'%s\'" % (ID, name))
     
     def SpectrumNormalization(self, args):
