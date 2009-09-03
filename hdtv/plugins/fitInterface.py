@@ -237,8 +237,8 @@ class FitInterface:
         # Active objects should always be visible
         assert self.spectra.activeID in self.spectra.visible, "Active spectrum not visible"
         # deal with former activated fit
-        if not spec.activeID==None:
-            hdtv.ui.msg("Save fit %d while deactivating it" %spec.activeID)
+        if not spec.fits.activeID == None:
+            hdtv.ui.msg("Save fit %d while deactivating it" %spec.fits.activeID)
             # try to store current status of deactivated fit
             # this will also do garbage collection if needed
             self.StoreFit()
@@ -819,8 +819,8 @@ class TvFitInterface:
             return
         
         spec = self.spectra[self.spectra.activeID]
-        
-        if not hasattr(spec, "activeID"):
+
+        if len(spec.fits) == 0:
             hdtv.ui.error("There are no fits for this spectrum")
             return
 
