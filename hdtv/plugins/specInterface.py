@@ -215,52 +215,7 @@ class SpecInterface:
         sid = self.spectra.Insert(spec, copyTo)
         spec.color = hdtv.color.ColorForID(sid)
         hdtv.ui.msg("Copied spectrum " + str(ID) + " to " + str(sid))
-            
-    
-    def GetCalsFromList(self, fname):
-        """
-        Reads calibrations from a calibration list file. The file has the format
-        <specname>: <cal0> <cal1> ...
-        The calibrations are written into the calibration dictionary.
-        """
-        fname = os.path.expanduser(fname)
-        try:
-            f = open(fname, "r")
-        except IOError, msg:
-            hdtv.ui.error("Error opening file: %s" % msg)
-            return False
-        linenum = 0
-        for l in f:
-            linenum += 1
-            # Remove comments and whitespace; ignore empty lines
-            l = l.split('#', 1)[0].strip()
-            if l == "":
-                continue
-            try:
-                (k, v) = l.split(':', 1)
-                name = k.strip()
-                coeff = [ float(s) for s in v.split() ]
-                self.caldict[name] = coeff
-            except ValueError:
-                hdtv.ui.warn("Could not parse line %d of file %s: ignored." % (linenum, fname))
-            else:
-                spec = self.FindSpectrumByName(name)
-                if not spec is None:
-                    spec.cal = self.caldict[name]
-        f.close()
-        return True
-    
-    def ApplyCalibration(self, cal, ids):
-        """
-        Apply calibration cal to spectra with ids
-        """
-        for ID in ids:
-            try:
-                self.spectra[ID].cal = cal
-                hdtv.ui.msg("Calibrated spectrum with id %d" %ID)
-            except KeyError:
-                hdtv.ui.warn("There is no spectrum with id: %s" %ID)
-#        self.window.Expand()
+
 
 class TvSpecInterface:
     """
@@ -335,48 +290,6 @@ class TvSpecInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage="%prog [id] <name>")
         hdtv.cmdline.AddCommand(prog, self.SpectrumName, level = 2, fileargs = False, parser=parser)
 
-        # calibration commands
-        parser = hdtv.cmdline.HDTVOptionParser(prog="calibration position read",
-                                               usage="%prog [OPTIONS] <filename>")
-        parser.add_option("-s", "--spec", action="store",
-                          default="all", help="spectrum ids to apply calibration to")
-        hdtv.cmdline.AddCommand("calibration position read", self.CalPosRead, level = 0, nargs=1,
-                                fileargs=True, parser=parser)
-        
-        
-        parser = hdtv.cmdline.HDTVOptionParser(prog="calibration position enter",
-                     description=
-"""Fit a calibration polynomial to the energy/channel pairs given.
-Hint: specifying degree=0 will fix the linear term at 1. Specify spec=None
-to only fit the calibration.""",
-                     usage="%prog [OPTIONS] <ch0> <E0> [<ch1> <E1> ...]")
-        parser.add_option("-s", "--spec", action="store",
-                          default="all", help="spectrum ids to apply calibration to")
-        parser.add_option("-d", "--degree", action="store",
-                          default="1", help="degree of calibration polynomial fitted [default: %default]")
-        parser.add_option("-D", "--draw-fit", action="store_true",
-                          default=False, help="draw fit used to obtain calibration")
-        parser.add_option("-r", "--draw-residual", action="store_true",
-                          default=False, help="show residual of calibration fit")
-        parser.add_option("-t", "--show-table", action="store_true",
-                          default=False, help="print table of energies given and energies obtained from fit")
-        parser.add_option("-f", "--file", action="store", 
-                          default = None, help="get channel<->energy pairs from file")
-        hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, level = 0,
-                                minargs=0, parser=parser, fileargs=True)
-        
-        parser = hdtv.cmdline.HDTVOptionParser(prog="calibration position set",
-                                               usage="%prog [OPTIONS] <p0> <p1> [<p2> ...]")
-        parser.add_option("-s", "--spec", action="store",
-                          default="all", help="spectrum ids to apply calibration to")
-        hdtv.cmdline.AddCommand("calibration position set", self.CalPosSet, level = 0,
-                                minargs=2, parser=parser)
-        
-        
-        hdtv.cmdline.AddCommand("calibration position getlist", self.CalPosGetlist, nargs=1,
-                                fileargs=True,
-                                usage="%prog <filename>", level=0)
-
     
     def SpectrumList(self, args, options):
         """
@@ -411,7 +324,6 @@ to only fit the calibration.""",
             return
         self.spectra.RemoveObjects(ids)
 
-        
 
     def SpectrumActivate(self, args):
         """
@@ -696,87 +608,6 @@ to only fit the calibration.""",
                 self.spectra[ID].SetNorm(norm)
             except KeyError:
                 hdtv.ui.error("There is no spectrum with id: %s" % ID)
-
-    def CalPosRead(self, args, options):
-        """
-        Read calibration from file
-        """
-        try:
-            ids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
-            fname = args[0]
-        except (ValueError, IndexError):
-            return "USAGE"
-            
-        if len(ids) == 0:
-            hdtv.ui.warn("Nothing to do")
-            return
-        
-        # Load calibration
-        cal = hdtv.cal.CalFromFile(fname)
-        self.specIf.ApplyCalibration(cal, ids)        
-        return True
-            
-        
-    def CalPosEnter(self, args, options):
-        """
-        Create calibration from pairs of channel and energy
-        """
-        try:
-            pairs = hdtv.util.Pairs(hdtv.util.ErrValue)
-            if not options.file is None: # Read from file     
-                pairs.fromFile(options.file)
-            else:
-                if len(args) % 2 != 0: # Read from command line
-                    hdtv.ui.error("Number of parameters must be even")
-                    return "USAGE"
-                for p in range(0,len(args),2):
-                    pairs.add(args[p], args[p+1])
-            ids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
-            if len(ids) == 0:
-                hdtv.ui.warn("Nothing to do")
-                return
-            degree = int(options.degree)
-        except ValueError:
-            return "USAGE"
-        except IOError, msg:
-            hdtv.ui.error(str(msg))
-            return False
-        
-        try:
-            cal = hdtv.cal.CalFromPairs(pairs, degree, options.show_table, 
-                                        options.draw_fit, options.draw_residual)
-        except (ValueError, RuntimeError), msg:
-            hdtv.ui.error(str(msg))
-            return False
-        else:
-            self.specIf.ApplyCalibration(cal, ids)            
-            return True
-
-
-    def CalPosSet(self, args, options):
-        """
-        Create calibration from the coefficients p of a polynomial
-        n is the degree of the polynomial
-        """
-        try:
-            cal = [float(i) for i in args]
-            ids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
-        except ValueError:
-            return "USAGE"
-        
-        if len(ids) == 0:
-            hdtv.ui.warn("Nothing to do")
-            return
-        
-        self.specIf.ApplyCalibration(cal, ids)
-        return True
-
-        
-    def CalPosGetlist(self, args):
-        """
-        Read calibrations for several spectra from file
-        """
-        self.specIf.GetCalsFromList(args[0])
 
 
 # plugin initialisation
