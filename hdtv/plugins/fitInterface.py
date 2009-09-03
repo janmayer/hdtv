@@ -806,7 +806,7 @@ class TvFitInterface:
         spec = self.spectra[self.spectra.activeID]
         ids = hdtv.cmdhelper.ParseFitIds(args, spec.fits)
         for ID in ids:
-            hdtv.ui.msg("Fit %d:" % ID + str(spec[ID].formatted_str(verbose=True)))
+            hdtv.ui.msg("Fit %d:" % ID + str(spec.fits[ID].formatted_str(verbose=True)))
 
 
     def FitActivate(self, args, options):
