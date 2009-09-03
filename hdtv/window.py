@@ -257,7 +257,7 @@ class Window(KeyHandler):
 
         hdtv.options.RegisterOption("display.YMinVisibleRegion", opt)
         
-        prog = "window center"
+        prog = "window view center"
         description = "center window to position"
         usage="%prog <pos>"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
@@ -265,11 +265,35 @@ class Window(KeyHandler):
         hdtv.cmdline.AddCommand(prog, self.GoToPosition, nargs=1,parser=parser)
         
         
+        prog = "window view region"
+        description = "show region in window"
+        usage="%prog <start> <end>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.ViewRegion, nargs=2,parser=parser)
+        
+        
 
     def YMinVisibleRegionChanged(self, opt):
         self.viewport.SetYMinVisibleRegion(opt.Get())
     
     
+    def ViewRegion(self, args, options):
+        
+        if len(args) != 2:
+            return "USAGE"
+        
+        try:
+            start = float(args[0])
+            end = float(args[1])
+        except ValueError:
+            return "USAGE"
+
+        width = abs(end - start)
+        center = start + width / 2.
+        
+        self.viewport.SetXVisibleRegion(width)
+        self.viewport.SetXCenter(center)
+        
     def GoToPosition(self, arg, options=None):
         
         try:
