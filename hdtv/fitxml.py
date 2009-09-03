@@ -307,7 +307,6 @@ class FitXml:
                         fit.Restore(spec, silent=True)
                         ID = spec.fits.Add(fit)
                         fit.title = str(ID)
-                        fit.peakMarkers.Refresh()
                     except TypeError:
                         success = False
                 # deal with failure
@@ -323,7 +322,6 @@ class FitXml:
                             fit.FitPeakFunc(spec)
                             ID = spec.fits.Add(fit)
                             fit.title = str(ID)
-                            fit.peakMarkers.Refresh()
                             fit.Focus()
                             spec.viewport.LockUpdate()
                 # finish this fit

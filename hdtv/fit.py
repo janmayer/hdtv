@@ -71,6 +71,7 @@ class Fit(Drawable):
     
     def _set_title(self, title):
         self._title = "#" + str(title)
+        self.peakMarkers.Refresh()
         
     title = property(_get_title, _set_title)
     
