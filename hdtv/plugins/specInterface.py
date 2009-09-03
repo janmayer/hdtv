@@ -608,7 +608,7 @@ to only fit the calibration.""",
                 continue
             s += "Spectrum %d:\n" % ID
             s += hdtv.cmdhelper.Indent(spec.GetInfo(), "  ")
-            s += hdtv.ui.linesep
+            s += "\n"
 
         hdtv.ui.msg(s, newline=False)
 	

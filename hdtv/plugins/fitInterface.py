@@ -681,7 +681,7 @@ class TvFitInterface:
                 hdtv.ui.error("No spectrum " + str(sid))
                 continue
             
-            result_header = "Fits in Spectrum " + str(sid) + " (" + str(spec) + ")" + hdtv.ui.linesep
+            result_header = "Fits in Spectrum " + str(sid) + " (" + str(spec) + ")" + "\n"
             count_fits = 0
             count_peaks = 0
             
@@ -737,7 +737,7 @@ class TvFitInterface:
                             
                     objects.append(thispeak)
             
-            result_footer = hdtv.ui.linesep + str(count_peaks) + " peaks in " + str(count_fits) + " fits."
+            result_footer = "\n" + str(count_peaks) + " peaks in " + str(count_fits) + " fits."
             
             try:
                 table = hdtv.util.Table(objects, params, sortBy=key, reverseSort=options.reverse_sort,
