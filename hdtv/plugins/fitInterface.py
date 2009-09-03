@@ -216,7 +216,7 @@ class FitInterface:
         # rely on ActivateFit and StoreFit to do garbage collection 
         if spec.fits.activeID == None: 
             ID = spec.fits.Add(fit) 
-            fit.SetTitle(str(ID))
+            fit.title = str(ID)
             self.activeFit = None 
             spec.fits.ActivateObject(ID)
         fit.Draw(self.window.viewport)
@@ -317,6 +317,9 @@ class FitInterface:
         Clear all fit markers and the pending fit, if there is one
         """
         fit = self.GetActiveFit()
+        spec = self.spectra[self.spectra.activeID]
+        if spec.fits.activeID is not None:
+            spec.fits.RemoveObjects([spec.fits.activeID])
         fit.Remove()
         # update fitPanel
         self.UpdateFitPanel()
