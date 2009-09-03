@@ -37,6 +37,9 @@ class CutSpectrum(hdtv.spectrum.Spectrum):
     def __init__(self, hist, matrix, color=None, cal=None):
         self.matrix = matrix
         hdtv.spectrum.Spectrum.__init__(self, hist, color, cal)
+        
+    def GetTypeStr(self):
+        return "cut spectrum (gated projection)"
 
 class Matrix(hdtv.spectrum.Spectrum):
     def __init__(self, proj, title, color, cal):
@@ -45,12 +48,15 @@ class Matrix(hdtv.spectrum.Spectrum):
         self.title = title
         hdtv.spectrum.Spectrum.__init__(self, proj, color, cal)
         
+    def GetTypeStr(self):
+        return "cut-axis projection of matrix"
+        
     def E2CutBin(self, e):
         if self.cal:
             ch = self.cal.E2Ch(e)
         else:
             ch = e
-
+        
         return self.vmat.FindCutBin(ch)
         
     def AddCutRegion(self, e1, e2):

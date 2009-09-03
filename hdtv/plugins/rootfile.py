@@ -35,18 +35,20 @@ class RMatrix(hdtv.plugins.matrix.Matrix):
     """
     ROOT TH2-backed matrix for projection
     """
-    def __init__(self, hist, color=None, cal=None):
+    def __init__(self, hist, prj_x=True, color=None, cal=None):
         hdtv.dlmgr.LoadLibrary("mfile-root")
         self.hist = hist
-        self.vmat = ROOT.RMatrix(self.hist, ROOT.RMatrix.PROJ_X)
+        prj = ROOT.RMatrix.PROJ_X if prj_x else ROOT.RMatrix.PROJ_Y
+        self.vmat = ROOT.RMatrix(self.hist, prj)
         title = self.hist.GetTitle()
         
-        # Load the projection
-        self.vmat.AddCutRegion(self.vmat.GetCutLowBin(), self.vmat.GetCutHighBin())
-        hist = self.vmat.Cut(title + "_prx", title + "_prx")
-        self.vmat.ResetRegions()
+        # Load the projection on the cut axis
+        if prj_x:
+            phist = self.hist.ProjectionY(title + "_pry")
+        else:
+            phist = self.hist.ProjectionX(title + "_prx")
                 
-        hdtv.plugins.matrix.Matrix.__init__(self, hist, title, color, cal)
+        hdtv.plugins.matrix.Matrix.__init__(self, phist, title, color, cal)
         
     def __del__(self):
         # Explicitly deconstruct C++ objects in the right order
@@ -87,9 +89,12 @@ class RootFile:
         hdtv.cmdline.AddCommand("root matrix", self.RootMatrix, minargs=1,
                                 completer=self.RootGet_Completer,
                                 usage="root matrix <matname> [<matname> ...]")
+        
+        parser = hdtv.cmdline.HDTVOptionParser(prog="root project", usage="%prog [OPTIONS] <TH2 histogram>")
+        parser.add_option("-p", "--project", default="x", help="projection axis",
+                          metavar="[x|y]")
         hdtv.cmdline.AddCommand("root project", self.RootProject, nargs=1,
-                                completer=self.RootGet_Completer,
-                                usage="root project <matname>")
+                                completer=self.RootGet_Completer, parser=parser)
                                 
         hdtv.cmdline.RegisterInteractive("gRootFile", self.rootfile)
     
@@ -239,14 +244,23 @@ class RootFile:
                 viewer = ROOT.HDTV.Display.MTViewer(400, 400, hist, title)
                 self.matviews.append(viewer)
             
-    def RootProject(self, args):
+    def RootProject(self, args, options):
         """
         Load a 2D histogram (``matrix'') from a ROOT file in projection mode.
         """
         
+        axis = options.project.lower()
+        if axis == "x":
+            prj_x = True
+        elif axis == "y":
+            prj_x = False
+        else:
+            print "Error: projection axis must be x or y"
+            return None
+        
         hist = self.GetTH2(args[0])
         if hist:
-            spec = RMatrix(hist)
+            spec = RMatrix(hist, prj_x)
             sid = self.spectra.Add(spec)
             spec.color = hdtv.color.ColorForID(sid)
             self.spectra.ActivateObject(sid)
