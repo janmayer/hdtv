@@ -294,9 +294,9 @@ class MarkerCollection(list):
             
 
     def Remove(self):
-        for marker in self:
+        for marker in self[:]:
             marker.Remove()
-        self.collection = list()
+            list.remove(self, marker)
         
     def Refresh(self):
         for marker in self:
