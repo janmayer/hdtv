@@ -307,7 +307,7 @@ class FitXml:
                         fit.Restore(spec, silent=True)
                         ID = spec.fits.Add(fit)
                         fit.title = str(ID)
-                    except TypeError:
+                    except (TypeError, IndexError):
                         success = False
                 # deal with failure
                 if not success:
@@ -443,15 +443,19 @@ class FitXml:
         """
         # status
         status = paramElement.get("status", "free")
+        if status == "none":
+            return None
+        
         if status in ["free", "equal", "calculated"]:
             free = True
         else:
             free = False
         # <value>
         valueElement = paramElement.find("value")
-        if valueElement is None:
+        if valueElement is None or valueElement.text == "None":
             return None
-        value = float(valueElement.text)
+        else:
+            value = float(valueElement.text)
         # <error>
         errorElement = paramElement.find("error")
         error = float(errorElement.text)
