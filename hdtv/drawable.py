@@ -358,6 +358,10 @@ class DrawableCompound(dict):
         ID = self.GetFreeID()
         hdtv.ui.debug("hdtv.drawable.DrawableCompound.Add(): setting _iteratorID to %d" % ID)
         self[ID] = obj
+        try:
+            obj.title = str(ID)
+        except AttributeError:
+            pass
         if self.viewport:
             obj.Draw(self.viewport)
             self.visible.add(ID)
@@ -372,6 +376,11 @@ class DrawableCompound(dict):
             self.RemoveObjects([ID])
         
         self[ID] = obj
+        try:
+            obj.title = str(ID)
+        except AttributeError:
+            pass
+        
         if self.viewport:
             obj.Draw(self.viewport)
             self.visible.add(ID)

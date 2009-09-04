@@ -216,7 +216,6 @@ class FitInterface:
         # rely on ActivateFit and StoreFit to do garbage collection 
         if spec.fits.activeID == None: 
             ID = spec.fits.Add(fit) 
-            fit.title = str(ID)
             self.activeFit = None 
             spec.fits.ActivateObject(ID)
         fit.Draw(self.window.viewport)
