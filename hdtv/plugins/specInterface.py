@@ -204,7 +204,6 @@ class SpecInterface:
         
         Return ID of new spectrum
         """
-        
         if copyTo is None:              
             copyTo = self.spectra.GetFreeID()
 
@@ -212,7 +211,7 @@ class SpecInterface:
         hist = copy(self.spectra[ID].fHist)
 
         spec = Spectrum(hist, cal=self.spectra[ID].cal) 
-        sid = self.spectra.Insert(spec, copyTo)
+        sid = self.spectra.Add(spec, copyTo)
         spec.color = hdtv.color.ColorForID(sid)
         hdtv.ui.msg("Copied spectrum " + str(ID) + " to " + str(sid))
 
@@ -391,12 +390,10 @@ class TvSpecInterface:
                 ids = [self.spectra.activeID]
         except ValueError:
             return "USAGE"
-            
+        
         if len(ids) == 0:
             hdtv.ui.warn("Nothing to do")
             return
-
-        norm_fac = len(ids)
 
         if not addTo in self.spectra.keys():
             sid = self.specIf.CopySpectrum(ids.pop(), addTo)
@@ -409,6 +406,7 @@ class TvSpecInterface:
                 hdtv.ui.error("Could not add " + str(i))
                 
         if options.normalize:
+            norm_fac = len(ids)
             hdtv.ui.msg("Normalizing spectrum %d by 1/%d" % (addTo, norm_fac))
             self.spectra[addTo].Multiply(1./norm_fac)
 

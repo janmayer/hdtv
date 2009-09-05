@@ -351,27 +351,19 @@ class DrawableCompound(dict):
         else:
             return index[0]
 
-    def Add(self, obj):
+    def Add(self, obj, ID=None):
         """
-        Adds an object to the first free index (this also calls draw for the object)
-        """
-        ID = self.GetFreeID()
-        hdtv.ui.debug("hdtv.drawable.DrawableCompound.Add(): setting _iteratorID to %d" % ID)
-        self[ID] = obj
-        try:
-            obj.title = str(ID)
-        except AttributeError:
-            pass
-        if self.viewport:
-            obj.Draw(self.viewport)
-            self.visible.add(ID)
-        return ID
+        If ID is None: Adds an object to the first free index
+        Else inserts an object into the index at id ID, possibly removing an object
+        which was there before. 
         
-    def Insert(self, obj, ID):
+        This also calls draw for the object.
         """
-        Inserts an object into the index at id ID, possibly removing an object
-        which was there before. (This also calls draw for the object.)
-        """
+        if ID is None:
+            ID = self.GetFreeID()
+        
+        hdtv.ui.debug("hdtv.drawable.DrawableCompound.Add(): setting _iteratorID to %d" % ID)
+        
         if ID in self.keys():
             self.RemoveObjects([ID])
         
@@ -385,6 +377,11 @@ class DrawableCompound(dict):
             obj.Draw(self.viewport)
             self.visible.add(ID)
         return ID
+
+    def Insert(self, obj, ID=None):        
+        # TODO: Remove this function
+        hdtv.ui.warn("Use of obsolete function: DrawableCompound.Insert()")
+        return self.Add(obj, ID)
 
     def GetFreeID(self):
         """

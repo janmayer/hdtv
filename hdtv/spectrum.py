@@ -229,10 +229,13 @@ class Spectrum(_RawSpectrum):
         self.fits = DrawableCompound()
         _RawSpectrum.__init__(self, hist, color=color, cal=cal)
 #        DrawableCompound.__init__(self)
-        
-        
-    # TODO: change this to AddFit(fit, ID=None)
+
     def __setitem__(self, ID, fit):
+        # TODO: Remove this function    
+        hdtv.ui.warn("Use of obosolete function in spectrum.py: Spectrum.__setitem__")
+        self.AddFit(fit, ID)
+
+    def AddFit(self, fit, ID=None):
         """
         Add a fit to this spectrum with ID
         """
@@ -240,8 +243,8 @@ class Spectrum(_RawSpectrum):
         # we need do a recalibration here
         fit.Recalibrate(self.cal)
         fit.color = self.color
-        self.fits[ID] = fit
-
+        return self.fits.Insert(fit, ID)
+        
     # cal property
     def _set_cal(self, cal):
         _RawSpectrum._set_cal(self, cal)
