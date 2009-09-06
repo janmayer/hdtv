@@ -55,6 +55,10 @@ class ErrValue:
             tmp = self._fromString(value)
             self.value = tmp[0]
             self.error = tmp[1]
+        # Instantiate ErrValue from another ErrValue 
+        elif isinstance(value, ErrValue):
+            self.value = value.value
+            self.error = value.error
         else:
             try:
                 self.error = abs(error) # Errors are always positive
@@ -405,7 +409,7 @@ class TxtFile(object):
                 
                 # Strip comments 
                 line = line.split("#")[0] 
-                if line == "":
+                if line.strip() == "":
                     continue
                 self.lines.append(line)
                 
@@ -458,18 +462,30 @@ class Pairs(list):
         """
         pass
         
-    def fromFile(self, fname):
+    def fromFile(self, fname, sep=" "):
         """
         Read pairs from file
         """    
         file = TxtFile(fname)
         file.read()
         for line in file.lines:
-            pair = line.split()
+            pair = line.split(sep)
             try:
                 self.add(pair[0], pair[1])
             except ValueError:
                 print "Invalid Line in", fname, ":", line
+                
+    def fromLists(self, list1, list2):
+        """
+        Create pairs from to lists by assigning corresponding indices
+        """
+        if len(list1) != len(list2):
+            hdtv.ui.error("Lists for Pairs.fromLists() are of different length")
+            return False
+        
+        for i in range(0, len(list1)):
+            self.add(list1[i], list2[i])
+        
         
 class Table(object):
     """
