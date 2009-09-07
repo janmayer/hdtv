@@ -150,8 +150,12 @@ class Marker(Drawable):
         """ 
         Update the position of the marker
         """
-        if not self.viewport:
-            return
+        ## TODO:
+        ## Recalibration of markers should take place independently of an existing 
+        ## viewport, so this check is commented out for now.
+        ## Should be removed when it does not make problems elsewhere
+        #if not self.viewport:
+        #  return
         if self.displayObj:
             if self.p2:
                 # on the C++ side all values must be uncalibrated
@@ -159,15 +163,13 @@ class Marker(Drawable):
                 p2 = self.cal.E2Ch(self.p2)
                 self.displayObj.SetN(2)
                 self.displayObj.SetPos(p1, p2)
-                if self.xytype == "X": # calibration makes only sense on the X axis
-                    self.displayObj.SetCal(self.cal)
             else:
                 # on the C++ side all values must be uncalibrated
                 p1 = self.cal.E2Ch(self.p1)
                 self.displayObj.SetN(1)
                 self.displayObj.SetPos(p1)
-                if self.xytype == "X": # calibration makes only sense on the X axis
-                    self.displayObj.SetCal(self.cal)
+            if self.xytype == "X": # calibration makes only sense on the X axis
+                self.displayObj.SetCal(self.cal)
             if self.active:
                 self.displayObj.SetColor(self._activeColor)
             else:

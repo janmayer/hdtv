@@ -134,7 +134,7 @@ class FitXml:
             calElement.text = str(marker.p1)
             # <uncal>
             uncalElement = ET.SubElement(positionElement, "uncal")
-            uncalElement.text = str(fit.cal.E2Ch(marker.p1))
+            uncalElement.text = str(fit.cal.E2Ch(marker.p1)) 
         # <background>
         if not fit.fitter.bgFitter is None:
             bgElement = ET.SubElement(fitElement,"background")
@@ -167,11 +167,13 @@ class FitXml:
                 param = getattr(peak, param)
                 if not param is None: 
                     # <value>
-                    valueElement = ET.SubElement(paramElement, "value")
-                    valueElement.text = str(param.value)
+                    if not param.value is None:
+                        valueElement = ET.SubElement(paramElement, "value")
+                        valueElement.text = str(param.value)
                     # <error>
-                    errorElement = ET.SubElement(paramElement, "error")
-                    errorElement.text = str(param.error)
+                    if not param.error is None:
+                        errorElement = ET.SubElement(paramElement, "error")
+                        errorElement.text = str(param.error)
             # <cal>
             calElement = ET.SubElement(peakElement, "cal")
             # Parameter
@@ -185,11 +187,13 @@ class FitXml:
                 param = getattr(peak, "%s_cal" %param)
                 if not param is None: 
                     # <value>
-                    valueElement = ET.SubElement(paramElement, "value")
-                    valueElement.text = str(param.value)
+                    if not param.value is None:
+                        valueElement = ET.SubElement(paramElement, "value")
+                        valueElement.text = str(param.value)
                     # <error>
-                    errorElement = ET.SubElement(paramElement, "error")
-                    errorElement.text = str(param.error)
+                    if not param.error is None:
+                        errorElement = ET.SubElement(paramElement, "error")
+                        errorElement.text = str(param.error)
         return fitElement
         
         
@@ -299,14 +303,13 @@ class FitXml:
             # <fits>
             fits = list()
             for fitElement in specElement.findall("fit"):
-                (fit, success) = self.Xml2Fit_v1(fitElement)
+                (fit, success) = self.Xml2Fit_v1(fitElement, spec.cal)
                 count = count+1
                 # restore fit
                 if success:
                     try:
                         fit.Restore(spec, silent=True)
-                        ID = spec.fits.Add(fit)
-                        fit.title = str(ID)
+#                        ID = spec.fits.Add(fit)
                     except (TypeError, IndexError):
                         success = False
                 # deal with failure
@@ -318,18 +321,15 @@ class FitXml:
                             question = "Could not restore fit. Refit? [(Y)es/(n)o/(a)lways/ne(v)er]"
                             do_fit = raw_input(question)
                         if do_fit in ["Y", "y", "", "A", "a"]:
-                            spec.viewport.UnlockUpdate()
                             fit.FitPeakFunc(spec)
-                            ID = spec.fits.Add(fit)
-                            fit.title = str(ID)
-                            fit.Focus()
-                            spec.viewport.LockUpdate()
+
                 # finish this fit
+                ID = spec.AddFit(fit)
                 if not sid in self.spectra.visible:
                     fit.Hide()
         return count
 
-    def Xml2Fit_v1(self, fitElement):
+    def Xml2Fit_v1(self, fitElement, calibration):
         """
         Creates a fit object from information found in a xml file
         """
@@ -338,7 +338,7 @@ class FitXml:
         peakModel = fitElement.get("peakModel")
         bgdeg = int(fitElement.get("bgDegree"))
         fitter = hdtv.fitter.Fitter(peakModel, bgdeg)
-        fit = hdtv.fit.Fit(fitter)
+        fit = hdtv.fit.Fit(fitter, cal=calibration)
         try:
             fit.chi = float(fitElement.get("chi"))
         except ValueError:
@@ -407,8 +407,9 @@ class FitXml:
                     statusdict[name]=[status]
             # create peak
             try:
-                peak = fit.fitter.peakModel.Peak(cal=None, **parameter)
+                peak = fit.fitter.peakModel.Peak(cal=calibration, **parameter)
             except TypeError:
+                hdtv.ui.error("Error reading peak with parameters: %s" % str(parameter))
                 success = False
                 continue
             fit.peaks.append(peak)
@@ -427,14 +428,14 @@ class FitXml:
         """
         Read position in energy domain from XML element.
         """
-        # FIXME: I am not sure, if this makes sense, 
-        # as fits are without calibration until added to spectrum
         try:
             pos = float(markerElement.find("uncal").text)
-            pos = fit.cal.Ch2E(pos)    
+            pos = fit.cal.Ch2E(pos)
         except AttributeError:
             # Try to read "cal" element if "uncal" element does not exist
             pos = float(markerElement.find("cal").text)
+            
+            
         return pos
     
     def _readParamElement(self, paramElement):

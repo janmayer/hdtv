@@ -232,7 +232,7 @@ class Spectrum(_RawSpectrum):
 
     def __setitem__(self, ID, fit):
         # TODO: Remove this function    
-        hdtv.ui.warn("Use of obosolete function in spectrum.py: Spectrum.__setitem__")
+        hdtv.ui.warn("Use of obsolete function in spectrum.py: Spectrum.__setitem__")
         self.AddFit(fit, ID)
 
     def AddFit(self, fit, ID=None):
@@ -241,9 +241,10 @@ class Spectrum(_RawSpectrum):
         """
         # as marker positions are uncalibrated, 
         # we need do a recalibration here
+        newID = self.fits.Add(fit, ID) 
         fit.Recalibrate(self.cal)
         fit.color = self.color
-        return self.fits.Insert(fit, ID)
+        return newID
         
     # cal property
     def _set_cal(self, cal):
