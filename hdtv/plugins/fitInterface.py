@@ -206,7 +206,7 @@ class FitInterface:
         spec = self.spectra[self.spectra.activeID]
         fit = self.GetActiveFit()
         if not peaks and len(fit.bgMarkers) > 0:
-            # pur background fit
+            # pure background fit
             fit.FitBgFunc(spec)
         if peaks:
             # full fit
