@@ -462,7 +462,7 @@ class Pairs(list):
         """
         pass
         
-    def fromFile(self, fname, sep=" "):
+    def fromFile(self, fname, sep=None):
         """
         Read pairs from file
         """    
@@ -472,7 +472,7 @@ class Pairs(list):
             pair = line.split(sep)
             try:
                 self.add(pair[0], pair[1])
-            except ValueError:
+            except (ValueError, IndexError):
                 print "Invalid Line in", fname, ":", line
                 
     def fromLists(self, list1, list2):
