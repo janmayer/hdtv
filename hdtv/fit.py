@@ -103,7 +103,7 @@ class Fit(Drawable):
         self._passiveColor = hdtv.color.Highlight(color, active=False)
         if self.viewport:
             self.viewport.LockUpdate()
-        self.peakMarkers.color=color
+        self.peakMarkers.color = color
         self.regionMarkers.color = color
         self.bgMarkers.color = color
         if self.dispPeakFunc:

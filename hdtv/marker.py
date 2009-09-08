@@ -318,8 +318,10 @@ class MarkerCollection(list):
         """
         Put a marker to position pos, possibly completing a marker pair
         """
+        
         if not self.paired:
-            m = Marker(self.xytype, pos, self.color, self.cal, self.connecttop, hasID = self.hasIDs)
+            m = Marker(self.xytype, pos, self._activeColor, self.cal, self.connecttop, hasID = self.hasIDs)
+            m.color = self._passiveColor
             self.append(m)
             if self.viewport:
                 m.Draw(self.viewport)
@@ -337,6 +339,7 @@ class MarkerCollection(list):
             else:
                 pending = Marker(self.xytype, pos, self._activeColor, self.cal,\
                                  self.connecttop, hasID = self.hasIDs)
+                pending.color = self._passiveColor
                 if self.viewport:
                     pending.Draw(self.viewport)
                 self.append(pending)

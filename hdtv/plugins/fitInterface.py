@@ -215,7 +215,7 @@ class FitInterface:
         # so that it is managed by the usual Show/Hide functions
         # rely on ActivateFit and StoreFit to do garbage collection 
         if spec.fits.activeID == None: 
-            ID = spec.fits.Add(fit) 
+            ID = spec.AddFit(fit) 
             self.activeFit = None 
             spec.fits.ActivateObject(ID)
         fit.Draw(self.window.viewport)

@@ -544,7 +544,7 @@ class FitXml:
                     else:
                         status = ','.join(status)
                     fitter.SetParameter(parname, status)
-                fit = hdtv.fit.Fit(fitter, spec.color, spec.cal)
+                fit = hdtv.fit.Fit(fitter, cal=spec.cal)
                 # <background>
                 for bgElement in fitElement.findall("background"):
                     # Read begin/p1 marker
