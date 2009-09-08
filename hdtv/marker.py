@@ -314,12 +314,16 @@ class MarkerCollection(list):
             marker.Recalibrate(cal)
 
 
-    def PutMarker(self, pos):
+    def PutMarker(self, pos, color=None):
         """
         Put a marker to position pos, possibly completing a marker pair
         """
+        if color is None:
+            color = self._passiveColor
+        
         if not self.paired:
-            m = Marker(self.xytype, pos, self.color, self.cal, self.connecttop, hasID = self.hasIDs)
+            m = Marker(self.xytype, pos, self._activeColor, self.cal, self.connecttop, hasID = self.hasIDs)
+            m.color = color
             self.append(m)
             if self.viewport:
                 m.Draw(self.viewport)
@@ -337,6 +341,7 @@ class MarkerCollection(list):
             else:
                 pending = Marker(self.xytype, pos, self._activeColor, self.cal,\
                                  self.connecttop, hasID = self.hasIDs)
+                pending.color = color
                 if self.viewport:
                     pending.Draw(self.viewport)
                 self.append(pending)
