@@ -45,6 +45,7 @@ class Marker(Drawable):
         self.hasID = hasID
         # active color is set here and should not be changed afterwards
         self._activeColor = color
+        self._passiveColor = hdtv.color.Highlight(color, active=False)
         self.color = color
         self._cal = hdtv.cal.MakeCalibration(cal)
     
@@ -218,6 +219,7 @@ class MarkerCollection(list):
         self.connecttop = connecttop
         self.cal = cal
         self._activeColor = color
+        self._passiveColor = hdtv.color.Highlight(color, active=False)
         self.hasIDs = hasIDs
 
     def __setitem__(self, m):
