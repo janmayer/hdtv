@@ -174,7 +174,7 @@ class Fit(Drawable):
             self.dispPeakFunc = None
         for peak in self.peaks:
             peak.Remove()
-        self.peakMarkers.PutMarker(pos)
+        self.peakMarkers.PutMarker(pos, color=self.color)
 
     def PutRegionMarker(self, pos):
         if self.dispPeakFunc:
@@ -182,7 +182,7 @@ class Fit(Drawable):
             self.dispPeakFunc = None
         for peak in self.peaks:
             peak.Remove()
-        self.regionMarkers.PutMarker(pos)
+        self.regionMarkers.PutMarker(pos, color=self.color)
         
         
     def PutBgMarker(self, pos):
@@ -194,7 +194,7 @@ class Fit(Drawable):
             self.dispPeakFunc = None
         for peak in self.peaks:
             peak.Remove()
-        self.bgMarkers.PutMarker(pos)
+        self.bgMarkers.PutMarker(pos, color=self.color)
         
 
     def FitBgFunc(self, spec):
