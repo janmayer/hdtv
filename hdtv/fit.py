@@ -65,7 +65,10 @@ class Fit(Drawable):
         self.dispBgFunc = None
         self._title = None
         Drawable.__init__(self, color, cal)
-    
+
+    def __copy__(self):
+        return self.Copy()
+        
     def _get_title(self):
         return self._title
     

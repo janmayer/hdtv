@@ -30,6 +30,8 @@ from hdtv.fitter import Fitter
 from hdtv.fit import Fit
 from hdtv.fitpanel import FitPanel
 
+from copy import copy
+
 class FitInterface:
     """
     User interface for fitting 1-d spectra
@@ -192,19 +194,33 @@ class FitInterface:
         return self.activeFit
         
 
-    def Fit(self, peaks = True):
+    def Fit(self, specID=None, fitID=None, peaks = True):
         """
         Fit the peak
         
         If there are background markers, a background fit is included.
         """
-        if self.spectra.activeID==None:
+        
+        if specID is None:
+            specID = self.spectra.activeID
+            
+        if specID is None:
             hdtv.ui.error("There is no active spectrum")
             return 
+        
         if self.fitPanel:
             self.fitPanel.Show()
-        spec = self.spectra[self.spectra.activeID]
-        fit = self.GetActiveFit()
+        
+        spec = self.spectra[specID]
+        if fitID is None:
+            fit = self.GetActiveFit()
+        else:
+            try:
+                fit = spec.fits[fitID]
+            except KeyError:
+                hdtv.ui.error("No fit %d in spectrum %d" %(fitID, specID))
+                return
+        
         if not peaks and len(fit.bgMarkers) > 0:
             # pure background fit
             fit.FitBgFunc(spec)
@@ -338,7 +354,7 @@ class FitInterface:
         self.UpdateFitPanel()
         
     
-#    def FitMultiSpectra(self, ids):
+#    def FitMultiSpectra(self, fitIDs, specIDs):
 #        """
 #        Use the fit markers of the active fit to fit multiple spectra.
 #        The spectra that should be fitted are given by the parameter ids.
@@ -359,21 +375,50 @@ class FitInterface:
 #        self.window.viewport.UnlockUpdate()
 
 
-#    def CopyActiveFit(self, ids):
-#        """
-#        Copy active fit to other spectra which are defined by the parameter ids
-#        """
-#        if isinstance(ids, int):
-#            ids = [ids]
-#        self.window.viewport.LockUpdate()
-#        # get active fit to make the copies
+    def CopyFits(self, fitIDs, fromSpecID, toSpecIDs, refit=False):
+        """
+        Copy fits to other spectra which are defined by the parameter ids
+        
+        If "refit" is True the copied fits will automatically be fitted
+        """
+        
+        if isinstance(fitIDs, int):
+            fitIDs = [fitIDs]
+        
+        self.window.viewport.LockUpdate()
+        # get active fit to make the copies
 #        fit = self.GetActiveFit()
-#        for ID in ids:
-#            try:
-#                spec = self.spectra[ID]
-#            except KeyError:
-#                print "Warning: ID %s not found" % ID
-#                continue
+        try:
+            fromSpec = self.spectra[fromSpecID] 
+        except KeyError:
+            hdtv.ui.error("No spectrum with ID %d" % fromSpecID)
+            return False
+            
+        for fitID in fitIDs:
+            for specID in toSpecIDs:
+                
+                # Get target spectrum
+                try:
+                    toSpec = self.spectra[specID]
+                except KeyError:
+                    hdtv.ui.warn("No target spectrum %d" % specID)
+                    continue
+                
+                # Get fit to copy
+                try:
+                    fit = fromSpec.fits[fitID].Copy(cal=toSpec.cal, color=None)
+                except KeyError:
+                    hdtv.ui.warn("No fit with ID %d in spectrum %d" %(fitID, fromSpecID))
+                    continue 
+            
+                
+                # Add fit to target spectrum
+                newFitID = toSpec.AddFit(fit)
+                hdtv.ui.msg("Copied fit #%d.%d to #%d.%d" %(fromSpecID, fitID, specID, newFitID))
+                if refit:
+                    self.Fit(specID = specID, fitID = newFitID, peaks=True)
+                
+                fit.Show()
 #            # do not copy, if active fit belongs already to this spectrum
 #            if not fit.fitter.spec == spec:
 #                try:
@@ -391,7 +436,7 @@ class FitInterface:
 #        if self.activeFit:
 #            self.activeFit.Remove()
 #            self.activeFit= None
-#        self.window.viewport.UnlockUpdate()    
+        self.window.viewport.UnlockUpdate()    
 
 
     def SetDecomp(self, stat = True):
@@ -605,9 +650,14 @@ class TvFitInterface:
         # TODO: add option to activate the fit, that is closest to a certain value
         hdtv.cmdline.AddCommand(prog, self.FitActivate, nargs = 1, parser = parser)
         
-#        hdtv.cmdline.AddCommand("fit copy", self.FitCopy, minargs=1)
-#        hdtv.cmdline.AddCommand("fit multi", self.FitMulti, minargs=1)
-
+        prog = "fit copy"
+        description = "Copy fit parameter and marker to another spectrum"
+        usage = "%prog -s <targetSpecs> <fit-ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage=usage)
+        parser.add_option("-s", "--spectra", action = "store", default = "all", help = "Target spectra")
+        parser.add_option("-f", "--refit", action = "store_true", default = False, help = "Perform fit on new spectrum")
+        hdtv.cmdline.AddCommand(prog, self.FitCopy, parser = parser)
+        
         prog = "fit parameter"
         description = "show status of fit parameter, reset or set parameter"
         usage = "%prog [OPTIONS] status | reset | parname <valuePeak1>, <valuePeak2>, ..."
@@ -854,29 +904,48 @@ class TvFitInterface:
         else:
             hdtv.ui.error("Nothing to focus")
 
-#    def FitCopy(self, args):
-#        try:
-#            ids = hdtv.cmdhelper.ParseRange(args)
-#            if ids == "NONE":
-#                return
-#            if ids == "ALL":
-#                ids = self.spectra.keys()
-#            self.fitIf.CopyActiveFit(ids)
-#        except: 
-#            print "Usage: fit copy <ids>|all"
-#            return False
+    def FitCopy(self, args, options):
+        """
+        Copy fit parameter and marker to other spectra and optionally fit on new spectrum
+        """
+        
+        if self.spectra.activeID is None:
+            hdtv.ui.error("No active spectrum")
+            return
+        
+        specIDs = hdtv.cmdhelper.ParseIds(options.spectra, self.spectra)
+        
+        # Remove active spectrum from target specIDs
+        specIDs.remove(self.spectra.activeID)
+        
+        if len(specIDs) == 0:
+            hdtv.ui.error("No target spectra")
+            
+        if len(args) == 0:
+            args = ["active"]
+            
+        try:
+            ids = hdtv.cmdhelper.ParseIds(args, self.spectra[self.spectra.activeID].fits)
+        except ValueError:
+            return "USAGE"
+        
+        self.fitIf.CopyFits(ids, self.spectra.activeID, specIDs, refit=options.refit)
 
-#    def FitMulti(self, args):
+
+#    def FitMulti(self, args, options):
+#        
+#        if options.spectra is not None:
+#            specIDs = hdtv.cmdhelper.ParseIds(options.spectra, self.spectra)
+#            
+#        if len(args) == 0:
+#            args = ["active"]
+#            
 #        try:
-#            ids = hdtv.cmdhelper.ParseRange(args, ["all", "shown"])
+#            ids = hdtv.cmdhelper.ParseIds(args, self.spectra[self.spectra.activeID].fits)
 #        except ValueError:
-#            print "Usage: fit multi <ids>|all|shown"
-#            return False
-#        if ids == "ALL":
-#            ids = self.spectra.keys()
-#        elif ids =="SHOWN":
-#            ids = list(self.spectra.visible)
-#        self.fitIf.FitMultiSpectra(ids)
+#            return "USAGE"
+#        
+#        self.fitIf.FitCopy(ids, specIDs, refit=True)
 
 
     def FitSetPeakModel(self, args, options):
