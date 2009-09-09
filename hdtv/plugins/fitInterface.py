@@ -30,9 +30,6 @@ from hdtv.fitter import Fitter
 from hdtv.fit import Fit
 from hdtv.fitpanel import FitPanel
 
-# TODO: temporary import -> Remove!
-from copy import copy
-import sys
 
 class FitInterface:
     """
@@ -100,7 +97,7 @@ class FitInterface:
             self._workFit = None
         else:
             spec = self.spectra[self.spectra.activeID]
-            if spec.fits.activeID is None: # No active fit so create a new workFit or reuse old
+            if spec.fits.activeID is None:
                 # No active fit so we have work on the temporary work fit or 
                 # create a new fit. If self._workFit is stored in spec.fits.values
                 # it is still some old remainder, else it would be active 
@@ -115,7 +112,6 @@ class FitInterface:
      
     def Quickfit(self):
         self.ClearFit()
-#        self._workFit = None
         fit = self.workFit
         pos = self.window.viewport.GetCursorX()
         region_width = hdtv.options.Get("fit.quickfit.region")
@@ -245,10 +241,6 @@ class FitInterface:
         Activate one fit
         """
         spec = self.spectra[self.spectra.activeID]
-        # TODO: raise HDTV exception here
-#        if not hasattr(spec, "activeID"):
-#            hdtv.ui.error("There are no fits for this spectrum")
-#            return
 
         # Active objects should always be visible
         assert self.spectra.activeID in self.spectra.visible, "Active spectrum not visible"
@@ -271,7 +263,6 @@ class FitInterface:
         """ 
         Show and focus fits if necessary
         """
-        print "DEBUG showFits", ids
         if ids[0] is None or len(ids) == 0:
             return False
         spec = self.spectra[specID]
@@ -415,25 +406,7 @@ class FitInterface:
                 hdtv.ui.msg("Copied fit #%d.%d to #%d.%d" %(fromSpecID, fitID, specID, newFitID))
                 if refit:
                     self.Fit(specID = specID, fitID = newFitID, peaks=True, storeIt=False)
-                
-#                fit.Show()
-#            # do not copy, if active fit belongs already to this spectrum
-#            if not fit.fitter.spec == spec:
-#                try:
-#                    # deactive all objects
-#                    spec.ActivateObject(None)
-#                except AttributeError:
-#                     #TODO
-#                fitID=spec.Add(fit.Copy(cal=spec.cal, color=spec.color))
-#                if not ID in self.spectra.visible:
-#                    spec[fitID].Hide()
-#                spec.ActivateObject(fitID)
-#        # clear pending Fit, if there is one
-#        # Note: we have to keep this until now, 
-#        # as it may be the template for all the copies 
-#        if self.workFit:
-#            self.workFit.Remove()
-#            self.workFit= None
+
         self.window.viewport.UnlockUpdate()    
 
 
