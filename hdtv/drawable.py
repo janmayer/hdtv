@@ -22,6 +22,7 @@
 import ROOT
 import os
 import UserDict
+import weakref
 
 import hdtv.cal
 import hdtv.color
@@ -33,14 +34,27 @@ hdtv.dlmgr.LoadLibrary("display")
 class Drawable(object):
     def __init__(self, color=None, cal=None):
         self.viewport = None
-        self.parent = None
+        self.parent = None # The DrawableCompound that is managing this object
         self.displayObj = None
         self.cal = cal
         self.color = color 
-
+    
+    @property
+    def ID(self):
+        """
+        Return ID of object in parent compound
+        """
+        try:
+            return self.parent.Index(self)
+        except AttributeError:
+            return None
+        
+    def __del__(self):
+        self.Remove()
+        
     def __str__(self):
         return str(self.displayObj)
-
+     
     # cal property
     def _set_cal(self, cal):
         self._cal=hdtv.cal.MakeCalibration(cal)
@@ -115,6 +129,11 @@ class Drawable(object):
         self.displayObj = None
         # finally remove the viewport from this object
         self.viewport = None
+        if self.parent is not None: # Remove object from parent compound
+            try:
+                self.parent.RemoveObjects([self.ID])
+            except AttributeError:
+                pass
 
     def Show(self):
         """
@@ -176,6 +195,9 @@ class DrawableCompound(dict):
         self._activeID = None
         self._iteratorID = self.activeID # This should keep track of ID for nextID, prevID
    
+    def __del__(self):
+        self.RemoveAll()
+       
     # active property
     @property
     def active(self):
@@ -195,6 +217,7 @@ class DrawableCompound(dict):
     # activeID property
     def _set_activeID(self, ID):
         self._activeID = ID
+        print "DEBUG drawablecompound returning active ID", ID
         hdtv.ui.debug("hdtv.drawable._set_activeID: Resetting iterator to %s" % self._activeID, level=6)
         self._iteratorID = self._activeID # Reset iterator
         
@@ -320,7 +343,7 @@ class DrawableCompound(dict):
             obj.SetID(ID)
         except AttributeError:
             pass
-        obj.parent = self
+        obj.parent = weakref.proxy(self)
         return dict.__setitem__(self ,ID, obj)
 
 
@@ -368,10 +391,13 @@ class DrawableCompound(dict):
             self.RemoveObjects([ID])
         
         self[ID] = obj
+                
         try:
             obj.title = str(ID)
         except AttributeError:
             pass
+
+        obj.parent = weakref.proxy(self)
         
         if self.viewport:
             obj.Draw(self.viewport)
@@ -495,7 +521,9 @@ class DrawableCompound(dict):
             try:
                 if ID == self._iteratorID:
                     self._iteratorID = self.prevID 
-                self.pop(ID).Remove()
+                obj =  self.pop(ID)
+                obj.parent = None
+                obj.Remove()
             except KeyError:
                 hdtv.ui.warn("Warning: ID %s not found." % str(ID))
         if self.viewport:

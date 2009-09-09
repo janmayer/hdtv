@@ -23,6 +23,7 @@ import hdtv.cal
 import hdtv.color
 from hdtv.drawable import Drawable
 
+import weakref
 
 class Marker(Drawable):
     """ 
@@ -95,7 +96,7 @@ class Marker(Drawable):
         title = str()
         
         if self.hasID:
-            if self.parent is not None:
+            if self.parent is not None and self.parent.title is not None:
                 title = self.parent.title
             
             title += str(self.parent.index(self)) 
@@ -223,11 +224,11 @@ class MarkerCollection(list):
         self.hasIDs = hasIDs
 
     def __setitem__(self, m):
-        m.parent = self
+        m.parent = weakref.proxy(self)
         list.__set_item__(self,m)
         
     def append(self, m):
-        m.parent = self
+        m.parent = weakref.proxy(self)
         list.append(self,m)
 
     @property

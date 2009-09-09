@@ -45,7 +45,7 @@ class _RawSpectrum(Drawable):
     A spectrum object can contain a number of fits.
     """
     def __init__(self, hist, color=hdtv.color.default, cal=None):
-        self.ID = -1
+
         self.norm = 1.0
         self.fHist = hist
         self.fEffCal = None
