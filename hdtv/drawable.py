@@ -593,6 +593,8 @@ class DrawableCompound(dict):
         for ID in ids:
             if ID in self.visible:
                 try:
+                    if ID == self.activeID: # Deactivate object when hidden
+                        self.ActivateObject(None)
                     self[ID].Hide()
                     self.visible.discard(ID)
                 except KeyError:
