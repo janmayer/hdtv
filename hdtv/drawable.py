@@ -378,11 +378,6 @@ class DrawableCompound(dict):
             self.visible.add(ID)
         return ID
 
-    def Insert(self, obj, ID=None):        
-        # TODO: Remove this function
-        hdtv.ui.warn("Use of obsolete function: DrawableCompound.Insert()")
-        return self.Add(obj, ID)
-
     def GetFreeID(self):
         """
         Finds the first free index

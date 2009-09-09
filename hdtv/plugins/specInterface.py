@@ -165,10 +165,7 @@ class SpecInterface:
                 except (OSError, SpecReaderError):
                     hdtv.ui.warn("Could not load %s'%s" % (fname, fmt))
                 else:
-                    if ID == None:
-                        sid = self.spectra.Add(spec)
-                    else:
-                        sid = self.spectra.Insert(spec, ID)
+                    sid = self.spectra.Add(spec, ID)
                     
                     spec.color = hdtv.color.ColorForID(sid)
                     loaded.append(sid)
