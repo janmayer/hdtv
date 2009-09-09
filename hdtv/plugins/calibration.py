@@ -382,7 +382,7 @@ class EnergyCalIf(object):
         """
         # Load calibration
         cal = hdtv.cal.CalFromFile(filename)
-        self.EnergyCalIf.ApplyCalibration(specIDs, cal)        
+        self.ApplyCalibration(specIDs, cal)        
         return True
 
 
