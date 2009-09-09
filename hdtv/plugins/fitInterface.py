@@ -30,7 +30,9 @@ from hdtv.fitter import Fitter
 from hdtv.fit import Fit
 from hdtv.fitpanel import FitPanel
 
+# TODO: temporary import -> Remove!
 from copy import copy
+import sys
 
 class FitInterface:
     """
@@ -43,7 +45,7 @@ class FitInterface:
         self.spectra = spectra
 
         self.defaultFitter = Fitter(peakModel = "theuerkauf", bgdeg = 1)
-        self.activeFit = None
+        self._workFit = None # Fit we are currently working on
 
         # tv commands
         self.tv = TvFitInterface(self)
@@ -90,11 +92,28 @@ class FitInterface:
                                            handler = self._HotkeyActivate))
         self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_p], self._HotkeyShowPrev)
         self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_n], self._HotkeyShowNext)
+        
+    @property    
+    def workFit(self):
 
+        if self.spectra.activeID is None: # No active spectrum, so now workFit
+            self._workFit = None
+        else:
+            spec = self.spectra[self.spectra.activeID]
+            if spec.fits.activeID is None: # No active fit so create a new workFit or reuse old
+                if self._workFit is None:
+                    self._workFit = Fit(self.defaultFitter.Copy())
+                    self._workFit.Draw(self.window.viewport)
+            else:
+                self._workFit = spec.fits[spec.fits.activeID]
 
+        return self._workFit
+
+     
     def Quickfit(self):
         self.ClearFit()
-        fit = self.GetActiveFit()
+#        self._workFit = None
+        fit = self.workFit
         pos = self.window.viewport.GetCursorX()
         region_width = hdtv.options.Get("fit.quickfit.region")
         fit.PutRegionMarker(pos - region_width / 2.)
@@ -123,7 +142,6 @@ class FitInterface:
             self.window.viewport.SetStatusText("No active spectrum")
             return
         if not self.ShowFits([self.spectra[self.spectra.activeID].fits.nextID], self.spectra.activeID):
-            print "bar"
             self.window.viewport.SetStatusText("No fits available")
             
             
@@ -164,7 +182,7 @@ class FitInterface:
         Put marker of type region, peak or bg to the current position of cursor 
         (internal use)
         """
-        fit = self.GetActiveFit()
+        fit = self.workFit
         pos = self.window.viewport.GetCursorX()
         getattr(fit, "Put%sMarker" % mtype.title())(pos)
 
@@ -174,28 +192,12 @@ class FitInterface:
         Delete the marker of type region, peak or bg, that is nearest to cursor 
         (internal use)
         """
-        fit = self.GetActiveFit()
+        fit = self.workFit
         pos = self.window.viewport.GetCursorX()
         markers = getattr(fit, "%sMarkers" % mtype.lower())
-        markers.RemoveNearest(pos)
+        markers.RemoveNearest(pos)   
 
-
-    def GetActiveFit(self):
-        """
-        Returns the currently active fit
-        """
-        if not self.spectra.activeID is None:
-            spec = self.spectra[self.spectra.activeID]
-            if not spec.fits.activeID is None:
-                return spec.fits[spec.fits.activeID]
-        if not self.activeFit:
-            self.activeFit = Fit(self.defaultFitter.Copy())
-            self.activeFit.Draw(self.window.viewport)
-        return self.activeFit
-        
-
-    # TODO: Fit and storing a fit should be seperated -> remove "storeIt"
-    def Fit(self, specID=None, fitID=None, peaks = True, storeIt=True):
+    def Fit(self, specID=None, fitID=None, peaks = True):
         """
         Fit the peak
         
@@ -214,29 +216,23 @@ class FitInterface:
         
         spec = self.spectra[specID]
         if fitID is None:
-            fit = self.GetActiveFit()
+            fit = self.workFit
         else:
             try:
                 fit = spec.fits[fitID]
             except KeyError:
                 hdtv.ui.error("No fit %d in spectrum %d" %(fitID, specID))
                 return
-        
+
         if not peaks and len(fit.bgMarkers) > 0:
             # pure background fit
             fit.FitBgFunc(spec)
         if peaks:
             # full fit
             fit.FitPeakFunc(spec)
-        # if the fit is fresh, add it temporarly to the spectrum
-        # so that it is managed by the usual Show/Hide functions
-        # rely on ActivateFit and StoreFit to do garbage collection 
-        if storeIt and spec.fits.activeID == None: 
-            ID = spec.AddFit(fit) 
-            self.activeFit = None 
-            spec.fits.ActivateObject(ID)
+
         fit.Draw(self.window.viewport)
-        
+
         # update fitPanel
         self.UpdateFitPanel()
 
@@ -250,25 +246,20 @@ class FitInterface:
 #        if not hasattr(spec, "activeID"):
 #            hdtv.ui.error("There are no fits for this spectrum")
 #            return
+
         # Active objects should always be visible
         assert self.spectra.activeID in self.spectra.visible, "Active spectrum not visible"
-        # deal with former activated fit
-        if not spec.fits.activeID == None:
-            hdtv.ui.msg("Save fit %d while deactivating it" %spec.fits.activeID)
-            # try to store current status of deactivated fit
-            # this will also do garbage collection if needed
-            self.StoreFit()
-        elif self.activeFit:
-            self.activeFit.Remove()
-            self.activeFit = None
+
         # activate another fit
         spec.fits.ActivateObject(ID)
-        if spec.fits.activeID is not None: # If spec.activeID is None it was deactivation
-            if self.spectra.activeID in self.spectra.visible:
-                spec.fits[spec.fits.activeID].Show()
+
+        # Delete old working fit
+        self._workFit = None
+    
         if ID is not None:
             if not spec.fits.isInVisibleRegion(ID):
                 spec.fits.FocusObject(ID)
+
         # update fitPanel
         self.UpdateFitPanel()
 
@@ -312,19 +303,18 @@ class FitInterface:
             hdtv.ui.error("There is no active spectrum")
             return
         spec = self.spectra[self.spectra.activeID]
-        if spec.fits.activeID == None:
-            # fresh fit, try to execute it
-            hdtv.ui.msg("Trying to execute active fit")
-            self.Fit(peaks=True)
-        # this will add the fit to the spectrum, 
-        # thus now there is in any case an activeID in spec
-        if len(spec.fits[spec.fits.activeID].peaks) == 0:
-            # do remove garbage (invalid fit)
-            hdtv.ui.warn('Fit is not valid, nothing saved')
-            fit = spec.fits.pop(spec.fits.activeID)
-            fit.Remove()
-            self.ClearFit()
-        # deactivate all objects
+        if self.workFit in spec.fits.values(): # Fit is already stored
+            hdtv.ui.warn("Fit already stored")
+            return
+        if self.workFit is not None:
+            ID = spec.AddFit(self.workFit)
+        else:
+            hdtv.ui.warn("No fit to store")
+            
+        # Reset work fit
+        self._workFit = None 
+
+#        # deactivate all objects
         spec.fits.ActivateObject(None)
 
 
@@ -332,11 +322,14 @@ class FitInterface:
         """
         Clear all fit markers and the pending fit, if there is one
         """
-        fit = self.GetActiveFit()
+
         spec = self.spectra[self.spectra.activeID]
-        if spec.fits.activeID is not None:
-            spec.fits.RemoveObjects([spec.fits.activeID])
-        fit.Remove()
+
+        if self.workFit in spec.fits.values(): # Fit is stored, so just deactivate it
+            spec.fits.ActivateObject(None)
+
+        # Reset work fit
+        self._workFit = None
         # update fitPanel
         self.UpdateFitPanel()
 
@@ -345,7 +338,7 @@ class FitInterface:
         """
         Clear Background markers and refresh fit without background
         """
-        fit = self.GetActiveFit()
+        fit = self.workFit
         # remove background markers
         while len(fit.bgMarkers) > 0:
             fit.bgMarkers.pop().Remove()
@@ -388,7 +381,7 @@ class FitInterface:
         
         self.window.viewport.LockUpdate()
         # get active fit to make the copies
-#        fit = self.GetActiveFit()
+#        fit = self.workFit
         try:
             fromSpec = self.spectra[fromSpecID] 
         except KeyError:
@@ -435,9 +428,9 @@ class FitInterface:
 #        # clear pending Fit, if there is one
 #        # Note: we have to keep this until now, 
 #        # as it may be the template for all the copies 
-#        if self.activeFit:
-#            self.activeFit.Remove()
-#            self.activeFit= None
+#        if self.workFit:
+#            self.workFit.Remove()
+#            self.workFit= None
         self.window.viewport.UnlockUpdate()    
 
 
@@ -445,7 +438,7 @@ class FitInterface:
         """
         Show peak decomposition
         """
-        fit = self.GetActiveFit()
+        fit = self.workFit
         fit.SetDecomp(stat)
         if self.fitPanel:
             self.fitPanel.SetDecomp(stat)
@@ -459,7 +452,7 @@ class FitInterface:
         statstr = str()
         for ID in ids:
             if ID == "a":
-                fitter = self.GetActiveFit().fitter
+                fitter = self.workFit.fitter
                 statstr += "active fitter: \n"
             elif ID == "d":
                 fitter = self.defaultFitter
@@ -491,7 +484,7 @@ class FitInterface:
             except ValueError, msg:
                 hdtv.ui.error("while editing default Fit: \n\t%s" % msg)
         # active fit
-        fit = self.GetActiveFit()
+        fit = self.workFit
         try:
             fit.fitter.SetParameter(parname, status)
             fit.Refresh()
@@ -513,7 +506,7 @@ class FitInterface:
         if default:
             self.defaultFitter.ResetParamStatus()
         # active Fit
-        fit = self.GetActiveFit()
+        fit = self.workFit
         fit.fitter.ResetParamStatus()
         fit.Refresh()
         # fit list
@@ -533,7 +526,7 @@ class FitInterface:
         if default:
             self.defaultFitter.SetPeakModel(peakmodel)
         # active fit
-        fit = self.GetActiveFit()
+        fit = self.workFit
         fit.fitter.SetPeakModel(peakmodel)
         fit.Refresh()
         for ID in ids:
@@ -547,7 +540,7 @@ class FitInterface:
     def UpdateFitPanel(self):
         if not self.fitPanel:
             return
-        fit = self.GetActiveFit()
+        fit = self.workFit
         # options
         text = str()
         text += "Background model: polynomial, deg=%d\n" % fit.fitter.bgdeg
@@ -1019,7 +1012,7 @@ class TvFitInterface:
         if not args:
             params = set(["status", "reset"])
             defaultParams = set(self.fitIf.defaultFitter.params)
-            activeParams  = set(self.fitIf.GetActiveFit().fitter.params)
+            activeParams  = set(self.fitIf.workFit.fitter.params)
             # create a list of all possible parameter names
             params = params.union(defaultParams).union(activeParams)
             return hdtv.cmdhelper.GetCompleteOptions(text, params)
@@ -1036,7 +1029,7 @@ class TvFitInterface:
                 # param is not a parameter of the peak model of the default fitter
                 pass
             # valid states for param in active fitter
-            activePM = self.fitIf.GetActiveFit().fitter.peakModel
+            activePM = self.fitIf.workFit.fitter.peakModel
             try:
                 activeStates = activePM.fValidParStatus[param]
                 if len(activeStates)>1:
