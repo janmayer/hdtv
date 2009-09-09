@@ -101,7 +101,10 @@ class FitInterface:
         else:
             spec = self.spectra[self.spectra.activeID]
             if spec.fits.activeID is None: # No active fit so create a new workFit or reuse old
-                if self._workFit is None:
+                # No active fit so we have work on the temporary work fit or 
+                # create a new fit. If self._workFit is stored in spec.fits.values
+                # it is still some old remainder, else it would be active 
+                if self._workFit is None or self._workFit in spec.fits.values():
                     self._workFit = Fit(self.defaultFitter.Copy())
                     self._workFit.Draw(self.window.viewport)
             else:
@@ -268,6 +271,7 @@ class FitInterface:
         """ 
         Show and focus fits if necessary
         """
+        print "DEBUG showFits", ids
         if ids[0] is None or len(ids) == 0:
             return False
         spec = self.spectra[specID]
@@ -305,8 +309,7 @@ class FitInterface:
         spec = self.spectra[self.spectra.activeID]
         if self.workFit in spec.fits.values(): # Fit is already stored
             hdtv.ui.warn("Fit already stored")
-            return
-        if self.workFit is not None:
+        elif self.workFit is not None:
             ID = spec.AddFit(self.workFit)
         else:
             hdtv.ui.warn("No fit to store")
@@ -314,7 +317,7 @@ class FitInterface:
         # Reset work fit
         self._workFit = None 
 
-#        # deactivate all objects
+        # deactivate all objects
         spec.fits.ActivateObject(None)
 
 
