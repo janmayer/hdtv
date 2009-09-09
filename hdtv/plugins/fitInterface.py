@@ -194,7 +194,8 @@ class FitInterface:
         return self.activeFit
         
 
-    def Fit(self, specID=None, fitID=None, peaks = True):
+    # TODO: Fit and storing a fit should be seperated -> remove "storeIt"
+    def Fit(self, specID=None, fitID=None, peaks = True, storeIt=True):
         """
         Fit the peak
         
@@ -230,7 +231,7 @@ class FitInterface:
         # if the fit is fresh, add it temporarly to the spectrum
         # so that it is managed by the usual Show/Hide functions
         # rely on ActivateFit and StoreFit to do garbage collection 
-        if spec.fits.activeID == None: 
+        if storeIt and spec.fits.activeID == None: 
             ID = spec.AddFit(fit) 
             self.activeFit = None 
             spec.fits.ActivateObject(ID)
@@ -395,6 +396,7 @@ class FitInterface:
             return False
             
         for fitID in fitIDs:
+            self.spectra.ShowObjects(toSpecIDs + [fromSpecID])
             for specID in toSpecIDs:
                 
                 # Get target spectrum
@@ -416,9 +418,9 @@ class FitInterface:
                 newFitID = toSpec.AddFit(fit)
                 hdtv.ui.msg("Copied fit #%d.%d to #%d.%d" %(fromSpecID, fitID, specID, newFitID))
                 if refit:
-                    self.Fit(specID = specID, fitID = newFitID, peaks=True)
+                    self.Fit(specID = specID, fitID = newFitID, peaks=True, storeIt=False)
                 
-                fit.Show()
+#                fit.Show()
 #            # do not copy, if active fit belongs already to this spectrum
 #            if not fit.fitter.spec == spec:
 #                try:
@@ -916,8 +918,11 @@ class TvFitInterface:
         specIDs = hdtv.cmdhelper.ParseIds(options.spectra, self.spectra)
         
         # Remove active spectrum from target specIDs
-        specIDs.remove(self.spectra.activeID)
-        
+        try:
+            specIDs.remove(self.spectra.activeID)
+        except ValueError:
+            pass
+
         if len(specIDs) == 0:
             hdtv.ui.error("No target spectra")
             
