@@ -217,7 +217,6 @@ class DrawableCompound(dict):
     # activeID property
     def _set_activeID(self, ID):
         self._activeID = ID
-        print "DEBUG drawablecompound returning active ID", ID
         hdtv.ui.debug("hdtv.drawable._set_activeID: Resetting iterator to %s" % self._activeID, level=6)
         self._iteratorID = self._activeID # Reset iterator
         
