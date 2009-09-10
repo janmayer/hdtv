@@ -615,21 +615,22 @@ class Child(object):
     """
     def __init__(self, parent = None):
         if parent is not None:
-            self._parent = weakref.proxy(parent)
+            # self.__parent *must* never be a strong reference (see below)
+            self.__parent = weakref.proxy(parent)
         else:
-            self._parent = None
+            self.__parent = None
         
     # parent handling
     def _set_parent(self, parent):
         # Use weakref here, because strong references would create "cylic references"
         # which breaks correct garbage collection
         if parent is None:
-            self._parent = None
+            self.__parent = None
         else:
-            self._parent = weakref.proxy(parent)
+            self.__parent = weakref.proxy(parent)
         
     def _get_parent(self):
-        return self._parent
+        return self.__parent
     
     parent = property(_get_parent, _set_parent)
     
