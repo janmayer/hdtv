@@ -23,7 +23,7 @@ import math
 import re
 import os
 import glob
-
+import weakref
 
 def Median(values):
     """
@@ -608,5 +608,27 @@ class Table(object):
             
         return text
 
-     
 
+class Child(object):
+    """
+    Class for handling parent objects
+    """
+    def __init__(self, parent = None):
+        if parent is not None:
+            self._parent = weakref.proxy(parent)
+        else:
+            self._parent = None
+        
+    # parent handling
+    def _set_parent(self, parent):
+        # Use weakref here, because strong references would create "cylic references"
+        # which breaks correct garbage collection
+        if parent is None:
+            self._parent = None
+        else:
+            self._parent = weakref.proxy(parent)
+        
+    def _get_parent(self):
+        return self._parent
+    
+    parent = property(_get_parent, _set_parent)

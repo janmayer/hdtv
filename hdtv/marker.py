@@ -22,8 +22,7 @@ import ROOT
 import hdtv.cal
 import hdtv.color
 from hdtv.drawable import Drawable
-
-import weakref
+from hdtv.util import Child
 
 class Marker(Drawable):
     """ 
@@ -36,8 +35,8 @@ class Marker(Drawable):
     """
     def __init__(self, xytype, p1, color=hdtv.color.zoom, cal=None, connecttop=True, hasID=False):
         # do not call Drawable.__init__ as that results in conflicts in _set_cal
+        Child.__init__(self, parent=None)
         self.viewport = None
-        self._parent = None
         self.displayObj = None
         self.xytype = xytype
         self.connecttop = connecttop
@@ -209,11 +208,11 @@ class Marker(Drawable):
             self.displayObj.SetTitle(self.title)
 
 
-class MarkerCollection(list):
+class MarkerCollection(list, Child):
     def __init__(self, xytype, paired=False, maxnum=None, color=None, cal=None, connecttop=True, hasIDs=False):
         list.__init__(self)
+        Child.__init__(self, parent=None)
         self.viewport = None
-        self._parent = None
         self.xytype = xytype
         self.paired = paired
         self.maxnum = maxnum
@@ -231,19 +230,6 @@ class MarkerCollection(list):
         m.parent = self
         list.append(self,m)
 
-    # parent handling
-    def _set_parent(self, parent):
-        # Use weakref here, because strong references would create "cylic references"
-        # which breaks correct garbage collection
-        if parent is None:
-            self._parent = None
-        else:
-            self._parent = weakref.proxy(parent)
-        
-    def _get_parent(self):
-        return self._parent
-    
-    parent = property(_get_parent, _set_parent)
     
     @property
     def title(self):

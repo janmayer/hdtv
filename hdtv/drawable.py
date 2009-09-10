@@ -22,23 +22,24 @@
 import ROOT
 import os
 import UserDict
-import weakref
 
 import hdtv.cal
 import hdtv.color
 import hdtv.dlmgr
 import hdtv.ui
 
+from hdtv.util import Child
+
 hdtv.dlmgr.LoadLibrary("display")
 
-class Drawable(object):
-    def __init__(self, color=None, cal=None):
+class Drawable(Child):
+    def __init__(self, color=None, cal=None, parent=None):
         self.viewport = None
-        self._parent = None # The DrawableCompound that is managing this object
         self.displayObj = None
         self.cal = cal
         self.color = color 
-    
+        Child.__init__(self, parent = parent)
+        
     def __del__(self):
         self.Remove()
         
@@ -54,20 +55,6 @@ class Drawable(object):
             return self.parent.Index(self)
         except AttributeError:
             return None
-     
-    # parent compound handling
-    def _set_parent(self, parent):
-        # Use weakref here, because strong references would create "cylic references"
-        # which breaks correct garbage collection
-        if parent is None:
-            self._parent = None
-        else:
-            self._parent = weakref.proxy(parent)
-        
-    def _get_parent(self):
-        return self._parent
-    
-    parent = property(_get_parent, _set_parent)
 
     # cal property
     def _set_cal(self, cal):
@@ -196,35 +183,21 @@ class Drawable(object):
                 pass
 
 
-class DrawableCompound(dict):
+class DrawableCompound(dict, Child):
     """
     This class is a prototype of a collection of drawable objects. 
     It provides some handy functions to manage such an collection.
     """
     def __init__(self):
         dict.__init__(self)
-        self._parent = None
         self.viewport = None
         self.visible = set()
         self._activeID = None
         self._iteratorID = self.activeID # This should keep track of ID for nextID, prevID
-   
+        Child.__init__(self, parent=None)
+
     def __del__(self):
         self.RemoveAll()
-    
-     # parent handling
-    def _set_parent(self, parent):
-        # Use weakref here, because strong references would create "cylic references"
-        # which breaks correct garbage collection
-        if parent is None:
-            self._parent = None
-        else:
-            self._parent = weakref.proxy(parent)
-        
-    def _get_parent(self):
-        return self._parent
-    
-    parent = property(_get_parent, _set_parent)
     
     # active property
     @property
