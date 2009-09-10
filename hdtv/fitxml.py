@@ -23,7 +23,7 @@ import glob
 import xml.etree.cElementTree as ET
 import hdtv.spectrum
 import hdtv.peakmodels
-
+from hdtv.util import Position
 # Increase the version number if you changed something related to the xml output.
 # If your change affect the reading, you should increase the major number 
 # and supply an appropriate new ReadFitlist function for the new xml version.
@@ -92,49 +92,61 @@ class FitXml:
             # <begin>
             beginElement = ET.SubElement(markerElement, "begin")
             # <cal>
-            calElement = ET.SubElement(beginElement, "cal")
-            calElement.text = str(marker.p1)
-            # <uncal>
-            uncalElement = ET.SubElement(beginElement, "uncal")
-            uncalElement.text = str(fit.cal.E2Ch(marker.p1))
+            if marker.p1.pos_cal is not None:
+                calElement = ET.SubElement(beginElement, "cal")
+                calElement.text = str(marker.p1.pos_cal)
+            else:
+                # <uncal>
+                uncalElement = ET.SubElement(beginElement, "uncal")
+                uncalElement.text = str(marker.p1.pos_uncal)
             # <end>
             endElement = ET.SubElement(markerElement, "end")
-            # <cal>
-            calElement = ET.SubElement(endElement, "cal")
-            calElement.text = str(marker.p2)
-            # <uncal>
-            uncalElement = ET.SubElement(endElement, "uncal")
-            uncalElement.text = str(fit.cal.E2Ch(marker.p2))
+            if marker.p1.pos_cal is not None:
+                # <cal>
+                calElement = ET.SubElement(endElement, "cal")
+                calElement.text = str(marker.p2.pos_cal)
+            else:
+                # <uncal>
+                uncalElement = ET.SubElement(endElement, "uncal")
+                uncalElement.text = str(marker.p2.pos_uncal)
+                
         # <regionMarker>
         for marker in fit.regionMarkers:
             markerElement = ET.SubElement(fitElement, "regionMarker")
             # <begin>
             beginElement = ET.SubElement(markerElement, "begin")
             # <cal>
-            calElement = ET.SubElement(beginElement, "cal")
-            calElement.text = str(marker.p1)
+            if marker.p1.pos_cal is not None:
+                calElement = ET.SubElement(beginElement, "cal")
+                calElement.text = str(marker.p1.pos_cal)
             # <uncal>
-            uncalElement = ET.SubElement(beginElement, "uncal")
-            uncalElement.text = str(fit.cal.E2Ch(marker.p1))
+            else:
+                uncalElement = ET.SubElement(beginElement, "uncal")
+                uncalElement.text = str(marker.p1.pos_uncal)
             # <p2>
             endElement = ET.SubElement(markerElement, "end")
             # <cal>
-            calElement = ET.SubElement(endElement, "cal")
-            calElement.text = str(marker.p2)
+            if marker.p2.pos_cal is not None:
+                calElement = ET.SubElement(endElement, "cal")
+                calElement.text = str(marker.p2.pos_cal)
             # <uncal>
-            uncalElement = ET.SubElement(endElement, "uncal")
-            uncalElement.text = str(fit.cal.E2Ch(marker.p2))
+            else:
+                uncalElement = ET.SubElement(endElement, "uncal")
+                uncalElement.text = str(marker.p2.pos_uncal)
+                
         # <peakMarker>
         for marker in fit.peakMarkers:
             markerElement = ET.SubElement(fitElement, "peakMarker")
             # <begin>
             positionElement = ET.SubElement(markerElement, "position")
             # <cal>
-            calElement = ET.SubElement(positionElement, "cal")
-            calElement.text = str(marker.p1)
+            if marker.p1.pos_cal is not None:
+                calElement = ET.SubElement(positionElement, "cal")
+                calElement.text = str(marker.p1.pos_cal)
             # <uncal>
-            uncalElement = ET.SubElement(positionElement, "uncal")
-            uncalElement.text = str(fit.cal.E2Ch(marker.p1)) 
+            else:
+                uncalElement = ET.SubElement(positionElement, "uncal")
+                uncalElement.text = str(marker.p1.pos_uncal) 
         # <background>
         if not fit.fitter.bgFitter is None:
             bgElement = ET.SubElement(fitElement,"background")
@@ -428,14 +440,18 @@ class FitXml:
         """
         Read position in energy domain from XML element.
         """
+        pos = Position(cal = fit.cal)
+        
         try:
-            pos = float(markerElement.find("uncal").text)
-            pos = fit.cal.Ch2E(pos)
+            uncal = float(markerElement.find("uncal").text)
+            pos.pos_uncal = uncal
+            pos.FixUncal()
         except AttributeError:
             # Try to read "cal" element if "uncal" element does not exist
-            pos = float(markerElement.find("cal").text)
-            
-            
+            cal = float(markerElement.find("cal").text)
+            pos.pos_cal = cal
+            pos.FixCal()
+    
         return pos
     
     def _readParamElement(self, paramElement):

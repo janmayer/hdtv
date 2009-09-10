@@ -91,9 +91,9 @@ class Fit(Drawable):
         self.regionMarkers.cal = cal
         self.bgMarkers.cal = cal
         if self.dispPeakFunc:
-            self.dispPeakFunc.SetCal(self._cal)
+            self.dispPeakFunc.SetCal(self.cal)
         if self.dispBgFunc:
-            self.dispBgFunc.SetCal(self._cal)
+            self.dispBgFunc.SetCal(self.cal)
         for peak in self.peaks:
             peak.cal = cal
         if self.viewport:
@@ -144,15 +144,15 @@ class Fit(Drawable):
         markers = list()
         # Get maximum of region markers, peak markers and peaks
         for r in self.regionMarkers:
-            markers.append(r.p1)
-            markers.append(r.p2)
+            markers.append(r.p1.GetPosInCal())
+            markers.append(r.p2.GetPosInCal())
         for p in self.peakMarkers:
-            markers.append(p.p1)
+            markers.append(p.p1.GetPosInCal())
         for p in self.peaks:
             markers.append(p.pos_cal)
         for b in self.bgMarkers:
-            markers.append(b.p1)
-            markers.append(b.p2)
+            markers.append(b.p1.GetPosInCal())
+            markers.append(b.p2.GetPosInCal())
         # calulate region limits
         x_start = min(markers)
         x_end = max(markers)
@@ -181,6 +181,10 @@ class Fit(Drawable):
             self.dispPeakFunc = None
         for peak in self.peaks:
             peak.Remove()
+    
+        if isinstance(pos, float):
+            pos = hdtv.util.Position(pos_cal = pos, parent=self)
+        
         self.peakMarkers.PutMarker(pos)
 
     def PutRegionMarker(self, pos):
@@ -189,6 +193,10 @@ class Fit(Drawable):
             self.dispPeakFunc = None
         for peak in self.peaks:
             peak.Remove()
+        
+        if isinstance(pos, float):
+            pos = hdtv.util.Position(pos_cal = pos, parent=self)
+        
         self.regionMarkers.PutMarker(pos)
         
         
@@ -201,9 +209,29 @@ class Fit(Drawable):
             self.dispPeakFunc = None
         for peak in self.peaks:
             peak.Remove()
+            
+        if isinstance(pos, float):
+            pos = hdtv.util.Position(pos_cal = pos, parent=self)
+        
         self.bgMarkers.PutMarker(pos)
         
 
+    def FixMarkerCal(self):
+        """
+        Fix marker in calibrated space
+        """
+        for m in [self.bgMarkers, self.regionMarkers, self.peakMarkers]:
+            m.FixCal()
+    
+    
+    def FixMarkerUncal(self):
+        """
+        Fix marker in calibrated space
+        """
+        for m in [self.bgMarkers, self.regionMarkers, self.peakMarkers]:
+            m.FixUncal()
+            
+            
     def FitBgFunc(self, spec):
         """
         Do the background fit and extract the function for display
@@ -211,7 +239,9 @@ class Fit(Drawable):
         """ 
         # set calibration without changing position of markers,
         # because the marker have been set by the user to calibrated values
-        self.Recalibrate(spec.cal)
+#        self.Recalibrate(spec.cal)
+        self._set_cal(spec.cal)
+        self.bgMarkers.FixUncal()
         # remove old fit
         if self.dispBgFunc:
             self.dispBgFunc.Remove()
@@ -226,8 +256,8 @@ class Fit(Drawable):
         self.peaks = []
         self.chi=None
         # fit background 
-        if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
-            backgrounds = [[m.p1, m.p2] for m in self.bgMarkers] 
+        if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2.GetPosInCal():
+            backgrounds = [[m.p1.GetPosInCal(), m.p2.GetPosInCal()] for m in self.bgMarkers] 
             self.fitter.FitBackground(spec, backgrounds)
             func = self.fitter.bgFitter.GetFunc()
             self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
@@ -252,7 +282,11 @@ class Fit(Drawable):
         
         # set calibration without changing position of markers,
         # because the marker have been set by the user to calibrated values
-        self.Recalibrate(spec.cal)
+#        self.Recalibrate(spec.cal)
+        self._set_cal(spec.cal)
+        self.peakMarkers.FixUncal()
+        self.regionMarkers.FixUncal()
+        
         # remove old fit
         if self.dispBgFunc:
             self.dispBgFunc.Remove()
@@ -267,19 +301,19 @@ class Fit(Drawable):
         self.peaks = []
         self.chi=None
         # fit background 
-        if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
-            backgrounds =  map(lambda m: [m.p1, m.p2], self.bgMarkers)
+        if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2.GetPosInCal():
+            backgrounds =  map(lambda m: [m.p1.GetPosInCal(), m.p2.GetPosInCal()], self.bgMarkers)
             self.fitter.FitBackground(spec, backgrounds)
         # fit peaks
-        if len(self.peakMarkers)>0 and len(self.regionMarkers)==1 and self.regionMarkers[-1].p2:
-            region = [self.regionMarkers[0].p1, self.regionMarkers[0].p2]
+        if len(self.peakMarkers)>0 and len(self.regionMarkers)==1 and self.regionMarkers[-1].p2.GetPosInCal():
+            region = [self.regionMarkers[0].p1.GetPosInCal(), self.regionMarkers[0].p2.GetPosInCal()]
             # remove peak marker that are outside of region
             region.sort()
             for m in self.peakMarkers:
-                if m.p1<region[0] or m.p1>region[1]:
+                if m.p1.GetPosInCal()<region[0] or m.p1.GetPosInCal()>region[1]:
                     m.Remove()
                     self.peakMarkers.remove(m)
-            peaks = [m.p1 for m in self.peakMarkers]
+            peaks = [m.p1.GetPosInCal() for m in self.peakMarkers]
             peaks.sort()
             self.fitter.FitPeaks(spec, region, peaks)
             # get background function
@@ -309,7 +343,7 @@ class Fit(Drawable):
             self.peaks.sort()
             # update peak markers
             for (marker, peak) in zip(self.peakMarkers, self.peaks):
-                marker.p1 = peak.pos_cal.value
+                marker.p1.pos_cal = peak.pos_cal.value
             # print result
             if not silent:
                 print "\n"+6*" "+self.formatted_str(verbose=True)
@@ -323,10 +357,10 @@ class Fit(Drawable):
         # as the marker position is set to uncalibrated values, 
         # when read from xml fit list
         self.cal = spec.cal
-        if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2:
-            backgrounds = [[m.p1, m.p2] for m in self.bgMarkers]
+        if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2.GetPosInCal():
+            backgrounds = [[m.p1.GetPosInCal(), m.p2.GetPosInCal()] for m in self.bgMarkers]
             self.fitter.RestoreBackground(spec, backgrounds, self.bgCoeffs, self.bgChi)
-        region = [self.regionMarkers[0].p1, self.regionMarkers[0].p2]
+        region = [self.regionMarkers[0].p1.GetPosInCal(), self.regionMarkers[0].p2.GetPosInCal()]
         region.sort()
         self.fitter.RestorePeaks(spec, region, self.peaks, self.chi)
         # get background function
@@ -475,17 +509,6 @@ class Fit(Drawable):
         self.bgChi = None
         self.peaks = []
         self.chi = None
-
-
-    def Recalibrate(self, cal):
-        """
-        Changes the internal (uncalibrated) values of the markers in such a way, 
-        that the calibrated values are kept fixed, but a new calibration is used.
-        """
-        self._cal = cal
-        self.peakMarkers.Recalibrate(cal)
-        self.regionMarkers.Recalibrate(cal)
-        self.bgMarkers.Recalibrate(cal)
 
 
     def Copy(self, cal=None, color=None):

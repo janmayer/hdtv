@@ -241,8 +241,9 @@ class Spectrum(_RawSpectrum):
         """
         # as marker positions are uncalibrated, 
         # we need do a recalibration here
-        newID = self.fits.Add(fit, ID) 
-        fit.Recalibrate(self.cal)
+        newID = self.fits.Add(fit, ID)
+#        fit.FixMarkerUncal()
+        fit.cal = self.cal
         fit.color = self.color
         return newID
         

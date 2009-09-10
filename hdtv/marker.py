@@ -22,7 +22,9 @@ import ROOT
 import hdtv.cal
 import hdtv.color
 from hdtv.drawable import Drawable
-from hdtv.util import Child
+
+from hdtv.util import Child, Position
+import copy
 
 class Marker(Drawable):
     """ 
@@ -34,8 +36,9 @@ class Marker(Drawable):
     possition is None.
     """
     def __init__(self, xytype, p1, color=hdtv.color.zoom, cal=None, connecttop=True, hasID=False):
-        # do not call Drawable.__init__ as that results in conflicts in _set_cal
+
         Child.__init__(self, parent=None)
+        Drawable.__init__(self, parent=None, color=color, cal=cal)
         self.viewport = None
         self.displayObj = None
         self.xytype = xytype
@@ -47,25 +50,17 @@ class Marker(Drawable):
         self._activeColor = color
         self._passiveColor = hdtv.color.Highlight(color, active=False)
         self.color = color
-        self._cal = hdtv.cal.MakeCalibration(cal)
     
     # calibration
     def _set_cal(self, cal):
-        """
-        Changes the calibration of a marker
-        this changes also the values of p1 and p2, as they are calibrated values
-        """
-        cal = hdtv.cal.MakeCalibration(cal)
-        self.p1 = cal.Ch2E(self._cal.E2Ch(self.p1))
-        if self.p2:
-            self.p2 = cal.Ch2E(self._cal.E2Ch(self.p2))
-        self._cal = cal
-        if self.displayObj:
-            self.displayObj.SetCal(self._cal)
+#        self._cal = hdtv.cal.MakeCalibration(cal)
+        Drawable._set_cal(self, cal)
+        self.Refresh()
 
     def _get_cal(self):
-        return self._cal
-    
+#        return self._cal
+        return Drawable._get_cal(self)
+ 
     cal = property(_get_cal, _set_cal)
     
     # color
@@ -85,7 +80,7 @@ class Marker(Drawable):
 
 
     def __str__(self):
-        if self.p2:
+        if not self.p2 is None:
             return '%s marker at %s and %s' %(self.xytype, self.p1, self.p2)
         else:
             return '%s marker at %s' %(self.xytype, self.p1)
@@ -121,14 +116,14 @@ class Marker(Drawable):
         self.viewport = viewport
         # adjust the position values for the creation of the makers
         # on the C++ side all values must be uncalibrated
+        p1 = self.p1.GetPosInUncal()
+
         if self.p2 == None:
             n = 1
-            p1 = self.cal.E2Ch(self.p1)
             p2 = 0.0
         else:
             n = 2
-            p1 = self.cal.E2Ch(self.p1)
-            p2 = self.cal.E2Ch(self.p2)
+            p2 = self.p2.GetPosInUncal()
         # X or Y?
         if self.xytype == "X":
             constructor = ROOT.HDTV.Display.XMarker
@@ -142,7 +137,7 @@ class Marker(Drawable):
             self.ShowTitle()
         if self.xytype=="X":
             # calibration makes only sense on the X axis
-            self.displayObj.SetCal(self._cal)
+            self.displayObj.SetCal(self.cal)
             self.displayObj.SetConnectTop(self.connecttop)
         self.displayObj.Draw(self.viewport)
         
@@ -158,15 +153,14 @@ class Marker(Drawable):
         #if not self.viewport:
         #  return
         if self.displayObj:
-            if self.p2:
+            p1 = self.p1.GetPosInUncal()
+            if not self.p2 is None:
                 # on the C++ side all values must be uncalibrated
-                p1 = self.cal.E2Ch(self.p1)
-                p2 = self.cal.E2Ch(self.p2)
+                p2 = self.p2.GetPosInUncal()
                 self.displayObj.SetN(2)
                 self.displayObj.SetPos(p1, p2)
             else:
                 # on the C++ side all values must be uncalibrated
-                p1 = self.cal.E2Ch(self.p1)
                 self.displayObj.SetN(1)
                 self.displayObj.SetPos(p1)
             if self.xytype == "X": # calibration makes only sense on the X axis
@@ -186,20 +180,25 @@ class Marker(Drawable):
         The actual position of the marker on the display (calibrated value)
         is kept. 
         """
-        new = Marker(self.xytype, self.p1, self.color, cal)
-        new.p2= self.p2
+        p1 = self.p1.GetPosInCal()
+        new = Marker(self.xytype, p1, self.color, cal)
+        # TODO:
+        hdtv.ui.warn("TODO: Check Marker.Copy()")
+        if self.p2 is not None:
+            new.p2 = copy.copy(self.p2)
         return new
 
 
-    def Recalibrate(self, cal=None):
-        """
-        Changes the uncalibrated values of the position in such a way, 
-        that the calibrated values are kept fixed, but a new calibration is used.
-        """
-        self._cal= cal
-        self.Refresh()
-
-
+    def FixCal(self):
+        self.p1.FixCal()
+        if self.p2 is not None:
+            self.p2.FixCal()
+    
+    def FixUncal(self):
+        self.p1.FixUncal()
+        if self.p2 is not None:
+            self.p2.FixUncal()
+            
     def ShowTitle(self):
         """
         Show the title of the marker (a string to be displayed aside it)
@@ -209,6 +208,7 @@ class Marker(Drawable):
 
 
 class MarkerCollection(list, Child):
+    
     def __init__(self, xytype, paired=False, maxnum=None, color=None, cal=None, connecttop=True, hasIDs=False):
         list.__init__(self)
         Child.__init__(self, parent=None)
@@ -221,7 +221,11 @@ class MarkerCollection(list, Child):
         self._activeColor = color
         self._passiveColor = hdtv.color.Highlight(color, active=False)
         self.hasIDs = hasIDs
+        self._fixedInCal = True # By default markers are fixed in calibrated space
 
+    def __del(self):
+        print "DEBUG MarkerColl destructor" 
+        
     def __setitem__(self, m):
         m.parent = self
         list.__set_item__(self,m)
@@ -259,6 +263,7 @@ class MarkerCollection(list, Child):
         self._cal= hdtv.cal.MakeCalibration(cal)
         for marker in self:
             marker.cal = cal
+            marker.Refresh()
             
     def _get_cal(self):
         return self._cal
@@ -307,21 +312,22 @@ class MarkerCollection(list, Child):
         for marker in self:
             marker.Refresh()
 
-    def Recalibrate(self, cal):
-        """
-        Changes the internal (uncalibrated) values of the positions in such a way, 
-        that the calibrated values are kept fixed, but a new calibration is used.
-        """
-        self._cal = cal
+    def FixCal(self):
+        self._fixedInCal = True
         for marker in self:
-            marker.Recalibrate(cal)
-
-
+            marker.FixCal()
+    
+    def FixUncal(self):
+        self._fixedInCal = False
+        for marker in self:
+            marker.FixUncal()
+            
+            
     def PutMarker(self, pos):
         """
-        Put a marker to position pos, possibly completing a marker pair
+        Put a marker to calibrated position pos, possibly completing a marker pair
         """
-        
+ 
         if not self.paired:
             m = Marker(self.xytype, pos, self._activeColor, self.cal, self.connecttop, hasID = self.hasIDs)
             m.color = self._passiveColor
@@ -392,10 +398,13 @@ class MarkerCollection(list, Child):
             return
         index = dict()
         for m in self:
-            diff = abs(pos-m.p1)
+            p1 = m.p1.GetPosInCal()
+            diff = abs(pos-p1)
             index[diff] = m
             if self.paired and not m.p2==None:
-                diff = abs(pos-m.p2)
+                p2 = m.p2.GetPosInCal()
+
+                diff = abs(pos-p2)
                 index[diff] = m
         nearest = index[min(index.keys())]
         nearest.Remove()

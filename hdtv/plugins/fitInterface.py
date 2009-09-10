@@ -30,6 +30,7 @@ from hdtv.fitter import Fitter
 from hdtv.fit import Fit
 from hdtv.fitpanel import FitPanel
 
+import sys
 
 class FitInterface:
     """
@@ -104,6 +105,7 @@ class FitInterface:
                 if self._workFit is None or self._workFit in spec.fits.values():
                     self._workFit = Fit(self.defaultFitter.Copy())
                     self._workFit.Draw(self.window.viewport)
+                    print "DEBGU new workfit: refoucnt:", sys.getrefcount(self._workFit)
             else:
                 self._workFit = spec.fits[spec.fits.activeID]
 

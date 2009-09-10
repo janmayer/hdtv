@@ -462,7 +462,7 @@ class Pairs(list):
         """
         pass
         
-    def fromFile(self, fname, sep=None):
+    def fromFile(self, fname, sep = None):
         """
         Read pairs from file
         """    
@@ -632,3 +632,117 @@ class Child(object):
         return self._parent
     
     parent = property(_get_parent, _set_parent)
+    
+    
+
+class Position(Child):
+    """
+    Class for storing postions that may be fixed in calibrated or uncalibrated space
+    
+    if self.pos_cal is set the position is fixed in calibrated space. 
+    if self.pos_uncal is set the position is fixed in uncalibrated space.
+    """
+    def __init__(self, pos_uncal = None, pos_cal = None, parent = None, cal = None):
+        
+        Child.__init__(self, parent = parent)
+        self.cal = cal
+
+        if pos_cal is not None:
+            self._pos_cal = pos_cal
+            self._pos_uncal = None
+        else:
+            self._pos_cal = None
+            self._pos_uncal = pos_uncal 
+        
+    def __str(self):
+        text = str()
+        if self._pos_cal is not None:
+            text += "Cal: %s" % self.pos_cal
+        if self._pos_uncal is not None:
+            text += "Uncal: %s" % self.pos_uncal
+        return text
+    
+    def GetPosInCal(self):
+        if self._pos_cal is None:
+            return self._Ch2E(self._pos_uncal)
+        else:
+            return self._pos_cal
+    
+    def GetPosInUncal(self):
+        if self._pos_uncal is None:
+            return self._E2Ch(self._pos_cal)
+        else:
+            return self._pos_uncal
+        
+    def _Ch2E(self, Ch):
+        if self.cal is None:
+            try:
+                E = self.parent.cal.Ch2E(Ch)
+            except AttributeError:
+                E = None
+        else:
+            E = self.cal.Ch2E(Ch)
+        return E
+    
+    def _E2Ch(self, E):
+        if self.cal is None:
+            try:
+                Ch = self.parent.cal.E2Ch(E)
+            except AttributeError:
+                Ch = None
+        else:
+            Ch = self.cal.E2Ch(E)
+        return Ch
+        
+    def _set_pos_cal(self, pos):
+        
+        if self._pos_cal is None and self._pos_uncal is None:
+            self._pos_cal = pos
+        elif self._pos_cal is None:
+            self._pos_uncal = self._E2Ch(pos)
+        else:
+            self._pos_cal = pos
+            self._pos_uncal = None
+        
+        assert self._pos_cal is None or self._pos_uncal is None, "Position cannot be fixed in calibrated and uncalibrated space"
+        
+        
+    def _get_pos_cal(self):
+        return self._pos_cal
+        
+    pos_cal = property(_get_pos_cal, _set_pos_cal)
+    
+    
+    def _set_pos_uncal(self, pos):
+        
+        if self._pos_cal is None and self._pos_uncal is None:
+            self._pos_uncal = pos
+        elif self._pos_uncal is None:
+            self._pos_cal = self._Ch2E(pos)
+        else:
+            self._pos_uncal = pos
+            self._pos_cal = None
+
+        assert self._pos_cal is None or self._pos_uncal is None, "Position cannot be fixed in calibrated and uncalibrated space"
+
+    def _get_pos_uncal(self):
+        return self._pos_uncal  
+    
+    pos_uncal = property(_get_pos_uncal, _set_pos_uncal)
+
+    def FixCal(self):
+        """
+        Fix position in calibrated space
+        """
+        if self._pos_cal is None:
+            self._pos_cal = self._Ch2E(self._pos_uncal)
+            self._pos_uncal = None
+         
+    def FixUncal(self):
+        """
+        Fix position in uncalibrated space
+        """
+        if self._pos_uncal is None:
+            self._pos_uncal = self._E2Ch(self.pos_cal)
+            self._pos_cal = None
+
