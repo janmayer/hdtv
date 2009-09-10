@@ -696,16 +696,11 @@ class Position(Child):
         
     def _set_pos_cal(self, pos):
         
-        if self._pos_cal is None and self._pos_uncal is None:
-            self._pos_cal = pos
-        elif self._pos_cal is None:
-            self._pos_uncal = self._E2Ch(pos)
-        else:
-            self._pos_cal = pos
-            self._pos_uncal = None
+        if self._pos_uncal is not None:
+            raise TypeError, "Position is fixed in uncalibrated space"
+            return
         
-        assert self._pos_cal is None or self._pos_uncal is None, "Position cannot be fixed in calibrated and uncalibrated space"
-        
+        self._pos_cal = pos
         
     def _get_pos_cal(self):
         return self._pos_cal
@@ -714,16 +709,13 @@ class Position(Child):
     
     
     def _set_pos_uncal(self, pos):
-        
-        if self._pos_cal is None and self._pos_uncal is None:
-            self._pos_uncal = pos
-        elif self._pos_uncal is None:
-            self._pos_cal = self._Ch2E(pos)
-        else:
-            self._pos_uncal = pos
-            self._pos_cal = None
 
-        assert self._pos_cal is None or self._pos_uncal is None, "Position cannot be fixed in calibrated and uncalibrated space"
+        if self._pos_cal is not None:
+            raise TypeError, "Position is fixed in calibrated space"
+            return
+        
+        self._pos_uncal = pos
+
 
     def _get_pos_uncal(self):
         return self._pos_uncal  

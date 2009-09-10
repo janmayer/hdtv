@@ -242,6 +242,7 @@ class Fit(Drawable):
 #        self.Recalibrate(spec.cal)
         self._set_cal(spec.cal)
         self.bgMarkers.FixUncal()
+
         # remove old fit
         if self.dispBgFunc:
             self.dispBgFunc.Remove()
@@ -343,7 +344,10 @@ class Fit(Drawable):
             self.peaks.sort()
             # update peak markers
             for (marker, peak) in zip(self.peakMarkers, self.peaks):
-                marker.p1.pos_cal = peak.pos_cal.value
+                if marker.p1.pos_cal is None: # Marker is fixed in uncalibrated space
+                    marker.p1.pos_uncal = peak.pos.value
+                else:
+                    marker.p1.pos_cal = peak.pos_cal.value
             # print result
             if not silent:
                 print "\n"+6*" "+self.formatted_str(verbose=True)

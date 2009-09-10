@@ -193,7 +193,7 @@ class Marker(Drawable):
         self.p1.FixCal()
         if self.p2 is not None:
             self.p2.FixCal()
-    
+        
     def FixUncal(self):
         self.p1.FixUncal()
         if self.p2 is not None:
