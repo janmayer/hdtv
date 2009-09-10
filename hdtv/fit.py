@@ -24,7 +24,6 @@ import hdtv.cal
 import hdtv.util
 from hdtv.drawable import Drawable
 from hdtv.marker import MarkerCollection
-import weakref
 
 hdtv.dlmgr.LoadLibrary("display")
 
@@ -50,15 +49,13 @@ class Fit(Drawable):
         self.regionMarkers = MarkerCollection("X", paired=True, maxnum=1,
                                              color=hdtv.color.region, cal=cal)
         
-        # Use weakref for parent elements because strong references would create
-        # cyclic references and prevent correct garbage collection
-        self.regionMarkers.parent = weakref.proxy(self)
+        self.regionMarkers.parent = self
         self.peakMarkers = MarkerCollection("X", paired=False, maxnum=None,
                                              color=hdtv.color.peak, cal=cal, hasIDs=True)
-        self.peakMarkers.parent = weakref.proxy(self)
+        self.peakMarkers.parent = self
         self.bgMarkers = MarkerCollection("X", paired=True, maxnum=None,
                                              color=hdtv.color.bg, cal=cal)
-        self.bgMarkers.parent = weakref.proxy(self)
+        self.bgMarkers.parent = self
         self.fitter = fitter
         self.peaks = []
         self.chi = None

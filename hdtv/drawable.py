@@ -34,11 +34,17 @@ hdtv.dlmgr.LoadLibrary("display")
 class Drawable(object):
     def __init__(self, color=None, cal=None):
         self.viewport = None
-        self.parent = None # The DrawableCompound that is managing this object
+        self._parent = None # The DrawableCompound that is managing this object
         self.displayObj = None
         self.cal = cal
         self.color = color 
     
+    def __del__(self):
+        self.Remove()
+        
+    def __str__(self):
+        return str(self.displayObj)
+     
     @property
     def ID(self):
         """
@@ -48,13 +54,21 @@ class Drawable(object):
             return self.parent.Index(self)
         except AttributeError:
             return None
-        
-    def __del__(self):
-        self.Remove()
-        
-    def __str__(self):
-        return str(self.displayObj)
      
+    # parent compound handling
+    def _set_parent(self, parent):
+        # Use weakref here, because strong references would create "cylic references"
+        # which breaks correct garbage collection
+        if parent is None:
+            self._parent = None
+        else:
+            self._parent = weakref.proxy(parent)
+        
+    def _get_parent(self):
+        return self._parent
+    
+    parent = property(_get_parent, _set_parent)
+
     # cal property
     def _set_cal(self, cal):
         self._cal=hdtv.cal.MakeCalibration(cal)
@@ -189,7 +203,7 @@ class DrawableCompound(dict):
     """
     def __init__(self):
         dict.__init__(self)
-        self.parent = None
+        self._parent = None
         self.viewport = None
         self.visible = set()
         self._activeID = None
@@ -197,7 +211,21 @@ class DrawableCompound(dict):
    
     def __del__(self):
         self.RemoveAll()
-       
+    
+     # parent handling
+    def _set_parent(self, parent):
+        # Use weakref here, because strong references would create "cylic references"
+        # which breaks correct garbage collection
+        if parent is None:
+            self._parent = None
+        else:
+            self._parent = weakref.proxy(parent)
+        
+    def _get_parent(self):
+        return self._parent
+    
+    parent = property(_get_parent, _set_parent)
+    
     # active property
     @property
     def active(self):
@@ -342,7 +370,7 @@ class DrawableCompound(dict):
             obj.SetID(ID)
         except AttributeError:
             pass
-        obj.parent = weakref.proxy(self)
+        obj.parent = self
         return dict.__setitem__(self ,ID, obj)
 
 
@@ -396,7 +424,7 @@ class DrawableCompound(dict):
         except AttributeError:
             pass
 
-        obj.parent = weakref.proxy(self)
+        obj.parent = self
         
         if self.viewport:
             obj.Draw(self.viewport)

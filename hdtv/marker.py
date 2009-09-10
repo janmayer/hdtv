@@ -37,7 +37,7 @@ class Marker(Drawable):
     def __init__(self, xytype, p1, color=hdtv.color.zoom, cal=None, connecttop=True, hasID=False):
         # do not call Drawable.__init__ as that results in conflicts in _set_cal
         self.viewport = None
-        self.parent = None
+        self._parent = None
         self.displayObj = None
         self.xytype = xytype
         self.connecttop = connecttop
@@ -213,7 +213,7 @@ class MarkerCollection(list):
     def __init__(self, xytype, paired=False, maxnum=None, color=None, cal=None, connecttop=True, hasIDs=False):
         list.__init__(self)
         self.viewport = None
-        self.parent = None
+        self._parent = None
         self.xytype = xytype
         self.paired = paired
         self.maxnum = maxnum
@@ -224,13 +224,27 @@ class MarkerCollection(list):
         self.hasIDs = hasIDs
 
     def __setitem__(self, m):
-        m.parent = weakref.proxy(self)
+        m.parent = self
         list.__set_item__(self,m)
         
     def append(self, m):
-        m.parent = weakref.proxy(self)
+        m.parent = self
         list.append(self,m)
 
+    # parent handling
+    def _set_parent(self, parent):
+        # Use weakref here, because strong references would create "cylic references"
+        # which breaks correct garbage collection
+        if parent is None:
+            self._parent = None
+        else:
+            self._parent = weakref.proxy(parent)
+        
+    def _get_parent(self):
+        return self._parent
+    
+    parent = property(_get_parent, _set_parent)
+    
     @property
     def title(self):
         if self.hasIDs:
