@@ -54,7 +54,7 @@ __main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
-__main__.spectra[0].RemoveObjects(spectra[0].keys())
+__main__.spectra[0].fits.RemoveAll()
 print 'Reading fits from file %s' %testXML
 __main__.fitxml.ReadFitlist(testXML)
 
@@ -80,7 +80,7 @@ __main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
-__main__.spectra[0].RemoveAll()
+__main__.spectra[0].fits.RemoveAll()
 print 'Reading fits from file %s' %testXML
 __main__.fitxml.ReadFitlist(testXML)
 
@@ -107,7 +107,7 @@ __main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
-__main__.spectra[0].RemoveAll()
+__main__.spectra[0].fits.RemoveAll()
 print 'Reading fits from file %s' %testXML
 __main__.fitxml.ReadFitlist(testXML)
 
@@ -135,7 +135,7 @@ __main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
-__main__.spectra[0].RemoveAll()
+__main__.spectra[0].fits.RemoveAll()
 print 'Reading fits from file %s' %testXML
 __main__.fitxml.ReadFitlist(testXML)
 
@@ -162,7 +162,7 @@ __main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
-__main__.spectra[0].RemoveAll()
+__main__.spectra[0].fits.RemoveAll()
 print 'Reading fits from file %s' %testXML
 __main__.fitxml.ReadFitlist(testXML)
 
@@ -185,7 +185,7 @@ __main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
-__main__.spectra[0].RemoveAll()
+__main__.spectra[0].fits.RemoveAll()
 print 'Reading fits from file %s' %testXML
 __main__.fitxml.ReadFitlist(testXML)
 

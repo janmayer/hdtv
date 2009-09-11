@@ -3,17 +3,14 @@
     <fit bgDegree="1" chi="2889.25213649" peakModel="theuerkauf">
       <regionMarker>
         <begin>
-          <cal>725</cal>
           <uncal>1450.0</uncal>
         </begin>
         <end>
-          <cal>735</cal>
           <uncal>1470.0</uncal>
         </end>
       </regionMarker>
       <peakMarker>
         <position>
-          <cal>730.380833584</cal>
           <uncal>1460.76166717</uncal>
         </position>
       </peakMarker>

@@ -360,7 +360,7 @@ class MarkerCollection(list, Child):
         """
         if self.maxnum == None:
             return False
-        if len(self) > 0 and self[-1].p2 == None:
+        if self.IsPending():
             return False
         return len(self) == self.maxnum
         

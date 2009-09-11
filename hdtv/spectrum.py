@@ -297,12 +297,13 @@ class Spectrum(_RawSpectrum):
         for ID in self.fits.visible:
             self.fits[ID].Show()
 
-    def ShowAll(self):
-        """
-        Show spectrum and all fits
-        """
-        _RawSpectrum.Show(self)
-        self.fits.ShowAll()
+# TODO: Remove OR keep also RemoveAll and HideAll (consistency!)
+#    def ShowAll(self):
+#        """
+#        Show spectrum and all fits
+#        """
+#        _RawSpectrum.Show(self)
+#        self.fits.ShowAll()
         
     # Remove commands
     def Remove(self):
