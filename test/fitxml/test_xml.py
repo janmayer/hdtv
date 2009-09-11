@@ -41,7 +41,7 @@ print "case 0: all parameter free, just one peak, no background, theuerkauf mode
 print "-------------------------------------------------------------------------"
 __main__.f.SetPeakModel("theuerkauf", default=True)
 __main__.f.ResetParameters(default=True)
-fit = __main__.f.GetActiveFit()
+fit = __main__.f.workFit
 fit.PutRegionMarker(1450)
 fit.PutRegionMarker(1470)
 fit.PutPeakMarker(1460)
@@ -63,7 +63,7 @@ raw_input("Press enter to continue")
 print "-------------------------------------------------------------------------"
 print "case 1: all parameter free, just one peak, background"
 print "-------------------------------------------------------------------------"
-fit = __main__.f.GetActiveFit()
+fit = __main__.f.workFit
 fit.PutRegionMarker(500)
 fit.PutRegionMarker(520)
 fit.PutPeakMarker(511)
@@ -89,7 +89,7 @@ raw_input("Press enter to continue")
 print "-------------------------------------------------------------------------"
 print "case 1: all parameter free, more than one peak"
 print "-------------------------------------------------------------------------"
-fit = __main__.f.GetActiveFit()
+fit = __main__.f.workFit
 fit.PutRegionMarker(1395)
 fit.PutRegionMarker(1415)
 fit.PutPeakMarker(1400)
@@ -116,7 +116,7 @@ raw_input("Press enter to continue")
 print "-------------------------------------------------------------------------"
 print "case 3: one parameter status!=free, but equal for all peaks"
 print "-------------------------------------------------------------------------"
-fit = __main__.f.GetActiveFit()
+fit = __main__.f.workFit
 fit.PutRegionMarker(960)
 fit.PutRegionMarker(975)
 fit.PutPeakMarker(965)
@@ -144,7 +144,7 @@ raw_input("Press enter to continue")
 print "-------------------------------------------------------------------------"
 print "case 4: different parameter status for each peak"
 print "-------------------------------------------------------------------------"
-fit = __main__.f.GetActiveFit()
+fit = __main__.f.workFit
 fit.PutRegionMarker(1750)
 fit.PutRegionMarker(1780)
 fit.PutPeakMarker(1765)
@@ -172,7 +172,7 @@ print "-------------------------------------------------------------------------
 print "case 5: ee peak (just proof of concept, not a thorough test)"
 print "-------------------------------------------------------------------------"
 __main__.f.SetPeakModel("ee")
-fit = __main__.f.GetActiveFit()
+fit = __main__.f.workFit
 fit.PutRegionMarker(1115)
 fit.PutRegionMarker(1125)
 fit.PutPeakMarker(1120)
