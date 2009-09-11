@@ -327,6 +327,9 @@ class MarkerCollection(list, Child):
         """
         Put a marker to calibrated position pos, possibly completing a marker pair
         """
+        if isinstance(pos, (float,int)):
+            pos = hdtv.util.Position(pos_cal = pos, parent=self)
+            
         if self.IsFull():
             pending = self.pop(0)
             pending.p1 = pos

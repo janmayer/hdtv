@@ -181,10 +181,7 @@ class Fit(Drawable):
             self.dispPeakFunc = None
         for peak in self.peaks:
             peak.Remove()
-    
-        if isinstance(pos, (float,int)):
-            pos = hdtv.util.Position(pos_cal = pos, parent=self)
-        
+
         self.peakMarkers.PutMarker(pos)
 
     def PutRegionMarker(self, pos):
@@ -193,9 +190,6 @@ class Fit(Drawable):
             self.dispPeakFunc = None
         for peak in self.peaks:
             peak.Remove()
-        
-        if isinstance(pos, (float,int)):
-            pos = hdtv.util.Position(pos_cal = pos, parent=self)
         
         self.regionMarkers.PutMarker(pos)
         
@@ -209,9 +203,6 @@ class Fit(Drawable):
             self.dispPeakFunc = None
         for peak in self.peaks:
             peak.Remove()
-            
-        if isinstance(pos, (float,int)):
-            pos = hdtv.util.Position(pos_cal = pos, parent=self)
         
         self.bgMarkers.PutMarker(pos)
         
