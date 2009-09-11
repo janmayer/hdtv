@@ -327,31 +327,22 @@ class MarkerCollection(list, Child):
         """
         Put a marker to calibrated position pos, possibly completing a marker pair
         """
- 
-        if not self.paired:
+        if self.IsFull():
+            pending = self.pop(0)
+            pending.p1 = pos
+            pending.p2 = None
+            pending.Refresh()
+            self.append(pending)
+        elif self.IsPending():
+            pending = self[-1]
+            pending.p2 = pos
+            pending.Refresh()
+        else:
             m = Marker(self.xytype, pos, self._activeColor, self.cal, self.connecttop, hasID = self.hasIDs)
             m.color = self._passiveColor
             self.append(m)
             if self.viewport:
                 m.Draw(self.viewport)
-        else:
-            if len(self)>0 and self[-1].p2==None:
-                pending = self[-1]
-                pending.p2 = pos
-                pending.Refresh()
-            elif self.maxnum and len(self)== self.maxnum:
-                pending = self.pop(0)
-                pending.p1 = pos
-                pending.p2 = None
-                pending.Refresh()
-                self.append(pending)
-            else:
-                pending = Marker(self.xytype, pos, self._activeColor, self.cal,\
-                                 self.connecttop, hasID = self.hasIDs)
-                pending.color = self._passiveColor
-                if self.viewport:
-                    pending.Draw(self.viewport)
-                self.append(pending)
                 
     def IsFull(self):
         """
