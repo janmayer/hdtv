@@ -221,7 +221,7 @@ class FitInterface:
             try:
                 fit = spec.fits[fitID]
             except KeyError:
-                hdtv.ui.error("No fit %d in spectrum %d" %(fitID, specID))
+                hdtv.ui.warn("No fit %d in spectrum %d" %(fitID, specID))
                 return
 
         if not peaks and len(fit.bgMarkers) > 0:
@@ -654,6 +654,17 @@ class TvFitInterface:
                                 completer = self.PeakModelCompleter,
                                 parser = parser, minargs = 1)
 
+        prog = "fit fit"
+        description = "(re)fit a fit"
+        usage = "%prog [OPTIONS] <fit-ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        parser.add_option("-s", "--spectra", action = "store", default = "active",
+                            help = "Spectra to work on")
+        parser.add_option("-b", "--background", action = "store_true", default = False,
+                            help = "fit only the background")
+        hdtv.cmdline.AddCommand(prog, self.DoFit, parser = parser)
+
+
         # calibration command
         prog = "calibration position assign"
         description = "Calibrate the active spectrum by asigning energies to fitted peaks. "
@@ -1018,7 +1029,34 @@ class TvFitInterface:
             states.discard(float)
             return hdtv.cmdhelper.GetCompleteOptions(text, states)
         
+    def DoFit(self, args, options):
+        """
+        Perform a fit
+        """
         
+        specIDs = hdtv.cmdhelper.ParseIds(options.spectra, self.spectra)
+        
+        if len(specIDs) == 0:
+            hdtv.ui.error("No spectrum to work on")
+            return
+        
+        if options.background:
+            doPeaks = False
+        else:
+            doPeaks = True
+            
+        for specID in specIDs:
+            
+            fitIDs = hdtv.cmdhelper.ParseIds(args, self.spectra[specID].fits)
+            
+            if len(fitIDs) == 0:
+                hdtv.ui.warn("No fit for spectrum %d to work on", specID)
+                continue
+            
+            for fitID in fitIDs:    
+                self.fitIf.Fit(specID=specID, fitID=fitID, peaks=doPeaks) 
+    
+
     def CalPosAssign(self, args, options):
         """ 
         Calibrate the active spectrum by assigning energies to fitted peaks
