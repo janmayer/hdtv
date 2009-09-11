@@ -31,7 +31,7 @@ spectra = __main__.spectra
 spectra.RemoveAll()
 
 testspectrum= os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
-testXML = os.path.join(__main__.hdtvpath, "test", "fitxml", "test.xml")
+testXML = os.path.join(__main__.hdtvpath, "test", "fitxml", "fit.xml")
 
 __main__.s.LoadSpectra(testspectrum)
 spec = spectra[0]
@@ -41,10 +41,8 @@ spec = spectra[0]
 tree = ET.parse(testXML)
 root = tree.getroot()
 
-
-for specElement in root.findall("spectrum"):
-    for fitElement in specElement.findall("fit"):
-        ET.dump(fitElement)
+for fitElement in root.findall("fit"):
+    ET.dump(fitElement)
 
 print "-------------------------------------------------------------------------"
 print "Case 1: Restore without calibration"
@@ -199,40 +197,7 @@ raw_input('Press enter to continue ')
 __main__.f.ClearFit()
 spec.fits.RemoveAll()
 print "-------------------------------------------------------------------------"
-print "Case 8: Load old calibration during Restore"
-print "-------------------------------------------------------------------------"
-print "Calibrate"
-spec.cal=[0,0.5]
-
-print "Fit"
-fit = __main__.f.workFit
-fit.PutRegionMarker(725)
-fit.PutRegionMarker(735)
-fit.PutPeakMarker(730)
-__main__.f.Fit()
-
-print "Saving fits"
-__main__.f.StoreFit()
-__main__.fitxml.WriteFitlist(testXML)
-
-print "Change calibration"
-spec.cal =[0,2]
-
-print spec.fits[0]
-
-spec.fits.RemoveAll()
-print "Reading fits"
-__main__.fitxml.ReadFitlist(testXML, calibrate=True)
-
-print spec.fits[0]
-__main__.window.GoToPosition(730)
-
-raw_input("Press enter to continue ")
-
-__main__.f.ClearFit()
-spec.fits.RemoveAll()
-print "-------------------------------------------------------------------------"
-print "Case 9: Pur background fit without calibration"
+print "Case 8: Pur background fit without calibration"
 print "-------------------------------------------------------------------------"
 spec.cal=None
 fit = __main__.f.workFit
