@@ -48,7 +48,13 @@ def WriteFitlist(args, options):
         elif overwrite in ["n","N"]:
             return 
     sids = hdtv.cmdhelper.ParseIds(options.spectrum, __main__.spectra)
-    __main__.fitxml.WriteFitlist(fname, sids)
+    if len(sids)==0:
+        hdtv.ui.error("There is no active spectrum")
+        return
+    if len(sids)>1:
+        hdtv.ui.error("Can only save fitlist of one spectrum")
+        return
+    __main__.fitxml.WriteFitlist(fname, sids[0])
 
 def ReadFitlist(args, options):
     fnames = list()
@@ -59,15 +65,21 @@ def ReadFitlist(args, options):
             hdtv.ui.warn("no such file %s" %fname)
         fnames.extend(more)
     sids = hdtv.cmdhelper.ParseIds(options.spectrum, __main__.spectra)
+    if len(sids)==0:
+        hdtv.ui.error("There is no active spectrum")
+        return
+    if len(sids)>1:
+        hdtv.ui.error("Can only add fitlist to one spectrum")
+        return
     for fname in fnames:
-        __main__.fitxml.ReadFitlist(fname, sids, options.calibrate)
+        __main__.fitxml.ReadFitlist(fname, sids[0])
 
 prog = "fit write"
 description = "write fits to xml file"
 usage = "%prog filename"
 parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-parser.add_option("-s", "--spectrum", action = "store", default = "all",
-                        help = "for which the fits should be saved (default=all)")
+parser.add_option("-s", "--spectrum", action = "store", default = "active",
+                        help = "for which the fits should be saved (default=active)")
 parser.add_option("-f","--force",action = "store_true", default=False,
                         help = "overwrite existing files without asking")
 hdtv.cmdline.AddCommand(prog, WriteFitlist, nargs=1, fileargs=True, parser=parser)
@@ -77,10 +89,8 @@ prog = "fit read"
 description = "read fits from xml file"
 usage ="%prog filename"
 parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-parser.add_option("-s", "--spectrum", action = "store", default = "all",
-                        help = "spectra for which the fits should be read (default=all)")
-parser.add_option("-c", "--calibrate", action="store_true", default = False,
-                        help = "load calibration that is stored in the xml file")
+parser.add_option("-s", "--spectrum", action = "store", default = "active",
+                        help = "spectra to which the fits should be added (default=active)")
 hdtv.cmdline.AddCommand("fit read", ReadFitlist, minargs=1, fileargs=True, parser=parser)
 
 

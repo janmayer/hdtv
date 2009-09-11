@@ -56,8 +56,7 @@ class Fitter:
         # create fitter
         bgfitter = ROOT.HDTV.Fit.PolyBg(self.bgdeg)
         for bg in backgrounds:
-            # convert to uncalibrated values and add to fitter
-            bgfitter.AddRegion(spec.cal.E2Ch(bg[0]), spec.cal.E2Ch(bg[1]))
+            bgfitter.AddRegion(bg[0], bg[1])
         self.bgFitter = bgfitter
         # do the background fit
         self.bgFitter.Fit(spec.fHist)
@@ -71,8 +70,7 @@ class Fitter:
         # create fitter
         bgfitter = ROOT.HDTV.Fit.PolyBg(self.bgdeg)
         for bg in backgrounds:
-            # convert to uncalibrated values and add to fitter
-            bgfitter.AddRegion(spec.cal.E2Ch(bg[0]), spec.cal.E2Ch(bg[1]))
+            bgfitter.AddRegion(bg[0], bg[1])
         self.bgFitter = bgfitter
         # restore the fitter
         valueArray = ROOT.TArrayD(len(coeffs))
@@ -87,9 +85,6 @@ class Fitter:
         Create the Peak Fitter object and do the peak fit
         """
         self.spec = spec
-        # convert to uncalibrated values
-        region = [spec.cal.E2Ch(r) for r in region]
-        peaklist = [spec.cal.E2Ch(p) for p in peaklist]
         # create the fitter
         self.peakFitter = self.peakModel.GetFitter(region, peaklist, spec.cal)
         # Do the fitpeak
@@ -105,12 +100,9 @@ class Fitter:
         Create the Peak Fitter object and 
         restore all peaks
         """
-        self.spec = spec
-        # convert to uncalibrated values
-        region = [spec.cal.E2Ch(r) for r in region]
-        # peak.pos is already uncalibrated
-        peaklist = [p.pos.value for p in peaks]
+        self.spec = spec        
         # create the fitter
+        peaklist = [p.pos.value for p in peaks]
         self.peakFitter = self.peakModel.GetFitter(region, peaklist, spec.cal)
         # restore first the fitter and afterwards the peaks
         if self.bgFitter:

@@ -182,7 +182,7 @@ class Fit(Drawable):
         for peak in self.peaks:
             peak.Remove()
     
-        if isinstance(pos, float):
+        if isinstance(pos, (float,int)):
             pos = hdtv.util.Position(pos_cal = pos, parent=self)
         
         self.peakMarkers.PutMarker(pos)
@@ -194,7 +194,7 @@ class Fit(Drawable):
         for peak in self.peaks:
             peak.Remove()
         
-        if isinstance(pos, float):
+        if isinstance(pos, (float,int)):
             pos = hdtv.util.Position(pos_cal = pos, parent=self)
         
         self.regionMarkers.PutMarker(pos)
@@ -210,7 +210,7 @@ class Fit(Drawable):
         for peak in self.peaks:
             peak.Remove()
             
-        if isinstance(pos, float):
+        if isinstance(pos, (float,int)):
             pos = hdtv.util.Position(pos_cal = pos, parent=self)
         
         self.bgMarkers.PutMarker(pos)
@@ -257,8 +257,8 @@ class Fit(Drawable):
         self.peaks = []
         self.chi=None
         # fit background 
-        if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2.GetPosInCal():
-            backgrounds = [[m.p1.GetPosInCal(), m.p2.GetPosInCal()] for m in self.bgMarkers] 
+        if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
+            backgrounds = [[m.p1.GetPosInUncal(), m.p2.GetPosInUncal()] for m in self.bgMarkers] 
             self.fitter.FitBackground(spec, backgrounds)
             func = self.fitter.bgFitter.GetFunc()
             self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
@@ -283,10 +283,10 @@ class Fit(Drawable):
         
         # set calibration without changing position of markers,
         # because the marker have been set by the user to calibrated values
-#        self.Recalibrate(spec.cal)
-        self._set_cal(spec.cal)
+        self.cal=spec.cal
         self.peakMarkers.FixUncal()
         self.regionMarkers.FixUncal()
+        self.bgMarkers.FixUncal()
         
         # remove old fit
         if self.dispBgFunc:
@@ -302,19 +302,19 @@ class Fit(Drawable):
         self.peaks = []
         self.chi=None
         # fit background 
-        if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2.GetPosInCal():
-            backgrounds =  map(lambda m: [m.p1.GetPosInCal(), m.p2.GetPosInCal()], self.bgMarkers)
+        if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
+            backgrounds =  map(lambda m: [m.p1.GetPosInUncal(), m.p2.GetPosInUncal()], self.bgMarkers)
             self.fitter.FitBackground(spec, backgrounds)
         # fit peaks
-        if len(self.peakMarkers)>0 and len(self.regionMarkers)==1 and self.regionMarkers[-1].p2.GetPosInCal():
-            region = [self.regionMarkers[0].p1.GetPosInCal(), self.regionMarkers[0].p2.GetPosInCal()]
+        if len(self.peakMarkers)>0 and self.regionMarkers.IsFull():
+            region = [self.regionMarkers[0].p1.GetPosInUncal(), self.regionMarkers[0].p2.GetPosInUncal()]
             # remove peak marker that are outside of region
             region.sort()
             for m in self.peakMarkers:
-                if m.p1.GetPosInCal()<region[0] or m.p1.GetPosInCal()>region[1]:
+                if m.p1.GetPosInUncal()<region[0] or m.p1.GetPosInUncal()>region[1]:
                     m.Remove()
                     self.peakMarkers.remove(m)
-            peaks = [m.p1.GetPosInCal() for m in self.peakMarkers]
+            peaks = [m.p1.GetPosInUncal() for m in self.peakMarkers]
             peaks.sort()
             self.fitter.FitPeaks(spec, region, peaks)
             # get background function
@@ -362,9 +362,9 @@ class Fit(Drawable):
         # when read from xml fit list
         self.cal = spec.cal
         if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2.GetPosInCal():
-            backgrounds = [[m.p1.GetPosInCal(), m.p2.GetPosInCal()] for m in self.bgMarkers]
+            backgrounds = [[m.p1.GetPosInUncal(), m.p2.GetPosInUncal()] for m in self.bgMarkers]
             self.fitter.RestoreBackground(spec, backgrounds, self.bgCoeffs, self.bgChi)
-        region = [self.regionMarkers[0].p1.GetPosInCal(), self.regionMarkers[0].p2.GetPosInCal()]
+        region = [self.regionMarkers[0].p1.GetPosInUncal(), self.regionMarkers[0].p2.GetPosInUncal()]
         region.sort()
         self.fitter.RestorePeaks(spec, region, self.peaks, self.chi)
         # get background function

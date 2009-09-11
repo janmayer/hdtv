@@ -98,7 +98,7 @@ print "Activate first spectrum"
 __main__.spectra.ShowObjects([0])
 __main__.spectra.ActivateObject(0)
 
-fit = __main__.f.GetActiveFit()
+fit = __main__.f.workFit
 fit.PutRegionMarker(725)
 fit.PutRegionMarker(735)
 fit.PutPeakMarker(730)
@@ -124,7 +124,7 @@ __main__.spectra.ActivateObject(0)
 raw_input("Press enter to continue ")
 
 __main__.f.ClearFit()
-spectra[0].RemoveAll()
+spectra[0].fits.RemoveAll()
 print "-------------------------------------------------------------------------"
 print "Case 2: Fit, store and switch spectrum afterwards"
 print "-------------------------------------------------------------------------"
@@ -133,7 +133,7 @@ __main__.spectra.ShowObjects([0])
 __main__.spectra.ActivateObject(0)
 
 
-fit = __main__.f.GetActiveFit()
+fit = __main__.f.workFit
 fit.PutRegionMarker(725)
 fit.PutRegionMarker(735)
 fit.PutPeakMarker(730)
@@ -160,7 +160,7 @@ __main__.spectra.ActivateObject(0)
 raw_input("Press enter to continue ")
 
 __main__.f.ClearFit()
-spectra[0].RemoveAll()
+spectra[0].fits.RemoveAll()
 print "-------------------------------------------------------------------------"
 print "Case 3: Background fit and switch spectrum afterwards"
 print "-------------------------------------------------------------------------"
@@ -168,7 +168,7 @@ print "Activate first spectrum"
 __main__.spectra.ShowObjects([0])
 __main__.spectra.ActivateObject(0)
 
-fit = __main__.f.GetActiveFit()
+fit = __main__.f.workFit
 fit.PutBgMarker(720)
 fit.PutBgMarker(725)
 fit.PutBgMarker(735)
@@ -196,4 +196,5 @@ __main__.spectra.ActivateObject(0)
 raw_input("Press enter to continue ")
 
 __main__.f.ClearFit()
+spectra[0].fits.RemoveAll()
 spectra.RemoveAll()

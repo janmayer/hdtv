@@ -31,7 +31,7 @@ spectra = __main__.spectra
 spectra.RemoveAll()
 
 testspectrum= os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
-testXML = os.path.join(__main__.hdtvpath, "test", "fitxml", "test.xml")
+testXML = os.path.join(__main__.hdtvpath, "test", "fitxml", "fit.xml")
 
 __main__.s.LoadSpectra(testspectrum)
 spec = spectra[0]
@@ -41,41 +41,39 @@ spec = spectra[0]
 tree = ET.parse(testXML)
 root = tree.getroot()
 
-
-for specElement in root.findall("spectrum"):
-    for fitElement in specElement.findall("fit"):
-        ET.dump(fitElement)
+for fitElement in root.findall("fit"):
+    ET.dump(fitElement)
 
 print "-------------------------------------------------------------------------"
 print "Case 1: Restore without calibration"
 print "-------------------------------------------------------------------------"
 print "Restore fit"
 f = hdtv.fitxml.FitXml(spectra)
-(fit, success) = f.Xml2Fit(fitElement)
+(fit, success) = f.Xml2Fit(fitElement, None)
 fit.Restore(spec)
 
 print "Draw"
-ID = spec.Add(fit)
-spec.ActivateObject(ID)
+ID = spec.fits.Add(fit)
+spec.fits.ActivateObject(ID)
 
 print fit
 
 __main__.window.GoToPosition(1460)
 raw_input('Press enter to continue ')
 
-spec.RemoveAll()
+spec.fits.RemoveAll()
 spec.cal = None
 print "-------------------------------------------------------------------------"
 print "Case 2: set cal after Restore"
 print "-------------------------------------------------------------------------"
 print "Restore fit"
 f = hdtv.fitxml.FitXml(spectra)
-(fit, success) = f.Xml2Fit(fitElement)
+(fit, success) = f.Xml2Fit(fitElement, None)
 fit.Restore(spec)
 
 print "Draw"
-ID = spec.Add(fit)
-spec.ActivateObject(ID)
+ID = spec.fits.Add(fit)
+spec.fits.ActivateObject(ID)
 
 print "Calibrate"
 spec.cal = [0,2]
@@ -85,7 +83,7 @@ print fit
 __main__.window.GoToPosition(2920)
 raw_input('Press enter to continue ')
 
-spec.RemoveAll()
+spec.fits.RemoveAll()
 spec.cal = None
 print "-------------------------------------------------------------------------"
 print "Case 3: set cal before Restore"
@@ -96,25 +94,25 @@ spec.cal = [0,0.5]
 
 print "Restore fit"
 f = hdtv.fitxml.FitXml(spectra)
-(fit, success) = f.Xml2Fit(fitElement)
+(fit, success) = f.Xml2Fit(fitElement, None)
 fit.Restore(spec)
 
 print "Draw"
-ID = spec.Add(fit)
-spec.ActivateObject(ID)
+ID = spec.fits.Add(fit)
+spec.fits.ActivateObject(ID)
 
 print fit
 
 __main__.window.GoToPosition(730)
 raw_input('Press enter to continue ')
 
-spec.RemoveAll()
+spec.fits.RemoveAll()
 spec.cal = None
 print "-------------------------------------------------------------------------"
 print "Case 4: Fit without calibration"
 print "-------------------------------------------------------------------------"
 print "Fit"
-fit = __main__.f.GetActiveFit()
+fit = __main__.f.workFit
 fit.PutRegionMarker(1450)
 fit.PutRegionMarker(1470)
 fit.PutPeakMarker(1460)
@@ -124,13 +122,13 @@ __main__.window.GoToPosition(1460)
 raw_input('Press enter to continue ')
 
 __main__.f.ClearFit()
-spec.RemoveAll()
+spec.fits.RemoveAll()
 spec.cal = None
 print "-------------------------------------------------------------------------"
 print "Case 5: Calibrate after Fit"
 print "-------------------------------------------------------------------------"
 print "Fit"
-fit = __main__.f.GetActiveFit()
+fit = __main__.f.workFit
 fit.PutRegionMarker(1450)
 fit.PutRegionMarker(1470)
 fit.PutPeakMarker(1460)
@@ -146,7 +144,7 @@ __main__.window.GoToPosition(2920)
 raw_input('Press enter to continue ')
 
 __main__.f.ClearFit()
-spec.RemoveAll()
+spec.fits.RemoveAll()
 print "-------------------------------------------------------------------------"
 print "Case 6: Calibrate before Fit"
 print "-------------------------------------------------------------------------"
@@ -154,7 +152,7 @@ print "Calibrate"
 spec.cal=[0,0.5]
 
 print "Fit"
-fit = __main__.f.GetActiveFit()
+fit = __main__.f.workFit
 fit.PutRegionMarker(725)
 fit.PutRegionMarker(735)
 fit.PutPeakMarker(730)
@@ -167,7 +165,7 @@ __main__.window.GoToPosition(730)
 raw_input('Press enter to continue ')
 
 __main__.f.ClearFit()
-spec.RemoveAll()
+spec.fits.RemoveAll()
 print "-------------------------------------------------------------------------"
 print "Case 7: Change calibration between Fit and Restore"
 print "-------------------------------------------------------------------------"
@@ -175,7 +173,7 @@ print "Calibrate"
 spec.cal= [0,0.5]
 
 print "Fit"
-fit = __main__.f.GetActiveFit()
+fit = __main__.f.workFit
 fit.PutRegionMarker(725)
 fit.PutRegionMarker(735)
 fit.PutPeakMarker(730)
@@ -184,7 +182,7 @@ __main__.f.Fit()
 print "Saving fits"
 __main__.f.StoreFit()
 __main__.fitxml.WriteFitlist(testXML)
-spec.RemoveAll()
+spec.fits.RemoveAll()
 
 print "Change calibration"
 spec.cal =[0,2]
@@ -192,50 +190,17 @@ spec.cal =[0,2]
 print "Reading fits"
 __main__.fitxml.ReadFitlist(testXML)
 
-print spec[0]
+print spec.fits[0]
 __main__.window.GoToPosition(2920)
 raw_input('Press enter to continue ')
 
 __main__.f.ClearFit()
-spec.RemoveAll()
+spec.fits.RemoveAll()
 print "-------------------------------------------------------------------------"
-print "Case 8: Load old calibration during Restore"
-print "-------------------------------------------------------------------------"
-print "Calibrate"
-spec.cal=[0,0.5]
-
-print "Fit"
-fit = __main__.f.GetActiveFit()
-fit.PutRegionMarker(725)
-fit.PutRegionMarker(735)
-fit.PutPeakMarker(730)
-__main__.f.Fit()
-
-print "Saving fits"
-__main__.f.StoreFit()
-__main__.fitxml.WriteFitlist(testXML)
-
-print "Change calibration"
-spec.cal =[0,2]
-
-print spec[0]
-
-spec.RemoveAll()
-print "Reading fits"
-__main__.fitxml.ReadFitlist(testXML, calibrate=True)
-
-print spec[0]
-__main__.window.GoToPosition(730)
-
-raw_input("Press enter to continue ")
-
-__main__.f.ClearFit()
-spec.RemoveAll()
-print "-------------------------------------------------------------------------"
-print "Case 9: Pur background fit without calibration"
+print "Case 8: Pur background fit without calibration"
 print "-------------------------------------------------------------------------"
 spec.cal=None
-fit = __main__.f.GetActiveFit()
+fit = __main__.f.workFit
 fit.PutBgMarker(1440)
 fit.PutBgMarker(1450)
 fit.PutBgMarker(1470)
@@ -247,14 +212,14 @@ __main__.window.GoToPosition(1460)
 raw_input("Press enter to continue ")
 
 __main__.f.ClearFit()
-spec.RemoveAll()
+spec.fits.RemoveAll()
 print "-------------------------------------------------------------------------"
 print "Case 9: Pur background fit with calibration"
 print "-------------------------------------------------------------------------"
 print "Set cal"
 spec.cal=[0,0.5]
 
-fit = __main__.f.GetActiveFit()
+fit = __main__.f.workFit
 fit.PutBgMarker(720)
 fit.PutBgMarker(725)
 fit.PutBgMarker(735)
@@ -266,6 +231,6 @@ __main__.window.GoToPosition(730)
 raw_input("Press enter to continue ")
 
 __main__.f.ClearFit()
-spec.RemoveAll()
+spec.fits.RemoveAll()
 
 

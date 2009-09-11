@@ -225,10 +225,8 @@ class Spectrum(_RawSpectrum):
     This CompoundObject is a dictionary of Fits belonging to a spectrum.
     """
     def __init__(self, hist, color=hdtv.color.default, cal=None):
-
         self.fits = DrawableCompound()
         _RawSpectrum.__init__(self, hist, color=color, cal=cal)
-#        DrawableCompound.__init__(self)
 
     def __setitem__(self, ID, fit):
         # TODO: Remove this function    
@@ -297,12 +295,13 @@ class Spectrum(_RawSpectrum):
         for ID in self.fits.visible:
             self.fits[ID].Show()
 
-    def ShowAll(self):
-        """
-        Show spectrum and all fits
-        """
-        _RawSpectrum.Show(self)
-        self.fits.ShowAll()
+# TODO: Remove OR keep also RemoveAll and HideAll (consistency!)
+#    def ShowAll(self):
+#        """
+#        Show spectrum and all fits
+#        """
+#        _RawSpectrum.Show(self)
+#        self.fits.ShowAll()
         
     # Remove commands
     def Remove(self):

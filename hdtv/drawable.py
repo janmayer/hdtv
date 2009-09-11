@@ -631,7 +631,11 @@ class DrawableCompound(dict, Child):
         if isinstance(ids, int):
             ids = [ids]
         if clear:
-            self.HideAll()
+            # hide all other objects except in ids
+            # do not use HideAll, because if the active objects is among 
+            # the objects that should be shown, its state would be lost
+            others = set(self.keys())-set(ids)
+            self.HideObjects(others)
         for ID in ids:
             try:
                 self[ID].Show()
