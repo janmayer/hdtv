@@ -186,7 +186,6 @@ double TheuerkaufPeak::EvalNoStep(double *x, double *p)
 double TheuerkaufPeak::EvalStep(double *x, double *p)
 {
   //! Step function
-  double stepval = 0.0;
 
   if(fHasStep) {
     double dx = *x - fPos.Value(p);
@@ -194,10 +193,13 @@ double TheuerkaufPeak::EvalStep(double *x, double *p)
     double sh = fSH.Value(p);
     double sw = fSW.Value(p);
     
-    stepval = sh * (M_PI/2. + atan(sw * dx / (sqrt(2.) * sigma)));
+    double vol = fVol.Value(p);
+    double norm = GetNorm(sigma, fTL.Value(p), fTR.Value(p));
+    
+    return vol * norm * sh * (M_PI/2. + atan(sw * dx / (sqrt(2.) * sigma)));
+  } else {
+    return 0.0;
   }
-  
-  return stepval;
 }
 
 double TheuerkaufPeak::GetNorm(double sigma, double tl, double tr)
@@ -403,7 +405,7 @@ void TheuerkaufFitter::_Fit(TH1& hist)
 	SetParameter(*fSumFunc, iter->fPos);
 	SetParameter(*fSumFunc, iter->fVol, avgVol);
 	SetParameter(*fSumFunc, iter->fSigma, 1.0);
-	SetParameter(*fSumFunc, iter->fSH, 1.0);
+	SetParameter(*fSumFunc, iter->fSH, 0.1);
 	SetParameter(*fSumFunc, iter->fSW, 1.0);
 	if(iter->fTL.IsFree()) {
 	  fSumFunc->FixParameter(iter->fTL._Id(), 10.0);

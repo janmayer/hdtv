@@ -28,7 +28,7 @@ import peakgen
 
 spec = peakgen.Spectrum(1024, -0.5, 1023.5)
 spec.func.background = peakgen.PolyBg([10.0])
-# spec.func.peaks.append(peakgen.TheuerkaufPeak(500, 300.0, 10.0, sh=3.0, sw=1.0))
+# spec.func.peaks.append(peakgen.TheuerkaufPeak(500, 300.0, 10.0, sh=0.3, sw=1.0))
 spec.func.peaks.append(peakgen.TheuerkaufPeak(515, 3000.0, 10.0))
 # spec.peaks.append(peakgen.EEPeak(300, 100, 4.5, 6.0, 1.5, 0.7))
 # spec.peaks.append(peakgen.EEPeak(400, 30, 4.5, 6.0, 1.5, 0.7))

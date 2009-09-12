@@ -83,7 +83,7 @@ class TheuerkaufPeak:
 		else:
 			_y = -(dx**2)/(2*self.sigma**2)
 			
-		return self.amp * math.exp(_y) + self.step(x)
+		return self.amp * (math.exp(_y) + self.step(x))
 		
 class EEPeak:
 	"Electron-electron scattering peak"
