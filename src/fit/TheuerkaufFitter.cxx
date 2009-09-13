@@ -407,6 +407,9 @@ void TheuerkaufFitter::_Fit(TH1& hist)
   // lowest content if there are no steps, or constant at the level of the
   // leftmost bin in the fit region otherwise (both after substraction of
   // possible external background).
+  // NOTE: we generally assume that the step width is positive, so the step
+  // function goes to zero at the far left side of the peak. This seems
+  // reasonable, as the step width is usually fixed at 1.0.
   double intBg0 = 0.0;
   if(fIntBgDeg >= 0) {
     if(steps) {
