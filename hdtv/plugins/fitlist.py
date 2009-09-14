@@ -68,11 +68,10 @@ def ReadFitlist(args, options):
     if len(sids)==0:
         hdtv.ui.error("There is no active spectrum")
         return
-    if len(sids)>1:
-        hdtv.ui.error("Can only add fitlist to one spectrum")
-        return
     for fname in fnames:
-        __main__.fitxml.ReadFitlist(fname, sids[0])
+        for sid in sids:
+            hdtv.ui.msg("Reading fitlist %s to spectrum %d" %(fname, sid))
+            __main__.fitxml.ReadFitlist(fname, sid)
 
 prog = "fit write"
 description = "write fits to xml file"
