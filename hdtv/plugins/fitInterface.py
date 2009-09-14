@@ -408,7 +408,7 @@ class FitInterface:
                 newFitID = toSpec.AddFit(fit)
                 hdtv.ui.msg("Copied fit #%d.%d to #%d.%d" %(fromSpecID, fitID, specID, newFitID))
                 if refit:
-                    self.Fit(specID = specID, fitID = newFitID, peaks=True, storeIt=False)
+                    self.Fit(specID = specID, fitID = newFitID, peaks=True)
 
         self.window.viewport.UnlockUpdate()    
 

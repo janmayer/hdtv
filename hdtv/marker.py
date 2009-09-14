@@ -180,10 +180,9 @@ class Marker(Drawable):
         The actual position of the marker on the display (calibrated value)
         is kept. 
         """
-        p1 = self.p1.GetPosInCal()
+        p1 = copy.copy(self.p1)
         new = Marker(self.xytype, p1, self.color, cal)
-        # TODO:
-        hdtv.ui.warn("TODO: Check Marker.Copy()")
+
         if self.p2 is not None:
             new.p2 = copy.copy(self.p2)
         return new
