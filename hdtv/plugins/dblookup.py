@@ -46,7 +46,7 @@ class Database(object):
         hdtv.options.RegisterOption("database.db", self.opt["db"])    
 
         # Automatically lookup fitted peaks in database
-        self.opt["auto_lookup"] = hdtv.options.Option(default = False, boolean=True, changeCallback = lambda x: self.SetAutoLookup(x))
+        self.opt["auto_lookup"] = hdtv.options.Option(default = False, parse = hdtv.options.ParseBool, changeCallback = lambda x: self.SetAutoLookup(x))
         hdtv.options.RegisterOption("database.auto_lookup", self.opt["auto_lookup"])
         
         # Set default database
@@ -58,7 +58,7 @@ class Database(object):
         self.opt["sort_key"] = hdtv.options.Option(default = None)
         hdtv.options.RegisterOption("database.sort_key", self.opt["sort_key"])
         
-        self.opt["sort_reverse"] = hdtv.options.Option(default = False, boolean=True)
+        self.opt["sort_reverse"] = hdtv.options.Option(default = False, parse = hdtv.options.ParseBool)
         hdtv.options.RegisterOption("database.sort_reverse", self.opt["sort_reverse"])
         
         # TODO: proper help

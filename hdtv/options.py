@@ -30,13 +30,10 @@ class Option:
     def __init__(self, default=None,
                  parse=lambda(x): x,
                  toStr=lambda(x): str(x),
-                 changeCallback=None, boolean=False):
+                 changeCallback=None):
         self.defaultValue = default
         self.value = self.defaultValue
-        if boolean:
-            self.Parse = self._ParseBool
-        else:
-            self.Parse = parse
+        self.Parse = parse
         self.ToStr = toStr
         self.ChangeCallback = changeCallback
         
@@ -65,17 +62,6 @@ class Option:
         Reset the variable to its default value
         """
         self.Set(self.defaultValue)
-        
-    def _ParseBool(self, x):
-        """
-        Parse boolean options
-        """
-        if x.lower() == "true":
-            return True
-        elif x.lower() == "false":
-            return False
-        else:
-            raise ValueError
         
     def __str__(self):
         """
@@ -130,5 +116,17 @@ def Str():
     for (k,v) in variables.iteritems():
         string += "%s: %s\n" % (k, str(v))
     return string
+
+def ParseBool(x):
+    """
+    Parse boolean options
+    """
+    if x.lower() == "true":
+        return True
+    elif x.lower() == "false":
+        return False
+    else:
+        raise ValueError
+
     
 variables = dict()
