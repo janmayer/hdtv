@@ -22,6 +22,7 @@ import math
 import ROOT
 from peak import PeakModel, FitValue
 from hdtv.drawable import Drawable
+import hdtv.options
 
 class TheuerkaufPeak(Drawable):
     """
@@ -243,7 +244,8 @@ class PeakModelTheuerkauf(PeakModel):
         Creates a C++ Fitter object, which can then do the real work
         """
         # Define a fitter and a region
-        self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(region[0],region[1])
+        debug_show_inipar = hdtv.options.Get("__debug__.fit.show_inipar")
+        self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(region[0],region[1],debug_show_inipar)
         self.ResetGlobalParams()
         # Check if enough values are provided in case of per-peak parameters
         #  (the function raises a RuntimeError if the check fails)
