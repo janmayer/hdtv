@@ -110,7 +110,13 @@ class Fitter:
             self.peakFitter.Restore(self.bgFitter, chisquare)
         else:
             # internal background
-            self.peakFitter.Restore(self.bgdeg, chisquare)
+            # TODO: Use values from XML here
+            values = ROOT.TArrayD(self.bgdeg + 1)
+            errors = ROOT.TArrayD(self.bgdeg + 1)
+            for i in range(0, self.bgdeg + 1):
+                values[i] = 0.0
+                errors[i] = 0.0
+            self.peakFitter.Restore(values, errors, chisquare)
         if not len(peaks)==self.peakFitter.GetNumPeaks():
             raise RuntimeError, "Number of peaks does not match"
         for i in range(0,len(peaks)):

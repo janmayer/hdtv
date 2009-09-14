@@ -605,7 +605,7 @@ TheuerkaufFitter::CmpPeakPos::CmpPeakPos(const PeakVector_t& peaks)
   }
 }
 
-void TheuerkaufFitter::Restore(const Background& bg, double ChiSquare)
+bool TheuerkaufFitter::Restore(const Background& bg, double ChiSquare)
 {
   //! Restore the fit, using the given background function
 
@@ -613,15 +613,22 @@ void TheuerkaufFitter::Restore(const Background& bg, double ChiSquare)
   fIntBgDeg = -1;
 
   _Restore(ChiSquare);
+  return true;
 }
 
 
-void TheuerkaufFitter::Restore(int intBgDeg, double ChiSquare)
+bool TheuerkaufFitter::Restore(const TArrayD& bgPolValues, const TArrayD& bgPolErrors,  double ChiSquare)
 {
-  //! Restore the fit, using the given background function
+  //! Restore the fit, using the given internal background polynomial
 
   fBackground.reset();
-  fIntBgDeg = intBgDeg;
+
+  if (bgPolValues.GetSize() != bgPolErrors.GetSize()) {
+    Warning("HDTV::TheuerkaufFitter::Restore", "sizes of value and error arrays for internal background do no match.");
+    return false;
+  }
+
+  fIntBgDeg = bgPolValues.GetSize() - 1;
 
   // Allocate additional parameters for internal polynomial background
   // Note that a polynomial of degree n has n+1 parameters!
@@ -630,6 +637,14 @@ void TheuerkaufFitter::Restore(int intBgDeg, double ChiSquare)
   }
   
   _Restore(ChiSquare);
+
+  int bgOffset = fNumParams - fIntBgDeg - 1;
+  // Set background parameters of sum function
+  for(int i=0; i<=fIntBgDeg; ++i) {
+    fSumFunc->SetParameter(i + bgOffset, bgPolValues[i]);
+    fSumFunc->SetParError(i + bgOffset, bgPolErrors[i]);
+  }
+  return true;
 }
   
 void TheuerkaufFitter::_Restore(double ChiSquare)

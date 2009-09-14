@@ -149,8 +149,8 @@ class TheuerkaufFitter : public Fitter {
     inline double GetChisquare() { return fChisquare; }
     inline TF1* GetSumFunc() { return fSumFunc.get(); }
     TF1* GetBgFunc();
-    void Restore(const Background& bg, double ChiSquare);
-    void Restore(int intBgDeg, double ChiSquare);
+    bool Restore(const Background& bg, double ChiSquare);
+    bool Restore(const TArrayD& bgPolValues, const TArrayD& bgPolErrors,  double ChiSquare);
 
   private:
     // Copying the fitter is not supported
