@@ -655,7 +655,7 @@ class Position(Child):
             self._pos_cal = None
             self._pos_uncal = pos_uncal 
         
-    def __str(self):
+    def __str__(self):
         text = str()
         if self._pos_cal is not None:
             text += "Cal: %s" % self.pos_cal
