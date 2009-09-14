@@ -382,7 +382,7 @@ class FitXml:
         count = 0
         do_fit = ""
         for fitElement in root.findall("fit"):
-            (fit, success) = self.Xml2Fit_v1(fitElement)
+            (fit, success) = self.Xml2Fit_v1(fitElement, calibration=spec.cal)
             # restore fit
             if success:
                 try:
