@@ -209,10 +209,10 @@ class MatrixInterface:
         matrix.ResetRegions()
         
         for region in self.CutRegionMarkers:
-            matrix.AddCutRegion(region.p1, region.p2)
+            matrix.AddCutRegion(region.p1.pos_cal, region.p2.pos_cal)
             
         for bg in self.CutBgMarkers:
-            matrix.AddBgRegion(bg.p1, bg.p2)
+            matrix.AddBgRegion(bg.p1.pos_cal, bg.p2.pos_cal)
             
         cut = matrix.Cut()
         cutid = self.spectra.Add(cut)

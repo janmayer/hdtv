@@ -33,7 +33,7 @@ class Marker(Drawable):
     Every marker contains a pair of positions as many markers come always in 
     pairs to mark a region (like background markers). Of course it is also 
     possible to have markers that consist of a single marker, then the second 
-    possition is None.
+    position is None.
     """
     def __init__(self, xytype, p1, color=hdtv.color.zoom, cal=None, connecttop=True, hasID=False):
 
