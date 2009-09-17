@@ -222,8 +222,6 @@ class MarkerCollection(list, Child):
         self.hasIDs = hasIDs
         self._fixedInCal = True # By default markers are fixed in calibrated space
 
-    def __del(self):
-        print "DEBUG MarkerColl destructor" 
         
     def __setitem__(self, m):
         m.parent = self
@@ -328,7 +326,7 @@ class MarkerCollection(list, Child):
         """
         if isinstance(pos, (float,int)):
             pos = hdtv.util.Position(pos_cal = pos, parent=self)
-            
+
         if self.IsFull():
             pending = self.pop(0)
             pending.p1 = pos
