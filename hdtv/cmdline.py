@@ -512,7 +512,7 @@ class CommandLine:
         for line in file.lines:
             print "file>", line
             self.DoLine(line)
-            if self.fPyMore: # TODO: HACK: How should I teach this micky mouse language a python statement (e.g. "for ...:" has ended???
+            if self.fPyMore: # TODO: HACK: How should I teach this micky mouse language that a python statement (e.g. "for ...:") has ended???
                 self.fPyMore = self._py_console.push("")
     
     def ExecShell(self, cmd):
