@@ -319,7 +319,7 @@ class FitXml:
         return peaks
 
 
-    def ReadFitlist(self, fname, sid=None):
+    def ReadFitlist(self, fname, sid=None, refit=False):
         """
         Reads fitlist from xml files
         """
@@ -338,7 +338,7 @@ class FitXml:
                 raise SyntaxError, e
             # current version
             if root.get("version")==self.version:
-                count = self.RestoreFromXml(root, sid)
+                count = self.RestoreFromXml(root, sid, refit=refit)
             else:
                 # old versions
                 oldversion = root.get("version")
@@ -353,7 +353,7 @@ class FitXml:
                     hdtv.ui.msg("Restoring only fits belonging to spectrum %s" % sid)
                     hdtv.ui.msg("There may be fits belonging to other spectra in this file.")
                     raw_input("Please press enter to continue...\n")
-                    count = self.RestoreFromXml_v1_0(root, [sid], calibrate=False)
+                    count = self.RestoreFromXml_v1_0(root, [sid], calibrate=False, refit=refit)
         except SyntaxError, e:
             print "Error reading \'" + fname + "\':\n\t", e
         else:
@@ -368,7 +368,7 @@ class FitXml:
 
 #### version 1* ###############################################################
 
-    def RestoreFromXml_v1_1(self, root, sid):
+    def RestoreFromXml_v1_1(self, root, sid, refit=False):
         """
         Restores fits from xml file (version = 1.1) 
         
@@ -384,13 +384,15 @@ class FitXml:
         for fitElement in root.findall("fit"):
             (fit, success) = self.Xml2Fit_v1(fitElement, calibration=spec.cal)
             # restore fit
-            if success:
+            if success and not refit:
                 try:
                     fit.Restore(spec, silent=True)
                 except (TypeError, IndexError):
                     success = False
             # deal with failure
-            if not success:
+            if not success or refit:
+                if refit:
+                    do_fit = "a"
                 if do_fit not in ["V", "v"]: # Ne(v)er
                     if do_fit not in ["A", "a"]: # (A)lways
                         do_fit = None
@@ -406,7 +408,7 @@ class FitXml:
                 fit.Hide()
         return count
         
-    def RestoreFromXml_v1_0(self, root, sids=None, calibrate=False):
+    def RestoreFromXml_v1_0(self, root, sids=None, calibrate=False, refit=False):
         """
         Restores fits from xml file (version = 1.0) 
     
@@ -455,14 +457,16 @@ class FitXml:
                 (fit, success) = self.Xml2Fit_v1(fitElement, spec.cal)
                 count = count+1
                 # restore fit
-                if success:
+                if success and not refit:
                     try:
                         fit.Restore(spec, silent=True)
 #                        ID = spec.fits.Add(fit)
                     except (TypeError, IndexError):
                         success = False
                 # deal with failure
-                if not success:
+                if not success or refit:
+                    if refit:
+                        do_fit = "a"
                     if do_fit not in ["V", "v"]: # Ne(v)er
                         if do_fit not in ["A", "a"]: # (A)lways
                             do_fit = None

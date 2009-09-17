@@ -71,7 +71,7 @@ def ReadFitlist(args, options):
     for fname in fnames:
         for sid in sids:
             hdtv.ui.msg("Reading fitlist %s to spectrum %d" %(fname, sid))
-            __main__.fitxml.ReadFitlist(fname, sid)
+            __main__.fitxml.ReadFitlist(fname, sid, refit=options.refit)
 
 prog = "fit write"
 description = "write fits to xml file"
@@ -90,6 +90,8 @@ usage ="%prog filename"
 parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
 parser.add_option("-s", "--spectrum", action = "store", default = "active",
                         help = "spectra to which the fits should be added (default=active)")
+parser.add_option("-r", "--refit", action = "store_true", default = False,
+                        help = "Force refitting during load")
 hdtv.cmdline.AddCommand("fit read", ReadFitlist, minargs=1, fileargs=True, parser=parser)
 
 
