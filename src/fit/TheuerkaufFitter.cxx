@@ -24,6 +24,7 @@
 #include "Util.h"
 #include <algorithm>
 #include <TMath.h>
+#include <TError.h>
 #include <Riostream.h>
 
 namespace HDTV {
