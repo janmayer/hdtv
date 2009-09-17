@@ -291,7 +291,30 @@ class TvSpecInterface:
         """
         Print a list of all spectra 
         """
-        self.spectra.ListObjects(options.visible)
+        
+        spectra = list()
+        params = ["ID", "stat", "name"]
+        
+        for (ID, obj) in self.spectra.iteritems():
+            
+            if options.visible and (ID not in self.spectra.visible):
+                continue
+            
+            thisspec = dict()
+            
+            status = str()
+            if ID == self.spectra.activeID:
+                status += "A"
+            if ID in self.spectra.visible:
+                status += "V"
+            
+            thisspec["ID"] = ID
+            thisspec["stat"] = status
+            thisspec["name"] = self.spectra[ID].name
+            spectra.append(thisspec)
+        
+        table = hdtv.util.Table(spectra, params, sortBy="ID")         
+        hdtv.ui.msg(str(table))
     
 
     def SpectrumGet(self, args, options):
