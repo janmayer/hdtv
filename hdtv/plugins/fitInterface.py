@@ -281,6 +281,123 @@ class FitInterface:
                     spec.fits.FocusObjects(ids)
         return True
         
+
+    def PrintFits(self, ids, specIDs, onlyVisible=False, sortBy="", reverseSort=False):
+        """
+        Print fit properties
+        """
+        
+        try:
+            sids = hdtv.cmdhelper.ParseIds(specIDs, self.spectra)
+        except ValueError:
+            hdtv.ui.error("Invalid spectrum ID.")
+            return 
+
+        if len(sids) == 0:
+            hdtv.ui.warn("No active spectrum, no action taken.")
+            return
+
+        hdtv.ui.debug("FitList: working on" + str(sids), level=4)
+        
+        for sid in sids:
+            
+            try:
+                spec = self.spectra[sid]
+            except KeyError:
+                hdtv.ui.error("No spectrum " + str(sid))
+                continue
+    
+            fids = hdtv.cmdhelper.ParseIds(ids, spec.fits)
+
+            result_header = "Fits in Spectrum " + str(sid) + " (" + str(spec) + ")" + "\n"
+            count_fits = 0
+            count_peaks = 0
+            
+             # Get sort key
+            if sortBy != "":
+                key = sortBy
+            else:
+                key = hdtv.options.Get("fit.list.sort_key")
+            
+            # Build table
+            params = ["id", "stat"]
+            key = key.lower()
+    
+            objects = list()
+            
+            if len(spec.fits) == 0:
+                hdtv.ui.newline()
+                hdtv.ui.msg("Spectrum " + str(sid) + " (" + str(spec) + "): No fits")                
+                hdtv.ui.newline()
+                continue
+            
+            # Get fits
+            for ID in fids:
+                
+                try:
+                    obj = spec.fits[ID]
+                except KeyError:
+                    hdtv.ui.warn("No fit %s in spec %s" %(ID, sid))
+                    continue
+                
+                if onlyVisible: # Don't print on visible fits
+                    if not ID in spec.fits.visible:
+                        continue
+                    
+                count_fits += 1
+                
+                # Get peaks
+                for peak in obj.peaks:
+                    
+                    thispeak = dict()
+                    thispeak["id"] = str(ID) + "." + str(obj.peaks.index(peak))
+                    
+                    thispeak["stat"] = str()
+                    if ID == spec.fits.activeID:
+                        thispeak["stat"] += "A"
+                    
+                    if ID in spec.fits.visible:
+                        thispeak["stat"] += "V"
+                    
+                    count_peaks += 1
+
+                    for p in obj.fitter.peakModel.fOrderedParamKeys:
+            
+                        if p == "pos": # Store channel additionally to position
+                            thispeak["channel"] = getattr(peak, "pos")
+                            if "channel" not in params:
+                                params.append("channel")
+                        
+                        p_cal = p + "_cal" # Use calibrated values if available
+                        if hasattr(peak, p_cal):
+                            thispeak[p] = getattr(peak, p_cal)
+                    
+                        if p not in params:
+                            params.append(p)
+
+                    # Calculate normalized volume if efficiency calibration is present
+                    if spec.fEffCal is not None:
+                        volume = thispeak["vol"]
+                        par_index = params.index("vol") + 1
+                        energy = thispeak["pos"]
+                        norm_volume = volume / spec.fEffCal(energy)
+                        thispeak["vol/eff"] = norm_volume
+                        if "vol/eff" not in params:
+                            params.insert(par_index, "vol/eff")
+                        
+                    objects.append(thispeak)
+            
+            result_footer = "\n" + str(count_peaks) + " peaks in " + str(count_fits) + " fits."
+            
+            try:
+                table = hdtv.util.Table(objects, params, sortBy=key, reverseSort=reverseSort,
+                                        extra_header = result_header, extra_footer = result_footer)
+                hdtv.ui.msg(str(table))
+            except KeyError:
+                
+                hdtv.ui.error("Spectrum " + str(sid) + ": No such attribute: " + str(key))
+                hdtv.ui.error("Spectrum " + str(sid) + ": Valid attributes are: " + str(params))
+                continue
     
     def FocusFits(self, ids):
         """
@@ -565,14 +682,6 @@ class TvFitInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-l", "--long", action = "store_true", default = False,
                         help = "show more details")
-        parser.add_option("-v", "--visible", action = "store_true", default = False,
-                        help = "only list visible fit")
-        parser.add_option("-k", "--key-sort", action = "store", default = "",
-                        help = "sort by key")
-        parser.add_option("-r", "--reverse-sort", action = "store_true", default = False,
-                        help = "reverse the sort")
-        parser.add_option("-s", "--spectrum", action = "store", default = "active",
-                        help = "select spectra to work on")       
         hdtv.cmdline.AddCommand(prog, self.FitList, nargs = 0, parser = parser)
         
         prog = "fit show"
@@ -606,7 +715,15 @@ class TvFitInterface:
         description = "print fit results"
         usage = "%prog all|<ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        hdtv.cmdline.AddCommand(prog, self.FitPrint, minargs = 1, parser = parser, level = 2)
+        parser.add_option("-v", "--visible", action = "store_true", default = False,
+                        help = "only list visible fit")
+        parser.add_option("-k", "--key-sort", action = "store", default = "",
+                        help = "sort by key")
+        parser.add_option("-r", "--reverse-sort", action = "store_true", default = False,
+                        help = "reverse the sort")
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
+                        help = "select spectra to work on")       
+        hdtv.cmdline.AddCommand(prog, self.FitPrint, parser = parser, level = 2)
         
         prog = "fit delete"
         description = "delete fits"
@@ -691,101 +808,10 @@ class TvFitInterface:
         """
         Print a list of all fits belonging a spectrum
         """
-        keywords = ["all", "active"]
-        try:
-            ids = hdtv.cmdhelper.ParseRange(options.spectrum, keywords)
-        except ValueError:
-            return "USAGE"
-
-        hdtv.ui.debug("FitList: ids=" + str(ids), level=4)
-        if ids == "ACTIVE":
-            if self.spectra.activeID is None:
-                hdtv.ui.warn("No active spectrum, no action taken.")
-                return
-            sids = [self.spectra.activeID]
-        elif ids == "ALL":
-            sids = self.spectra.keys()
-        else:
-            sids = ids    
-        
-        hdtv.ui.debug("FitList: working on" + str(sids), level=4)
-        
-        for sid in sids:
-            
-            try:
-                spec = self.spectra[sid]
-            except KeyError:
-                hdtv.ui.error("No spectrum " + str(sid))
-                continue
-            
-            result_header = "Fits in Spectrum " + str(sid) + " (" + str(spec) + ")" + "\n"
-            count_fits = 0
-            count_peaks = 0
-            
-             # Get sort key
-            if options.key_sort != "":
-                key = options.key_sort
-            else:
-                key = hdtv.options.Get("fit.list.sort_key")
-            
-            # Build table
-            params = ["id"]
-            key = key.lower()
+        hdtv.ui.error("\"fit list\" command is currently reworked. Functionality has been merged with \"fit print\"")
+        hdtv.ui.error("Please use \"fit print all\" for equivalent functionality")
+        return
     
-            objects = list()
-            
-            if len(spec.fits) == 0:
-                hdtv.ui.newline()
-                hdtv.ui.msg("Spectrum " + str(sid) + " (" + str(spec) + "): No fits")                
-                hdtv.ui.newline()
-                continue
-            
-            # Get fits
-            for (ID, obj) in spec.fits.iteritems():
-                
-                if options.visible: # Don't print on visible fits
-                    if not ID in spec.fits.visible:
-                        continue
-                    
-                count_fits += 1
-                
-                # Get peaks
-                for peak in obj.peaks:
-                    
-                    thispeak = dict()
-                    thispeak["id"] = ID
-                    count_peaks += 1
-                    
-                    for p in obj.fitter.peakModel.fOrderedParamKeys:
-            
-                        if p == "pos": # Store channel additionally to position
-                            thispeak["channel"] = getattr(peak, "pos")
-                            if "channel" not in params:
-                                params.append("channel")
-                        
-                        p_cal = p + "_cal" # Use calibrated values if available
-                        if hasattr(peak, p_cal):
-                            thispeak[p] = getattr(peak, p_cal)
-                        else:
-                            thispeak[p] = getattr(peak, p_cal)
-                    
-                        if p not in params:
-                            params.append(p)
-                            
-                    objects.append(thispeak)
-            
-            result_footer = "\n" + str(count_peaks) + " peaks in " + str(count_fits) + " fits."
-            
-            try:
-                table = hdtv.util.Table(objects, params, sortBy=key, reverseSort=options.reverse_sort,
-                                        extra_header = result_header, extra_footer = result_footer)
-                hdtv.ui.msg(str(table))
-            except KeyError:
-                
-                hdtv.ui.error("Spectrum " + str(sid) + ": No such attribute: " + str(key))
-                hdtv.ui.error("Spectrum " + str(sid) + ": Valid attributes are: " + str(params))
-                continue
-                
     def FitDelete(self, args, options):
         """ 
         Delete fits
@@ -834,17 +860,12 @@ class TvFitInterface:
             else:
                 spec.fits.HideAll()
 
+
     def FitPrint(self, args, options):
         """
         Print fit results
         """
-        if self.spectra.activeID is None:
-            hdtv.ui.warn("No active spectrum, no action taken.")
-            return
-        spec = self.spectra[self.spectra.activeID]
-        ids = hdtv.cmdhelper.ParseFitIds(args, spec.fits)
-        for ID in ids:
-            hdtv.ui.msg("Fit %d:" % ID + str(spec.fits[ID].formatted_str(verbose=True)))
+        self.fitIf.PrintFits(args, options.spectrum, onlyVisible=options.visible, sortBy=options.key_sort, reverseSort=options.reverse_sort)
 
 
     def FitActivate(self, args, options):
