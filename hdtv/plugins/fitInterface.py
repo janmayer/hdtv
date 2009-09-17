@@ -308,7 +308,10 @@ class FitInterface:
                 continue
     
             fids = hdtv.cmdhelper.ParseIds(ids, spec.fits)
-
+            if len(fids) == 0:
+                hdtv.ui.warn("No active fit for spectrum %d" % sid)
+                continue
+            
             result_header = "Fits in Spectrum " + str(sid) + " (" + str(spec) + ")" + "\n"
             count_fits = 0
             count_peaks = 0
