@@ -52,7 +52,7 @@ class HDTVOptionParser(optparse.OptionParser):
         else:
             raise HDTVCommandError, msg
     
-class HDTVCommandTreeNode:
+class HDTVCommandTreeNode(object):
     def __init__(self, parent, title, level):
         self.parent = parent
         self.title = title
@@ -369,7 +369,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         
         return options
             
-class CommandLine:
+class CommandLine(object):
     """
     Class implementing the HDTV command line, including switching between
     command and Python mode.
@@ -383,6 +383,8 @@ class CommandLine:
         self.fReadlineExitHandler = False
         
         self._py_console = None
+        self.fPyMode = False
+        self.fPyMore = False
         
     def ReadReadlineInit(self, filename):
         if os.path.isfile(filename):
@@ -505,7 +507,7 @@ class CommandLine:
         """
         Execute a command file with hdtv commands (aka batch file)
         """
-        print "Execute file: " + fname
+        hdtv.ui.msg("Execute file: " + fname)
         
         file = hdtv.util.TxtFile(fname)
         file.read()
