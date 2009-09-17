@@ -243,6 +243,7 @@ class Spectrum(_RawSpectrum):
 #        fit.FixMarkerUncal()
         fit.cal = self.cal
         fit.color = self.color
+        fit.fitter.spec = self
         return newID
         
     # cal property
