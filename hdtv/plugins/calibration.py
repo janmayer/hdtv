@@ -31,6 +31,7 @@ import hdtv.cmdhelper
 import hdtv.options
 import hdtv.ui
 import hdtv.cal
+import hdtv.util
 
 class EffCalIf(object):
     
@@ -38,7 +39,7 @@ class EffCalIf(object):
         
         self.spectra = spectra
         
-    def SetFun(self, name, spectrumID):
+    def SetFun(self, spectrumID, name, parameter=None):
         """
         Set efficiency function to use
         
@@ -47,21 +48,25 @@ class EffCalIf(object):
                         * "wiedenhoever" for Wiedenhoever-Efficiency
                         * "poly" for polynomial efficiency
         """ 
+        
+        if parameter is None:
+            parameter = list()
+            
         try:
             name = name.lower()
             if name == "wunder":
-                self.spectra[spectrumID].fEffCal = hdtv.efficiency.WunderEff()
+                self.spectra[spectrumID].fEffCal = hdtv.efficiency.WunderEff(pars=parameter)
             elif name == "wiedenhoever":
-                self.spectra[spectrumID].fEffCal = hdtv.efficiency.WiedenhoeverEff()
+                self.spectra[spectrumID].fEffCal = hdtv.efficiency.WiedenhoeverEff(pars=parameter)
             elif name == "poly":
-                self.spectra[spectrumID].fEffCal = hdtv.efficiency.PolyEff()
+                self.spectra[spectrumID].fEffCal = hdtv.efficiency.PolyEff(pars=parameter)
             else:
                 hdtv.ui.error("No such efficiency function %s", name)
                 return 
         except IndexError:
             hdtv.ui.error("Invalid spectrum ID %d", spectrumID)
             
-    def SetPar(self, parameter, spectrumID):
+    def SetPar(self, spectrumID, parameter):
         """
         Set parameter for efficiency function
         """ 
@@ -69,6 +74,8 @@ class EffCalIf(object):
             self.spectra[spectrumID].fEffCal.parameter = parameter
         except IndexError:
             hdtv.ui.error("Invalid spectrum ID %d", spectrumID)
+        except AttributeError:
+            hdtv.ui.error("No efficiency for spectrum ID %d set", spectrumID)
             
     def Assign(self, todo):
         """
@@ -76,7 +83,7 @@ class EffCalIf(object):
         """
         pass
     
-    def ReadPar(self, filename, spectrumID):
+    def ReadPar(self, spectrumID, filename):
         """
         Load efficiency parameter and covariance from file
         """
@@ -88,8 +95,10 @@ class EffCalIf(object):
             hdtv.ui.error(str(msg))
         except IndexError:
             hdtv.ui.error("Invalid spectrum ID %d", spectrumID)
+        except AttributeError:
+            hdtv.ui.error("No efficiency for spectrum ID %d set", spectrumID)
             
-    def ReadCov(self, filename, spectrumID):
+    def ReadCov(self, spectrumID, filename):
         """
         Load efficiency parameter and covariance from file
         """
@@ -101,8 +110,10 @@ class EffCalIf(object):
             hdtv.ui.error(str(msg))
         except IndexError:
             hdtv.ui.error("Invalid spectrum ID %d", spectrumID)
-    
-    def WritePar(self, filename, spectrumID):
+        except AttributeError:
+            hdtv.ui.error("No efficiency for spectrum ID %d set", spectrumID)
+        
+    def WritePar(self, spectrumID, filename):
         """
         Save efficiency parameter
         """
@@ -112,8 +123,10 @@ class EffCalIf(object):
             hdtv.ui.error(str(msg))
         except IndexError:
             hdtv.ui.error("Invalid spectrum ID %d", spectrumID)
-            
-    def WriteCov(self, filename, spectrumID):
+        except AttributeError:
+            hdtv.ui.error("No efficiency for spectrum ID %d set", spectrumID)
+
+    def WriteCov(self, spectrumID, filename):
         """
         Save efficiency parameter
         """
@@ -123,18 +136,64 @@ class EffCalIf(object):
             hdtv.ui.error(str(msg))
         except IndexError:
             hdtv.ui.error("Invalid spectrum ID %d", spectrumID)
-            
-    def List(self):
+        except AttributeError:
+            hdtv.ui.error("No efficiency for spectrum ID %d set", spectrumID)
+
+    def List(self, ids=None):
         """
         List currently used efficiencies
         """
-        pass
+        if ids is None:
+            ids = self.spectra.keys()
+            
+        tabledata = list()
+        for ID in ids:
+            tableline = dict()
+            tableline["ID"] = ID
+            try:
+                tableline["Name"] = self.spectra[ID].fEffCal.name
+                # TODO: Decent formatting
+                tableline["Parameter"] = str(self.spectra[ID].fEffCal.parameter)
+            except AttributeError:
+                tableline["Name"] = "-"
+                tableline["Parameter"] = "-"
+            tabledata.append(tableline)
+            
+        table = hdtv.util.Table(data=tabledata, keys=["ID", "Name", "Parameter"], sortBy="ID", ignoreEmptyCols=False)
+        hdtv.ui.msg(str(table))
     
     def Plot(self, spectrumID):
         """
         Plot efficiency
         """
-        self.spectra[spectrumID].fEffCal.TF1.Draw()
+        try:
+            self.spectra[spectrumID].fEffCal.TF1.Draw()
+        except AttributeError:
+            hdtv.ui.error("No efficiency for spectrum ID %d set", spectrumID)
+            
+    def Fit(self, spectrumID, filename, show_graph=False, fit_panel=False):
+        """
+        Plot efficiency
+        """
+        
+        fitValues = hdtv.util.Pairs(hdtv.util.ErrValue)
+         
+        try:
+            fitValues.fromFile(filename, sep=" ") # TODO: separator
+        except IOError, msg:
+            hdtv.ui.error(str(msg))
+            return
+        
+        try:
+            self.spectra[spectrumID].fEffCal.fit(fitValues, quiet=False)
+            if show_graph:
+                self.spectra[spectrumID].fEffCal.TGraph.Draw("a*")
+                self.spectra[spectrumID].fEffCal.TF1.Draw("same")
+            if fit_panel:
+                self.spectra[spectrumID].fEffCal.TF1.FitPanel()
+        except AttributeError:
+            hdtv.ui.error("No efficiency for spectrum ID %d set", spectrumID)
+        
    
 class EffCalHDTVInterface(object):
     
@@ -147,15 +206,20 @@ class EffCalHDTVInterface(object):
         self.opt["eff_fun"] = hdtv.options.Option(default = "wunder")
         hdtv.options.RegisterOption("calibration.efficiency.function", self.opt["eff_fun"])
         
-        prog = "calibration efficiency function"
+        prog = "calibration efficiency set"
         description = "Set efficiency function"
         usage = "%prog [wunder|wiedenhoever|poly]"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-s", "--spectrum", help = "Spectrum ID to set efficiency for", action = "store",
                           default = "active")
-        hdtv.cmdline.AddCommand(prog, self.SetFun, parser = parser)
+        parser.add_option("-p", "--parameter", help = "Parameters for efficiency function", action = "store",
+                          default = None)
+        parser.add_option("-f", "--file", help = "Read efficiency from file", action = "store",
+                          default = None)
         
-        prog = "calibration efficiency read pararameter"
+        hdtv.cmdline.AddCommand(prog, self.SetFun, parser = parser, nargs = 1)
+        
+        prog = "calibration efficiency read parameter"
         description = "Read parameter for efficiency function from file"
         usage = "%prog <parameter-file>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
@@ -194,7 +258,21 @@ class EffCalHDTVInterface(object):
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         hdtv.cmdline.AddCommand(prog, self.PlotEff, parser = parser, fileArgs = False, nargs = 1)
         
+        prog = "calibration efficiency fit"
+        description = "Fit efficiency"
+        usage = "%prog <spectrum-id>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        parser.add_option("-f", "--file", help = "File with energy<->efficiency pairs", action = "store", default = None)
+        parser.add_option("-p", "--fit-panel", help = "Show fit panel", action = "store_true", default = False)
+        parser.add_option("-g", "--show-graph", help = "Show fitted graph", action = "store_true", default = False)
         
+        hdtv.cmdline.AddCommand(prog, self.FitEff, parser = parser, fileArgs = False, nargs = 1)
+        
+        prog = "calibration efficiency list"
+        description = "List efficiencies"
+        usage = "%prog [spectrum-ids]"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        hdtv.cmdline.AddCommand(prog, self.ListEff, parser = parser, fileArgs = False)
         
     def SetFun(self, args, options):
         """
@@ -205,6 +283,19 @@ class EffCalHDTVInterface(object):
 
         eff_fun = args[0]
         
+        if options.parameter is not None:
+            pars = options.parameter.split(",")
+            pars = map(lambda x: float(x), pars)
+        else:
+            pars = None
+            
+        if options.file is None:
+            parFileName = None
+            covFileName = None
+        else:
+            parFileName = options.file + ".par"
+            covFileName = options.file + ".cov"
+        
         try:
             ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
         except ValueError:
@@ -212,8 +303,11 @@ class EffCalHDTVInterface(object):
             return
         
         for ID in ids:
-            self.effIf.SetFun(eff_fun, ID)
-            
+            self.effIf.SetFun(ID, eff_fun, parameter=pars)
+            if parFileName is not None:
+                self.effIf.ReadPar(ID, parFileName)
+            if covFileName is not None:
+                self.effIf.ReadCov(ID, covFileName)
 
     def ReadPar(self, args, options):
         """
@@ -231,7 +325,7 @@ class EffCalHDTVInterface(object):
             return
         
         for ID in ids:
-            self.effIf.ReadPar(filename, ID)
+            self.effIf.ReadPar(ID, filename)
 
         
     def ReadCov(self, args, options):
@@ -250,7 +344,7 @@ class EffCalHDTVInterface(object):
             return
 
         for ID in ids:
-            self.effIf.ReadCov(filename, ID)
+            self.effIf.ReadCov(ID, filename)
 
     def WritePar(self, args, options):
         """
@@ -272,7 +366,7 @@ class EffCalHDTVInterface(object):
             return
         
         for ID in ids:
-            self.effIf.WritePar(filename, ID)
+            self.effIf.WritePar(ID, filename)
 
         
     def WriteCov(self, args, options):
@@ -295,7 +389,7 @@ class EffCalHDTVInterface(object):
             return
         
         for ID in ids:
-            self.effIf.WriteCov(filename, ID)
+            self.effIf.WriteCov(ID, filename)
             
     
     def PlotEff(self, args, options):
@@ -314,6 +408,36 @@ class EffCalHDTVInterface(object):
         
         for ID in ids:
             self.effIf.Plot(ID)
+            
+    def FitEff(self, args, options):
+        """
+        Fit efficiency
+        """
+        try:
+            ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
+        except ValueError:
+            hdtv.ui.error("Invalid ID %s" % args)
+            return
+            
+        if len(ids) > 1:
+            hdtv.ui.error("More than one spectrum given")
+
+        for ID in ids:
+            self.effIf.Fit(ID, options.file, options.show_graph, options.fit_panel)
+            
+            
+    def ListEff(self, args, options):
+        """
+        List efficiencies
+        """
+        try:
+            ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
+        except ValueError:
+            hdtv.ui.error("Invalid ID %s" % args)
+            return
+        
+        self.effIf.List(ids)
+
             
 
 class EnergyCalIf(object):

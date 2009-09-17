@@ -30,7 +30,9 @@ class PolyEff(_Efficiency):
     """
     def __init__(self, pars = list(), norm = True):
         
-        self.id = "polyeff_" + hex(id(self))
+        self.name = "Polynom"
+        self.id = self.name + "_" + hex(id(self))
+
         self.TF1 = TF1(self.id, "[0] * ([1] + [2] * x + [3] * x^2 + [4] * x^3 + [5] * x^4)", 0, 0) # [0] is normalization factor
         
         _Efficiency.__init__(self, num_pars = 5, pars = pars, norm = norm)

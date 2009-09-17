@@ -20,7 +20,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 from __future__ import with_statement
-from hdtv.util import ErrValue, TxtFile
+from hdtv.util import ErrValue, TxtFile, Pairs
 from ROOT import TF1, TF2, TGraphErrors, TVirtualFitter
 import math
 import array
@@ -30,7 +30,7 @@ import os
 class _Efficiency(object):
     
     def __init__(self, num_pars = 0, pars = list(), norm = True):
-        
+       
          self._numPars = num_pars 
          self.parameter = pars
          self.fCov = [[None for j in range(self._numPars)] for i in range(self._numPars)] # Simple matrix replacement
@@ -43,7 +43,9 @@ class _Efficiency(object):
          self.norm = 1.0
          self.TF1.FixParameter(0, self.norm) # Normalization
          self.TF1.SetRange(0, 10000) # Default range for efficiency function
-
+         
+         self.fitInput = Pairs(ErrValue)
+         
 #         if self.parameter: # Parameters were given
 #             map(lambda i: self.TF1.SetParameter(i + 1, self.parameter[i]), range(1, len(pars))) # Set initial parameters
 #         else:
@@ -83,38 +85,42 @@ class _Efficiency(object):
         error = self.error(E)
         return ErrValue(value, error)
 
-    def fit(self, energies, efficiencies, energy_errors = None, efficiency_errors = None, quiet = True):
+    def fit(self, fitPairs=None, quiet = True):
         """
-        Fit efficiency curve to values given by 'energies' and 'efficiencies'
+        Fit efficiency curve to values given by 'fitPairs' which should be a list
+        of energy<->efficiency pairs. (See hdtv.util.Pairs())
         
         'energies' and 'efficiencies' may be a list of hdtv.util.ErrValues()
         """
+        
+        if fitPairs is not None:
+            self.fitInput = fitPairs
+
         E = array.array("d")
         delta_E = array.array("d")
         eff = array.array("d")
         delta_eff = array.array("d")
         
-        # Convert energies to array needed by ROOT
+
+#        map(energies.append(self.fitInput[0]), self.fitInput)
+#        map(efficiencies.append(self.fitInput[1]), self.fitInput)
+        
+        # Convert energies to array needed by ROOT        
         try:
-            map(lambda x: E.append(x.value), energies)
-            map(lambda x: delta_E.append(x.error), energies)
+            map(lambda x: E.append(x[0].value), self.fitInput)
+            map(lambda x: delta_E.append(x[0].error), self.fitInput)
         except AttributeError: # energies does not seem to be ErrValue list
-            map(E.append, energies)
-            if energy_errors:
-                map(lambda x: delta_E.append(x), energy_errors)
-            else:
-                map(lambda x: delta_E.append(0.0), energies)
+            map(lambda x: E.append(x[0]), self.fitInput)
+            map(lambda x: delta_E.append(0.0), self.fitInput)
+
         # Convert efficiencies to array needed by ROOT
         try:
-            map(lambda x: eff.append(x.value), efficiencies)
-            map(lambda x: delta_eff.append(x.error), efficiencies)
-        except AttributeError: # efficiencies does not seem to be ErrValue list
-            map(eff.append, efficiencies)
-            if energy_errors:
-                map(lambda x: delta_eff.append(x), efficiency_errors)
-            else:
-                map(lambda x: delta_eff.append(0.0), efficiencies)
-        
+            map(lambda x: eff.append(x[1].value), self.fitInput)
+            map(lambda x: delta_eff.append(x[1].error), self.fitInput)
+        except AttributeError: # energies does not seem to be ErrValue list
+            map(lambda x: eff.append(x[1]), self.fitInput)
+            map(lambda x: delta_eff.append(0.0), self.fitInput)
+
         # Preliminary normalization
 #        if self._doNorm:
 #            self.norm = 1 / max(efficiencies)
@@ -122,10 +128,10 @@ class _Efficiency(object):
 #                eff[i] *= self.norm
 #                delta_eff[i] *= self.norm
         
-        self.TF1.SetRange(0, max(energies) * 1.1)
+        self.TF1.SetRange(0, max(E) * 1.1)
         self.TF1.SetParameter(0, 1) # Unset normalization for fitting
-#        self.TGraph = TGraphErrors(len(energies), E, eff, delta_E, delta_eff)
-        for i in range(0, len(efficiencies)):
+
+        for i in range(0, len(self.fitInput)):
             self.TGraph.SetPoint(i, E[i], eff[i])
             self.TGraph.SetPointError(i, delta_E[i], delta_eff[i])
         
