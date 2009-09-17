@@ -40,7 +40,7 @@ def ParseFitIds(strings, spec):
     """
     return ParseIds(strings, spec)
 
-def ParseIds(strings, spec, only_existent=True):
+def ParseIds(strings, drawable, only_existent=True):
     """
     Parse Spectrum/Fit Ids
     
@@ -68,19 +68,19 @@ def ParseIds(strings, spec, only_existent=True):
 #            hdtv.ui.warn("There is no active fit.")
 #            return list()
     elif ids == "NEXT":
-        ids = [spec.nextID]
+        ids = [drawable.nextID]
     elif ids == "PREV":
-        ids = [spec.prevID]
+        ids = [drawable.prevID]
     elif ids == "FIRST":
-        ids = [spec.firstID]
+        ids = [drawable.firstID]
     elif ids == "LAST":
-        ids = [spec.lastID]
+        ids = [drawable.lastID]
     elif ids == "ACTIVE" or len(ids) == 0:
-        ids = [spec.activeID]
+        ids = [drawable.activeID]
     elif ids=="ALL":
-        ids = spec.keys()
+        ids = drawable.keys()
     elif ids=="VISIBLE":
-        ids = list(spec.visible)
+        ids = list(drawable.visible)
         
     fits = list()
     # filter non-existing ids
@@ -88,7 +88,7 @@ def ParseIds(strings, spec, only_existent=True):
     if only_existent:
         for ID in ids:
             if ID is None: continue
-            if not ID in spec.keys():
+            if not ID in drawable.keys():
                 hdtv.ui.warn("Non-existent id %s" %ID)
             else:
                 valid_ids.append(ID)
