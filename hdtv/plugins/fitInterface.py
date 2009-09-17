@@ -795,7 +795,11 @@ class TvFitInterface:
         if len(sids)>0:
             for s in sids:
                 spec = self.spectra[s]
-                ids = hdtv.cmdhelper.ParseIds(args, spec.fits)
+                try:
+                    ids = hdtv.cmdhelper.ParseIds(args, spec.fits)
+                except ValueError:
+                    hdtv.ui.error("Malformed fit ID.")
+                    return
                 spec.fits.RemoveObjects(ids)
         else:
             hdtv.ui.warn("Nothing to do (No spectra chosen or active)")
