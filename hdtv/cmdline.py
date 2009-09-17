@@ -381,8 +381,9 @@ class CommandLine(object):
         
         self.fReadlineHistory = None
         self.fReadlineExitHandler = False
-        
-        self._py_console = None
+
+        self._py_console = self._py_console = code.InteractiveConsole(self.fInteractiveLocals)
+
         self.fPyMode = False
         self.fPyMore = False
         
@@ -548,8 +549,6 @@ class CommandLine(object):
     
     def MainLoop(self):
         self.fKeepRunning = True
-        
-        self._py_console = self._py_console = code.InteractiveConsole(self.fInteractiveLocals)
 
         self.fPyMode = False
         self.fPyMore = False
