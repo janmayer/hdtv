@@ -245,7 +245,7 @@ class FitInterface:
         #self.UpdateFitPanel()
 
 
-    def FitReset(self, specID=None, fitID=None):
+    def FitReset(self, specID=None, fitID=None, resetFitter=True):
         """
         Reset fit to unfitted default fitter
         """
@@ -267,8 +267,9 @@ class FitInterface:
                 return
 
         fit.Reset()
-        fit.fitter = self.defaultFitter.Copy()
-        fit.fitter.parent=fit
+        if resetFitter:
+            fit.fitter = self.defaultFitter.Copy()
+            fit.fitter.parent=fit
         
         
     def ActivateFit(self, ID):
@@ -821,11 +822,13 @@ class TvFitInterface:
         hdtv.cmdline.AddCommand(prog, self.DoFit, parser = parser)
 
         prog = "fit reset"
-        description = "reset fitter of a fit to default"
+        description = "reset fit functions of a fit"
         usage = "%prog [OPTIONS] <fit-ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-s", "--spectra", action = "store", default = "active",
                             help = "Spectra to work on")
+        parser.add_option("-k", "--keep-fitter", action = "store_true", default = False,
+                            help = "Keep fitter parameters")
         hdtv.cmdline.AddCommand(prog, self.ResetFit, parser = parser)
 
         # calibration command
@@ -1147,7 +1150,7 @@ class TvFitInterface:
                 continue
             
             for fitID in fitIDs:    
-                self.fitIf.FitReset(specID=specID, fitID=fitID) 
+                self.fitIf.FitReset(specID=specID, fitID=fitID, resetFitter=not options.keep_fitter) 
         
     def CalPosAssign(self, args, options):
         """ 
