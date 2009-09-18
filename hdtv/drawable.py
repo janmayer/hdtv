@@ -93,6 +93,7 @@ class Drawable(Child):
         if self.parent.active:
             try:
                 # ask the parent for a decision
+                # TODO: Not all parents are Drawables! -> GetActiveObject() is not always present
                 return (self.parent.GetActiveObject() is self)
             except AttributeError:
                 # otherwise all objects of that parent are active

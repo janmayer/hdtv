@@ -386,7 +386,7 @@ class FitXml:
             # restore fit
             if success and not refit:
                 try:
-                    fit.Restore(spec, silent=True)
+                    fit.Restore(spec=spec, silent=True)
                 except (TypeError, IndexError):
                     success = False
             # deal with failure
@@ -459,7 +459,7 @@ class FitXml:
                 # restore fit
                 if success and not refit:
                     try:
-                        fit.Restore(spec, silent=True)
+                        fit.Restore(spec=spec, silent=True)
 #                        ID = spec.fits.Add(fit)
                     except (TypeError, IndexError):
                         success = False
@@ -527,6 +527,7 @@ class FitXml:
             try: 
                 fit.bgChi = float(bgElement.get("chisquare"))
             except ValueError:
+                hdtv.ui.error("Error reading chisquare for background element: %s" % bgElement.get("chisquare"))
                 success = False
             coeffs = list()
             for coeffElement in bgElement.findall("coeff"):

@@ -23,7 +23,6 @@ import ROOT
 import os
 import hdtv.dlmgr
 import hdtv.color 
-import weakref
 
 from hdtv.drawable import Drawable, DrawableCompound
 from hdtv.specreader import SpecReader, SpecReaderError
@@ -238,11 +237,10 @@ class Spectrum(_RawSpectrum):
         # as marker positions are uncalibrated, 
         # we need do a recalibration here
         newID = self.fits.Add(fit, ID)
-#        fit.FixMarkerUncal()
+        # TODO: This should be handled via "parent"
         fit.cal = self.cal
         fit.color = self.color
-        # TODO: This should be handled via "parent"
-        fit.fitter.spec = weakref.proxy(self)
+        fit.parent = self
         return newID
         
     # cal property
@@ -307,6 +305,14 @@ class Spectrum(_RawSpectrum):
         visible = self.fits.visible.copy()
         self.fits.Hide()
         self.fits.visible = visible
+
+    def GetActiveObject(self):
+        """
+        Return the active fit
+        
+        This is called from e.g. Drawable.active()
+        """
+        return self.fits.GetActiveObject()
 
         
 class FileSpectrum(Spectrum):

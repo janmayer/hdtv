@@ -57,6 +57,7 @@ class Fit(Drawable):
                                              color=hdtv.color.bg, cal=cal)
         self.bgMarkers.parent = self
         self.fitter = fitter
+        self.fitter.parent = self
         self.peaks = []
         self.chi = None
         self.bgChi = None
@@ -67,6 +68,10 @@ class Fit(Drawable):
         self._title = None
         Drawable.__init__(self, color, cal)
 
+        
+    @property
+    def spec(self):
+        return self.parent
         
     def __copy__(self):
         return self.Copy()
@@ -207,11 +212,13 @@ class Fit(Drawable):
             m.FixUncal()
             
             
-    def FitBgFunc(self, spec):
+    def FitBgFunc(self, spec=None):
         """
         Do the background fit and extract the function for display
         Note: You still need to call Draw afterwards.
-        """ 
+        """
+        if spec is None:
+            spec = self.spec 
         # set calibration without changing position of markers,
         # because the marker have been set by the user to calibrated values
 #        self.Recalibrate(spec.cal)
@@ -223,8 +230,10 @@ class Fit(Drawable):
         
         # fit background 
         if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
-            backgrounds = [[m.p1.GetPosInUncal(), m.p2.GetPosInUncal()] for m in self.bgMarkers] 
-            self.fitter.FitBackground(spec, backgrounds)
+            backgrounds = hdtv.util.Pairs()
+            for m in self.bgMarkers:
+                backgrounds.add(m.p1.GetPosInUncal(), m.p2.GetPosInUncal()) 
+            self.fitter.FitBackground(spec=spec, backgrounds=backgrounds)
             func = self.fitter.bgFitter.GetFunc()
             self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
             self.dispBgFunc.SetCal(spec.cal)
@@ -237,7 +246,7 @@ class Fit(Drawable):
                 self.bgCoeffs.append(hdtv.util.ErrValue(value, error))
             
             
-    def FitPeakFunc(self, spec, silent=False):
+    def FitPeakFunc(self, spec=None, silent=False):
         """
         Do the actual peak fit and extract the functions for display
         Note: You still need to call Draw afterwards.
@@ -246,6 +255,8 @@ class Fit(Drawable):
         for func in Fit.FitPeakPreHooks:
             func(self)
         
+        if spec is None:
+            spec = self.spec
         # set calibration without changing position of markers,
         # because the marker have been set by the user to calibrated values
         self.cal=spec.cal
@@ -265,8 +276,10 @@ class Fit(Drawable):
         self.chi=None
         # fit background 
         if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
-            backgrounds =  map(lambda m: [m.p1.GetPosInUncal(), m.p2.GetPosInUncal()], self.bgMarkers)
-            self.fitter.FitBackground(spec, backgrounds)
+            backgrounds = hdtv.util.Pairs()
+            for m in self.bgMarkers:
+                backgrounds.add(m.p1.GetPosInUncal(), m.p2.GetPosInUncal())
+            self.fitter.FitBackground(spec=spec, backgrounds=backgrounds)
         # fit peaks
         if len(self.peakMarkers)>0 and self.regionMarkers.IsFull():
             region = [self.regionMarkers[0].p1.GetPosInUncal(), self.regionMarkers[0].p2.GetPosInUncal()]
@@ -277,7 +290,7 @@ class Fit(Drawable):
                     self.peakMarkers.remove(m)
             peaks = [m.p1.GetPosInUncal() for m in self.peakMarkers]
             peaks.sort()
-            self.fitter.FitPeaks(spec, region, peaks)
+            self.fitter.FitPeaks(spec=spec, region=region, peaklist=peaks)
             # get background function
             func = self.fitter.peakFitter.GetBgFunc()
             self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
@@ -317,25 +330,32 @@ class Fit(Drawable):
         for func in Fit.FitPeakPostHooks:
             func(self)
 
-    def Restore(self, spec, silent=False):
+    def Restore(self, spec=None, silent=False):
         # set calibration also for the markers,
         # as the marker position is set to uncalibrated values, 
         # when read from xml fit list
-        self.cal = spec.cal
+        
+        if spec is None:
+            spec = self.spec
+#        self.cal = spec.cal
+            
         if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2.GetPosInCal():
-            backgrounds = [[m.p1.GetPosInUncal(), m.p2.GetPosInUncal()] for m in self.bgMarkers]
-            self.fitter.RestoreBackground(spec, backgrounds, self.bgCoeffs, self.bgChi)
+            
+            backgrounds = hdtv.util.Pairs()
+            for m in self.bgMarkers:
+                backgrounds.add(m.p1.GetPosInUncal(), m.p2.GetPosInUncal())
+            self.fitter.RestoreBackground(backgrounds=backgrounds, coeffs=self.bgCoeffs, chisquare=self.bgChi)
         region = [self.regionMarkers[0].p1.GetPosInUncal(), self.regionMarkers[0].p2.GetPosInUncal()]
         region.sort()
-        self.fitter.RestorePeaks(spec, region, self.peaks, self.chi)
+        self.fitter.RestorePeaks(spec=spec, region=region, peaks=self.peaks, chisquare=self.chi)
         # get background function
         func = self.fitter.peakFitter.GetBgFunc()
         self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
-        self.dispBgFunc.SetCal(self.cal)
+        self.dispBgFunc.SetCal(spec.cal)
         # get peak function
         func = self.fitter.peakFitter.GetSumFunc()
         self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.region)
-        self.dispPeakFunc.SetCal(self.cal)
+        self.dispPeakFunc.SetCal(spec.cal)
         # print result
         if not silent:
             print "\n"+6*" "+str(self)
@@ -378,10 +398,10 @@ class Fit(Drawable):
         # repeat the fits
         if self.dispPeakFunc:
             # this includes the background fit
-            self.FitPeakFunc(self.fitter.spec)
+            self.FitPeakFunc()
         elif self.dispBgFunc:
             # maybe there was only a background fit
-            self.FitBgFunc(self.fitter.spec)
+            self.FitBgFunc()
         if not self.viewport:
             return
         self.viewport.LockUpdate()

@@ -268,6 +268,7 @@ class FitInterface:
 
         fit.Reset()
         fit.fitter = self.defaultFitter.Copy()
+        fit.fitter.parent=fit
         
         
     def ActivateFit(self, ID):
