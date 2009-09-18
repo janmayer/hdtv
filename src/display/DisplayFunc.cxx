@@ -35,12 +35,5 @@ DisplayFunc::DisplayFunc(TF1 *func, int col)
   fFunc = func;
 }
 
-DisplayStack::ObjList& DisplayFunc::GetList(DisplayStack *stack)
-{
-  //! Return the stacks object list where this kind of object should be inserted
-
-  return stack->fFunctions;
-}
-
 } // end namespace Display
 } // end namespace HDTV

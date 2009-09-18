@@ -114,8 +114,8 @@ void View1D::YAutoScaleOnce(bool update)
 
   fYVisibleRegion = fYMinVisibleRegion;
   
-  for(std::list<DisplayObj*>::iterator obj = fDisplayStack.fSpectra.begin();
-      obj != fDisplayStack.fSpectra.end();
+  for(std::list<DisplayObj*>::iterator obj = fDisplayStack.fObjects.begin();
+      obj != fDisplayStack.fObjects.end();
       ++obj) {
     spec = dynamic_cast<DisplaySpec *> (*obj);
     if(spec && spec->IsVisible())
@@ -278,8 +278,8 @@ void View1D::ShowAll(void)
   DisplaySpec *spec;
   bool hadSpec = false;
   
-  for(std::list<DisplayObj*>::iterator obj = fDisplayStack.fSpectra.begin();
-      obj != fDisplayStack.fSpectra.end();
+  for(std::list<DisplayObj*>::iterator obj = fDisplayStack.fObjects.begin();
+      obj != fDisplayStack.fObjects.end();
       ++obj) {
     spec = dynamic_cast<DisplaySpec *> (*obj);
     if(spec && spec->IsVisible()) {
@@ -673,7 +673,7 @@ void View1D::DoRedraw(void)
   fDisplayStack.PaintRegion(x+2, x+w-2, fPainter);
   DrawXScales(x+2, x+w-2);
   fPainter.DrawYScale();
-  fPainter.DrawIDList(fDisplayStack.fSpectra);
+  fPainter.DrawIDList(fDisplayStack.fObjects);
   
   if(cv) DrawCursor();
 }

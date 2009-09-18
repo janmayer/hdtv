@@ -234,7 +234,7 @@ void Painter::DrawYMarker(YMarker *marker, int x1, int x2)
   }
 }
 
-void Painter::DrawIDList(std::list<DisplayObj*> objects)
+void Painter::DrawIDList(const std::list<DisplayObj*>& objects)
 {
   //! Draw a colered list of IDs. This is a quick hack, really.
   
@@ -243,7 +243,7 @@ void Painter::DrawIDList(std::list<DisplayObj*> objects)
   char tmp[16];
   int len;
    
-  for(std::list<DisplayObj*>::iterator obj = objects.begin();
+  for(std::list<DisplayObj*>::const_iterator obj = objects.begin();
       obj != objects.end();
       ++obj) {
     spec = dynamic_cast<DisplaySpec*>(*obj);

@@ -82,13 +82,6 @@ int DisplaySpec::GetRegionMaxBin(int b1, int b2)
   return max_bin;
 }
 
-DisplayStack::ObjList& DisplaySpec::GetList(DisplayStack *stack)
-{
-  //! Return the stacks object list where this kind of object should be inserted
-
-  return stack->fSpectra;
-}
-
 double DisplaySpec::GetRegionMax(int b1, int b2)
 {
   //! Get the maximum counts in the region between bin b1 and bin b2 (inclusive)

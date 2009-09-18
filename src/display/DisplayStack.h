@@ -35,6 +35,8 @@ class View1D;
 
 //! An ordered list of objects being displayed
 class DisplayStack {
+  friend class DisplayObj;
+  friend class View1D;
   public:
     DisplayStack(View1D *view) { fView = view; }
     ~DisplayStack();
@@ -45,16 +47,10 @@ class DisplayStack {
     
     typedef std::list<DisplayObj *> ObjList;
     
-    ObjList fSpectra;
-    ObjList fFunctions;
-    ObjList fMarkers;
-    ObjList fMisc;   // junk drawer
+  private:
+    ObjList fObjects;
     
     View1D* fView;
-    
-  private:
-    void RemoveList(ObjList& objects);
-    void PaintList(ObjList& objects, UInt_t x1, UInt_t x2, Painter& painter);
 };
 
 } // end namespace Display

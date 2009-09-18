@@ -38,13 +38,6 @@ DisplayObj::~DisplayObj()
   Remove();  // Remove object from all display stacks
 }
 
-DisplayStack::ObjList& DisplayObj::GetList(DisplayStack *stack)
-{
-  //! Return the stacks object list where this kind of object should be inserted
-
-  return stack->fMisc;
-}
-
 void DisplayObj::Update(bool force)
 {
   //! Update all display stacks that the object is presently on
@@ -83,8 +76,11 @@ void DisplayObj::Draw(DisplayStack *stack)
 {
   //! Add the object to the display stack
 
-  DisplayStack::ObjList& list = GetList(stack);
-  list.insert(list.end(), this);
+  DisplayStack::ObjList& list = stack->fObjects;
+  
+  DisplayStack::ObjList::iterator pos = list.begin();
+  while(pos != list.end() && (*pos)->GetZIndex() <= GetZIndex()) { ++pos; }
+  list.insert(pos, this);
   
   fStacks.insert(fStacks.begin(), stack);
   
@@ -95,7 +91,7 @@ void DisplayObj::Remove(DisplayStack *stack)
 {
   //! Remove the object from the display stack
 
-  GetList(stack).remove(this);
+  stack->fObjects.remove(this);
   stack->Update();
   fStacks.remove(stack);
 }
@@ -107,6 +103,82 @@ void DisplayObj::Remove()
   // Note that we cannot use an iterator to traverse a changing list
   while(!fStacks.empty()) {
     Remove(*fStacks.begin());
+  }
+}
+
+void DisplayObj::ToTop(View1D *view)
+{
+  //! Move the object to the top of its list in view s display stack
+
+  ToTop(view->GetDisplayStack());
+}
+
+void DisplayObj::ToBottom(View1D *view)
+{
+  //! Move the object to the bottom of its list in view s display stack
+  
+  ToBottom(view->GetDisplayStack());
+}
+
+void DisplayObj::ToTop(DisplayStack *stack)
+{
+  //! Move the object to the top of all objects with lower or equal z-index in
+  //! the display stack.
+
+  DisplayStack::ObjList& list = stack->fObjects;
+  
+  DisplayStack::ObjList::iterator pos = list.begin();
+  while(pos != list.end() && (*pos)->GetZIndex() <= GetZIndex()) { ++pos; }
+    
+  if(pos != list.end() && *pos == this)
+    return;
+  
+  list.remove(this);
+  list.insert(pos, this);
+  
+  stack->Update();
+}
+
+void DisplayObj::ToTop()
+{
+  //! Move the object to the top of all objects with lower or equal z-index in
+  //! all display stacks it appears in.
+
+  for(std::list<DisplayStack*>::iterator stack = fStacks.begin();
+      stack != fStacks.end();
+      ++stack) {
+    ToTop(*stack);
+  }
+}
+
+void DisplayObj::ToBottom(DisplayStack *stack)
+{
+  //! Move the object to the bottom of all objects with higher or equal z-index
+  //! in the display stack.
+
+  DisplayStack::ObjList& list = stack->fObjects;
+  
+  DisplayStack::ObjList::iterator pos = list.begin();
+  while(pos != list.end() && (*pos)->GetZIndex() < GetZIndex()) { ++pos; }
+  
+  if(pos != list.end() && *pos == this)
+    return;
+  
+  list.remove(this);
+  list.insert(list.begin(), this);
+  
+  stack->Update();
+}
+
+void DisplayObj::ToBottom()
+{
+  //! Move the object to the bottom of all objects with higher or equal z-index
+  //! in all display stacks it appears in.
+
+  for(std::list<DisplayStack*>::iterator stack = fStacks.begin();
+      stack != fStacks.end();
+      ++stack) {
+    ToBottom(*stack);    
   }
 }
 
