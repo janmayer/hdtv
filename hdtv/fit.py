@@ -223,7 +223,7 @@ class Fit(Drawable):
         # because the marker have been set by the user to calibrated values
 #        self.Recalibrate(spec.cal)
         self._set_cal(spec.cal)
-        self.bgMarkers.FixUncal()
+#        self.bgMarkers.FixUncal()
 
         # remove old fit
         self.Reset()
@@ -260,9 +260,9 @@ class Fit(Drawable):
         # set calibration without changing position of markers,
         # because the marker have been set by the user to calibrated values
         self.cal=spec.cal
-        self.peakMarkers.FixUncal()
-        self.regionMarkers.FixUncal()
-        self.bgMarkers.FixUncal()
+#        self.peakMarkers.FixUncal()
+#        self.regionMarkers.FixUncal()
+#        self.bgMarkers.FixUncal()
         
         # remove old fit
         if self.dispBgFunc:
