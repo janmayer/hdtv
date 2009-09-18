@@ -28,7 +28,8 @@ import hdtv.ui
 from hdtv.marker import MarkerCollection
 from hdtv.fitter import Fitter
 from hdtv.fit import Fit
-from hdtv.fitpanel import FitPanel
+# TODO: Remove of fix FitPanel
+#from hdtv.fitpanel import FitPanel
 
 import sys
 
@@ -36,7 +37,8 @@ class FitInterface:
     """
     User interface for fitting 1-d spectra
     """
-    def __init__(self, window, spectra, show_panel=True):
+    # TODO: remove show_panel(?)
+    def __init__(self, window, spectra, show_panel=False):
         hdtv.ui.msg("Loaded user interface for fitting of 1-d spectra")
 
         self.window = window
@@ -56,13 +58,13 @@ class FitInterface:
         
 
         # fit panel
-        self.fitPanel = FitPanel()
-        self.fitPanel.fFitHandler = self.Fit
-        self.fitPanel.fClearHandler = self.ClearFit
-        self.fitPanel.fResetHandler = self.ResetParameters
-        self.fitPanel.fDecompHandler = lambda(stat): self.SetDecomp(stat)
-        if show_panel:
-            self.fitPanel.Show()
+        #self.fitPanel = FitPanel()
+        #self.fitPanel.fFitHandler = self.Fit
+        #self.fitPanel.fClearHandler = self.ClearFit
+        #self.fitPanel.fResetHandler = self.ResetParameters
+        #self.fitPanel.fDecompHandler = lambda(stat): self.SetDecomp(stat)
+        #if show_panel:
+        #    self.fitPanel.Show()
 
         # Register hotkeys
         self.window.AddHotkey(ROOT.kKey_Q, self.Quickfit)
@@ -236,7 +238,7 @@ class FitInterface:
         fit.Draw(self.window.viewport)
 
         # update fitPanel
-        self.UpdateFitPanel()
+        #self.UpdateFitPanel()
 
 
     def ActivateFit(self, ID):
@@ -259,7 +261,7 @@ class FitInterface:
                 spec.fits.FocusObject(ID)
 
         # update fitPanel
-        self.UpdateFitPanel()
+        #self.UpdateFitPanel()
 
 
     def ShowFits(self, ids, specID, adjustViewport=False):
@@ -448,7 +450,7 @@ class FitInterface:
         # Reset work fit
         self._workFit = None
         # update fitPanel
-        self.UpdateFitPanel()
+        #self.UpdateFitPanel()
 
     
     def ClearBackground(self):
@@ -462,7 +464,7 @@ class FitInterface:
         # redo Fit without Background
             fit.Refresh()
         # update fitPanel
-        self.UpdateFitPanel()
+        #self.UpdateFitPanel()
         
     
 #    def FitMultiSpectra(self, fitIDs, specIDs):
@@ -598,7 +600,7 @@ class FitInterface:
             except ValueError:
                 pass
         # Update fitPanel
-        self.UpdateFitPanel()
+        #self.UpdateFitPanel()
  
 
     def ResetParameters(self, default = False, ids = []):
@@ -614,7 +616,7 @@ class FitInterface:
             fit.fitter.ResetParamStatus()
             fit.Refresh()
         # Update fitPanel
-        self.UpdateFitPanel()
+        #self.UpdateFitPanel()
 
 
     def SetPeakModel(self, peakmodel, default = False, ids = []):
@@ -633,39 +635,40 @@ class FitInterface:
             fit.fitter.SetPeakModel(peakmodel)
             fit.Refresh()
         # Update fit panel
-        self.UpdateFitPanel()
+        #self.UpdateFitPanel()
             
-
-    def UpdateFitPanel(self):
-        if not self.fitPanel:
-            return
-        fit = self.workFit
-        # options
-        text = str()
-        text += "Background model: polynomial, deg=%d\n" % fit.fitter.bgdeg
-        text += "Peak model: %s\n" % fit.fitter.peakModel.name
-        text += "\n"
-        text += fit.fitter.peakModel.OptionsStr()
-        self.fitPanel.SetOptions(text)
-        # data
-        text = str()
-        if fit.fitter.bgFitter:
-            deg = fit.fitter.bgFitter.GetDegree()
-            chisquare = fit.fitter.bgFitter.GetChisquare()
-            text += "Background (seperate fit): degree = %d   chi^2 = %.2f\n" % (deg, chisquare)
-            for i in range(0, deg + 1):
-                value = hdtv.util.ErrValue(fit.fitter.bgFitter.GetCoeff(i),
-                                           fit.fitter.bgFitter.GetCoeffError(i))
-                text += "bg[%d]: %s   " % (i, value.fmt())
-            text += "\n\n"
-        i = 0
-        if fit.fitter.peakFitter:
-            text += "Peak fit: chi^2 = %.2f\n" % fit.fitter.peakFitter.GetChisquare()
-            for peak in fit.peaks:
-                text += "Peak %d:\n%s\n" % (i, str(peak))
-                i += 1
-        self.fitPanel.SetData(text)
-        
+# TODO: Remove or fix
+#    def UpdateFitPanel(self):
+#        
+#        if not self.fitPanel:
+#            return
+#        fit = self.workFit
+#        # options
+#        text = str()
+#        text += "Background model: polynomial, deg=%d\n" % fit.fitter.bgdeg
+#        text += "Peak model: %s\n" % fit.fitter.peakModel.name
+#        text += "\n"
+#        text += fit.fitter.peakModel.OptionsStr()
+#        self.fitPanel.SetOptions(text)
+#        # data
+#        text = str()
+#        if fit.fitter.bgFitter:
+#            deg = fit.fitter.bgFitter.GetDegree()
+#            chisquare = fit.fitter.bgFitter.GetChisquare()
+#            text += "Background (seperate fit): degree = %d   chi^2 = %.2f\n" % (deg, chisquare)
+#            for i in range(0, deg + 1):
+#                value = hdtv.util.ErrValue(fit.fitter.bgFitter.GetCoeff(i),
+#                                           fit.fitter.bgFitter.GetCoeffError(i))
+#                text += "bg[%d]: %s   " % (i, value.fmt())
+#            text += "\n\n"
+#        i = 0
+#        if fit.fitter.peakFitter:
+#            text += "Peak fit: chi^2 = %.2f\n" % fit.fitter.peakFitter.GetChisquare()
+#            for peak in fit.peaks:
+#                text += "Peak %d:\n%s\n" % (i, str(peak))
+#                i += 1
+#        self.fitPanel.SetData(text)
+#        
 
 class TvFitInterface:
     """
