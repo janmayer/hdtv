@@ -33,10 +33,10 @@ DisplayStack::~DisplayStack()
   // Destructor
   // Removes all display objects from the stack
 
-  RemoveList(fSpectra);
-  RemoveList(fFunctions);
-  RemoveList(fMarkers);
-  RemoveList(fMisc);
+  // Note that we cannot use an iterator to traverse a changing list
+  while(!fObjects.empty()) {
+    (*fObjects.begin())->Remove(this);
+  }
 }
 
 void DisplayStack::Update()
@@ -60,35 +60,15 @@ void DisplayStack::UnlockUpdate()
   fView->UnlockUpdate();
 }
 
-inline void DisplayStack::RemoveList(ObjList& objects)
-{
-  //! Paints all objects in the list given (internal use only)
-  
-  // Note that we cannot use an iterator to traverse a changing list
-  while(!objects.empty()) {
-    (*objects.begin())->Remove(this);
-  }
-}
-
-inline void DisplayStack::PaintList(ObjList& objects, UInt_t x1, UInt_t x2, Painter& painter)
-{
-  //! Paints all objects in the list given (internal use only)
-  
-  for(ObjList::iterator obj = objects.begin();
-      obj != objects.end();
-      ++obj) {
-    (*obj)->PaintRegion(x1, x2, painter);
-  }
-}
-
 void DisplayStack::PaintRegion(UInt_t x1, UInt_t x2, Painter& painter)
 {
   //! Paints all objects in the stack
   
-  PaintList(fSpectra, x1, x2, painter);
-  PaintList(fFunctions, x1, x2, painter);
-  PaintList(fMarkers, x1, x2, painter);
-  PaintList(fMisc, x1, x2, painter);
+  for(ObjList::iterator obj = fObjects.begin();
+      obj != fObjects.end();
+      ++obj) {
+    (*obj)->PaintRegion(x1, x2, painter);
+  }
 }
 
 } // end namespace Display

@@ -82,12 +82,5 @@ void Marker::SetColor(int col)
   Update();
 }
 
-DisplayStack::ObjList& Marker::GetList(DisplayStack *stack)
-{
-  //! Return the stacks object list where this kind of object should be inserted
-
-  return stack->fMarkers;
-}
-
 } // end namespace Display
 } // end namespace HDTV

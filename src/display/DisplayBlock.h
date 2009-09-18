@@ -54,17 +54,8 @@ class DisplayBlock: public DisplayObj
     void SetNorm(double norm)  { fNorm = norm; Update(); }
     double GetNorm() { return fNorm; }
     
-    void ToTop(View1D *view);
-    void ToBottom(View1D *view);
-    
-    void ToTop(DisplayStack *stack);
-    void ToBottom(DisplayStack *stack);
-    
-    void ToTop();
-    void ToBottom();
-    
   protected:
-    inline TGGC *GetGC() { return fGC; }
+    inline const TGGC *GetGC() const { return fGC; }
     
   private:
     void InitGC(int col);

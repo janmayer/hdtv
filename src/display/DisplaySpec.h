@@ -42,7 +42,7 @@ class DisplaySpec : public DisplayBlock {
    double GetRegionMax(int b1, int b2);
    
    inline void SetID(int ID)  { fID = ID; }
-   inline int GetID()         { return fID; }
+   inline int GetID() const   { return fID; }
 
    // Convenience functions to access the underlying histogram object and its x axis
    inline double GetBinContent(Int_t bin) { return fHist->GetBinContent(bin); }
@@ -80,11 +80,10 @@ class DisplaySpec : public DisplayBlock {
    
    double GetMax_Cached(int b1, int b2);
    
-   // HDTV::Display:: required for CINT
-   virtual std::list<HDTV::Display::DisplayObj *>& GetList(DisplayStack *stack);
-   
    virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter)
       { if (IsVisible()) painter.DrawSpectrum(this, x1, x2); }
+      
+   virtual int GetZIndex() { return Z_INDEX_SPEC; }
 
  private:
    std::auto_ptr<TH1> fHist;
