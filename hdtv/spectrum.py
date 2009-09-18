@@ -23,6 +23,8 @@ import ROOT
 import os
 import hdtv.dlmgr
 import hdtv.color 
+import weakref
+
 from hdtv.drawable import Drawable, DrawableCompound
 from hdtv.specreader import SpecReader, SpecReaderError
 
@@ -228,10 +230,6 @@ class Spectrum(_RawSpectrum):
         self.fits = DrawableCompound()
         _RawSpectrum.__init__(self, hist, color=color, cal=cal)
 
-    def __setitem__(self, ID, fit):
-        # TODO: Remove this function    
-        hdtv.ui.warn("Use of obsolete function in spectrum.py: Spectrum.__setitem__")
-        self.AddFit(fit, ID)
 
     def AddFit(self, fit, ID=None):
         """
@@ -243,7 +241,8 @@ class Spectrum(_RawSpectrum):
 #        fit.FixMarkerUncal()
         fit.cal = self.cal
         fit.color = self.color
-        fit.fitter.spec = self
+        # TODO: This should be handled via "parent"
+        fit.fitter.spec = weakref.proxy(self)
         return newID
         
     # cal property
@@ -295,23 +294,6 @@ class Spectrum(_RawSpectrum):
         # only show objects that have been visible before
         for ID in self.fits.visible:
             self.fits[ID].Show()
-
-# TODO: Remove OR keep also RemoveAll and HideAll (consistency!)
-#    def ShowAll(self):
-#        """
-#        Show spectrum and all fits
-#        """
-#        _RawSpectrum.Show(self)
-#        self.fits.ShowAll()
-        
-    # Remove commands
-    def Remove(self):
-        """
-        Remove spectrum and fits
-        """
-        _RawSpectrum.Remove(self)
-        self.fits.Remove()
-        
     
     # Hide commands
     def Hide(self):
@@ -325,14 +307,6 @@ class Spectrum(_RawSpectrum):
         visible = self.fits.visible.copy()
         self.fits.Hide()
         self.fits.visible = visible
-
-# TODO: remove
-#    def HideAll(self):
-#        """
-#        Hide only the fits
-#        """
-#        self.fits.HideAll()
-
 
         
 class FileSpectrum(Spectrum):

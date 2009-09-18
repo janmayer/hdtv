@@ -245,6 +245,40 @@ class FitInterface:
         #self.UpdateFitPanel()
 
 
+    def FitReset(self, specID=None, fitID=None):
+        """
+        Reset fit to unfitted default fitter
+        """
+        if specID is None:
+            specID = self.spectra.activeID
+            
+        if specID is None:
+            hdtv.ui.error("There is no active spectrum")
+            return 
+
+        spec = self.spectra[specID]
+        if fitID is None:
+            fit = self.workFit
+        else:
+            try:
+                fit = spec.fits[fitID]
+            except KeyError:
+                hdtv.ui.warn("No fit %d in spectrum %d" %(fitID, specID))
+                return
+#        for p in fit.peaks:
+#            p.Remove()
+#        self.window.viewport.LockUpdate()
+        fit.peaks = []
+        fit.chi = None
+        fit.bgChi = None
+        fit.bgCoeffs = []
+        fit.showDecomp = False
+        fit.dispPeakFunc = None
+#        fit.dispBgFunc.Remove()
+        fit.dispBgFunc = None
+        fit.fitter = self.defaultFitter.Copy()
+        
+        
     def ActivateFit(self, ID):
         """
         Activate one fit
@@ -464,9 +498,10 @@ class FitInterface:
         fit = self.workFit
         # remove background markers
         while len(fit.bgMarkers) > 0:
-            fit.bgMarkers.pop().Remove()
+            fit.bgMarkers.pop()
+           
         # redo Fit without Background
-            fit.Refresh()
+        fit.Refresh()
         # update fitPanel
         #self.UpdateFitPanel()
         
@@ -793,6 +828,13 @@ class TvFitInterface:
                             help = "fit only the background")
         hdtv.cmdline.AddCommand(prog, self.DoFit, parser = parser)
 
+        prog = "fit reset"
+        description = "reset fitter of a fit to default"
+        usage = "%prog [OPTIONS] <fit-ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        parser.add_option("-s", "--spectra", action = "store", default = "active",
+                            help = "Spectra to work on")
+        hdtv.cmdline.AddCommand(prog, self.ResetFit, parser = parser)
 
         # calibration command
         prog = "calibration position assign"
@@ -1094,6 +1136,27 @@ class TvFitInterface:
                 self.fitIf.Fit(specID=specID, fitID=fitID, peaks=doPeaks) 
     
 
+    def ResetFit(self, args, options):
+        """
+        Reset fitter of a fit to unfitted default.
+        """
+        specIDs = hdtv.cmdhelper.ParseIds(options.spectra, self.spectra)
+        
+        if len(specIDs) == 0:
+            hdtv.ui.error("No spectrum to work on")
+            return
+        
+        for specID in specIDs:
+            
+            fitIDs = hdtv.cmdhelper.ParseIds(args, self.spectra[specID].fits)
+            
+            if len(fitIDs) == 0:
+                hdtv.ui.warn("No fit for spectrum %d to work on", specID)
+                continue
+            
+            for fitID in fitIDs:    
+                self.fitIf.FitReset(specID=specID, fitID=fitID) 
+        
     def CalPosAssign(self, args, options):
         """ 
         Calibrate the active spectrum by assigning energies to fitted peaks

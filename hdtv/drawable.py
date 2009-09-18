@@ -39,9 +39,7 @@ class Drawable(Child):
         self.cal = cal
         self.color = color 
         Child.__init__(self, parent = parent)
-        
-    def __del__(self):
-        self.Remove()
+
         
     def __str__(self):
         return str(self.displayObj)
@@ -117,22 +115,7 @@ class Drawable(Child):
         Refresh the objects data 
         """
         pass
-        
 
-    def Remove(self):
-        """
-        Remove the object 
-        """
-        if not self.viewport:
-            return
-        self.displayObj = None
-        # finally remove the viewport from this object
-        self.viewport = None
-        if self.parent is not None: # Remove object from parent compound
-            try:
-                self.parent.RemoveObjects([self.ID])
-            except AttributeError:
-                pass
 
     def Show(self):
         """
@@ -491,14 +474,7 @@ class DrawableCompound(dict, Child):
             self[ID].Draw(self.viewport)
             self.visible.add(ID)
         self.viewport.UnlockUpdate()
-    
-    # Remove commands
-    def Remove(self):
-        """
-        Remove 
-        """
-        return self.RemoveAll()
-        
+       
         
     def RemoveAll(self):
         """
@@ -521,7 +497,6 @@ class DrawableCompound(dict, Child):
                     self._iteratorID = self.prevID 
                 obj =  self.pop(ID)
                 obj.parent = None
-                obj.Remove()
             except KeyError:
                 hdtv.ui.warn("Warning: ID %s not found." % str(ID))
         if self.viewport:

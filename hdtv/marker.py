@@ -298,12 +298,6 @@ class MarkerCollection(list, Child):
     def Hide(self):
         for marker in self:
             marker.Hide()
-            
-
-    def Remove(self):
-        for marker in self[:]:
-            marker.Remove()
-            list.remove(self, marker)
         
     def Refresh(self):
         for marker in self:
@@ -398,7 +392,7 @@ class MarkerCollection(list, Child):
                 diff = abs(pos-p2)
                 index[diff] = m
         nearest = index[min(index.keys())]
-        nearest.Remove()
+
         self.remove(nearest)
         self.Refresh()
         

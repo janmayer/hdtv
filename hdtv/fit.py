@@ -67,8 +67,6 @@ class Fit(Drawable):
         self._title = None
         Drawable.__init__(self, color, cal)
 
-    def __del__(self):
-        Drawable.__del__(self)
         
     def __copy__(self):
         return self.Copy()
@@ -176,30 +174,20 @@ class Fit(Drawable):
         return text
     
     def PutPeakMarker(self, pos):
-        if self.dispPeakFunc:
-            self.dispPeakFunc = None
-        for peak in self.peaks:
-            peak.Remove()
-
+        self.dispPeakFunc = None
+        self.peaks = list()
         self.peakMarkers.PutMarker(pos)
 
     def PutRegionMarker(self, pos):
-        if self.dispPeakFunc:
-            self.dispPeakFunc = None
-        for peak in self.peaks:
-            peak.Remove()
-        
+        self.dispPeakFunc = None
+        self.peaks = list()
         self.regionMarkers.PutMarker(pos)
         
         
     def PutBgMarker(self, pos):
-        if self.dispBgFunc:
-            self.dispBgFunc = None
-        if self.dispPeakFunc:
-            self.dispPeakFunc = None
-        for peak in self.peaks:
-            peak.Remove()
-        
+        self.dispBgFunc = None
+        self.dispPeakFunc = None
+        self.peaks = list()
         self.bgMarkers.PutMarker(pos)
         
 
@@ -231,16 +219,8 @@ class Fit(Drawable):
         self.bgMarkers.FixUncal()
 
         # remove old fit
-        if self.dispBgFunc:
-            self.dispBgFunc = None
-        self.bgCoeffs = []
-        self.bgChi = None
-        if self.dispPeakFunc:
-            self.dispPeakFunc = None
-        for peak in self.peaks:
-            peak.Remove()
-        self.peaks = []
-        self.chi=None
+        self.Reset()
+        
         # fit background 
         if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
             backgrounds = [[m.p1.GetPosInUncal(), m.p2.GetPosInUncal()] for m in self.bgMarkers] 
@@ -280,8 +260,7 @@ class Fit(Drawable):
         self.bgChi = None
         if self.dispPeakFunc:
             self.dispPeakFunc = None
-        for peak in self.peaks:
-            peak.Remove()
+
         self.peaks = []
         self.chi=None
         # fit background 
@@ -295,7 +274,6 @@ class Fit(Drawable):
             region.sort()
             for m in self.peakMarkers:
                 if m.p1.GetPosInUncal()<region[0] or m.p1.GetPosInUncal()>region[1]:
-                    m.Remove()
                     self.peakMarkers.remove(m)
             peaks = [m.p1.GetPosInUncal() for m in self.peakMarkers]
             peaks.sort()
@@ -425,6 +403,17 @@ class Fit(Drawable):
         self.viewport.UnlockUpdate()
 
 
+    def Reset(self):
+        """
+        Reset the fit. NOTE: the fitter is *not* resetted 
+        """
+        self.dispBgFunc = None
+        self.bgCoeffs = []
+        self.bgChi = None
+        self.dispPeakFunc = None
+        self.peaks = []
+        self.chi=None 
+
     def Show(self):
         if not self.viewport:
             return
@@ -476,24 +465,7 @@ class Fit(Drawable):
             peak.Hide()
         self.viewport.UnlockUpdate()
 
-
-    def Remove(self):
-        if self.viewport:
-            self.viewport.LockUpdate()
-            self.peakMarkers.Remove()
-            self.regionMarkers.Remove()
-            self.bgMarkers.Remove()
-            for peak in self.peaks:
-                peak.Remove()
-            self.viewport.UnlockUpdate()
-        self.dispPeakFunc = None
-        self.dispBgFunc = None
-        self.bgCoeffs = []
-        self.bgChi = None
-        self.peaks = []
-        self.chi = None
-
-
+    
     def Copy(self, cal=None, color=None):
         """
         Create new fit with identical markers

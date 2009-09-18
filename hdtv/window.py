@@ -352,7 +352,6 @@ class Window(KeyHandler):
             setOffset(min(zm.p1.pos_cal, zm.p2.pos_cal))
             setVisibleRegion = getattr(self.viewport, "Set%sVisibleRegion" % xytype)
             setVisibleRegion(abs(zm.p2.pos_cal - zm.p1.pos_cal))
-            zm.Remove()
             getattr(self,"%sZoomMarkers" %xytype).pop()
         else:
             if xytype == "X":
