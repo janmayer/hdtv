@@ -97,7 +97,11 @@ class FitInterface:
         
     @property    
     def workFit(self):
-
+        """
+        Returns always a current working fit.
+        
+        A new fit is created if necessary.
+        """
         if self.spectra.activeID is None: # No active spectrum, so now workFit
             self._workFit = None
         else:
