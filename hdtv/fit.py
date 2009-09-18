@@ -177,7 +177,6 @@ class Fit(Drawable):
     
     def PutPeakMarker(self, pos):
         if self.dispPeakFunc:
-            self.dispPeakFunc.Remove()
             self.dispPeakFunc = None
         for peak in self.peaks:
             peak.Remove()
@@ -186,7 +185,6 @@ class Fit(Drawable):
 
     def PutRegionMarker(self, pos):
         if self.dispPeakFunc:
-            self.dispPeakFunc.Remove()
             self.dispPeakFunc = None
         for peak in self.peaks:
             peak.Remove()
@@ -196,10 +194,8 @@ class Fit(Drawable):
         
     def PutBgMarker(self, pos):
         if self.dispBgFunc:
-            self.dispBgFunc.Remove()
             self.dispBgFunc = None
         if self.dispPeakFunc:
-            self.dispPeakFunc.Remove()
             self.dispPeakFunc = None
         for peak in self.peaks:
             peak.Remove()
@@ -236,12 +232,10 @@ class Fit(Drawable):
 
         # remove old fit
         if self.dispBgFunc:
-            self.dispBgFunc.Remove()
             self.dispBgFunc = None
         self.bgCoeffs = []
         self.bgChi = None
         if self.dispPeakFunc:
-            self.dispPeakFunc.Remove()
             self.dispPeakFunc = None
         for peak in self.peaks:
             peak.Remove()
@@ -281,12 +275,10 @@ class Fit(Drawable):
         
         # remove old fit
         if self.dispBgFunc:
-            self.dispBgFunc.Remove()
             self.dispBgFunc = None
         self.bgCoeffs = []
         self.bgChi = None
         if self.dispPeakFunc:
-            self.dispPeakFunc.Remove()
             self.dispPeakFunc = None
         for peak in self.peaks:
             peak.Remove()
@@ -491,10 +483,6 @@ class Fit(Drawable):
             self.peakMarkers.Remove()
             self.regionMarkers.Remove()
             self.bgMarkers.Remove()
-            if self.dispPeakFunc:
-                self.dispPeakFunc.Remove()
-            if self.dispBgFunc:
-                self.dispBgFunc.Remove()
             for peak in self.peaks:
                 peak.Remove()
             self.viewport.UnlockUpdate()

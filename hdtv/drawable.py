@@ -125,8 +125,6 @@ class Drawable(Child):
         """
         if not self.viewport:
             return
-        if self.displayObj:
-            self.displayObj.Remove()
         self.displayObj = None
         # finally remove the viewport from this object
         self.viewport = None
