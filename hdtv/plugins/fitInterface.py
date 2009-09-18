@@ -265,17 +265,8 @@ class FitInterface:
             except KeyError:
                 hdtv.ui.warn("No fit %d in spectrum %d" %(fitID, specID))
                 return
-#        for p in fit.peaks:
-#            p.Remove()
-#        self.window.viewport.LockUpdate()
-        fit.peaks = []
-        fit.chi = None
-        fit.bgChi = None
-        fit.bgCoeffs = []
-        fit.showDecomp = False
-        fit.dispPeakFunc = None
-#        fit.dispBgFunc.Remove()
-        fit.dispBgFunc = None
+
+        fit.Reset()
         fit.fitter = self.defaultFitter.Copy()
         
         
