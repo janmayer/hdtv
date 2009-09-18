@@ -219,8 +219,8 @@ class FitInterface:
             hdtv.ui.error("There is no active spectrum")
             return 
         
-        if self.fitPanel:
-            self.fitPanel.Show()
+        #if self.fitPanel:
+        #    self.fitPanel.Show()
         
         spec = self.spectra[specID]
         if fitID is None:
@@ -545,8 +545,8 @@ class FitInterface:
         """
         fit = self.workFit
         fit.SetDecomp(stat)
-        if self.fitPanel:
-            self.fitPanel.SetDecomp(stat)
+        #if self.fitPanel:
+        #    self.fitPanel.SetDecomp(stat)
         
 
     def ShowFitStatus(self, default = False, ids = []):
