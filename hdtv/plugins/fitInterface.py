@@ -24,6 +24,7 @@ import hdtv.cmdhelper
 import hdtv.options
 import hdtv.util
 import hdtv.ui
+import weakref
 
 from hdtv.marker import MarkerCollection
 from hdtv.fitter import Fitter
@@ -107,6 +108,11 @@ class FitInterface:
         else:
             spec = self.spectra[self.spectra.activeID]
             if spec.fits.activeID is None:
+                try: # Just check if self._workfit is a invalid weak-reference
+                    if self._workFit is not None and self._workFit.active:
+                        pass
+                except ReferenceError:
+                    self._workFit = None # Reference is gone -> Set to None
                 # No active fit so we have work on the temporary work fit or 
                 # create a new fit. If self._workFit is stored in spec.fits.values
                 # it is still some old remainder, else it would be active 
@@ -114,7 +120,8 @@ class FitInterface:
                     self._workFit = Fit(self.defaultFitter.Copy())
                     self._workFit.Draw(self.window.viewport)
             else:
-                self._workFit = spec.fits[spec.fits.activeID]
+                # Use weakrefs here because self._workfit may block the destruction of fit
+                self._workFit = weakref.proxy(spec.fits[spec.fits.activeID])
 
         return self._workFit
 
