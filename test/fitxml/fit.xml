@@ -1,5 +1,5 @@
 <hdtv version="1.1">
-  <fit bgDegree="1" chi="2889.25213649" peakModel="theuerkauf">
+  <fit bgDegree="1" chi="2889.25213636" peakModel="theuerkauf">
     <spectrum calibration="0.000000  0.500000" name="osiris_bg.spc" />
     <regionMarker>
       <begin>
@@ -11,44 +11,44 @@
     </regionMarker>
     <peakMarker>
       <position>
-        <uncal>1460.76166717</uncal>
+        <uncal>1460.76166653</uncal>
       </position>
     </peakMarker>
     <peak>
       <uncal>
         <width status="equal">
-          <value>2.95644567115</value>
-          <error>0.00752808324086</error>
+          <value>2.95644645217</value>
+          <error>0.00752808722447</error>
         </width>
         <tl status="none" />
         <sh status="none" />
         <vol status="free">
-          <value>133434.315231</value>
-          <error>379.836961696</error>
+          <value>133434.261479</value>
+          <error>379.836939015</error>
         </vol>
         <tr status="none" />
         <sw status="hold" />
         <pos status="free">
-          <value>1460.76166717</value>
-          <error>0.00386327832537</error>
+          <value>1460.76166653</value>
+          <error>0.00386327801479</error>
         </pos>
       </uncal>
       <cal>
         <width status="equal">
-          <value>1.47822283557</value>
-          <error>0.00376404162043</error>
+          <value>1.47822322608</value>
+          <error>0.00376404361223</error>
         </width>
         <tl status="none" />
         <sh status="none" />
         <vol status="free">
-          <value>133434.315231</value>
-          <error>379.836961696</error>
+          <value>133434.261479</value>
+          <error>379.836939015</error>
         </vol>
         <tr status="none" />
         <sw status="hold" />
         <pos status="free">
-          <value>730.380833584</value>
-          <error>0.00193163916268</error>
+          <value>730.380833263</value>
+          <error>0.0019316390074</error>
         </pos>
       </cal>
     </peak>

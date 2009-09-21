@@ -23,6 +23,7 @@
 # Functions for efficiency, energy calibration
 # 
 #-------------------------------------------------------------------------------
+import os
 
 import hdtv.spectrum
 import hdtv.efficiency
