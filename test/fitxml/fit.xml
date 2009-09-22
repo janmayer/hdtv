@@ -3,15 +3,15 @@
     <spectrum calibration="0.000000  0.500000" name="osiris_bg.spc" />
     <regionMarker>
       <begin>
-        <uncal>1450.0</uncal>
+        <cal>725</cal>
       </begin>
       <end>
-        <uncal>1470.0</uncal>
+        <cal>735</cal>
       </end>
     </regionMarker>
     <peakMarker>
       <position>
-        <uncal>1460.76166653</uncal>
+        <cal>730.380833263</cal>
       </position>
     </peakMarker>
     <peak>
