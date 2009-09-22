@@ -42,6 +42,8 @@ class PeakFinder:
         hdtv.options.RegisterOption("fit.peakfind.sigma", opt)    
         opt = hdtv.options.Option(default = 0.05)
         hdtv.options.RegisterOption("fit.peakfind.threshold", opt)
+        opt = hdtv.options.Option(default = 2)
+        hdtv.options.RegisterOption("fit.peakfind.bgdeg", opt)
         opt = hdtv.options.Option(default = False, parse = hdtv.options.ParseBool)
         hdtv.options.RegisterOption("fit.peakfind.no_fit", opt)
         
@@ -54,6 +56,8 @@ class PeakFinder:
                         help = "FWHM of peaks")
         parser.add_option("-t", "--threshold", action = "store", default = hdtv.options.Get("fit.peakfind.threshold"),
                         help = "Threshold of peaks to accept in fraction of the amplitude of highest peak (in %)")
+        parser.add_option("-b", "--bgdeg", action = "store", default = hdtv.options.Get("fit.peakfind.bgdeg"),
+                        help = "degree of background")
         parser.add_option("-n", "--no-fit", action = "store_true", default = hdtv.options.Get("fit.peakfind.no_fit"),
                         help = "do not fit found peaks")
         parser.add_option("-p", "--peak-model", action = "store", default = "theuerkauf",
@@ -93,7 +97,7 @@ class PeakFinder:
         
         autofit = not options.no_fit
         peakModel = options.peak_model
-        bgdeg = 2
+        bgdeg = int(options.bgdeg)
         
         # Init start and end region
         start_E = 0.0
@@ -113,7 +117,7 @@ class PeakFinder:
             hdtv.ui.error("Invalid start/end arguments")
             return False
 
-        hdtv.ui.msg("Search Peaks in region " + str(start_E) + "--" + str(end_E) + " (sigma=" + str(sigma_E) + " threshold=" + str(threshold*100) + " %)")
+        hdtv.ui.msg("Search Peaks in region " + str(start_E) + "--" + str(end_E) + " (sigma=" + str(sigma_E) + " threshold=" + str(threshold*100) + " %" + " bgdeg=" + str(bgdeg)+ ")")
         
         # Invoke ROOT's peak finder
         hist.SetAxisRange(start_Ch, end_Ch)
