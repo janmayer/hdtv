@@ -25,6 +25,8 @@ import hdtv.util
 from hdtv.drawable import Drawable
 from hdtv.marker import MarkerCollection
 
+import weakref # TODO: remove if workspec problem has been solved properly 
+
 hdtv.dlmgr.LoadLibrary("display")
 
 class Fit(Drawable):
@@ -66,12 +68,18 @@ class Fit(Drawable):
         self.dispPeakFunc = None
         self.dispBgFunc = None
         self._title = None
+        self._workspec = None # Spectrum to work on if there is no parent spectrum -> HACK! TODO: FIX 
         Drawable.__init__(self, color, cal)
 
         
     @property
     def spec(self):
-        return self.parent
+        # TODO: Fix this (see above)
+        if self.parent is None:
+            return self._workspec
+        else:
+            self._workspec = None
+            return self.parent
         
     def __copy__(self):
         return self.Copy()
@@ -219,6 +227,8 @@ class Fit(Drawable):
         """
         if spec is None:
             spec = self.spec 
+        else:
+            self._workspec = weakref.proxy(spec) # TODO: Fix and remove (see above)
         # set calibration without changing position of markers,
         # because the marker have been set by the user to calibrated values
 #        self.Recalibrate(spec.cal)
@@ -257,6 +267,8 @@ class Fit(Drawable):
         
         if spec is None:
             spec = self.spec
+        else:
+            self._workspec = weakref.proxy(spec) # TODO: Fix and remove (see above)
         # set calibration without changing position of markers,
         # because the marker have been set by the user to calibrated values
         self.cal=spec.cal
