@@ -241,7 +241,7 @@ class Spectrum(_RawSpectrum):
         fit.cal = self.cal
         fit.color = self.color
         fit.parent = self
-        fit.FixMarkerCal()
+        fit.FixMarkerUncal()
         return newID
         
     # cal property
