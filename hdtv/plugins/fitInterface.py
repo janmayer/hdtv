@@ -29,7 +29,7 @@ import weakref
 from hdtv.marker import MarkerCollection
 from hdtv.fitter import Fitter
 from hdtv.fit import Fit
-# TODO: Remove of fix FitPanel
+# TODO: Remove or fix FitPanel
 #from hdtv.fitpanel import FitPanel
 
 import sys
@@ -614,7 +614,7 @@ class FitInterface:
         If not specified otherwise only the active fiter will be changed,
         if default=True, also the default fitter will be changed,
         if a list of fits is given, we try to set the parameter status also 
-        for this fits. Be aware that failures for the fits from the list will
+        for these fits. Be aware that failures for the fits from the list will
         be silently ignored.
         """
         # default fit

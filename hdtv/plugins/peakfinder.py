@@ -47,6 +47,9 @@ class PeakFinder:
         hdtv.options.RegisterOption("fit.peakfind.threshold", opt)
         opt = hdtv.options.Option(default = False, boolean=True)
         hdtv.options.RegisterOption("fit.peakfind.auto_fit", opt)
+        opt = hdtv.options.Option(default = 2)
+        hdtv.options.RegisterOption("fit.peakfind.bgdeg", opt)
+
         
         
         prog = "fit peakfind"
@@ -59,6 +62,8 @@ class PeakFinder:
                         help = "Threshold of peaks to accept in fraction of the amplitude of highest peak (in %)")
         parser.add_option("-a", "--auto-fit", action = "store_true", default = hdtv.options.Get("fit.peakfind.auto_fit"),
                         help = "automatically fit found peaks")
+        parser.add_option("-b", "--bgdeg", action = "store", default = hdtv.options.Get("fit.peakfind.bgdeg"),
+                        help = "degree of background")
         parser.add_option("-p", "--peak-model", action = "store", default = "theuerkauf",
                         help = "fit found peaks")
         parser.add_option("-r", "--reject", action = "store_true", default = False,
@@ -139,7 +144,7 @@ class PeakFinder:
         
         autofit = options.auto_fit
         peakModel = options.peak_model
-        bgdeg = 2
+        bgdeg = int(options.bgdeg)
         
         # Init start and end region
         start_E = 0.0
@@ -159,7 +164,7 @@ class PeakFinder:
             hdtv.ui.error("Invalid start/end arguments")
             return False
 
-        hdtv.ui.msg("Search Peaks in region " + str(start_E) + "--" + str(end_E) + " (sigma=" + str(sigma_E) + " threshold=" + str(threshold*100) + " %)")
+        hdtv.ui.msg("Search Peaks in region " + str(start_E) + "--" + str(end_E) + " (sigma=" + str(sigma_E) + " threshold=" + str(threshold*100) + " %" + " bgdeg=" + str(bgdeg)+ ")")
         
         # Invoke ROOT's peak finder
         hist.SetAxisRange(start_Ch, end_Ch)
