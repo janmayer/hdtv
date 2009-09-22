@@ -21,7 +21,9 @@
 import os
 import glob
 import xml.etree.cElementTree as ET
-import hdtv.spectrum
+import hdtv.fit
+import hdtv.fitter
+import hdtv.ui
 import hdtv.peakmodels
 from hdtv.util import Position
 
