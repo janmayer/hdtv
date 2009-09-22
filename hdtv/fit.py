@@ -165,9 +165,13 @@ class Fit(Drawable):
             markers.append(b.p1.GetPosInCal())
             markers.append(b.p2.GetPosInCal())
         # calulate region limits
-        x_start = min(markers)
-        x_end = max(markers)
-        return (x_start, x_end)
+        if len(markers) == 0: # No markers
+            return None
+        else:
+            x_start = min(markers)
+            x_end = max(markers)
+            return (x_start, x_end)
+        
     
     
     

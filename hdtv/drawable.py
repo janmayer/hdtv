@@ -630,6 +630,8 @@ class DrawableCompound(dict, Child):
         """
         if self.viewport is None: return False
         xdim = self[ID].xdimensions
+        if xdim is None: # Object has no dimensions
+            return True
         # get viewport limits
         viewport_start = self.viewport.GetOffset()
         viewport_end = viewport_start + self.viewport.GetXVisibleRegion()
@@ -656,19 +658,21 @@ class DrawableCompound(dict, Child):
         xdimensions = ()
         # Get dimensions of objects
         for ID in ids:
-            xdimensions += self[ID].xdimensions
+            if self[ID].xdimensions is not None:
+                xdimensions += self[ID].xdimensions
             if ID not in self.visible:
                 self[ID].Show()
         self._iteratorID = min(ids)
-        # calulate 
-        view_width = max(xdimensions) - min(xdimensions)
-        view_width *= 1.2
-        if view_width < 50.:
-            view_width = 50. # TODO: make this configurable
-        view_center = (max(xdimensions) + min(xdimensions)) / 2.
-        # change viewport
-        self.viewport.SetXVisibleRegion(view_width)
-        self.viewport.SetXCenter(view_center)
+        # calulate
+        if len(xdimensions) > 0: 
+            view_width = max(xdimensions) - min(xdimensions)
+            view_width *= 1.2
+            if view_width < 50.:
+                view_width = 50. # TODO: make this configurable
+            view_center = (max(xdimensions) + min(xdimensions)) / 2.
+            # change viewport
+            self.viewport.SetXVisibleRegion(view_width)
+            self.viewport.SetXCenter(view_center)
     
     
     def FocusObject(self, ID=None):
