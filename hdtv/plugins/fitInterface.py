@@ -1022,6 +1022,8 @@ class TvFitInterface:
         # check for unambiguity
         if len(models)>1:
             hdtv.ui.error("Peak model name %s is ambiguous" %name)
+        if len(models)==0:
+            hdtv.ui.error("Invalid command")
         else:
             name = models[0]
             name = name.strip()
@@ -1158,7 +1160,8 @@ class TvFitInterface:
             
             for fitID in fitIDs:    
                 self.fitIf.FitReset(specID=specID, fitID=fitID, resetFitter=not options.keep_fitter) 
-        
+
+# FIXME: move to calibration plugin
     def CalPosAssign(self, args, options):
         """ 
         Calibrate the active spectrum by assigning energies to fitted peaks
