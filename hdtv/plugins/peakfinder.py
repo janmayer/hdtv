@@ -31,7 +31,6 @@ import hdtv.options
 import hdtv.spectrum
 import hdtv.color
 import ROOT
-import copy
 
 class PeakFinder:
     
@@ -130,7 +129,9 @@ class PeakFinder:
         tSpec = ROOT.TSpectrum()
 
         spec = self.spectra[sid]
-        hist = copy.copy(spec.fHist) # Copy hist here so we can safely modify ranges, etc. below
+        # Copy hist here so we can safely modify ranges, etc. below
+        # as copy.copy is not working we have to call the C++ copy constructor
+        hist = spec.fHist.__class__(spec.fHist)
 
         try:
             sigma_Ch = spec.cal.E2Ch(float(options.sigma)) - spec.cal.E2Ch(float(0.0))
