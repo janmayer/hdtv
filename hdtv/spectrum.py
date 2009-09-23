@@ -23,6 +23,7 @@ import ROOT
 import os
 import hdtv.dlmgr
 import hdtv.color 
+import hdtv.ui
 
 from hdtv.drawable import Drawable, DrawableCompound
 from hdtv.specreader import SpecReader, SpecReaderError
@@ -336,7 +337,7 @@ class FileSpectrum(Spectrum):
         try:
             hist = SpecReader().GetSpectrum(fname, fmt)
         except SpecReaderError, msg:
-            hdtv.error("Failed to load spectrum: %s (file: %s)" % (msg, fname))
+            hdtv.ui.error(str(msg))
             raise 
         self.fFilename = fname
         self.fFmt = fmt
