@@ -1131,7 +1131,7 @@ class TvFitInterface:
             fitIDs = hdtv.cmdhelper.ParseIds(args, self.spectra[specID].fits)
             
             if len(fitIDs) == 0:
-                hdtv.ui.warn("No fit for spectrum %d to work on", specID)
+                hdtv.ui.warn("No fit for spectrum %s to work on" %specID)
                 continue
             
             for fitID in fitIDs:    

@@ -34,9 +34,10 @@ import ROOT
 
 class PeakFinder:
     
-    def __init__(self, spectra):
+    def __init__(self, spectra, defaultFitter):
         
         self.spectra = spectra
+        self.defaultFitter = defaultFitter
         hdtv.ui.msg("loaded PeakFinder plugin")
         
         # Register configuration variables for fit peakfind
@@ -46,51 +47,30 @@ class PeakFinder:
         hdtv.options.RegisterOption("fit.peakfind.threshold", opt)
         opt = hdtv.options.Option(default = False, parse = hdtv.options.ParseBool)
         hdtv.options.RegisterOption("fit.peakfind.auto_fit", opt)
-        opt = hdtv.options.Option(default = 2)
-        hdtv.options.RegisterOption("fit.peakfind.bgdeg", opt)
 
-        
-        
         prog = "fit peakfind"
         description = "Search for peaks in active spectrum in given range"
         usage = "%prog <start> <end>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-S", "--sigma", action = "store", default = hdtv.options.Get("fit.peakfind.sigma"),
                         help = "FWHM of peaks")
-        parser.add_option("-t", "--threshold", action = "store", default = hdtv.options.Get("fit.peakfind.threshold"),
+        parser.add_option("-T", "--threshold", action = "store", default = hdtv.options.Get("fit.peakfind.threshold"),
                         help = "Threshold of peaks to accept in fraction of the amplitude of highest peak (in %)")
         parser.add_option("-a", "--auto-fit", action = "store_true", default = hdtv.options.Get("fit.peakfind.auto_fit"),
                         help = "automatically fit found peaks")
-        parser.add_option("-b", "--bgdeg", action = "store", default = hdtv.options.Get("fit.peakfind.bgdeg"),
-                        help = "degree of background")
-        parser.add_option("-p", "--peak-model", action = "store", default = "theuerkauf",
-                        help = "fit found peaks")
-        parser.add_option("-r", "--reject", action = "store_true", default = False,
-                        help = "reject fits with unreasonable values")
-#        parser.add_option("-", "--no-reject", action = "store_true", default = False,
+#        parser.add_option("-r", "--reject", action = "store_true", default = False,
 #                        help = "reject fits with unreasonable values")
-        
         hdtv.cmdline.AddCommand(prog, self.PeakSearch, level = 4, parser = parser, minargs = 0, fileargs = False)
         
-    
+ 
+# FIXME: Is this the right place for this?
         prog = "fit bgfit"
         description = "XXX"
         usage = "%prog <start> <end>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-#        parser.add_option("-s", "--sigma", action = "store", default = hdtv.options.Get("fit.peakfind.sigma"),
-#                        help = "FWHM of peaks")
-#        parser.add_option("-t", "--threshold", action = "store", default = hdtv.options.Get("fit.peakfind.threshold"),
-#                        help = "Threshold of peaks to accept in fraction of the amplitude of highest peak (in %)")
-#        parser.add_option("-n", "--no-fit", action = "store_true", default = hdtv.options.Get("fit.peakfind.no_fit"),
-#                        help = "do not fit found peaks")
-#        parser.add_option("-p", "--peak-model", action = "store", default = "theuerkauf",
-#                        help = "fit found peaks")
-#        parser.add_option("-r", "--no-reject", action = "store_true", default = False,
-#                        help = "reject fits with unreasonable values")
-        
         hdtv.cmdline.AddCommand(prog, self.BGFit, level = 4, parser = parser, minargs = 0, fileargs = False)
         
-    
+
     def BGFit(self, args, options):
         """
         Do a background fit
@@ -98,11 +78,10 @@ class PeakFinder:
         # Background fit
         sid = self.spectra.activeID
         tSpec = ROOT.TSpectrum()
-
         
         spec = self.spectra[self.spectra.activeID]
 
-        hist = copy.copy(spec.fHist) # Copy hist here 
+        hist = spec.fHist.__class__(spec.fHist) # Copy hist here 
         # TODO: draw background
         hbg = hist.ShowBackground(20, "goff")
         print "hbg", hbg
@@ -115,7 +94,9 @@ class PeakFinder:
 
     
     def PeakSearch(self, args, options):
-
+        """
+        Search for peaks using ROOTS peak search function
+        """
         try:
             if not self.spectra.activeID in self.spectra.visible:
                 hdtv.ui.warn("Active spectrum is not visible, no action taken")
@@ -144,9 +125,7 @@ class PeakFinder:
             return False
         
         autofit = options.auto_fit
-        peakModel = options.peak_model
-        bgdeg = int(options.bgdeg)
-        
+
         # Init start and end region
         start_E = 0.0
         start_Ch = spec.cal.E2Ch(start_E)
@@ -165,7 +144,11 @@ class PeakFinder:
             hdtv.ui.error("Invalid start/end arguments")
             return False
 
-        hdtv.ui.msg("Search Peaks in region " + str(start_E) + "--" + str(end_E) + " (sigma=" + str(sigma_E) + " threshold=" + str(threshold*100) + " %" + " bgdeg=" + str(bgdeg)+ ")")
+        text = "Search Peaks in region "
+        text += str(start_E) + "--" + str(end_E)
+        text += " (sigma=" + str(sigma_E) 
+        text += " threshold=" + str(threshold*100) + " %)"
+        hdtv.ui.msg(text)
         
         # Invoke ROOT's peak finder
         hist.SetAxisRange(start_Ch, end_Ch)
@@ -184,53 +167,40 @@ class PeakFinder:
         # Store peaks
         
         # TODO:
-        # * Reject negeative FWHM, Volume
+        # * Reject negative FWHM, Volume
         # * Reject unreasonable FWHM
-        # * DOublet fitting
+        # * Doublet fitting
         for p in foundpeaks:
-             fitter = hdtv.fitter.Fitter(peakModel, bgdeg)
-             fit = hdtv.fit.Fit(fitter, cal = spec.cal)     
+             fitter = self.defaultFitter.Copy()
+             fit = hdtv.fit.Fit(fitter, cal = spec.cal)
              pos_E = spec.cal.Ch2E(p)
              pos_Ch = p
              bin = hist.GetXaxis().FindBin(pos_Ch)
              yp = hist.GetBinContent(bin)
-         
              fit.PutPeakMarker(pos_E)
-             
-             free = True
-             parameter["pos"] = hdtv.peakmodels.FitValue(pos_Ch, sigma_Ch / 2.0, free)
-             parameter["width"] = hdtv.peakmodels.FitValue(sigma_Ch, 0, free)
-             parameter["vol"] = hdtv.peakmodels.FitValue(0, 0, free)
-#             parameter["vol"] = hdtv.peakmodels.FitValue(0, 0, free)
-             free = False
-             parameter["tl"] = hdtv.peakmodels.FitValue(None, None, free)
-             parameter["tr"] = hdtv.peakmodels.FitValue(None, None, free)
-             parameter["sw"] = hdtv.peakmodels.FitValue(None, None, free)
-             parameter["sh"] = hdtv.peakmodels.FitValue(None, None, free)
-             try:
-                 peak = fit.fitter.peakModel.Peak(cal = spec.cal, **parameter)
-             except:
-                 hdtv.ui.error("Error creating peak")
-                 hdtv.ui.debug("PeakSearch(): Fitter Parameter= " + str(parameter))
-                 continue
-             
-             fit.peaks.append(peak)
-             reject = False
-             if autofit:          
+             if autofit:
                  region_width = sigma_E * 5. # TODO: something sensible here
                  fit.PutRegionMarker(pos_E - region_width / 2.)
                  fit.PutRegionMarker(pos_E + region_width / 2.)
                  fit.FitPeakFunc(spec, silent = True)
-                 if options.reject:
-                     if len(fit.peaks) == 1: # TODO: Do something sensible for doublets (when we are fitting them here)
-                         if fit.peaks[0].width <= 0.0 or fit.peaks[0].vol <= 0.0 or fit.peaks[0].width > 7 * sigma_E:
-                             hdtv.ui.msg("Rejecting peak @" + str(fit.peaks[0].pos_cal) + " keV (width = " + str(fit.peaks[0].width) + " vol = " + str(fit.peaks[0].vol) + ")")
-                             reject = True
-                             num_peaks -= 1
              
-             if not reject:
-                 ID = spec.AddFit(fit)
-                 fit.title = fit.title + "(*)"
+             ID = spec.AddFit(fit)
+             fit.title = fit.title + "(*)"
+
+## FIXME or remove: unfortunately this code is specific for each peakmodel!
+##                reject = False
+##                if options.reject:
+##                    if len(fit.peaks) == 1: # TODO: Do something sensible for doublets (when we are fitting them here)
+##                        if fit.peaks[0].width <= 0.0 or fit.peaks[0].vol <= 0.0 or fit.peaks[0].width > 7 * sigma_E:
+##                            text  = "Rejecting peak @" + str(fit.peaks[0].pos_cal)
+##                            text += " keV (width = " + str(fit.peaks[0].width) 
+##                            text += " vol = " + str(fit.peaks[0].vol) + ")"
+##                            hdtv.ui.msg(text)
+##                            reject = True
+##                            num_peaks -= 1
+##                if not reject:
+##                    ID = spec.AddFit(fit)
+##                    fit.title = fit.title + "(*)"
         
         hdtv.ui.msg("Found " + str(num_peaks) + " peaks")
         return True
@@ -240,4 +210,9 @@ import __main__
 if not hasattr(__main__, "spectra"):
     import hdtv.drawable
     __main__.spectra = hdtv.drawable.DrawableCompound(__main__.window.viewport)
-__main__.peakfinder = PeakFinder(__main__.spectra)
+if hasattr(__main__,"f"):
+    defaultFitter=__main__.f.defaultFitter
+else:
+    import hdtv.fitter
+    defaultFitter = hdtv.fitter.Fitter("theuerkauf", 2)
+__main__.peakfinder = PeakFinder(__main__.spectra, __main__.f.defaultFitter)
