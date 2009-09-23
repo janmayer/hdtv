@@ -35,6 +35,7 @@ import hdtv.util
 
 import readline
 import ROOT
+import __main__
 
 class HDTVCommandError(Exception):
     pass
@@ -377,12 +378,11 @@ class CommandLine(object):
     def __init__(self, command_tree, python_completer=None):
         self.fCommandTree = command_tree
         self.fPythonCompleter = python_completer or (lambda: None)
-        self.fInteractiveLocals = dict()
         
         self.fReadlineHistory = None
         self.fReadlineExitHandler = False
-
-        self._py_console = self._py_console = code.InteractiveConsole(self.fInteractiveLocals)
+        
+        self._py_console = code.InteractiveConsole(__main__.__dict__)
 
         self.fPyMode = False
         self.fPyMore = False
@@ -410,7 +410,7 @@ class CommandLine(object):
             sys.exit(1)
             
     def RegisterInteractive(self, name, ref):
-        self.fInteractiveLocals[name] = ref
+        __main__.__dict__[name] = ref
         
     def Unescape(self, s):
         "Recognize special command prefixes"
