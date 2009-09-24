@@ -326,12 +326,7 @@ class FitInterface:
         """
         Print fit properties
         """
-        
-        try:
-            sids = hdtv.cmdhelper.ParseIds(specIDs, self.spectra)
-        except ValueError:
-            hdtv.ui.error("Invalid spectrum ID.")
-            return 
+        sids = hdtv.cmdhelper.ParseIds(specIDs, self.spectra)
 
         if len(sids) == 0:
             hdtv.ui.warn("No active spectrum, no action taken.")
@@ -346,8 +341,9 @@ class FitInterface:
             except KeyError:
                 hdtv.ui.error("No spectrum " + str(sid))
                 continue
-    
+
             fids = hdtv.cmdhelper.ParseIds(ids, spec.fits)
+
             if len(fids) == 0:
                 hdtv.ui.warn("No active fit for spectrum %d" % sid)
                 continue
@@ -852,16 +848,12 @@ class TvFitInterface:
         """ 
         Delete fits
         """
-        
         sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+          
         if len(sids)>0:
             for s in sids:
                 spec = self.spectra[s]
-                try:
-                    ids = hdtv.cmdhelper.ParseIds(args, spec.fits)
-                except ValueError:
-                    hdtv.ui.error("Malformed fit ID.")
-                    return
+                ids = hdtv.cmdhelper.ParseIds(args, spec.fits)
                 spec.fits.RemoveObjects(ids)
         else:
             hdtv.ui.warn("Nothing to do (No spectra chosen or active)")
@@ -881,13 +873,16 @@ class TvFitInterface:
         inverse = True inverses the fit selection i.e. FitShow becomes FitHide
         """
         sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+
         for sid in sids:
             try:
                 spec = self.spectra[sid]
             except KeyError:
                 hdtv.msg.error("No spectrum " + str(sid))
                 continue
-            fitIDs = hdtv.cmdhelper.ParseFitIds(args, spec.fits)
+
+            fitIDs = hdtv.cmdhelper.ParseIds(args, spec.fits)
+     
             if len(fitIDs) > 0:
                 if inverse:
                     spec.fits.HideObjects(fitIDs)
@@ -901,7 +896,8 @@ class TvFitInterface:
         """
         Print fit results
         """
-        self.fitIf.PrintFits(args, options.spectrum, onlyVisible=options.visible, sortBy=options.key_sort, reverseSort=options.reverse_sort)
+        self.fitIf.PrintFits(args, options.spectrum, onlyVisible=options.visible, 
+                             sortBy=options.key_sort, reverseSort=options.reverse_sort)
 
 
     def FitActivate(self, args, options):
@@ -919,8 +915,8 @@ class TvFitInterface:
             hdtv.ui.error("There are no fits for this spectrum")
             return
 
-        ID = hdtv.cmdhelper.ParseFitIds(args, spec.fits)
-        
+        ID = hdtv.cmdhelper.ParseIds(args, spec.fits)
+       
         if len(ID) == 1:
             hdtv.ui.msg("Activating fit %s" %ID[0])
             self.fitIf.ActivateFit(ID[0])
@@ -942,7 +938,7 @@ class TvFitInterface:
                 
         if len(args) == 0:
             args = ["active"]
-        ids = hdtv.cmdhelper.ParseFitIds(args, self.spectra[self.spectra.activeID].fits)
+        ids = hdtv.cmdhelper.ParseIds(args, self.spectra[self.spectra.activeID].fits)
         
         if len(ids) > 0:
             self.fitIf.FocusFits(ids)
@@ -971,11 +967,8 @@ class TvFitInterface:
         if len(args) == 0:
             args = ["active"]
             
-        try:
-            ids = hdtv.cmdhelper.ParseIds(args, self.spectra[self.spectra.activeID].fits)
-        except ValueError:
-            return "USAGE"
-        
+        ids = hdtv.cmdhelper.ParseIds(args, self.spectra[self.spectra.activeID].fits)
+       
         self.fitIf.CopyFits(ids, self.spectra.activeID, specIDs, refit=options.refit)
 
     def FitSetPeakModel(self, args, options):
@@ -1086,7 +1079,7 @@ class TvFitInterface:
         specIDs = hdtv.cmdhelper.ParseIds(options.spectra, self.spectra)
         
         if len(specIDs) == 0:
-            hdtv.ui.error("No spectrum to work on")
+            hdtv.ui.warn("No spectrum to work on")
             return
         
         if options.background:
@@ -1102,9 +1095,7 @@ class TvFitInterface:
                 if specID==self.spectra.activeID and self.fitIf._workFit:
                     self.fitIf.Fit(peaks=doPeaks) 
                 else:
-                    hdtv.ui.warn("No fit for spectrum %s to work on" %specID)
-                    continue
-            
+                    hdtv.ui.warn("No fit for spectrum %s to work on." %specID)
             for fitID in fitIDs:    
                 self.fitIf.Fit(specID=specID, fitID=fitID, peaks=doPeaks) 
     

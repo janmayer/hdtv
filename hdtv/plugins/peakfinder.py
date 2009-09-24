@@ -63,34 +63,34 @@ class PeakFinder:
         hdtv.cmdline.AddCommand(prog, self.PeakSearch, level = 4, parser = parser, minargs = 0, fileargs = False)
         
  
-# FIXME: Is this the right place for this?
-        prog = "fit bgfit"
-        description = "XXX"
-        usage = "%prog <start> <end>"
-        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        hdtv.cmdline.AddCommand(prog, self.BGFit, level = 4, parser = parser, minargs = 0, fileargs = False)
-        
+## FIXME or remove:
+#        prog = "fit bgfit"
+#        description = "XXX"
+#        usage = "%prog <start> <end>"
+#        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+#        hdtv.cmdline.AddCommand(prog, self.BGFit, level = 4, parser = parser, minargs = 0, fileargs = False)
+#        
 
-    def BGFit(self, args, options):
-        """
-        Do a background fit
-        """
-        # Background fit
-        sid = self.spectra.activeID
-        tSpec = ROOT.TSpectrum()
-        
-        spec = self.spectra[self.spectra.activeID]
+#    def BGFit(self, args, options):
+#        """
+#        Do a background fit
+#        """
+#        # Background fit
+#        sid = self.spectra.activeID
+#        tSpec = ROOT.TSpectrum()
+#        
+#        spec = self.spectra[self.spectra.activeID]
 
-        hist = spec.fHist.__class__(spec.fHist) # Copy hist here 
-        # TODO: draw background
-        hbg = hist.ShowBackground(20, "goff")
-        print "hbg", hbg
-        bgspec = hdtv.spectrum.Spectrum(hbg, cal=spec.cal)
-        
-        bspec = hdtv.spectrum.SpectrumCompound(spec.viewport, bgspec)
-        sid = self.spectra.Add(bgspec)
-        bgspec.SetColor(hdtv.color.ColorForID(sid))
-        print "BGSPec", sid
+#        hist = spec.fHist.__class__(spec.fHist) # Copy hist here 
+#        # TODO: draw background
+#        hbg = hist.ShowBackground(20, "goff")
+#        print "hbg", hbg
+#        bgspec = hdtv.spectrum.Spectrum(hbg, cal=spec.cal)
+#        
+#        bspec = hdtv.spectrum.SpectrumCompound(spec.viewport, bgspec)
+#        sid = self.spectra.Add(bgspec)
+#        bgspec.SetColor(hdtv.color.ColorForID(sid))
+#        print "BGSPec", sid
 
     
     def PeakSearch(self, args, options):

@@ -33,13 +33,6 @@ def GetCompleteOptions(begin, options):
     return [o + " " for o in options if o[0:l] == begin]
     
 
-# TODO: Maybe we should unite and ParseFitIds and ParseIds
-def ParseFitIds(strings, spec):
-    """
-    Parse fit IDs
-    """
-    return ParseIds(strings, spec)
-
 def ParseIds(strings, drawable, only_existent=True):
     """
     Parse Spectrum/Fit Ids
@@ -53,12 +46,11 @@ def ParseIds(strings, drawable, only_existent=True):
     
     special = ["ALL","NONE","ACTIVE","VISIBLE", "NEXT", "PREV", "FIRST", "LAST"]
     # parse the arguments
-#    try:
-    # TODO: we should throw HDTV exception here
-    ids = ParseRange(strings, special)
-#    except ValueError, msg:
-#        print msg
-#        return list()
+    try:
+        ids = ParseRange(strings, special)
+    except ValueError:
+        hdtv.ui.error("Invalid IDs.")
+        return list()
 
     # processing different cases
     if ids=="NONE":
