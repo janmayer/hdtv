@@ -485,7 +485,8 @@ class FitInterface:
             hdtv.ui.error("There is no active spectrum")
             return
         spec = self.spectra[self.spectra.activeID]
-        if self.workFit in spec.fits.values(): # Fit is already stored
+        if self.workFit in spec.fits.values(): 
+            # FIXME: this is not working as expected because of weakref.proxy
             hdtv.ui.warn("Fit already stored")
         elif self.workFit is not None:
             ID = spec.AddFit(self.workFit)
@@ -503,11 +504,14 @@ class FitInterface:
         """
         Clear all fit markers and the pending fit, if there is one
         """
-
-        spec = self.spectra[self.spectra.activeID]
-
-        if self.workFit in spec.fits.values(): # Fit is stored, so just deactivate it
-            spec.fits.ActivateObject(None)
+        if not self.spectra.activeID is None:
+            spec = self.spectra[self.spectra.activeID]
+            if not spec.fits.activeID is None:
+                # FIXME: here we want to clear all markers and the functions
+                # to get an empty fit, instead of removing the whole fit,
+                # because then we would loose the ID
+                spec.fits.ActivateObject(None)# just deactivate the fit for now!
+                #spec.fits.RemoveObjects(spec.fits.activeID)
 
         # Reset work fit
         self._workFit = None
