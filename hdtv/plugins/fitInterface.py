@@ -1023,7 +1023,7 @@ class TvFitInterface:
         if len(models)>1:
             hdtv.ui.error("Peak model name %s is ambiguous" %name)
         if len(models)==0:
-            hdtv.ui.error("Invalid command")
+            hdtv.ui.error("Invalid peak model %s" %name)
         else:
             name = models[0]
             name = name.strip()
