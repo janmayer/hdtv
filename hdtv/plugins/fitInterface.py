@@ -103,8 +103,36 @@ class FitInterface:
         
         A new fit is created if necessary.
         """
-        if self.spectra.activeID is None: # No active spectrum, so now workFit
-            self._workFit = None
+
+        if not self.spectra.activeID is None:
+            spec = self.spectra[self.spectra.activeID]
+            if spec.fits.activeID is None:
+                if self._workFit in spec.fits.values():
+                    # If self._workFit is stored in spec.fits.values
+                    # it is still some old remainder, else it would be active 
+                    self._workFit = None
+                try: 
+                    # check if self._workfit is a invalid weak-reference
+                    if self._workFit is not None and self._workFit.active:
+                        pass
+                except ReferenceError:
+                    # Reference is gone -> Set to None
+                    self._workFit = None 
+            else :
+                # Use weakrefs here because self._workfit may block the destruction of fit
+                self._workFit = weakref.proxy(spec.fits[spec.fits.activeID])
+
+        # create new workFit if there is for whatever reason none
+        if self._workFit is None:
+            self._workFit = Fit(self.defaultFitter.Copy())
+            self._workFit.Draw(self.window.viewport)
+        
+        return self._workFit
+        
+        
+        if self.spectra.activeID is None and self._workFit: # No active spectrum
+            self._workFit = Fit(self.defaultFitter.Copy())
+            self._workFit.Draw(self.window.viewport)
         else:
             spec = self.spectra[self.spectra.activeID]
             if spec.fits.activeID is None:
