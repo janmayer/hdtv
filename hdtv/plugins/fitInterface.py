@@ -505,28 +505,6 @@ class FitInterface:
         # update fitPanel
         #self.UpdateFitPanel()
         
-    
-#    def FitMultiSpectra(self, fitIDs, specIDs):
-#        """
-#        Use the fit markers of the active fit to fit multiple spectra.
-#        The spectra that should be fitted are given by the parameter ids.
-#        """
-#        if isinstance(ids, int):
-#            ids = [ids]
-#        self.window.viewport.LockUpdate()
-#        self.CopyActiveFit(ids)
-#        for ID in ids:
-#            spec = self.spectra[ID]
-#            fit = spec[spec.activeID]
-#            if len(fit.bgMarkers)>0:
-#                fit.FitBgFunc(spec)
-#            fit.FitPeakFunc(spec)
-#            fit.Draw(self.window.viewport)
-#            if not ID in self.spectra.visible:
-#                fit.Hide()
-#        self.window.viewport.UnlockUpdate()
-
-
     def CopyFits(self, fitIDs, fromSpecID, toSpecIDs, refit=False):
         """
         Copy fits to other spectra which are defined by the parameter ids
@@ -956,7 +934,6 @@ class TvFitInterface:
         """
         Focus a fit. If no fit is given focus the active fit
         """
-        
         if self.spectra.activeID==None:
             hdtv.ui.error("There is no active spectrum")
             return False
@@ -976,7 +953,6 @@ class TvFitInterface:
         """
         Copy fit parameter and marker to other spectra and optionally fit on new spectrum
         """
-        
         if self.spectra.activeID is None:
             hdtv.ui.error("No active spectrum")
             return
@@ -1002,24 +978,10 @@ class TvFitInterface:
         
         self.fitIf.CopyFits(ids, self.spectra.activeID, specIDs, refit=options.refit)
 
-
-#    def FitMulti(self, args, options):
-#        
-#        if options.spectra is not None:
-#            specIDs = hdtv.cmdhelper.ParseIds(options.spectra, self.spectra)
-#            
-#        if len(args) == 0:
-#            args = ["active"]
-#            
-#        try:
-#            ids = hdtv.cmdhelper.ParseIds(args, self.spectra[self.spectra.activeID].fits)
-#        except ValueError:
-#            return "USAGE"
-#        
-#        self.fitIf.FitCopy(ids, specIDs, refit=True)
-
-
     def FitSetPeakModel(self, args, options):
+        """
+        Defines peak model to use for fitting
+        """
         name = args[0].lower()
         # complete the model name if needed
         models = self.PeakModelCompleter(name)
@@ -1131,14 +1093,17 @@ class TvFitInterface:
             doPeaks = False
         else:
             doPeaks = True
-            
+
         for specID in specIDs:
             
             fitIDs = hdtv.cmdhelper.ParseIds(args, self.spectra[specID].fits)
             
             if len(fitIDs) == 0:
-                hdtv.ui.warn("No fit for spectrum %s to work on" %specID)
-                continue
+                if specID==self.spectra.activeID and self.fitIf._workFit:
+                    self.fitIf.Fit(peaks=doPeaks) 
+                else:
+                    hdtv.ui.warn("No fit for spectrum %s to work on" %specID)
+                    continue
             
             for fitID in fitIDs:    
                 self.fitIf.Fit(specID=specID, fitID=fitID, peaks=doPeaks) 
