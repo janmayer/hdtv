@@ -155,9 +155,11 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                 for child in node.childs:
                     if child.title == elem:
                         next = child
+                        if next.level > level:
+                            next.level = level
                         break
                 if not next:
-                    next = HDTVCommandTreeNode(node, elem, self.default_level)
+                    next = HDTVCommandTreeNode(node, elem, level)
                 node = next
                 
         # Check to see if the node we are trying to add already exists; if it
