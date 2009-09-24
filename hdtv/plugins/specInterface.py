@@ -225,7 +225,7 @@ class TvSpecInterface:
         prog = "spectrum get"   
         usage="%prog [OPTIONS] <pattern> [<pattern> ...]"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog,usage=usage)
-        parser.add_option("-i", "--id", action="store",default=None, 
+        parser.add_option("-s", "--spec", action="store",default=None, 
                           help="id for loaded spectrum")
         hdtv.cmdline.AddCommand("spectrum get", self.SpectrumGet, level=0, 
                                 minargs=1,fileargs=True, parser=parser)
@@ -326,7 +326,7 @@ class TvSpecInterface:
         """
         Load Spectra from files
         """
-        if options.id != None:
+        if options.spec != None:
             ID = int(options.id)
         else:
             ID = None

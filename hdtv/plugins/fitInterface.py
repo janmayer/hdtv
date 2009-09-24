@@ -731,7 +731,7 @@ class TvFitInterface:
         description = "(re)fit a fit"
         usage = "%prog [OPTIONS] <fit-ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spectra", action = "store", default = "active",
+        parser.add_option("-s", "--spec", action = "store", default = "active",
                             help = "Spectra to work on")
         parser.add_option("-b", "--background", action = "store_true", default = False,
                             help = "fit only the background")
@@ -752,7 +752,7 @@ class TvFitInterface:
         description = "display fits"
         usage = "%prog none|all|<ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spectrum", action = "store", default = "active",
+        parser.add_option("-s", "--spec", action = "store", default = "active",
                         help = "select spectra to work on")
         parser.add_option("-v", "--adjust-viewport", action = "store_true", default = False,
                         help = "adjust viewport to include all fits")
@@ -763,7 +763,7 @@ class TvFitInterface:
         description = "hide fits"
         usage = "%prog all|<ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spectrum", action = "store", default = "active",
+        parser.add_option("-s", "--spec", action = "store", default = "active",
                         help = "select spectra to work on")
         # TODO: add option to show the fit, that is closest to a certain value
         hdtv.cmdline.AddCommand(prog, self.FitHide, parser = parser)
@@ -785,7 +785,7 @@ class TvFitInterface:
                         help = "sort by key")
         parser.add_option("-r", "--reverse-sort", action = "store_true", default = False,
                         help = "reverse the sort")
-        parser.add_option("-s", "--spectrum", action = "store", default = "active",
+        parser.add_option("-s", "--spec", action = "store", default = "active",
                         help = "select spectra to work on")       
         hdtv.cmdline.AddCommand(prog, self.FitPrint, level=2, parser = parser)
         
@@ -793,7 +793,7 @@ class TvFitInterface:
         description = "delete fits"
         usage = "%prog all|<ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spectrum", action = "store", default = "active",
+        parser.add_option("-s", "--spec", action = "store", default = "active",
                         help = "spectrum ids to work on")
         hdtv.cmdline.AddCommand(prog, self.FitDelete, minargs = 1, parser = parser)
         
@@ -809,7 +809,7 @@ class TvFitInterface:
         description = "Copy fit parameter and marker to another spectrum"
         usage = "%prog -s <targetSpecs> <fit-ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage=usage)
-        parser.add_option("-s", "--spectra", action = "store", default = "all", help = "Target spectra")
+        parser.add_option("-s", "--spec", action = "store", default = "all", help = "Target spectra")
         parser.add_option("-f", "--refit", action = "store_true", default = False, help = "Perform fit on new spectrum")
         hdtv.cmdline.AddCommand(prog, self.FitCopy, parser = parser)
         
@@ -829,7 +829,7 @@ class TvFitInterface:
         description = "reset fit functions of a fit"
         usage = "%prog [OPTIONS] <fit-ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spectra", action = "store", default = "active",
+        parser.add_option("-s", "--spec", action = "store", default = "active",
                             help = "Spectra to work on")
         parser.add_option("-k", "--keep-fitter", action = "store_true", default = False,
                             help = "Keep fitter parameters")
@@ -880,7 +880,7 @@ class TvFitInterface:
         """ 
         Delete fits
         """
-        sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+        sids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
           
         if len(sids)>0:
             for s in sids:
@@ -904,7 +904,7 @@ class TvFitInterface:
         
         inverse = True inverses the fit selection i.e. FitShow becomes FitHide
         """
-        sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+        sids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
 
         for sid in sids:
             try:
@@ -928,7 +928,7 @@ class TvFitInterface:
         """
         Print fit results
         """
-        self.fitIf.PrintFits(args, options.spectrum, onlyVisible=options.visible, 
+        self.fitIf.PrintFits(args, options.spec, onlyVisible=options.visible, 
                              sortBy=options.key_sort, reverseSort=options.reverse_sort)
 
 
@@ -985,7 +985,7 @@ class TvFitInterface:
             hdtv.ui.error("No active spectrum")
             return
         
-        specIDs = hdtv.cmdhelper.ParseIds(options.spectra, self.spectra)
+        specIDs = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
         
         # Remove active spectrum from target specIDs
         try:
@@ -1108,7 +1108,7 @@ class TvFitInterface:
         Perform a fit
         """
         
-        specIDs = hdtv.cmdhelper.ParseIds(options.spectra, self.spectra)
+        specIDs = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
         
         if len(specIDs) == 0:
             hdtv.ui.warn("No spectrum to work on")
@@ -1136,7 +1136,7 @@ class TvFitInterface:
         """
         Reset fitter of a fit to unfitted default.
         """
-        specIDs = hdtv.cmdhelper.ParseIds(options.spectra, self.spectra)
+        specIDs = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
         
         if len(specIDs) == 0:
             hdtv.ui.error("No spectrum to work on")

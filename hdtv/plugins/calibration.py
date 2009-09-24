@@ -211,20 +211,19 @@ class EffCalHDTVInterface(object):
         description = "Set efficiency function"
         usage = "%prog [wunder|wiedenhoever|poly]"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spectrum", help = "Spectrum ID to set efficiency for", action = "store",
+        parser.add_option("-s", "--spec", help = "Spectrum ID to set efficiency for", action = "store",
                           default = "active")
         parser.add_option("-p", "--parameter", help = "Parameters for efficiency function", action = "store",
                           default = None)
         parser.add_option("-f", "--file", help = "Read efficiency from file", action = "store",
                           default = None)
-        
         hdtv.cmdline.AddCommand(prog, self.SetFun, parser = parser, nargs = 1)
         
         prog = "calibration efficiency read parameter"
         description = "Read parameter for efficiency function from file"
         usage = "%prog <parameter-file>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spectrum", help = "Spectrum IDs to read parameters for", action = "store",
+        parser.add_option("-s", "--spec", help = "Spectrum IDs to read parameters for", action = "store",
                           default = "active")
         hdtv.cmdline.AddCommand(prog, self.ReadPar, parser = parser, fileArgs = True, nargs = 1)
         
@@ -232,7 +231,7 @@ class EffCalHDTVInterface(object):
         description = "Read covariance matrix of efficiency function from file"
         usage = "%prog <covariance-file>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spectrum", help = "Spectrum IDs to read covariance for", action = "store",
+        parser.add_option("-s", "--spec", help = "Spectrum IDs to read covariance for", action = "store",
                           default = "active")
         hdtv.cmdline.AddCommand(prog, self.ReadCov, parser = parser, fileArgs = True, nargs = 1)
         
@@ -240,7 +239,7 @@ class EffCalHDTVInterface(object):
         description = "Write paremeters of efficiency function from file"
         usage = "%prog <covariance-file>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spectrum", help = "Spectrum ID from which to save parameters", action = "store",
+        parser.add_option("-s", "--spec", help = "Spectrum ID from which to save parameters", action = "store",
                           default = "active")
         hdtv.cmdline.AddCommand(prog, self.WritePar, parser = parser, fileArgs = True, nargs = 1)
         
@@ -249,7 +248,7 @@ class EffCalHDTVInterface(object):
         description = "Write covariance matrix of efficiency function from file"
         usage = "%prog <covariance-file>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spectrum", help = "Spectrum ID from which to save covariance", action = "store",
+        parser.add_option("-s", "--spec", help = "Spectrum ID from which to save covariance", action = "store",
                           default = "active")
         hdtv.cmdline.AddCommand(prog, self.WriteCov, parser = parser, fileArgs = True, nargs = 1)
         
@@ -266,7 +265,6 @@ class EffCalHDTVInterface(object):
         parser.add_option("-f", "--file", help = "File with energy<->efficiency pairs", action = "store", default = None)
         parser.add_option("-p", "--fit-panel", help = "Show fit panel", action = "store_true", default = False)
         parser.add_option("-g", "--show-graph", help = "Show fitted graph", action = "store_true", default = False)
-        
         hdtv.cmdline.AddCommand(prog, self.FitEff, parser = parser, fileArgs = False, nargs = 1)
         
         prog = "calibration efficiency list"
@@ -298,9 +296,9 @@ class EffCalHDTVInterface(object):
             covFileName = options.file + ".cov"
         
         try:
-            ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            ids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
         except ValueError:
-            hdtv.ui.error("Invalid ID %s" % options.spectrum)
+            hdtv.ui.error("Invalid ID %s" % options.spec)
             return
         
         for ID in ids:
@@ -320,9 +318,9 @@ class EffCalHDTVInterface(object):
         filename = args[0]
         
         try:
-            ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            ids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
         except ValueError:
-            hdtv.ui.error("Invalid ID %s" % options.spectrum)
+            hdtv.ui.error("Invalid ID %s" % options.spec)
             return
         
         for ID in ids:
@@ -339,9 +337,9 @@ class EffCalHDTVInterface(object):
         filename = args[0]
         
         try:
-            ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            ids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
         except ValueError:
-            hdtv.ui.error("Invalid ID %s" % options.spectrum)
+            hdtv.ui.error("Invalid ID %s" % options.spec)
             return
 
         for ID in ids:
@@ -357,9 +355,9 @@ class EffCalHDTVInterface(object):
         filename = args[0]
         
         try:
-            ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            ids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
         except ValueError:
-            hdtv.ui.error("Invalid ID %s" % options.spectrum)
+            hdtv.ui.error("Invalid ID %s" % options.spec)
             return
         
         if len(ids) > 1:
@@ -380,9 +378,9 @@ class EffCalHDTVInterface(object):
         filename = args[0]
         
         try:
-            ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            ids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
         except ValueError:
-            hdtv.ui.error("Invalid ID %s" % options.spectrum)
+            hdtv.ui.error("Invalid ID %s" % options.spec)
             return
         
         if len(ids) > 1:
@@ -520,19 +518,12 @@ class EnergyCalHDTVInterface(object):
         self.spectra = spectra
         
         # calibration commands
-        parser = hdtv.cmdline.HDTVOptionParser(prog = "calibration position read",
-                                               usage = "%prog [OPTIONS] <filename>")
-        parser.add_option("-s", "--spec", action = "store",
-                          default = "all", help = "spectrum ids to apply calibration to")
-        hdtv.cmdline.AddCommand("calibration position read", self.CalPosRead, level = 0, nargs = 1,
-                                fileargs = True, parser = parser)
-        
-        parser = hdtv.cmdline.HDTVOptionParser(prog = "calibration position enter",
-                     description = 
-"""Fit a calibration polynomial to the energy/channel pairs given.
-Hint: specifying degree=0 will fix the linear term at 1. Specify spec=None
-to only fit the calibration.""",
-                     usage = "%prog [OPTIONS] <ch0> <E0> [<ch1> <E1> ...]")
+        prog = "calibration position enter"
+        description  = "Fit a calibration polynomial to the energy/channel pairs given. "
+        description += "Hint: specifying degree=0 will fix the linear term at 1. "
+        description += "Specify spec=None to only fit the calibration."
+        usage = "%prog [OPTIONS] <ch0> <E0> [<ch1> <E1> ...]"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage=usage)
         parser.add_option("-s", "--spec", action = "store",
                           default = "all", help = "spectrum ids to apply calibration to")
         parser.add_option("-d", "--degree", action = "store",
@@ -545,20 +536,33 @@ to only fit the calibration.""",
                           default = False, help = "print table of energies given and energies obtained from fit")
         parser.add_option("-f", "--file", action = "store",
                           default = None, help = "get channel<->energy pairs from file")
-        hdtv.cmdline.AddCommand("calibration position enter", self.CalPosEnter, level = 0,
-                                minargs = 0, parser = parser, fileargs = True)
-        
-        parser = hdtv.cmdline.HDTVOptionParser(prog = "calibration position set",
-                                               usage = "%prog [OPTIONS] <p0> <p1> [<p2> ...]")
-        parser.add_option("-s", "--spec", action = "store",
-                          default = "all", help = "spectrum ids to apply calibration to")
-        hdtv.cmdline.AddCommand("calibration position set", self.CalPosSet, level = 0,
-                                minargs = 2, parser = parser)
+        hdtv.cmdline.AddCommand(prog, self.CalPosEnter, level=0, parser = parser,
+                                minargs = 0, fileargs = True)
         
         
-        hdtv.cmdline.AddCommand("calibration position getlist", self.CalPosGetlist, nargs = 1,
-                                fileargs = True,
-                                usage = "%prog <filename>", level = 0)
+        prog = "calibration position read"
+        usage = usage = "%prog [OPTIONS] <filename>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, usage = usage)
+        parser.add_option("-s", "--spec", action = "store", default = "all", 
+                          help = "spectrum ids to apply calibration to")
+        hdtv.cmdline.AddCommand(prog, self.CalPosRead, parser = parser,
+                                nargs = 1, fileargs = True)
+        
+        prog = "calibration position set"
+        usage = "%prog [OPTIONS] <p0> <p1> [<p2> ...]"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        parser.add_option("-s", "--spec", action = "store", default = "all", 
+                          help = "spectrum ids to apply calibration to")
+        hdtv.cmdline.AddCommand(prog, self.CalPosSet, parser = parser,
+                                minargs = 2)
+        
+        
+        prog = "calibration position getlist"
+        usage = "%prog <filename>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        
+        hdtv.cmdline.AddCommand(prog, self.CalPosGetlist,parser=parser,
+                                nargs = 1, fileargs = True)
 
     
     def CalPosRead(self, args, options):
@@ -640,6 +644,7 @@ to only fit the calibration.""",
         """
         self.EnergyCalIf.GetCalsFromList(args[0])
  
+    
     
 
 import __main__
