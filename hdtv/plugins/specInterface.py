@@ -221,70 +221,75 @@ class TvSpecInterface:
         self.specIf = specInterface
         self.spectra = self.specIf.spectra
         
-        # register tv commands
-        hdtv.cmdline.command_tree.SetDefaultLevel(1)
-        
-        
         # spectrum commands
-        parser = hdtv.cmdline.HDTVOptionParser(prog="spectrum get",
-                     usage="%prog [OPTIONS] <pattern> [<pattern> ...]")
-        parser.add_option("-i", "--id", action="store",
-                          default=None, help="id for loaded spectrum")
-        hdtv.cmdline.AddCommand("spectrum get", self.SpectrumGet, level=0, minargs=1,
-                                fileargs=True, parser=parser)
+        prog = "spectrum get"   
+        usage="%prog [OPTIONS] <pattern> [<pattern> ...]"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog,usage=usage)
+        parser.add_option("-i", "--id", action="store",default=None, 
+                          help="id for loaded spectrum")
+        hdtv.cmdline.AddCommand("spectrum get", self.SpectrumGet, level=0, 
+                                minargs=1,fileargs=True, parser=parser)
+        # the spectrum get command is registered with level=0, 
+        # this allows "spectrum get" to be abbreviated as "spectrum", register 
+        # all other commands starting with spectrum with default or higher priority
         
-        parser = hdtv.cmdline.HDTVOptionParser(prog="spectrum list", usage="%prog [OPTIONS]")
-        parser.add_option("-v", "--visible", action="store_true",
-                          default=False, help="list only visible (and active) spectra")
+        prog="spectrum list"
+        usage="%prog [OPTIONS]"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        parser.add_option("-v", "--visible", action="store_true", default=False, 
+                          help="list only visible (and active) spectra")
         hdtv.cmdline.AddCommand("spectrum list", self.SpectrumList, nargs=0, parser=parser)
         
+        
         hdtv.cmdline.AddCommand("spectrum delete", self.SpectrumDelete, minargs=0,
-                                usage="%prog <ids>", level = 0)
+                                usage="%prog <ids>")
         hdtv.cmdline.AddCommand("spectrum activate", self.SpectrumActivate, nargs=1,
-                                usage="%prog <id>", level = 0)
+                                usage="%prog <id>")
         hdtv.cmdline.AddCommand("spectrum show", self.SpectrumShow, minargs=0,
-                                usage="%prog <ids>|all|none|...", level = 0)
+                                usage="%prog <ids>|all|none|...")
         hdtv.cmdline.AddCommand("spectrum hide", self.SpectrumHide, minargs=0,
                                 usage="%prog <ids>|all|none|...", level = 2)
         hdtv.cmdline.AddCommand("spectrum info", self.SpectrumInfo, minargs=0,
-                                usage="%prog [ids]", level=0)
+                                usage="%prog [ids]")
         hdtv.cmdline.AddCommand("spectrum update", self.SpectrumUpdate, minargs=0,
-                                usage="%prog <ids>|all|shown", level = 0)
+                                usage="%prog <ids>|all|shown")
         hdtv.cmdline.AddCommand("spectrum write", self.SpectrumWrite, minargs=1, maxargs=2,
-                                usage="%prog <filename>'<format> [id]", level = 0)
+                                usage="%prog <filename>'<format> [id]")
         hdtv.cmdline.AddCommand("spectrum normalization", self.SpectrumNormalization,
-                                minargs=1, level = 0,
-                                usage="%prog [ids] <norm>")
-
+                                minargs=1, usage="%prog [ids] <norm>")
 
         prog = "spectrum add"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog,
-                                               usage="%prog [OPTIONS] <target-id> <ids>|all")
+        usage="%prog [OPTIONS] <target-id> <ids>|all"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
         parser.add_option("-n", "--normalize", action="store_true", 
                           help="normalize <target-id> by dividing through number of added spectra afterwards")
         hdtv.cmdline.AddCommand(prog, self.SpectrumAdd, level = 2, minargs=1, fileargs=False, parser=parser)
 
         prog = "spectrum substract"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog,
-                                               usage="%prog [OPTIONS] <target-id> <ids>|all")
-        hdtv.cmdline.AddCommand(prog, self.SpectrumSub, level = 2, minargs=1, fileargs=False, parser=parser)
+        usage="%prog [OPTIONS] <target-id> <ids>|all"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumSub, level = 2, minargs=1, 
+                                fileargs=False, parser=parser)
         
         prog = "spectrum multiply"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog,
-                                               usage="%prog [OPTIONS]  [ids]|all|... <factor>")
-        hdtv.cmdline.AddCommand(prog, self.SpectrumMultiply, level = 2, minargs=1, fileargs=False, parser=parser)
-        
+        usage="%prog [OPTIONS]  [ids]|all|... <factor>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumMultiply, level = 2, minargs=1, 
+                                fileargs=False, parser=parser)
         
         prog = "spectrum copy"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog,
-                                               usage="%prog <ids>")
+        usage="%prog <ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
         parser.add_option("-i", "--id", action="store", default=None, help="Copy to <ids>")
-        hdtv.cmdline.AddCommand(prog, self.SpectrumCopy, level = 2, fileargs=False, parser=parser)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumCopy, level = 2, 
+                                fileargs=False, parser=parser)
         
 
         prog = "spectrum name"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage="%prog [id] <name>")
-        hdtv.cmdline.AddCommand(prog, self.SpectrumName, level = 2, fileargs = False, parser=parser)
+        usage="%prog [id] <name>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumName, level = 2, 
+                                fileargs = False, parser=parser)
 
     
     def SpectrumList(self, args, options):

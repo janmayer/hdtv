@@ -715,11 +715,24 @@ class TvFitInterface:
     """
     def __init__(self, fitInterface):
         self.fitIf = fitInterface
-        self.spectra = self.fitIf.spectra
+        self.spectra = self.fitIf.spectra     
         
         # Register configuration variables for fit list
         opt = hdtv.options.Option(default = "ID")
-        hdtv.options.RegisterOption("fit.list.sort_key", opt)      
+        hdtv.options.RegisterOption("fit.list.sort_key", opt) 
+        
+        prog = "fit fit"
+        description = "(re)fit a fit"
+        usage = "%prog [OPTIONS] <fit-ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        parser.add_option("-s", "--spectra", action = "store", default = "active",
+                            help = "Spectra to work on")
+        parser.add_option("-b", "--background", action = "store_true", default = False,
+                            help = "fit only the background")
+        hdtv.cmdline.AddCommand(prog, self.DoFit, level=0, parser = parser)
+        # the "fit fit" command is registered with level=0, 
+        # this allows "fit fit" to be abbreviated as "fit", register all other 
+        # commands starting with spectrum with default or higher priority
         
         prog = "fit list"
         description = "show a list of all fits belonging to the active spectrum"
@@ -768,7 +781,7 @@ class TvFitInterface:
                         help = "reverse the sort")
         parser.add_option("-s", "--spectrum", action = "store", default = "active",
                         help = "select spectra to work on")       
-        hdtv.cmdline.AddCommand(prog, self.FitPrint, parser = parser, level = 2)
+        hdtv.cmdline.AddCommand(prog, self.FitPrint, level=2, parser = parser)
         
         prog = "fit delete"
         description = "delete fits"
@@ -802,9 +815,19 @@ class TvFitInterface:
                             help = "act on default fitter")
         parser.add_option("-f", "--fit", action = "store", default = None,
                             help = "change parameter of selected fit and refit")
-        hdtv.cmdline.AddCommand(prog, self.FitParam, level = 0,
-                                completer = self.ParamCompleter,
+        hdtv.cmdline.AddCommand(prog, self.FitParam, completer = self.ParamCompleter,
                                 parser = parser, minargs = 1)
+                                
+                                
+        prog = "fit reset"
+        description = "reset fit functions of a fit"
+        usage = "%prog [OPTIONS] <fit-ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        parser.add_option("-s", "--spectra", action = "store", default = "active",
+                            help = "Spectra to work on")
+        parser.add_option("-k", "--keep-fitter", action = "store_true", default = False,
+                            help = "Keep fitter parameters")
+        hdtv.cmdline.AddCommand(prog, self.ResetFit, parser = parser)
         
         prog = "fit function peak activate"
         description = "selects which peak model to use"
@@ -818,26 +841,7 @@ class TvFitInterface:
                                 completer = self.PeakModelCompleter,
                                 parser = parser, minargs = 1)
 
-        prog = "fit fit"
-        description = "(re)fit a fit"
-        usage = "%prog [OPTIONS] <fit-ids>"
-        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spectra", action = "store", default = "active",
-                            help = "Spectra to work on")
-        parser.add_option("-b", "--background", action = "store_true", default = False,
-                            help = "fit only the background")
-        hdtv.cmdline.AddCommand(prog, self.DoFit, parser = parser)
-
-        prog = "fit reset"
-        description = "reset fit functions of a fit"
-        usage = "%prog [OPTIONS] <fit-ids>"
-        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spectra", action = "store", default = "active",
-                            help = "Spectra to work on")
-        parser.add_option("-k", "--keep-fitter", action = "store_true", default = False,
-                            help = "Keep fitter parameters")
-        hdtv.cmdline.AddCommand(prog, self.ResetFit, parser = parser)
-
+        # TODO: move to calibration plugin
         # calibration command
         prog = "calibration position assign"
         description = "Calibrate the active spectrum by asigning energies to fitted peaks. "
@@ -856,7 +860,7 @@ class TvFitInterface:
         parser.add_option("-t", "--show-table", action = "store_true", default = False,
                         help = "print table of energies given and energies obtained from fit")
         hdtv.cmdline.AddCommand("calibration position assign", self.CalPosAssign,
-                                parser = parser, minargs = 2, level=0)
+                                parser = parser, minargs = 2)
 
     def FitList(self, args, options):
         """
@@ -1021,9 +1025,9 @@ class TvFitInterface:
         models = self.PeakModelCompleter(name)
         # check for unambiguity
         if len(models)>1:
-            hdtv.ui.error("Peak model name %s is ambiguous" %name)
+            hdtv.ui.error("Peak model name '%s' is ambiguous" %name)
         if len(models)==0:
-            hdtv.ui.error("Invalid peak model %s" %name)
+            hdtv.ui.error("Invalid peak model '%s'" %name)
         else:
             name = models[0]
             name = name.strip()

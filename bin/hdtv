@@ -81,3 +81,5 @@ hdtv.ui.msg("=========================================================")
 hdtv.ui.newline()
 # Go
 hdtv.cmdline.MainLoop()
+hdtv.cmdline.command_tree.SetDefaultLevel(1)
+
