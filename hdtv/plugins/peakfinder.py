@@ -169,8 +169,8 @@ class PeakFinder:
         # TODO:
         # * Reject negative FWHM, Volume
         # * Reject unreasonable FWHM
-        # * Doublet fitting
-        for p in foundpeaks:
+        while len(foundpeaks)>0:
+             p = foundpeaks.pop(0)
              fitter = self.defaultFitter.Copy()
              fit = hdtv.fit.Fit(fitter, cal = spec.cal)
              pos_E = spec.cal.Ch2E(p)
@@ -178,9 +178,18 @@ class PeakFinder:
              bin = hist.GetXaxis().FindBin(pos_Ch)
              yp = hist.GetBinContent(bin)
              fit.PutPeakMarker(pos_E)
+             # collect multipletts
              if autofit:
                  region_width = sigma_E * 5. # TODO: something sensible here
+                 # left region marker
                  fit.PutRegionMarker(pos_E - region_width / 2.)
+                 limit = pos_E + region_width
+                 while len(foundpeaks)>0 and spec.cal.Ch2E(foundpeaks[0]) <= limit:
+                    next = foundpeaks.pop(0)
+                    pos_E = spec.cal.Ch2E(next)
+                    limit = pos_E + region_width
+                    fit.PutPeakMarker(pos_E)
+                 # right region marker
                  fit.PutRegionMarker(pos_E + region_width / 2.)
                  fit.FitPeakFunc(spec, silent = True)
              
