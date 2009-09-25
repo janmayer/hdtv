@@ -740,6 +740,34 @@ class TvFitInterface:
         # this allows "fit fit" to be abbreviated as "fit", register all other 
         # commands starting with spectrum with default or higher priority
         
+        prog = "fit marker set"
+        description = "set a marker to position"
+        description +="(possible types are background, region, peak)"
+        usage = "%prog type position"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        hdtv.cmdline.AddCommand(prog, self.FitMarkerSet, nargs=2,
+                                parser = parser, completer=self.MarkerCompleter)
+        
+        prog = "fit marker delete"
+        description = "delete the marker of the given type that is nearest to position."
+        description += "(possible types are background, region, peak)"
+        usage = "%prog type position"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        hdtv.cmdline.AddCommand(prog, self.FitMarkerDelete, nargs=2,
+                                parser = parser, completer=self.MarkerCompleter)
+        
+        prog = "fit store"
+        description = "store the active work fit to fitlist"
+        usage = "%prog"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        hdtv.cmdline.AddCommand(prog, self.FitStore, nargs=0, parser = parser)
+        
+        prog = "fit clear"
+        description = "clear the active work fit"
+        usage = "%prog"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        hdtv.cmdline.AddCommand(prog, self.FitClear, nargs=0, parser = parser)
+        
         prog = "fit list"
         description = "show a list of all fits belonging to the active spectrum"
         usage = "%prog"
@@ -1103,11 +1131,74 @@ class TvFitInterface:
             states.discard(float)
             return hdtv.cmdhelper.GetCompleteOptions(text, states)
         
+    def FitMarkerSet(self, args, options):
+        """
+        Set Marker from command line
+        """
+        # first argument is marker type name
+        mtype = args[0]
+        # complete markertype if needed
+        mtype = self.MarkerCompleter(mtype)
+        if len(mtype)==0:
+            hdtv.ui.error("Markertpye %s is not valid" %args[0])
+            return
+        # parse position
+        try:
+            pos = float(args[1])
+        except ValueError:
+            hdtv.ui.error("Invalid position argument")
+            return
+        # replace "background" with "bg" which is internally used
+        if mtype[0].strip()=="background": mtype[0]="bg"
+        fit = self.fitIf.workFit
+        getattr(fit, "Put%sMarker" % mtype[0].strip().title())(pos)
+        
+    def FitMarkerDelete(self, args, options):
+        """
+        Set Marker from command line
+        """
+        # first argument is marker type name
+        mtype = args[0]
+        # complete markertype if needed
+        mtype = self.MarkerCompleter(mtype)
+        if len(mtype)==0:
+            hdtv.ui.error("Markertpye %s is not valid" %args[0])
+            return
+        # parse position
+        try:
+            pos = float(args[1])
+        except ValueError:
+            hdtv.ui.error("Invalid position argument")
+            return
+        # replace "background" with "bg" which is internally used
+        if mtype[0].strip()=="background": mtype[0]="bg"
+        fit = self.fitIf.workFit
+        markers = getattr(fit, "%sMarkers" % mtype[0].strip().lower())
+        markers.RemoveNearest(pos)  
+        
+    def MarkerCompleter(self, text, args=None):
+        """
+        Completer for marker names
+        """
+        mtypes = ["background","region", "peak"]
+        return hdtv.cmdhelper.GetCompleteOptions(text, mtypes)
+
+    def FitStore(self, args, options):
+        """
+        Stores work fit
+        """
+        self.fitIf.StoreFit()
+        
+    def FitClear(self, args, options):
+        """
+        Clears work fit
+        """
+        self.fitIf.ClearFit()
+        
     def DoFit(self, args, options):
         """
         Perform a fit
         """
-        
         specIDs = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
         
         if len(specIDs) == 0:
@@ -1131,7 +1222,6 @@ class TvFitInterface:
             for fitID in fitIDs:    
                 self.fitIf.Fit(specID=specID, fitID=fitID, peaks=doPeaks) 
     
-
     def ResetFit(self, args, options):
         """
         Reset fitter of a fit to unfitted default.
