@@ -28,6 +28,7 @@ import glob
 import hdtv.cmdline
 import hdtv.cmdhelper
 import hdtv.fitxml 
+import hdtv.ui
 
 import __main__
 if not hasattr(__main__, "spectra"):
@@ -95,4 +96,4 @@ parser.add_option("-r", "--refit", action = "store_true", default = False,
 hdtv.cmdline.AddCommand("fit read", ReadFitlist, minargs=1, fileargs=True, parser=parser)
 
 
-print "loaded fitlist plugin"
+hdtv.ui.msg("loaded fitlist plugin")
