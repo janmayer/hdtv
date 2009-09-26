@@ -440,10 +440,10 @@ class EffCalHDTVInterface(object):
             
 
 class EnergyCalIf(object):
-    
-    
+    """
+    Interface for energy calibrations
+    """
     def __init__(self, spectra, specIf):
-        
         self.spectra = spectra
         self.specIf = specIf
         
