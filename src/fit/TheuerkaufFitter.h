@@ -139,7 +139,7 @@ class TheuerkaufPeak {
 //! Fitting multiple TheuerkaufPeaks
 class TheuerkaufFitter : public Fitter {
   public:
-    TheuerkaufFitter(double r1, double r2);
+    TheuerkaufFitter(double r1, double r2, bool debugShowInipar=false);
 
     void AddPeak(const TheuerkaufPeak& peak);
     void Fit(TH1& hist, const Background& bg);
@@ -149,14 +149,27 @@ class TheuerkaufFitter : public Fitter {
     inline double GetChisquare() { return fChisquare; }
     inline TF1* GetSumFunc() { return fSumFunc.get(); }
     TF1* GetBgFunc();
-    void Restore(const Background& bg, double ChiSquare);
-    void Restore(int intBgDeg, double ChiSquare);
+    bool Restore(const Background& bg, double ChiSquare);
+    bool Restore(const TArrayD& bgPolValues, const TArrayD& bgPolErrors,  double ChiSquare);
 
   private:
     // Copying the fitter is not supported
     TheuerkaufFitter(const TheuerkaufFitter& src) { }
     TheuerkaufFitter& operator=(const TheuerkaufFitter& src) { return *this; }
-  
+    
+    typedef std::vector<TheuerkaufPeak> PeakVector_t;
+    typedef PeakVector_t::size_type PeakID_t;
+        
+    class CmpPeakPos {
+      public:
+        CmpPeakPos(const PeakVector_t& peaks);
+      
+        inline bool operator()(PeakID_t p1, PeakID_t p2)
+          { return fPos[p1] < fPos[p2]; }
+      private:
+        std::vector<double> fPos;
+    };
+      
     double Eval(double *x, double *p);
     double EvalBg(double *x, double *p);
     void _Fit(TH1& hist);
@@ -170,6 +183,7 @@ class TheuerkaufFitter : public Fitter {
     std::auto_ptr<TF1> fBgFunc;
     int fNumPeaks;
     double fChisquare;
+    bool fDebugShowInipar;
 };
 
 } // end namespace Fit

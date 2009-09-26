@@ -24,16 +24,17 @@
 #-------------------------------------------------------------------------------
 
 import hdtv.options
+import hdtv.ui
 import os
 import pydoc
 import sys
 import signal
 
-class TextInterface(object):
+class TextInterface(hdtv.ui.SimpleUI):
     
     def __init__(self, height = 25, width = 80):
         
-        
+        super(TextInterface, self).__init__()
         # Set options
         self.opt = dict()
         self.opt["ui.pager.cmd"] = hdtv.options.Option(default = "less") # default pager
@@ -45,15 +46,7 @@ class TextInterface(object):
         self._fallback_canvasheight = height
         self._fallback_canvaswidth = width       
         self._updateTerminalSize(None, None)
-                    
-        self.stdout = sys.stdout
-        self.stderr = sys.stderr
-        self.stdin = sys.stdin
-        self.debugout = self.stderr
-        
-        self.linesep = os.linesep
-        
-        self.DEBUG_LEVEL = 0
+
         self.msg("loaded TextInterface")
         signal.signal(signal.SIGWINCH, self._updateTerminalSize)
 
@@ -84,38 +77,7 @@ class TextInterface(object):
 
         if newline:
             self.stdout.write(self.linesep)
-            
-    def warn(self, text, newline = True):
-        """
-        Print warning message
-        """
-        text = "WARNING: " + text
-        self.msg(text, newline = newline)
-    
-    def error(self, text, newline = True):
-        """
-        Print error message
-        """
-        text = "ERROR: " + text
-        self.msg(text, newline = newline)
-    
-    
-    def debug(self, text, level = 1, newline = True):
-      """
-      Debugging output. The higher the level, the more specific is the debug message.
-      """
-      if level > self.DEBUG_LEVEL:
-          return
-      
-      text = "DEBUG: " + text
-      self.debugout.write(text)
-        
-      if newline:
-          self.debugout.write(self.linesep)
-    
-    def newline(self):
-        self.msg("", newline = True)
-     
+ 
     # TODO: Make this work under windows
     def _updateTerminalSize(self, signal, frame):
         def ioctl_GWINSZ(fd):
@@ -144,9 +106,8 @@ class TextInterface(object):
         self.canvaswidth = cr[1]
 
 
+
 # initialization
-import __main__
-if not hasattr(__main__, "ui"):
-    __main__.ui = TextInterface()
+hdtv.ui.ui = TextInterface()
 
     

@@ -45,6 +45,7 @@ import hdtv.plugins.ls
 import hdtv.plugins.run
 import hdtv.plugins.specInterface 
 import hdtv.plugins.fitInterface
+import hdtv.plugins.calibration
 import hdtv.plugins.matrix
 import hdtv.plugins.rootfile
 import hdtv.plugins.config
@@ -52,10 +53,21 @@ import hdtv.plugins.fitlist
 import hdtv.plugins.dblookup
 import hdtv.plugins.peakfinder
 
+# Execute startup.py for user configuration in python
 try:
     import startup
 except ImportError:
-    pass
+    hdtv.ui.msg("No startup.py file")
+
+# Execute startup.hdtv for user configuration in "hdtv" language
+try:
+    startup_hdtv = configpath + os.sep + "startup.hdtv"
+    if os.path.exists(startup_hdtv):
+        hdtv.cmdline.command_line.ExecCmdfile(startup_hdtv)
+    else:
+        hdtv.ui.msg("No startup.hdtv file")
+except IOError, msg:
+    hdtv.ui.msg("Error reading %s: %s" % (startup_hdtv, msg))
     
 hdtv.ui.newline()
 hdtv.ui.msg("=========================================================")
@@ -69,3 +81,5 @@ hdtv.ui.msg("=========================================================")
 hdtv.ui.newline()
 # Go
 hdtv.cmdline.MainLoop()
+hdtv.cmdline.command_tree.SetDefaultLevel(1)
+

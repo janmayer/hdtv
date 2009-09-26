@@ -33,14 +33,7 @@ def GetCompleteOptions(begin, options):
     return [o + " " for o in options if o[0:l] == begin]
     
 
-# TODO: Maybe we should unite and ParseFitIds and ParseIds
-def ParseFitIds(strings, spec):
-    """
-    Parse fit IDs
-    """
-    return ParseIds(strings, spec)
-
-def ParseIds(strings, spec, only_existent=True):
+def ParseIds(strings, drawable, only_existent=True):
     """
     Parse Spectrum/Fit Ids
     
@@ -53,12 +46,11 @@ def ParseIds(strings, spec, only_existent=True):
     
     special = ["ALL","NONE","ACTIVE","VISIBLE", "NEXT", "PREV", "FIRST", "LAST"]
     # parse the arguments
-#    try:
-    # TODO: we should throw HDTV exception here
-    ids = ParseRange(strings, special)
-#    except ValueError, msg:
-#        print msg
-#        return list()
+    try:
+        ids = ParseRange(strings, special)
+    except ValueError:
+        hdtv.ui.error("Invalid IDs.")
+        return list()
 
     # processing different cases
     if ids=="NONE":
@@ -68,19 +60,19 @@ def ParseIds(strings, spec, only_existent=True):
 #            hdtv.ui.warn("There is no active fit.")
 #            return list()
     elif ids == "NEXT":
-        ids = [spec.nextID]
+        ids = [drawable.nextID]
     elif ids == "PREV":
-        ids = [spec.prevID]
+        ids = [drawable.prevID]
     elif ids == "FIRST":
-        ids = [spec.firstID]
+        ids = [drawable.firstID]
     elif ids == "LAST":
-        ids = [spec.lastID]
+        ids = [drawable.lastID]
     elif ids == "ACTIVE" or len(ids) == 0:
-        ids = [spec.activeID]
+        ids = [drawable.activeID]
     elif ids=="ALL":
-        ids = spec.keys()
+        ids = drawable.keys()
     elif ids=="VISIBLE":
-        ids = list(spec.visible)
+        ids = list(drawable.visible)
         
     fits = list()
     # filter non-existing ids
@@ -88,7 +80,7 @@ def ParseIds(strings, spec, only_existent=True):
     if only_existent:
         for ID in ids:
             if ID is None: continue
-            if not ID in spec.keys():
+            if not ID in drawable.keys():
                 hdtv.ui.warn("Non-existent id %s" %ID)
             else:
                 valid_ids.append(ID)

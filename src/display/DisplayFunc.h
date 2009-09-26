@@ -41,11 +41,10 @@ class DisplayFunc : public DisplayBlock {
   	inline double GetMinCh(void) { double min, max; fFunc->GetRange(min, max); return min; }
     inline double GetMaxCh(void) { double min, max; fFunc->GetRange(min, max); return max; }
     
-    // HDTV::Display:: required for CINT
-    virtual std::list<HDTV::Display::DisplayObj *>& GetList(DisplayStack *stack);
-    
     virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter)
       { if(IsVisible()) painter.DrawFunction(this, x1, x2); }
+      
+    virtual int GetZIndex() { return Z_INDEX_FUNC; }
   	
   private:
   	TF1 *fFunc;

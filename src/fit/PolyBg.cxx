@@ -139,9 +139,9 @@ bool PolyBg::Restore(const TArrayD& values, const TArrayD& errors, double ChiSqu
     //! NOTE: The covariance matrix is currently NOT restored, so EvalError()
     //! will always return NaN.
     
-    if( (values.GetSize() != static_cast<unsigned int>(fBgDeg+1)) || (errors.GetSize() != static_cast<unsigned int>(fBgDeg+1)) ) {
-         Warning("HDTV::PolyBg::Restore", "size of vector does not match degree of background.");
-         return false;
+    if( values.GetSize() != fBgDeg+1 || errors.GetSize() != fBgDeg+1 ) {
+        Warning("HDTV::PolyBg::Restore", "size of vector does not match degree of background.");
+        return false;
     }
 
     // Copy parameters to new function

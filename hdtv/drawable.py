@@ -28,18 +28,31 @@ import hdtv.color
 import hdtv.dlmgr
 import hdtv.ui
 
+from hdtv.util import Child
+
 hdtv.dlmgr.LoadLibrary("display")
 
-class Drawable(object):
-    def __init__(self, color=None, cal=None):
+class Drawable(Child):
+    def __init__(self, color=None, cal=None, parent=None):
         self.viewport = None
-        self.parent = None
         self.displayObj = None
         self.cal = cal
         self.color = color 
+        Child.__init__(self, parent = parent)
 
+        
     def __str__(self):
         return str(self.displayObj)
+     
+    @property
+    def ID(self):
+        """
+        Return ID of object in parent compound
+        """
+        try:
+            return self.parent.Index(self)
+        except AttributeError:
+            return None
 
     # cal property
     def _set_cal(self, cal):
@@ -80,6 +93,7 @@ class Drawable(object):
         if self.parent.active:
             try:
                 # ask the parent for a decision
+                # TODO: Not all parents are Drawables! -> GetActiveObject() is not always present
                 return (self.parent.GetActiveObject() is self)
             except AttributeError:
                 # otherwise all objects of that parent are active
@@ -102,19 +116,7 @@ class Drawable(object):
         Refresh the objects data 
         """
         pass
-        
 
-    def Remove(self):
-        """
-        Remove the object 
-        """
-        if not self.viewport:
-            return
-        if self.displayObj:
-            self.displayObj.Remove()
-        self.displayObj = None
-        # finally remove the viewport from this object
-        self.viewport = None
 
     def Show(self):
         """
@@ -163,19 +165,22 @@ class Drawable(object):
                 pass
 
 
-class DrawableCompound(dict):
+class DrawableCompound(dict, Child):
     """
     This class is a prototype of a collection of drawable objects. 
     It provides some handy functions to manage such an collection.
     """
     def __init__(self):
         dict.__init__(self)
-        self.parent = None
         self.viewport = None
         self.visible = set()
         self._activeID = None
         self._iteratorID = self.activeID # This should keep track of ID for nextID, prevID
-   
+        Child.__init__(self, parent=None)
+
+    def __del__(self):
+        self.RemoveAll()
+    
     # active property
     @property
     def active(self):
@@ -196,7 +201,8 @@ class DrawableCompound(dict):
     def _set_activeID(self, ID):
         self._activeID = ID
         hdtv.ui.debug("hdtv.drawable._set_activeID: Resetting iterator to %s" % self._activeID, level=6)
-        self._iteratorID = self._activeID # Reset iterator
+        if self._activeID is not None:
+            self._iteratorID = self._activeID # Reset iterator
         
     def _get_activeID(self):
         return self._activeID
@@ -351,27 +357,31 @@ class DrawableCompound(dict):
         else:
             return index[0]
 
-    def Add(self, obj):
+    def Add(self, obj, ID=None):
         """
-        Adds an object to the first free index (this also calls draw for the object)
-        """
-        ID = self.GetFreeID()
-        hdtv.ui.debug("hdtv.drawable.DrawableCompound.Add(): setting _iteratorID to %d" % ID)
-        self[ID] = obj
-        if self.viewport:
-            obj.Draw(self.viewport)
-            self.visible.add(ID)
-        return ID
+        If ID is None: Adds an object to the first free index
+        Else inserts an object into the index at id ID, possibly removing an object
+        which was there before. 
         
-    def Insert(self, obj, ID):
+        This also calls draw for the object.
         """
-        Inserts an object into the index at id ID, possibly removing an object
-        which was there before. (This also calls draw for the object.)
-        """
+        if ID is None:
+            ID = self.GetFreeID()
+        
+        hdtv.ui.debug("hdtv.drawable.DrawableCompound.Add(): setting _iteratorID to %d" % ID)
+        
         if ID in self.keys():
             self.RemoveObjects([ID])
         
         self[ID] = obj
+                
+        try:
+            obj.title = str(ID)
+        except AttributeError:
+            pass
+
+        obj.parent = self
+        
         if self.viewport:
             obj.Draw(self.viewport)
             self.visible.add(ID)
@@ -466,14 +476,7 @@ class DrawableCompound(dict):
             self[ID].Draw(self.viewport)
             self.visible.add(ID)
         self.viewport.UnlockUpdate()
-    
-    # Remove commands
-    def Remove(self):
-        """
-        Remove 
-        """
-        return self.RemoveAll()
-        
+       
         
     def RemoveAll(self):
         """
@@ -494,7 +497,8 @@ class DrawableCompound(dict):
             try:
                 if ID == self._iteratorID:
                     self._iteratorID = self.prevID 
-                self.pop(ID).Remove()
+                obj =  self.pop(ID)
+                obj.parent = None
             except KeyError:
                 hdtv.ui.warn("Warning: ID %s not found." % str(ID))
         if self.viewport:
@@ -565,6 +569,8 @@ class DrawableCompound(dict):
         for ID in ids:
             if ID in self.visible:
                 try:
+                    if ID == self.activeID: # Deactivate object when hidden
+                        self.ActivateObject(None)
                     self[ID].Hide()
                     self.visible.discard(ID)
                 except KeyError:
@@ -600,7 +606,11 @@ class DrawableCompound(dict):
         if isinstance(ids, int):
             ids = [ids]
         if clear:
-            self.HideAll()
+            # hide all other objects except in ids
+            # do not use HideAll, because if the active objects is among 
+            # the objects that should be shown, its state would be lost
+            others = set(self.keys())-set(ids)
+            self.HideObjects(others)
         for ID in ids:
             try:
                 self[ID].Show()
@@ -620,6 +630,8 @@ class DrawableCompound(dict):
         """
         if self.viewport is None: return False
         xdim = self[ID].xdimensions
+        if xdim is None: # Object has no dimensions
+            return True
         # get viewport limits
         viewport_start = self.viewport.GetOffset()
         viewport_end = viewport_start + self.viewport.GetXVisibleRegion()
@@ -646,19 +658,21 @@ class DrawableCompound(dict):
         xdimensions = ()
         # Get dimensions of objects
         for ID in ids:
-            xdimensions += self[ID].xdimensions
+            if self[ID].xdimensions is not None:
+                xdimensions += self[ID].xdimensions
             if ID not in self.visible:
                 self[ID].Show()
         self._iteratorID = min(ids)
-        # calulate 
-        view_width = max(xdimensions) - min(xdimensions)
-        view_width *= 1.2
-        if view_width < 50.:
-            view_width = 50. # TODO: make this configurable
-        view_center = (max(xdimensions) + min(xdimensions)) / 2.
-        # change viewport
-        self.viewport.SetXVisibleRegion(view_width)
-        self.viewport.SetXCenter(view_center)
+        # calulate
+        if len(xdimensions) > 0: 
+            view_width = max(xdimensions) - min(xdimensions)
+            view_width *= 1.2
+            if view_width < 50.:
+                view_width = 50. # TODO: make this configurable
+            view_center = (max(xdimensions) + min(xdimensions)) / 2.
+            # change viewport
+            self.viewport.SetXVisibleRegion(view_width)
+            self.viewport.SetXCenter(view_center)
     
     
     def FocusObject(self, ID=None):

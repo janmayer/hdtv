@@ -136,7 +136,7 @@ class Painter {
   void ClearTopXScale();
   void ClearBottomXScale();
   void DrawYScale();
-  void DrawIDList(std::list<DisplayObj *> objects);
+  void DrawIDList(const std::list<DisplayObj *>& objects);
   
   //ClassDef(Painter, 1)
 

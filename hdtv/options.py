@@ -116,5 +116,17 @@ def Str():
     for (k,v) in variables.iteritems():
         string += "%s: %s\n" % (k, str(v))
     return string
+
+def ParseBool(x):
+    """
+    Parse boolean options
+    """
+    if x.lower() == "true":
+        return True
+    elif x.lower() == "false":
+        return False
+    else:
+        raise ValueError
+
     
 variables = dict()

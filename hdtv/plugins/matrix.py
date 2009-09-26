@@ -37,6 +37,9 @@ class CutSpectrum(hdtv.spectrum.Spectrum):
     def __init__(self, hist, matrix, color=None, cal=None):
         self.matrix = matrix
         hdtv.spectrum.Spectrum.__init__(self, hist, color, cal)
+        
+    def GetTypeStr(self):
+        return "cut spectrum (gated projection)"
 
 class Matrix(hdtv.spectrum.Spectrum):
     def __init__(self, proj, title, color, cal):
@@ -45,12 +48,15 @@ class Matrix(hdtv.spectrum.Spectrum):
         self.title = title
         hdtv.spectrum.Spectrum.__init__(self, proj, color, cal)
         
+    def GetTypeStr(self):
+        return "cut-axis projection of matrix"
+        
     def E2CutBin(self, e):
         if self.cal:
             ch = self.cal.E2Ch(e)
         else:
             ch = e
-
+        
         return self.vmat.FindCutBin(ch)
         
     def AddCutRegion(self, e1, e2):
@@ -93,7 +99,7 @@ class MFMatrix(Matrix):
         if result != ROOT.MFileHist.ERR_SUCCESS:
             raise SpecReaderError, mhist.GetErrorMsg()
 
-        self.vmat = ROOT.VMatrix(self.mhist, 0)
+        self.vmat = ROOT.MFMatrix(self.mhist, 0)
         
         # Load the projection (FIXME)
         mhist_pry = ROOT.MFileHist()
@@ -203,14 +209,14 @@ class MatrixInterface:
         matrix.ResetRegions()
         
         for region in self.CutRegionMarkers:
-            matrix.AddCutRegion(region.p1, region.p2)
+            matrix.AddCutRegion(region.p1.pos_cal, region.p2.pos_cal)
             
         for bg in self.CutBgMarkers:
-            matrix.AddBgRegion(bg.p1, bg.p2)
+            matrix.AddBgRegion(bg.p1.pos_cal, bg.p2.pos_cal)
             
         cut = matrix.Cut()
         cutid = self.spectra.Add(cut)
-        cut.SetColor(hdtv.color.ColorForID(cutid))
+        cut.color = hdtv.color.ColorForID(cutid)
         self.spectra.ActivateObject(cutid)
         
         # Remove cut markers
@@ -235,13 +241,13 @@ class MatrixInterface:
 
         try:
             fname = os.path.expanduser(fname)
-            spec = Matrix(fname, fmt)
+            spec = MFMatrix(fname, fmt)
         except (OSError, SpecReaderError):
             print "Error: failed to open matrix %s" % args[0]
             return False
         
         sid = self.spectra.Add(spec)
-        spec.SetColor(hdtv.color.ColorForID(sid))
+        spec.color = hdtv.color.ColorForID(sid)
         self.spectra.ActivateObject(sid)
         self.window.Expand()
         

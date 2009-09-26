@@ -70,10 +70,9 @@ class Marker: public DisplayObj {
       Update();
     };
     inline const std::string& GetTitle() const { return fTitle; }
+    
+    virtual int GetZIndex() { return Z_INDEX_MARKER; }
 
-    // HDTV::Display:: required for CINT
-    virtual std::list<HDTV::Display::DisplayObj *>& GetList(DisplayStack *stack);
-  
   protected:
     void InitGC(int col);
     void FreeGC();

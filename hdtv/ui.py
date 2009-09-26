@@ -23,47 +23,85 @@
 # Basic user interface functions (Input/Output, etc)
 #-------------------------------------------------------------------------------
 
-import __main__
+import sys
+import os
 
+DEBUG_LEVEL = 0
+
+class SimpleUI(object):
+    """
+    Very simple UserInterface
+    """
+
+    def __init__(self):
+#        
+        self.stdout = sys.stdout
+        self.stderr = sys.stderr
+        self.stdin = sys.stdin
+        self.debugout = self.stderr
+
+        self.linesep = os.linesep
+    
+    def msg(self, text, newline = True):
+
+        self.stdout.write(text)
+        
+        if newline:
+            self.stdout.write(self.linesep)
+    
+    def warn(self, text, newline = True):
+        """
+        Print warning message
+        """
+        text = "WARNING: " + text
+        self.stderr.write(text)
+        
+        if newline:
+            self.stderr.write(self.linesep)
+    
+    def error(self, text, newline = True):
+        """
+        Print error message
+        """
+        text = "ERROR: " + text
+        self.stderr.write(text)
+        
+        if newline:
+            self.stderr.write(self.linesep)
+  
+        
+    def debug(self, text, level = 1, newline = True):
+          """
+          Debugging output. The higher the level, the more specific is the debug message.
+          """
+          
+          text = "DEBUG: " + text
+          self.debugout.write(text)
+            
+          if newline:
+              self.debugout.write(self.linesep)
+        
+    def newline(self):
+            self.msg("", newline = True)
+
+
+### Initialization
+ui = SimpleUI()
 def msg(text, newline = True):
-    """
-    Print a message
-    
-    newline: Append newline
-    """
-    __main__.ui.msg(text, newline = newline)
-    
+    ui.msg(text, newline = newline)
+
 def warn(text, newline = True):
-    """
-    Print a warning message
-    """
-    __main__.ui.warn(text, newline = newline)
-    
-    
+    ui.warn(text, newline = newline)
+
 def error(text, newline = True):
-    """
-    Print a error message
-    """
-    __main__.ui.error(text, newline = newline)
-    
+    ui.error(text, newline = newline)
+
 def debug(text, level = 1, newline = True):
-    """
-    Print debug messages
-    """
-    __main__.ui.debug(text, level = level, newline = newline)
-    
-def debug_level(level = 0):
-    """
-    Set debug level
-    """
-    __main__.ui.DEBUG_LEVEL = level
-    
+    if level > DEBUG_LEVEL:
+        return
+    else:
+        ui.debug(text, level = level, newline = newline)
+
 def newline():
-    """
-    Insert newline
-    """
-    __main__.ui.newline()
-    
-# Line seperator
-linesep = __main__.ui.linesep
+    ui.newline()
 

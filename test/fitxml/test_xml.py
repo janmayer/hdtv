@@ -41,10 +41,9 @@ print "case 0: all parameter free, just one peak, no background, theuerkauf mode
 print "-------------------------------------------------------------------------"
 __main__.f.SetPeakModel("theuerkauf", default=True)
 __main__.f.ResetParameters(default=True)
-fit = __main__.f.GetActiveFit()
-fit.PutRegionMarker(1450)
-fit.PutRegionMarker(1470)
-fit.PutPeakMarker(1460)
+__main__.f.workFit.PutRegionMarker(1450)
+__main__.f.workFit.PutRegionMarker(1470)
+__main__.f.workFit.PutPeakMarker(1460)
 __main__.f.Fit()
 __main__.window.GoToPosition(1460)
 
@@ -54,7 +53,7 @@ __main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
-__main__.spectra[0].RemoveObjects(spectra[0].keys())
+__main__.spectra[0].fits.RemoveAll()
 print 'Reading fits from file %s' %testXML
 __main__.fitxml.ReadFitlist(testXML)
 
@@ -63,14 +62,14 @@ raw_input("Press enter to continue")
 print "-------------------------------------------------------------------------"
 print "case 1: all parameter free, just one peak, background"
 print "-------------------------------------------------------------------------"
-fit = __main__.f.GetActiveFit()
-fit.PutRegionMarker(500)
-fit.PutRegionMarker(520)
-fit.PutPeakMarker(511)
-fit.PutBgMarker(480)
-fit.PutBgMarker(490)
-fit.PutBgMarker(530)
-fit.PutBgMarker(540)
+fit = __main__.f.workFit
+__main__.f.workFit.PutRegionMarker(500)
+__main__.f.workFit.PutRegionMarker(520)
+__main__.f.workFit.PutPeakMarker(511)
+__main__.f.workFit.PutBgMarker(480)
+__main__.f.workFit.PutBgMarker(490)
+__main__.f.workFit.PutBgMarker(530)
+__main__.f.workFit.PutBgMarker(540)
 __main__.f.Fit()
 __main__.window.GoToPosition(511)
 
@@ -80,7 +79,7 @@ __main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
-__main__.spectra[0].RemoveAll()
+__main__.spectra[0].fits.RemoveAll()
 print 'Reading fits from file %s' %testXML
 __main__.fitxml.ReadFitlist(testXML)
 
@@ -89,15 +88,14 @@ raw_input("Press enter to continue")
 print "-------------------------------------------------------------------------"
 print "case 1: all parameter free, more than one peak"
 print "-------------------------------------------------------------------------"
-fit = __main__.f.GetActiveFit()
-fit.PutRegionMarker(1395)
-fit.PutRegionMarker(1415)
-fit.PutPeakMarker(1400)
-fit.PutPeakMarker(1410)
-fit.PutBgMarker(1350)
-fit.PutBgMarker(1355)
-fit.PutBgMarker(1420)
-fit.PutBgMarker(1425)
+__main__.f.workFit.PutRegionMarker(1395)
+__main__.f.workFit.PutRegionMarker(1415)
+__main__.f.workFit.PutPeakMarker(1400)
+__main__.f.workFit.PutPeakMarker(1410)
+__main__.f.workFit.PutBgMarker(1350)
+__main__.f.workFit.PutBgMarker(1355)
+__main__.f.workFit.PutBgMarker(1420)
+__main__.f.workFit.PutBgMarker(1425)
 __main__.f.Fit()
 __main__.window.GoToPosition(1405)
 
@@ -107,7 +105,7 @@ __main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
-__main__.spectra[0].RemoveAll()
+__main__.spectra[0].fits.RemoveAll()
 print 'Reading fits from file %s' %testXML
 __main__.fitxml.ReadFitlist(testXML)
 
@@ -116,15 +114,14 @@ raw_input("Press enter to continue")
 print "-------------------------------------------------------------------------"
 print "case 3: one parameter status!=free, but equal for all peaks"
 print "-------------------------------------------------------------------------"
-fit = __main__.f.GetActiveFit()
-fit.PutRegionMarker(960)
-fit.PutRegionMarker(975)
-fit.PutPeakMarker(965)
-fit.PutPeakMarker(970)
-fit.PutBgMarker(950)
-fit.PutBgMarker(955)
-fit.PutBgMarker(980)
-fit.PutBgMarker(985)
+__main__.f.workFit.PutRegionMarker(960)
+__main__.f.workFit.PutRegionMarker(975)
+__main__.f.workFit.PutPeakMarker(965)
+__main__.f.workFit.PutPeakMarker(970)
+__main__.f.workFit.PutBgMarker(950)
+__main__.f.workFit.PutBgMarker(955)
+__main__.f.workFit.PutBgMarker(980)
+__main__.f.workFit.PutBgMarker(985)
 __main__.f.SetParameter("pos", "hold")
 __main__.f.Fit()
 __main__.window.GoToPosition(970)
@@ -135,7 +132,7 @@ __main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
-__main__.spectra[0].RemoveAll()
+__main__.spectra[0].fits.RemoveAll()
 print 'Reading fits from file %s' %testXML
 __main__.fitxml.ReadFitlist(testXML)
 
@@ -144,15 +141,14 @@ raw_input("Press enter to continue")
 print "-------------------------------------------------------------------------"
 print "case 4: different parameter status for each peak"
 print "-------------------------------------------------------------------------"
-fit = __main__.f.GetActiveFit()
-fit.PutRegionMarker(1750)
-fit.PutRegionMarker(1780)
-fit.PutPeakMarker(1765)
-fit.PutPeakMarker(1770)
-fit.PutBgMarker(1700)
-fit.PutBgMarker(1710)
-fit.PutBgMarker(1800)
-fit.PutBgMarker(1810)
+__main__.f.workFit.PutRegionMarker(1750)
+__main__.f.workFit.PutRegionMarker(1780)
+__main__.f.workFit.PutPeakMarker(1765)
+__main__.f.workFit.PutPeakMarker(1770)
+__main__.f.workFit.PutBgMarker(1700)
+__main__.f.workFit.PutBgMarker(1710)
+__main__.f.workFit.PutBgMarker(1800)
+__main__.f.workFit.PutBgMarker(1810)
 __main__.f.Fit()
 __main__.window.GoToPosition(1770)
 
@@ -162,7 +158,7 @@ __main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
-__main__.spectra[0].RemoveAll()
+__main__.spectra[0].fits.RemoveAll()
 print 'Reading fits from file %s' %testXML
 __main__.fitxml.ReadFitlist(testXML)
 
@@ -172,10 +168,9 @@ print "-------------------------------------------------------------------------
 print "case 5: ee peak (just proof of concept, not a thorough test)"
 print "-------------------------------------------------------------------------"
 __main__.f.SetPeakModel("ee")
-fit = __main__.f.GetActiveFit()
-fit.PutRegionMarker(1115)
-fit.PutRegionMarker(1125)
-fit.PutPeakMarker(1120)
+__main__.f.workFit.PutRegionMarker(1115)
+__main__.f.workFit.PutRegionMarker(1125)
+__main__.f.workFit.PutPeakMarker(1120)
 __main__.f.Fit()
 __main__.window.GoToPosition(1120)
 
@@ -185,7 +180,7 @@ __main__.f.StoreFit()
 print 'Saving fits to file %s' % testXML
 __main__.fitxml.WriteFitlist(testXML)
 print 'Deleting all fits'
-__main__.spectra[0].RemoveAll()
+__main__.spectra[0].fits.RemoveAll()
 print 'Reading fits from file %s' %testXML
 __main__.fitxml.ReadFitlist(testXML)
 

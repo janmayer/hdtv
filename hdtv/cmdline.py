@@ -35,6 +35,7 @@ import hdtv.util
 
 import readline
 import ROOT
+import __main__
 
 class HDTVCommandError(Exception):
     pass
@@ -52,7 +53,7 @@ class HDTVOptionParser(optparse.OptionParser):
         else:
             raise HDTVCommandError, msg
     
-class HDTVCommandTreeNode:
+class HDTVCommandTreeNode(object):
     def __init__(self, parent, title, level):
         self.parent = parent
         self.title = title
@@ -154,9 +155,11 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                 for child in node.childs:
                     if child.title == elem:
                         next = child
+                        if next.level > level:
+                            next.level = level
                         break
                 if not next:
-                    next = HDTVCommandTreeNode(node, elem, self.default_level)
+                    next = HDTVCommandTreeNode(node, elem, level)
                 node = next
                 
         # Check to see if the node we are trying to add already exists; if it
@@ -369,7 +372,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         
         return options
             
-class CommandLine:
+class CommandLine(object):
     """
     Class implementing the HDTV command line, including switching between
     command and Python mode.
@@ -377,12 +380,14 @@ class CommandLine:
     def __init__(self, command_tree, python_completer=None):
         self.fCommandTree = command_tree
         self.fPythonCompleter = python_completer or (lambda: None)
-        self.fInteractiveLocals = dict()
         
         self.fReadlineHistory = None
         self.fReadlineExitHandler = False
         
-        self._py_console = None
+        self._py_console = code.InteractiveConsole(__main__.__dict__)
+
+        self.fPyMode = False
+        self.fPyMore = False
         
     def ReadReadlineInit(self, filename):
         if os.path.isfile(filename):
@@ -407,7 +412,7 @@ class CommandLine:
             sys.exit(1)
             
     def RegisterInteractive(self, name, ref):
-        self.fInteractiveLocals[name] = ref
+        __main__.__dict__[name] = ref
         
     def Unescape(self, s):
         "Recognize special command prefixes"
@@ -505,14 +510,14 @@ class CommandLine:
         """
         Execute a command file with hdtv commands (aka batch file)
         """
-        print "Execute file: " + fname
+        hdtv.ui.msg("Execute file: " + fname)
         
         file = hdtv.util.TxtFile(fname)
         file.read()
         for line in file.lines:
             print "file>", line
             self.DoLine(line)
-            if self.fPyMore: # TODO: HACK: How should I teach this micky mouse language a python statement (e.g. "for ...:" has ended???
+            if self.fPyMore: # TODO: HACK: How should I teach this micky mouse language that a python statement (e.g. "for ...:") has ended???
                 self.fPyMore = self._py_console.push("")
     
     def ExecShell(self, cmd):
@@ -546,8 +551,6 @@ class CommandLine:
     
     def MainLoop(self):
         self.fKeepRunning = True
-        
-        self._py_console = self._py_console = code.InteractiveConsole(self.fInteractiveLocals)
 
         self.fPyMode = False
         self.fPyMore = False

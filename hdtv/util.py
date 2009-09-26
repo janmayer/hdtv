@@ -23,7 +23,7 @@ import math
 import re
 import os
 import glob
-
+import weakref
 
 def Median(values):
     """
@@ -55,6 +55,10 @@ class ErrValue:
             tmp = self._fromString(value)
             self.value = tmp[0]
             self.error = tmp[1]
+        # Instantiate ErrValue from another ErrValue 
+        elif isinstance(value, ErrValue):
+            self.value = value.value
+            self.error = value.error
         else:
             try:
                 self.error = abs(error) # Errors are always positive
@@ -382,6 +386,12 @@ class TxtFile(object):
         self.fd = None
         
     def read(self, verbose = False):
+        """
+        Read text file to self.lines
+        
+        Comments are stripped and lines seperated by '\' are automatically
+        concatenated
+        """
         try:
             self.fd = open(self.filename, self.mode)
             prev_line = ""
@@ -395,27 +405,41 @@ class TxtFile(object):
                         line = prev_line + " " + line
                     prev_line = ""
                 if verbose:
-                    print "file>", line
+                    hdtv.ui.msg("file> " + str(line))
                 
                 # Strip comments 
                 line = line.split("#")[0] 
-                if line == "":
+                if line.strip() == "":
                     continue
                 self.lines.append(line)
                 
         except IOError, msg:
-            print "Error opening file:", msg
+            raise IOError, "Error opening file:" + str(msg) 
         except: # Let MainLoop handle other exceptions
             raise
         finally:
             if not self.fd is None:
                 self.fd.close()
                 
-    def write(self, line):
+    def write(self):
         """
-        TODO
+        Write lines stored in self.lines to text file
+        
+        Newlines are automatically appended if necessary
         """
-        pass
+        try:
+            self.fd = open(self.filename, self.mode)
+            for line in self.lines:
+                line.rstrip('\r\n ')
+                line += os.linesep
+                self.fd.write(line)
+        except IOError, msg:
+            raise IOError, ("Error opening file: %s" % msg)
+        except:
+            raise
+        finally:
+            if not self.fd is None:
+                self.fd.close()
     
 class Pairs(list):
     """
@@ -438,18 +462,30 @@ class Pairs(list):
         """
         pass
         
-    def fromFile(self, fname):
+    def fromFile(self, fname, sep = None):
         """
         Read pairs from file
         """    
         file = TxtFile(fname)
         file.read()
         for line in file.lines:
-            pair = line.split()
+            pair = line.split(sep)
             try:
                 self.add(pair[0], pair[1])
-            except ValueError:
+            except (ValueError, IndexError):
                 print "Invalid Line in", fname, ":", line
+                
+    def fromLists(self, list1, list2):
+        """
+        Create pairs from to lists by assigning corresponding indices
+        """
+        if len(list1) != len(list2):
+            hdtv.ui.error("Lists for Pairs.fromLists() are of different length")
+            return False
+        
+        for i in range(0, len(list1)):
+            self.add(list1[i], list2[i])
+        
         
 class Table(object):
     """
@@ -572,5 +608,134 @@ class Table(object):
             
         return text
 
-     
+
+class Child(object):
+    """
+    Class for handling parent objects
+    """
+    def __init__(self, parent = None):
+        if parent is not None:
+            # self.__parent *must* never be a strong reference (see below)
+            self.__parent = weakref.proxy(parent)
+        else:
+            self.__parent = None
+        
+    # parent handling
+    def _set_parent(self, parent):
+        # Use weakref here, because strong references would create "cylic references"
+        # which breaks correct garbage collection
+        if parent is None:
+            self.__parent = None
+        else:
+            self.__parent = weakref.proxy(parent)
+        
+    def _get_parent(self):
+        return self.__parent
+    
+    parent = property(_get_parent, _set_parent)
+    
+    
+
+class Position(Child):
+    """
+    Class for storing postions that may be fixed in calibrated or uncalibrated space
+    
+    if self.pos_cal is set the position is fixed in calibrated space. 
+    if self.pos_uncal is set the position is fixed in uncalibrated space.
+    """
+    def __init__(self, pos_uncal = None, pos_cal = None, parent = None, cal = None):
+        
+        Child.__init__(self, parent = parent)
+        self.cal = cal
+
+        if pos_cal is not None:
+            self._pos_cal = pos_cal
+            self._pos_uncal = None
+        else:
+            self._pos_cal = None
+            self._pos_uncal = pos_uncal 
+        
+    def __str__(self):
+        text = str()
+        if self._pos_cal is not None:
+            text += "Cal: %s" % self.pos_cal
+        if self._pos_uncal is not None:
+            text += "Uncal: %s" % self.pos_uncal
+        return text
+    
+    def GetPosInCal(self):
+        if self._pos_cal is None:
+            return self._Ch2E(self._pos_uncal)
+        else:
+            return self._pos_cal
+    
+    def GetPosInUncal(self):
+        if self._pos_uncal is None:
+            return self._E2Ch(self._pos_cal)
+        else:
+            return self._pos_uncal
+        
+    def _Ch2E(self, Ch):
+        if self.cal is None:
+            try:
+                E = self.parent.cal.Ch2E(Ch)
+            except AttributeError:
+                E = None
+        else:
+            E = self.cal.Ch2E(Ch)
+        return E
+    
+    def _E2Ch(self, E):
+        if self.cal is None:
+            try:
+                Ch = self.parent.cal.E2Ch(E)
+            except AttributeError:
+                Ch = None
+        else:
+            Ch = self.cal.E2Ch(E)
+        return Ch
+        
+    def _set_pos_cal(self, pos):
+        
+        if self._pos_uncal is not None:
+            raise TypeError, "Position is fixed in uncalibrated space"
+            return
+        
+        self._pos_cal = pos
+        
+    def _get_pos_cal(self):
+        return self._pos_cal
+        
+    pos_cal = property(_get_pos_cal, _set_pos_cal)
+    
+    
+    def _set_pos_uncal(self, pos):
+
+        if self._pos_cal is not None:
+            raise TypeError, "Position is fixed in calibrated space"
+            return
+        
+        self._pos_uncal = pos
+
+
+    def _get_pos_uncal(self):
+        return self._pos_uncal  
+    
+    pos_uncal = property(_get_pos_uncal, _set_pos_uncal)
+
+    def FixCal(self):
+        """
+        Fix position in calibrated space
+        """
+        if self._pos_cal is None:
+            self._pos_cal = self._Ch2E(self._pos_uncal)
+            self._pos_uncal = None
+         
+    def FixUncal(self):
+        """
+        Fix position in uncalibrated space
+        """
+        if self._pos_uncal is None:
+            self._pos_uncal = self._E2Ch(self.pos_cal)
+            self._pos_cal = None
 
