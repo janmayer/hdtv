@@ -21,6 +21,7 @@
 
 
 import hdtv.ui
+import hdtv.cmdline
 
 def Indent(s, indent=" "):
     """
@@ -32,7 +33,6 @@ def GetCompleteOptions(begin, options):
     l = len(begin)
     return [o + " " for o in options if o[0:l] == begin]
     
-
 def ParseIds(strings, drawable, only_existent=True):
     """
     Parse Spectrum/Fit Ids
@@ -50,7 +50,7 @@ def ParseIds(strings, drawable, only_existent=True):
         ids = ParseRange(strings, special)
     except ValueError:
         hdtv.ui.error("Invalid IDs.")
-        return list()
+        raise hdtv.cmdline.HDTVCommandError
 
     # processing different cases
     if ids=="NONE":

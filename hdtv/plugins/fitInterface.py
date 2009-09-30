@@ -875,27 +875,6 @@ class TvFitInterface:
                                 completer = self.PeakModelCompleter,
                                 parser = parser, minargs = 1)
 
-        # TODO: move to calibration plugin
-        # calibration command
-        prog = "calibration position assign"
-        description = "Calibrate the active spectrum by asigning energies to fitted peaks. "
-        description += "peaks are specified by their index and the peak number within the peak "
-        description += "(if number is ommitted the first (and only?) peak is taken)."
-        usage = "%prog [OPTIONS] <id0> <E0> [<od1> <E1> ...]"
-        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spec", action = "store", default = "all",
-                        help = "spectrum ids to apply calibration to")
-        parser.add_option("-d", "--degree", action = "store", default = "1",
-                        help = "degree of calibration polynomial fitted [default: %default]")
-        parser.add_option("-f", "--show-fit", action = "store_true", default = False,
-                        help = "show fit used to obtain calibration")
-        parser.add_option("-r", "--show-residual", action = "store_true", default = False,
-                        help = "show residual of calibration fit")
-        parser.add_option("-t", "--show-table", action = "store_true", default = False,
-                        help = "print table of energies given and energies obtained from fit")
-        hdtv.cmdline.AddCommand("calibration position assign", self.CalPosAssign,
-                                parser = parser, minargs = 2)
-
     def FitList(self, args, options):
         """
         Print a list of all fits belonging a spectrum
@@ -1242,62 +1221,6 @@ class TvFitInterface:
             
             for fitID in fitIDs:    
                 self.fitIf.FitReset(specID=specID, fitID=fitID, resetFitter=not options.keep_fitter) 
-
-# FIXME: move to calibration plugin
-    def CalPosAssign(self, args, options):
-        """ 
-        Calibrate the active spectrum by assigning energies to fitted peaks
-
-        Peaks are specified by their id and the peak number within the peak.
-        Syntax: id.number
-        If no number is given, the first peak in the fit is used.
-        """
-        if self.spectra.activeID == None:
-            hdtv.ui.warn("No active spectrum, no action taken.")
-            return False
-        spec = self.spectra[self.spectra.activeID] 
-        try:
-            if len(args) % 2 != 0:
-                hdtv.ui.error("Number of parameters must be even")
-                return "USAGE"
-            sids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
-            if len(sids)==0:
-                return
-            degree = int(options.degree)
-        except ValueError:
-            return "USAGE"
-        try:
-            channels = list()
-            energies = list()
-            while len(args) > 0:
-                # parse fit ids 
-                fitID = args.pop(0).split('.')
-                if len(fitID) > 2:
-                    raise ValueError
-                elif len(fitID) == 2:
-                    channel = spec.fits[int(fitID[0])].peakMarkers[int(fitID[1])].p1
-                else:
-                    channel = spec.fits[int(fitID[0])].peakMarkers[0].p1
-                channel = spec.cal.E2Ch(channel)
-                channels.append(channel)
-                # parse energy
-                energies.append(float(args.pop(0)))
-            pairs = zip(channels, energies)
-            cal = hdtv.cal.CalFromPairs(pairs, degree, options.show_table,
-                                        options.show_fit, options.show_residual)
-        except (ValueError, RuntimeError), msg:
-            hdtv.ui.error(msg)
-            return False
-        else:
-            for ID in sids:
-                try:
-                    self.spectra[ID].cal = cal
-                    hdtv.ui.msg("Calibrated spectrum with id %d" %ID)
-                except KeyError:
-                    hdtv.ui.warn("There is no spectrum with id: %s" %ID)
-            self.fitIf.window.Expand()        
-            return True
-
 
 # plugin initialisation
 import __main__

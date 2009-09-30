@@ -23,7 +23,36 @@ import hdtv.util
 import os
 from array import array
 
+
+def MakeCalibration(cal):
+    """ 
+    Create a ROOT.HDTV.Calibration object from a python list
+    """
+    if not isinstance(cal, ROOT.HDTV.Calibration):
+        if cal==None:
+            cal = []  # Trivial calibration, degree -1
+        calarray = ROOT.TArrayD(len(cal))
+        for (i,c) in zip(range(0,len(cal)),cal):
+            calarray[i] = c
+        # create the calibration object
+        cal = ROOT.HDTV.Calibration(calarray)
+    return cal
+
+
+def PrintCal(cal):
+    """
+    Get the list of calibration coeffs from the ROOT.HDTV.Calibration object
+    """
+    polynom = list()
+    for p in cal.GetCoeffs():
+        polynom.append(p)
+    return polynom
+
+
 class CalibrationFitter:
+    """
+    Fit a calibration polynom to a list of channel/energy pairs.
+    """
     def __init__(self):
         self.Reset()
         
@@ -78,7 +107,7 @@ class CalibrationFitter:
                 channels_err.append(channel_err)
             except AttributeError:
                 channels.append(float(ch))
-                channel_err.append(0.0)
+                channels_err.append(0.0)
             
             # Store energies
             try: # try to read from ErrValue
@@ -87,7 +116,7 @@ class CalibrationFitter:
                 energies.append(energy)
                 energies_err.append(energy_err)
             except AttributeError:
-                enerigies.append(float(e))
+                energies.append(float(e))
                 energies_err.append(0.0)
             
         self.__TF1.SetRange(0, max(energies) * 1.1)
@@ -220,77 +249,3 @@ class CalibrationFitter:
         graph.Draw("A*")
         nullfunc.Draw("SAME")
 
-
-def MakeCalibration(cal):
-    """ 
-    Create a ROOT.HDTV.Calibration object from a python list
-    """
-    if not isinstance(cal, ROOT.HDTV.Calibration):
-        if cal==None:
-            cal = []  # Trivial calibration, degree -1
-        calarray = ROOT.TArrayD(len(cal))
-        for (i,c) in zip(range(0,len(cal)),cal):
-            calarray[i] = c
-        # create the calibration object
-        cal = ROOT.HDTV.Calibration(calarray)
-    return cal
-
-def CalFromFile(fname):
-    """
-    Read calibration polynom from file
-    
-    Allow formats are:
-        * One coefficient in each line, starting with p0
-        * Coefficients in one line, seperated by space, starting with p0
-    """
-    fname = os.path.expanduser(fname)
-    try:
-        f = open(fname)
-    except IOError, msg:
-        print msg
-        return []
-    try:
-        calpoly = []
-        
-        for line in f:
-            l = line.split()
-            if len(l) > 1: # One line cal file
-                for p in l:
-                    calpoly.append(float(p))
-                raise StopIteration
-            else:
-                if l != "":
-                    calpoly.append(float(l))
-                    
-    except ValueError:
-        f.close()
-        print "Malformed calibration parameter file."
-        raise ValueError
-    except StopIteration: # end file reading
-        pass
-    f.close()
-    return MakeCalibration(calpoly)
-
-def CalFromPairs(pairs, degree=1, table=False, fit=False, residual=False):
-    """
-    Create calibration from pairs of channel and energy
-    """
-    fitter = CalibrationFitter()            
-    for p in pairs:
-        fitter.AddPair(p[0], p[1])
-    fitter.FitCal(degree)
-    print fitter.ResultStr()
-    if table:
-        print ""
-        print fitter.ResultTable()
-    if fit:
-        fitter.DrawCalFit()
-    if residual:
-        fitter.DrawCalResidual()
-    return fitter.calib
-
-def GetCal(cal):
-    polynom = list()
-    for p in cal.GetCoeffs():
-        polynom.append(p)
-    return polynom

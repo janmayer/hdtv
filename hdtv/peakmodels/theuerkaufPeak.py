@@ -244,8 +244,10 @@ class PeakModelTheuerkauf(PeakModel):
         Creates a C++ Fitter object, which can then do the real work
         """
         # Define a fitter and a region
-        debug_show_inipar = hdtv.options.Get("__debug__.fit.show_inipar")
-        self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(region[0],region[1],debug_show_inipar)
+        # FIXME: show_inipar seems to create a crash, see ticket #103 for trace
+        #debug_show_inipar = hdtv.options.Get("__debug__.fit.show_inipar")
+        #self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(region[0],region[1],debug_show_inipar)
+        self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(region[0],region[1])
         self.ResetGlobalParams()
         # Check if enough values are provided in case of per-peak parameters
         #  (the function raises a RuntimeError if the check fails)
