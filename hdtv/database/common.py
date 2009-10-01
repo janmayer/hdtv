@@ -10,7 +10,7 @@ class _Element(object):
     Store info about elements
     """
     
-    __slots__ = ("id", "z", "symbol", "name", "m")
+    __slots__ = ("ID", "z", "symbol", "name", "m")
 
     def __init__(self, Z, Symbol, Name = None, M = None):
         
@@ -18,7 +18,7 @@ class _Element(object):
         self.symbol = Symbol    # Symbol of element (e.g. H)
         self.name = Name        # Full name of element (e.g. Hydrogen)
         self.m = M              # Atomic weight, This is normalizes over nuclides of element and abundancies
-        self.id = self.symbol
+        self.ID = self.symbol
         
     def _get_Z(self):
         return self.z
@@ -120,7 +120,7 @@ class _Elements(list):
 
 class _Nuclide(_Element):
     
-    __slots__ = ("id", "element", "a", "m", "sigma", "abundance")
+    __slots__ = ("ID", "element", "a", "m", "sigma", "abundance")
 
     def __init__(self, element, A, abundance = None, sigma = None, M = None):
         
@@ -130,7 +130,7 @@ class _Nuclide(_Element):
         self.m = M
         self.sigma = sigma
         self.abundance = abundance
-        self.id = str(self.a) + "-" + str(self.symbol)    
+        self.ID = str(self.a) + "-" + str(self.symbol)    
     
     
     def _get_symbol(self):
@@ -149,7 +149,7 @@ class _Nuclide(_Element):
     
     def __str__(self):
         text = str()
-        text += "id:            " + self.id + "\n"
+        text += "ID:            " + self.ID + "\n"
         text += "Z:             " + str(self.z) + " \n"
         text += "A:             " + str(self.a) + "\n"
         text += "atomic Mass:   " + str(self.m) + " u\n"
@@ -216,10 +216,10 @@ class _Nuclides(object):
 class Gamma(object):
     """Class for storing information about gammas"""
     
-    __slots__ = ("id", "nuclide", "energy", "sigma", "intensity")
+    __slots__ = ("ID", "nuclide", "energy", "sigma", "intensity")
      
     def __init__(self, nuclide, energy, sigma, intensity):
-        self.id = str(nuclide.id) + "@" + str(energy.value.__int__())
+        self.ID = str(nuclide.ID) + "@" + str(energy.value.__int__())
         self.nuclide = nuclide
         self.energy = energy
         self.sigma = sigma
@@ -227,7 +227,7 @@ class Gamma(object):
 
     def __str__(self):
         text = str()
-        text += "id:        " + str(self.id) + "\n"
+        text += "ID:        " + str(self.ID) + "\n"
         text += "Energy:    " + str(self.energy) + " keV\n"
         if not self.sigma is None:
             text += "Sigma:     " + str(self.sigma) + " b\n"
@@ -254,11 +254,11 @@ class Gamma(object):
         
         ret = cmp(self.energy, other.energy)
         
-        if ret == 0 and other.id != None:
-            if self.id == other.id:
+        if ret == 0 and other.ID != None:
+            if self.ID == other.ID:
                 return ret
             else: # Gammas are from different isotope
-                return cmp(self.id, other.id)
+                return cmp(self.ID, other.ID)
         else:
             return ret
 

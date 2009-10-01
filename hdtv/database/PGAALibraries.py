@@ -12,7 +12,7 @@ class PGAAGamma(Gamma):
         given as tuple (Z, A)
     """
     k0_norm = None
-    __slots__ = ("id", "nuclide", "energy", "sigma", "intensity", "halflife", "_k0")
+    __slots__ = ("ID", "nuclide", "energy", "sigma", "intensity", "halflife", "_k0")
 
     def __init__(self, nuclide, energy, sigma = None, intensity = None, k0 = None, halflife = None, k0_comp = (1, 1)):
         
