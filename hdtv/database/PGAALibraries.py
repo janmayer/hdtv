@@ -64,16 +64,15 @@ class PGAAlib_IKI2000(GammaLib):
         self.csvfile = csvfile
         self._has_header = has_header
         self.k0_comp = k0_comp
-        self.opened = False
         
     def open(self):
         
         if self.opened:
             return True
 
-        file = open(self.csvfile, "rb")
+        datfile = open(self.csvfile, "rb")
         
-        reader = csv.reader(file)
+        reader = csv.reader(datfile)
         
         if self._has_header:
             reader.next()
@@ -92,11 +91,11 @@ class PGAAlib_IKI2000(GammaLib):
                 gamma = PGAAGamma(Nuclides(Z, A), energy, sigma = sigma, intensity = intensity, halflife = halflife, k0_comp = self.k0_comp)
                 self.append(gamma)
         except csv.Error, e:
-            hdtv.ui.error('file %s, line %d: %s' % (filename, reader.line_num, e))
+            hdtv.ui.error('file %s, line %d: %s' % (self.csvfile, reader.line_num, e))
         else:
             self.opened = True
         finally:
-            file.close()
+            datfile.close()
     
         
 class PromptGammas(GammaLib):
@@ -116,16 +115,15 @@ class PromptGammas(GammaLib):
         self.csvfile = csvfile
         self._has_header = has_header
         self.k0_comp = k0_comp
-        self.opened = False
         
     def open(self):
                
         if self.opened:
             return True
         
-        file = open(self.csvfile, "rb")
+        datfile = open(self.csvfile, "rb")
         
-        reader = csv.reader(file)
+        reader = csv.reader(datfile)
         
         if self._has_header:
             reader.next()
@@ -140,8 +138,8 @@ class PromptGammas(GammaLib):
                 gamma = PGAAGamma(Nuclides(Z, A), energy, sigma = sigma, k0 = k0, k0_comp = self.k0_comp)
                 self.append(gamma)
         except csv.Error, e:
-            hdtv.ui.error('file %s, line %d: %s' % (filename, reader.line_num, e))
+            hdtv.ui.error('file %s, line %d: %s' % (self.csvfile, reader.line_num, e))
         else:
             self.opened = True
         finally:
-            file.close()
+            datfile.close()

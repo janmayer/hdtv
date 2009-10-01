@@ -64,7 +64,7 @@ class _Elements(list):
                 element = _Element(Z, Symbol, Name, Mass)
                 tmp.append(element)
         except csv.Error, e:
-            hdtv.ui.error('file %s, line %d: %s' % (filename, reader.line_num, e))
+            hdtv.ui.error('file %s, line %d: %s' % (csvfile, reader.line_num, e))
         finally:
             datfile.close()
             
@@ -189,12 +189,13 @@ class _Nuclides(object):
                     self._storage[Z] = dict()
                 self._storage[Z][A] = _Nuclide(element, A, abundance = abd, sigma = sigma, M = M)
         except csv.Error, e:
-            hdtv.ui.error('file %s, line %d: %s' % (filename, reader.line_num, e))      
+            hdtv.ui.error('file %s, line %d: %s' % (csvfile, reader.line_num, e))      
         finally:
             datfile.close()
 
     def __call__(self, Z = None, A = None, symbol = None, name = None):
         
+        ret = list()
         if symbol:
             for e in self._storage.itervalues():
                 if e.symbol == symbol:
@@ -273,7 +274,9 @@ class GammaLib(list):
     __slots__ = ("nuclide", "energy", "sigma", "intensity", "E_fuzziness")
 
     def __init__(self, fuzziness = 1.0):
+        list.__init__(self)
         self.fuzziness = fuzziness  # Fuzzyness for energy identification
+        self.opened = False
     
     def find(self, fuzziness = None, sort_key=None, sort_reverse=False, **args):   
         """
