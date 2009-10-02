@@ -225,7 +225,7 @@ class TvSpecInterface:
         prog = "spectrum get"   
         usage="%prog [OPTIONS] <pattern> [<pattern> ...]"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog,usage=usage)
-        parser.add_option("-s", "--spec", action="store",default=None, 
+        parser.add_option("-s", "--spectrum", action="store",default=None, 
                           help="id for loaded spectrum")
         hdtv.cmdline.AddCommand("spectrum get", self.SpectrumGet, level=0, 
                                 minargs=1,fileargs=True, parser=parser)
@@ -280,7 +280,7 @@ class TvSpecInterface:
         prog = "spectrum copy"
         usage="%prog <ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
-        parser.add_option("-i", "--id", action="store", default=None, help="Copy to <ids>")
+        parser.add_option("-s", "--spectrum", action="store", default=None, help="Target spectrum id")
         hdtv.cmdline.AddCommand(prog, self.SpectrumCopy, level = 2, 
                                 fileargs=False, parser=parser)
         
@@ -326,8 +326,8 @@ class TvSpecInterface:
         """
         Load Spectra from files
         """
-        if options.spec != None:
-            ID = int(options.id)
+        if options.spectrum != None:
+            ID = int(options.spectrum)
         else:
             ID = None
         
@@ -381,8 +381,8 @@ class TvSpecInterface:
             return "USAGE"
             
         targetids = list()
-        if options.id is not None:
-            targetids = hdtv.cmdhelper.ParseIds(options.id, self.spectra, only_existent=False)
+        if options.spectrum is not None:
+            targetids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra, only_existent=False)
         if len(targetids) == 0:
             targetids = [None for i in range(0,len(ids))]
         elif len(targetids) == 1: # Only start ID is given
