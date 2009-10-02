@@ -85,6 +85,7 @@ class _Elements(list):
                         return z
                 except AttributeError:
                     pass      
+            raise ValueError # If we reach this point there is no element with this symbol
         if name:
             for z in self:
                 try:
@@ -92,6 +93,7 @@ class _Elements(list):
                         return z
                 except AttributeError:
                     pass
+            raise ValueError # If we reach this point there is no element with this name
                 
         if Z:
             return self[Z]
@@ -140,12 +142,6 @@ class _Nuclide(_Element):
         self.element.symbol = symbol
     
     symbol = property(_get_symbol, _set_symbol)#    def _Z(self):
-#        return self.element.z
-#    
-#    def _set_Z(self, Z):
-#        self.element.z = Z
-    
-#    z = property(_Z, _set_Z)
     
     def __str__(self):
         text = str()
@@ -200,11 +196,15 @@ class _Nuclides(object):
             for e in self._storage.itervalues():
                 if e.symbol == symbol:
                     ret.append(e)
+            if len(ret) == 0:
+                raise ValueError # No nuclide with this symbol
             return ret     
         if name:
             for e in self._storage.itervalues():
                 if e.name == name:
                     ret.append(e)
+            if len(ret) == 0:
+                raise ValueError # No nuclide with this name
             return ret
                 
         if Z:
