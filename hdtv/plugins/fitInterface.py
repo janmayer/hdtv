@@ -731,7 +731,7 @@ class TvFitInterface:
         description = "(re)fit a fit"
         usage = "%prog [OPTIONS] <fit-ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spec", action = "store", default = "active",
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
                             help = "Spectra to work on")
         parser.add_option("-b", "--background", action = "store_true", default = False,
                             help = "fit only the background")
@@ -780,7 +780,7 @@ class TvFitInterface:
         description = "display fits"
         usage = "%prog none|all|<ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spec", action = "store", default = "active",
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
                         help = "select spectra to work on")
         parser.add_option("-v", "--adjust-viewport", action = "store_true", default = False,
                         help = "adjust viewport to include all fits")
@@ -791,7 +791,7 @@ class TvFitInterface:
         description = "hide fits"
         usage = "%prog all|<ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spec", action = "store", default = "active",
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
                         help = "select spectra to work on")
         # TODO: add option to show the fit, that is closest to a certain value
         hdtv.cmdline.AddCommand(prog, self.FitHide, parser = parser)
@@ -813,7 +813,7 @@ class TvFitInterface:
                         help = "sort by key")
         parser.add_option("-r", "--reverse-sort", action = "store_true", default = False,
                         help = "reverse the sort")
-        parser.add_option("-s", "--spec", action = "store", default = "active",
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
                         help = "select spectra to work on")       
         hdtv.cmdline.AddCommand(prog, self.FitPrint, level=2, parser = parser)
         
@@ -821,7 +821,7 @@ class TvFitInterface:
         description = "delete fits"
         usage = "%prog all|<ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spec", action = "store", default = "active",
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
                         help = "spectrum ids to work on")
         hdtv.cmdline.AddCommand(prog, self.FitDelete, minargs = 1, parser = parser)
         
@@ -837,7 +837,7 @@ class TvFitInterface:
         description = "Copy fit parameter and marker to another spectrum"
         usage = "%prog -s <targetSpecs> <fit-ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage=usage)
-        parser.add_option("-s", "--spec", action = "store", default = "all", help = "Target spectra")
+        parser.add_option("-s", "--spectrum", action = "store", default = "all", help = "Target spectra")
         parser.add_option("-f", "--refit", action = "store_true", default = False, help = "Perform fit on new spectrum")
         hdtv.cmdline.AddCommand(prog, self.FitCopy, parser = parser)
         
@@ -857,7 +857,7 @@ class TvFitInterface:
         description = "reset fit functions of a fit"
         usage = "%prog [OPTIONS] <fit-ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spec", action = "store", default = "active",
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
                             help = "Spectra to work on")
         parser.add_option("-k", "--keep-fitter", action = "store_true", default = False,
                             help = "Keep fitter parameters")
