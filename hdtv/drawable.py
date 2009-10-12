@@ -19,40 +19,22 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-import ROOT
-import os
-import UserDict
-
 import hdtv.cal
 import hdtv.color
-import hdtv.dlmgr
 import hdtv.ui
 
-from hdtv.util import Child
-
+import hdtv.dlmgr
 hdtv.dlmgr.LoadLibrary("display")
 
-class Drawable(Child):
+class Drawable(object):
     def __init__(self, color=None, cal=None, parent=None):
         self.viewport = None
         self.displayObj = None
         self.cal = cal
         self.color = color 
-        Child.__init__(self, parent = parent)
-
         
     def __str__(self):
         return str(self.displayObj)
-     
-    @property
-    def ID(self):
-        """
-        Return ID of object in parent compound
-        """
-        try:
-            return self.parent.Index(self)
-        except AttributeError:
-            return None
 
     # cal property
     def _set_cal(self, cal):
@@ -73,33 +55,35 @@ class Drawable(Child):
         self._activeColor = hdtv.color.Highlight(color, active=True)
         self._passiveColor = hdtv.color.Highlight(color, active=False)
         # update display if needed
-        try:
-            self.displayObj.SetColor(self._passiveColor)
-        except:
-            pass
-        
+        if not self.displayObj is None:
+            if self._active:
+                self.displayObj.SetColor(self._activeColor)
+            else:
+                self.displayObj.SetColor(self._passiveColor)
+   
     def _get_color(self):
         return self._passiveColor
         
     color = property(_get_color, _set_color)
     
     # active property
-    @property
-    def active(self):
-        # an object is active, either when it is not belonging anywhere 
-        if self.parent is None:
-            return True
-        # or when its parent is active
-        if self.parent.active:
-            try:
-                # ask the parent for a decision
-                # TODO: Not all parents are Drawables! -> GetActiveObject() is not always present
-                return (self.parent.GetActiveObject() is self)
-            except AttributeError:
-                # otherwise all objects of that parent are active
-                return True
-        return False
-    
+    def _set_active(self, state):
+        self._active = state
+        if not self.displayObj is None:
+            if self._active:
+                self.displayObj.SetColor(self._activeColor)
+                # move the object to the top of its draw stack
+                try:
+                    self.displayObj.ToTop()
+                except:
+                    pass
+            else:
+                self.displayObj.SetColor(self._passiveColor)
+                
+    def _get_active(self):
+        return self._active
+        
+    active = property(_get_active, _set_active)
     
     def Draw(self, viewport):
         """
@@ -127,6 +111,11 @@ class Drawable(Child):
         if self.displayObj:
             if self.active:
                 self.displayObj.SetColor(self._activeColor)
+                # move the object to the top of its draw stack
+                try:
+                    self.displayObj.ToTop()
+                except:
+                    pass
             else:
                 self.displayObj.SetColor(self._passiveColor)
             if self.cal:
@@ -142,75 +131,355 @@ class Drawable(Child):
         if self.displayObj:
             self.displayObj.Hide()
 
-        
-    def ToTop(self):
-        """
-        Move the spectrum to the top of its draw stack
-        """
-        if self.displayObj:
-            try:
-                self.displayObj.ToTop()
-            except: # does not matter
-                pass
-            
 
-    def ToBottom(self):
-        """
-        Move the spectrum to the top of its draw stack
-        """
-        if self.displayObj:
-            try:
-                self.displayObj.ToBottom()
-            except: # does not matter
-                pass
-
-
-class DrawableCompound(dict, Child):
+class DrawableManager(object):
     """
-    This class is a prototype of a collection of drawable objects. 
-    It provides some handy functions to manage such an collection.
+    This class provides some handy functions to manage a collection of drawable 
+    objects of the same kind.
     """
     def __init__(self):
-        dict.__init__(self)
+        # dictionary to store the drawable objects
+        self.dict = dict()
         self.viewport = None
         self.visible = set()
         self._activeID = None
-        self._iteratorID = self.activeID # This should keep track of ID for nextID, prevID
-        Child.__init__(self, parent=None)
-
-    def __del__(self):
-        self.RemoveAll()
-    
-    # active property
-    @property
-    def active(self):
-        # an object is active, either when it is not belonging anywhere 
-        if self.parent is None:
-            return True
-        # or when its parent is active
-        if self.parent.active:
-            try:
-                # if there is an differentiation between object belonging to that parent
-                return (self in self.parent.GetActiveObjects())
-            except AttributeError:
-                # otherwise all objects of that parent are also active
-                return True
-        return False
+        # This should keep track of ID for nextID, prevID
+        self._iteratorID = self.activeID 
 
     # activeID property
     def _set_activeID(self, ID):
         self._activeID = ID
-        hdtv.ui.debug("hdtv.drawable._set_activeID: Resetting iterator to %s" % self._activeID, level=6)
+        hdtv.ui.debug("hdtv.drawable.DrawableManager._set_activeID: Resetting iterator to %s" % self._activeID, level=6)
         if self._activeID is not None:
-            self._iteratorID = self._activeID # Reset iterator
+            # Reset iterator
+            self._iteratorID = self._activeID 
         
     def _get_activeID(self):
         return self._activeID
     
     activeID = property(_get_activeID, _set_activeID)
     
+    
+    def ActivateObject(self, ID=None):
+        """
+        Activates the object with id ID
+        """
+        if self.viewport:
+            self.viewport.LockUpdate()
+        # save ID of old active object
+        oldID = self.activeID
+        # change state of former active object
+        self.dict[oldID].active = False
+        # activate new object
+        self.activeID = ID
+        # update display for new active object
+        if not ID is None:
+            self.dict[ID].active = True
+            # call ShowObject, to make sure the new active object is visible
+            self.ShowObjects(ID, clear=False)
+        if self.viewport:
+            self.viewport.UnlockUpdate()
 
-    # nextID/prevID getter
+    def GetActiveObject(self):
+        """
+        Returns currently active object
+        """
+        if self.activeID is None:
+            return None
+        else:
+            return self[self.activeID]
+
+
+    def Index(self, obj):
+        """
+        Return index such that self[index] == obj
+        """
+        index = [k for (k,v) in self.dict.iteritems() if v == obj]
+        if len(index) == 0:
+            raise ValueError, "Object not found in this collection"
+        else:
+            return index[0]
+
+    def Insert(self, obj, ID=None):
+        """
+        This inserts an object to the dictionary of this manager
+        If no ID is given, the first free ID is used, else the object is inserted
+        at the given ID, possibly removing an object which was there before. 
+        """
+        # if no ID is specified we take the first free ID
+        if ID is None:
+            ID = self.GetFreeID()
+        hdtv.ui.debug("hdtv.drawable.DrawableCompound.Insert(): setting _iteratorID to %s" % ID)
+        self.dict[ID] = obj
+        try:
+            obj.title = str(ID)
+        except AttributeError:
+            pass
+        if self.viewport:
+            obj.Draw(self.viewport)
+            self.visible.add(ID)
+        return ID
+        
+    def Pop(self, ID):
+        """
+        Remove object with ID
+        """
+        if ID == self._iteratorID:
+            # set iterator to the ID before the one we remove
+            self._iteratorID = self.prevID 
+        if ID == self._activeID:
+            # set activeID to None
+            self.ActivateObject(None)
+        if ID in self.visible:
+            # remove from list of visible objects
+            self.visible.discard(ID)
+        try:
+            self.dict[ID].Hide()
+            return self.dict.pop(ID)
+        except KeyError:
+            hdtv.ui.warn("Warning: ID %s not found." % ID)
+
+    def GetFreeID(self):
+        """
+        Finds the first free index
+        """
+        # Find a free ID
+        ID = 0
+        while ID in self.dict.iterkeys():
+            ID += 1
+        return ID
+
+    def PrintObject(self, ID, verbose=False, if_visible=False):
+        """
+        Print object properties
+        """
+        stat = " "
+        visible = False
+        obj = self.dict[ID]
+        
+        if ID == self.activeID:
+            stat += "A"
+            visible = True
+        else:
+            stat += " "
+        if ID in self.visible:
+            stat += "V"
+            visible = True
+        else:
+            stat += " "
+        if not if_visible or visible:
+            try:
+                print "%d %s %s" % (ID, stat, obj.formatted_str(verbose))
+            except AttributeError:
+                # just use normal str if no formatted_str function exists
+                print "%d %s %s" % (ID, stat, obj)
+
+    def ListObjects(self, verbose=False, visible_only=False):
+        """
+        List all objects in a human readable way
+        """
+        for ID in self.dict.keys():
+            self.PrintObject(ID, verbose=verbose, if_visible=visible_only)
+
+
+    def Draw(self, viewport):
+        """
+        Draw function (sets the viewport and draws all components)
+        """
+        if not self.viewport is None and not self.viewport == viewport:
+            # Unlike the Display object of the underlying implementation,
+            # python objects can only be drawn on a single viewport
+            raise RuntimeError, "Object can only be drawn on a single viewport"
+        self.viewport = viewport
+        self.viewport.LockUpdate()
+        for ID in self.dict.iterkeys():
+            self.dict[ID].Draw(self.viewport)
+            self.visible.add(ID)
+        self.viewport.UnlockUpdate()
+       
+
+    # Refresh commands
+    def Refresh(self):
+        """
+        Refresh whole object
+        """
+        return self.RefreshAll()
+        
+    def RefreshAll(self):
+        """
+        Refresh all objects in dict
+        """
+        return self.Refresh(self.dict.keys())
+        
+    def RefreshVisible(self):
+        """
+        Refresh visible objects
+        """
+        return self.RefreshObjects(self.visible)
+    
+    def RefreshObjects(self, ids):
+        """
+        Refresh objects with ids
+        """
+        if self.viewport:
+            self.viewport.LockUpdate()
+        if isinstance(ids, int):
+            ids = [ids]
+        for ID in ids:
+            try:
+                self.dict[ID].Refresh
+            except KeyError:
+                print "Warning: ID %d not found" % ID
+        if self.viewport:
+            self.viewport.UnlockUpdate()
+        return ids
+
+    # Hide commands
+    def Hide(self):
+        """
+        Hide the whole object
+        """
+        return self.HideAll()
+        
+            
+    def HideAll(self):
+        """
+        Hide all 
+        """
+        return self.HideObjects(self.dict.keys())
+
+            
+    def HideObjects(self, ids):
+        """
+        Hide objects from the display
+        """
+        if self.viewport is None:
+            return
+        self.viewport.LockUpdate()
+        # if only one object is given
+        if isinstance(ids, int):
+            ids = [ids]
+        for ID in ids:
+            if ID in self.visible:
+                try:
+                    if ID == self.activeID: # Deactivate object when hidden
+                        self.ActivateObject(None)
+                    self.dict[ID].Hide()
+                    self.visible.discard(ID)
+                except KeyError:
+                    hdtv.ui.warn("ID %d not found" % ID)
+        self.viewport.UnlockUpdate()
+        return ids
+
+
+    # Show commands:
+    def Show(self):
+        """
+        Show the whole object
+        """
+        return self.ShowAll()
+        
+    def ShowAll(self):
+        """
+        Show all 
+        """
+        return self.ShowObjects(self.dict.keys(), clear=True)
+    
+    def ShowObjects(self, ids, clear=True):
+        """
+        Show objects on the display. 
+
+        If the clear parameter is True, the display is cleared first. 
+        Otherwise the objects are shown in addition to the ones, that 
+        are already visible.
+        """
+        if self.viewport is None:
+            return
+        self.viewport.LockUpdate()
+        if isinstance(ids, int):
+            ids = [ids]
+        if clear:
+            # hide all other objects except in ids
+            # do not use HideAll, because if the active objects is among 
+            # the objects that should be shown, its state would be lost
+            others = set(self.dict.keys())-set(ids)
+            self.HideObjects(others)
+        for ID in ids:
+            try:
+                self.dict[ID].Show()
+                self.visible.add(ID)
+            except KeyError:
+                hdtv.warn("ID %s not found" % ID)
+        # Check if active ID is still visible
+        if self.activeID not in self.visible:
+            self.ActivateObject(None)
+        self.viewport.UnlockUpdate()
+        return ids
+
+# FIXME: does this belong here?
+#    def isInVisibleRegion(self, ID):
+#        """
+#        Check if object is in the visible region of the viewport
+#        """
+#        if self.viewport is None: return False
+#        xdim = self[ID].xdimensions
+#        if xdim is None: # Object has no dimensions
+#            return True
+#        # get viewport limits
+#        viewport_start = self.viewport.GetOffset()
+#        viewport_end = viewport_start + self.viewport.GetXVisibleRegion()
+#        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: object ID: %d" %ID, level=6)
+#        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: viewport_start %s, viewport_end %s" 
+#                       % (viewport_start, viewport_end), level=6)
+#        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: object %d, starts at %s and ends at %s" 
+#                       % (ID, xdim[0], xdim[1]), level=6)
+#        # do the check
+#        if (xdim[0] > viewport_start) and (xdim[1] < viewport_end):
+#            hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: ID %d is visible" % ID, level=4)
+#            return True
+#        else:
+#            hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: ID %d is *not* visible" % ID, level=4)
+#            return False
+#
+#    def FocusObjects(self, ids):
+#        """
+#        Move and stretch viewport to show multiple objects
+#        """
+#        if self.viewport is None:
+#            return
+#        xdimensions = ()
+#        # Get dimensions of objects
+#        for ID in ids:
+#            if self[ID].xdimensions is not None:
+#                xdimensions += self[ID].xdimensions
+#            if ID not in self.visible:
+#                self[ID].Show()
+#        self._iteratorID = min(ids)
+#        # calulate
+#        if len(xdimensions) > 0: 
+#            view_width = max(xdimensions) - min(xdimensions)
+#            view_width *= 1.2
+#            if view_width < 50.:
+#                view_width = 50. # TODO: make this configurable
+#            view_center = (max(xdimensions) + min(xdimensions)) / 2.
+#            # change viewport
+#            self.viewport.SetXVisibleRegion(view_width)
+#            self.viewport.SetXCenter(view_center)
+#    
+#    
+#    def FocusObject(self, ID=None):
+#        """
+#        If ID is not given: Focus active object
+#        """
+#        if ID is None:
+#            ID = self.activeID
+#        if ID is None:
+#            hdtv.ui.error("No active object")
+#            return
+#        self.FocusObjects([ID])
+        
+    
+    # nextID/prevID/firstID/lastID getter
     @property
     def nextID(self):
         return self._nextID(onlyVisible = False)
@@ -243,11 +512,12 @@ class DrawableCompound(dict, Child):
     def lastVisibleID(self):
         return self._lastID(onlyVisible = True)
 
+
     def _firstID(self, onlyVisible = False):
         if onlyVisible:
             ids = list(self.visible)
         else:
-            ids = self.keys()
+            ids = self.dict.keys()
 
         try:
             firstID = min(ids)
@@ -255,7 +525,7 @@ class DrawableCompound(dict, Child):
             firstID = self.activeID
         
         self._iteratorID = firstID
-        hdtv.ui.debug("hdtv.drawable.DrawableCompound: firstID=" + str(firstID), level=6)
+        hdtv.ui.debug("hdtv.drawable.DrawableManager: firstID=" + str(firstID), level=6)
         return firstID
         
 
@@ -263,7 +533,7 @@ class DrawableCompound(dict, Child):
         if onlyVisible:
             ids = list(self.visible)
         else:
-            ids = self.keys()
+            ids = self.dict.keys()
 
         try:
             lastID = max(ids)
@@ -271,7 +541,7 @@ class DrawableCompound(dict, Child):
             lastID = self.activeID
             
         self._iteratorID = lastID
-        hdtv.ui.debug("hdtv.drawable.DrawableCompound: lastID=" + str(lastID), level=6)
+        hdtv.ui.debug("hdtv.drawable.DrawableManager: lastID=" + str(lastID), level=6)
         return lastID
         
     
@@ -283,7 +553,7 @@ class DrawableCompound(dict, Child):
             if onlyVisible:
                 ids = list(self.visible)
             else:
-                ids = self.keys()
+                ids = self.dict.keys()
                 
             ids.sort()
             nextIndex = (ids.index(self._iteratorID) + 1) % len(ids)
@@ -292,7 +562,7 @@ class DrawableCompound(dict, Child):
         except ValueError:
                 nextID = self.activeID if not self.activeID is None else self.firstID 
             
-        hdtv.ui.debug("hdtv.drawable.DrawableCompound: nextID="+ str(nextID), level=6)
+        hdtv.ui.debug("hdtv.drawable.DrawableManager: nextID="+ str(nextID), level=6)
         self._iteratorID = nextID
         return nextID
     
@@ -304,7 +574,7 @@ class DrawableCompound(dict, Child):
             if onlyVisible:
                 ids = list(self.visible)
             else:
-                ids = self.keys()
+                ids = self.dict.keys()
             
             ids.sort()
             prevIndex = (ids.index(self._iteratorID) - 1) % len(ids)
@@ -313,380 +583,9 @@ class DrawableCompound(dict, Child):
             prevID = self.activeID if not self.activeID is None else self.lastID
 
         self._iteratorID = prevID
-        hdtv.ui.debug("hdtv.drawable.DrawableCompound: prevID=" + str(prevID), level=6)
+        hdtv.ui.debug("hdtv.drawable.DrawableManager: prevID=" + str(prevID), level=6)
         return prevID
 
-
-    def __setitem__(self, ID, obj):
-        """ 
-        Low level function to add an object to this compound
-        Note: This does not call Draw 
-        """
-        try:
-            obj.SetID(ID)
-        except AttributeError:
-            pass
-        obj.parent = self
-        return dict.__setitem__(self ,ID, obj)
-
-
-    def __delitem__(self, ID):
-        """
-        Low level function to delete an object from this compound
-        Note: This does not call Remove
-        """
-        if ID in self.visible:
-            self.visible.discard(ID)
-        if ID == self.activeID:
-            self.activeID = None
-        return dict.__delitem__(self, ID)
-
-    def pop(self, ID):
-        obj = self[ID]
-        del self[ID]
-        return obj
-
-        
-    def Index(self, obj):
-        """
-        Return index such that self[index] == obj
-        """
-        index = [k for (k,v) in self.iteritems() if v == obj]
-        if len(index) == 0:
-            raise ValueError, "Object not found in this collection"
-        else:
-            return index[0]
-
-    def Add(self, obj, ID=None):
-        """
-        If ID is None: Adds an object to the first free index
-        Else inserts an object into the index at id ID, possibly removing an object
-        which was there before. 
-        
-        This also calls draw for the object.
-        """
-        if ID is None:
-            ID = self.GetFreeID()
-        
-        hdtv.ui.debug("hdtv.drawable.DrawableCompound.Add(): setting _iteratorID to %d" % ID)
-        
-        if ID in self.keys():
-            self.RemoveObjects([ID])
-        
-        self[ID] = obj
-                
-        try:
-            obj.title = str(ID)
-        except AttributeError:
-            pass
-
-        obj.parent = self
-        
-        if self.viewport:
-            obj.Draw(self.viewport)
-            self.visible.add(ID)
-        return ID
-
-    def GetFreeID(self):
-        """
-        Finds the first free index
-        """
-        # Find a free ID
-        ID = 0
-        while ID in self.keys():
-            ID += 1
-        return ID
-
-    def PrintObject(self, ID, verbose=False, if_visible=False):
-        """
-        Print object properties
-        """
-        stat = " "
-        visible = False
-        obj = self[ID]
-        
-        if ID == self.activeID:
-            stat += "A"
-            visible = True
-        else:
-            stat += " "
-        if ID in self.visible:
-            stat += "V"
-            visible = True
-        else:
-            stat += " "
-        if not if_visible or visible:
-            try:
-                print "%d %s %s" % (ID, stat, obj.formatted_str(verbose))
-            except AttributeError:
-                # just use normal str if no formatted_str function exists
-                print "%d %s %s" % (ID, stat, obj)
-
-    def ListObjects(self, verbose=False, visible_only=False):
-        """
-        List all objects in a human readable way
-        """
-        for ID in self.keys():
-            self.PrintObject(ID, verbose=verbose, if_visible=visible_only)
-            
-            
-    def ActivateObject(self, ID=None):
-        """
-        Activates the object with id ID
-        """
-        if self.viewport:
-            self.viewport.LockUpdate()
-        # save ID of old active object
-        oldID = self.activeID
-        # activate new object
-        self.activeID = ID
-        # update display of former active object
-        if oldID in self.visible:
-            self[oldID].Show()
-        # update display for new active object
-        if not ID is None:
-            self[ID].ToTop()
-            # call ShowObject, to make sure the new active object is visible
-            self.ShowObjects(ID, clear=False)
-        if self.viewport:
-            self.viewport.UnlockUpdate()
-
-
-    def GetActiveObject(self):
-        """
-        Returns currently active object
-        """
-        if self.activeID is None:
-            return None
-        else:
-            return self[self.activeID]
-            
-        
-    def Draw(self, viewport):
-        """
-        Draw function (sets the viewport and draws all components)
-        """
-        if not self.viewport is None and not self.viewport == viewport:
-            # Unlike the Display object of the underlying implementation,
-            # python objects can only be drawn on a single viewport
-            raise RuntimeError, "Object can only be drawn on a single viewport"
-        self.viewport = viewport
-        self.viewport.LockUpdate()
-        for ID in self.iterkeys():
-            self[ID].Draw(self.viewport)
-            self.visible.add(ID)
-        self.viewport.UnlockUpdate()
-       
-        
-    def RemoveAll(self):
-        """
-        Remove all 
-        """
-        return self.RemoveObjects(self.keys())
-        
-
-    def RemoveObjects(self, ids):
-        """
-        Remove objects with the specified ids
-        """
-        if self.viewport:
-            self.viewport.LockUpdate()
-        if isinstance(ids, int):
-            ids = [ids]
-        for ID in ids:
-            try:
-                if ID == self._iteratorID:
-                    self._iteratorID = self.prevID 
-                obj =  self.pop(ID)
-                obj.parent = None
-            except KeyError:
-                hdtv.ui.warn("Warning: ID %s not found." % str(ID))
-        if self.viewport:
-            self.viewport.UnlockUpdate()
-
-
-    def Refresh(self):
-        """
-        Refresh all objects
-        """
-        self.viewport.LockUpdate()
-        for obj in self.itervalues():
-            obj.Refresh()
-        self.viewport.UnlockUpdate()
-        
-    
-    def RefreshAll(self):
-        """
-        Refresh all - just a wrapper for convenience
-        """
-        self.Refresh()
-    
-    def RefreshObjects(self, ids):
-        """
-        Refresh objects with ids
-        """
-        self.viewport.LockUpdate()
-        if isinstance(ids, int):
-            ids = [ids]
-        for ID in ids:
-            try:
-                self[ID].Refresh
-            except KeyError:
-                print "Warning: ID %d not found" % ID
-        self.viewport.UnlockUpdate()
-    
-    def RefreshVisible(self):
-        """
-        Refresh visible objects
-        """
-        self.RefreshObjects(self.visible)
-    
-    
-    # Hide commands
-    def Hide(self):
-        """
-        Hide the whole object
-        """
-        return self.HideAll()
-        
-            
-    def HideAll(self):
-        """
-        Hide all 
-        """
-        return self.HideObjects(self.keys())
-
-            
-    def HideObjects(self, ids):
-        """
-        Hide objects from the display
-        """
-        if self.viewport:
-            self.viewport.LockUpdate()
-        # if only one object is given
-        if isinstance(ids, int):
-            ids = [ids]
-        for ID in ids:
-            if ID in self.visible:
-                try:
-                    if ID == self.activeID: # Deactivate object when hidden
-                        self.ActivateObject(None)
-                    self[ID].Hide()
-                    self.visible.discard(ID)
-                except KeyError:
-                    hdtv.ui.warn("ID %d not found" % ID)
-        if self.viewport:
-            self.viewport.UnlockUpdate()
-
-
-    # Show commands:
-    def Show(self):
-        """
-        Show the whole object
-        """
-        return self.ShowAll()
-        
-    def ShowAll(self):
-        """
-        Show all 
-        """
-        return self.ShowObjects(self.keys(), clear=True)
-    
-    def ShowObjects(self, ids, clear=True):
-        """
-        Show objects on the display. 
-
-        If the clear parameter is True, the display is cleared first. 
-        Otherwise the objects are shown in addition to the ones, that 
-        are already visible.
-        """
-        if self.viewport is None:
-            return
-        self.viewport.LockUpdate()
-        if isinstance(ids, int):
-            ids = [ids]
-        if clear:
-            # hide all other objects except in ids
-            # do not use HideAll, because if the active objects is among 
-            # the objects that should be shown, its state would be lost
-            others = set(self.keys())-set(ids)
-            self.HideObjects(others)
-        for ID in ids:
-            try:
-                self[ID].Show()
-                self.visible.add(ID)
-            except KeyError:
-                hdtv.warn("ID %s not found" % ID)
-        # Check if active ID is still visible
-        if self.activeID not in self.visible:
-            self.ActivateObject(None)
-        self.viewport.UnlockUpdate()
-        return ids
-
-
-    def isInVisibleRegion(self, ID):
-        """
-        Check if object is in the visible region of the viewport
-        """
-        if self.viewport is None: return False
-        xdim = self[ID].xdimensions
-        if xdim is None: # Object has no dimensions
-            return True
-        # get viewport limits
-        viewport_start = self.viewport.GetOffset()
-        viewport_end = viewport_start + self.viewport.GetXVisibleRegion()
-        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: object ID: %d" %ID, level=6)
-        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: viewport_start %s, viewport_end %s" 
-                       % (viewport_start, viewport_end), level=6)
-        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: object %d, starts at %s and ends at %s" 
-                       % (ID, xdim[0], xdim[1]), level=6)
-        # do the check
-        if (xdim[0] > viewport_start) and (xdim[1] < viewport_end):
-            hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: ID %d is visible" % ID, level=4)
-            return True
-        else:
-            hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: ID %d is *not* visible" % ID, level=4)
-            return False
-        
-        
-    def FocusObjects(self, ids):
-        """
-        Move and stretch viewport to show multiple objects
-        """
-        if self.viewport is None:
-            return
-        xdimensions = ()
-        # Get dimensions of objects
-        for ID in ids:
-            if self[ID].xdimensions is not None:
-                xdimensions += self[ID].xdimensions
-            if ID not in self.visible:
-                self[ID].Show()
-        self._iteratorID = min(ids)
-        # calulate
-        if len(xdimensions) > 0: 
-            view_width = max(xdimensions) - min(xdimensions)
-            view_width *= 1.2
-            if view_width < 50.:
-                view_width = 50. # TODO: make this configurable
-            view_center = (max(xdimensions) + min(xdimensions)) / 2.
-            # change viewport
-            self.viewport.SetXVisibleRegion(view_width)
-            self.viewport.SetXCenter(view_center)
-    
-    
-    def FocusObject(self, ID=None):
-        """
-        If ID is not given: Focus active object
-        """
-        if ID is None:
-            ID = self.activeID
-        if ID is None:
-            hdtv.ui.error("No active object")
-            return
-        self.FocusObjects([ID])
-        
-        
     def ShowNext(self, nb=1):
         """
         Show next object (by index)
@@ -694,18 +593,12 @@ class DrawableCompound(dict, Child):
         With the parameter nb, the user can choose how many new spectra
         there should be displayed.
         """
-        if nb > len(self):
+        if nb > len(self.dict):
             self.ShowAll()
             return
-        if len(self.visible)==0 or len(self.visible)==len(self):
-            self.ShowFirst(nb)
-            return
-        ids = self.keys()
-        ids.sort()
-        index = ids.index(max(self.visible))
-        ids = ids[index+1:index+nb+1]
-        if len(ids)==0:
-            return self.ShowFirst(nb)
+        ids = self.dict.keys()
+        index = ids.index(self.nextID)
+        ids = ids[index:index+nb]
         self.ShowObjects(ids, clear=True)
         return ids
 
@@ -716,32 +609,22 @@ class DrawableCompound(dict, Child):
         With the parameter nb, the user can choose how many new spectra
         there should be displayed.
         """
-        if nb > len(self):
+        if nb > len(self.dict):
             self.ShowAll()
             return
-        if len(self.visible)==0 or len(self.visible)==len(self):
-            self.ShowLast(nb)
-            return
-        ids = self.keys()
-        ids.sort()
-        index = ids.index(min(self.visible))
-        if nb > index:
-            ids = ids[0:index]
-        else:
-            ids = ids[index-nb:index]
-        if len(ids)==0:
-            self.ShowLast(nb)
-            return
+        ids = self.dict.keys()
+        index = ids.index(self.prevID)
+        ids = ids[index:index+nb]
         self.ShowObjects(ids, clear=True)
         return ids
-    
+     
     def ShowFirst(self, nb=1):
         """
         Show the first nb objects
         """
-        if nb > len(self):
+        if nb > len(self.dict):
             return self.ShowAll()
-        ids = self.keys()
+        ids = self.dict.keys()
         ids.sort()
         ids = ids[:nb]
         self.ShowObjects(ids, clear=True)
@@ -751,10 +634,10 @@ class DrawableCompound(dict, Child):
         """
         Show the last nb objects
         """
-        if nb > len(self):
+        if nb > len(self.dict):
             self.ShowAll()
             return
-        ids = self.keys()
+        ids = self.dict.keys()
         ids.sort()
         ids = ids[len(ids)-nb:]
         self.ShowObjects(ids, clear=True)

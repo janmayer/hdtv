@@ -608,7 +608,7 @@ class Table(object):
             
         return text
 
-
+# FIXME: Remove when all parent links are purged
 class Child(object):
     """
     Class for handling parent objects
@@ -636,16 +636,15 @@ class Child(object):
     
     
 
-class Position(Child):
+class Position():
     """
     Class for storing postions that may be fixed in calibrated or uncalibrated space
     
     if self.pos_cal is set the position is fixed in calibrated space. 
     if self.pos_uncal is set the position is fixed in uncalibrated space.
     """
-    def __init__(self, pos_uncal = None, pos_cal = None, parent = None, cal = None):
+    def __init__(self, pos_uncal = None, pos_cal = None, cal = None):
         
-        Child.__init__(self, parent = parent)
         self.cal = cal
 
         if pos_cal is not None:
@@ -677,20 +676,14 @@ class Position(Child):
         
     def _Ch2E(self, Ch):
         if self.cal is None:
-            try:
-                E = self.parent.cal.Ch2E(Ch)
-            except AttributeError:
-                E = None
+            E = None
         else:
             E = self.cal.Ch2E(Ch)
         return E
     
     def _E2Ch(self, E):
         if self.cal is None:
-            try:
-                Ch = self.parent.cal.E2Ch(E)
-            except AttributeError:
-                Ch = None
+            Ch = None
         else:
             Ch = self.cal.E2Ch(E)
         return Ch

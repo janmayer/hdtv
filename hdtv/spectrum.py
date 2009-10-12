@@ -25,26 +25,18 @@ import hdtv.dlmgr
 import hdtv.color 
 import hdtv.ui
 
-from hdtv.drawable import Drawable, DrawableCompound
+from hdtv.drawable import Drawable, DrawableManager
 from hdtv.specreader import SpecReader, SpecReaderError
 
 hdtv.dlmgr.LoadLibrary("display")
 
-class _RawSpectrum(Drawable):
+class Histogram(Drawable):
     """
-    Spectrum object
+    Histogram object
     
     This class is hdtvs wrapper around a ROOT histogram. It adds a calibration,
-    plus some internal management for drawing the histogram    to the hdtv spectrum
+    plus some internal management for drawing the histogram to the hdtv spectrum
     viewer.
-
-    Optionally, the class method FromFile can be used to read a spectrum
-    from a file, using the SpecReader class. A calibration can be
-    defined by supplying a sequence that form the factors of the calibration
-    polynom. Moreover a color can be defined, which then will be used when the
-    spectrum is displayed. 
-    
-    A spectrum object can contain a number of fits.
     """
     def __init__(self, hist, color=hdtv.color.default, cal=None):
 
@@ -222,7 +214,7 @@ class _RawSpectrum(Drawable):
             self.displayObj.ToBottom()
 
 
-class Spectrum(_RawSpectrum):
+class Spectrum(Histogram):
     """ 
     This CompoundObject is a dictionary of Fits belonging to a spectrum.
     """
@@ -238,10 +230,8 @@ class Spectrum(_RawSpectrum):
         # as marker positions are uncalibrated, 
         # we need do a recalibration here
         newID = self.fits.Add(fit, ID)
-        # TODO: This should be handled via "parent"
         fit.cal = self.cal
         fit.color = self.color
-        fit.parent = self
         fit.FixMarkerUncal()
         return newID
         

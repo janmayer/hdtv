@@ -50,16 +50,11 @@ class Fit(Drawable):
     def __init__(self, fitter, color=None, cal=None):
         self.regionMarkers = MarkerCollection("X", paired=True, maxnum=1,
                                              color=hdtv.color.region, cal=cal)
-        
-        self.regionMarkers.parent = self
         self.peakMarkers = MarkerCollection("X", paired=False, maxnum=None,
                                              color=hdtv.color.peak, cal=cal, hasIDs=True)
-        self.peakMarkers.parent = self
         self.bgMarkers = MarkerCollection("X", paired=True, maxnum=None,
                                              color=hdtv.color.bg, cal=cal)
-        self.bgMarkers.parent = self
         self.fitter = fitter
-        self.fitter.parent = self
         self.peaks = []
         self.chi = None
         self.bgChi = None
@@ -68,22 +63,24 @@ class Fit(Drawable):
         self.dispPeakFunc = None
         self.dispBgFunc = None
         self._title = None
-        self._workspec = None # Spectrum to work on if there is no parent spectrum -> HACK! TODO: FIX 
+# FIXME:
+#        self._workspec = None # Spectrum to work on if there is no parent spectrum -> HACK! TODO: FIX 
         Drawable.__init__(self, color, cal)
 
-        
-    @property
-    def spec(self):
-        # TODO: Fix this (see above)
-        if self.parent is None:
-            return self._workspec
-        else:
-            self._workspec = None
-            return self.parent
+# FIXME: do not use parent link!!!
+#    @property
+#    def spec(self):
+#        # TODO: Fix this (see above)
+#        if self.parent is None:
+#            return self._workspec
+#        else:
+#            self._workspec = None
+#            return self.parent
         
     def __copy__(self):
         return self.Copy()
-        
+    
+    # title property
     def _get_title(self):
         return self._title
     
@@ -93,7 +90,7 @@ class Fit(Drawable):
         
     title = property(_get_title, _set_title)
     
-    # calibration
+    # cal property
     def _set_cal(self, cal):
         self._cal = hdtv.cal.MakeCalibration(cal)
         if self.viewport:
@@ -115,7 +112,7 @@ class Fit(Drawable):
         
     cal = property(_get_cal,_set_cal)
     
-    # color
+    # color property
     def _set_color(self, color):
         self._activeColor = hdtv.color.Highlight(color, active=True)
         self._passiveColor = hdtv.color.Highlight(color, active=False)
@@ -124,18 +121,9 @@ class Fit(Drawable):
         self.peakMarkers.color = color
         self.regionMarkers.color = color
         self.bgMarkers.color = color
-        if self.dispPeakFunc:
-            if self.active:
-                self.dispPeakFunc.SetColor(hdtv.color.region)
-            else:
-                self.dispPeakFunc.SetColor(self._passiveColor)
-        if self.dispBgFunc:
-            if self.active:
-                self.dispBgFunc.SetColor(hdtv.color.bg)
-            else:
-                self.dispBgFunc.SetColor(self._passiveColor)
         for peak in self.peaks:
             peak.color = color
+        self._RefreshDisplay()
         if self.viewport:
             self.viewport.UnlockUpdate()
             
@@ -144,7 +132,25 @@ class Fit(Drawable):
         
     color = property(_get_color, _set_color)
 
-
+    # active property
+    def _set_active(self, state):
+        if self.viewport:
+            self.viewport.LockUpdate()
+        self._active = state
+        self.peakMarkers.active = state
+        self.regionMarkers.active = state
+        self.bgMarkers.active = state
+        for peak in self.peaks:
+            peak.active = state
+        self._RefreshDisplay()
+        if self.viewport:
+            self.viewport.UnlockUpdate()
+            
+    def _get_active(self):
+        return self._active
+        
+    active = property(_get_active, _set_active)
+            
     @property
     def xdimensions(self):
         """
@@ -172,9 +178,6 @@ class Fit(Drawable):
             x_end = max(markers)
             return (x_start, x_end)
         
-    
-    
-    
     def __str__(self):
         return self.formatted_str(verbose=False)
         
@@ -231,8 +234,6 @@ class Fit(Drawable):
         """
         if spec is None:
             spec = self.spec 
-        else:
-            self._workspec = weakref.proxy(spec) # TODO: Fix and remove (see above)
         # set calibration without changing position of markers,
         # because the marker have been set by the user to calibrated values
 #        self.Recalibrate(spec.cal)
@@ -271,8 +272,6 @@ class Fit(Drawable):
         
         if spec is None:
             spec = self.spec
-        else:
-            self._workspec = weakref.proxy(spec) # TODO: Fix and remove (see above)
         # set calibration without changing position of markers,
         # because the marker have been set by the user to calibrated values
         self.cal=spec.cal
@@ -403,7 +402,7 @@ class Fit(Drawable):
         for peak in self.peaks:
             peak.color=self.color
             peak.Draw(self.viewport)
-        self.Show()
+        self._RefreshDisplay()
         self.viewport.UnlockUpdate()
 
 
@@ -429,13 +428,12 @@ class Fit(Drawable):
         # draw peaks
         for peak in self.peaks:
             peak.Draw(self.viewport)
-            if not self.showDecomp:
-                peak.Hide()
         # draw the markers (do this after the fit, 
         # because the fit updates the position of the peak markers)
         self.peakMarkers.Refresh()
         self.regionMarkers.Refresh()
         self.bgMarkers.Refresh()
+        self._RefreshDisplay()
         self.viewport.UnlockUpdate()
 
 
@@ -449,11 +447,15 @@ class Fit(Drawable):
         self.dispPeakFunc = None
         self.peaks = []
         self.chi=None 
-
-    def Show(self):
-        if not self.viewport:
-            return
-        self.viewport.LockUpdate()
+        
+        
+    def _RefreshDisplay(self):
+        """ 
+        This function contains the logic what markers/functions to show and 
+        in what color depending on the state (active or not) of this fit.
+        """
+        if self.viewport:
+            self.viewport.LockUpdate()
         if self.active or len(self.peaks)==0:
             # show all markers, if fit is active or if fit is unfinished,
             # the second case can happen when switching to another spectrum,
@@ -478,13 +480,24 @@ class Fit(Drawable):
             else:
                 self.dispBgFunc.SetColor(self.color)
             self.dispBgFunc.Show()
+        # peak list
         for peak in self.peaks:
+            if self.active:
+                peak.color = hdtv.color.peak
+            else:
+                peak.color = self.color
             if self.showDecomp:
                 peak.Show()
             else:
                 peak.Hide()
-        self.viewport.UnlockUpdate()
+        if self.viewport:
+            self.viewport.UnlockUpdate()
 
+    def Show(self):
+        if not self.viewport:
+            return
+        self._RefreshDisplay()
+        
 
     def Hide(self):
         if not self.viewport:
@@ -535,7 +548,6 @@ class Fit(Drawable):
             else:
                 for peak in self.peaks:
                     peak.Hide()
-
 
 
 

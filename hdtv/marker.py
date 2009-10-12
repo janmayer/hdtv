@@ -206,11 +206,10 @@ class Marker(Drawable):
             self.displayObj.SetTitle(self.title)
 
 
-class MarkerCollection(list, Child):
+class MarkerCollection(list):
     
     def __init__(self, xytype, paired=False, maxnum=None, color=None, cal=None, connecttop=True, hasIDs=False):
         list.__init__(self)
-        Child.__init__(self, parent=None)
         self.viewport = None
         self.xytype = xytype
         self.paired = paired
@@ -224,26 +223,24 @@ class MarkerCollection(list, Child):
 
         
     def __setitem__(self, m):
-        m.parent = self
         list.__set_item__(self,m)
         
     def append(self, m):
-        m.parent = self
         list.append(self,m)
 
-    
-    @property
-    def title(self):
-        if self.hasIDs:
-            if not self.parent is None and not self.parent.title is None:
-                title = self.parent.title + "."
-            else:
-                title = "."
-        else:
-            title = ""
-        return title
+#  FIXME: do not use parent link
+#    @property
+#    def title(self):
+#        if self.hasIDs:
+#            if not self.parent is None and not self.parent.title is None:
+#                title = self.parent.title + "."
+#            else:
+#                title = "."
+#        else:
+#            title = ""
+#        return title
         
-    # color
+    # color property
     def _set_color(self, color):
         # active color is given at creation and should not change
         self._passiveColor = hdtv.color.Highlight(color, active=False)
@@ -255,7 +252,7 @@ class MarkerCollection(list, Child):
         
     color = property(_get_color, _set_color)
 
-    # calibration
+    # cal property
     def _set_cal(self, cal):
         self._cal= hdtv.cal.MakeCalibration(cal)
         for marker in self:
@@ -268,20 +265,15 @@ class MarkerCollection(list, Child):
     cal = property(_get_cal,_set_cal)
 
     # active property
-    @property
-    def active(self):
-        # an object is active, either when it is not belonging anywhere 
-        if self.parent is None:
-            return True
-        # or when its parent is active
-        if self.parent.active:
-            try:
-                # ask the parent for a decision
-                return (self.parent.GetActiveObject() is self)
-            except AttributeError:
-                # otherwise all objects of that parent are active
-                return True
-        return False
+    def _set_active(self, state):
+        self._active = state
+        for marker in self:
+            marker.active = state
+    
+    def _get_active(self):
+        return self._active
+        
+    active = property(_get_active, _set_active)
 
 
     def Draw(self, viewport):
@@ -319,7 +311,7 @@ class MarkerCollection(list, Child):
         Put a marker to calibrated position pos, possibly completing a marker pair
         """
         if isinstance(pos, (float,int)):
-            pos = hdtv.util.Position(pos_cal = pos, parent=self)
+            pos = hdtv.util.Position(pos_cal = pos)
 
         if self.IsFull():
             pending = self.pop(0)
