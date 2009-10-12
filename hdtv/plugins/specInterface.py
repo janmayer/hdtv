@@ -46,7 +46,7 @@ class SpecInterface:
     
         self.window = window
         self.spectra= spectra
-        self.caldict = dict()
+        self.caldict = dict()   # FIXME: Why do we need this?
         
         # tv commands
         self.tv = TvSpecInterface(self)
@@ -183,18 +183,19 @@ class SpecInterface:
         self.window.viewport.UnlockUpdate()
         return loaded
 
+# FIXME: can we remove this, it seems not to be used anywhere
+#    def FindSpectrumByName(self, spectra, name):
+#        """
+#        Find the spectrum object whose ROOT histogram has the given name.
+#        If there are several such objects, one of them (in undefined ordering)
+#        is returned. If there is none, None is returned.
+#        """
+#        for obj in self.spectra.itervalues():
+#            if obj.name == name:
+#                return obj
+#        return None
 
-    def FindSpectrumByName(self, name):
-        """
-        Find the spectrum object whose ROOT histogram has the given name.
-        If there are several such objects, one of them (in undefined ordering)
-        is returned. If there is none, None is returned.
-        """
-        for obj in self.spectra.itervalues():
-            if obj.name == name:
-                return obj
-        return None
-            
+
     def CopySpectrum(self, ID, copyTo=None):
         """
         Copy spectrum
