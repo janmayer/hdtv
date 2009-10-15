@@ -40,6 +40,9 @@ class EffCalIf(object):
         
         self.spectra = spectra
         
+        # tv commands
+        self.tv = EffCalHDTVInterface(self) 
+        
     def SetFun(self, spectrumID, name, parameter=None):
         """
         Set efficiency function to use
@@ -198,10 +201,11 @@ class EffCalIf(object):
    
 class EffCalHDTVInterface(object):
     
-    def __init__(self, spectra):
+    def __init__(self, EffCalIf):
         
-        self.effIf = EffCalIf(spectra)
-        self.spectra = spectra
+        self.effIf = EffCalIf
+        self.spectra = EffCalIf.spectra
+
         self.opt = dict()
         
         self.opt["eff_fun"] = hdtv.options.Option(default = "wunder")
@@ -296,9 +300,9 @@ class EffCalHDTVInterface(object):
             covFileName = options.file + ".cov"
         
         try:
-            ids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
+            ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
         except ValueError:
-            hdtv.ui.error("Invalid ID %s" % options.spec)
+            hdtv.ui.error("Invalid ID %s" % options.spectrum)
             return
         
         for ID in ids:
@@ -318,9 +322,9 @@ class EffCalHDTVInterface(object):
         filename = args[0]
         
         try:
-            ids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
+            ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
         except ValueError:
-            hdtv.ui.error("Invalid ID %s" % options.spec)
+            hdtv.ui.error("Invalid ID %s" % options.spectrum)
             return
         
         for ID in ids:
@@ -337,9 +341,9 @@ class EffCalHDTVInterface(object):
         filename = args[0]
         
         try:
-            ids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
+            ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
         except ValueError:
-            hdtv.ui.error("Invalid ID %s" % options.spec)
+            hdtv.ui.error("Invalid ID %s" % options.spectrum)
             return
 
         for ID in ids:
@@ -355,9 +359,9 @@ class EffCalHDTVInterface(object):
         filename = args[0]
         
         try:
-            ids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
+            ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
         except ValueError:
-            hdtv.ui.error("Invalid ID %s" % options.spec)
+            hdtv.ui.error("Invalid ID %s" % options.spectrum)
             return
         
         if len(ids) > 1:
@@ -378,9 +382,9 @@ class EffCalHDTVInterface(object):
         filename = args[0]
         
         try:
-            ids = hdtv.cmdhelper.ParseIds(options.spec, self.spectra)
+            ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
         except ValueError:
-            hdtv.ui.error("Invalid ID %s" % options.spec)
+            hdtv.ui.error("Invalid ID %s" % options.spectrum)
             return
         
         if len(ids) > 1:
@@ -618,7 +622,7 @@ class EnergyCalHDTVInterface(object):
         parser.add_option("-f", "--file", action = "store",
                           default = None, help = "get channel<->energy pairs from file")
         hdtv.cmdline.AddCommand(prog, self.CalPosEnter, level=0, parser = parser,
-                                minargs = 4, fileargs = True)
+                                minargs = 0, fileargs = True) # Number of args can be 0 if "-f" is given 
         
         prog = "calibration position read"
         usage = usage = "%prog [OPTIONS] <filename>"
