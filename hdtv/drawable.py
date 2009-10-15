@@ -23,16 +23,17 @@ import hdtv.cal
 import hdtv.color
 import hdtv.ui
 
-import hdtv.dlmgr
-hdtv.dlmgr.LoadLibrary("display")
 
 class Drawable(object):
     def __init__(self, color=None, cal=None, parent=None):
         self.viewport = None
+        self._active = False
+        self._cal = cal
+        self._activeColor = hdtv.color.Highlight(color, active=True)
+        self._passiveColor = hdtv.color.Highlight(color, active=False) 
+        # displayObj will be created when calling Draw
         self.displayObj = None
-        self.cal = cal
-        self.color = color 
-        
+       
     def __str__(self):
         return str(self.displayObj)
 
@@ -85,6 +86,7 @@ class Drawable(object):
         
     active = property(_get_active, _set_active)
     
+    
     def Draw(self, viewport):
         """
         This function must create the appropriate object from the underlying
@@ -134,52 +136,60 @@ class Drawable(object):
 
 class DrawableManager(object):
     """
-    This class provides some handy functions to manage a collection of drawable 
-    objects of the same kind.
+    This class provides some handy functions to manage a collection of 
+    identical drawable objects.
     """
-    def __init__(self):
+    def __init__(self, viewport=None):
+        self.viewport = viewport
         # dictionary to store the drawable objects
         self.dict = dict()
-        self.viewport = None
         self.visible = set()
-        self._activeID = None
+        self.activeID = None
         # This should keep track of ID for nextID, prevID
         self._iteratorID = self.activeID 
-
-    # activeID property
-    def _set_activeID(self, ID):
-        self._activeID = ID
-        hdtv.ui.debug("hdtv.drawable.DrawableManager._set_activeID: Resetting iterator to %s" % self._activeID, level=6)
-        if self._activeID is not None:
-            # Reset iterator
-            self._iteratorID = self._activeID 
+        self._active = False
+    
+    def __len__(self):
+        return len(self.dict)
         
-    def _get_activeID(self):
-        return self._activeID
+    @property
+    def ids(self):
+        return self.dict.keys()
     
-    activeID = property(_get_activeID, _set_activeID)
-    
-    
+    # active property
+    def _set_active(self, state):
+        self._active = state
+        if self.activeID is not None:
+            # give state to the active child
+            self.GetActiveObject().active=state
+        
+    def _get_active(self):
+        return self._active
+        
+    active = property(_get_active, _set_active)
+
     def ActivateObject(self, ID=None):
         """
         Activates the object with id ID
         """
         if self.viewport:
             self.viewport.LockUpdate()
-        # save ID of old active object
-        oldID = self.activeID
         # change state of former active object
-        self.dict[oldID].active = False
+        if self.activeID is not None:
+            self.GetActiveObject().active = False
         # activate new object
         self.activeID = ID
-        # update display for new active object
-        if not ID is None:
-            self.dict[ID].active = True
+        if self.activeID is not None:
+            # reset iterator
+            self._iteratorID = self.activeID 
+            # change state of object
+            self.GetActiveObject().active = self.active
             # call ShowObject, to make sure the new active object is visible
             self.ShowObjects(ID, clear=False)
         if self.viewport:
             self.viewport.UnlockUpdate()
-
+                
+ 
     def GetActiveObject(self):
         """
         Returns currently active object
@@ -187,18 +197,18 @@ class DrawableManager(object):
         if self.activeID is None:
             return None
         else:
-            return self[self.activeID]
+            return self.dict[self.activeID]
 
-
-    def Index(self, obj):
-        """
-        Return index such that self[index] == obj
-        """
-        index = [k for (k,v) in self.dict.iteritems() if v == obj]
-        if len(index) == 0:
-            raise ValueError, "Object not found in this collection"
-        else:
-            return index[0]
+# DO we need this?
+#    def Index(self, obj):
+#        """
+#        Return index such that self[index] == obj
+#        """
+#        index = [k for (k,v) in self.dict.iteritems() if v == obj]
+#        if len(index) == 0:
+#            raise ValueError, "Object not found in this collection"
+#        else:
+#            return index[0]
 
     def Insert(self, obj, ID=None):
         """
@@ -210,11 +220,9 @@ class DrawableManager(object):
         if ID is None:
             ID = self.GetFreeID()
         hdtv.ui.debug("hdtv.drawable.DrawableCompound.Insert(): setting _iteratorID to %s" % ID)
+        self._iteratorID = ID
         self.dict[ID] = obj
-        try:
-            obj.title = str(ID)
-        except AttributeError:
-            pass
+        obj.ID = ID
         if self.viewport:
             obj.Draw(self.viewport)
             self.visible.add(ID)
@@ -309,7 +317,7 @@ class DrawableManager(object):
         """
         Refresh all objects in dict
         """
-        return self.Refresh(self.dict.keys())
+        return self.Refresh(self.dict.iterkeys())
         
     def RefreshVisible(self):
         """
@@ -337,21 +345,24 @@ class DrawableManager(object):
     # Hide commands
     def Hide(self):
         """
-        Hide the whole object
+        Hide the object as a whole (with info about current visible/active states)
         """
-        return self.HideAll()
+        # do not call HideAll here, as then we loose the info about 
+        # visible/active states of the objects
+        for obj in self.dict.itervalues():
+            obj.Hide()
         
             
     def HideAll(self):
         """
-        Hide all 
+        Hide all child objects
         """
-        return self.HideObjects(self.dict.keys())
+        return self.HideObjects(self.dict.iterkeys())
 
             
     def HideObjects(self, ids):
         """
-        Hide objects from the display
+        Hide objects
         """
         if self.viewport is None:
             return
@@ -375,15 +386,17 @@ class DrawableManager(object):
     # Show commands:
     def Show(self):
         """
-        Show the whole object
+        Show the whole object (according to last visible/active states)
         """
-        return self.ShowAll()
+        self.ShowObjects(self.visible)
+        if self.activeID is not None:
+            self.GetActiveObject().active=self.active
         
     def ShowAll(self):
         """
         Show all 
         """
-        return self.ShowObjects(self.dict.keys(), clear=True)
+        return self.ShowObjects(self.dict.iterkeys(), clear=True)
     
     def ShowObjects(self, ids, clear=True):
         """

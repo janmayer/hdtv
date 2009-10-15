@@ -30,7 +30,7 @@ import hdtv.cal
 import hdtv.util
 import hdtv.ui
  
-from hdtv.spectrum import Spectrum, FileSpectrum
+from hdtv.spectrum import Spectrum, FileHistogram
 from hdtv.specreader import SpecReaderError
 from copy import copy
 
@@ -41,11 +41,11 @@ class SpecInterface:
     """
     User interface to work with 1-d spectra
     """
-    def __init__(self, window, spectra):
+    def __init__(self, main):
         hdtv.ui.msg("Loaded user interface for working with 1-d spectra")
     
-        self.window = window
-        self.spectra= spectra
+        self.window = main.window
+        self.spectra= main
         self.caldict = dict()   # FIXME: Why do we need this?
         
         # tv commands
@@ -58,8 +58,8 @@ class SpecInterface:
         # register common tv hotkeys
         self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_p], self._HotkeyShowPrev)
         self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_n], self._HotkeyShowNext)
-#        self.window.AddHotkey(ROOT.kKey_Equal, self.spectra.RefreshAll)
-#        self.window.AddHotkey(ROOT.kKey_t, self.spectra.RefreshVisible)
+        self.window.AddHotkey(ROOT.kKey_Equal, self.spectra.RefreshAll)
+        self.window.AddHotkey(ROOT.kKey_t, self.spectra.RefreshVisible)
         self.window.AddHotkey(ROOT.kKey_n,
                 lambda: self.window.EnterEditMode(prompt="Show spectrum: ",
                                            handler=self._HotkeyShow))
@@ -134,7 +134,7 @@ class SpecInterface:
         if type(patterns) == str or type(patterns) == unicode:
             patterns = [patterns]
 
-        if ID != None and len(patterns) > 1:
+        if ID is not None and len(patterns) > 1:
             hdtv.ui.error("If you specify an ID, you can only give one pattern")
             self.window.viewport.UnlockUpdate()
             return
@@ -152,7 +152,7 @@ class SpecInterface:
             
             if len(files) == 0:
                 hdtv.ui.warn("Warning: %s: no such file" % fpat)
-            elif ID != None and len(files) > 1:
+            elif ID is not None and len(files) > 1:
                 hdtv.ui.error("Error: pattern %s is ambiguous and you specified an ID" % fpat)
                 break
                 
@@ -160,13 +160,12 @@ class SpecInterface:
             
             for fname in files:
                 try:
-                    # Create spectrum compund
-                    spec = FileSpectrum(fname, fmt)
+                    # Create spectrum object
+                    spec = Spectrum(FileHistogram(fname, fmt))
                 except (OSError, SpecReaderError):
                     hdtv.ui.warn("Could not load %s'%s" % (fname, fmt))
                 else:
-                    sid = self.spectra.Add(spec, ID)
-                    
+                    sid = self.spectra.Insert(spec, ID)
                     spec.color = hdtv.color.ColorForID(sid)
                     loaded.append(sid)
                     
@@ -176,24 +175,13 @@ class SpecInterface:
                         hdtv.ui.msg("Loaded %s'%s into %d" % (fname, fmt, sid))
         
         if len(loaded)>0:
+            # activate last loaded spectrum
             self.spectra.ActivateObject(loaded[-1])
         # Update viewport if required
         if len(self.spectra) == 1: # Expand window if it is the only spectrum
             self.window.Expand()
         self.window.viewport.UnlockUpdate()
         return loaded
-
-# FIXME: can we remove this, it seems not to be used anywhere
-#    def FindSpectrumByName(self, spectra, name):
-#        """
-#        Find the spectrum object whose ROOT histogram has the given name.
-#        If there are several such objects, one of them (in undefined ordering)
-#        is returned. If there is none, None is returned.
-#        """
-#        for obj in self.spectra.itervalues():
-#            if obj.name == name:
-#                return obj
-#        return None
 
 
     def CopySpectrum(self, ID, copyTo=None):
@@ -206,10 +194,10 @@ class SpecInterface:
             copyTo = self.spectra.GetFreeID()
 
         hdtv.ui.debug("Copy spec " + str(ID) + " to " + str(copyTo), level=2)
-        hist = copy(self.spectra[ID].fHist)
+        hist = copy(self.spectra.dict[ID].fHist)
 
-        spec = Spectrum(hist, cal=self.spectra[ID].cal) 
-        sid = self.spectra.Add(spec, copyTo)
+        spec = Spectrum(hist, cal=self.spectra.dict[ID].cal) 
+        sid = self.spectra.Insert(spec, copyTo)
         spec.color = hdtv.color.ColorForID(sid)
         hdtv.ui.msg("Copied spectrum " + str(ID) + " to " + str(sid))
 
@@ -301,7 +289,7 @@ class TvSpecInterface:
         spectra = list()
         params = ["ID", "stat", "name"]
         
-        for (ID, obj) in self.spectra.iteritems():
+        for (ID, obj) in self.spectra.dict.iteritems():
             
             if options.visible and (ID not in self.spectra.visible):
                 continue
@@ -316,7 +304,7 @@ class TvSpecInterface:
             
             thisspec["ID"] = ID
             thisspec["stat"] = status
-            thisspec["name"] = self.spectra[ID].name
+            thisspec["name"] = self.spectra.dict[ID].name
             spectra.append(thisspec)
         
         table = hdtv.util.Table(spectra, params, sortBy="ID")         
@@ -421,20 +409,20 @@ class TvSpecInterface:
             hdtv.ui.warn("Nothing to do")
             return
 
-        if not addTo in self.spectra.keys():
+        if not addTo in self.spectra.dict.keys():
             sid = self.specIf.CopySpectrum(ids.pop(), addTo)
         
         for i in ids:
             try:
                 hdtv.ui.msg("Adding " + str(i) + " to " + str(addTo))
-                self.spectra[addTo].Plus(self.spectra[i])
+                self.spectra.dict[addTo].Plus(self.spectra.dict[i])
             except KeyError:
                 hdtv.ui.error("Could not add " + str(i))
                 
         if options.normalize:
             norm_fac = len(ids)
             hdtv.ui.msg("Normalizing spectrum %d by 1/%d" % (addTo, norm_fac))
-            self.spectra[addTo].Multiply(1./norm_fac)
+            self.spectra.dict[addTo].Multiply(1./norm_fac)
 
 
     def SpectrumSub(self, args, options):
@@ -454,13 +442,13 @@ class TvSpecInterface:
             hdtv.ui.warn("Nothing to do")
             return
 
-        if not subFrom in self.spectra.keys():
+        if not subFrom in self.spectra.dict.keys():
             sid = self.specIf.CopySpectrum(ids.pop(), subFrom)
         
         for i in ids:
             try:
                 hdtv.ui.msg("Substracting " + str(i) + " from " + str(subFrom))
-                self.spectra[subFrom].Minus(self.spectra[i])
+                self.spectra.dict[subFrom].Minus(self.spectra.dict[i])
             except KeyError:
                 hdtv.ui.error("Could not substract " + str(i))
 
@@ -486,9 +474,9 @@ class TvSpecInterface:
             return
 
         for i in ids:
-            if i in self.spectra.keys():
+            if i in self.spectra.dict.keys():
                 hdtv.ui.msg("Multiplying " + str(i) + " with " + str(factor))
-                self.spectra[i].Multiply(factor)
+                self.spectra.dict[i].Multiply(factor)
             else:
                 hdtv.ui.error("Cannot multiply spectrum " + str(i) + " (Does not exist)")  
     
@@ -506,7 +494,7 @@ class TvSpecInterface:
         """
 
         if len(args) == 0:
-            ids = self.spectra.keys()
+            ids = self.spectra.dict.keys()
         else:
             try:
                 ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
@@ -538,7 +526,7 @@ class TvSpecInterface:
         s = ""
         for ID in ids:
             try:
-                spec = self.spectra[ID]
+                spec = self.spectra.dict[ID]
             except KeyError:
                 s += "Spectrum %d: ID not found\n" % ID
                 continue
@@ -579,7 +567,7 @@ class TvSpecInterface:
                 hdtv.ui.error("There is just one index possible here.")
                 raise ValueError
             try:
-                self.spectra[ID].WriteSpectrum(fname, fmt)
+                self.spectra.dict[ID].WriteSpectrum(fname, fmt)
                 hdtv.ui.msg("Wrote spectrum with id %d to file %s" %(ID, fname))
             except KeyError:
                  hdtv.ui.warn("There is no spectrum with id: %s" %ID)
@@ -609,7 +597,7 @@ class TvSpecInterface:
             ID = ids[0]
             name = args[1]
         
-        self.spectra[ID].name = name
+        self.spectra.dict[ID].name = name
         hdtv.ui.msg("Renamed spectrum %d to \'%s\'" % (ID, name))
     
     def SpectrumNormalization(self, args):
@@ -629,19 +617,12 @@ class TvSpecInterface:
             
         for ID in ids:
             try:
-                self.spectra[ID].SetNorm(norm)
+                self.spectra.dict[ID].SetNorm(norm)
             except KeyError:
                 hdtv.ui.error("There is no spectrum with id: %s" % ID)
 
 
 # plugin initialisation
 import __main__
-if not hasattr(__main__,"window"):
-    import hdtv.window
-    __main__.window = hdtv.window.Window()
-if not hasattr(__main__, "spectra"):
-    import hdtv.drawable
-    __main__.spectra = hdtv.drawable.DrawableCompound()
-    __main__.spectra.Draw(__main__.window.viewport)
-__main__.s = SpecInterface(__main__.window, __main__.spectra)
+__main__.s = SpecInterface(__main__.main)
 

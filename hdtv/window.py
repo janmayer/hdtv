@@ -20,14 +20,14 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 import ROOT
-import hdtv.dlmgr
 import hdtv.options
 import hdtv.color
+import hdtv.cmdline
 from hdtv.marker import MarkerCollection
 
 from types import *
-import hdtv.cmdline
 
+import hdtv.dlmgr
 hdtv.dlmgr.LoadLibrary("display")
 
 class HotkeyList:
@@ -272,35 +272,35 @@ class Window(KeyHandler):
         hdtv.cmdline.AddCommand(prog, self.ViewRegion, nargs=2,parser=parser)
         
         
-
     def YMinVisibleRegionChanged(self, opt):
         self.viewport.SetYMinVisibleRegion(opt.Get())
     
     
     def ViewRegion(self, args, options):
-        
+        """
+        Zoom and move viewport to show a region
+        """
         if len(args) != 2:
             return "USAGE"
-        
         try:
             start = float(args[0])
             end = float(args[1])
         except ValueError:
             return "USAGE"
-
         width = abs(end - start)
         center = start + width / 2.
-        
         self.viewport.SetXVisibleRegion(width)
         self.viewport.SetXCenter(center)
         
-    def GoToPosition(self, arg, options=None):
         
+    def GoToPosition(self, arg, options=None):
+        """
+        Move viewport to be centered around a position
+        """
         try:
             width=options.width
         except AttributeError:
             width = 100.
-            
         try:
             center = float(arg)
         except TypeError:
@@ -308,8 +308,6 @@ class Window(KeyHandler):
         except ValueError:
             self.viewport.SetStatusText("Invalid position: %s" % arg)
             return
-        
-        
         self.viewport.SetXVisibleRegion(width)
         self.viewport.SetXCenter(center)
         
@@ -358,6 +356,7 @@ class Window(KeyHandler):
                 self.viewport.ShowAll()
             elif xytype == "Y":
                 self.viewport.YAutoScaleOnce()
+                
 
     def PutXZoomMarker(self):
         """
@@ -365,6 +364,7 @@ class Window(KeyHandler):
         """
         pos = self.viewport.GetCursorX()
         self.XZoomMarkers.PutMarker(pos)
+        
         
     def PutYZoomMarker(self):
         """

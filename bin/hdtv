@@ -7,7 +7,6 @@
 # Load required modules
 import sys
 import os
-import ROOT
 
 # Get ~/.hdtv directory
 try:
@@ -33,25 +32,29 @@ if os.path.exists(hdtvpath+os.sep+'hdtv'):
     sys.path.insert(2,hdtvpath)
 
 # Import core modules
-import hdtv.dlmgr
 import hdtv.cmdline
+import hdtv.session
+import hdtv.ui
+
+
 hdtv.cmdline.ReadReadlineInit(configpath + "/inputrc")
 hdtv.cmdline.SetReadlineHistory(configpath + "/hdtv_history")
 hdtv.cmdline.SetInteractiveDict(locals())
+main = hdtv.session.Session()
 
 # Import core plugins
-import hdtv.plugins.textInterface
-import hdtv.plugins.ls
-import hdtv.plugins.run
+#import hdtv.plugins.textInterface
+#import hdtv.plugins.ls
+#import hdtv.plugins.run
 import hdtv.plugins.specInterface 
-import hdtv.plugins.fitInterface
-import hdtv.plugins.calibration
-import hdtv.plugins.matrix
-import hdtv.plugins.rootfile
-import hdtv.plugins.config
-import hdtv.plugins.fitlist
-import hdtv.plugins.dblookup
-import hdtv.plugins.peakfinder
+#import hdtv.plugins.fitInterface
+#import hdtv.plugins.calibration
+#import hdtv.plugins.matrix
+#import hdtv.plugins.rootfile
+#import hdtv.plugins.config
+#import hdtv.plugins.fitlist
+#import hdtv.plugins.dblookup
+#import hdtv.plugins.peakfinder
 
 # Execute startup.py for user configuration in python
 try:
@@ -80,6 +83,7 @@ hdtv.ui.msg("  This software is licensed under the GPL.")
 hdtv.ui.msg("=========================================================")
 hdtv.ui.newline()
 # Go
+
 hdtv.cmdline.MainLoop()
 hdtv.cmdline.command_tree.SetDefaultLevel(1)
 

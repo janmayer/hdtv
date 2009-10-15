@@ -33,15 +33,15 @@ def GetCompleteOptions(begin, options):
     l = len(begin)
     return [o + " " for o in options if o[0:l] == begin]
     
-def ParseIds(strings, drawable, only_existent=True):
+def ParseIds(strings, manager, only_existent=True):
     """
-    Parse Spectrum/Fit Ids
+    Parse Spectrum/Fit IDs
     
     Allowed keywords: "ALL","NONE","ACTIVE","VISIBLE", "NEXT", "PREV", "FIRST", "LAST"
     
-    Raised ValueError on malformed Ids
+    Raised ValueError on malformed IDs
     
-    if only_existent is True only currently existing ids are returned
+    if only_existent is True only currently existing IDs are returned
     """
     
     special = ["ALL","NONE","ACTIVE","VISIBLE", "NEXT", "PREV", "FIRST", "LAST"]
@@ -55,32 +55,26 @@ def ParseIds(strings, drawable, only_existent=True):
     # processing different cases
     if ids=="NONE":
         ids = list()
-#    if ids in [ "ACTIVE" ]:
-#        if not hasattr(spec, "activeID") or spec.activeID is None:
-#            hdtv.ui.warn("There is no active fit.")
-#            return list()
     elif ids == "NEXT":
-        ids = [drawable.nextID]
+        ids = [manager.nextID]
     elif ids == "PREV":
-        ids = [drawable.prevID]
+        ids = [manager.prevID]
     elif ids == "FIRST":
-        ids = [drawable.firstID]
+        ids = [manager.firstID]
     elif ids == "LAST":
-        ids = [drawable.lastID]
+        ids = [manager.lastID]
     elif ids == "ACTIVE" or len(ids) == 0:
-        ids = [drawable.activeID]
+        ids = [manager.activeID]
     elif ids=="ALL":
-        ids = drawable.keys()
+        ids = manager.ids
     elif ids=="VISIBLE":
-        ids = list(drawable.visible)
+        ids = list(manager.visible)
         
-    fits = list()
     # filter non-existing ids
     valid_ids = list() 
     if only_existent:
         for ID in ids:
-            if ID is None: continue
-            if not ID in drawable.keys():
+            if not ID in drawable.ids():
                 hdtv.ui.warn("Non-existent id %s" %ID)
             else:
                 valid_ids.append(ID)

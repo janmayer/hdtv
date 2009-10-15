@@ -676,14 +676,14 @@ class Position():
         
     def _Ch2E(self, Ch):
         if self.cal is None:
-            E = None
+            E = Ch
         else:
             E = self.cal.Ch2E(Ch)
         return E
     
     def _E2Ch(self, E):
         if self.cal is None:
-            Ch = None
+            Ch = E
         else:
             Ch = self.cal.E2Ch(E)
         return Ch

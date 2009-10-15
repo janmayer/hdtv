@@ -21,14 +21,11 @@
 
 import ROOT
 import os
-import hdtv.dlmgr
 import hdtv.color 
 import hdtv.ui
 
 from hdtv.drawable import Drawable, DrawableManager
 from hdtv.specreader import SpecReader, SpecReaderError
-
-hdtv.dlmgr.LoadLibrary("display")
 
 class Histogram(Drawable):
     """
@@ -39,50 +36,81 @@ class Histogram(Drawable):
     viewer.
     """
     def __init__(self, hist, color=hdtv.color.default, cal=None):
-
-        self.norm = 1.0
-        self.fHist = hist
-        self.fEffCal = None
-
         Drawable.__init__(self, color, cal)
-        
-        
+        self._hist = hist
+        self._norm = 1.0
+        self._ID = None
+        self.effCal = None
+
     def __str__(self):
         return self.name
-
+        
+    # hist property
+    def _set_hist(self, hist):
+        self._hist = hist
+        if self.displayObj:
+            self.displayObj.SetHist(self._hist)
+    
+    def _get_hist(self):
+        return self._hist
+        
+    hist = property(_get_hist, _set_hist)
+        
     # name property
     def _get_name(self):
-        if self.fHist:
-            return self.fHist.GetName()
+        if self._hist:
+            return self._hist.GetName()
         
     def _set_name(self, name):
-        self.fHist.SetName(name)
+        self._hist.SetName(name)
         
     name = property(_get_name, _set_name)
+
+    # norm property
+    def _set_norm(self, norm):
+        self._norm = norm
+        if self.displayObj:
+            self.displayObj.SetNorm(self.norm)
+
+    def _get_norm(self):
+        return self._norm
+        
+    norm = property(_get_norm, _set_norm)
     
-    def GetTypeStr(self):
+    # id property
+    def _set_ID(self, ID):
+        self._ID = ID
+        if self.displayObj:
+            self.displayObj.SetID(ID)
+    
+    def _get_ID(self):
+        return self._ID
+        
+    ID = property(_get_ID, _set_ID)
+            
+    @property
+    def typeStr(self):
         """
         Return a string describing the type of this spectrum.
         Should be overridden by subclasses.
         """
-        if self.fHist:
+        if self._hist:
             return "spectrum"
         else:
             return "empty spectrum (no associated ROOT TH1 object)"
-            
-    def GetInfo(self):
+    
+    @property   
+    def info(self):
         """
         Return a string describing this spectrum
         """
-        s = "Spectrum type: %s\n" % self.GetTypeStr()
-        if not self.fHist:
+        s = "Spectrum type: %s\n" % self.typeStr()
+        if not self._hist:
             return s
-        
         s += "Name: %s\n" % str(self)
-        s += "Nbins: %d\n" % self.fHist.GetNbinsX()
-        xmin = self.fHist.GetXaxis().GetXmin()
-        xmax = self.fHist.GetXaxis().GetXmax()
-        
+        s += "Nbins: %d\n" % self._hist.GetNbinsX()
+        xmin = self._hist.GetXaxis().GetXmin()
+        xmax = self._hist.GetXaxis().GetXmax()
         if self.cal and not self.cal.IsTrivial():
             s += "Xmin: %.2f (cal)  %.2f (uncal)\n" % (self.cal.Ch2E(xmin), xmin)
             s += "Xmax: %.2f (cal)  %.2f (uncal)\n" % (self.cal.Ch2E(xmax), xmax)
@@ -96,93 +124,57 @@ class Histogram(Drawable):
             s += "Calibration: Polynomial, degree %d\n" % self.cal.GetDegree()
         else:
             s += "Calibration: unknown\n"
-            
         return s
               
-
     # TODO: sumw2 function should be called at some point for correct error handling
     def Plus(self, spec):
         """
         Add other spectrum to this one
         """ 
-        self.fHist.Add(spec.fHist, 1.0)
-        self.SetHist(self.fHist)
-
+        self._hist.Add(spec._hist, 1.0)
+        
     def Minus(self, spec):
         """
         Substract other spectrum from this one
         """ 
-        self.fHist.Add(spec.fHist, -1.0)
-        self.SetHist(self.fHist)
-    
+        self._hist.Add(spec._hist, -1.0)
+            
     def Multiply(self, factor):
         """
         Multiply spectrum with factor
         """ 
-        self.fHist.Scale(factor)
-        self.SetHist(self.fHist)
+        self._hist.Scale(factor)
         
-        
+       
     def Draw(self, viewport):
         """
         Draw this spectrum to the viewport
         """
-        if not self.viewport is None:
-            if self.viewport == viewport:
-                # this spectrum has already been drawn
-                self.Show()
-                return
-            else:
-                # Unlike the DisplaySpec object of the underlying implementation,
-                # Spectrum() objects can only be drawn on a single viewport
-                raise RuntimeError, "Spectrum can only be drawn on a single viewport"
+        
+        if not self.viewport is None and not self.viewport == viewport:
+            # Unlike the DisplaySpec object of the underlying implementation,
+            # Spectrum() objects can only be drawn on a single viewport
+            raise RuntimeError, "Spectrum can only be drawn on a single viewport"
         self.viewport = viewport
         # Lock updates
         self.viewport.LockUpdate()
         # Show spectrum
-        if self.displayObj is None and not self.fHist is None:
+        if self.displayObj is None and not self._hist is None:
             if self.active:
                 color = self._activeColor
             else:
                 color= self._passiveColor
-            self.displayObj = ROOT.HDTV.Display.DisplaySpec(self.fHist, color)
-            self.displayObj.SetID(self.ID)
+            self.displayObj = ROOT.HDTV.Display.DisplaySpec(self._hist, color)
             self.displayObj.SetNorm(self.norm)
             self.displayObj.Draw(self.viewport)
             # add calibration
             if self.cal:
                 self.displayObj.SetCal(self.cal)
+            # and ID
+            if not self.ID is None:
+                self.displayObj.SetID(self.ID)
         # finally unlock the viewport
         self.viewport.UnlockUpdate()
-        
-        
-    def SetID(self, ID):
-        self.ID = ID
-        if self.displayObj:
-            self.displayObj.SetID(ID)
-            
-            
-    def SetNorm(self, norm):
-        "Set the normalization factor for displaying this spectrum"
-        self.norm = norm
-        self.SetHist(self.fHist)
-        if self.displayObj:
-            self.displayObj.SetNorm(self.norm)
-        
-    
-    def Refresh(self):
-        """
-        Refresh the spectrum, i.e. reload the data inside it
-        """
-        # The generic spectrum class does not know about the origin of its
-        # bin data and thus cannot reload anything.
-        pass
-        
-    
-    def SetHist(self, hist):
-        self.fHist = hist
-        if self.displayObj:
-            self.displayObj.SetHist(self.fHist)
         
 
     def WriteSpectrum(self, fname, fmt):
@@ -191,129 +183,20 @@ class Histogram(Drawable):
         """
         fname = os.path.expanduser(fname)
         try:
-            SpecReader().WriteSpectrum(self.fHist, fname, fmt)
+            SpecReader().WriteSpectrum(self._hist, fname, fmt)
         except SpecReaderError, msg:
             hdtv.ui.error("Failed to write spectrum: %s (file: %s)" % (msg, fname))
             return False
         return True
+       
 
-
-    def ToTop(self):
-        """
-        Move the spectrum to the top of its draw stack
-        """
-        if self.displayObj:
-            self.displayObj.ToTop()
-            
-
-    def ToBottom(self):
-        """
-        Move the spectrum to the top of its draw stack
-        """
-        if self.displayObj:
-            self.displayObj.ToBottom()
-
-
-class Spectrum(Histogram):
-    """ 
-    This CompoundObject is a dictionary of Fits belonging to a spectrum.
-    """
-    def __init__(self, hist, color=hdtv.color.default, cal=None):
-        self.fits = DrawableCompound()
-        _RawSpectrum.__init__(self, hist, color=color, cal=cal)
-
-
-    def AddFit(self, fit, ID=None):
-        """
-        Add a fit to this spectrum with ID
-        """
-        # as marker positions are uncalibrated, 
-        # we need do a recalibration here
-        newID = self.fits.Add(fit, ID)
-        fit.cal = self.cal
-        fit.color = self.color
-        fit.FixMarkerUncal()
-        return newID
-        
-    # cal property
-    def _set_cal(self, cal):
-        _RawSpectrum._set_cal(self, cal)
-        for fit in self.fits.itervalues():
-            fit.cal = cal
-        
-    def _get_cal(self):
-        return _RawSpectrum._get_cal(self)
-        
-    cal = property(_get_cal, _set_cal)
-    
-    
-    # color property
-    def _set_color(self,color):
-        _RawSpectrum._set_color(self, color)
-        for fit in self.fits.itervalues():
-            fit.color = color
-
-    def _get_color(self):
-        return _RawSpectrum._get_color(self)
-
-    color = property(_get_color, _set_color)
-    
-        
-    def Refresh(self):
-        """
-        Refresh spectrum and fits
-        """
-        _RawSpectrum.Refresh(self)
-        self.fits.Refresh()
-        
-        
-    def Draw(self, viewport):
-        """
-        Draw spectrum and fits
-        """
-        _RawSpectrum.Draw(self, viewport)
-        self.fits.Draw(self.viewport)
-        
-    
-    # Show commands
-    def Show(self):
-        """
-        Show the spectrum and all fits that are marked as visible
-        """
-        _RawSpectrum.Show(self)
-        # only show objects that have been visible before
-        for ID in self.fits.visible:
-            self.fits[ID].Show()
-    
-    # Hide commands
-    def Hide(self):
-        """
-        Hide the whole object,
-        but remember which fits were visible
-        """
-        # hide the spectrum itself
-        _RawSpectrum.Hide(self)
-        # Hide all fits, but remember what was visible
-        visible = self.fits.visible.copy()
-        self.fits.Hide()
-        self.fits.visible = visible
-
-    def GetActiveObject(self):
-        """
-        Return the active fit
-        
-        This is called from e.g. Drawable.active()
-        """
-        return self.fits.GetActiveObject()
-
-        
-class FileSpectrum(Spectrum):
+class FileHistogram(Histogram):
     """
     File spectrum object
     
     A spectrum that comes from a file in any of the formats supported by hdtv.
     """
-    def __init__(self, fname, fmt=None, color=None, cal=None):
+    def __init__(self, fname, fmt=None, color=hdtv.color.default, cal=None):
         """
         Read a spectrum from file
         """
@@ -329,22 +212,24 @@ class FileSpectrum(Spectrum):
         except SpecReaderError, msg:
             hdtv.ui.error(str(msg))
             raise 
-        self.fFilename = fname
-        self.fFmt = fmt
-        Spectrum.__init__(self, hist, color, cal)
-
+        self.fmt = fmt
+        self.filename = fname
+        Histogram.__init__(self, hist, color, cal)
         
-    def GetTypeStr(self):
+        
+    @property
+    def typeStr(self):
         """
         Return a string describing the type of this spectrum.
         """
         return "spectrum, read from file"
-        
-    def GetInfo(self):
-        s = Spectrum.GetInfo(self)
-        s += "Filename: %s\n" % self.fFilename
-        if self.fFmt:
-            s += "File format: %s\n" % self.fFmt
+    
+    @property
+    def info(self):
+        s = Histogram.info(self)
+        s += "Filename: %s\n" % self.filename
+        if self.fmt:
+            s += "File format: %s\n" % self.fmt
         else:
             s += "File format: autodetected\n"
         return s
@@ -354,16 +239,67 @@ class FileSpectrum(Spectrum):
         Reload the spectrum from disk
         """
         try:
-            os.path.exists(self.fFilename)
+            os.path.exists(self.filename)
         except OSError:
-            hdtv.ui.warn("File %s not found, keeping previous data" % self.fFilename)
+            hdtv.ui.warn("File %s not found, keeping previous data" % self.filename)
             return
         # call to SpecReader to get the hist
         try:
-            hist = SpecReader().GetSpectrum(self.fFilename, self.fFmt)
+            hist = SpecReader().GetSpectrum(self.filename, self.fmt)
         except SpecReaderError, msg:
             hdtv.ui.warn("Failed to load spectrum: %s (file: %s), keeping previous data" \
-                  % (msg, self.fFilename))
+                  % (msg, self.filename))
             return
-        self.SetHist(hist)
+        self.hist = hist       
+
+
+class Spectrum(DrawableManager):
+    def __init__(self, histogram):
+        DrawableManager.__init__(self)
+        self.hist = histogram
+  
+    # delegate everthing to the underlying histogram
+    def __setattr__(self, name, value):
+        if hasattr(self, "hist"):
+            self.hist.__setattr__(name, value)
+        DrawableManager.__setattr__(self, name, value)
         
+    
+    # color property
+    def _set_color(self, color):
+        for fit in self.dict.itervalues():
+            fit.color = color
+            
+    def _get_color(self):
+        return self.hist.color
+            
+    color = property(_get_color, _set_color)
+        
+    # cal property
+    def _set_cal(self, cal):
+        for fit in self.dict.itervalues():
+            fit.cal = cal
+    
+    def _get_cal(self):
+        return self.hist.cal
+        
+    cal = property(_set_cal, _get_cal)
+    
+    def Draw(self, viewport):
+        DrawableManager.Draw(self, viewport)
+        self.hist.Draw(viewport)
+        
+    def Show(self):
+        DrawableManager.Show(self)
+        self.hist.Show()
+        
+    def Hide(self):
+        DrawableManager.Hide(self)
+        self.hist.Hide()
+        
+    def Refresh(self):
+        DrawableManager.Refresh(self)
+        self.hist.Refresh()
+        
+
+
