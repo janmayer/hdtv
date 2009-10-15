@@ -41,7 +41,7 @@ class DisplaySpec : public DisplayBlock {
    int GetRegionMaxBin(int b1, int b2);
    double GetRegionMax(int b1, int b2);
    
-   inline void SetID(int ID)  { fID = ID; }
+   inline void SetID(int ID)  { fID = ID; Update(); }
    inline int GetID() const   { return fID; }
 
    // Convenience functions to access the underlying histogram object and its x axis
