@@ -30,12 +30,10 @@ import hdtv.cal
 import hdtv.util
 import hdtv.ui
  
-from hdtv.spectrum import Spectrum, FileHistogram
+from hdtv.spectrum import Spectrum, Histogram, FileHistogram
 from hdtv.specreader import SpecReaderError
 from copy import copy
 
-# Don't add created spectra to the ROOT directory
-ROOT.TH1.AddDirectory(ROOT.kFALSE)
 
 class SpecInterface:
     """
@@ -177,8 +175,8 @@ class SpecInterface:
         if len(loaded)>0:
             # activate last loaded spectrum
             self.spectra.ActivateObject(loaded[-1])
-        # Update viewport if required
-        if len(self.spectra) == 1: # Expand window if it is the only spectrum
+        # Expand window if it is the only spectrum
+        if len(self.spectra) == 1: 
             self.window.Expand()
         self.window.viewport.UnlockUpdate()
         return loaded
@@ -193,12 +191,15 @@ class SpecInterface:
         if copyTo is None:              
             copyTo = self.spectra.GetFreeID()
 
-        hdtv.ui.debug("Copy spec " + str(ID) + " to " + str(copyTo), level=2)
-        hist = copy(self.spectra.dict[ID].fHist)
-
-        spec = Spectrum(hist, cal=self.spectra.dict[ID].cal) 
+        # get underlying ROOT-Histogram
+        hist = self.spectra.dict[ID].hist.hist
+        # call C++ copy constructor
+        hist = hist.__class__(hist)
+        # create new spectrum object
+        cal=self.spectra.dict[ID].cal
+        color = hdtv.color.ColorForID(copyTo)
+        spec = Spectrum(Histogram(hist, color=color, cal=cal)) 
         sid = self.spectra.Insert(spec, copyTo)
-        spec.color = hdtv.color.ColorForID(sid)
         hdtv.ui.msg("Copied spectrum " + str(ID) + " to " + str(sid))
 
 
@@ -273,7 +274,6 @@ class TvSpecInterface:
         hdtv.cmdline.AddCommand(prog, self.SpectrumCopy, level = 2, 
                                 fileargs=False, parser=parser)
         
-
         prog = "spectrum name"
         usage="%prog [id] <name>"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
@@ -281,11 +281,12 @@ class TvSpecInterface:
                                 fileargs = False, parser=parser)
 
     
+    # FIXME: this is not the right place for this
+    # either move it to the Python-Part of this Plugin or to DrawableManager
     def SpectrumList(self, args, options):
         """
         Print a list of all spectra 
         """
-        
         spectra = list()
         params = ["ID", "stat", "name"]
         
@@ -315,11 +316,10 @@ class TvSpecInterface:
         """
         Load Spectra from files
         """
-        if options.spectrum != None:
+        if options.spectrum is not None:
             ID = int(options.spectrum)
         else:
             ID = None
-        
         self.specIf.LoadSpectra(patterns = args, ID = ID)
 
 
@@ -335,8 +335,8 @@ class TvSpecInterface:
         if len(ids) == 0:
             hdtv.ui.warn("Nothing to do")
             return
-        self.spectra.RemoveObjects(ids)
-
+        for ID in ids:
+            self.spectra.Pop(ID)
 
     def SpectrumActivate(self, args):
         """
@@ -522,8 +522,8 @@ class TvSpecInterface:
             ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
         except ValueError:
             return "USAGE"
-        
-        s = ""
+
+        s = str()
         for ID in ids:
             try:
                 spec = self.spectra.dict[ID]
@@ -531,12 +531,11 @@ class TvSpecInterface:
                 s += "Spectrum %d: ID not found\n" % ID
                 continue
             s += "Spectrum %d:\n" % ID
-            s += hdtv.cmdhelper.Indent(spec.GetInfo(), "  ")
+            s += hdtv.cmdhelper.Indent(spec.info, "  ")
             s += "\n"
-
         hdtv.ui.msg(s, newline=False)
-	
-            
+
+
     def SpectrumUpdate(self, args):
         """
         Refresh spectra

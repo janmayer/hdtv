@@ -27,6 +27,9 @@ import hdtv.ui
 from hdtv.drawable import Drawable, DrawableManager
 from hdtv.specreader import SpecReader, SpecReaderError
 
+# Don't add created spectra to the ROOT directory
+ROOT.TH1.AddDirectory(ROOT.kFALSE)
+
 class Histogram(Drawable):
     """
     Histogram object
@@ -104,7 +107,7 @@ class Histogram(Drawable):
         """
         Return a string describing this spectrum
         """
-        s = "Spectrum type: %s\n" % self.typeStr()
+        s = "Spectrum type: %s\n" % self.typeStr
         if not self._hist:
             return s
         s += "Name: %s\n" % str(self)
@@ -216,7 +219,6 @@ class FileHistogram(Histogram):
         self.filename = fname
         Histogram.__init__(self, hist, color, cal)
         
-        
     @property
     def typeStr(self):
         """
@@ -226,7 +228,8 @@ class FileHistogram(Histogram):
     
     @property
     def info(self):
-        s = Histogram.info(self)
+        # get the info property of the baseclass
+        s = Histogram.info.fget(self)
         s += "Filename: %s\n" % self.filename
         if self.fmt:
             s += "File format: %s\n" % self.fmt
@@ -264,7 +267,12 @@ class Spectrum(DrawableManager):
             self.hist.__setattr__(name, value)
         DrawableManager.__setattr__(self, name, value)
         
-    
+    def __getattr__(self, name):
+        if hasattr(self, "hist"):
+            return getattr(self.hist, name)
+        else:
+            raise AttributeError
+        
     # color property
     def _set_color(self, color):
         for fit in self.dict.itervalues():
@@ -283,7 +291,7 @@ class Spectrum(DrawableManager):
     def _get_cal(self):
         return self.hist.cal
         
-    cal = property(_set_cal, _get_cal)
+    cal = property(_get_cal, _set_cal)
     
     def Draw(self, viewport):
         DrawableManager.Draw(self, viewport)

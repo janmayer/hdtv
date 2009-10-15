@@ -25,14 +25,13 @@ import hdtv.ui
 
 
 class Drawable(object):
-    def __init__(self, color=None, cal=None, parent=None):
+    def __init__(self, color=None, cal=None):
         self.viewport = None
-        self._active = False
-        self._cal = cal
-        self._activeColor = hdtv.color.Highlight(color, active=True)
-        self._passiveColor = hdtv.color.Highlight(color, active=False) 
         # displayObj will be created when calling Draw
         self.displayObj = None
+        self.active = False
+        self.cal = cal
+        self.color = color
        
     def __str__(self):
         return str(self.displayObj)
@@ -235,7 +234,7 @@ class DrawableManager(object):
         if ID == self._iteratorID:
             # set iterator to the ID before the one we remove
             self._iteratorID = self.prevID 
-        if ID == self._activeID:
+        if ID == self.activeID:
             # set activeID to None
             self.ActivateObject(None)
         if ID in self.visible:
@@ -257,6 +256,7 @@ class DrawableManager(object):
             ID += 1
         return ID
 
+    # FIXME: this seems not to be used anymore (see SpecInterface)
     def PrintObject(self, ID, verbose=False, if_visible=False):
         """
         Print object properties

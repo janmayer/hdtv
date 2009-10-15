@@ -74,7 +74,7 @@ def ParseIds(strings, manager, only_existent=True):
     valid_ids = list() 
     if only_existent:
         for ID in ids:
-            if not ID in drawable.ids():
+            if not ID in manager.ids:
                 hdtv.ui.warn("Non-existent id %s" %ID)
             else:
                 valid_ids.append(ID)
