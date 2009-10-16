@@ -343,13 +343,16 @@ class Window(KeyHandler):
         
         zoomMarkers = getattr(self,"%sZoomMarkers" %xytype)
         if len(zoomMarkers) == 1:
-            zm = zoomMarkers[0] 
+            zm = zoomMarkers[0]
+            p1 = zm.p1.pos_cal
             if zm.p2==None:
-                zm.p2 = 0.0
+                p2 = 0.0
+            else:
+                p2 = zm.p2.pos_cal
             setOffset = getattr(self.viewport, "Set%sOffset" % xytype)
-            setOffset(min(zm.p1.pos_cal, zm.p2.pos_cal))
+            setOffset(min(p1, p2))
             setVisibleRegion = getattr(self.viewport, "Set%sVisibleRegion" % xytype)
-            setVisibleRegion(abs(zm.p2.pos_cal - zm.p1.pos_cal))
+            setVisibleRegion(abs(p2 - p1))
             getattr(self,"%sZoomMarkers" %xytype).pop()
         else:
             if xytype == "X":
