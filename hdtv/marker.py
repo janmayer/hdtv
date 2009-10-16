@@ -367,7 +367,7 @@ class MarkerCollection(list, Child):
         if self.viewport != None:
             self.viewport.LockUpdate()
         while self:
-            self.pop().Remove()
+            self.pop()
         if self.viewport != None:
             self.viewport.UnlockUpdate()
         
