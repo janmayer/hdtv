@@ -290,7 +290,7 @@ class RootFile:
                     
                     if options.load_cal:
                         if obj.GetName() in self.caldict:
-                            spec.color = self.caldict[obj.GetName()]
+                            spec.cal = self.caldict[obj.GetName()]
                         else:
                             print "Warning: no calibration found for %s" % obj.GetName()
                 

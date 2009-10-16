@@ -161,6 +161,8 @@ class SpecInterface:
                 else:
                     sid = self.spectra.Insert(spec, ID)
                     spec.color = hdtv.color.ColorForID(sid)
+                    if spec.name in self.spectra.caldict.keys():
+                        spec.cal = self.spectra.caldict[spec.name]
                     loaded.append(sid)
                     
                     if fmt == None:
