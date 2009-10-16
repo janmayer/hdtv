@@ -21,7 +21,6 @@
 
 
 import hdtv.ui
-import hdtv.cmdline
 
 def Indent(s, indent=" "):
     """
@@ -41,16 +40,15 @@ def ParseIds(strings, manager, only_existent=True):
     
     Raised ValueError on malformed IDs
     
-    if only_existent is True only currently existing IDs are returned
+    If only_existent is True only currently existing IDs are returned
     """
-    
     special = ["ALL","NONE","ACTIVE","VISIBLE", "NEXT", "PREV", "FIRST", "LAST"]
     # parse the arguments
     try:
         ids = ParseRange(strings, special)
     except ValueError:
         hdtv.ui.error("Invalid IDs.")
-        raise hdtv.cmdline.HDTVCommandError
+        raise ValueError 
 
     # processing different cases
     if ids=="NONE":

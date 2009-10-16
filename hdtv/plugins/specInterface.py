@@ -44,7 +44,7 @@ class SpecInterface:
     
         self.window = main.window
         self.spectra= main
-        self.caldict = dict()   # FIXME: Why do we need this?
+        self.caldict = main.caldict
         
         # tv commands
         self.tv = TvSpecInterface(self)
@@ -99,8 +99,6 @@ class SpecInterface:
                 self.window.viewport.SetStatusText("Activated spectrum %d" % self.spectra.activeID)
         except ValueError:
             self.window.viewport.SetStatusText("Invalid id: %s" % arg)
-        except KeyError:
-            self.window.viewport.SetStatusText("No such id: %d" % ID)
 
     def _HotkeyShowNext(self):
         """
@@ -181,7 +179,32 @@ class SpecInterface:
         self.window.viewport.UnlockUpdate()
         return loaded
 
-
+    def ListSpectra(self, visible=False):
+        """
+        Create a list of all spectra (for printing)
+        """
+        spectra = list()
+        params = ["ID", "stat", "name"]
+        
+        for (ID, obj) in self.spectra.dict.iteritems():
+            if visible and (ID not in self.spectra.visible):
+                continue
+            
+            thisspec = dict()
+            
+            status = str()
+            if ID == self.spectra.activeID:
+                status += "A"
+            if ID in self.spectra.visible:
+                status += "V"
+            
+            thisspec["ID"] = ID
+            thisspec["stat"] = status
+            thisspec["name"] = self.spectra.dict[ID].name
+            spectra.append(thisspec)
+        
+        return str(hdtv.util.Table(spectra, params, sortBy="ID"))
+ 
     def CopySpectrum(self, ID, copyTo=None):
         """
         Copy spectrum
@@ -198,7 +221,8 @@ class SpecInterface:
         # create new spectrum object
         cal=self.spectra.dict[ID].cal
         color = hdtv.color.ColorForID(copyTo)
-        spec = Spectrum(Histogram(hist, color=color, cal=cal)) 
+        spec = Spectrum(Histogram(hist, color=color, cal=cal))
+        spec.typeStr = "spectrum, copied from other spectrum"
         sid = self.spectra.Insert(spec, copyTo)
         hdtv.ui.msg("Copied spectrum " + str(ID) + " to " + str(sid))
 
@@ -281,36 +305,13 @@ class TvSpecInterface:
                                 fileargs = False, parser=parser)
 
     
-    # FIXME: this is not the right place for this
-    # either move it to the Python-Part of this Plugin or to DrawableManager
     def SpectrumList(self, args, options):
         """
-        Print a list of all spectra 
+        Print a list of spectra
         """
-        spectra = list()
-        params = ["ID", "stat", "name"]
-        
-        for (ID, obj) in self.spectra.dict.iteritems():
-            
-            if options.visible and (ID not in self.spectra.visible):
-                continue
-            
-            thisspec = dict()
-            
-            status = str()
-            if ID == self.spectra.activeID:
-                status += "A"
-            if ID in self.spectra.visible:
-                status += "V"
-            
-            thisspec["ID"] = ID
-            thisspec["stat"] = status
-            thisspec["name"] = self.spectra.dict[ID].name
-            spectra.append(thisspec)
-        
-        table = hdtv.util.Table(spectra, params, sortBy="ID")         
-        hdtv.ui.msg(str(table))
-    
+        speclist = self.specIf.ListSpectra(visible=options.visible)
+        hdtv.ui.msg(speclist)
+
 
     def SpectrumGet(self, args, options):
         """
@@ -461,8 +462,13 @@ class TvSpecInterface:
             factor = float(eval(args[-1]))
             
             if len(args) == 1:
-                hdtv.ui.msg("Using active spectrum %d for multiplication" % self.spectra.activeID)
-                ids = [self.spectra.activeID]
+                if self.spectra.activeID is not None:
+                    msg = "Using active spectrum %d for multiplication" % self.spectra.activeID
+                    hdtv.ui.msg(msg)
+                    ids = [self.spectra.activeID]
+                else:
+                    hdtv.ui.msg("No active spectrum")
+                    ids = list()
             else:
                 ids = hdtv.cmdhelper.ParseIds(args[:-1], self.spectra)
 
@@ -480,11 +486,13 @@ class TvSpecInterface:
             else:
                 hdtv.ui.error("Cannot multiply spectrum " + str(i) + " (Does not exist)")  
     
+    
     def SpectrumHide(self, args):
         """
         Hides spectra
         """
         return self.SpectrumShow(args, inverse=True)
+        
     
     def SpectrumShow(self, args, inverse=False):
         """
@@ -544,11 +552,10 @@ class TvSpecInterface:
             ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
         except ValueError:
             return "USAGE"
-
         if len(ids) == 0:
             hdtv.ui.warn("Nothing to do")
             return
-        self.spectra.Refresh(ids)
+        self.spectra.RefreshObjects(ids)
 
             
     def SpectrumWrite(self, args):
@@ -616,7 +623,7 @@ class TvSpecInterface:
             
         for ID in ids:
             try:
-                self.spectra.dict[ID].SetNorm(norm)
+                self.spectra.dict[ID].norm = norm
             except KeyError:
                 hdtv.ui.error("There is no spectrum with id: %s" % ID)
 

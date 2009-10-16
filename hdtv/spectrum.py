@@ -44,6 +44,7 @@ class Histogram(Drawable):
         self._norm = 1.0
         self._ID = None
         self.effCal = None
+        self.typeStr = "spectrum"
 
     def __str__(self):
         return self.name
@@ -91,17 +92,6 @@ class Histogram(Drawable):
         
     ID = property(_get_ID, _set_ID)
             
-    @property
-    def typeStr(self):
-        """
-        Return a string describing the type of this spectrum.
-        Should be overridden by subclasses.
-        """
-        if self._hist:
-            return "spectrum"
-        else:
-            return "empty spectrum (no associated ROOT TH1 object)"
-    
     @property   
     def info(self):
         """
@@ -135,18 +125,21 @@ class Histogram(Drawable):
         Add other spectrum to this one
         """ 
         self._hist.Add(spec._hist, 1.0)
+        self.typeStr = "spectrum, sum"
         
     def Minus(self, spec):
         """
         Substract other spectrum from this one
         """ 
         self._hist.Add(spec._hist, -1.0)
+        self.typeStr = "spectrum, difference"
             
     def Multiply(self, factor):
         """
         Multiply spectrum with factor
         """ 
         self._hist.Scale(factor)
+        self.typeStr = "spectrum, multiplied"
         
        
     def Draw(self, viewport):
@@ -218,14 +211,8 @@ class FileHistogram(Histogram):
         self.fmt = fmt
         self.filename = fname
         Histogram.__init__(self, hist, color, cal)
+        self.typeStr = "spectrum, read from file"
         
-    @property
-    def typeStr(self):
-        """
-        Return a string describing the type of this spectrum.
-        """
-        return "spectrum, read from file"
-    
     @property
     def info(self):
         # get the info property of the baseclass

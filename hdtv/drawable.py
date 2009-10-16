@@ -317,7 +317,7 @@ class DrawableManager(object):
         """
         Refresh all objects in dict
         """
-        return self.Refresh(self.dict.iterkeys())
+        return self.RefreshObjects(self.dict.iterkeys())
         
     def RefreshVisible(self):
         """
@@ -357,7 +357,7 @@ class DrawableManager(object):
         """
         Hide all child objects
         """
-        return self.HideObjects(self.dict.iterkeys())
+        return self.HideObjects(self.dict.keys())
 
             
     def HideObjects(self, ids):
@@ -396,7 +396,7 @@ class DrawableManager(object):
         """
         Show all 
         """
-        return self.ShowObjects(self.dict.iterkeys(), clear=True)
+        return self.ShowObjects(self.dict.keys())
     
     def ShowObjects(self, ids, clear=True):
         """
@@ -422,7 +422,7 @@ class DrawableManager(object):
                 self.dict[ID].Show()
                 self.visible.add(ID)
             except KeyError:
-                hdtv.warn("ID %s not found" % ID)
+                hdtv.ui.warn("ID %s not found" % ID)
         # Check if active ID is still visible
         if self.activeID not in self.visible:
             self.ActivateObject(None)
