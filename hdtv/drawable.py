@@ -85,6 +85,19 @@ class Drawable(object):
         
     active = property(_get_active, _set_active)
     
+    # ID property
+    def _set_ID(self, ID):
+        self._ID = ID
+        if self.displayObj:
+            try:
+                self.displayObj.SetID(ID)
+            except:
+                pass
+    
+    def _get_ID(self):
+        return self._ID
+        
+    ID = property(_get_ID, _set_ID)
     
     def Draw(self, viewport):
         """

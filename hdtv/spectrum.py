@@ -87,17 +87,6 @@ class Histogram(Drawable):
         
     norm = property(_get_norm, _set_norm)
     
-    # id property
-    def _set_ID(self, ID):
-        self._ID = ID
-        if self.displayObj:
-            self.displayObj.SetID(ID)
-    
-    def _get_ID(self):
-        return self._ID
-        
-    ID = property(_get_ID, _set_ID)
-            
     @property   
     def info(self):
         """

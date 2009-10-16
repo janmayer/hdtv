@@ -361,17 +361,19 @@ class Window(KeyHandler):
                 self.viewport.YAutoScaleOnce()
                 
 
-    def PutXZoomMarker(self):
+    def PutXZoomMarker(self, pos=None):
         """
         set a X zoom marker
         """
-        pos = self.viewport.GetCursorX()
+        if pos is None:
+            pos = self.viewport.GetCursorX()
         self.XZoomMarkers.PutMarker(pos)
         
         
-    def PutYZoomMarker(self):
+    def PutYZoomMarker(self, pos=None):
         """
         set a Y zoom marker
         """
-        pos = self.viewport.GetCursorY()
+        if pos is None:
+            pos = self.viewport.GetCursorY()
         self.YZoomMarkers.PutMarker(pos)

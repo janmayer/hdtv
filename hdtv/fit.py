@@ -25,9 +25,7 @@ import hdtv.util
 from hdtv.drawable import Drawable
 from hdtv.marker import MarkerCollection
 
-import weakref # TODO: remove if workspec problem has been solved properly 
-
-hdtv.dlmgr.LoadLibrary("display")
+import copy
 
 class Fit(Drawable):
     """
@@ -51,7 +49,7 @@ class Fit(Drawable):
         self.regionMarkers = MarkerCollection("X", paired=True, maxnum=1,
                                              color=hdtv.color.region, cal=cal)
         self.peakMarkers = MarkerCollection("X", paired=False, maxnum=None,
-                                             color=hdtv.color.peak, cal=cal, hasIDs=True)
+                                             color=hdtv.color.peak, cal=cal)
         self.bgMarkers = MarkerCollection("X", paired=True, maxnum=None,
                                              color=hdtv.color.bg, cal=cal)
         self.fitter = fitter
@@ -62,40 +60,26 @@ class Fit(Drawable):
         self.showDecomp = False
         self.dispPeakFunc = None
         self.dispBgFunc = None
-        self._title = None
-# FIXME:
-#        self._workspec = None # Spectrum to work on if there is no parent spectrum -> HACK! TODO: FIX 
+        self.spec = None
         Drawable.__init__(self, color, cal)
+        self.active = True
+        self.ID = None
 
-# FIXME: do not use parent link!!!
-#    @property
-#    def spec(self):
-#        # TODO: Fix this (see above)
-#        if self.parent is None:
-#            return self._workspec
-#        else:
-#            self._workspec = None
-#            return self.parent
-        
-    def __copy__(self):
-        return self.Copy()
+    # ID property
+    def _get_ID(self):
+        return self.peakMakers.ID
     
-    # title property
-    def _get_title(self):
-        return self._title
-    
-    def _set_title(self, title):
-        self._title = "#" + str(title)
-        self.peakMarkers.Refresh()
-        
-    title = property(_get_title, _set_title)
+    def _set_ID(self, ID):
+        self.peakMarkers.ID = ID
+
+    ID = property(_get_ID, _set_ID)
     
     # cal property
     def _set_cal(self, cal):
         self._cal = hdtv.cal.MakeCalibration(cal)
         if self.viewport:
             self.viewport.LockUpdate()
-        self.peakMarkers.cal=cal
+        self.peakMarkers.cal = cal
         self.regionMarkers.cal = cal
         self.bgMarkers.cal = cal
         if self.dispPeakFunc:
@@ -114,7 +98,7 @@ class Fit(Drawable):
     
     # color property
     def _set_color(self, color):
-        self._activeColor = hdtv.color.Highlight(color, active=True)
+        # we only need one the passive color for fits
         self._passiveColor = hdtv.color.Highlight(color, active=False)
         if self.viewport:
             self.viewport.LockUpdate()
@@ -123,7 +107,7 @@ class Fit(Drawable):
         self.bgMarkers.color = color
         for peak in self.peaks:
             peak.color = color
-        self._RefreshDisplay()
+        self.Show()
         if self.viewport:
             self.viewport.UnlockUpdate()
             
@@ -142,7 +126,7 @@ class Fit(Drawable):
         self.bgMarkers.active = state
         for peak in self.peaks:
             peak.active = state
-        self._RefreshDisplay()
+        self.Show()
         if self.viewport:
             self.viewport.UnlockUpdate()
             
@@ -193,24 +177,24 @@ class Fit(Drawable):
             i+=1
         return text
     
-    def PutPeakMarker(self, pos):
+    def ChangeMarker(self, mtype, pos, action):
+        """
+        Put a new marker or remove a marker.
+        
+        action : "put" or "remove"
+        mtype  : "bg", "region", "peak"
+        """
         self.dispPeakFunc = None
         self.peaks = list()
-        self.peakMarkers.PutMarker(pos)
-
-    def PutRegionMarker(self, pos):
-        self.dispPeakFunc = None
-        self.peaks = list()
-        self.regionMarkers.PutMarker(pos)
-        
-        
-    def PutBgMarker(self, pos):
-        self.dispBgFunc = None
-        self.dispPeakFunc = None
-        self.peaks = list()
-        self.bgMarkers.PutMarker(pos)
-        
-
+        if mtype=="bg":
+            self.dispBgFunc = None
+        markers = getattr(self, "%sMarkers" %mtype)
+        if action is "put":
+            markers.PutMarker(pos)
+        if action is "remove":
+            markers.RemoveNearest(pos) 
+            
+    
     def FixMarkerCal(self):
         """
         Fix marker in calibrated space
@@ -227,21 +211,19 @@ class Fit(Drawable):
             m.FixUncal()
             
             
-    def FitBgFunc(self, spec=None):
+    def FitBgFunc(self, spec):
         """
         Do the background fit and extract the function for display
         Note: You still need to call Draw afterwards.
         """
-        if spec is None:
-            spec = self.spec 
+        self.spec = spec 
         # set calibration without changing position of markers,
         # because the marker have been set by the user to calibrated values
 #        self.Recalibrate(spec.cal)
-        self._set_cal(spec.cal)
+        self.cal = spec.cal
 #        self.bgMarkers.FixUncal()
-
         # remove old fit
-        self.Reset()
+        self.EraseFit()
         
         # fit background 
         if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
@@ -349,10 +331,8 @@ class Fit(Drawable):
         # set calibration also for the markers,
         # as the marker position is set to uncalibrated values, 
         # when read from xml fit list
-        
-        if spec is None:
-            spec = self.spec
-#        self.cal = spec.cal
+        self.spec = spec
+        self.cal = spec.cal
             
         if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2.GetPosInCal():
             
@@ -380,11 +360,10 @@ class Fit(Drawable):
         """
         Draw
         """
-        if self.viewport:
-            if not self.viewport == viewport:
-                # Unlike the Display object of the underlying implementation,
-                # python objects can only be drawn on a single viewport
-                raise RuntimeError, "Object can only be drawn on a single viewport"
+        if self.viewport and not self.viewport == viewport:
+            # Unlike the Display object of the underlying implementation,
+            # python objects can only be drawn on a single viewport
+            raise RuntimeError, "Object can only be drawn on a single viewport"
         self.viewport = viewport
         # Lock updates
         self.viewport.LockUpdate()
@@ -402,9 +381,8 @@ class Fit(Drawable):
         for peak in self.peaks:
             peak.color=self.color
             peak.Draw(self.viewport)
-        self._RefreshDisplay()
+        self.Show()
         self.viewport.UnlockUpdate()
-
 
     def Refresh(self):
         """
@@ -433,11 +411,11 @@ class Fit(Drawable):
         self.peakMarkers.Refresh()
         self.regionMarkers.Refresh()
         self.bgMarkers.Refresh()
-        self._RefreshDisplay()
+        self.Show()
         self.viewport.UnlockUpdate()
 
 
-    def Reset(self):
+    def SweepFit(self):
         """
         Reset the fit. NOTE: the fitter is *not* resetted 
         """
@@ -449,13 +427,14 @@ class Fit(Drawable):
         self.chi=None 
         
         
-    def _RefreshDisplay(self):
+    def Show(self):
         """ 
-        This function contains the logic what markers/functions to show and 
+        The Show function contains the logic what markers/functions to show and 
         in what color depending on the state (active or not) of this fit.
         """
-        if self.viewport:
-            self.viewport.LockUpdate()
+        if not self.viewport:
+            return
+        self.viewport.LockUpdate()
         if self.active or len(self.peaks)==0:
             # show all markers, if fit is active or if fit is unfinished,
             # the second case can happen when switching to another spectrum,
@@ -490,14 +469,7 @@ class Fit(Drawable):
                 peak.Show()
             else:
                 peak.Hide()
-        if self.viewport:
-            self.viewport.UnlockUpdate()
-
-    def Show(self):
-        if not self.viewport:
-            return
-        self._RefreshDisplay()
-        
+        self.viewport.UnlockUpdate()
 
     def Hide(self):
         if not self.viewport:
@@ -515,20 +487,19 @@ class Fit(Drawable):
         self.viewport.UnlockUpdate()
 
     
-    def Copy(self, cal=None, color=None):
+    def __copy__(self):
         """
         Create new fit with identical markers
         """
-        cal = hdtv.cal.MakeCalibration(cal)
-        new = Fit(self.fitter.Copy(), cal=cal, color=color)
+        new = Fit(copy.copy(self.fitter), cal=self.cal, color=self.color)
         for marker in self.bgMarkers:
-            newmarker = marker.Copy(cal)
+            newmarker = copy.copy(marker)
             new.bgMarkers.append(newmarker)
         for marker in self.regionMarkers:
-            newmarker = marker.Copy(cal)
+            newmarker = copy.copy(marker)
             new.regionMarkers.append(newmarker)
         for marker in self.peakMarkers:
-            newmarker = marker.Copy(cal)
+            newmarker = copy.copy(marker)
             new.peakMarkers.append(newmarker)
         return new
 

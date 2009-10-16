@@ -26,6 +26,7 @@
 #ifndef __Marker_h__
 #define __Marker_h__
 
+#include <sstream>
 #include <TGFrame.h>
 #include <TColor.h>
 
@@ -69,6 +70,13 @@ class Marker: public DisplayObj {
       fTitle = title;
       Update();
     };
+    inline void SetID(int ID){
+        std::ostringstream ss;
+        ss <<"#"<<ID;
+        fTitle = ss.str(); 
+        Update();
+    }
+    
     inline const std::string& GetTitle() const { return fTitle; }
     
     virtual int GetZIndex() { return Z_INDEX_MARKER; }

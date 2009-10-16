@@ -43,15 +43,15 @@ hdtv.cmdline.SetInteractiveDict(locals())
 spectra = hdtv.session.Session()
 
 # Import core plugins
-#import hdtv.plugins.textInterface
-#import hdtv.plugins.ls
-#import hdtv.plugins.run
+import hdtv.plugins.textInterface
+import hdtv.plugins.ls
+import hdtv.plugins.run
 import hdtv.plugins.specInterface 
 #import hdtv.plugins.fitInterface
 import hdtv.plugins.calibration
 #import hdtv.plugins.matrix
 #import hdtv.plugins.rootfile
-#import hdtv.plugins.config
+import hdtv.plugins.config
 #import hdtv.plugins.fitlist
 #import hdtv.plugins.dblookup
 #import hdtv.plugins.peakfinder

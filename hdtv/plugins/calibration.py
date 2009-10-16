@@ -453,26 +453,6 @@ class EnergyCalIf(object):
         # tv commands
         self.tv = EnergyCalHDTVInterface(self)
         
-        
-    def ApplyCalibration(self, specIDs, cal):
-        """
-        Apply calibration cal to spectra with ids
-        """
-        # check if ids is list/iterable or just single id 
-        try: iter(specIDs)
-        except TypeError:
-            specIDs = [specIDs]
-        for ID in specIDs:
-            try:
-                if cal is None:
-                    hdtv.ui.msg("Unsetting calibration of spectrum with id %d" % ID)
-                else:
-                    hdtv.ui.msg("Calibrated spectrum with id %d" % ID)
-                self.spectra.dict[ID].cal = cal
-            except KeyError:
-                hdtv.ui.warn("There is no spectrum with id: %s" % ID)
-                
-           
     def CalFromFile(self, fname):
         """
         Read calibration polynom from file
@@ -678,7 +658,7 @@ class EnergyCalHDTVInterface(object):
             hdtv.ui.warn("Nothing to do")
             return
         # do the work
-        self.EnergyCalIf.ApplyCalibration(ids, cal)
+        self.spectra.ApplyCalibration(ids, cal)
         return True
     
     def CalPosUnset(self, args, options):
@@ -693,8 +673,7 @@ class EnergyCalHDTVInterface(object):
         if len(ids) == 0:
             hdtv.ui.warn("Nothing to do")
             return
-        # do the work
-        self.EnergyCalIf.ApplyCalibration(ids, None)
+        self.spectra.ApplyCalibration(ids, None)
         return True
     
     def CalPosEnter(self, args, options):
@@ -722,7 +701,7 @@ class EnergyCalHDTVInterface(object):
         if len(sids)==0:
             hdtv.ui.msg("calibration: %s" %hdtv.cal.PrintCal(cal))
             return True
-        self.EnergyCalIf.ApplyCalibration(sids, cal)            
+        self.spectra.ApplyCalibration(sids, cal)            
         return True
     
     def CalPosRead(self, args, options):
@@ -741,7 +720,7 @@ class EnergyCalHDTVInterface(object):
             return
         # do the work
         cal = self.EnergyCalIf.CalFromFile(fname)
-        self.EnergyCalIf.ApplyCalibration(sids, cal)
+        self.spectra.ApplyCalibration(sids, cal)
         return True
             
 
@@ -777,7 +756,7 @@ class EnergyCalHDTVInterface(object):
                                            table=options.show_table, 
                                            fit=options.show_fit, 
                                            residual=options.show_residual)
-        self.EnergyCalIf.ApplyCalibration(sids, cal)
+        self.spectra.ApplyCalibration(sids, cal)
         return True
 
 
@@ -792,7 +771,7 @@ class EnergyCalHDTVInterface(object):
             for sid in self.spectra.dict.iterkeys():
                 if self.spectra.dict[sid].name==name:
                     cal = caldict[name]
-                    self.EnergyCalIf.ApplyCalibration([sid], cal)
+                    self.spectra.ApplyCalibration([sid], cal)
  
     # TODO: more commands to manipulate calcdict
     def CalPosClearlist(self, args, options):
@@ -802,7 +781,7 @@ class EnergyCalHDTVInterface(object):
         for name in self.spectra.caldict.iterkeys():
             for sid in self.spectra.dict.iterkeys():
                 if self.spectra.dict[sid].name==name:
-                    self.EnergyCalIf.ApplyCalibration([sid], None)
+                    self.spectra.ApplyCalibration([sid], None)
         self.spectra.caldict.clear()
         
 

@@ -23,9 +23,9 @@ import dlmgr
 dlmgr.LoadLibrary("fit")
 
 import hdtv.peakmodels
-from hdtv.util import Child, Pairs
+from hdtv.util import Pairs
 
-class Fitter(Child):
+class Fitter(object):
     """
     PeakModel independent part of the Interface to the C++ Fitter
     The parts that depend on a special peak model can be found in peak.py.
@@ -35,15 +35,7 @@ class Fitter(Child):
         self.bgdeg = bgdeg
         self.peakFitter = None
         self.bgFitter = None
-        Child.__init__(self)
     
-    @property
-    def spec(self):
-        try:
-            return self.parent.spec
-        except AttributeError:
-            return None
-        
     @property
     def params(self):
         params = ["background"]
@@ -56,21 +48,19 @@ class Fitter(Child):
         # Look in peakModell for unknown attributes
         return getattr(self.peakModel, name)
 
-    def FitBackground(self, spec=None, backgrounds=Pairs()):
+    def FitBackground(self, spec, backgrounds=Pairs()):
         """
         Create Background Fitter object and do the background fit
         """
-        if spec is None:
-            spec = self.spec
         # create fitter
         bgfitter = ROOT.HDTV.Fit.PolyBg(self.bgdeg)
         for bg in backgrounds:
             bgfitter.AddRegion(bg[0], bg[1])
         self.bgFitter = bgfitter
         # do the background fit
-        self.bgFitter.Fit(spec.fHist)
+        self.bgFitter.Fit(spec.hist.hist)
 
-    def RestoreBackground(self, backgrounds=Pairs(), coeffs=list(), chisquare=0.0):
+    def RestoreBackground(self,backgrounds=Pairs(), coeffs=list(), chisquare=0.0):
         """
         Create Background Fitter object and 
         restore the background polynom from coeffs
@@ -88,32 +78,28 @@ class Fitter(Child):
             errorArray[i] = coeffs[i].error
         self.bgFitter.Restore(valueArray, errorArray, chisquare)
 
-    def FitPeaks(self, spec=None, region=Pairs(), peaklist=list()):
+    def FitPeaks(self, spec, region=Pairs(), peaklist=list()):
         """
         Create the Peak Fitter object and do the peak fit
         """
-        if spec is None:
-            spec = self.spec
         # create the fitter
         self.peakFitter = self.peakModel.GetFitter(region, peaklist, spec.cal)
         # Do the fitpeak
         if self.bgFitter:
             # external background
-            self.peakFitter.Fit(spec.fHist, self.bgFitter)
+            self.peakFitter.Fit(spec.hist.hist, self.bgFitter)
         else:
             # internal background
-            self.peakFitter.Fit(spec.fHist, self.bgdeg)
+            self.peakFitter.Fit(spec.hist.hist, self.bgdeg)
         
-    def RestorePeaks(self, spec=None, region=Pairs(), peaks=list(), chisquare=0.0):
+    def RestorePeaks(self, cal=None, region=Pairs(), peaks=list(), chisquare=0.0):
         """
         Create the Peak Fitter object and 
         restore all peaks
         """      
-        if spec is None:
-            spec = self.spec
         # create the fitter
         peaklist = [p.pos.value for p in peaks]
-        self.peakFitter = self.peakModel.GetFitter(region, peaklist, spec.cal)
+        self.peakFitter = self.peakModel.GetFitter(region, peaklist, cal)
         # restore first the fitter and afterwards the peaks
         if self.bgFitter:
             # external background
@@ -164,7 +150,7 @@ class Fitter(Child):
             self.peakModel.SetParameter(parname, status)
         
 
-    def Copy(self):
+    def __copy__(self):
         """
         Create a copy of this fitter
         This also copies the status of the corresponding peakModel, 

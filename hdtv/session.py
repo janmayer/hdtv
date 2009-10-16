@@ -20,12 +20,15 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 # main session of hdtv
+import copy
 
 import hdtv.dlmgr
 hdtv.dlmgr.LoadLibrary("display")
 
-from hdtv.drawable import DrawableManager
 from hdtv.window import Window
+from hdtv.drawable import DrawableManager
+from hdtv.fitter import Fitter
+from hdtv.fit import Fit
 
 class Session(DrawableManager):
     """
@@ -38,11 +41,61 @@ class Session(DrawableManager):
     def __init__(self):
         self.window = Window() 
         DrawableManager.__init__(self, viewport=self.window.viewport)
-        self.workFit = None
-        self.defaultFitter = None
+        # TODO: make peakModel and bgdeg configurable
+        self.defaultFitter = Fitter(peakModel = "theuerkauf", bgdeg = 1)
+        self.workFit = Fit(copy.copy(self.defaultFitter))
+        self.workFit.Draw(self.window.viewport)
         self.caldict = dict()
         # main session is always active
         self._active = True
+        
+
+    def ApplyCalibration(self, specIDs, cal):
+        """
+        Apply calibration cal to spectra with ids
+        """
+        # check if ids is list/iterable or just single id 
+        try: iter(specIDs)
+        except TypeError:
+            specIDs = [specIDs]
+        for ID in specIDs:
+            try:
+                spec = self.dict[ID]
+            except KeyError:
+                hdtv.ui.warn("There is no spectrum with id: %s" % ID)
+            else:
+                if cal is None:
+                    hdtv.ui.msg("Unsetting calibration of spectrum with id %d" % ID)
+                else:
+                    hdtv.ui.msg("Calibrated spectrum with id %d" % ID)
+                spec.cal = cal
+                if self.workFit.spec is spec:
+                    self.workFit.cal = cal
+
+    
+    def PutFitMarker(self, mtype, pos=None):
+        if pos is None:
+            pos = self.viewport.GetCursorX()
+        self.workFit.ChangeMarker(mtype, pos, action="put")
+        
+    def RemoveFitMarker(self, mtype, pos=None):
+        if pos is None:
+            pos = self.viewport.GetCursorX()
+        self.workFit.ChangeMarker(mtype, pos, action="remove")
+        
+        
+    def ActivateFit(self):
+        pass
+        
+    def ExecuteFit(self):
+        pass
+        
+    def ClearFit(self):
+        pass
+        
+    def StoreFit(self):
+        pass
+    
         
         
 

@@ -37,24 +37,13 @@ class Marker(Drawable):
     possible to have markers that consist of a single marker, then the second 
     position is None.
     """
-    def __init__(self, xytype, p1, color=hdtv.color.zoom, cal=None, 
-                                   connecttop=True, hasID=False):
-        Drawable.__init__(self, color=color, cal=cal)                   
+    def __init__(self, xytype, p1, color=hdtv.color.zoom, cal=None, connecttop=False):
+        self._activeColor = color
+        Drawable.__init__(self, color=color, cal=cal)
         self.xytype = xytype
         self.connecttop = connecttop
         self.p1 = p1
         self.p2 = None
-        self.hasID = hasID
-    
-    # cal property
-    def _set_cal(self, cal):
-        Drawable._set_cal(self, cal)
-        self.Refresh()
-
-    def _get_cal(self):
-        return Drawable._get_cal(self)
- 
-    cal = property(_get_cal, _set_cal)
     
     # color property
     def _set_color(self, color):
@@ -70,44 +59,40 @@ class Marker(Drawable):
         return self._passiveColor
         
     color = property(_get_color, _set_color)
-
-
-    def __str__(self):
-        if not self.p2 is None:
-            return '%s marker at %s and %s' %(self.xytype, self.p1, self.p2)
-        else:
-            return '%s marker at %s' %(self.xytype, self.p1)
+     
+    # p1 property
+    def _set_p1(self, pos):
+        if isinstance(pos, (float,int)):
+            pos = hdtv.util.Position(pos_cal = pos)
+        self._p1 = pos
+  
+    def _get_p1(self):
+        return self._p1
+        
+    p1 = property(_get_p1, _set_p1)
     
-# FIXME: do this without parent link
-#    @property
-#    def title(self):
-#        title = str()
-#        if self.hasID:
-#            if self.parent is not None and self.parent.title is not None:
-#                title = self.parent.title
-#            title += str(self.parent.index(self)) 
-#        else:
-#            title = ""
-#        return title
+    # p2 property
+    def _set_p2(self, pos):
+        if isinstance(pos, (float,int)):
+            pos = hdtv.util.Position(pos_cal = pos)
+        self._p2 = pos
+        
+    def _get_p2(self):
+        return self._p2
+
+    p2 = property(_get_p2, _set_p2)
     
     def Draw(self, viewport):
         """ 
         Draw the marker
         """
-        if self.viewport:
-            if self.viewport == viewport:
-                # this marker has already been drawn
-                # but maybe the position changed
-                self.Refresh()
-                return
-            else:
-                # Marker can only be drawn to a single viewport
-                raise RuntimeError, "Marker cannot be realized on multiple viewports"
+        if self.viewport and not self.viewport == viewport:
+            # Marker can only be drawn to a single viewport
+            raise RuntimeError, "Marker cannot be realized on multiple viewports"
         self.viewport = viewport
         # adjust the position values for the creation of the makers
         # on the C++ side all values must be uncalibrated
         p1 = self.p1.GetPosInUncal()
-
         if self.p2 == None:
             n = 1
             p2 = 0.0
@@ -123,53 +108,44 @@ class Marker(Drawable):
             self.displayObj = constructor(n, p1, p2, self._activeColor)
         else:
             self.displayObj = constructor(n, p1, p2, self._passiveColor)
-        if self.hasID:
-            self.ShowTitle()
         if self.xytype=="X":
-            # calibration makes only sense on the X axis
-            self.displayObj.SetCal(self.cal)
+            # these properties make only sense on the X axis
             self.displayObj.SetConnectTop(self.connecttop)
-        self.displayObj.Draw(self.viewport)
-        
-
-    def Refresh(self):
-        """ 
-        Update the position of the marker
-        """
-        if self.displayObj:
-            p1 = self.p1.GetPosInUncal()
-            if not self.p2 is None:
-                # on the C++ side all values must be uncalibrated
-                p2 = self.p2.GetPosInUncal()
-                self.displayObj.SetN(2)
-                self.displayObj.SetPos(p1, p2)
-            else:
-                # on the C++ side all values must be uncalibrated
-                self.displayObj.SetN(1)
-                self.displayObj.SetPos(p1)
-            if self.xytype == "X": # calibration makes only sense on the X axis
+            if self.cal:
                 self.displayObj.SetCal(self.cal)
-            if self.active:
-                self.displayObj.SetColor(self._activeColor)
-            else:
-                self.displayObj.SetColor(self._passiveColor)
-            if self.hasID:
-                self.ShowTitle()
+            if self.ID is not None:
+                self.displayObj.SetID(ID)
+        self.displayObj.Draw(self.viewport)
 
-    def Copy(self, cal=None):
+        
+    def Refresh(self):
+        p1 = self.p1.GetPosInUncal()
+        if self.p2 is None:
+            # on the C++ side all values must be uncalibrated
+            self.displayObj.SetN(1)
+            self.displayObj.SetPos(p1)
+        else:
+            # on the C++ side all values must be uncalibrated
+            p2 = self.p2.GetPosInUncal()
+            self.displayObj.SetN(2)
+            self.displayObj.SetPos(p1, p2)
+  
+    def __str__(self):
+        if not self.p2 is None:
+            return '%s marker at %s and %s' %(self.xytype, self.p1, self.p2)
+        else:
+            return '%s marker at %s' %(self.xytype, self.p1)
+
+    def __copy__(self):
         """
         Create a copy of this marker
-        
-        The actual position of the marker on the display (calibrated value)
-        is kept. 
         """
         p1 = copy.copy(self.p1)
-        new = Marker(self.xytype, p1, self.color, cal)
+        new = Marker(self.xytype, p1, self.color, self.cal)
 
         if self.p2 is not None:
             new.p2 = copy.copy(self.p2)
         return new
-
 
     def FixCal(self):
         self.p1.FixCal()
@@ -181,20 +157,12 @@ class Marker(Drawable):
         if self.p2 is not None:
             self.p2.FixUncal()
             
-    def ShowTitle(self):
-        """
-        Show the title of the marker (a string to be displayed aside it)
-        """
-        if self.displayObj:
-            self.displayObj.SetTitle(self.title)
-
 
 class MarkerCollection(list):
     """
     A collection of identical markers
     """
-    def __init__(self, xytype, paired=False, maxnum=None, color=None, cal=None, 
-                               connecttop=True, hasIDs=False):
+    def __init__(self, xytype, paired=False, maxnum=None, color=None, cal=None, connecttop=True):
         list.__init__(self)
         self.viewport = None
         self.xytype = xytype
@@ -202,58 +170,21 @@ class MarkerCollection(list):
         self.maxnum = maxnum
         self.connecttop = connecttop
         self.cal = cal
-        self._activeColor = color
-        self._passiveColor = hdtv.color.Highlight(color, active=False)
-        self.hasIDs = hasIDs
-        self._fixedInCal = True # By default markers are fixed in calibrated space
-
-#  FIXME: do not use parent link
-#    @property
-#    def title(self):
-#        if self.hasIDs:
-#            if not self.parent is None and not self.parent.title is None:
-#                title = self.parent.title + "."
-#            else:
-#                title = "."
-#        else:
-#            title = ""
-#        return title
+        self.ID = None
+        # active color is defined at creation time of MarkerCollection
+        self.activeColor = color
+        # color = passiveColor can be changed
+        self.color = hdtv.color.Highlight(color, active=False)
+        self.active = True     # By default markers are active when newly created
+        self.fixedInCal = True # By default markers are fixed in calibrated space
         
-    # color property
-    def _set_color(self, color):
-        # active color is given at creation and should not change
-        self._passiveColor = hdtv.color.Highlight(color, active=False)
+    # delegate everthing to the markers
+    def __setattr__(self, name, value):
         for marker in self:
-            marker.color = color
-            
-    def _get_color(self):
-        return self._passiveColor
+            if hasattr(marker, name):
+                marker.__setattr__(name, value)
+        self.__dict__[name] = value
         
-    color = property(_get_color, _set_color)
-
-    # cal property
-    def _set_cal(self, cal):
-        self._cal= hdtv.cal.MakeCalibration(cal)
-        for marker in self:
-            marker.cal = cal
-            marker.Refresh()
-            
-    def _get_cal(self):
-        return self._cal
-        
-    cal = property(_get_cal,_set_cal)
-
-    # active property
-    def _set_active(self, state):
-        self._active = state
-        for marker in self:
-            marker.active = state
-    
-    def _get_active(self):
-        return self._active
-        
-    active = property(_get_active, _set_active)
-
     def Draw(self, viewport):
         self.viewport = viewport
         for marker in self:
@@ -272,12 +203,12 @@ class MarkerCollection(list):
             marker.Refresh()
 
     def FixCal(self):
-        self._fixedInCal = True
+        self.fixedInCal = True
         for marker in self:
             marker.FixCal()
     
     def FixUncal(self):
-        self._fixedInCal = False
+        self.fixedInCal = False
         for marker in self:
             marker.FixUncal()
             
@@ -286,9 +217,6 @@ class MarkerCollection(list):
         """
         Put a marker to calibrated position pos, possibly completing a marker pair
         """
-        if isinstance(pos, (float,int)):
-            pos = hdtv.util.Position(pos_cal = pos)
-
         if self.IsFull():
             pending = self.pop(0)
             pending.p1 = pos
@@ -300,9 +228,10 @@ class MarkerCollection(list):
             pending.p2 = pos
             pending.Refresh()
         else:
-            m = Marker(self.xytype, pos, self._activeColor, self.cal, 
-                                        self.connecttop, hasID = self.hasIDs)
-            m.color = self._passiveColor
+            m = Marker(self.xytype, pos, self.activeColor, self.cal, self.connecttop)
+            m.color = self.color
+            m.ID = self.ID
+            m.active = self.active
             self.append(m)
             if self.viewport:
                 m.Draw(self.viewport)
