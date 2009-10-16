@@ -198,16 +198,15 @@ class DrawableManager(object):
         else:
             return self.dict[self.activeID]
 
-# DO we need this?
-#    def Index(self, obj):
-#        """
-#        Return index such that self[index] == obj
-#        """
-#        index = [k for (k,v) in self.dict.iteritems() if v == obj]
-#        if len(index) == 0:
-#            raise ValueError, "Object not found in this collection"
-#        else:
-#            return index[0]
+    def Index(self, obj):
+        """
+        Return index such that self[index] == obj
+        """
+        index = [k for (k,v) in self.dict.iteritems() if v == obj]
+        if len(index) == 0:
+            raise ValueError, "Object not found in this collection"
+        else:
+            return index[0]
 
     def Insert(self, obj, ID=None):
         """
@@ -245,6 +244,16 @@ class DrawableManager(object):
             return self.dict.pop(ID)
         except KeyError:
             hdtv.ui.warn("Warning: ID %s not found." % ID)
+            
+    def Clear(self):
+        """
+        Clear dict and reset everything
+        """
+        self.activeID = None
+        self._iterator = self.activeID
+        self._active = False
+        self.HideAll()
+        self.dict.clear()
 
     def GetFreeID(self):
         """

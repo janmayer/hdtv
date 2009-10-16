@@ -22,24 +22,24 @@
 #-------------------------------------------------------------------------------
 # Matrix interface for hdtv
 #-------------------------------------------------------------------------------
+import os.path
 
 import hdtv.cmdline
 import hdtv.dlmgr
 import hdtv.marker
-import os.path
 import hdtv.color
 from hdtv.specreader import SpecReaderError
+from hdtv.spectrum import Histogram
 
 import math
 import ROOT
 
-class CutSpectrum(hdtv.spectrum.Spectrum):
+class CutSpectrum(Histogram):
     def __init__(self, hist, matrix, color=None, cal=None):
         self.matrix = matrix
         hdtv.spectrum.Spectrum.__init__(self, hist, color, cal)
-        
-    def GetTypeStr(self):
-        return "cut spectrum (gated projection)"
+        self.typeStr = "cut spectrum (gated projection)"
+
 
 class Matrix(hdtv.spectrum.Spectrum):
     def __init__(self, proj, title, color, cal):
@@ -120,9 +120,9 @@ class MFMatrix(Matrix):
         self.mhist = None
 
 class MatrixInterface:
-    def __init__(self, window, spectra):
-        self.window = window
+    def __init__(self, spectra):
         self.spectra = spectra
+        self.window = spectra.window
         self.CutRegionMarkers = hdtv.marker.MarkerCollection("X", paired=True,
                                                  color=hdtv.color.cut)
         self.CutRegionMarkers.Draw(self.window.viewport)
@@ -215,7 +215,7 @@ class MatrixInterface:
             matrix.AddBgRegion(bg.p1.pos_cal, bg.p2.pos_cal)
             
         cut = matrix.Cut()
-        cutid = self.spectra.Add(cut)
+        cutid = self.spectra.Insert(cut)
         cut.color = hdtv.color.ColorForID(cutid)
         self.spectra.ActivateObject(cutid)
         
@@ -246,7 +246,7 @@ class MatrixInterface:
             print "Error: failed to open matrix %s" % args[0]
             return False
         
-        sid = self.spectra.Add(spec)
+        sid = self.spectra.Insert(spec)
         spec.color = hdtv.color.ColorForID(sid)
         self.spectra.ActivateObject(sid)
         self.window.Expand()
@@ -254,11 +254,4 @@ class MatrixInterface:
         
 # plugin initialisation
 import __main__
-if not hasattr(__main__,"window"):
-    import hdtv.window
-    __main__.window = hdtv.window.Window()
-if not hasattr(__main__, "spectra"):
-    import hdtv.drawable
-    __main__.spectra = hdtv.drawable.DrawableCompound(__main__.window.viewport)
-
-__main__.mat = MatrixInterface(__main__.window, __main__.spectra)
+__main__.mat = MatrixInterface(__main__.spectra)

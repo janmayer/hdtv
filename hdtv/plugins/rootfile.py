@@ -29,9 +29,11 @@ import hdtv.spectrum
 import fnmatch
 import readline
 import hdtv.rfile_utils
-import hdtv.plugins.matrix
 
-class RMatrix(hdtv.plugins.matrix.Matrix):
+from hdtv.spectrum import Spectrum, Histogram
+from hdtv.matrix import Matrix
+
+class RMatrix(Matrix):
     """
     ROOT TH2-backed matrix for projection
     """
@@ -48,7 +50,7 @@ class RMatrix(hdtv.plugins.matrix.Matrix):
         else:
             phist = self.hist.ProjectionX(title + "_prx")
                 
-        hdtv.plugins.matrix.Matrix.__init__(self, phist, title, color, cal)
+        Matrix.__init__(self, phist, title, color, cal)
         
     def __del__(self):
         # Explicitly deconstruct C++ objects in the right order
@@ -58,11 +60,11 @@ class RMatrix(hdtv.plugins.matrix.Matrix):
         
 
 class RootFile:
-    def __init__(self, window, spectra, caldict):
+    def __init__(self, spectra):
         print "Loaded user interface for working with root files"
-        self.window = window
         self.spectra = spectra
-        self.caldict = caldict
+        self.window = spectra.window
+        self.caldict = spectra.caldict
         self.rootfile = None
         self.browser = None
         self.matviews = list()
@@ -261,7 +263,7 @@ class RootFile:
         hist = self.GetTH2(args[0])
         if hist:
             spec = RMatrix(hist, prj_x)
-            sid = self.spectra.Add(spec)
+            sid = self.spectra.Insert(spec)
             spec.color = hdtv.color.ColorForID(sid)
             self.spectra.ActivateObject(sid)
             self.window.Expand()        
@@ -277,7 +279,7 @@ class RootFile:
             objs += hdtv.rfile_utils.Get(".", cur_root_dir, pat)
     
         if options.replace:
-            self.spectra.RemoveAll()
+            self.spectra.Clear()
             
         nloaded = 0
         self.window.viewport.LockUpdate()
@@ -285,7 +287,7 @@ class RootFile:
             for obj in objs:
                 if isinstance(obj, ROOT.TH1):
                     spec = hdtv.spectrum.Spectrum(obj)
-                    ID = self.spectra.Add(spec)
+                    ID = self.spectra.Insert(spec)
                     spec.color = hdtv.color.ColorForID(ID)
                     
                     if options.load_cal:
@@ -308,14 +310,15 @@ class RootFile:
             self.window.viewport.UnlockUpdate()
         
     def Draw(self, hist):
-        spec = hdtv.spectrum.Spectrum(hist)
-        ID = self.spectra.Add(spec)
+        spec = Spectrum(Histogram(hist))
+        spec.typeStr = "spectrum, read from root file"
+        ID = self.spectra.Insert(spec)
         spec.color = hdtv.color.ColorForID(ID)
         self.spectra.ActivateObject(ID)
 
 
 # plugin initialisation
 import __main__
-import specInterface 
-r = RootFile(__main__.window, __main__.spectra, __main__.s.caldict)
+r = RootFile(__main__.spectra)
+# FIXME: that does not look right here (cluttering of namespace)
 __main__.Draw = r.Draw
