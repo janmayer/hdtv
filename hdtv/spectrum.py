@@ -49,6 +49,12 @@ class Histogram(Drawable):
     def __str__(self):
         return self.name
         
+    def __copy__(self):
+        # call C++ copy constructor
+        hist = self._hist.__class__(self._hist)
+        # create new spectrum object
+        return Histogram(hist, color=self.color, cal=self.cal)
+        
     # hist property
     def _set_hist(self, hist):
         self._hist = hist
@@ -125,21 +131,21 @@ class Histogram(Drawable):
         Add other spectrum to this one
         """ 
         self._hist.Add(spec._hist, 1.0)
-        self.typeStr = "spectrum, sum"
+        self.typeStr = "spectrum, modified (sum)"
         
     def Minus(self, spec):
         """
         Substract other spectrum from this one
         """ 
         self._hist.Add(spec._hist, -1.0)
-        self.typeStr = "spectrum, difference"
+        self.typeStr = "spectrum, modified (difference)"
             
     def Multiply(self, factor):
         """
         Multiply spectrum with factor
         """ 
         self._hist.Scale(factor)
-        self.typeStr = "spectrum, multiplied"
+        self.typeStr = "spectrum, modified (multiplied)"
         
        
     def Draw(self, viewport):

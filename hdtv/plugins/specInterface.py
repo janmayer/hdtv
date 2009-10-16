@@ -22,6 +22,7 @@
 import ROOT
 import os
 import glob
+import copy
 
 import hdtv.cmdline
 import hdtv.cmdhelper
@@ -32,19 +33,16 @@ import hdtv.ui
  
 from hdtv.spectrum import Spectrum, Histogram, FileHistogram
 from hdtv.specreader import SpecReaderError
-from copy import copy
-
 
 class SpecInterface:
     """
     User interface to work with 1-d spectra
     """
-    def __init__(self, main):
+    def __init__(self, spectra):
         hdtv.ui.msg("Loaded user interface for working with 1-d spectra")
-    
-        self.window = main.window
-        self.spectra= main
-        self.caldict = main.caldict
+        self.spectra= spectra
+        self.window = spectra.window
+        self.caldict = spectra.caldict
         
         # tv commands
         self.tv = TvSpecInterface(self)
@@ -211,18 +209,14 @@ class SpecInterface:
         
         Return ID of new spectrum
         """
-        if copyTo is None:              
+        if copyTo is None:
             copyTo = self.spectra.GetFreeID()
-
-        # get underlying ROOT-Histogram
-        hist = self.spectra.dict[ID].hist.hist
-        # call C++ copy constructor
-        hist = hist.__class__(hist)
+        # get copy of underlying histogramm
+        hist = copy.copy(self.spectra.dict[ID].hist)
         # create new spectrum object
-        cal=self.spectra.dict[ID].cal
-        color = hdtv.color.ColorForID(copyTo)
-        spec = Spectrum(Histogram(hist, color=color, cal=cal))
-        spec.typeStr = "spectrum, copied from other spectrum"
+        spec = Spectrum(hist)
+        spec.color = hdtv.color.ColorForID(copyTo)
+        spec.typeStr = "spectrum, copy"
         sid = self.spectra.Insert(spec, copyTo)
         hdtv.ui.msg("Copied spectrum " + str(ID) + " to " + str(sid))
 
@@ -630,5 +624,5 @@ class TvSpecInterface:
 
 # plugin initialisation
 import __main__
-__main__.s = SpecInterface(__main__.main)
+__main__.s = SpecInterface(__main__.spectra)
 

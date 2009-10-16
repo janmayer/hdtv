@@ -40,7 +40,7 @@ import hdtv.ui
 hdtv.cmdline.ReadReadlineInit(configpath + "/inputrc")
 hdtv.cmdline.SetReadlineHistory(configpath + "/hdtv_history")
 hdtv.cmdline.SetInteractiveDict(locals())
-main = hdtv.session.Session()
+spectra = hdtv.session.Session()
 
 # Import core plugins
 #import hdtv.plugins.textInterface

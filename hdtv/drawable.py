@@ -367,8 +367,9 @@ class DrawableManager(object):
         if self.viewport is None:
             return
         self.viewport.LockUpdate()
-        # if only one object is given
-        if isinstance(ids, int):
+        # check if ids is list/iterable or just single id 
+        try: iter(ids)
+        except TypeError:
             ids = [ids]
         for ID in ids:
             if ID in self.visible:
@@ -409,7 +410,9 @@ class DrawableManager(object):
         if self.viewport is None:
             return
         self.viewport.LockUpdate()
-        if isinstance(ids, int):
+        # check if ids is list/iterable or just single id 
+        try: iter(ids)
+        except TypeError:
             ids = [ids]
         if clear:
             # hide all other objects except in ids
