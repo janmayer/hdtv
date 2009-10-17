@@ -19,8 +19,6 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 import ROOT
-import dlmgr
-dlmgr.LoadLibrary("fit")
 
 import hdtv.peakmodels
 from hdtv.util import Pairs

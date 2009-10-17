@@ -396,12 +396,16 @@ class DrawableManager(object):
         for ID in ids:
             if ID in self.visible:
                 try:
-                    if ID == self.activeID: # Deactivate object when hidden
-                        self.ActivateObject(None)
                     self.dict[ID].Hide()
                     self.visible.discard(ID)
                 except KeyError:
                     hdtv.ui.warn("ID %d not found" % ID)
+        # Check if active ID is still visible
+        if self.activeID not in self.visible:
+            if len(self.visible)>0:
+                self.ActivateObject(min(self.visible))
+            else:
+                self.ActivateObject(None)
         self.viewport.UnlockUpdate()
         return ids
 
@@ -450,7 +454,10 @@ class DrawableManager(object):
                 hdtv.ui.warn("ID %s not found" % ID)
         # Check if active ID is still visible
         if self.activeID not in self.visible:
-            self.ActivateObject(None)
+            if len(self.visible)>0:
+                self.ActivateObject(min(self.visible))
+            else:
+                self.ActivateObject(None)
         self.viewport.UnlockUpdate()
         return ids
 

@@ -72,10 +72,12 @@ def ParseIds(strings, manager, only_existent=True):
     valid_ids = list() 
     if only_existent:
         for ID in ids:
-            if not ID in manager.ids:
-                hdtv.ui.warn("Non-existent id %s" %ID)
-            else:
-                valid_ids.append(ID)
+            # ID might be None, if e.g. activeID is None
+            if ID is not None:
+                if ID not in manager.ids:
+                    hdtv.ui.warn("Non-existent id %s" %ID)
+                else:
+                    valid_ids.append(ID)
     else:
         map(valid_ids.append, ids)
     return valid_ids

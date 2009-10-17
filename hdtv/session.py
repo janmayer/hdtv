@@ -24,6 +24,7 @@ import copy
 
 import hdtv.dlmgr
 hdtv.dlmgr.LoadLibrary("display")
+hdtv.dlmgr.LoadLibrary("fit")
 
 from hdtv.window import Window
 from hdtv.drawable import DrawableManager
@@ -73,29 +74,65 @@ class Session(DrawableManager):
                     self.workFit.cal = cal
 
     
-    def PutFitMarker(self, mtype, pos=None):
+    def SetFitMarker(self, mtype, pos=None):
         if pos is None:
             pos = self.viewport.GetCursorX()
-        self.workFit.ChangeMarker(mtype, pos, action="put")
+        self.workFit.ChangeMarker(mtype, pos, action="set")
         
     def RemoveFitMarker(self, mtype, pos=None):
         if pos is None:
             pos = self.viewport.GetCursorX()
         self.workFit.ChangeMarker(mtype, pos, action="remove")
         
+    def ExecuteFit(self, peaks = True):
+        """
+        Execute the fit
         
+        If peaks=False, just an background fit is done, else a peak fit is done. 
+        """
+        spec = self.GetActiveObject()
+        print 'fitting spec %s' %spec.ID
+        if spec is None:
+            hdtv.ui.error("There is no active spectrum")
+            return 
+        fit = self.workFit
+        if not peaks and len(fit.bgMarkers) > 0:
+            # pure background fit
+            fit.FitBgFunc(spec)
+        if peaks:
+            # full fit
+            fit.FitPeakFunc(spec)
+        fit.Draw(self.window.viewport)
+
+    def ClearFit(self, bg_only=False):
+        """
+        Clear the markers and erase a previously executed fit.
+        
+        If bg_only is True, only the background fit is cleared and a peak fit
+        is repeated now with internal background.
+        """
+        self.workFit.bgMarkers.Clear()
+        if not bg_only:
+            self.workFit.peakMarkers.Clear()
+            self.workFit.regionMarkers.Clear()
+        self.workFit.Erase(bg_only)
+        
+            
     def ActivateFit(self):
         pass
-        
-    def ExecuteFit(self):
-        pass
-        
-    def ClearFit(self):
-        pass
-        
+    
     def StoreFit(self):
         pass
     
+    def ActivateObject(self, ID):
+        """
+        Reset workFit when activating another spectrum
+        """
+        # overwrite function of DrawableManager
+        self.workFit.spec = None
+        DrawableManager.ActivateObject(self, ID)
+        
+        
         
         
 

@@ -213,9 +213,9 @@ class MarkerCollection(list):
             marker.FixUncal()
             
             
-    def PutMarker(self, pos):
+    def SetMarker(self, pos):
         """
-        Put a marker to calibrated position pos, possibly completing a marker pair
+        Set a marker to calibrated position pos, possibly completing a marker pair
         """
         if self.IsFull():
             pending = self.pop(0)

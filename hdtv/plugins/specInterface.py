@@ -48,12 +48,12 @@ class SpecInterface:
         self.tv = TvSpecInterface(self)
         
         # good to have as well...
-        self.window.AddHotkey(ROOT.kKey_PageUp, self._HotkeyShowPrev)
-        self.window.AddHotkey(ROOT.kKey_PageDown, self._HotkeyShowNext)
+        self.window.AddHotkey(ROOT.kKey_PageUp, self.spectra.ShowPrev)
+        self.window.AddHotkey(ROOT.kKey_PageDown, self.spectra.ShowNext)
         
         # register common tv hotkeys
-        self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_p], self._HotkeyShowPrev)
-        self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_n], self._HotkeyShowNext)
+        self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_p], self.spectra.ShowPrev)
+        self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_n], self.spectra.ShowNext)
         self.window.AddHotkey(ROOT.kKey_Equal, self.spectra.RefreshAll)
         self.window.AddHotkey(ROOT.kKey_t, self.spectra.RefreshVisible)
         self.window.AddHotkey(ROOT.kKey_n,
@@ -73,8 +73,6 @@ class SpecInterface:
                 self.spectra.HideAll()
             else:
                 self.spectra.ShowObjects(ids)
-                activateID = min(ids)
-                self.spectra.ActivateObject(activateID)
         except ValueError:
             self.window.viewport.SetStatusText("Invalid spectrum identifier: %s" % arg)
 
@@ -97,22 +95,6 @@ class SpecInterface:
                 self.window.viewport.SetStatusText("Activated spectrum %d" % self.spectra.activeID)
         except ValueError:
             self.window.viewport.SetStatusText("Invalid id: %s" % arg)
-
-    def _HotkeyShowNext(self):
-        """
-        Show next spectrum and activate it automatically
-        """
-        nextID = self.spectra.nextID
-        self.spectra.ShowObjects(nextID)
-        self.spectra.ActivateObject(nextID)
-
-    def _HotkeyShowPrev(self):
-        """
-        Show previous spectrum and activate it automatically
-        """
-        prevID = self.spectra.prevID
-        self.spectra.ShowObjects(prevID)
-        self.spectra.ActivateObject(prevID)
 
 
     def LoadSpectra(self, patterns, ID=None):
@@ -496,7 +478,6 @@ class TvSpecInterface:
         
         When inverse == True SpectrumShow behaves like SpectrumHide
         """
-
         if len(args) == 0:
             ids = self.spectra.dict.keys()
         else:
@@ -504,19 +485,11 @@ class TvSpecInterface:
                 ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
             except ValueError:
                 return "USAGE"
-
         if inverse:
             self.spectra.HideObjects(ids)
         else:
             self.spectra.ShowObjects(ids)
-
-        try:
-            ID = min(self.spectra.visible)
-        except ValueError:
-            ID = None
-            
-        self.spectra.ActivateObject(ID)
-            
+     
             
     def SpectrumInfo(self, args):
         """

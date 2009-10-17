@@ -47,8 +47,8 @@ import hdtv.plugins.textInterface
 import hdtv.plugins.ls
 import hdtv.plugins.run
 import hdtv.plugins.specInterface 
-#import hdtv.plugins.fitInterface
-import hdtv.plugins.calibration
+import hdtv.plugins.fitInterface
+import hdtv.plugins.calInterface
 #import hdtv.plugins.matrix
 #import hdtv.plugins.rootfile
 import hdtv.plugins.config

@@ -225,7 +225,7 @@ class Window(KeyHandler):
         self.AddHotkey(ROOT.kKey_A, self.viewport.ToggleYAutoScale)
         self.AddHotkey(ROOT.kKey_Exclam, self.viewport.ToggleUseNorm)
         # x directions
-        self.AddHotkey(ROOT.kKey_Space, self.PutXZoomMarker)
+        self.AddHotkey(ROOT.kKey_Space, self.SetXZoomMarker)
         self.AddHotkey(ROOT.kKey_x, self.ExpandX)
         self.AddHotkey(ROOT.kKey_Right, lambda: self.viewport.ShiftXOffset(0.1))
         self.AddHotkey(ROOT.kKey_Left, lambda: self.viewport.ShiftXOffset(-0.1))
@@ -237,7 +237,7 @@ class Window(KeyHandler):
         self.AddHotkey(ROOT.kKey_1, lambda: self.viewport.XZoomAroundCursor(2.0))
         self.AddHotkey(ROOT.kKey_0, lambda: self.viewport.XZoomAroundCursor(0.5))
         # y direction
-        self.AddHotkey(ROOT.kKey_h, self.PutYZoomMarker)
+        self.AddHotkey(ROOT.kKey_h, self.SetYZoomMarker)
         self.AddHotkey(ROOT.kKey_y, self.ExpandY)
         self.AddHotkey(ROOT.kKey_Up, lambda: self.viewport.ShiftYOffset(0.1))
         self.AddHotkey(ROOT.kKey_Down, lambda: self.viewport.ShiftYOffset(-0.1))
@@ -361,19 +361,21 @@ class Window(KeyHandler):
                 self.viewport.YAutoScaleOnce()
                 
 
-    def PutXZoomMarker(self, pos=None):
+    def SetXZoomMarker(self, pos=None):
         """
         set a X zoom marker
         """
         if pos is None:
             pos = self.viewport.GetCursorX()
-        self.XZoomMarkers.PutMarker(pos)
+        self.XZoomMarkers.SetMarker(pos)
         
         
-    def PutYZoomMarker(self, pos=None):
+    def SetYZoomMarker(self, pos=None):
         """
         set a Y zoom marker
         """
         if pos is None:
             pos = self.viewport.GetCursorY()
-        self.YZoomMarkers.PutMarker(pos)
+        self.YZoomMarkers.SetMarker(pos)
+        
+        
