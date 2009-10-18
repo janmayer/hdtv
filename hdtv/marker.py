@@ -39,11 +39,13 @@ class Marker(Drawable):
     """
     def __init__(self, xytype, p1, color=hdtv.color.zoom, cal=None, connecttop=False):
         self._activeColor = color
-        Drawable.__init__(self, color=color, cal=cal)
+        self._cal = cal
+        self.fixedInCal = True
         self.xytype = xytype
         self.connecttop = connecttop
         self.p1 = p1
         self.p2 = None
+        Drawable.__init__(self, color=color, cal=cal)
     
     # color property
     def _set_color(self, color):
@@ -63,7 +65,7 @@ class Marker(Drawable):
     # p1 property
     def _set_p1(self, pos):
         if isinstance(pos, (float,int)):
-            pos = hdtv.util.Position(pos_cal = pos)
+            pos = hdtv.util.Position(pos, self.fixedInCal, self.cal)
         self._p1 = pos
   
     def _get_p1(self):
@@ -74,13 +76,26 @@ class Marker(Drawable):
     # p2 property
     def _set_p2(self, pos):
         if isinstance(pos, (float,int)):
-            pos = hdtv.util.Position(pos_cal = pos)
+            pos = hdtv.util.Position(pos, self.fixedInCal, self.cal)
         self._p2 = pos
         
     def _get_p2(self):
         return self._p2
 
     p2 = property(_get_p2, _set_p2)
+    
+    #cal property
+    def _set_cal(self, cal):
+        self.p1.cal = cal
+        if self.p2 is not None:
+            self.p2.cal = cal
+        Drawable._set_cal(self, cal)
+        
+    def _get_cal(self):
+        return self._cal
+    
+    cal = property(_get_cal, _set_cal)
+        
     
     def Draw(self, viewport):
         """ 
@@ -92,13 +107,13 @@ class Marker(Drawable):
         self.viewport = viewport
         # adjust the position values for the creation of the makers
         # on the C++ side all values must be uncalibrated
-        p1 = self.p1.GetPosInUncal()
+        p1 = self.p1.pos_uncal
         if self.p2 == None:
             n = 1
             p2 = 0.0
         else:
             n = 2
-            p2 = self.p2.GetPosInUncal()
+            p2 = self.p2.pos_uncal
         # X or Y?
         if self.xytype == "X":
             constructor = ROOT.HDTV.Display.XMarker
@@ -119,14 +134,14 @@ class Marker(Drawable):
 
         
     def Refresh(self):
-        p1 = self.p1.GetPosInUncal()
+        p1 = self.p1.pos_uncal
         if self.p2 is None:
             # on the C++ side all values must be uncalibrated
             self.displayObj.SetN(1)
             self.displayObj.SetPos(p1)
         else:
             # on the C++ side all values must be uncalibrated
-            p2 = self.p2.GetPosInUncal()
+            p2 = self.p2.pos_uncal
             self.displayObj.SetN(2)
             self.displayObj.SetPos(p1, p2)
   
@@ -148,11 +163,13 @@ class Marker(Drawable):
         return new
 
     def FixCal(self):
+        self.fixedInCal = True
         self.p1.FixCal()
         if self.p2 is not None:
             self.p2.FixCal()
         
     def FixUncal(self):
+        self.fixedInCal = False
         self.p1.FixUncal()
         if self.p2 is not None:
             self.p2.FixUncal()
@@ -281,11 +298,11 @@ class MarkerCollection(list):
             return
         index = dict()
         for m in self:
-            p1 = m.p1.GetPosInCal()
+            p1 = m.p1.pos_cal
             diff = abs(pos-p1)
             index[diff] = m
             if self.paired and not m.p2==None:
-                p2 = m.p2.GetPosInCal()
+                p2 = m.p2.pos_cal
                 diff = abs(pos-p2)
                 index[diff] = m
         nearest = index[min(index.keys())]

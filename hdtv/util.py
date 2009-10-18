@@ -636,44 +636,60 @@ class Child(object):
     
     
 
-class Position():
+class Position(object):
     """
     Class for storing postions that may be fixed in calibrated or uncalibrated space
     
     if self.pos_cal is set the position is fixed in calibrated space. 
     if self.pos_uncal is set the position is fixed in uncalibrated space.
     """
-    def __init__(self, pos_uncal = None, pos_cal = None, cal = None):
-        
+    def __init__(self, pos, fixedInCal, cal = None):
+        self.fixedInCal = fixedInCal
         self.cal = cal
+        if fixedInCal:
+            self.pos_cal = pos
+        else:
+            self.pos_uncal = pos
 
-        if pos_cal is not None:
-            self._pos_cal = pos_cal
-            self._pos_uncal = None
-        else:
-            self._pos_cal = None
-            self._pos_uncal = pos_uncal 
+    # pos_cal 
+    def _set_pos_cal(self, pos):
+        if not self.fixedInCal:
+            raise TypeError, "Position is fixed in uncalibrated space"
+        self._pos_cal = pos
+        self._pos_uncal = None
         
-    def __str__(self):
-        text = str()
-        if self._pos_cal is not None:
-            text += "Cal: %s" % self.pos_cal
-        if self._pos_uncal is not None:
-            text += "Uncal: %s" % self.pos_uncal
-        return text
-    
-    def GetPosInCal(self):
-        if self._pos_cal is None:
-            return self._Ch2E(self._pos_uncal)
-        else:
+    def _get_pos_cal(self):
+        if self.fixedInCal:
             return self._pos_cal
+        else:
+            return self._Ch2E(self._pos_uncal)
+        
+    pos_cal = property(_get_pos_cal, _set_pos_cal)
     
-    def GetPosInUncal(self):
-        if self._pos_uncal is None:
+    # pos_uncal
+    def _set_pos_uncal(self, pos):
+        if self.fixedInCal:
+            raise TypeError, "Position is fixed in calibrated space"
+        self._pos_uncal = pos
+        self._pos_cal = None
+
+    def _get_pos_uncal(self):
+        if self.fixedInCal:
             return self._E2Ch(self._pos_cal)
         else:
             return self._pos_uncal
-        
+    
+    pos_uncal = property(_get_pos_uncal, _set_pos_uncal)
+    
+    # other functions
+    def __str__(self):
+        text = str()
+        if self.fixedInCal:
+            text += "Cal: %s" % self._pos_cal
+        else:
+            text += "Uncal: %s" % self._pos_uncal
+        return text
+    
     def _Ch2E(self, Ch):
         if self.cal is None:
             E = Ch
@@ -688,47 +704,19 @@ class Position():
             Ch = self.cal.E2Ch(E)
         return Ch
         
-    def _set_pos_cal(self, pos):
-        
-        if self._pos_uncal is not None:
-            raise TypeError, "Position is fixed in uncalibrated space"
-            return
-        
-        self._pos_cal = pos
-        
-    def _get_pos_cal(self):
-        return self._pos_cal
-        
-    pos_cal = property(_get_pos_cal, _set_pos_cal)
-    
-    
-    def _set_pos_uncal(self, pos):
-
-        if self._pos_cal is not None:
-            raise TypeError, "Position is fixed in calibrated space"
-            return
-        
-        self._pos_uncal = pos
-
-
-    def _get_pos_uncal(self):
-        return self._pos_uncal  
-    
-    pos_uncal = property(_get_pos_uncal, _set_pos_uncal)
-
     def FixCal(self):
         """
         Fix position in calibrated space
         """
-        if self._pos_cal is None:
-            self._pos_cal = self._Ch2E(self._pos_uncal)
-            self._pos_uncal = None
+        if not self.fixedInCal:
+            self.fixedInCal = True
+            self.pos_cal = self._Ch2E(self._pos_uncal)
          
     def FixUncal(self):
         """
         Fix position in uncalibrated space
         """
-        if self._pos_uncal is None:
-            self._pos_uncal = self._E2Ch(self.pos_cal)
-            self._pos_cal = None
+        if self.fixedInCal:
+            self.fixedInCal = False
+            self.pos_uncal = self._E2Ch(self._pos_cal)
 

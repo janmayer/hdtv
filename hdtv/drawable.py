@@ -243,20 +243,18 @@ class DrawableManager(object):
         """
         Remove object with ID
         """
+        if ID == self.activeID:
+            # activate object before the one we remove
+            self.ActivateObject(self.prevID)
         if ID == self._iteratorID:
             # set iterator to the ID before the one we remove
             self._iteratorID = self.prevID 
-        if ID == self.activeID:
-            # set activeID to None
-            self.ActivateObject(None)
-        if ID in self.visible:
-            # remove from list of visible objects
-            self.visible.discard(ID)
         try:
             self.dict[ID].Hide()
-            return self.dict.pop(ID)
+            self.dict.pop(ID)
         except KeyError:
             hdtv.ui.warn("Warning: ID %s not found." % ID)
+
             
     def Clear(self):
         """
