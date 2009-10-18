@@ -24,7 +24,6 @@ import hdtv.cmdhelper
 import hdtv.options
 import hdtv.util
 import hdtv.ui
-import weakref
 
 from hdtv.marker import MarkerCollection
 from hdtv.fitter import Fitter
@@ -218,7 +217,7 @@ class TvFitInterface:
                 else:
                     hdtv.ui.warn("No fit for spectrum %s to work on." %specID)
             for fitID in fitIDs:    
-                self.fitIf.ExecuteFit(specID=specID, fitID=fitID, peaks=doPeaks)
+                self.fitIf.ExecuteRefit(specID=specID, fitID=fitID, peaks=doPeaks)
                 
     def FitClear(self, args, options):
         """

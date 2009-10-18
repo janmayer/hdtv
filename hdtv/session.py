@@ -117,12 +117,20 @@ class Session(DrawableManager):
             self.workFit.regionMarkers.Clear()
         self.workFit.Erase(bg_only)
         
-            
     def ActivateFit(self):
         pass
     
-    def StoreFit(self):
-        pass
+    def StoreFit(self, ID=None):
+        spec = self.workFit.spec
+        if spec is None:
+            hdtv.ui.warn("No fit available to store")
+        ID = spec.Insert(self.workFit, ID=spec.activeID)
+        spec.dict[ID].active = False
+        spec.ActivateObject(None)
+        hdtv.ui.msg("Storing workFit with ID %s" % ID)
+        self.workFit = copy.copy(self.workFit)
+        self.workFit.Draw(self.window.viewport)
+        
     
     def ActivateObject(self, ID):
         """

@@ -292,7 +292,7 @@ class Window(KeyHandler):
         self.viewport.SetXVisibleRegion(width)
         self.viewport.SetXCenter(center)
         
-        
+
     def GoToPosition(self, arg, options=None):
         """
         Move viewport to be centered around a position

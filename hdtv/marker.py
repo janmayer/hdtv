@@ -129,7 +129,7 @@ class Marker(Drawable):
             if self.cal:
                 self.displayObj.SetCal(self.cal)
             if self.ID is not None:
-                self.displayObj.SetID(ID)
+                self.displayObj.SetID(self.ID)
         self.displayObj.Draw(self.viewport)
 
         
@@ -156,7 +156,7 @@ class Marker(Drawable):
         Create a copy of this marker
         """
         p1 = copy.copy(self.p1)
-        new = Marker(self.xytype, p1, self.color, self.cal)
+        new = Marker(self.xytype, p1, self._activeColor, self.cal)
 
         if self.p2 is not None:
             new.p2 = copy.copy(self.p2)
@@ -201,6 +201,19 @@ class MarkerCollection(list):
             if hasattr(marker, name):
                 marker.__setattr__(name, value)
         self.__dict__[name] = value
+        
+    def setProperties(self, marker):
+        marker.connecttop = self.connecttop
+        marker.activeColor = self.activeColor
+        marker.color = self.color
+        marker.cal = self.cal
+        marker.ID = self.ID
+        marker.active = self.active
+        marker.fixedInCal = self.fixedInCal
+        
+    def append(self, marker):
+        self.setProperties(marker)
+        list.append(self, marker)
         
     def Draw(self, viewport):
         self.viewport = viewport

@@ -32,6 +32,7 @@ class Drawable(object):
         self.active = False
         self.cal = cal
         self.color = color
+        self.ID = None
        
     def __str__(self):
         return str(self.displayObj)
@@ -399,7 +400,7 @@ class DrawableManager(object):
                 except KeyError:
                     hdtv.ui.warn("ID %d not found" % ID)
         # Check if active ID is still visible
-        if self.activeID not in self.visible:
+        if self.activeID is not None and self.activeID not in self.visible:
             if len(self.visible)>0:
                 self.ActivateObject(min(self.visible))
             else:
@@ -451,7 +452,7 @@ class DrawableManager(object):
             except KeyError:
                 hdtv.ui.warn("ID %s not found" % ID)
         # Check if active ID is still visible
-        if self.activeID not in self.visible:
+        if self.active is not None and self.activeID not in self.visible:
             if len(self.visible)>0:
                 self.ActivateObject(min(self.visible))
             else:
