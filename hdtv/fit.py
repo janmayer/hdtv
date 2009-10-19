@@ -203,12 +203,10 @@ class Fit(Drawable):
         Note: You still need to call Draw afterwards.
         """
         if spec is not None:
-            self.spec  = spec
-
-#        self.bgMarkers.FixUncal()
-        # remove old fit
+            self.spec = spec
+            
         self.Erase()
-        
+         
         # fit background 
         if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
             backgrounds = hdtv.util.Pairs()
@@ -387,7 +385,6 @@ class Fit(Drawable):
         self.Show()
         self.viewport.UnlockUpdate()
 
-
     def Erase(self, bg_only=False):
         """
         Erase previous fit. NOTE: the fitter is *not* resetted 
@@ -397,14 +394,12 @@ class Fit(Drawable):
         self.fitter.bgFitter = None
         self.bgCoeffs = []
         self.bgChi = None
-        if bg_only:
-            # refit peaks internal background
-            self.Refresh()
-        else:
+        if not bg_only:
             # remove peak fit
             self.dispPeakFunc = None
             self.peaks = []
             self.chi=None 
+            
         
     def ShowAsWorkFit(self):
         if not self.viewport:

@@ -185,6 +185,8 @@ class DrawableManager(object):
         """
         Activates the object with id ID
         """
+        if ID is not None and ID not in self.ids:
+            raise KeyError
         if self.viewport:
             self.viewport.LockUpdate()
         # change state of former active object

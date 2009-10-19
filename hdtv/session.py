@@ -111,19 +111,38 @@ class Session(DrawableManager):
         If bg_only is True, only the background fit is cleared and a peak fit
         is repeated now with internal background.
         """
-        self.workFit.bgMarkers.Clear()
-        if not bg_only:
+        if bg_only:
+            self.workFit.bgMarkers.Clear()
+            self.workFit.Erase(bg_only)
+            self.workFit.Refresh()
+        else:
+            self.workFit.bgMarkers.Clear()
             self.workFit.peakMarkers.Clear()
             self.workFit.regionMarkers.Clear()
-        self.workFit.Erase(bg_only)
+            self.workFit.spec = None
         
-    def ActivateFit(self):
-        pass
+        
+    def ActivateFit(self, ID):
+        spec = self.GetActiveObject()
+        if spec is None:
+            hdtv.ui.warn("No active spectrum")
+            return
+        try:
+            spec.ActivateObject(ID)
+        except KeyError:
+            hdtv.ui.error("No fit with that ID")
+            return 
+        self.workFit = copy.copy(spec.GetActiveObject())
+        self.workFit.FitPeakFunc(spec)
+        self.workFit.active = True
+        self.workFit.Draw(self.window.viewport)
+
     
     def StoreFit(self, ID=None):
         spec = self.workFit.spec
         if spec is None:
             hdtv.ui.warn("No fit available to store")
+            return
         ID = spec.Insert(self.workFit, ID=spec.activeID)
         spec.dict[ID].active = False
         spec.ActivateObject(None)
