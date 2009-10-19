@@ -201,7 +201,6 @@ class DrawableManager(object):
             self.ShowObjects(ID, clear=False)
         if self.viewport:
             self.viewport.UnlockUpdate()
-                
  
     def GetActiveObject(self):
         """
@@ -212,6 +211,7 @@ class DrawableManager(object):
         else:
             return self.dict[self.activeID]
 
+
     def Index(self, obj):
         """
         Return index such that self[index] == obj
@@ -221,6 +221,7 @@ class DrawableManager(object):
             raise ValueError, "Object not found in this collection"
         else:
             return index[0]
+
 
     def Insert(self, obj, ID=None):
         """
@@ -239,14 +240,14 @@ class DrawableManager(object):
             obj.Draw(self.viewport)
             self.visible.add(ID)
         return ID
-        
+
+
     def Pop(self, ID):
         """
         Remove object with ID
         """
         if ID == self.activeID:
-            # activate object before the one we remove
-            self.ActivateObject(self.prevID)
+            self.ActivateObject(None)
         if ID == self._iteratorID:
             # set iterator to the ID before the one we remove
             self._iteratorID = self.prevID 
@@ -256,7 +257,7 @@ class DrawableManager(object):
         except KeyError:
             hdtv.ui.warn("Warning: ID %s not found." % ID)
 
-            
+
     def Clear(self):
         """
         Clear dict and reset everything
@@ -267,6 +268,7 @@ class DrawableManager(object):
         self.HideAll()
         self.dict.clear()
 
+
     def GetFreeID(self):
         """
         Finds the first free index
@@ -276,6 +278,7 @@ class DrawableManager(object):
         while ID in self.dict.iterkeys():
             ID += 1
         return ID
+
 
     # FIXME: this seems not to be used anymore (see SpecInterface)
     def PrintObject(self, ID, verbose=False, if_visible=False):
@@ -363,6 +366,7 @@ class DrawableManager(object):
             self.viewport.UnlockUpdate()
         return ids
 
+
     # Hide commands
     def Hide(self):
         """
@@ -373,14 +377,12 @@ class DrawableManager(object):
         for obj in self.dict.itervalues():
             obj.Hide()
         
-            
     def HideAll(self):
         """
         Hide all child objects
         """
         return self.HideObjects(self.dict.keys())
 
-            
     def HideObjects(self, ids):
         """
         Hide objects
@@ -399,12 +401,6 @@ class DrawableManager(object):
                     self.visible.discard(ID)
                 except KeyError:
                     hdtv.ui.warn("ID %d not found" % ID)
-        # Check if active ID is still visible
-        if self.activeID is not None and self.activeID not in self.visible:
-            if len(self.visible)>0:
-                self.ActivateObject(min(self.visible))
-            else:
-                self.ActivateObject(None)
         self.viewport.UnlockUpdate()
         return ids
 
@@ -412,7 +408,7 @@ class DrawableManager(object):
     # Show commands:
     def Show(self):
         """
-        Show the whole object (according to last visible/active states)
+        Show the object as whole (according to last visible/active states)
         """
         self.ShowObjects(self.visible)
         if self.activeID is not None:
@@ -451,12 +447,6 @@ class DrawableManager(object):
                 self.visible.add(ID)
             except KeyError:
                 hdtv.ui.warn("ID %s not found" % ID)
-        # Check if active ID is still visible
-        if self.active is not None and self.activeID not in self.visible:
-            if len(self.visible)>0:
-                self.ActivateObject(min(self.visible))
-            else:
-                self.ActivateObject(None)
         self.viewport.UnlockUpdate()
         return ids
 

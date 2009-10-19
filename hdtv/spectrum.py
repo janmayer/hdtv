@@ -275,6 +275,10 @@ class Spectrum(DrawableManager):
         
     cal = property(_get_cal, _set_cal)
     
+    def Insert(self, fit, ID):
+        fit.ShowAsActive = fit.ShowAsPending
+        return DrawableManager.Insert(self, fit, ID)
+    
     def Draw(self, viewport):
         DrawableManager.Draw(self, viewport)
         self.hist.Draw(viewport)

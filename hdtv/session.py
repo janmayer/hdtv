@@ -140,7 +140,28 @@ class Session(DrawableManager):
         self.workFit.spec = None
         DrawableManager.ActivateObject(self, ID)
         
-        
+    
+    # Overwrite this functions to make sure the active spectrum is always visible
+    def Pop(self, ID):
+        DrawableManager.Pop(self, ID)
+        if self.activeID not in self.visible:
+            self.ActivateObject(self._iteratorID)
+            
+    def ShowObjects(self, ids, clear=True):
+        DrawableManager.ShowObjects(self, ids, clear)
+        if self.activeID not in self.visible:
+            if len(self.visible)>0:
+                self.ActivateObject(max(self.visible))
+            else:
+                self.ActivateObject(None)
+                
+    def HideObjects(self, ids):
+        DrawableManager.HideObjects(self, ids)
+        if self.activeID not in self.visible:
+            if len(self.visible)>0:
+                self.ActivateObject(max(self.visible))
+            else:
+                self.ActivateObject(None)
         
         
 

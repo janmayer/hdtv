@@ -657,6 +657,7 @@ class Position(object):
             raise TypeError, "Position is fixed in uncalibrated space"
         self._pos_cal = pos
         self._pos_uncal = None
+        print "pos_cal= ", self._pos_cal, " pos_uncal= ", self._pos_uncal
         
     def _get_pos_cal(self):
         if self.fixedInCal:
@@ -672,7 +673,8 @@ class Position(object):
             raise TypeError, "Position is fixed in calibrated space"
         self._pos_uncal = pos
         self._pos_cal = None
-
+        print "pos_cal= ", self._pos_cal, " pos_uncal= ", self._pos_uncal
+    
     def _get_pos_uncal(self):
         if self.fixedInCal:
             return self._E2Ch(self._pos_cal)
@@ -708,6 +710,7 @@ class Position(object):
         """
         Fix position in calibrated space
         """
+        print "fix in cal"
         if not self.fixedInCal:
             self.fixedInCal = True
             self.pos_cal = self._Ch2E(self._pos_uncal)
@@ -716,6 +719,7 @@ class Position(object):
         """
         Fix position in uncalibrated space
         """
+        print "fix in uncal"
         if self.fixedInCal:
             self.fixedInCal = False
             self.pos_uncal = self._E2Ch(self._pos_cal)
