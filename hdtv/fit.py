@@ -64,6 +64,7 @@ class Fit(Drawable):
         self.spec = None
         self.active = True
         self.ID = None
+        self.ShowAsActive = self.ShowAsWorkFit
 
     # ID property
     def _get_ID(self):
@@ -140,12 +141,12 @@ class Fit(Drawable):
         self._spec = spec
         self.Erase()
         if spec is None:
-            self.cal = None
             self.FixMarkerCal()
+            self.cal = None
         else:
             self.cal = spec.cal
             self.FixMarkerUncal()
-        
+            
     def _get_spec(self):
         return self._spec
         
@@ -168,24 +169,24 @@ class Fit(Drawable):
     
     def ChangeMarker(self, mtype, pos, action):
         """
-        Put a new marker or remove a marker.
+        Set a new marker or remove a marker.
         
         action : "put" or "remove"
         mtype  : "bg", "region", "peak"
         """
-        self.Erase()
+        self.spec = None
         markers = getattr(self, "%sMarkers" %mtype)
         if action is "set":
             markers.SetMarker(pos)
         if action is "remove":
-            markers.RemoveNearest(pos) 
+            markers.RemoveNearest(pos)
     
     def FixMarkerCal(self):
         """
         Fix marker in calibrated space
         """
         for m in [self.bgMarkers, self.regionMarkers, self.peakMarkers]:
-            m.FixCal()
+            m.FixInCal()
     
     
     def FixMarkerUncal(self):
@@ -193,7 +194,7 @@ class Fit(Drawable):
         Fix marker in calibrated space
         """
         for m in [self.bgMarkers, self.regionMarkers, self.peakMarkers]:
-            m.FixUncal()
+            m.FixInUncal()
             
             
     def FitBgFunc(self, spec=None):
@@ -405,49 +406,69 @@ class Fit(Drawable):
             self.peaks = []
             self.chi=None 
         
-    def Show(self):
-        """ 
-        The Show function contains the logic what markers/functions to show and 
-        in what color depending on the state (active or not) of this fit.
-        """
+    def ShowAsWorkFit(self):
         if not self.viewport:
             return
         self.viewport.LockUpdate()
-        if self.active or len(self.peaks)==0:
-            # show all markers, if fit is active or if fit is unfinished,
-            # the second case can happen when switching to another spectrum,
-            # after executing only the background fit
-            self.regionMarkers.Show()
-            self.peakMarkers.Show()
-            self.bgMarkers.Show()
-        else:
-            self.regionMarkers.Hide()
-            self.peakMarkers.Show()
-            self.bgMarkers.Hide()
+        self.regionMarkers.Show()
+        self.peakMarkers.Show()
+        self.bgMarkers.Show()
         # coloring
         if self.dispPeakFunc:
-            if self.active:
-                self.dispPeakFunc.SetColor(hdtv.color.region)
-            else:
-                self.dispPeakFunc.SetColor(self.color)
+            self.dispPeakFunc.SetColor(hdtv.color.region)
             self.dispPeakFunc.Show()
         if self.dispBgFunc:
-            if self.active:
-                self.dispBgFunc.SetColor(hdtv.color.bg)
-            else:
-                self.dispBgFunc.SetColor(self.color)
+            self.dispBgFunc.SetColor(hdtv.color.bg)
             self.dispBgFunc.Show()
         # peak list
         for peak in self.peaks:
-            if self.active:
-                peak.color = hdtv.color.peak
-            else:
-                peak.color = self.color
+            peak.color = hdtv.color.peak
             if self.showDecomp:
                 peak.Show()
             else:
                 peak.Hide()
         self.viewport.UnlockUpdate()
+        
+    def ShowAsPending(self):
+        # TODO: find a better way for this
+        self.ShowAsPassive()
+        # but show all markers
+        self.regionMarkers.Show()
+        self.peakMarkers.Show()
+        self.bgMarkers.Show()
+        
+    def ShowAsPassive(self):
+        if not self.viewport:
+            return
+        self.viewport.LockUpdate()
+        self.regionMarkers.Hide()
+        self.peakMarkers.Show()
+        self.bgMarkers.Hide()
+        # coloring
+        if self.dispPeakFunc:
+            self.dispPeakFunc.SetColor(self.color)
+            self.dispPeakFunc.Show()
+        if self.dispBgFunc:
+            self.dispBgFunc.SetColor(self.color)
+            self.dispBgFunc.Show()
+        # peak list
+        for peak in self.peaks:
+            peak.color = self.color
+            if self.showDecomp:
+                peak.Show()
+            else:
+                peak.Hide()
+        self.viewport.UnlockUpdate()
+    
+        
+    def Show(self):
+        if not self.viewport:
+            return
+        if self.active:
+            self.ShowAsActive()
+        else:
+            self.ShowAsPassive()
+            
 
     def Hide(self):
         if not self.viewport:
@@ -471,14 +492,17 @@ class Fit(Drawable):
         """
         new = Fit(copy.copy(self.fitter), cal=self.cal, color=self.color)
         for marker in self.bgMarkers:
-            newmarker = copy.copy(marker)
-            new.bgMarkers.append(newmarker)
+            new.bgMarkers.SetMarker(marker.p1)
+            if marker.p2:
+                new.bgMarkers.SetMarker(marker.p2)
         for marker in self.regionMarkers:
-            newmarker = copy.copy(marker)
-            new.regionMarkers.append(newmarker)
+            new.regionMarkers.SetMarker(marker.p1)
+            if marker.p2:
+                new.regionMarkers.SetMarker(marker.p2)
         for marker in self.peakMarkers:
-            newmarker = copy.copy(marker)
-            new.peakMarkers.append(newmarker)
+            new.peakMarkers.SetMarker(marker.p1)
+            if marker.p2:
+                new.peakMarkers.SetMarker(marker.p2)
         return new
 
     @property

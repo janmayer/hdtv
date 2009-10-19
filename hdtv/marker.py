@@ -61,28 +61,23 @@ class Marker(Drawable):
         return self._passiveColor
         
     color = property(_get_color, _set_color)
-     
-    # p1 property
-    def _set_p1(self, pos):
-        if isinstance(pos, (float,int)):
-            pos = hdtv.util.Position(pos, self.fixedInCal, self.cal)
-        self._p1 = pos
-  
-    def _get_p1(self):
-        return self._p1
-        
-    p1 = property(_get_p1, _set_p1)
     
-    # p2 property
-    def _set_p2(self, pos):
-        if isinstance(pos, (float,int)):
-            pos = hdtv.util.Position(pos, self.fixedInCal, self.cal)
-        self._p2 = pos
-        
-    def _get_p2(self):
-        return self._p2
-
-    p2 = property(_get_p2, _set_p2)
+    # p1 and p2 properties
+    def _set_p(self, pos, p):
+        try:
+            pos.fixedInCal = self.fixedInCal
+            pos.cal = self.cal
+        except:
+            if isinstance(pos, (float,int)):
+                pos = hdtv.util.Position(pos, self.fixedInCal, self.cal)
+        setattr(self, "_%s" %p, pos) 
+    
+    def _get_p(self, p):
+        return getattr(self,"_%s" %p)
+    
+    p1 = property(lambda self:self._get_p("p1"), lambda self,pos: self._set_p(pos, "p1"))
+    p2 = property(lambda self:self._get_p("p2"), lambda self,pos: self._set_p(pos, "p2"))
+    
     
     #cal property
     def _set_cal(self, cal):
@@ -90,6 +85,10 @@ class Marker(Drawable):
         if self.p2 is not None:
             self.p2.cal = cal
         Drawable._set_cal(self, cal)
+        if self.displayObj:
+            # call Refresh to carry the possible change 
+            # of p1.pos_uncal und p2.pos_uncal to the displayObj
+            self.Refresh()
         
     def _get_cal(self):
         return self._cal
@@ -151,17 +150,6 @@ class Marker(Drawable):
         else:
             return '%s marker at %s' %(self.xytype, self.p1)
 
-    def __copy__(self):
-        """
-        Create a copy of this marker
-        """
-        p1 = copy.copy(self.p1)
-        new = Marker(self.xytype, p1, self._activeColor, self.cal)
-
-        if self.p2 is not None:
-            new.p2 = copy.copy(self.p2)
-        return new
-
     def FixCal(self):
         self.fixedInCal = True
         self.p1.FixCal()
@@ -202,19 +190,6 @@ class MarkerCollection(list):
                 marker.__setattr__(name, value)
         self.__dict__[name] = value
         
-    def setProperties(self, marker):
-        marker.connecttop = self.connecttop
-        marker.activeColor = self.activeColor
-        marker.color = self.color
-        marker.cal = self.cal
-        marker.ID = self.ID
-        marker.active = self.active
-        marker.fixedInCal = self.fixedInCal
-        
-    def append(self, marker):
-        self.setProperties(marker)
-        list.append(self, marker)
-        
     def Draw(self, viewport):
         self.viewport = viewport
         for marker in self:
@@ -232,16 +207,15 @@ class MarkerCollection(list):
         for marker in self:
             marker.Refresh()
 
-    def FixCal(self):
+    def FixInCal(self):
         self.fixedInCal = True
         for marker in self:
             marker.FixCal()
     
-    def FixUncal(self):
+    def FixInUncal(self):
         self.fixedInCal = False
         for marker in self:
             marker.FixUncal()
-            
             
     def SetMarker(self, pos):
         """
@@ -322,5 +296,5 @@ class MarkerCollection(list):
         self.remove(nearest)
         self.Refresh()
         
-    
+
 
