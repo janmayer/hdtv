@@ -133,6 +133,8 @@ class Marker(Drawable):
 
         
     def Refresh(self):
+        if not self.displayObj:
+            return
         p1 = self.p1.pos_uncal
         if self.p2 is None:
             # on the C++ side all values must be uncalibrated
@@ -150,17 +152,17 @@ class Marker(Drawable):
         else:
             return '%s marker at %s' %(self.xytype, self.p1)
 
-    def FixCal(self):
+    def FixInCal(self):
         self.fixedInCal = True
-        self.p1.FixCal()
+        self.p1.FixInCal()
         if self.p2 is not None:
-            self.p2.FixCal()
+            self.p2.FixInCal()
         
-    def FixUncal(self):
+    def FixInUncal(self):
         self.fixedInCal = False
-        self.p1.FixUncal()
+        self.p1.FixInUncal()
         if self.p2 is not None:
-            self.p2.FixUncal()
+            self.p2.FixInUncal()
             
 
 class MarkerCollection(list):
@@ -210,12 +212,12 @@ class MarkerCollection(list):
     def FixInCal(self):
         self.fixedInCal = True
         for marker in self:
-            marker.FixCal()
+            marker.FixInCal()
     
     def FixInUncal(self):
         self.fixedInCal = False
         for marker in self:
-            marker.FixUncal()
+            marker.FixInUncal()
             
     def SetMarker(self, pos):
         """

@@ -73,7 +73,7 @@ class FitInterface:
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], 
                                 lambda: self.spectra.ClearFit(bg_only=False))
         self.window.AddHotkey(ROOT.kKey_Q, self.QuickFit)
-#        self.window.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_F], self.StoreFit)
+        self.window.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_F], self.spectra.StoreFit)
 #        self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], self.ClearFit)
 ##       self.window.AddHotkey(ROOT.kKey_I, self.Integrate)
 #        self.window.AddHotkey(ROOT.kKey_D, lambda: self.SetDecomp(True))
@@ -147,6 +147,12 @@ class TvFitInterface:
                             help = "clear only background fit, refit peak fit with internal background")
         hdtv.cmdline.AddCommand(prog, self.FitClear, nargs=0, parser = parser)
         
+        prog = "fit store"
+        description = "store the active work fit to fitlist"
+        usage = "%prog"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        hdtv.cmdline.AddCommand(prog, self.FitStore, nargs=0, parser = parser)
+               
 
     def FitMarkerChange(self, args, options):
         """
@@ -224,6 +230,13 @@ class TvFitInterface:
         Clears work fit
         """
         self.spectra.ClearFit(options.background_only)
+        
+        
+    def FitStore(self, args, options):
+        """
+        Store work fit
+        """
+        self.spectra.StoreFit()
 
 # plugin initialisation
 import __main__

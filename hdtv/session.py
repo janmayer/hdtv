@@ -131,23 +131,28 @@ class Session(DrawableManager):
         self.workFit = copy.copy(self.workFit)
         self.workFit.Draw(self.window.viewport)
         
-    
+    # Overwrite some functions of DrawableManager to do some extra work
     def ActivateObject(self, ID):
         """
-        Reset workFit when activating another spectrum
+        Activate Object and reset workFit when activating another spectrum
         """
-        # overwrite function of DrawableManager
         self.workFit.spec = None
         DrawableManager.ActivateObject(self, ID)
         
-    
-    # Overwrite this functions to make sure the active spectrum is always visible
+
     def Pop(self, ID):
-        DrawableManager.Pop(self, ID)
-        if self.activeID not in self.visible:
-            self.ActivateObject(self._iteratorID)
+        """
+        Pop spectrum with ID and activate prevID if ID was activeID
+        """
+        if self.activeID is ID:
+            self.ActivateObject(self.prevID)
+        return DrawableManager.Pop(self, ID)
+
             
     def ShowObjects(self, ids, clear=True):
+        """
+        Show spectra and make sure one of the visible objects is active
+        """
         DrawableManager.ShowObjects(self, ids, clear)
         if self.activeID not in self.visible:
             if len(self.visible)>0:
@@ -156,6 +161,9 @@ class Session(DrawableManager):
                 self.ActivateObject(None)
                 
     def HideObjects(self, ids):
+        """
+        Hide spectra and make sure one of the visible objects is active
+        """
         DrawableManager.HideObjects(self, ids)
         if self.activeID not in self.visible:
             if len(self.visible)>0:

@@ -430,12 +430,20 @@ class Fit(Drawable):
         self.viewport.UnlockUpdate()
         
     def ShowAsPending(self):
-        # TODO: find a better way for this
+        # TODO: how should a fit look in this state?
+        if not self.viewport:
+            return
+        self.viewport.LockUpdate()
         self.ShowAsPassive()
-        # but show all markers
+        # but show all markers in passive state
+        self.regionMarkers.active = False
         self.regionMarkers.Show()
+        self.peakMarkers.active = False
         self.peakMarkers.Show()
+        self.bgMarkers.active = False
         self.bgMarkers.Show()
+        self.viewport.UnlockUpdate()
+
         
     def ShowAsPassive(self):
         if not self.viewport:

@@ -644,12 +644,14 @@ class Position(object):
     if self.pos_uncal is set the position is fixed in uncalibrated space.
     """
     def __init__(self, pos, fixedInCal, cal = None):
-        self.fixedInCal = fixedInCal
         self.cal = cal
+        self._fixedInCal = fixedInCal
         if fixedInCal:
-            self.pos_cal = pos
+            self._pos_cal = pos
+            self._pos_uncal = None
         else:
-            self.pos_uncal = pos
+            self._pos_cal = None
+            self._pos_uncal = pos
 
     # pos_cal 
     def _set_pos_cal(self, pos):
@@ -657,7 +659,6 @@ class Position(object):
             raise TypeError, "Position is fixed in uncalibrated space"
         self._pos_cal = pos
         self._pos_uncal = None
-        print "pos_cal= ", self._pos_cal, " pos_uncal= ", self._pos_uncal
         
     def _get_pos_cal(self):
         if self.fixedInCal:
@@ -669,11 +670,10 @@ class Position(object):
     
     # pos_uncal
     def _set_pos_uncal(self, pos):
-        if self.fixedInCal:
+        if self._fixedInCal:
             raise TypeError, "Position is fixed in calibrated space"
         self._pos_uncal = pos
         self._pos_cal = None
-        print "pos_cal= ", self._pos_cal, " pos_uncal= ", self._pos_uncal
     
     def _get_pos_uncal(self):
         if self.fixedInCal:
@@ -683,6 +683,19 @@ class Position(object):
     
     pos_uncal = property(_get_pos_uncal, _set_pos_uncal)
     
+    # fixedInCal property
+    def _set_fixedInCal(self, fixedInCal):
+        if fixedInCal:
+            self.FixInCal()
+        else:
+            self.FixInUncal()
+            
+    def _get_fixedInCal(self):
+        return self._fixedInCal
+        
+    fixedInCal = property(_get_fixedInCal, _set_fixedInCal)
+        
+           
     # other functions
     def __str__(self):
         text = str()
@@ -706,21 +719,19 @@ class Position(object):
             Ch = self.cal.E2Ch(E)
         return Ch
         
-    def FixCal(self):
+    def FixInCal(self):
         """
         Fix position in calibrated space
         """
-        print "fix in cal"
-        if not self.fixedInCal:
-            self.fixedInCal = True
+        if not self._fixedInCal:
+            self._fixedInCal = True
             self.pos_cal = self._Ch2E(self._pos_uncal)
          
-    def FixUncal(self):
+    def FixInUncal(self):
         """
         Fix position in uncalibrated space
         """
-        print "fix in uncal"
-        if self.fixedInCal:
-            self.fixedInCal = False
+        if self._fixedInCal:
+            self._fixedInCal = False
             self.pos_uncal = self._E2Ch(self._pos_cal)
 
