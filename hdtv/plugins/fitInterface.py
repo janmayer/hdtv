@@ -76,26 +76,75 @@ class FitInterface:
         self.window.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_F], self.spectra.StoreFit)
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], self.spectra.ClearFit)
 ##       self.window.AddHotkey(ROOT.kKey_I, self.Integrate)
-#        self.window.AddHotkey(ROOT.kKey_D, lambda: self.SetDecomp(True))
-#        self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_D],
-#                                lambda: self.SetDecomp(False))
-#        self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_s],
-#                        lambda: self.window.EnterEditMode(prompt = "Show Fit: ",
-#                                           handler = self._HotkeyShow))
-#        self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_a],
-#                        lambda: self.window.EnterEditMode(prompt = "Activate Fit: ",
-#                                           handler = self._HotkeyActivate))
-#        self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_p], self._HotkeyShowPrev)
-#        self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_n], self._HotkeyShowNext)
-        
+        self.window.AddHotkey(ROOT.kKey_D, lambda: self.workFit.SetDecomp(True))
+        self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_D], lambda: self.workFit.SetDecomp(False))
+
+        self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_s],
+                        lambda: self.window.EnterEditMode(prompt = "Show Fit: ",
+                        handler = self._HotkeyShow))
+        self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_a],
+                        lambda: self.window.EnterEditMode(prompt = "Activate Fit: ",
+                        handler = self._HotkeyActivate))
+        self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_p], lambda: self._HotkeyShow("PREV"))
+        self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_n], lambda: self._HotkeyShow("NEXT"))
+    
+    
+    def _HotkeyShow(self, args):
+        """
+        Show wrapper for use with a Hotkey (internal use)
+        """
+        spec = self.spectra.GetActiveObject()
+        if spec is None:
+            self.window.viewport.SetStatusText("No active spectrum")
+            return
+        try:
+            ids = hdtv.cmdhelper.ParseIds(args, spec)
+        except ValueError:
+            self.window.viewport.SetStatusText("Invalid fit identifier: %s" % args)
+            return
+        spec.ShowObjects(ids)
+  
+
+    def _HotkeyActivate(self, args):
+        """
+        ActivateObject wrapper for use with a Hotkey (internal use)
+        """
+        spec = self.spectra.GetActiveObject()
+        if spec is None:
+            self.window.viewport.SetStatusText("No active spectrum")
+            return
+        try:
+            ids = hdtv.cmdhelper.ParseIds(args, spec)
+        except ValueError:
+            self.window.viewport.SetStatusText("Invalid fit identifier: %s" % args)
+            return
+        if len(ids) == 1:
+            self.window.viewport.SetStatusText("Activating fit %s" %ids[0])
+            self.spectra.ActivateFit(ids[0])
+        elif len(ids) == 0:
+            self.window.viewport.SetStatusText("Deactivating fit")
+            self.spectra.ActivateFit(None)
+        else:
+            self.window.viewport.SetStatusText("Can only activate one fit")
+       
        
     def ExecuteRefit(self, specID, fitID, peaks=True):
         """
         Execute Fit on non-active Fits
         """
-        #FIXME: not yet implemented
-        print "trying to refit Fit %s of spectrum %s" %(fitID, specID)
-
+        try:
+            spec = self.spectra.dict[specID]
+        except KeyError:
+            raise KeyError, "invalid spectrum ID"
+        try:
+            fit = spec.dict[fitID]
+        except KeyError:
+            raise KeyError, "invalid fit ID"
+        if peaks:
+            fit.FitPeakFunc(spec, silent=True)
+        else:
+            fit.FitBgFunc(spec)
+            
 
     def QuickFit(self, pos=None):
         if pos is None:
@@ -107,6 +156,8 @@ class FitInterface:
         self.spectra.SetFitMarker("peak", pos)
         self.spectra.ExecuteFit()
 
+
+    
 
 class TvFitInterface:
     """
@@ -167,7 +218,23 @@ class TvFitInterface:
                         help = "spectrum ids to work on")
         hdtv.cmdline.AddCommand(prog, self.FitDelete, minargs = 1, parser = parser)
         
-               
+        prog = "fit show"
+        description = "display fits"
+        usage = "%prog <ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
+                        help = "select spectra to work on")
+        parser.add_option("-v", "--adjust-viewport", action = "store_true", default = False,
+                        help = "adjust viewport to include all fits")
+        hdtv.cmdline.AddCommand(prog, self.FitShow, minargs = 1, parser = parser)
+        
+        prog = "fit hide"
+        description = "hide fits"
+        usage = "%prog <ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
+                        help = "select spectra to work on")
+        hdtv.cmdline.AddCommand(prog, self.FitHide, parser = parser)
 
     def FitMarkerChange(self, args, options):
         """
@@ -243,8 +310,12 @@ class TvFitInterface:
                         self.spectra.ExecuteFit(peaks=doPeaks) 
                 else:
                     hdtv.ui.warn("No fit for spectrum %s to work on." %specID)
-            for fitID in fitIDs:    
-                self.fitIf.ExecuteRefit(specID=specID, fitID=fitID, peaks=doPeaks)
+            for fitID in fitIDs:
+                try:    
+                    self.fitIf.ExecuteRefit(specID=specID, fitID=fitID, peaks=doPeaks)
+                except KeyError, e:
+                    hdtv.ui.warn(e)
+                    continue
                 
     def FitClear(self, args, options):
         """
@@ -303,6 +374,34 @@ class TvFitInterface:
                     return "USAGE"
                 for ID in ids:
                     spec.Pop(ID)
+
+    def FitHide(self, args, options):
+        """
+        Hide Fits
+        """
+        # FitHide is the same as FitShow, except that the spectrum selection is inverted
+        self.FitShow(args, options, inverse=True)
+    
+    def FitShow(self, args, options, inverse=False):
+        """
+        Show Fits
+        
+        inverse = True inverses the fit selection i.e. FitShow becomes FitHide
+        """
+        try:
+            sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+        except ValueError:
+            return "USAGE"
+        for sid in sids:
+            spec = self.spectra.dict[sid]
+            try:
+                fitIDs = hdtv.cmdhelper.ParseIds(args, spec)
+            except ValueError:
+                return "USAGE"
+            if inverse:
+                spec.HideObjects(fitIDs)
+            else:
+                spec.ShowObjects(fitIDs, adjustViewport=options.adjust_viewport)
 
 
 # plugin initialisation

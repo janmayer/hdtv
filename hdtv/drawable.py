@@ -252,7 +252,7 @@ class DrawableManager(object):
             # set iterator to the ID before the one we remove
             self._iteratorID = self.prevID 
         try:
-            self.dict.pop(ID)
+            return self.dict.pop(ID)
         except KeyError:
             hdtv.ui.warn("Warning: ID %s not found." % ID)
 
@@ -449,69 +449,6 @@ class DrawableManager(object):
         self.viewport.UnlockUpdate()
         return ids
 
-# FIXME: does this belong here?
-#    def isInVisibleRegion(self, ID):
-#        """
-#        Check if object is in the visible region of the viewport
-#        """
-#        if self.viewport is None: return False
-#        xdim = self[ID].xdimensions
-#        if xdim is None: # Object has no dimensions
-#            return True
-#        # get viewport limits
-#        viewport_start = self.viewport.GetOffset()
-#        viewport_end = viewport_start + self.viewport.GetXVisibleRegion()
-#        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: object ID: %d" %ID, level=6)
-#        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: viewport_start %s, viewport_end %s" 
-#                       % (viewport_start, viewport_end), level=6)
-#        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: object %d, starts at %s and ends at %s" 
-#                       % (ID, xdim[0], xdim[1]), level=6)
-#        # do the check
-#        if (xdim[0] > viewport_start) and (xdim[1] < viewport_end):
-#            hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: ID %d is visible" % ID, level=4)
-#            return True
-#        else:
-#            hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: ID %d is *not* visible" % ID, level=4)
-#            return False
-#
-#    def FocusObjects(self, ids):
-#        """
-#        Move and stretch viewport to show multiple objects
-#        """
-#        if self.viewport is None:
-#            return
-#        xdimensions = ()
-#        # Get dimensions of objects
-#        for ID in ids:
-#            if self[ID].xdimensions is not None:
-#                xdimensions += self[ID].xdimensions
-#            if ID not in self.visible:
-#                self[ID].Show()
-#        self._iteratorID = min(ids)
-#        # calulate
-#        if len(xdimensions) > 0: 
-#            view_width = max(xdimensions) - min(xdimensions)
-#            view_width *= 1.2
-#            if view_width < 50.:
-#                view_width = 50. # TODO: make this configurable
-#            view_center = (max(xdimensions) + min(xdimensions)) / 2.
-#            # change viewport
-#            self.viewport.SetXVisibleRegion(view_width)
-#            self.viewport.SetXCenter(view_center)
-#    
-#    
-#    def FocusObject(self, ID=None):
-#        """
-#        If ID is not given: Focus active object
-#        """
-#        if ID is None:
-#            ID = self.activeID
-#        if ID is None:
-#            hdtv.ui.error("No active object")
-#            return
-#        self.FocusObjects([ID])
-        
-    
     # nextID/prevID/firstID/lastID getter
     @property
     def nextID(self):
