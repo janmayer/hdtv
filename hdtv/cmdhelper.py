@@ -48,7 +48,7 @@ def ParseIds(strings, manager, only_existent=True):
         ids = ParseRange(strings, special)
     except ValueError:
         hdtv.ui.error("Invalid IDs.")
-        raise ValueError 
+        raise ValueError
 
     # processing different cases
     if ids=="NONE":

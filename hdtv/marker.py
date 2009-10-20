@@ -64,12 +64,8 @@ class Marker(Drawable):
     
     # p1 and p2 properties
     def _set_p(self, pos, p):
-        try:
-            pos.fixedInCal = self.fixedInCal
-            pos.cal = self.cal
-        except:
-            if isinstance(pos, (float,int)):
-                pos = hdtv.util.Position(pos, self.fixedInCal, self.cal)
+        if isinstance(pos, (float,int)):
+            pos = hdtv.util.Position(pos, self.fixedInCal, self.cal)
         setattr(self, "_%s" %p, pos) 
     
     def _get_p(self, p):

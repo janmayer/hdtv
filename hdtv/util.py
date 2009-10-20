@@ -734,4 +734,4 @@ class Position(object):
         if self._fixedInCal:
             self._fixedInCal = False
             self.pos_uncal = self._E2Ch(self._pos_cal)
-
+        

@@ -45,11 +45,12 @@ class Session(DrawableManager):
         # TODO: make peakModel and bgdeg configurable
         self.defaultFitter = Fitter(peakModel = "theuerkauf", bgdeg = 1)
         self.workFit = Fit(copy.copy(self.defaultFitter))
+        import sys
+        print sys.getrefcount(self.workFit)
         self.workFit.Draw(self.window.viewport)
         self.caldict = dict()
         # main session is always active
         self._active = True
-        
 
     def ApplyCalibration(self, specIDs, cal):
         """
@@ -73,16 +74,25 @@ class Session(DrawableManager):
                 if self.workFit.spec is spec:
                     self.workFit.cal = cal
 
-    
+    # functions to handle the workFot
     def SetFitMarker(self, mtype, pos=None):
+        """
+        Set Marker of type "mtype" to position pos,
+        if pos is not given, the current position of the cursor is used
+        """
         if pos is None:
             pos = self.viewport.GetCursorX()
         self.workFit.ChangeMarker(mtype, pos, action="set")
         
     def RemoveFitMarker(self, mtype, pos=None):
+        """
+        Remove the marker of type "mtype", that is closest to position "pos",
+        if position is not given, the current position of the cursor is used
+        """ 
         if pos is None:
             pos = self.viewport.GetCursorX()
         self.workFit.ChangeMarker(mtype, pos, action="remove")
+        
         
     def ExecuteFit(self, peaks = True):
         """
@@ -91,7 +101,6 @@ class Session(DrawableManager):
         If peaks=False, just an background fit is done, else a peak fit is done. 
         """
         spec = self.GetActiveObject()
-        print 'fitting spec %s' %spec.ID
         if spec is None:
             hdtv.ui.error("There is no active spectrum")
             return 
@@ -121,24 +130,32 @@ class Session(DrawableManager):
             self.workFit.regionMarkers.Clear()
             self.workFit.spec = None
         
+    def ActivateFit(self, ID, sid=None):
+        """
+        Copy markers of a already stored fit to workFit.
         
-    def ActivateFit(self, ID):
-        spec = self.GetActiveObject()
-        if spec is None:
-            hdtv.ui.warn("No active spectrum")
+        Note: that a call to Store will overwrite the active fit withworkFit
+        """
+        if sid is None:
+            sid = self.activeID
+        if sid is None:
+            hdtv.ui.warn("There is no active spectrum")
             return
-        try:
-            spec.ActivateObject(ID)
-        except KeyError:
-            hdtv.ui.error("No fit with that ID")
-            return 
-        self.workFit = copy.copy(spec.GetActiveObject())
-        self.workFit.FitPeakFunc(spec)
-        self.workFit.active = True
-        self.workFit.Draw(self.window.viewport)
+        spec = self.dict[sid]
+        spec.ActivateObject(ID)
+        if ID is not None:
+            # make a copy for workFit
+            self.workFit = copy.copy(spec.GetActiveObject())
+            self.workFit.active = True
+            self.workFit.Draw(self.window.viewport)
 
-    
     def StoreFit(self, ID=None):
+        """
+        Stores current workFit with ID.
+        
+        If no ID is given, the next free ID is used.
+        The markers are kept in workFit, so that one can re-use.
+        """ 
         spec = self.workFit.spec
         if spec is None:
             hdtv.ui.warn("No fit available to store")
@@ -149,6 +166,7 @@ class Session(DrawableManager):
         hdtv.ui.msg("Storing workFit with ID %s" % ID)
         self.workFit = copy.copy(self.workFit)
         self.workFit.Draw(self.window.viewport)
+        
         
     # Overwrite some functions of DrawableManager to do some extra work
     def ActivateObject(self, ID):

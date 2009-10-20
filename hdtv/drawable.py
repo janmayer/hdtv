@@ -234,7 +234,6 @@ class DrawableManager(object):
         # if no ID is specified we take the first free ID
         if ID is None:
             ID = self.GetFreeID()
-        hdtv.ui.debug("hdtv.drawable.DrawableCompound.Insert(): setting _iteratorID to %s" % ID)
         self._iteratorID = ID
         self.dict[ID] = obj
         obj.ID = ID
@@ -242,7 +241,6 @@ class DrawableManager(object):
             obj.Draw(self.viewport)
             self.visible.add(ID)
         return ID
-
 
     def Pop(self, ID):
         """
@@ -254,7 +252,6 @@ class DrawableManager(object):
             # set iterator to the ID before the one we remove
             self._iteratorID = self.prevID 
         try:
-            self.dict[ID].Hide()
             self.dict.pop(ID)
         except KeyError:
             hdtv.ui.warn("Warning: ID %s not found." % ID)
@@ -303,10 +300,10 @@ class DrawableManager(object):
             stat += " "
         if not if_visible or visible:
             try:
-                print "%d %s %s" % (ID, stat, obj.formatted_str(verbose))
+                hdtv.ui.msg("%d %s %s" % (ID, stat, obj.formatted_str(verbose)))
             except AttributeError:
                 # just use normal str if no formatted_str function exists
-                print "%d %s %s" % (ID, stat, obj)
+                hdtv.ui.msg("%d %s %s" % (ID, stat, obj))
 
     def ListObjects(self, verbose=False, visible_only=False):
         """
@@ -363,7 +360,7 @@ class DrawableManager(object):
             try:
                 self.dict[ID].Refresh
             except KeyError:
-                print "Warning: ID %d not found" % ID
+                hdtv.ui.error("Warning: ID %d not found" % ID)
         if self.viewport:
             self.viewport.UnlockUpdate()
         return ids

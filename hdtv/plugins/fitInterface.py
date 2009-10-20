@@ -74,7 +74,7 @@ class FitInterface:
                                 lambda: self.spectra.ClearFit(bg_only=False))
         self.window.AddHotkey(ROOT.kKey_Q, self.QuickFit)
         self.window.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_F], self.spectra.StoreFit)
-#        self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], self.ClearFit)
+        self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], self.spectra.ClearFit)
 ##       self.window.AddHotkey(ROOT.kKey_I, self.Integrate)
 #        self.window.AddHotkey(ROOT.kKey_D, lambda: self.SetDecomp(True))
 #        self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_D],
@@ -93,11 +93,11 @@ class FitInterface:
         """
         Execute Fit on non-active Fits
         """
+        #FIXME: not yet implemented
         print "trying to refit Fit %s of spectrum %s" %(fitID, specID)
 
 
     def QuickFit(self, pos=None):
-        print pos
         if pos is None:
             pos = self.window.viewport.GetCursorX()
         self.spectra.ClearFit()
@@ -153,6 +153,21 @@ class TvFitInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         hdtv.cmdline.AddCommand(prog, self.FitStore, nargs=0, parser = parser)
                
+        prog = "fit activate"
+        description = "re-activates a fit from the fitlist"
+        usage = "%prog ID"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        hdtv.cmdline.AddCommand(prog, self.FitActivate, nargs=1, parser = parser)
+        
+        prog = "fit delete"
+        description = "delete fits"
+        usage = "%prog <ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
+                        help = "spectrum ids to work on")
+        hdtv.cmdline.AddCommand(prog, self.FitDelete, minargs = 1, parser = parser)
+        
+               
 
     def FitMarkerChange(self, args, options):
         """
@@ -199,7 +214,10 @@ class TvFitInterface:
         """
         Execute a fit
         """
-        specIDs = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+        try:
+            specIDs = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+        except ValueError:
+            return "USAGE"
         if len(specIDs) == 0:
             hdtv.ui.warn("No spectrum to work on")
             return
@@ -208,7 +226,10 @@ class TvFitInterface:
         else:
             doPeaks = True
         for specID in specIDs:
-            fitIDs = hdtv.cmdhelper.ParseIds(args, self.spectra.dict[specID])
+            try:
+                fitIDs = hdtv.cmdhelper.ParseIds(args, self.spectra.dict[specID])
+            except ValueError:
+                return "USAGE"
             if len(fitIDs) == 0:
                 if specID==self.spectra.activeID:
                     if options.quick is not None:
@@ -237,6 +258,52 @@ class TvFitInterface:
         Store work fit
         """
         self.spectra.StoreFit()
+        
+        
+    def FitActivate(self, args, options):
+        """
+        Activate a fit
+        """
+        sid = self.spectra.activeID
+        if sid is None:
+            hdtv.ui.warn("No active spectrum")
+            return
+        spec = self.spectra.dict[sid]
+        try:
+            ids = hdtv.cmdhelper.ParseIds(args, spec)
+        except ValueError:
+            return "USAGE"
+        if len(ids) == 1:
+            hdtv.ui.msg("Activating fit %s" %ids[0])
+            self.spectra.ActivateFit(ids[0], sid)
+        elif len(ids) == 0:
+            hdtv.ui.msg("Deactivating fit")
+            self.spectra.ActivateFit(None, sid)
+        else:
+            hdtv.ui.error("Can only activate one fit")
+
+
+    def FitDelete(self, args, options):
+        """ 
+        Delete fits
+        """
+        try:
+            sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+        except ValueError:
+            return "USAGE"
+        if len(sids)==0:
+            hdtv.ui.warn("Nothing to do (No spectra chosen or active)")
+            return
+        else:
+            for s in sids:
+                spec = self.spectra.dict[s]
+                try:
+                    ids = hdtv.cmdhelper.ParseIds(args, spec)
+                except ValueError:
+                    return "USAGE"
+                for ID in ids:
+                    spec.Pop(ID)
+
 
 # plugin initialisation
 import __main__

@@ -38,7 +38,6 @@ class Fit(Drawable):
     All internal values (fit parameters, fit region, peak list) are in 
     uncalibrated units. 
     """
-
     # List of hook functions to be called before/after FitPeakFunc()
     # These hook functions should accept a reference to the Fit class
     # that calls them as first argument
@@ -63,8 +62,7 @@ class Fit(Drawable):
         Drawable.__init__(self, color, cal)
         self.spec = None
         self.active = True
-        self.ID = None
-        self.ShowAsActive = self.ShowAsWorkFit
+        self.ShowAsActive = lambda self: self.ShowAsWorkFit
 
     # ID property
     def _get_ID(self):
@@ -141,11 +139,11 @@ class Fit(Drawable):
         self._spec = spec
         self.Erase()
         if spec is None:
-            self.FixMarkerCal()
+            self.FixMarkerInCal()
             self.cal = None
         else:
             self.cal = spec.cal
-            self.FixMarkerUncal()
+            self.FixMarkerInUncal()
             
     def _get_spec(self):
         return self._spec
@@ -181,15 +179,14 @@ class Fit(Drawable):
         if action is "remove":
             markers.RemoveNearest(pos)
     
-    def FixMarkerCal(self):
+    def FixMarkerInCal(self):
         """
         Fix marker in calibrated space
         """
         for m in [self.bgMarkers, self.regionMarkers, self.peakMarkers]:
             m.FixInCal()
     
-    
-    def FixMarkerUncal(self):
+    def FixMarkerInUncal(self):
         """
         Fix marker in calibrated space
         """
@@ -197,16 +194,12 @@ class Fit(Drawable):
             m.FixInUncal()
             
             
-    def FitBgFunc(self, spec=None):
+    def FitBgFunc(self, spec):
         """
         Do the background fit and extract the function for display
         Note: You still need to call Draw afterwards.
         """
-        if spec is not None:
-            self.spec = spec
-            
-        self.Erase()
-         
+        self.spec = spec
         # fit background 
         if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
             backgrounds = hdtv.util.Pairs()
@@ -225,7 +218,7 @@ class Fit(Drawable):
                 self.bgCoeffs.append(hdtv.util.ErrValue(value, error))
             
             
-    def FitPeakFunc(self, spec=None, silent=False):
+    def FitPeakFunc(self, spec, silent=False):
         """
         Do the actual peak fit and extract the functions for display
         Note: You still need to call Draw afterwards.
@@ -234,12 +227,7 @@ class Fit(Drawable):
         for func in Fit.FitPeakPreHooks:
             func(self)
 
-        if spec is not None:
-            self.spec = spec
-        
-        # remove old fit
-        self.Erase()
-
+        self.spec = spec
         # fit background 
         if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
             backgrounds = hdtv.util.Pairs()
@@ -284,10 +272,8 @@ class Fit(Drawable):
             self.peaks.sort()
             # update peak markers
             for (marker, peak) in zip(self.peakMarkers, self.peaks):
-                if marker.p1.fixedInCal: # Marker is fixed in uncalibrated space
-                    marker.p1.pos_cal = peak.pos_cal.value
-                else:
-                    marker.p1.pos_uncal = peak.pos.value
+                # Marker is fixed in uncalibrated space
+                marker.p1.pos_uncal = peak.pos.value
             # print result
             if not silent:
                 print "\n"+6*" "+self.formatted_str(verbose=True)
@@ -297,12 +283,7 @@ class Fit(Drawable):
             func(self)
 
     def Restore(self, spec=None, silent=False):
-        # set calibration also for the markers,
-        # as the marker position is set to uncalibrated values, 
-        # when read from xml fit list
         self.spec = spec
-        self.cal = spec.cal
-            
         if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2.pos_cal:
             
             backgrounds = hdtv.util.Pairs()
@@ -323,7 +304,6 @@ class Fit(Drawable):
         # print result
         if not silent:
             print "\n"+6*" "+str(self)
-
 
     def Draw(self, viewport):
         """
@@ -362,10 +342,10 @@ class Fit(Drawable):
         # repeat the fits
         if self.dispPeakFunc:
             # this includes the background fit
-            self.FitPeakFunc()
+            self.FitPeakFunc(self.spec)
         elif self.dispBgFunc:
             # maybe there was only a background fit
-            self.FitBgFunc()
+            self.FitBgFunc(self.spec)
         if not self.viewport:
             return
         self.viewport.LockUpdate()
@@ -399,8 +379,7 @@ class Fit(Drawable):
             self.dispPeakFunc = None
             self.peaks = []
             self.chi=None 
-            
-        
+    
     def ShowAsWorkFit(self):
         if not self.viewport:
             return
@@ -424,6 +403,7 @@ class Fit(Drawable):
                 peak.Hide()
         self.viewport.UnlockUpdate()
         
+    
     def ShowAsPending(self):
         # TODO: how should a fit look in this state?
         if not self.viewport:
@@ -468,7 +448,7 @@ class Fit(Drawable):
         if not self.viewport:
             return
         if self.active:
-            self.ShowAsActive()
+            self.ShowAsWorkFit()
         else:
             self.ShowAsPassive()
             
@@ -488,24 +468,24 @@ class Fit(Drawable):
             peak.Hide()
         self.viewport.UnlockUpdate()
 
-    
     def __copy__(self):
         """
         Create new fit with identical markers
         """
         new = Fit(copy.copy(self.fitter), cal=self.cal, color=self.color)
+        new.FixMarkerInCal()
         for marker in self.bgMarkers:
-            new.bgMarkers.SetMarker(marker.p1)
+            new.bgMarkers.SetMarker(marker.p1.pos_cal)
             if marker.p2:
-                new.bgMarkers.SetMarker(marker.p2)
+                new.bgMarkers.SetMarker(marker.p2.pos_cal)
         for marker in self.regionMarkers:
-            new.regionMarkers.SetMarker(marker.p1)
+            new.regionMarkers.SetMarker(marker.p1.pos_cal)
             if marker.p2:
-                new.regionMarkers.SetMarker(marker.p2)
+                new.regionMarkers.SetMarker(marker.p2.pos_cal)
         for marker in self.peakMarkers:
-            new.peakMarkers.SetMarker(marker.p1)
+            new.peakMarkers.SetMarker(marker.p1.pos_cal)
             if marker.p2:
-                new.peakMarkers.SetMarker(marker.p2)
+                new.peakMarkers.SetMarker(marker.p2.pos_cal)
         return new
 
     @property
@@ -534,7 +514,6 @@ class Fit(Drawable):
             x_start = min(markers)
             x_end = max(markers)
             return (x_start, x_end)
-
 
     def SetDecomp(self, stat=True):
         """
