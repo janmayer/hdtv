@@ -254,7 +254,7 @@ class Spectrum(DrawableManager):
             return getattr(self.hist, name)
         else:
             raise AttributeError
-        
+
     # color property
     def _set_color(self, color):
         for fit in self.dict.itervalues():

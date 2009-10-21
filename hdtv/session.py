@@ -173,7 +173,13 @@ class Session(DrawableManager):
         """
         Activate Object and reset workFit when activating another spectrum
         """
-        self.workFit.spec = None
+        if ID is not self.activeID:
+            # reset workFit
+            self.workFit.spec = None
+            # deactivate a possible active fit
+            spec = self.GetActiveObject()
+            if spec is not None:
+                spec.ActivateObject(None)
         DrawableManager.ActivateObject(self, ID)
         
 

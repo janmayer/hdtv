@@ -166,7 +166,7 @@ class SpecInterface:
         Create a list of all spectra (for printing)
         """
         spectra = list()
-        params = ["ID", "stat", "name"]
+        params = ["ID", "stat", "name", "fits"]
         
         for (ID, obj) in self.spectra.dict.iteritems():
             if visible and (ID not in self.spectra.visible):
@@ -183,6 +183,7 @@ class SpecInterface:
             thisspec["ID"] = ID
             thisspec["stat"] = status
             thisspec["name"] = self.spectra.dict[ID].name
+            thisspec["fits"] = len(self.spectra.dict[ID].dict)
             spectra.append(thisspec)
         
         return str(hdtv.util.Table(spectra, params, sortBy="ID"))

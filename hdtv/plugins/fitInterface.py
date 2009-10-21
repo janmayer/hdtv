@@ -156,10 +156,98 @@ class FitInterface:
         self.spectra.SetFitMarker("region", pos + region_width / 2.)
         self.spectra.SetFitMarker("peak", pos)
         self.spectra.ExecuteFit()
+        
+    def ListFits(self, sid, ids, sortBy=None, reverseSort=False):
+        spec = self.spectra.dict[sid]
+        # if there are not fits for this spectrum, there is not much to do
+        if len(spec.ids) == 0:
+            hdtv.ui.newline()
+            hdtv.ui.msg("Spectrum " + str(sid) + " (" + spec.name + "): No fits")                
+            hdtv.ui.newline()
+            return
+        # create result header
+        result_header = "Fits in Spectrum " + str(sid) + " (" + spec.name + ")" + "\n"
+        count_fits = len(ids)
+        fits = [spec.dict[ID] for ID in ids]
+        (objects, count_peaks, params) = self.ExtractFits(fits)
 
-
+        # create result footer (count_fits and count_peaks)
+        result_footer = "\n" + str(count_peaks) + " peaks in " + str(count_fits) + " fits."
+        # create the table
+        try:
+            table = hdtv.util.Table(objects, params, sortBy=sortBy, reverseSort=reverseSort,
+                                    extra_header = result_header, extra_footer = result_footer)
+            hdtv.ui.msg(str(table))
+        except KeyError:
+            hdtv.ui.error("Spectrum " + str(sid) + ": No such attribute: " + str(sortBy))
+            hdtv.ui.error("Spectrum " + str(sid) + ": Valid attributes are: " + str(params))
+            
+    def PrintWorkFit(self):
+        fit = self.spectra.workFit
+        if fit.spec is not None:
+            (objects, count_peaks, params) = self.ExtractFits([fit])
+            header = "WorkFit on spectrum: " + str(fit.spec.ID) + " (" + fit.spec.name + ")"
+            footer = "\n" + str(count_peaks) + " peaks in WorkFit"
+            table = hdtv.util.Table(objects, list(params), sortBy="id",
+                                    extra_header = header, extra_footer = footer)
+            hdtv.ui.msg(str(table))
     
-
+    def ExtractFits(self, fits):
+        fitlist = list()
+        params = list()
+        count_peaks = 0
+        # loop through fits
+        for fit in fits:
+            # Get peaks
+            (peaklist, fitparams) = self.ExtractPeaklist(fit)
+            if len(peaklist)==0:
+                continue
+            count_peaks += len(peaklist)
+            # update list of valid params
+            for p in fitparams:
+                # do not use set operations here to keep order of params
+                if not p in params:
+                    params.append(p)
+            # add peaks to the list
+            fitlist.extend(peaklist)
+        return (fitlist, count_peaks, params)
+               
+    def ExtractPeaklist(self, fit):
+        peaklist = list()
+        params = ["id", "stat"]
+        # Get peaks
+        for peak in fit.peaks:
+            thispeak = dict()
+            thispeak["id"] = str(fit.ID) + "." + str(fit.peaks.index(peak))
+            thispeak["stat"] = str()
+            if fit.active:
+                thispeak["stat"] += "A"
+            if fit.ID in fit.spec.visible or fit.ID is None:   # ID of workFit is None
+                thispeak["stat"] += "V"
+                # get parameter of this fit
+                for p in fit.fitter.peakModel.fOrderedParamKeys:
+                    if p == "pos": 
+                        # Store channel additionally to position
+                        thispeak["channel"] = getattr(peak, "pos")
+                        if "channel" not in params:
+                            params.append("channel")
+                    # Use calibrated values of params if available 
+                    p_cal = p + "_cal"   
+                    if hasattr(peak, p_cal):
+                        thispeak[p] = getattr(peak, p_cal)
+                    if p not in params:
+                        params.append(p)
+                # Calculate normalized volume if efficiency calibration is present
+                # FIXME: does this belong here?
+                if fit.spec.effCal is not None:
+                    volume = thispeak["vol"]
+                    par_index = params.index("vol") + 1
+                    energy = thispeak["pos"]
+                    norm_volume = volume / spec.effCal(energy)
+                    thispeak["vol/eff"] = norm_volume
+                peaklist.append(thispeak)
+        return (peaklist, params)
+        
 class TvFitInterface:
     """
     TV style interface for fitting
@@ -236,6 +324,22 @@ class TvFitInterface:
         parser.add_option("-s", "--spectrum", action = "store", default = "active",
                         help = "select spectra to work on")
         hdtv.cmdline.AddCommand(prog, self.FitHide, parser = parser)
+        
+        prog = "fit list"
+        description = "list fit results"
+        usage = "%prog"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        parser.add_option("-v", "--visible", action = "store_true", default = False,
+                        help = "only list visible fit")
+        parser.add_option("-k", "--key-sort", action = "store", default = "id",
+                        help = "sort by key")
+        parser.add_option("-r", "--reverse-sort", action = "store_true", default = False,
+                        help = "reverse the sort")
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
+                        help = "select spectra to work on")  
+        parser.add_option("-f", "--fit", action = "store", default = "all", 
+                        help = "specify which fits to list")
+        hdtv.cmdline.AddCommand(prog, self.FitList, parser = parser)
 
     def FitMarkerChange(self, args, options):
         """
@@ -329,7 +433,14 @@ class TvFitInterface:
         """
         Store work fit
         """
-        self.spectra.StoreFit()
+        if len(args)==1:
+            try:
+                ID = int(args[0])
+            except ValueError:
+                return "USAGE"
+        else:
+            ID=None
+        self.spectra.StoreFit(ID)
         
         
     def FitActivate(self, args, options):
@@ -404,6 +515,29 @@ class TvFitInterface:
             else:
                 spec.ShowObjects(fitIDs, adjustViewport=options.adjust_viewport)
 
+    def FitList(self, args, options):
+        self.fitIf.PrintWorkFit()
+        try:
+            sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+        except ValueError:
+            return "USAGE"
+        if len(sids)==0:
+            hdtv.ui.warn("No spectra chosen or active")
+            return
+        # parse sort_key
+        key_sort = options.key_sort.lower()
+        for sid in sids:
+            spec = self.spectra.dict[sid]
+            try:
+                ids = hdtv.cmdhelper.ParseIds(options.fit, spec)
+            except ValueError:
+                return "USAGE"
+            if options.visible:
+                ids = [ID for ID in spec.visible]
+            if len(ids)==0:
+                continue
+            self.fitIf.ListFits(sid, ids, sortBy=key_sort,reverseSort=options.reverse_sort)
+                
 
 # plugin initialisation
 import __main__

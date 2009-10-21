@@ -97,7 +97,7 @@ class Fit(Drawable):
     
     # color property
     def _set_color(self, color):
-        # we only need one the passive color for fits
+        # we only need the passive color for fits
         self._passiveColor = hdtv.color.Highlight(color, active=False)
         if self.viewport:
             self.viewport.LockUpdate()
@@ -136,6 +136,8 @@ class Fit(Drawable):
     
     # spec property
     def _set_spec(self, spec):
+        # a cyclic reference should be OK here, since the fit should never 
+        # live longer than the spectrum
         if hasattr(self, "spec") and self._spec is spec:
             return
         self._spec = spec
@@ -143,7 +145,9 @@ class Fit(Drawable):
         if spec is None:
             self.FixMarkerInCal()
             self.cal = None
+            self.color = None
         else:
+            self.color = spec.color
             self.cal = spec.cal
             self.FixMarkerInUncal()
             

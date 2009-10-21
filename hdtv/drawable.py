@@ -33,10 +33,11 @@ class Drawable(object):
         self.cal = cal
         self.color = color
         self.ID = None
-       
-    def __str__(self):
+        
+    @property
+    def name(self):
         return str(self.displayObj)
-
+       
     # cal property
     def _set_cal(self, cal):
         self._cal=hdtv.cal.MakeCalibration(cal)
@@ -279,40 +280,6 @@ class DrawableManager(object):
         while ID in self.dict.iterkeys():
             ID += 1
         return ID
-
-
-    # FIXME: this seems not to be used anymore (see SpecInterface)
-    def PrintObject(self, ID, verbose=False, if_visible=False):
-        """
-        Print object properties
-        """
-        stat = " "
-        visible = False
-        obj = self.dict[ID]
-        
-        if ID == self.activeID:
-            stat += "A"
-            visible = True
-        else:
-            stat += " "
-        if ID in self.visible:
-            stat += "V"
-            visible = True
-        else:
-            stat += " "
-        if not if_visible or visible:
-            try:
-                hdtv.ui.msg("%d %s %s" % (ID, stat, obj.formatted_str(verbose)))
-            except AttributeError:
-                # just use normal str if no formatted_str function exists
-                hdtv.ui.msg("%d %s %s" % (ID, stat, obj))
-
-    def ListObjects(self, verbose=False, visible_only=False):
-        """
-        List all objects in a human readable way
-        """
-        for ID in self.dict.keys():
-            self.PrintObject(ID, verbose=verbose, if_visible=visible_only)
 
 
     def Draw(self, viewport):
