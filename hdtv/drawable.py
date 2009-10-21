@@ -252,7 +252,9 @@ class DrawableManager(object):
             # set iterator to the ID before the one we remove
             self._iteratorID = self.prevID 
         try:
-            return self.dict.pop(ID)
+            obj = self.dict.pop(ID)
+            obj.ID = None
+            return obj
         except KeyError:
             hdtv.ui.warn("Warning: ID %s not found." % ID)
 

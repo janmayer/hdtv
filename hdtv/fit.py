@@ -62,13 +62,13 @@ class Fit(Drawable):
         Drawable.__init__(self, color, cal)
         self.spec = None
         self.active = True
-        self.ShowAsActive = lambda self: self.ShowAsWorkFit
 
     # ID property
     def _get_ID(self):
-        return self.peakMakers.ID
+        return self.peakMarkers.ID
     
     def _set_ID(self, ID):
+        self._ID = ID
         self.peakMarkers.ID = ID
 
     ID = property(_get_ID, _set_ID)
@@ -136,6 +136,8 @@ class Fit(Drawable):
     
     # spec property
     def _set_spec(self, spec):
+        if hasattr(self, "spec") and self._spec is spec:
+            return
         self._spec = spec
         self.Erase()
         if spec is None:
@@ -200,6 +202,7 @@ class Fit(Drawable):
         Note: You still need to call Draw afterwards.
         """
         self.spec = spec
+        self.Erase()
         # fit background 
         if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
             backgrounds = hdtv.util.Pairs()
@@ -228,6 +231,7 @@ class Fit(Drawable):
             func(self)
 
         self.spec = spec
+        self.Erase()
         # fit background 
         if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
             backgrounds = hdtv.util.Pairs()
@@ -448,7 +452,10 @@ class Fit(Drawable):
         if not self.viewport:
             return
         if self.active:
-            self.ShowAsWorkFit()
+            if self.ID is None:
+                self.ShowAsWorkFit()
+            else:
+                self.ShowAsPending()
         else:
             self.ShowAsPassive()
             

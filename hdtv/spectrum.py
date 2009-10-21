@@ -338,8 +338,7 @@ class Spectrum(DrawableManager):
     
     # overwrite some functions of DrawableManager to do some extra work
     def Insert(self, fit, ID):
-        # FIXME: this does not work as expected
-        fit.ShowAsActive = lambda fit: fit.ShowAsPending
+        fit.spec = self
         return DrawableManager.Insert(self, fit, ID)
         
     def Pop(self, ID):

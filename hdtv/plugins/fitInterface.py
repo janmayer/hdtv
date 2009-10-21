@@ -141,9 +141,10 @@ class FitInterface:
         except KeyError:
             raise KeyError, "invalid fit ID"
         if peaks:
-            fit.FitPeakFunc(spec, silent=True)
+            fit.FitPeakFunc(spec, silent=False)
         else:
             fit.FitBgFunc(spec)
+        fit.Draw(self.window.viewport)
             
 
     def QuickFit(self, pos=None):
