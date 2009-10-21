@@ -311,6 +311,49 @@ class Window(KeyHandler):
         self.viewport.SetXVisibleRegion(width)
         self.viewport.SetXCenter(center)
         
+    def FocusObjects(self, objs):
+        """
+        Move and stretch viewport to show multiple objs
+        """
+        xdimensions = ()
+        # Get dimensions of objects
+        for obj in objs:
+            try:
+                if obj.xdimensions is not None:
+                    xdimensions += obj.xdimensions
+            except:
+                # ignore objects without xdimensions
+                pass
+        # calulate
+        if len(xdimensions) > 0: 
+            view_width = max(xdimensions) - min(xdimensions)
+            view_width *= 1.2
+            if view_width < 50.:
+                view_width = 50. # TODO: make this configurable
+            view_center = (max(xdimensions) + min(xdimensions)) / 2.
+            # change viewport
+            self.viewport.SetXVisibleRegion(view_width)
+            self.viewport.SetXCenter(view_center)
+            
+    def IsInVisibleRegion(self, obj):
+        """
+        Check if obj is in the visible region of the viewport
+        """
+        try:
+            xdim = obj.xdimensions
+        except:
+            xdim = None
+        if xdim is None: # Object has no dimensions
+            return True
+        # get viewport limits
+        viewport_start = self.viewport.GetOffset()
+        viewport_end = viewport_start + self.viewport.GetXVisibleRegion()
+        # do the check
+        if (xdim[0] > viewport_start) and (xdim[1] < viewport_end):
+            return True
+        else:
+            return False
+
 
     def ExpandX(self):
         """

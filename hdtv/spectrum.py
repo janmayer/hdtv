@@ -275,67 +275,6 @@ class Spectrum(DrawableManager):
         
     cal = property(_get_cal, _set_cal)
     
-
-    def IsInVisibleRegion(self, ID):
-        """
-        Check if fit is in the visible region of the viewport
-        """
-        if self.viewport is None: return False
-        xdim = self.dict[ID].xdimensions
-        if xdim is None: # Object has no dimensions
-            return True
-        # get viewport limits
-        viewport_start = self.viewport.GetOffset()
-        viewport_end = viewport_start + self.viewport.GetXVisibleRegion()
-        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: object ID: %d" %ID, level=6)
-        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: viewport_start %s, viewport_end %s" 
-                       % (viewport_start, viewport_end), level=6)
-        hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: object %d, starts at %s and ends at %s" 
-                       % (ID, xdim[0], xdim[1]), level=6)
-        # do the check
-        if (xdim[0] > viewport_start) and (xdim[1] < viewport_end):
-            hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: ID %d is visible" % ID, level=4)
-            return True
-        else:
-            hdtv.ui.debug("hdtv.drawable.isInVisibleRegion: ID %d is *not* visible" % ID, level=4)
-            return False
-
-    def FocusFits(self, ids):
-        """
-        Move and stretch viewport to show multiple fits
-        """
-        if self.viewport is None:
-            return
-        xdimensions = ()
-        # Get dimensions of objects
-        for ID in ids:
-            if self.dict[ID].xdimensions is not None:
-                xdimensions += self.dict[ID].xdimensions
-            if ID not in self.visible:
-                self.dict[ID].Show()
-        self._iteratorID = min(ids)
-        # calulate
-        if len(xdimensions) > 0: 
-            view_width = max(xdimensions) - min(xdimensions)
-            view_width *= 1.2
-            if view_width < 50.:
-                view_width = 50. # TODO: make this configurable
-            view_center = (max(xdimensions) + min(xdimensions)) / 2.
-            # change viewport
-            self.viewport.SetXVisibleRegion(view_width)
-            self.viewport.SetXCenter(view_center)
-    
-    def FocusFit(self, ID=None):
-        """
-        If ID is not given: Focus active object
-        """
-        if ID is None:
-            ID = self.activeID
-        if ID is None:
-            hdtv.ui.error("No active object")
-            return
-        self.FocusObjects([ID])
-    
     # overwrite some functions of DrawableManager to do some extra work
     def Insert(self, fit, ID):
         fit.spec = self
@@ -346,19 +285,11 @@ class Spectrum(DrawableManager):
         fit.spec = None
         return fit
         
-    def ShowObjects(self, ids, clear=True, adjustViewport=False):
+    def ShowObjects(self, ids, clear=True):
         if self.viewport is None:
             return
         self.viewport.LockUpdate()
         ids = DrawableManager.ShowObjects(self, ids, clear)
-         # Check if we have to refocus the viewport
-        if adjustViewport:
-            refocus = False
-            for ID in ids:
-                if not self.IsInVisibleRegion(ID):
-                    refocus = True
-            if refocus:
-                self.FocusObjects(ids)
         self.viewport.UnlockUpdate()
         return ids
     

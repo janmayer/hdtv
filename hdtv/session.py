@@ -167,7 +167,7 @@ class Session(DrawableManager):
         self.workFit = copy.copy(self.workFit)
         self.workFit.Draw(self.window.viewport)
         
-        
+
     # Overwrite some functions of DrawableManager to do some extra work
     def ActivateObject(self, ID):
         """

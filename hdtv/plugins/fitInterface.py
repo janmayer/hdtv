@@ -248,6 +248,7 @@ class FitInterface:
                 peaklist.append(thispeak)
         return (peaklist, params)
         
+       
 class TvFitInterface:
     """
     TV style interface for fitting
@@ -256,6 +257,10 @@ class TvFitInterface:
         self.fitIf = fitInterface
         self.spectra = self.fitIf.spectra  
         
+        # Register configuration variables for fit list
+        opt = hdtv.options.Option(default = "ID")
+        hdtv.options.RegisterOption("fit.list.sort_key", opt) 
+                
         prog = "fit execute"
         description = "(re)fit a fit"
         usage = "%prog [OPTIONS] <fit-ids>"
@@ -325,13 +330,19 @@ class TvFitInterface:
                         help = "select spectra to work on")
         hdtv.cmdline.AddCommand(prog, self.FitHide, parser = parser)
         
+        prog = "fit focus"
+        description = "focus on fit with id"
+        usage = "fit focus [<id>]"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        hdtv.cmdline.AddCommand(prog, self.FitFocus, minargs = 0, parser = parser)
+        
         prog = "fit list"
         description = "list fit results"
         usage = "%prog"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-v", "--visible", action = "store_true", default = False,
                         help = "only list visible fit")
-        parser.add_option("-k", "--key-sort", action = "store", default = "id",
+        parser.add_option("-k", "--key-sort", action = "store", default = hdtv.options.Get("fit.list.sort_key"),
                         help = "sort by key")
         parser.add_option("-r", "--reverse-sort", action = "store_true", default = False,
                         help = "reverse the sort")
@@ -475,7 +486,7 @@ class TvFitInterface:
         except ValueError:
             return "USAGE"
         if len(sids)==0:
-            hdtv.ui.warn("Nothing to do (No spectra chosen or active)")
+            hdtv.ui.warn("No spectra chosen or active")
             return
         else:
             for s in sids:
@@ -513,8 +524,43 @@ class TvFitInterface:
             if inverse:
                 spec.HideObjects(fitIDs)
             else:
-                spec.ShowObjects(fitIDs, adjustViewport=options.adjust_viewport)
+                spec.ShowObjects(fitIDs)
+                if options.adjust_viewport:
+                    fits = [spec.dict[ID] for ID in fitIDs]
+                    self.spectra.window.FocusObjects(fits)
+                
+    def FitFocus(self, args, options):
+        """
+        Focus a fit. 
+        
+        If no fit is given focus the active fit.
+        """
+        spec = self.spectra.GetActiveObject()
+        if spec is None:
+            hdtv.ui.error("There is no active spectrum")
+            return
+        
+        assert self.spectra.activeID in self.spectra.visible, "Active objects should always be visible"
+        
+        fits = list()
+        if len(args) == 0:
+            fits.append(self.spectra.workFit)
+            activeFit = spec.GetActiveObject()
+            if activeFit is not None:
+                fit.append(activeFit)
+        else:
+            try:
+                ids = hdtv.cmdhelper.ParseIds(args, spec)
+            except ValueError:
+                return "USAGE"
+            fits = [spec.dict[ID] for ID in ids]
+            spec.ShowObjects(ids, clear=False)
+        if len(fits)==0:
+            hdtv.ui.warn("Nothing to focus")
+            return
+        self.spectra.window.FocusObjects(fits)
 
+ 
     def FitList(self, args, options):
         self.fitIf.PrintWorkFit()
         try:

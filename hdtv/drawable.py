@@ -257,7 +257,7 @@ class DrawableManager(object):
             obj.ID = None
             return obj
         except KeyError:
-            hdtv.ui.warn("Warning: ID %s not found." % ID)
+            hdtv.ui.warn("ID %s not found." % ID)
 
 
     def Clear(self):

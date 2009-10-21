@@ -466,14 +466,14 @@ class FitInterface:
                 hdtv.ui.error("Spectrum " + str(sid) + ": Valid attributes are: " + str(params))
                 continue
     
-    def FocusFits(self, ids):
-        """
-        Focus fits
-        """
-        spec = self.spectra[self.spectra.activeID]
-        spec.fits.FocusObjects(ids)
-        if self.spectra.activeID in self.spectra.visible and spec.fits.activeID:
-            spec.fits[spec.fits.activeID].Show()
+#    def FocusFits(self, ids):
+#        """
+#        Focus fits
+#        """
+#        spec = self.spectra[self.spectra.activeID]
+#        spec.fits.FocusObjects(ids)
+#        if self.spectra.activeID in self.spectra.visible and spec.fits.activeID:
+#            spec.fits[spec.fits.activeID].Show()
             
 
 #    def StoreFit(self):
@@ -724,9 +724,9 @@ class TvFitInterface:
         self.spectra = self.fitIf.spectra     
         
         # Register configuration variables for fit list
-        opt = hdtv.options.Option(default = "ID")
-        hdtv.options.RegisterOption("fit.list.sort_key", opt) 
-        
+#        opt = hdtv.options.Option(default = "ID")
+#        hdtv.options.RegisterOption("fit.list.sort_key", opt) 
+#        
 #        prog = "fit fit"
 #        description = "(re)fit a fit"
 #        usage = "%prog [OPTIONS] <fit-ids>"
@@ -768,13 +768,13 @@ class TvFitInterface:
 #        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
 #        hdtv.cmdline.AddCommand(prog, self.FitClear, nargs=0, parser = parser)
         
-        prog = "fit list"
-        description = "show a list of all fits belonging to the active spectrum"
-        usage = "%prog"
-        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-l", "--long", action = "store_true", default = False,
-                        help = "show more details")
-        hdtv.cmdline.AddCommand(prog, self.FitList, nargs = 0, parser = parser)
+#        prog = "fit list"
+#        description = "show a list of all fits belonging to the active spectrum"
+#        usage = "%prog"
+#        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+#        parser.add_option("-l", "--long", action = "store_true", default = False,
+#                        help = "show more details")
+#        hdtv.cmdline.AddCommand(prog, self.FitList, nargs = 0, parser = parser)
         
 #        prog = "fit show"
 #        description = "display fits"
@@ -797,25 +797,25 @@ class TvFitInterface:
 #        hdtv.cmdline.AddCommand(prog, self.FitHide, parser = parser)
 #        
         
-        prog = "fit focus"
-        description = "focus on fit with id"
-        usage = "fit focus [<id>]"
-        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        hdtv.cmdline.AddCommand(prog, self.FitFocus, minargs = 0, parser = parser)
+#        prog = "fit focus"
+#        description = "focus on fit with id"
+#        usage = "fit focus [<id>]"
+#        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+#        hdtv.cmdline.AddCommand(prog, self.FitFocus, minargs = 0, parser = parser)
         
-        prog = "fit print"
-        description = "print fit results"
-        usage = "%prog all|<ids>"
-        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-v", "--visible", action = "store_true", default = False,
-                        help = "only list visible fit")
-        parser.add_option("-k", "--key-sort", action = "store", default = "",
-                        help = "sort by key")
-        parser.add_option("-r", "--reverse-sort", action = "store_true", default = False,
-                        help = "reverse the sort")
-        parser.add_option("-s", "--spectrum", action = "store", default = "active",
-                        help = "select spectra to work on")       
-        hdtv.cmdline.AddCommand(prog, self.FitPrint, level=2, parser = parser)
+#        prog = "fit print"
+#        description = "print fit results"
+#        usage = "%prog all|<ids>"
+#        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+#        parser.add_option("-v", "--visible", action = "store_true", default = False,
+#                        help = "only list visible fit")
+#        parser.add_option("-k", "--key-sort", action = "store", default = "",
+#                        help = "sort by key")
+#        parser.add_option("-r", "--reverse-sort", action = "store_true", default = False,
+#                        help = "reverse the sort")
+#        parser.add_option("-s", "--spectrum", action = "store", default = "active",
+#                        help = "select spectra to work on")       
+#        hdtv.cmdline.AddCommand(prog, self.FitPrint, level=2, parser = parser)
         
 #        prog = "fit delete"
 #        description = "delete fits"
@@ -875,13 +875,13 @@ class TvFitInterface:
                                 completer = self.PeakModelCompleter,
                                 parser = parser, minargs = 1)
 
-    def FitList(self, args, options):
-        """
-        Print a list of all fits belonging a spectrum
-        """
-        hdtv.ui.error("\"fit list\" command is currently reworked. Functionality has been merged with \"fit print\"")
-        hdtv.ui.error("Please use \"fit print all\" for equivalent functionality")
-        return
+#    def FitList(self, args, options):
+#        """
+#        Print a list of all fits belonging a spectrum
+#        """
+#        hdtv.ui.error("\"fit list\" command is currently reworked. Functionality has been merged with \"fit print\"")
+#        hdtv.ui.error("Please use \"fit print all\" for equivalent functionality")
+#        return
     
 #    def FitDelete(self, args, options):
 #        """ 
@@ -931,12 +931,12 @@ class TvFitInterface:
 #                spec.fits.HideAll()
 
 
-    def FitPrint(self, args, options):
-        """
-        Print fit results
-        """
-        self.fitIf.PrintFits(args, options.spec, onlyVisible=options.visible, 
-                             sortBy=options.key_sort, reverseSort=options.reverse_sort)
+#    def FitPrint(self, args, options):
+#        """
+#        Print fit results
+#        """
+#        self.fitIf.PrintFits(args, options.spec, onlyVisible=options.visible, 
+#                             sortBy=options.key_sort, reverseSort=options.reverse_sort)
 
 
 #    def FitActivate(self, args, options):
@@ -965,24 +965,24 @@ class TvFitInterface:
 #        else:
 #            hdtv.ui.error("Can only activate one fit")
 
-    def FitFocus(self, args, options):
-        """
-        Focus a fit. If no fit is given focus the active fit
-        """
-        if self.spectra.activeID==None:
-            hdtv.ui.error("There is no active spectrum")
-            return False
-        
-        assert self.spectra.activeID in self.spectra.visible, "Active objects should always be visible"
-                
-        if len(args) == 0:
-            args = ["active"]
-        ids = hdtv.cmdhelper.ParseIds(args, self.spectra[self.spectra.activeID].fits)
-        
-        if len(ids) > 0:
-            self.fitIf.FocusFits(ids)
-        else:
-            hdtv.ui.error("Nothing to focus")
+#    def FitFocus(self, args, options):
+#        """
+#        Focus a fit. If no fit is given focus the active fit
+#        """
+#        if self.spectra.activeID==None:
+#            hdtv.ui.error("There is no active spectrum")
+#            return False
+#        
+#        assert self.spectra.activeID in self.spectra.visible, "Active objects should always be visible"
+#                
+#        if len(args) == 0:
+#            args = ["active"]
+#        ids = hdtv.cmdhelper.ParseIds(args, self.spectra[self.spectra.activeID].fits)
+#        
+#        if len(ids) > 0:
+#            self.fitIf.FocusFits(ids)
+#        else:
+#            hdtv.ui.error("Nothing to focus")
 
     def FitCopy(self, args, options):
         """
