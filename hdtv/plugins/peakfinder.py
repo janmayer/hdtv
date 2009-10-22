@@ -137,8 +137,9 @@ class PeakFinder(object):
                         text = "Warning: adding invalid fit:" + result
                         hdtv.ui.msg(text)
             # add fits to spectrum
-            ID = self.spec.InsertFit(fit)
-            fit.title = fit.title + "(*)"
+            ID = self.spec.Insert(fit)
+            # FIXME: no fit title 
+            #fit.title = fit.title + "(*)"
             # bookkeeping
             if len(fit.peaks)>0:
                 peak_count = peak_count + len(fit.peaks)
