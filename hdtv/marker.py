@@ -40,12 +40,25 @@ class Marker(Drawable):
     def __init__(self, xytype, p1, color=hdtv.color.zoom, cal=None, connecttop=False):
         self._activeColor = color
         self._cal = cal
+        self._dashed = False
         self.fixedInCal = True
         self.xytype = xytype
         self.connecttop = connecttop
         self.p1 = p1
         self.p2 = None
         Drawable.__init__(self, color=color, cal=cal)
+        
+    # p1 and p2 properties
+    def _set_p(self, pos, p):
+        if isinstance(pos, (float,int)):
+            pos = hdtv.util.Position(pos, self.fixedInCal, self.cal)
+        setattr(self, "_%s" %p, pos) 
+    
+    def _get_p(self, p):
+        return getattr(self,"_%s" %p)
+    
+    p1 = property(lambda self:self._get_p("p1"), lambda self,pos: self._set_p(pos, "p1"))
+    p2 = property(lambda self:self._get_p("p2"), lambda self,pos: self._set_p(pos, "p2"))
     
     # color property
     def _set_color(self, color):
@@ -61,19 +74,6 @@ class Marker(Drawable):
         return self._passiveColor
         
     color = property(_get_color, _set_color)
-    
-    # p1 and p2 properties
-    def _set_p(self, pos, p):
-        if isinstance(pos, (float,int)):
-            pos = hdtv.util.Position(pos, self.fixedInCal, self.cal)
-        setattr(self, "_%s" %p, pos) 
-    
-    def _get_p(self, p):
-        return getattr(self,"_%s" %p)
-    
-    p1 = property(lambda self:self._get_p("p1"), lambda self,pos: self._set_p(pos, "p1"))
-    p2 = property(lambda self:self._get_p("p2"), lambda self,pos: self._set_p(pos, "p2"))
-    
     
     #cal property
     def _set_cal(self, cal):
@@ -91,6 +91,16 @@ class Marker(Drawable):
     
     cal = property(_get_cal, _set_cal)
         
+    # dashed property
+    def _set_dashed(self, state):
+        self._dashed = state
+        if self.displayObj:
+            self.displayObj.SetDash(state, state)
+            
+    def _get_dashed(self):
+        return self._dashed
+    
+    dashed = property(_get_dashed, _set_dashed)
     
     def Draw(self, viewport):
         """ 

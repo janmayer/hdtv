@@ -392,9 +392,11 @@ class Fit(Drawable):
         if not self.viewport:
             return
         self.viewport.LockUpdate()
-        self.regionMarkers.Show()
-        self.peakMarkers.Show()
-        self.bgMarkers.Show()
+        # all markers in active state and solid
+        for mc in [self.regionMarkers, self.peakMarkers, self.bgMarkers]:
+            mc.active = True
+            mc.dashed = False
+            mc.Show()
         # coloring
         if self.dispPeakFunc:
             self.dispPeakFunc.SetColor(hdtv.color.region)
@@ -413,18 +415,28 @@ class Fit(Drawable):
         
     
     def ShowAsPending(self):
-        # TODO: how should a fit look in this state?
         if not self.viewport:
             return
         self.viewport.LockUpdate()
-        self.ShowAsPassive()
-        # but show all markers in passive state
-        self.regionMarkers.active = False
-        self.regionMarkers.Show()
-        self.peakMarkers.active = False
-        self.peakMarkers.Show()
-        self.bgMarkers.active = False
-        self.bgMarkers.Show()
+        # all markers in passive state and dashed
+        for mc in [self.regionMarkers, self.peakMarkers, self.bgMarkers]:
+            mc.active = False
+            mc.dashed = True
+            mc.Show()
+        # coloring
+        if self.dispPeakFunc:
+            self.dispPeakFunc.SetColor(self.color)
+            self.dispPeakFunc.Show()
+        if self.dispBgFunc:
+            self.dispBgFunc.SetColor(self.color)
+            self.dispBgFunc.Show()
+        # peak list
+        for peak in self.peaks:
+            peak.color = self.color
+            if self.showDecomp:
+                peak.Show()
+            else:
+                peak.Hide()
         self.viewport.UnlockUpdate()
 
         
@@ -432,6 +444,11 @@ class Fit(Drawable):
         if not self.viewport:
             return
         self.viewport.LockUpdate()
+        # marker in passive State and not dashed
+        for mc in [self.regionMarkers, self.peakMarkers, self.bgMarkers]:
+            mc.active = False
+            mc.dashed = False
+        # only show peakMarkers
         self.regionMarkers.Hide()
         self.peakMarkers.Show()
         self.bgMarkers.Hide()
