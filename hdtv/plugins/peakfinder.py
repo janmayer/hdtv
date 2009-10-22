@@ -160,7 +160,7 @@ class PeakFinder(object):
             if peak.vol <= 0.0:
                 bad = True
                 reason= "vol = %s" %peak.vol
-            elif not fit.regionMarkers[0].p1.GetPosInCal() < peak.pos_cal < fit.regionMarkers[0].p2.GetPosInCal():
+            elif not fit.regionMarkers[0].p1.pos_cal < peak.pos_cal < fit.regionMarkers[0].p2.pos_cal:
                 bad = True
                 reason = "peak position outside of region"
             # TODO: check for nans in errors
