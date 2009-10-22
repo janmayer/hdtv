@@ -22,7 +22,7 @@
 #-------------------------------------------------------------------------------
 # Peak finding and fitting plugin for HDTV
 #-------------------------------------------------------------------------------
-
+import copy
 
 import hdtv.cmdline
 import hdtv.options
@@ -35,13 +35,13 @@ class PeakFinder(object):
     """
     Automatic peak finder - using ROOTS peak search function
     """
-    def __init__(self, spectra,fitter):
+    def __init__(self, spectra):
         self.spectra = spectra
-        self.defaultFitter = fitter
+        self.defaultFitter = spectra.defaultFitter
         hdtv.ui.msg( "loaded PeakFinder plugin")
         
     def __call__(self, sid, sigma, threshold, start=None, end=None, autofit=False, reject=False):
-        self.spec = self.spectra[sid]
+        self.spec = self.spectra.dict[sid]
         self.sigma_E = sigma
         peaks = self.PeakSearch(sigma, threshold, start, end)
         num = self.StoreFits(peaks, autofit, reject)
@@ -58,9 +58,8 @@ class PeakFinder(object):
             
         tSpec = ROOT.TSpectrum()
 
-        # Copy hist here so we can safely modify ranges, etc. below
-        # as copy.copy is not working we have to call the C++ copy constructor
-        hist = self.spec.fHist.__class__(self.spec.fHist)
+        # Copy underlying ROOT hist here so we can safely modify ranges, etc. below
+        hist = copy.copy(self.spec.hist).hist
 
         # Init start and end region
         if start is None:
@@ -108,7 +107,7 @@ class PeakFinder(object):
         peak_count = 0
         while len(foundpeaks)>0:
             p = foundpeaks.pop(0)
-            fitter = self.defaultFitter.Copy()
+            fitter = copy.copy(self.defaultFitter)
             fit = hdtv.fit.Fit(fitter, cal = self.spec.cal)
             pos_E = self.spec.cal.Ch2E(p)
             fit.PutPeakMarker(pos_E)
@@ -200,17 +199,10 @@ class PeakFinder(object):
 #        bgspec.SetColor(hdtv.color.ColorForID(sid))
 #        print "BGSPec", sid
 
+
 # plugin initialisation
 import __main__
-if not hasattr(__main__, "spectra"):
-    import hdtv.drawable
-    __main__.spectra = hdtv.drawable.DrawableCompound(__main__.window.viewport)
-if hasattr(__main__,"f"):
-    defaultFitter=__main__.f.defaultFitter
-else:
-    import hdtv.fitter
-    defaultFitter = hdtv.fitter.Fitter("theuerkauf", 2)
-__main__.peakfinder = PeakFinder(__main__.spectra, defaultFitter)
+__main__.peakfinder = PeakFinder(__main__.spectra)
 
 # wrapper function 
 def PeakSearch(args, options):

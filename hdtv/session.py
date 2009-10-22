@@ -45,8 +45,6 @@ class Session(DrawableManager):
         # TODO: make peakModel and bgdeg configurable
         self.defaultFitter = Fitter(peakModel = "theuerkauf", bgdeg = 1)
         self.workFit = Fit(copy.copy(self.defaultFitter))
-        import sys
-        print sys.getrefcount(self.workFit)
         self.workFit.Draw(self.window.viewport)
         self.caldict = dict()
         # main session is always active
