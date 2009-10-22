@@ -276,7 +276,7 @@ class Spectrum(DrawableManager):
     cal = property(_get_cal, _set_cal)
     
     # overwrite some functions of DrawableManager to do some extra work
-    def Insert(self, fit, ID):
+    def Insert(self, fit, ID=None):
         fit.spec = self
         return DrawableManager.Insert(self, fit, ID)
         
