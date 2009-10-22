@@ -109,6 +109,8 @@ class PeakFinder(object):
             p = foundpeaks.pop(0)
             fitter = copy.copy(self.defaultFitter)
             fit = hdtv.fit.Fit(fitter, cal = self.spec.cal)
+            # by default fits are active at creation time
+            fit.active = False
             pos_E = self.spec.cal.Ch2E(p)
             fit.ChangeMarker("peak", pos_E, action="set") 
             if autofit:
