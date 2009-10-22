@@ -194,24 +194,32 @@ class Session(DrawableManager):
         """
         Show spectra and make sure one of the visible objects is active
         """
-        DrawableManager.ShowObjects(self, ids, clear)
+        ids = DrawableManager.ShowObjects(self, ids, clear)
         if self.activeID not in self.visible:
             if len(self.visible)>0:
                 self.ActivateObject(max(self.visible))
             else:
                 self.ActivateObject(None)
+        return ids
                 
     def HideObjects(self, ids):
         """
         Hide spectra and make sure one of the visible objects is active
         """
-        DrawableManager.HideObjects(self, ids)
+        ids = DrawableManager.HideObjects(self, ids)
         if self.activeID not in self.visible:
             if len(self.visible)>0:
                 self.ActivateObject(max(self.visible))
             else:
                 self.ActivateObject(None)
+        return ids
         
+    def Clear(self):
+        self.defaultFitter = Fitter(peakModel = "theuerkauf", bgdeg = 1)
+        self.workFit = Fit(copy.copy(self.defaultFitter))
+        self.workFit.Draw(self.window.viewport)
+        self.caldict = dict()
+        return DrawableManager.Clear(self)
         
 
 

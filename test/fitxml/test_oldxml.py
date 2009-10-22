@@ -24,19 +24,20 @@ import glob
 import __main__
 
 spectra = __main__.spectra
-spectra.RemoveAll()
+spectra.Clear()
 
 testspectrum= os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
 
-fnames=os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg*.xml")
+fnames=os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg_v*.xml")
 testXMLs = glob.glob(fnames)
 
 newXML = os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.xml")
 
 __main__.s.LoadSpectra(testspectrum)
 
+
 for testXML in testXMLs:
-    spectra[0].fits.RemoveAll()
+    spectra.dict[0].Clear()
     print 'Reading fits from file %s' %testXML
     __main__.fitxml.ReadFitlist(testXML)
     raw_input("Press enter to continue\n")

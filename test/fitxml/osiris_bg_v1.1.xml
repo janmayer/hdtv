@@ -1,0 +1,583 @@
+<hdtv version="1.1">
+  <fit bgDegree="1" chi="2889.25213636" peakModel="theuerkauf">
+    <spectrum calibration="" name="osiris_bg.spc" />
+    <regionMarker>
+      <begin>
+        <cal>1450.0</cal>
+      </begin>
+      <end>
+        <cal>1470.0</cal>
+      </end>
+    </regionMarker>
+    <peakMarker>
+      <position>
+        <cal>1460.76166653</cal>
+      </position>
+    </peakMarker>
+    <peak>
+      <uncal>
+        <vol status="free">
+          <value>133434.261479</value>
+          <error>379.836939015</error>
+        </vol>
+        <sw status="hold" />
+        <tr status="none" />
+        <pos status="free">
+          <value>1460.76166653</value>
+          <error>0.00386327801479</error>
+        </pos>
+        <width status="equal">
+          <value>2.95644645217</value>
+          <error>0.00752808722447</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+      </uncal>
+      <cal>
+        <vol status="free">
+          <value>133434.261479</value>
+          <error>379.836939015</error>
+        </vol>
+        <sw status="hold" />
+        <tr status="none" />
+        <pos status="free">
+          <value>1460.76166653</value>
+          <error>0.00386327801479</error>
+        </pos>
+        <width status="equal">
+          <value>2.95644645217</value>
+          <error>0.00752808722447</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+      </cal>
+    </peak>
+  </fit>
+  <fit bgDegree="1" chi="38.6180561611" peakModel="theuerkauf">
+    <spectrum calibration="" name="osiris_bg.spc" />
+    <bgMarker>
+      <begin>
+        <cal>480.0</cal>
+      </begin>
+      <end>
+        <cal>490.0</cal>
+      </end>
+    </bgMarker>
+    <bgMarker>
+      <begin>
+        <cal>530.0</cal>
+      </begin>
+      <end>
+        <cal>540.0</cal>
+      </end>
+    </bgMarker>
+    <regionMarker>
+      <begin>
+        <cal>500.0</cal>
+      </begin>
+      <end>
+        <cal>520.0</cal>
+      </end>
+    </regionMarker>
+    <peakMarker>
+      <position>
+        <cal>510.883175909</cal>
+      </position>
+    </peakMarker>
+    <background chisquare="247487.567272" deg="1">
+      <coeff deg="0">
+        <value>15119.9473747</value>
+        <error>4.54171535209</error>
+      </coeff>
+      <coeff deg="1">
+        <value>-17.8967627319</value>
+        <error>0.00888581291561</error>
+      </coeff>
+    </background>
+    <peak>
+      <uncal>
+        <vol status="free">
+          <value>31864.1726291</value>
+          <error>276.094373565</error>
+        </vol>
+        <sw status="hold" />
+        <tr status="none" />
+        <pos status="free">
+          <value>510.883175909</value>
+          <error>0.0132428686731</error>
+        </pos>
+        <width status="equal">
+          <value>3.13984242002</value>
+          <error>0.0304001516391</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+      </uncal>
+      <cal>
+        <vol status="free">
+          <value>31864.1726291</value>
+          <error>276.094373565</error>
+        </vol>
+        <sw status="hold" />
+        <tr status="none" />
+        <pos status="free">
+          <value>510.883175909</value>
+          <error>0.0132428686731</error>
+        </pos>
+        <width status="equal">
+          <value>3.13984242002</value>
+          <error>0.0304001516391</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+      </cal>
+    </peak>
+  </fit>
+  <fit bgDegree="1" chi="32.4198399767" peakModel="theuerkauf">
+    <spectrum calibration="" name="osiris_bg.spc" />
+    <bgMarker>
+      <begin>
+        <cal>1350.0</cal>
+      </begin>
+      <end>
+        <cal>1355.0</cal>
+      </end>
+    </bgMarker>
+    <bgMarker>
+      <begin>
+        <cal>1420.0</cal>
+      </begin>
+      <end>
+        <cal>1425.0</cal>
+      </end>
+    </bgMarker>
+    <regionMarker>
+      <begin>
+        <cal>1395.0</cal>
+      </begin>
+      <end>
+        <cal>1415.0</cal>
+      </end>
+    </regionMarker>
+    <peakMarker>
+      <position>
+        <cal>1401.62554191</cal>
+      </position>
+    </peakMarker>
+    <peakMarker>
+      <position>
+        <cal>1407.97333207</cal>
+      </position>
+    </peakMarker>
+    <background chisquare="12691.0796251" deg="1">
+      <coeff deg="0">
+        <value>2540.71768548</value>
+        <error>12.534508786</error>
+      </coeff>
+      <coeff deg="1">
+        <value>-1.09576202124</value>
+        <error>0.00902775155958</error>
+      </coeff>
+    </background>
+    <peak>
+      <uncal>
+        <vol status="free">
+          <value>2441.68816961</value>
+          <error>85.9630820979</error>
+        </vol>
+        <sw status="hold" />
+        <tr status="none" />
+        <pos status="free">
+          <value>1401.62554191</value>
+          <error>0.0509784836296</error>
+        </pos>
+        <width status="equal">
+          <value>2.77823419498</value>
+          <error>0.0598693211695</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+      </uncal>
+      <cal>
+        <vol status="free">
+          <value>2441.68816961</value>
+          <error>85.9630820979</error>
+        </vol>
+        <sw status="hold" />
+        <tr status="none" />
+        <pos status="free">
+          <value>1401.62554191</value>
+          <error>0.0509784836296</error>
+        </pos>
+        <width status="equal">
+          <value>2.77823419498</value>
+          <error>0.0598693211695</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+      </cal>
+    </peak>
+    <peak>
+      <uncal>
+        <vol status="free">
+          <value>4399.73426192</value>
+          <error>105.664296212</error>
+        </vol>
+        <sw status="hold" />
+        <tr status="none" />
+        <pos status="free">
+          <value>1407.97333207</value>
+          <error>0.034285182103</error>
+        </pos>
+        <width status="equal">
+          <value>2.77823419498</value>
+          <error>0.0598693211695</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+      </uncal>
+      <cal>
+        <vol status="free">
+          <value>4399.73426192</value>
+          <error>105.664296212</error>
+        </vol>
+        <sw status="hold" />
+        <tr status="none" />
+        <pos status="free">
+          <value>1407.97333207</value>
+          <error>0.034285182103</error>
+        </pos>
+        <width status="equal">
+          <value>2.77823419498</value>
+          <error>0.0598693211695</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+      </cal>
+    </peak>
+  </fit>
+  <fit bgDegree="1" chi="5091.07084394" peakModel="theuerkauf">
+    <spectrum calibration="" name="osiris_bg.spc" />
+    <bgMarker>
+      <begin>
+        <cal>950.0</cal>
+      </begin>
+      <end>
+        <cal>955.0</cal>
+      </end>
+    </bgMarker>
+    <bgMarker>
+      <begin>
+        <cal>980.0</cal>
+      </begin>
+      <end>
+        <cal>985.0</cal>
+      </end>
+    </bgMarker>
+    <regionMarker>
+      <begin>
+        <cal>960.0</cal>
+      </begin>
+      <end>
+        <cal>975.0</cal>
+      </end>
+    </regionMarker>
+    <peakMarker>
+      <position>
+        <cal>965.0</cal>
+      </position>
+    </peakMarker>
+    <peakMarker>
+      <position>
+        <cal>970.0</cal>
+      </position>
+    </peakMarker>
+    <background chisquare="57250.6299559" deg="1">
+      <coeff deg="0">
+        <value>9796.53083352</value>
+        <error>20.3200970275</error>
+      </coeff>
+      <coeff deg="1">
+        <value>-7.81718061314</value>
+        <error>0.0209892936646</error>
+      </coeff>
+    </background>
+    <peak>
+      <uncal>
+        <vol status="free">
+          <value>7928.50996162</value>
+          <error>147.021063395</error>
+        </vol>
+        <sw status="hold" />
+        <tr status="none" />
+        <pos status="hold">
+          <value>965.0</value>
+          <error>0.0</error>
+        </pos>
+        <width status="equal">
+          <value>3.10154943903</value>
+          <error>0.0413690957926</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+      </uncal>
+      <cal>
+        <vol status="free">
+          <value>7928.50996162</value>
+          <error>147.021063395</error>
+        </vol>
+        <sw status="hold" />
+        <tr status="none" />
+        <pos status="hold">
+          <value>965.0</value>
+          <error>0.0</error>
+        </pos>
+        <width status="equal">
+          <value>3.10154943903</value>
+          <error>0.0413690957926</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+      </cal>
+    </peak>
+    <peak>
+      <uncal>
+        <vol status="free">
+          <value>12009.3385942</value>
+          <error>157.652596567</error>
+        </vol>
+        <sw status="hold" />
+        <tr status="none" />
+        <pos status="hold">
+          <value>970.0</value>
+          <error>0.0</error>
+        </pos>
+        <width status="equal">
+          <value>3.10154943903</value>
+          <error>0.0413690957926</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+      </uncal>
+      <cal>
+        <vol status="free">
+          <value>12009.3385942</value>
+          <error>157.652596567</error>
+        </vol>
+        <sw status="hold" />
+        <tr status="none" />
+        <pos status="hold">
+          <value>970.0</value>
+          <error>0.0</error>
+        </pos>
+        <width status="equal">
+          <value>3.10154943903</value>
+          <error>0.0413690957926</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+      </cal>
+    </peak>
+  </fit>
+  <fit bgDegree="1" chi="830.664329619" peakModel="theuerkauf">
+    <spectrum calibration="" name="osiris_bg.spc" />
+    <bgMarker>
+      <begin>
+        <cal>1700.0</cal>
+      </begin>
+      <end>
+        <cal>1710.0</cal>
+      </end>
+    </bgMarker>
+    <bgMarker>
+      <begin>
+        <cal>1800.0</cal>
+      </begin>
+      <end>
+        <cal>1810.0</cal>
+      </end>
+    </bgMarker>
+    <regionMarker>
+      <begin>
+        <cal>1750.0</cal>
+      </begin>
+      <end>
+        <cal>1780.0</cal>
+      </end>
+    </regionMarker>
+    <peakMarker>
+      <position>
+        <cal>1764.44822978</cal>
+      </position>
+    </peakMarker>
+    <peakMarker>
+      <position>
+        <cal>1771.29592688</cal>
+      </position>
+    </peakMarker>
+    <background chisquare="8855.16943088" deg="1">
+      <coeff deg="0">
+        <value>1507.96923155</value>
+        <error>7.84109877166</error>
+      </coeff>
+      <coeff deg="1">
+        <value>-0.666430778442</value>
+        <error>0.00446477345278</error>
+      </coeff>
+    </background>
+    <peak>
+      <uncal>
+        <vol status="free">
+          <value>30870.2936558</value>
+          <error>182.803993288</error>
+        </vol>
+        <sw status="hold" />
+        <tr status="none" />
+        <pos status="free">
+          <value>1764.44822978</value>
+          <error>0.00911721827302</error>
+        </pos>
+        <width status="equal">
+          <value>3.27854990325</value>
+          <error>0.0182844546332</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+      </uncal>
+      <cal>
+        <vol status="free">
+          <value>30870.2936558</value>
+          <error>182.803993288</error>
+        </vol>
+        <sw status="hold" />
+        <tr status="none" />
+        <pos status="free">
+          <value>1764.44822978</value>
+          <error>0.00911721827302</error>
+        </pos>
+        <width status="equal">
+          <value>3.27854990325</value>
+          <error>0.0182844546332</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+      </cal>
+    </peak>
+    <peak>
+      <uncal>
+        <vol status="free">
+          <value>2162.01629579</value>
+          <error>63.5861637368</error>
+        </vol>
+        <sw status="hold" />
+        <tr status="none" />
+        <pos status="free">
+          <value>1771.29592688</value>
+          <error>0.0467063503626</error>
+        </pos>
+        <width status="equal">
+          <value>3.27854990325</value>
+          <error>0.0182844546332</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+      </uncal>
+      <cal>
+        <vol status="free">
+          <value>2162.01629579</value>
+          <error>63.5861637368</error>
+        </vol>
+        <sw status="hold" />
+        <tr status="none" />
+        <pos status="free">
+          <value>1771.29592688</value>
+          <error>0.0467063503626</error>
+        </pos>
+        <width status="equal">
+          <value>3.27854990325</value>
+          <error>0.0182844546332</error>
+        </width>
+        <tl status="none" />
+        <sh status="none" />
+      </cal>
+    </peak>
+  </fit>
+  <fit bgDegree="1" chi="40.4431646706" peakModel="ee">
+    <spectrum calibration="" name="osiris_bg.spc" />
+    <regionMarker>
+      <begin>
+        <cal>1115</cal>
+      </begin>
+      <end>
+        <cal>1125</cal>
+      </end>
+    </regionMarker>
+    <peakMarker>
+      <position>
+        <cal>1120.52916656</cal>
+      </position>
+    </peakMarker>
+    <peak>
+      <uncal>
+        <vol status="calculated">
+          <value>29251.4417803</value>
+          <error>255.75437669</error>
+        </vol>
+        <pos status="free">
+          <value>1120.52916656</value>
+          <error>0.00877733697715</error>
+        </pos>
+        <eta status="equal">
+          <value>246.833545016</value>
+          <error>288861077694.0</error>
+        </eta>
+        <amp status="free">
+          <value>10320.0392938</value>
+          <error>69.4721621808</error>
+        </amp>
+        <sigma1 status="equal">
+          <value>1.47185907029</value>
+          <error>0.011237097211</error>
+        </sigma1>
+        <gamma status="equal">
+          <value>459.12831134</value>
+          <error>0.424264068712</error>
+        </gamma>
+        <sigma2 status="equal">
+          <value>1.19091130121</value>
+          <error>0.00971806127129</error>
+        </sigma2>
+      </uncal>
+      <cal>
+        <vol status="calculated">
+          <value>29251.4417803</value>
+          <error>255.75437669</error>
+        </vol>
+        <pos status="free">
+          <value>1120.52916656</value>
+          <error>0.00877733697715</error>
+        </pos>
+        <eta status="equal">
+          <value>246.833545016</value>
+          <error>288861077694.0</error>
+        </eta>
+        <amp status="free">
+          <value>10320.0392938</value>
+          <error>69.4721621808</error>
+        </amp>
+        <sigma1 status="equal">
+          <value>1.47185907029</value>
+          <error>0.011237097211</error>
+        </sigma1>
+        <gamma status="equal">
+          <value>459.12831134</value>
+          <error>0.424264068712</error>
+        </gamma>
+        <sigma2 status="equal">
+          <value>1.19091130121</value>
+          <error>0.00971806127129</error>
+        </sigma2>
+      </cal>
+    </peak>
+  </fit>
+</hdtv>

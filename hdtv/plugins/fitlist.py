@@ -31,9 +31,6 @@ import hdtv.fitxml
 import hdtv.ui
 
 import __main__
-if not hasattr(__main__, "spectra"):
-    import hdtv.drawable
-    __main__.spectra = hdtv.drawable.DrawableCompound(__main__.window.viewport)
 __main__.fitxml = hdtv.fitxml.FitXml(__main__.spectra)
 
 def WriteFitlist(args, options):
