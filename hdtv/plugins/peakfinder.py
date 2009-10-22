@@ -110,20 +110,20 @@ class PeakFinder(object):
             fitter = copy.copy(self.defaultFitter)
             fit = hdtv.fit.Fit(fitter, cal = self.spec.cal)
             pos_E = self.spec.cal.Ch2E(p)
-            fit.PutPeakMarker(pos_E)
+            fit.ChangeMarker("peak", pos_E, action="set") 
             if autofit:
                 region_width = self.sigma_E * 5. # TODO: something sensible here
                 # left region marker
-                fit.PutRegionMarker(pos_E - region_width / 2.)
+                fit.ChangeMarker("region", pos_E - region_width / 2., action="set")
                 limit = pos_E + region_width
                 # collect multipletts
                 while len(foundpeaks)>0 and self.spec.cal.Ch2E(foundpeaks[0]) <= limit:
                     next = foundpeaks.pop(0)
                     pos_E = self.spec.cal.Ch2E(next)
                     limit = pos_E + region_width
-                    fit.PutPeakMarker(pos_E)
+                    fit.ChangeMarker("peak", pos_E, "set")
                 # right region marker
-                fit.PutRegionMarker(pos_E + region_width / 2.)
+                fit.ChangeMarker("region", pos_E + region_width / 2., "set")
                 fit.FitPeakFunc(self.spec, silent = True)
                 # check fits 
                 result = self.BadFit(fit)
@@ -137,7 +137,7 @@ class PeakFinder(object):
                         text = "Warning: adding invalid fit:" + result
                         hdtv.ui.msg(text)
             # add fits to spectrum
-            ID = self.spec.AddFit(fit)
+            ID = self.spec.InsertFit(fit)
             fit.title = fit.title + "(*)"
             # bookkeeping
             if len(fit.peaks)>0:
