@@ -61,7 +61,7 @@ class Fit(Drawable):
         self.dispBgFunc = None
         Drawable.__init__(self, color, cal)
         self.spec = None
-        self.active = True
+        self.active = False
 
     # ID property
     def _get_ID(self):
@@ -290,25 +290,28 @@ class Fit(Drawable):
         for func in Fit.FitPeakPostHooks:
             func(self)
 
-    def Restore(self, spec=None, silent=False):
-        self.spec = spec
-        if len(self.bgMarkers)>0 and self.bgMarkers[-1].p2.pos_cal:
-            
+    def Restore(self, spec, silent=False):
+        # do not call Erase() while setting spec!
+        self._spec = spec
+        self.cal = spec.cal
+        self.color = spec.color
+        self.FixMarkerInUncal()
+        if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
             backgrounds = hdtv.util.Pairs()
             for m in self.bgMarkers:
                 backgrounds.add(m.p1.pos_uncal, m.p2.pos_uncal)
             self.fitter.RestoreBackground(backgrounds=backgrounds, coeffs=self.bgCoeffs, chisquare=self.bgChi)
         region = [self.regionMarkers[0].p1.pos_uncal, self.regionMarkers[0].p2.pos_uncal]
         region.sort()
-        self.fitter.RestorePeaks(spec=spec, region=region, peaks=self.peaks, chisquare=self.chi)
+        self.fitter.RestorePeaks(cal=self.cal, region=region, peaks=self.peaks, chisquare=self.chi)
         # get background function
         func = self.fitter.peakFitter.GetBgFunc()
-        self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
-        self.dispBgFunc.SetCal(spec.cal)
+        self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, self.color)
+        self.dispBgFunc.SetCal(self.cal)
         # get peak function
         func = self.fitter.peakFitter.GetSumFunc()
-        self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.region)
-        self.dispPeakFunc.SetCal(spec.cal)
+        self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, self.color)
+        self.dispPeakFunc.SetCal(self.cal)
         # print result
         if not silent:
             print "\n"+6*" "+str(self)

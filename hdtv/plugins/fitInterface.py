@@ -157,10 +157,12 @@ class FitInterface:
         self.spectra.SetFitMarker("peak", pos)
         self.spectra.ExecuteFit()
         
-    def ListFits(self, sid, ids, sortBy=None, reverseSort=False):
+    def ListFits(self, sid=None, ids=None, sortBy=None, reverseSort=False):
         """
         List results of stored fits as nice table
         """
+        if sid is None:
+            sid = self.spectra.activeID
         spec = self.spectra.dict[sid]
         # if there are not fits for this spectrum, there is not much to do
         if len(spec.ids) == 0:
@@ -170,11 +172,13 @@ class FitInterface:
             return
         # create result header
         result_header = "Fits in Spectrum " + str(sid) + " (" + spec.name + ")" + "\n"
-        count_fits = len(ids)
+        if ids is None:
+            ids = spec.ids
         fits = [spec.dict[ID] for ID in ids]
+        count_fits = len(fits)
         (objects, params) = self.ExtractFits(fits)
 
-        # create result footer (count_fits and count_peaks)
+        # create result footer
         result_footer = "\n" + str(len(objects)) + " peaks in " + str(count_fits) + " fits."
         # create the table
         try:

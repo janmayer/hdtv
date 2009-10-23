@@ -46,7 +46,7 @@ class FitXml:
       self.spectra = spectra
       self.version = VERSION
       # Please point the following functions to the appropriate functions
-      self.RestoreFromXml = self.RestoreFromXml_v1_1
+      self.RestoreFromXml = self.RestoreFromXml_v1_2
       self.Xml2Fit = self.Xml2Fit_v1
       
 #### creating of xml ###########################################################
@@ -91,7 +91,7 @@ class FitXml:
         fitElement.set("bgDegree", str(fit.fitter.bgdeg))
         fitElement.set("chi", str(fit.chi))
         # <spectrum>
-        spec = fit.fitter.spec
+        spec = fit.spec
         specElement = ET.SubElement(fitElement,"spectrum")
         specElement.set("name", str(spec.name))
         polynom = str()
@@ -458,7 +458,6 @@ class FitXml:
                 if success and not refit:
                     try:
                         fit.Restore(spec=spec, silent=True)
-#                        ID = spec.fits.Add(fit)
                     except (TypeError, IndexError):
                         success = False
                 # deal with failure
@@ -489,7 +488,6 @@ class FitXml:
         bgdeg = int(fitElement.get("bgDegree"))
         fitter = hdtv.fitter.Fitter(peakModel, bgdeg)
         fit = hdtv.fit.Fit(fitter, cal=calibration)
-        fit.active = False
         try:
             fit.chi = float(fitElement.get("chi"))
         except ValueError:

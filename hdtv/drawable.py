@@ -184,7 +184,7 @@ class DrawableManager(object):
 
     def ActivateObject(self, ID=None):
         """
-        Activates the object with id ID
+        Activates the object with ID
         """
         if ID is not None and ID not in self.ids:
             raise KeyError
@@ -266,8 +266,6 @@ class DrawableManager(object):
         """
         self.activeID = None
         self._iterator = self.activeID
-        self._active = False
-        self.HideAll()
         self.dict.clear()
 
 

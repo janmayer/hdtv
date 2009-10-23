@@ -285,14 +285,6 @@ class Spectrum(DrawableManager):
         fit.spec = None
         return fit
         
-    def ShowObjects(self, ids, clear=True):
-        if self.viewport is None:
-            return
-        self.viewport.LockUpdate()
-        ids = DrawableManager.ShowObjects(self, ids, clear)
-        self.viewport.UnlockUpdate()
-        return ids
-    
     def Draw(self, viewport):
         self.viewport = viewport
         self.viewport.LockUpdate()

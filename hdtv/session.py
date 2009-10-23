@@ -45,6 +45,7 @@ class Session(DrawableManager):
         # TODO: make peakModel and bgdeg configurable
         self.defaultFitter = Fitter(peakModel = "theuerkauf", bgdeg = 1)
         self.workFit = Fit(copy.copy(self.defaultFitter))
+        self.workFit.active = True
         self.workFit.Draw(self.window.viewport)
         self.caldict = dict()
         # main session is always active
@@ -163,6 +164,7 @@ class Session(DrawableManager):
         spec.ActivateObject(None)
         hdtv.ui.msg("Storing workFit with ID %s" % ID)
         self.workFit = copy.copy(self.workFit)
+        self.workFit.active = True
         self.workFit.Draw(self.window.viewport)
         
 
@@ -217,6 +219,7 @@ class Session(DrawableManager):
     def Clear(self):
         self.defaultFitter = Fitter(peakModel = "theuerkauf", bgdeg = 1)
         self.workFit = Fit(copy.copy(self.defaultFitter))
+        self.workFit.active = True
         self.workFit.Draw(self.window.viewport)
         self.caldict = dict()
         return DrawableManager.Clear(self)

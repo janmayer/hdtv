@@ -186,8 +186,10 @@ class SpecInterface:
             thisspec["fits"] = len(self.spectra.dict[ID].dict)
             spectra.append(thisspec)
         
-        return str(hdtv.util.Table(spectra, params, sortBy="ID"))
- 
+        table = hdtv.util.Table(spectra, params, sortBy="ID")
+        hdtv.ui.msg(str(table))
+    
+    
     def CopySpectrum(self, ID, copyTo=None):
         """
         Copy spectrum
@@ -288,9 +290,7 @@ class TvSpecInterface:
         """
         Print a list of spectra
         """
-        speclist = self.specIf.ListSpectra(visible=options.visible)
-        hdtv.ui.msg(speclist)
-
+        self.specIf.ListSpectra(visible=options.visible)
 
     def SpectrumGet(self, args, options):
         """

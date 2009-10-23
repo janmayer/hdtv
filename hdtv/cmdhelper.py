@@ -61,7 +61,7 @@ def ParseIds(strings, manager, only_existent=True):
         ids = [manager.firstID]
     elif ids == "LAST":
         ids = [manager.lastID]
-    elif ids == "ACTIVE" or len(ids) == 0:
+    elif ids == "ACTIVE":
         ids = [manager.activeID]
     elif ids=="ALL":
         ids = manager.ids
