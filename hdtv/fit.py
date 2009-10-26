@@ -24,6 +24,7 @@ import hdtv.cal
 import hdtv.util
 from hdtv.drawable import Drawable
 from hdtv.marker import MarkerCollection
+from hdtv.weakref import weakref
 
 import copy
 
@@ -136,11 +137,10 @@ class Fit(Drawable):
     
     # spec property
     def _set_spec(self, spec):
-        # a cyclic reference should be OK here, since the fit should never 
-        # live longer than the spectrum
-        if hasattr(self, "spec") and self._spec is spec:
+        if hasattr(self, "spec") and self._spec == spec:
             return
-        self._spec = spec
+        # use weakref to prevent problems with cyclic reference
+        self._spec = weakref(spec)
         self.Erase()
         if spec is None:
             self.FixMarkerInCal()
@@ -292,7 +292,7 @@ class Fit(Drawable):
 
     def Restore(self, spec, silent=False):
         # do not call Erase() while setting spec!
-        self._spec = spec
+        self._spec = weakref(spec)
         self.cal = spec.cal
         self.color = spec.color
         self.FixMarkerInUncal()

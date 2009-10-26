@@ -22,7 +22,7 @@
 import __main__
 
 spectra = __main__.spectra
-spectra.RemoveAll()
+spectra.Clear()
 
 testspectrum= os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
 
@@ -32,62 +32,62 @@ print "-------------------------------------------------------------------------
 
 for i in range(0,5):
     __main__.s.LoadSpectra(testspectrum)
-    spectra[i].cal=[0,(i+1)*0.5]
-spectra.ListObjects()
+    spectra.dict[i].cal=[0,(i+1)*0.5]
+__main__.s.ListSpectra()
     
 raw_input("Press enter to continue ")
 
 print "Show First"
 spectra.ShowFirst()
-spectra.ListObjects()
+__main__.s.ListSpectra()
 
 raw_input("Press enter to continue ")
 
 for i in range(0,5):
     print "Show Next (should be %d)" %((i+1)%5)
     spectra.ShowNext()
-    spectra.ListObjects()
+    __main__.s.ListSpectra()
     raw_input("Press enter to continue ")
     
 print "Show Last"
 spectra.ShowLast()
-spectra.ListObjects()
+__main__.s.ListSpectra()
 raw_input("Press enter to continue ")
     
 for i in range(0,5):
     print "Show Prev (should be %d)" %(4-(i+1)%5)
     spectra.ShowPrev()
-    spectra.ListObjects()
+    __main__.s.ListSpectra()
     raw_input("Press enter to continue ")
     
 print "Show 3"
 spectra.ShowObjects(3)
-spectra.ListObjects()
+__main__.s.ListSpectra()
 raw_input("Press enter to continue ")
 
 print "Show 1"
 spectra.ShowObjects(1)
-spectra.ListObjects()
+__main__.s.ListSpectra()
 raw_input("Press enter to continue ")
 
 print "Show All"
 spectra.ShowAll()
-spectra.ListObjects()
+__main__.s.ListSpectra()
 raw_input("Press enter to continue ")
 
 print "Activate 2"
 spectra.ActivateObject(2)
-spectra.ListObjects()
+__main__.s.ListSpectra()
 raw_input("Press enter to continue ")
 
 print "Show only active"
 spectra.ShowObjects(spectra.activeID)
-spectra.ListObjects()
+__main__.s.ListSpectra()
 raw_input("Press enter to continue ")
 
 print "Activate 4 (which was not visible)"
 spectra.ActivateObject(4)
-spectra.ListObjects()
+__main__.s.ListSpectra()
 raw_input("Press enter to continue ")
     
 
@@ -98,12 +98,12 @@ print "Activate first spectrum"
 spectra.ShowObjects([0])
 spectra.ActivateObject(0)
 
-__main__.f.workFit.PutRegionMarker(725)
-__main__.f.workFit.PutRegionMarker(735)
-__main__.f.workFit.PutPeakMarker(730)
-__main__.f.Fit(peaks=True)
+spectra.SetFitMarker("region",725)
+spectra.SetFitMarker("region",735)
+spectra.SetFitMarker("peak",730)
+spectra.ExecuteFit(peaks=True)
 
-__main__.window.GoToPosition(730)
+spectra.window.GoToPosition(730)
 
 raw_input("Press enter to continue ")
 
@@ -122,8 +122,8 @@ spectra.ActivateObject(0)
 
 raw_input("Press enter to continue ")
 
-__main__.f.ClearFit()
-spectra[0].fits.RemoveAll()
+spectra.ClearFit()
+spectra.dict[0].Clear()
 print "-------------------------------------------------------------------------"
 print "Case 2: Fit, store and switch spectrum afterwards"
 print "-------------------------------------------------------------------------"
@@ -131,13 +131,13 @@ print "Activate first spectrum"
 spectra.ShowObjects([0])
 spectra.ActivateObject(0)
 
-__main__.f.workFit.PutRegionMarker(725)
-__main__.f.workFit.PutRegionMarker(735)
-__main__.f.workFit.PutPeakMarker(730)
-__main__.f.Fit(peaks=True)
-__main__.f.StoreFit()
+spectra.SetFitMarker("region",725)
+spectra.SetFitMarker("region",735)
+spectra.SetFitMarker("peak",730)
+spectra.ExecuteFit(peaks=True)
+spectra.StoreFit()
 
-__main__.window.GoToPosition(730)
+spectra.window.GoToPosition(730)
 
 raw_input("Press enter to continue ")
 
@@ -156,8 +156,8 @@ spectra.ActivateObject(0)
 
 raw_input("Press enter to continue ")
 
-__main__.f.ClearFit()
-spectra[0].fits.RemoveAll()
+spectra.ClearFit()
+spectra.dict[0].Clear()
 print "-------------------------------------------------------------------------"
 print "Case 3: Background fit and switch spectrum afterwards"
 print "-------------------------------------------------------------------------"
@@ -165,32 +165,30 @@ print "Activate first spectrum"
 spectra.ShowObjects([0])
 spectra.ActivateObject(0)
 
-__main__.f.workFit.PutBgMarker(720)
-__main__.f.workFit.PutBgMarker(725)
-__main__.f.workFit.PutBgMarker(735)
-__main__.f.workFit.PutBgMarker(740)
-__main__.f.Fit(peaks=False)
+spectra.SetFitMarker("bg",720)
+spectra.SetFitMarker("bg",725)
+spectra.SetFitMarker("bg",735)
+spectra.SetFitMarker("bg",740)
+spectra.ExecuteFit(peaks=False)
 
 
-__main__.window.GoToPosition(730)
+spectra.window.GoToPosition(730)
 
 raw_input("Press enter to continue ")
 
 print "Show second spectrum"
-__main__.spectra.ShowObjects([1])
+spectra.ShowObjects([1])
 
 raw_input("Press enter to continue ")
 
 print "Show again first spectrum"
-__main__.spectra.ShowObjects([0])
+spectra.ShowObjects([0])
 
 raw_input("Press enter to continue ")
 
 print "Activate first spectrum"
-__main__.spectra.ActivateObject(0)
+spectra.ActivateObject(0)
 
 raw_input("Press enter to continue ")
 
-__main__.f.ClearFit()
-spectra[0].fits.RemoveAll()
-spectra.RemoveAll()
+spectra.Clear()

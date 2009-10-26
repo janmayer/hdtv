@@ -48,6 +48,9 @@ print "-------------------------------------------------------------------------
 print "Case 1: Restore without calibration"
 print "-------------------------------------------------------------------------"
 print "Restore fit"
+
+
+
 f = hdtv.fitxml.FitXml(spectra)
 (fit, success) = f.Xml2Fit(fitElement, None)
 fit.Restore(spec)

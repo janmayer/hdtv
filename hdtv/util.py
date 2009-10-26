@@ -634,7 +634,9 @@ class Child(object):
     
     parent = property(_get_parent, _set_parent)
     
-    
+
+
+
 
 class Position(object):
     """
