@@ -70,7 +70,7 @@ class Session(DrawableManager):
                 else:
                     hdtv.ui.msg("Calibrated spectrum with id %d" % ID)
                 spec.cal = cal
-                if self.workFit.spec is spec:
+                if self.workFit.spec == spec:
                     self.workFit.cal = cal
 
     # functions to handle the workFot

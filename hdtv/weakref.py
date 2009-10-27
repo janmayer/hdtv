@@ -47,14 +47,14 @@ class weakref(object):
     be False (e.g. an empty list).
     """
     def __new__(cls, object):
-        # Make an instance of callable weakref iff the object is callable.
+        # Make an instance of callable weakref if the object is callable.
         # This way callable(weakref) == False if the underlying object isn't
         # callable.
         if object is None:
             return None
         if callable(object):
             cls = _callable_weakref
-        return super(weakref, weakref).__new__(cls, object)
+        return super(weakref, weakref).__new__(cls)
 
     def __init__(self, object):
         if object is not None:

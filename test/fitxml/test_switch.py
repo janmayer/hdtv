@@ -27,7 +27,7 @@ spectra.Clear()
 testspectrum= os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
 
 print "-------------------------------------------------------------------------"
-print "Case 0: Loading 5 spectra and switch back and forth between them"
+print "Loading 5 spectra and switch back and forth between them"
 print "-------------------------------------------------------------------------"
 
 for i in range(0,5):
@@ -91,104 +91,4 @@ __main__.s.ListSpectra()
 raw_input("Press enter to continue ")
     
 
-print "-------------------------------------------------------------------------"
-print "Case 1: Fit and switch spectrum afterwards"
-print "-------------------------------------------------------------------------"
-print "Activate first spectrum"
-spectra.ShowObjects([0])
-spectra.ActivateObject(0)
 
-spectra.SetFitMarker("region",725)
-spectra.SetFitMarker("region",735)
-spectra.SetFitMarker("peak",730)
-spectra.ExecuteFit(peaks=True)
-
-spectra.window.GoToPosition(730)
-
-raw_input("Press enter to continue ")
-
-print "Show second spectrum"
-spectra.ShowObjects([1])
-
-raw_input("Press enter to continue ")
-
-print "Show again first spectrum"
-spectra.ShowObjects([0])
-
-raw_input("Press enter to continue ")
-
-print "Activate first spectrum"
-spectra.ActivateObject(0)
-
-raw_input("Press enter to continue ")
-
-spectra.ClearFit()
-spectra.dict[0].Clear()
-print "-------------------------------------------------------------------------"
-print "Case 2: Fit, store and switch spectrum afterwards"
-print "-------------------------------------------------------------------------"
-print "Activate first spectrum"
-spectra.ShowObjects([0])
-spectra.ActivateObject(0)
-
-spectra.SetFitMarker("region",725)
-spectra.SetFitMarker("region",735)
-spectra.SetFitMarker("peak",730)
-spectra.ExecuteFit(peaks=True)
-spectra.StoreFit()
-
-spectra.window.GoToPosition(730)
-
-raw_input("Press enter to continue ")
-
-print "Show second spectrum"
-spectra.ShowObjects([1])
-
-raw_input("Press enter to continue ")
-
-print "Show again first spectrum"
-spectra.ShowObjects([0])
-
-raw_input("Press enter to continue ")
-
-print "Activate first spectrum"
-spectra.ActivateObject(0)
-
-raw_input("Press enter to continue ")
-
-spectra.ClearFit()
-spectra.dict[0].Clear()
-print "-------------------------------------------------------------------------"
-print "Case 3: Background fit and switch spectrum afterwards"
-print "-------------------------------------------------------------------------"
-print "Activate first spectrum"
-spectra.ShowObjects([0])
-spectra.ActivateObject(0)
-
-spectra.SetFitMarker("bg",720)
-spectra.SetFitMarker("bg",725)
-spectra.SetFitMarker("bg",735)
-spectra.SetFitMarker("bg",740)
-spectra.ExecuteFit(peaks=False)
-
-
-spectra.window.GoToPosition(730)
-
-raw_input("Press enter to continue ")
-
-print "Show second spectrum"
-spectra.ShowObjects([1])
-
-raw_input("Press enter to continue ")
-
-print "Show again first spectrum"
-spectra.ShowObjects([0])
-
-raw_input("Press enter to continue ")
-
-print "Activate first spectrum"
-spectra.ActivateObject(0)
-
-raw_input("Press enter to continue ")
-
-spectra.Clear()

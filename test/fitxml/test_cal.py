@@ -27,213 +27,147 @@ import xml.etree.cElementTree as ET
 
 import __main__
 
-spectra = __main__.spectra
-spectra.RemoveAll()
-
 testspectrum= os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
 testXML = os.path.join(__main__.hdtvpath, "test", "fitxml", "fit.xml")
 
+spectra = __main__.spectra
+spectra.Clear()
+
 __main__.s.LoadSpectra(testspectrum)
-spec = spectra[0]
+print "-------------------------------------------------------------------------"
+print " Case 0: Set Marker and calibrate afterwards"
+print " Marker will be kept fixed, but the spectrum changes"
+print "-------------------------------------------------------------------------"
+spectra.SetFitMarker("region", 1450)
+spectra.SetFitMarker("region", 1470)
+spectra.SetFitMarker("peak", 1460)
+spectra.window.GoToPosition(1460)
+spectra.ApplyCalibration(0, [0,2])
 
-
-# get fitElement
-tree = ET.parse(testXML)
-root = tree.getroot()
-
-for fitElement in root.findall("fit"):
-    ET.dump(fitElement)
+raw_input("Press enter to continue...")
 
 print "-------------------------------------------------------------------------"
-print "Case 1: Restore without calibration"
+print " Case 1: Set Marker in calibrated spectrum"
+print " Marker should be appear at the right position relative to spectrum"
 print "-------------------------------------------------------------------------"
-print "Restore fit"
+spectra.ClearFit()
+spectra.SetFitMarker("region", 2900)
+spectra.SetFitMarker("region", 2940)
+spectra.SetFitMarker("peak", 2920)
+spectra.window.GoToPosition(2920)
+
+raw_input("Press enter to continue...")
 
 
-
-f = hdtv.fitxml.FitXml(spectra)
-(fit, success) = f.Xml2Fit(fitElement, None)
-fit.Restore(spec)
-
-print "Draw"
-ID = spec.fits.Add(fit)
-spec.fits.ActivateObject(ID)
-
-print fit
-
-__main__.window.GoToPosition(1460)
-raw_input('Press enter to continue ')
-
-spec.fits.RemoveAll()
-spec.cal = None
 print "-------------------------------------------------------------------------"
-print "Case 2: set cal after Restore"
+print " Case 2: Fit in calibrated spectrum"
+print " Fit should be fixed relative to spectrum"
 print "-------------------------------------------------------------------------"
-print "Restore fit"
-f = hdtv.fitxml.FitXml(spectra)
-(fit, success) = f.Xml2Fit(fitElement, None)
-fit.Restore(spec)
+spectra.ExecuteFit()
+__main__.f.PrintWorkFit()
 
-print "Draw"
-ID = spec.fits.Add(fit)
-spec.fits.ActivateObject(ID)
+raw_input("Press enter to continue...")
 
-print "Calibrate"
-spec.cal = [0,2]
-
-print fit
-
-__main__.window.GoToPosition(2920)
-raw_input('Press enter to continue ')
-
-spec.fits.RemoveAll()
-spec.cal = None
 print "-------------------------------------------------------------------------"
-print "Case 3: set cal before Restore"
+print " Case 3: Change calibration after fit is executed"
+print " Fit should move with spectrum to new position"
 print "-------------------------------------------------------------------------"
-print "Calibrate"
-spec.cal = [0,0.5]
+spectra.ApplyCalibration(0, [0,0.5])
+spectra.window.GoToPosition(730)
+__main__.f.PrintWorkFit()
 
+raw_input("Press enter to continue...")
 
-print "Restore fit"
-f = hdtv.fitxml.FitXml(spectra)
-(fit, success) = f.Xml2Fit(fitElement, None)
-fit.Restore(spec)
-
-print "Draw"
-ID = spec.fits.Add(fit)
-spec.fits.ActivateObject(ID)
-
-print fit
-
-__main__.window.GoToPosition(730)
-raw_input('Press enter to continue ')
-
-spec.fits.RemoveAll()
-spec.cal = None
 print "-------------------------------------------------------------------------"
-print "Case 4: Fit without calibration"
+print " Case 4: Store fit"
+print " Stored fit and aktive markers should stay fixed relative to spectrum"
 print "-------------------------------------------------------------------------"
-print "Fit"
-fit = __main__.f.workFit
-fit.PutRegionMarker(1450)
-fit.PutRegionMarker(1470)
-fit.PutPeakMarker(1460)
-__main__.f.Fit(peaks=True)
+spectra.StoreFit()
+__main__.f.ListFits()
 
-__main__.window.GoToPosition(1460)
-raw_input('Press enter to continue ')
+raw_input("Press enter to continue...")
 
-__main__.f.ClearFit()
-spec.fits.RemoveAll()
-spec.cal = None
 print "-------------------------------------------------------------------------"
-print "Case 5: Calibrate after Fit"
+print " Case 5: Reactivate stored fit"
+print " Active markers should appear at the same position as the stored fit"
 print "-------------------------------------------------------------------------"
-print "Fit"
-fit = __main__.f.workFit
-fit.PutRegionMarker(1450)
-fit.PutRegionMarker(1470)
-fit.PutPeakMarker(1460)
+spectra.ActivateFit(0)
 
-__main__.f.Fit(peaks=True)
+raw_input("Press enter to continue...")
 
-print "Calibrate"
-spec.cal = [0,2]
-
-print fit
-
-__main__.window.GoToPosition(2920)
-raw_input('Press enter to continue ')
-
-__main__.f.ClearFit()
-spec.fits.RemoveAll()
 print "-------------------------------------------------------------------------"
-print "Case 6: Calibrate before Fit"
+print " Case 6: Execute reactivated fit"
+print " New fit should be at the same position as stored fit"
 print "-------------------------------------------------------------------------"
-print "Calibrate"
-spec.cal=[0,0.5]
+spectra.ExecuteFit()
+__main__.f.ListFits()
 
-print "Fit"
-fit = __main__.f.workFit
-fit.PutRegionMarker(725)
-fit.PutRegionMarker(735)
-fit.PutPeakMarker(730)
+raw_input("Press enter to continue...")
 
-__main__.f.Fit(peaks=True)
-
-print fit
-
-__main__.window.GoToPosition(730)
-raw_input('Press enter to continue ')
-
-__main__.f.ClearFit()
-spec.fits.RemoveAll()
 print "-------------------------------------------------------------------------"
-print "Case 7: Change calibration between Fit and Restore"
+print " Case 7: Change calibration after fit is stored"
+print " Stored fit should move with spectrum to new position"
 print "-------------------------------------------------------------------------"
-print "Calibrate"
-spec.cal= [0,0.5]
+spectra.ActivateFit(None)
+spectra.ClearFit()
+spectra.ApplyCalibration(0, [0,2])
+spectra.window.GoToPosition(2920)
+__main__.f.ListFits()
 
-print "Fit"
-fit = __main__.f.workFit
-fit.PutRegionMarker(725)
-fit.PutRegionMarker(735)
-fit.PutPeakMarker(730)
-__main__.f.Fit()
+raw_input("Press enter to continue...")
 
-print "Saving fits"
-__main__.f.StoreFit()
+print "-------------------------------------------------------------------------"
+print " Case 8: Reactivate fit after calibration has changed"
+print " Active markers should appear at the same position as fit"
+print "-------------------------------------------------------------------------"
+spectra.ActivateFit(0)
+
+raw_input("Press enter to continue...")
+
+print "-------------------------------------------------------------------------"
+print " Case 9: Execute reactivated fit"
+print " New fit should be at the same position as the stored fit"
+print "-------------------------------------------------------------------------"
+spectra.ExecuteFit()
+__main__.f.ListFits()
+
+raw_input("Press enter to continue...")
+
+print "-------------------------------------------------------------------------"
+print " Case 10: Write/read fit to/from xml"
+print " Fit should appear at the same position as before"
+print "-------------------------------------------------------------------------"
+spectra.ActivateFit(None)
+spectra.ClearFit()
 __main__.fitxml.WriteFitlist(testXML)
-spec.fits.RemoveAll()
-
-print "Change calibration"
-spec.cal =[0,2]
-
-print "Reading fits"
+spectra.dict[0].Clear()
 __main__.fitxml.ReadFitlist(testXML)
+__main__.f.ListFits()
 
-print spec.fits[0]
-__main__.window.GoToPosition(2920)
-raw_input('Press enter to continue ')
+raw_input("Press enter to continue...")
 
-__main__.f.ClearFit()
-spec.fits.RemoveAll()
+
 print "-------------------------------------------------------------------------"
-print "Case 8: Pur background fit without calibration"
+print " Case 11: Write/Read fit and calibrate afterwards"
+print " Fit should move with spectrum to new calibration"
 print "-------------------------------------------------------------------------"
-spec.cal=None
-fit = __main__.f.workFit
-fit.PutBgMarker(1440)
-fit.PutBgMarker(1450)
-fit.PutBgMarker(1470)
-fit.PutBgMarker(1480)
-__main__.f.Fit(peaks=False)
+spectra.ApplyCalibration(0, [0,0.5])
+spectra.window.GoToPosition(730)
+__main__.f.ListFits()
 
-__main__.window.GoToPosition(1460)
+raw_input("Press enter to continue...")
 
-raw_input("Press enter to continue ")
-
-__main__.f.ClearFit()
-spec.fits.RemoveAll()
 print "-------------------------------------------------------------------------"
-print "Case 9: Pur background fit with calibration"
+print " Case 12: Write/Read fit and change calibration in between"
+print " Fit should appear at the new calibrated position"
 print "-------------------------------------------------------------------------"
-print "Set cal"
-spec.cal=[0,0.5]
+__main__.fitxml.WriteFitlist(testXML)
+spectra.dict[0].Clear()
+spectra.ApplyCalibration(0, [0,2])
+spectra.window.GoToPosition(2920)
+__main__.fitxml.ReadFitlist(testXML)
+__main__.f.ListFits()
 
-fit = __main__.f.workFit
-fit.PutBgMarker(720)
-fit.PutBgMarker(725)
-fit.PutBgMarker(735)
-fit.PutBgMarker(740)
-__main__.f.Fit(peaks=False)
-
-__main__.window.GoToPosition(730)
-
-raw_input("Press enter to continue ")
-
-__main__.f.ClearFit()
-spec.fits.RemoveAll()
+raw_input("Press enter to continue...")
 
 

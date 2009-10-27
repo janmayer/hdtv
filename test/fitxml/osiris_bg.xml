@@ -405,7 +405,7 @@
       </cal>
     </peak>
   </fit>
-  <fit bgDegree="1" chi="4402.57646371" peakModel="theuerkauf">
+  <fit bgDegree="1" chi="830.664329619" peakModel="theuerkauf">
     <spectrum calibration="" name="osiris_bg.spc" />
     <bgMarker>
       <begin>
@@ -439,14 +439,14 @@
     </regionMarker>
     <peakMarker>
       <position>
-        <cal>1765.0</cal>
-        <uncal>1765.0</uncal>
+        <cal>1764.44822978</cal>
+        <uncal>1764.44822978</uncal>
       </position>
     </peakMarker>
     <peakMarker>
       <position>
-        <cal>1771.35080999</cal>
-        <uncal>1771.35080999</uncal>
+        <cal>1771.29592688</cal>
+        <uncal>1771.29592688</uncal>
       </position>
     </peakMarker>
     <background chisquare="8855.16943088" deg="1">
@@ -462,36 +462,36 @@
     <peak>
       <uncal>
         <vol status="free">
-          <value>27091.7616667</value>
-          <error>172.664681649</error>
+          <value>30870.2936558</value>
+          <error>182.803993288</error>
         </vol>
         <sw status="hold" />
         <tr status="none" />
-        <pos status="hold">
-          <value>1765.0</value>
-          <error>0.0</error>
+        <pos status="free">
+          <value>1764.44822978</value>
+          <error>0.00911721827302</error>
         </pos>
         <width status="equal">
-          <value>2.98493243612</value>
-          <error>0.01802958777</error>
+          <value>3.27854990325</value>
+          <error>0.0182844546332</error>
         </width>
         <tl status="none" />
         <sh status="none" />
       </uncal>
       <cal>
         <vol status="free">
-          <value>27091.7616667</value>
-          <error>172.664681649</error>
+          <value>30870.2936558</value>
+          <error>182.803993288</error>
         </vol>
         <sw status="hold" />
         <tr status="none" />
-        <pos status="hold">
-          <value>1765.0</value>
-          <error>0.0</error>
+        <pos status="free">
+          <value>1764.44822978</value>
+          <error>0.00911721827302</error>
         </pos>
         <width status="equal">
-          <value>2.98493243612</value>
-          <error>0.01802958777</error>
+          <value>3.27854990325</value>
+          <error>0.0182844546332</error>
         </width>
         <tl status="none" />
         <sh status="none" />
@@ -500,43 +500,43 @@
     <peak>
       <uncal>
         <vol status="free">
-          <value>2081.39433393</value>
-          <error>62.0570558016</error>
+          <value>2162.01629579</value>
+          <error>63.5861637368</error>
         </vol>
         <sw status="hold" />
         <tr status="none" />
         <pos status="free">
-          <value>1771.35080999</value>
-          <error>0.0455687416062</error>
+          <value>1771.29592688</value>
+          <error>0.0467063503626</error>
         </pos>
         <width status="equal">
-          <value>2.98493243612</value>
-          <error>0.01802958777</error>
+          <value>3.27854990325</value>
+          <error>0.0182844546332</error>
         </width>
         <tl status="none" />
         <sh status="none" />
       </uncal>
       <cal>
         <vol status="free">
-          <value>2081.39433393</value>
-          <error>62.0570558016</error>
+          <value>2162.01629579</value>
+          <error>63.5861637368</error>
         </vol>
         <sw status="hold" />
         <tr status="none" />
         <pos status="free">
-          <value>1771.35080999</value>
-          <error>0.0455687416062</error>
+          <value>1771.29592688</value>
+          <error>0.0467063503626</error>
         </pos>
         <width status="equal">
-          <value>2.98493243612</value>
-          <error>0.01802958777</error>
+          <value>3.27854990325</value>
+          <error>0.0182844546332</error>
         </width>
         <tl status="none" />
         <sh status="none" />
       </cal>
     </peak>
   </fit>
-  <fit bgDegree="1" chi="40.4431646706" peakModel="ee">
+  <fit bgDegree="1" chi="40.4431654297" peakModel="ee">
     <spectrum calibration="" name="osiris_bg.spc" />
     <regionMarker>
       <begin>
@@ -550,69 +550,69 @@
     </regionMarker>
     <peakMarker>
       <position>
-        <cal>1120.52916656</cal>
-        <uncal>1120.52916656</uncal>
+        <cal>1120.52915328</cal>
+        <uncal>1120.52915328</uncal>
       </position>
     </peakMarker>
     <peak>
       <uncal>
         <vol status="calculated">
-          <value>29251.4417803</value>
-          <error>255.75437669</error>
+          <value>29251.5506619</value>
+          <error>nan</error>
         </vol>
         <pos status="free">
-          <value>1120.52916656</value>
-          <error>0.00877733697715</error>
+          <value>1120.52915328</value>
+          <error>0.00877732646977</error>
         </pos>
         <eta status="equal">
-          <value>246.833545016</value>
-          <error>288861077694.0</error>
+          <value>883.297073831</value>
+          <error>nan</error>
         </eta>
         <amp status="free">
-          <value>10320.0392938</value>
-          <error>69.4721621808</error>
+          <value>10320.0303294</value>
+          <error>69.4719326424</error>
         </amp>
         <sigma1 status="equal">
-          <value>1.47185907029</value>
-          <error>0.011237097211</error>
+          <value>1.4718543071</value>
+          <error>0.0112370935172</error>
         </sigma1>
         <gamma status="equal">
-          <value>459.12831134</value>
+          <value>308.915693608</value>
           <error>0.424264068712</error>
         </gamma>
         <sigma2 status="equal">
-          <value>1.19091130121</value>
-          <error>0.00971806127129</error>
+          <value>1.19092828893</value>
+          <error>0.00971808747687</error>
         </sigma2>
       </uncal>
       <cal>
         <vol status="calculated">
-          <value>29251.4417803</value>
-          <error>255.75437669</error>
+          <value>29251.5506619</value>
+          <error>nan</error>
         </vol>
         <pos status="free">
-          <value>1120.52916656</value>
-          <error>0.00877733697715</error>
+          <value>1120.52915328</value>
+          <error>0.00877732646977</error>
         </pos>
         <eta status="equal">
-          <value>246.833545016</value>
-          <error>288861077694.0</error>
+          <value>883.297073831</value>
+          <error>nan</error>
         </eta>
         <amp status="free">
-          <value>10320.0392938</value>
-          <error>69.4721621808</error>
+          <value>10320.0303294</value>
+          <error>69.4719326424</error>
         </amp>
         <sigma1 status="equal">
-          <value>1.47185907029</value>
-          <error>0.011237097211</error>
+          <value>1.4718543071</value>
+          <error>0.0112370935172</error>
         </sigma1>
         <gamma status="equal">
-          <value>459.12831134</value>
+          <value>308.915693608</value>
           <error>0.424264068712</error>
         </gamma>
         <sigma2 status="equal">
-          <value>1.19091130121</value>
-          <error>0.00971806127129</error>
+          <value>1.19092828893</value>
+          <error>0.00971808747687</error>
         </sigma2>
       </cal>
     </peak>
