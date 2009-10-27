@@ -348,7 +348,6 @@ class TvSpecInterface:
                 return
         except ValueError:
             return "USAGE"
-            
         targetids = list()
         if options.spectrum is not None:
             targetids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra, only_existent=False)
@@ -360,7 +359,6 @@ class TvSpecInterface:
         elif len(targetids) != len(ids):
             hdtv.ui.error("Number of target ids does not match number of ids to copy")
             return
-        
         # TODO: unfortunately ParseRange() in ParseIDs() uses unsorted sets
         ids.sort()
         targetids.sort()
@@ -496,11 +494,12 @@ class TvSpecInterface:
         """
         Print info on spectrum objects
         """
+        if len(args)==0:
+            args = ["active"]
         try:
             ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
         except ValueError:
             return "USAGE"
-
         s = str()
         for ID in ids:
             try:
@@ -518,6 +517,8 @@ class TvSpecInterface:
         """
         Refresh spectra
         """
+        if len(args)==0:
+           ids = ["active"] 
         try:
             ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
         except ValueError:
