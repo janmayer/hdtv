@@ -247,7 +247,9 @@ class Fit(Drawable):
             region = [self.regionMarkers[0].p1.pos_uncal, self.regionMarkers[0].p2.pos_uncal]
             # remove peak marker that are outside of region
             region.sort()
-            for m in self.peakMarkers:
+            for m in self.peakMarkers[:]:
+                # we need to loop over a copy here,
+                # otherwise we get out of sync after deleting items
                 if m.p1.pos_uncal<region[0] or m.p1.pos_uncal>region[1]:
                     self.peakMarkers.remove(m)
             peaks = [m.p1.pos_uncal for m in self.peakMarkers]
