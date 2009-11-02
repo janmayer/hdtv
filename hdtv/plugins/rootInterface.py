@@ -88,9 +88,9 @@ class RootFileInterface:
         hdtv.cmdline.AddCommand("root get", self.RootGet, minargs=1, completer=self.RootGet_Completer,
                                 parser=parser)
         
-#        hdtv.cmdline.AddCommand("root matrix", self.RootMatrix, minargs=1,
-#                                completer=self.RootGet_Completer,
-#                                usage="root matrix <matname> [<matname> ...]")
+        hdtv.cmdline.AddCommand("root matrix", self.RootMatrix, minargs=1,
+                                completer=self.RootGet_Completer,
+                                usage="root matrix <matname> [<matname> ...]")
         
 #        parser = hdtv.cmdline.HDTVOptionParser(prog="root project", usage="%prog [OPTIONS] <TH2 histogram>")
 #        parser.add_option("-p", "--project", default="x", help="projection axis",
@@ -198,52 +198,51 @@ class RootFileInterface:
             else:
                 return hdtv.rfile_utils.PathComplete(".", cur_root_dir, dirs[0], text, dirs_only)
                 
-#    def GetTH2(self, path):
-#        """
-#        Load a 2D histogram (``matrix'') from a ROOT file.
-#        
-#        Note: Unlike RootGet(), this function does not support shell-style
-#        pattern expansion, as this make it too easy to undeliberately load
-#        too many histograms. As they use a lot of memory, this would likely
-#        lead to a crash of the program.
-#        """
-#        dirs = path.rsplit("/", 1)
-#        if len(dirs) == 1:
-#            # Load 2d histogram from current directory
-#            hist = ROOT.gDirectory.Get(dirs[0])
-#        else:
-#            if self.rootfile:
-#                cur_root_dir = ROOT.gDirectory
-#            else:
-#                cur_root_dir = None
-#        
-#            (posix_path, rfile, root_dir) = hdtv.rfile_utils.GetRelDirectory(os.getcwd(), cur_root_dir, dirs[0])
-#        
-#            if root_dir:
-#                hist = root_dir.Get(dirs[1])
-#            else:
-#                hist = None
-#            
-#            if rfile:
-#                rfile.Close()
-#    
-#        if hist == None or not isinstance(hist, ROOT.TH2):
-#            print "Error: %s is not a 2d histogram" % path
-#            return None
+    def GetTH2(self, path):
+        """
+        Load a 2D histogram (``matrix'') from a ROOT file.
+        
+        Note: Unlike RootGet(), this function does not support shell-style
+        pattern expansion, as this make it too easy to undeliberately load
+        too many histograms. As they use a lot of memory, this would likely
+        lead to a crash of the program.
+        """
+        dirs = path.rsplit("/", 1)
+        if len(dirs) == 1:
+            # Load 2d histogram from current directory
+            hist = ROOT.gDirectory.Get(dirs[0])
+        else:
+            if self.rootfile:
+                cur_root_dir = ROOT.gDirectory
+            else:
+                cur_root_dir = None
+        
+            (posix_path, rfile, root_dir) = hdtv.rfile_utils.GetRelDirectory(os.getcwd(), cur_root_dir, dirs[0])
+        
+            if root_dir:
+                hist = root_dir.Get(dirs[1])
+            else:
+                hist = None
+            
+            if rfile:
+                rfile.Close()
+    
+        if hist == None or not isinstance(hist, ROOT.TH2):
+            print "Error: %s is not a 2d histogram" % path
+            return None
 
-#        return hist
-#        
-#    def RootMatrix(self, args):
-#        """
-#        Load a 2D histogram (``matrix'') from a ROOT file and display it.
-#        """
-#        
-#        for path in args:
-#            hist = self.GetTH2(path)
-#            if hist:
-#                title = hist.GetTitle()
-#                viewer = ROOT.HDTV.Display.MTViewer(400, 400, hist, title)
-#                self.matviews.append(viewer)
+        return hist
+        
+    def RootMatrix(self, args):
+        """
+        Load a 2D histogram (``matrix'') from a ROOT file and display it.
+        """
+        for path in args:
+            hist = self.GetTH2(path)
+            if hist:
+                title = hist.GetTitle()
+                viewer = ROOT.HDTV.Display.MTViewer(400, 400, hist, title)
+                self.matviews.append(viewer)
 #            
 #    def RootProject(self, args, options):
 #        """
