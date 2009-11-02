@@ -50,7 +50,7 @@ import hdtv.plugins.specInterface
 import hdtv.plugins.fitInterface
 import hdtv.plugins.calInterface
 #import hdtv.plugins.matrix
-#import hdtv.plugins.rootfile
+import hdtv.plugins.rootInterface
 import hdtv.plugins.config
 import hdtv.plugins.fitlist
 #import hdtv.plugins.dblookup

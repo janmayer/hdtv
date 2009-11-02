@@ -31,35 +31,35 @@ import readline
 import hdtv.rfile_utils
 
 from hdtv.spectrum import Spectrum, Histogram
-from hdtv.matrix import Matrix
+#from hdtv.matrix import Matrix
 
-class RMatrix(Matrix):
-    """
-    ROOT TH2-backed matrix for projection
-    """
-    def __init__(self, hist, prj_x=True, color=None, cal=None):
-        hdtv.dlmgr.LoadLibrary("mfile-root")
-        self.hist = hist
-        prj = ROOT.RMatrix.PROJ_X if prj_x else ROOT.RMatrix.PROJ_Y
-        self.vmat = ROOT.RMatrix(self.hist, prj)
-        title = self.hist.GetTitle()
-        
-        # Load the projection on the cut axis
-        if prj_x:
-            phist = self.hist.ProjectionY(title + "_pry")
-        else:
-            phist = self.hist.ProjectionX(title + "_prx")
-                
-        Matrix.__init__(self, phist, title, color, cal)
-        
-    def __del__(self):
-        # Explicitly deconstruct C++ objects in the right order
-        self.vmat = None
-        ROOT.SetOwnership(self.hist, True)
-        self.hist = None
+#class RMatrix(Matrix):
+#    """
+#    ROOT TH2-backed matrix for projection
+#    """
+#    def __init__(self, hist, prj_x=True, color=None, cal=None):
+#        hdtv.dlmgr.LoadLibrary("mfile-root")
+#        self.hist = hist
+#        prj = ROOT.RMatrix.PROJ_X if prj_x else ROOT.RMatrix.PROJ_Y
+#        self.vmat = ROOT.RMatrix(self.hist, prj)
+#        title = self.hist.GetTitle()
+#        
+#        # Load the projection on the cut axis
+#        if prj_x:
+#            phist = self.hist.ProjectionY(title + "_pry")
+#        else:
+#            phist = self.hist.ProjectionX(title + "_prx")
+#                
+#        Matrix.__init__(self, phist, title, color, cal)
+#        
+#    def __del__(self):
+#        # Explicitly deconstruct C++ objects in the right order
+#        self.vmat = None
+#        ROOT.SetOwnership(self.hist, True)
+#        self.hist = None
         
 
-class RootFile:
+class RootFileInterface:
     def __init__(self, spectra):
         print "Loaded user interface for working with root files"
         self.spectra = spectra
@@ -71,8 +71,8 @@ class RootFile:
         
         hdtv.cmdline.AddCommand("root browse", self.RootBrowse, nargs=0)
         hdtv.cmdline.AddCommand("root ls", self.RootLs, maxargs=1)
-        hdtv.cmdline.AddCommand("root ll", self.RootLL, maxargs=1, level=2)
-        hdtv.cmdline.AddCommand("root open", self.RootOpen, nargs=1, fileargs=True)
+        hdtv.cmdline.AddCommand("root ll", self.RootLL, maxargs=1)
+        hdtv.cmdline.AddCommand("root open", self.RootOpen, nargs=1, level=0, fileargs=True)
         hdtv.cmdline.AddCommand("root close", self.RootClose, nargs=0)
         hdtv.cmdline.AddCommand("root cd", self.RootCd, nargs=1,
                                 completer=self.RootCd_Completer)
@@ -88,21 +88,20 @@ class RootFile:
         hdtv.cmdline.AddCommand("root get", self.RootGet, minargs=1, completer=self.RootGet_Completer,
                                 parser=parser)
         
-        hdtv.cmdline.AddCommand("root matrix", self.RootMatrix, minargs=1,
-                                completer=self.RootGet_Completer,
-                                usage="root matrix <matname> [<matname> ...]")
+#        hdtv.cmdline.AddCommand("root matrix", self.RootMatrix, minargs=1,
+#                                completer=self.RootGet_Completer,
+#                                usage="root matrix <matname> [<matname> ...]")
         
-        parser = hdtv.cmdline.HDTVOptionParser(prog="root project", usage="%prog [OPTIONS] <TH2 histogram>")
-        parser.add_option("-p", "--project", default="x", help="projection axis",
-                          metavar="[x|y]")
-        hdtv.cmdline.AddCommand("root project", self.RootProject, nargs=1,
-                                completer=self.RootGet_Completer, parser=parser)
+#        parser = hdtv.cmdline.HDTVOptionParser(prog="root project", usage="%prog [OPTIONS] <TH2 histogram>")
+#        parser.add_option("-p", "--project", default="x", help="projection axis",
+#                          metavar="[x|y]")
+#        hdtv.cmdline.AddCommand("root project", self.RootProject, nargs=1,
+#                                completer=self.RootGet_Completer, parser=parser)
                                 
         hdtv.cmdline.RegisterInteractive("gRootFile", self.rootfile)
     
     def RootBrowse(self, args):
         self.browser = ROOT.TBrowser()
-        
         if self.rootfile != None and not self.rootfile.IsZombie():
             self.rootfile.Browse(self.browser)
 
@@ -199,76 +198,79 @@ class RootFile:
             else:
                 return hdtv.rfile_utils.PathComplete(".", cur_root_dir, dirs[0], text, dirs_only)
                 
-    def GetTH2(self, path):
-        """
-        Load a 2D histogram (``matrix'') from a ROOT file.
-        
-        Note: Unlike RootGet(), this function does not support shell-style
-        pattern expansion, as this make it too easy to undeliberately load
-        too many histograms. As they use a lot of memory, this would likely
-        lead to a crash of the program.
-        """
-        dirs = path.rsplit("/", 1)
-        if len(dirs) == 1:
-            # Load 2d histogram from current directory
-            hist = ROOT.gDirectory.Get(dirs[0])
-        else:
-            if self.rootfile:
-                cur_root_dir = ROOT.gDirectory
-            else:
-                cur_root_dir = None
-        
-            (posix_path, rfile, root_dir) = hdtv.rfile_utils.GetRelDirectory(os.getcwd(), cur_root_dir, dirs[0])
-        
-            if root_dir:
-                hist = root_dir.Get(dirs[1])
-            else:
-                hist = None
-            
-            if rfile:
-                rfile.Close()
-    
-        if hist == None or not isinstance(hist, ROOT.TH2):
-            print "Error: %s is not a 2d histogram" % path
-            return None
+#    def GetTH2(self, path):
+#        """
+#        Load a 2D histogram (``matrix'') from a ROOT file.
+#        
+#        Note: Unlike RootGet(), this function does not support shell-style
+#        pattern expansion, as this make it too easy to undeliberately load
+#        too many histograms. As they use a lot of memory, this would likely
+#        lead to a crash of the program.
+#        """
+#        dirs = path.rsplit("/", 1)
+#        if len(dirs) == 1:
+#            # Load 2d histogram from current directory
+#            hist = ROOT.gDirectory.Get(dirs[0])
+#        else:
+#            if self.rootfile:
+#                cur_root_dir = ROOT.gDirectory
+#            else:
+#                cur_root_dir = None
+#        
+#            (posix_path, rfile, root_dir) = hdtv.rfile_utils.GetRelDirectory(os.getcwd(), cur_root_dir, dirs[0])
+#        
+#            if root_dir:
+#                hist = root_dir.Get(dirs[1])
+#            else:
+#                hist = None
+#            
+#            if rfile:
+#                rfile.Close()
+#    
+#        if hist == None or not isinstance(hist, ROOT.TH2):
+#            print "Error: %s is not a 2d histogram" % path
+#            return None
 
-        return hist
-        
-    def RootMatrix(self, args):
-        """
-        Load a 2D histogram (``matrix'') from a ROOT file and display it.
-        """
-        
-        for path in args:
-            hist = self.GetTH2(path)
-            if hist:
-                title = hist.GetTitle()
-                viewer = ROOT.HDTV.Display.MTViewer(400, 400, hist, title)
-                self.matviews.append(viewer)
-            
-    def RootProject(self, args, options):
-        """
-        Load a 2D histogram (``matrix'') from a ROOT file in projection mode.
-        """
-        
-        axis = options.project.lower()
-        if axis == "x":
-            prj_x = True
-        elif axis == "y":
-            prj_x = False
-        else:
-            print "Error: projection axis must be x or y"
-            return None
-        
-        hist = self.GetTH2(args[0])
-        if hist:
-            spec = RMatrix(hist, prj_x)
-            sid = self.spectra.Insert(spec)
-            spec.color = hdtv.color.ColorForID(sid)
-            self.spectra.ActivateObject(sid)
-            self.window.Expand()        
+#        return hist
+#        
+#    def RootMatrix(self, args):
+#        """
+#        Load a 2D histogram (``matrix'') from a ROOT file and display it.
+#        """
+#        
+#        for path in args:
+#            hist = self.GetTH2(path)
+#            if hist:
+#                title = hist.GetTitle()
+#                viewer = ROOT.HDTV.Display.MTViewer(400, 400, hist, title)
+#                self.matviews.append(viewer)
+#            
+#    def RootProject(self, args, options):
+#        """
+#        Load a 2D histogram (``matrix'') from a ROOT file in projection mode.
+#        """
+#        
+#        axis = options.project.lower()
+#        if axis == "x":
+#            prj_x = True
+#        elif axis == "y":
+#            prj_x = False
+#        else:
+#            print "Error: projection axis must be x or y"
+#            return None
+#        
+#        hist = self.GetTH2(args[0])
+#        if hist:
+#            spec = RMatrix(hist, prj_x)
+#            sid = self.spectra.Insert(spec)
+#            spec.color = hdtv.color.ColorForID(sid)
+#            self.spectra.ActivateObject(sid)
+#            self.window.Expand()        
     
     def RootGet(self, args, options):
+        """
+        Load spectra from Rootfile
+        """
         if self.rootfile:
             cur_root_dir = ROOT.gDirectory
         else:
@@ -281,44 +283,35 @@ class RootFile:
         if options.replace:
             self.spectra.Clear()
             
-        nloaded = 0
+        loaded = list()
         self.window.viewport.LockUpdate()
         try:  # We should really use a context manager here...
             for obj in objs:
                 if isinstance(obj, ROOT.TH1):
-                    spec = hdtv.spectrum.Spectrum(obj)
-                    ID = self.spectra.Insert(spec)
-                    spec.color = hdtv.color.ColorForID(ID)
-                    
+                    spec = Spectrum(Histogram(obj))
+                    sid = self.spectra.Insert(spec)
+                    spec.color = hdtv.color.ColorForID(sid)
+                    loaded.append(sid)
                     if options.load_cal:
-                        if obj.GetName() in self.caldict:
-                            spec.cal = self.caldict[obj.GetName()]
+                        if spec.name in self.spectra.caldict:
+                            spec.cal = self.caldict[spec.name]
                         else:
-                            print "Warning: no calibration found for %s" % obj.GetName()
-                
-                    if options.invisible:
-                        self.spectra.HideObjects(ID)
-                    else:
-                        self.spectra.ActivateObject(ID)
-                
-                    nloaded += 1
+                            print "Warning: no calibration found for %s" % spec.name
                 else:
-                    print "Warning: %s is not a 1D histogram object" % obj.GetName()
-                    
-            print "%d spectra loaded" % nloaded
+                    hdtv.ui.warn("%s is not a 1D histogram object" % obj.GetName())
+            hdtv.ui.msg("%d spectra loaded" % len(loaded))
+            if options.invisible:
+                self.spectra.HideObjects(loaded)
+            elif len(loaded)>0:
+                # activate last loaded spectrum
+                self.spectra.ActivateObject(loaded[-1])
+            # Expand window if it is the only spectrum
+            if len(self.spectra) == 1: 
+                self.window.Expand()
         finally:
             self.window.viewport.UnlockUpdate()
-        
-    def Draw(self, hist):
-        spec = Spectrum(Histogram(hist))
-        spec.typeStr = "spectrum, read from root file"
-        ID = self.spectra.Insert(spec)
-        spec.color = hdtv.color.ColorForID(ID)
-        self.spectra.ActivateObject(ID)
-
 
 # plugin initialisation
 import __main__
-r = RootFile(__main__.spectra)
-# FIXME: that does not look right here (cluttering of namespace)
-__main__.Draw = r.Draw
+r = RootFileInterface(__main__.spectra)
+

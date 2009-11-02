@@ -36,8 +36,8 @@ import ROOT
 
 class CutSpectrum(Histogram):
     def __init__(self, hist, matrix, color=None, cal=None):
+        Histogram.__init__(self, hist, color, cal)
         self.matrix = matrix
-        hdtv.spectrum.Spectrum.__init__(self, hist, color, cal)
         self.typeStr = "cut spectrum (gated projection)"
 
 
