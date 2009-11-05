@@ -49,17 +49,17 @@ class FitInterface:
         
         # Register hotkeys
         self.window.AddHotkey(ROOT.kKey_b, 
-                                lambda: self.spectra.SetFitMarker("bg"))
+                                lambda: self.spectra.SetMarker("bg"))
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_b],
-                                lambda: self.spectra.RemoveFitMarker("bg"))
+                                lambda: self.spectra.RemoveMarker("bg"))
         self.window.AddHotkey(ROOT.kKey_r, 
-                                lambda: self.spectra.SetFitMarker("region"))
+                                lambda: self.spectra.SetMarker("region"))
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_r],
-                                lambda: self.spectra.RemoveFitMarker("region"))
+                                lambda: self.spectra.RemoveMarker("region"))
         self.window.AddHotkey(ROOT.kKey_p, 
-                                lambda: self.spectra.SetFitMarker("peak"))
+                                lambda: self.spectra.SetMarker("peak"))
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_p],
-                                lambda: self.spectra.RemoveFitMarker("peak"))
+                                lambda: self.spectra.RemoveMarker("peak"))
         self.window.AddHotkey(ROOT.kKey_B, 
                                 lambda: self.spectra.ExecuteFit(peaks = False))
         self.window.AddHotkey(ROOT.kKey_F, 
@@ -152,9 +152,9 @@ class FitInterface:
             pos = self.window.viewport.GetCursorX()
         self.spectra.ClearFit()
         region_width = hdtv.options.Get("fit.quickfit.region")
-        self.spectra.SetFitMarker("region", pos - region_width / 2.)
-        self.spectra.SetFitMarker("region", pos + region_width / 2.)
-        self.spectra.SetFitMarker("peak", pos)
+        self.spectra.SetMarker("region", pos - region_width / 2.)
+        self.spectra.SetMarker("region", pos + region_width / 2.)
+        self.spectra.SetMarker("peak", pos)
         self.spectra.ExecuteFit()
         
     def ListFits(self, sid=None, ids=None, sortBy=None, reverseSort=False):
@@ -240,34 +240,37 @@ class FitInterface:
         # Get peaks
         for peak in fit.peaks:
             thispeak = dict()
-            thispeak["id"] = str(fit.ID) + "." + str(fit.peaks.index(peak))
+            if fit.ID is None:
+                thispeak["id"] = "." + str(fit.peaks.index(peak))
+            else:
+                thispeak["id"] = str(fit.ID)+"." + str(fit.peaks.index(peak))
             thispeak["stat"] = str()
             if fit.active:
                 thispeak["stat"] += "A"
             if fit.ID in fit.spec.visible or fit.ID is None:   # ID of workFit is None
                 thispeak["stat"] += "V"
-                # get parameter of this fit
-                for p in fit.fitter.peakModel.fOrderedParamKeys:
-                    if p == "pos": 
-                        # Store channel additionally to position
-                        thispeak["channel"] = getattr(peak, "pos")
-                        if "channel" not in params:
-                            params.append("channel")
-                    # Use calibrated values of params if available 
-                    p_cal = p + "_cal"   
-                    if hasattr(peak, p_cal):
-                        thispeak[p] = getattr(peak, p_cal)
-                    if p not in params:
-                        params.append(p)
-                # Calculate normalized volume if efficiency calibration is present
-                # FIXME: does this belong here?
-                if fit.spec.effCal is not None:
-                    volume = thispeak["vol"]
-                    par_index = params.index("vol") + 1
-                    energy = thispeak["pos"]
-                    norm_volume = volume / spec.effCal(energy)
-                    thispeak["vol/eff"] = norm_volume
-                peaklist.append(thispeak)
+            # get parameter of this fit
+            for p in fit.fitter.peakModel.fOrderedParamKeys:
+                if p == "pos": 
+                    # Store channel additionally to position
+                    thispeak["channel"] = getattr(peak, "pos")
+                    if "channel" not in params:
+                        params.append("channel")
+                # Use calibrated values of params if available 
+                p_cal = p + "_cal"   
+                if hasattr(peak, p_cal):
+                    thispeak[p] = getattr(peak, p_cal)
+                if p not in params:
+                    params.append(p)
+            # Calculate normalized volume if efficiency calibration is present
+            # FIXME: does this belong here?
+            if fit.spec.effCal is not None:
+                volume = thispeak["vol"]
+                par_index = params.index("vol") + 1
+                energy = thispeak["pos"]
+                norm_volume = volume / spec.effCal(energy)
+                thispeak["vol/eff"] = norm_volume
+            peaklist.append(thispeak)
         return (peaklist, params)
         
     def ShowFitterStatus(self, ids=None, default = False):
@@ -560,9 +563,9 @@ class TvFitInterface:
         if mtype == "background": mtype="bg"
         action = action[0].strip()
         if action == "set":
-            self.spectra.SetFitMarker(mtype, pos)
+            self.spectra.SetMarker(mtype, pos)
         if action == "delete":
-            self.spectra.RemoveFitMarker(mtype, pos)
+            self.spectra.RemoveMarker(mtype, pos)
 
 
     def MarkerCompleter(self, text, args=[]):

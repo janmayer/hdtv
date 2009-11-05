@@ -66,11 +66,14 @@ class Fit(Drawable):
 
     # ID property
     def _get_ID(self):
-        return self.peakMarkers.ID
+        return self._ID
     
     def _set_ID(self, ID):
         self._ID = ID
-        self.peakMarkers.ID = ID
+        if ID is not None:
+            self.peakMarkers.ID = "#"+ID
+        else:
+            self.peakMarkers.ID = ID
 
     ID = property(_get_ID, _set_ID)
     

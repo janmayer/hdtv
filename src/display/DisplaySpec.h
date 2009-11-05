@@ -25,6 +25,7 @@
 
 #include <TH1.h>
 #include <memory>
+#include <sstream>
 #include "DisplayBlock.h"
 
 namespace HDTV {
@@ -41,8 +42,15 @@ class DisplaySpec : public DisplayBlock {
    int GetRegionMaxBin(int b1, int b2);
    double GetRegionMax(int b1, int b2);
    
-   inline void SetID(int ID)  { fID = ID; Update(); }
-   inline int GetID() const   { return fID; }
+   inline void SetID(int ID){
+        std::ostringstream ss;
+        ss <<ID; fID = ss.str(); 
+        Update(); }
+   inline void SetID(const std::string *ID)
+        { if(ID) { fID = *ID; } else { fID = ""; } Update(); }
+   inline void SetID(const char *ID) 
+        { if(ID) { fID = ID; } else { fID = ""; } Update(); }
+   inline std::string GetID() const { return fID; }
 
    // Convenience functions to access the underlying histogram object and its x axis
    inline double GetBinContent(Int_t bin) { return fHist->GetBinContent(bin); }
@@ -91,7 +99,7 @@ class DisplaySpec : public DisplayBlock {
    int fCachedB1, fCachedB2, fCachedMaxBin;
    double fCachedMax;
    bool fDrawUnderflowBin, fDrawOverflowBin;
-   int fID;  // ID for use by higher-level structures
+   std::string fID;  // ID for use by higher-level structures
 };
 
 } // end namespace Display

@@ -37,6 +37,11 @@ activeSatur = 1.0
 nonactiveSatur = 0.5
 
 def ColorForID(ID, active=False):
+    try:
+        ID = ID.split(".")
+        ID = int(ID[0])
+    except:
+        pass
     if active:
         satur = activeSatur
     else:

@@ -148,9 +148,9 @@ class SpecInterface:
                     loaded.append(sid)
                     
                     if fmt == None:
-                        hdtv.ui.msg("Loaded %s into %d" % (fname, sid))
+                        hdtv.ui.msg("Loaded %s into %s" % (fname, sid))
                     else:
-                        hdtv.ui.msg("Loaded %s'%s into %d" % (fname, fmt, sid))
+                        hdtv.ui.msg("Loaded %s'%s into %s" % (fname, fmt, sid))
         
         if len(loaded)>0:
             # activate last loaded spectrum

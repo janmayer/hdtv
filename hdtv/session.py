@@ -66,34 +66,43 @@ class Session(DrawableManager):
                 hdtv.ui.warn("There is no spectrum with id: %s" % ID)
             else:
                 if cal is None:
-                    hdtv.ui.msg("Unsetting calibration of spectrum with id %d" % ID)
+                    hdtv.ui.msg("Unsetting calibration of spectrum with id %s" % ID)
                 else:
-                    hdtv.ui.msg("Calibrated spectrum with id %d" % ID)
+                    hdtv.ui.msg("Calibrated spectrum with id %s" % ID)
                 spec.cal = cal
                 if self.workFit.spec == spec:
                     self.workFit.cal = cal
 
-    # functions to handle the workFot
-    def SetFitMarker(self, mtype, pos=None):
+    # Marker handling
+    def SetMarker(self, mtype, pos=None):
         """
-        Set Marker of type "mtype" to position pos,
-        if pos is not given, the current position of the cursor is used
+        Set Marker of type "mtype" (bg, peak, region, cut) to position pos,
+        if pos is not given, the current position of the cursor is used.
         """
         if pos is None:
             pos = self.viewport.GetCursorX()
-        self.workFit.ChangeMarker(mtype, pos, action="set")
+        if mtype in ["bg", "peak", "region"]:
+            self.workFit.ChangeMarker(mtype, pos, action="set")
+        elif mtype in ["cut"]:
+            # FIXME
+            pass
         
-    def RemoveFitMarker(self, mtype, pos=None):
+    def RemoveMarker(self, mtype, pos=None):
         """
-        Remove the marker of type "mtype", that is closest to position "pos",
-        if position is not given, the current position of the cursor is used
+        Remove the marker of type "mtype" (bg, peak, region, cut), that is 
+        closest to position "pos", if position is not given, the current position 
+        of the cursor is used.
         """ 
         if pos is None:
             pos = self.viewport.GetCursorX()
-        self.workFit.ChangeMarker(mtype, pos, action="remove")
+        if mtype in ["bg", "peak", "region"]:
+            self.workFit.ChangeMarker(mtype, pos, action="remove")
+        elif mtype in ["cut"]:
+            # FIXME
+            pass
         
-        
-    def ExecuteFit(self, peaks = True):
+    # Functions to handle workFit 
+    def ExecuteFit(self, peaks=True):
         """
         Execute the fit
         
@@ -153,13 +162,15 @@ class Session(DrawableManager):
         Stores current workFit with ID.
         
         If no ID is given, the next free ID is used.
-        The markers are kept in workFit, so that one can re-use.
+        The markers are kept in workFit, for possible re-use.
         """ 
         spec = self.workFit.spec
         if spec is None:
             hdtv.ui.warn("No fit available to store")
             return
-        ID = spec.Insert(self.workFit, ID=spec.activeID)
+        if ID is None:
+            ID = spec.activeID
+        ID = spec.Insert(self.workFit, ID)
         spec.dict[ID].active = False
         spec.ActivateObject(None)
         hdtv.ui.msg("Storing workFit with ID %s" % ID)
@@ -167,6 +178,19 @@ class Session(DrawableManager):
         self.workFit.active = True
         self.workFit.Draw(self.window.viewport)
         
+        
+    # Functions to handle workCut
+    def ExecuteCut(self):
+        pass
+        
+    def ClearCut(self):
+        pass
+        
+    def ActivateCut(self, ID, sid=None):
+        pass
+        
+    def StoreCut(self, ID):
+        pass
 
     # Overwrite some functions of DrawableManager to do some extra work
     def ActivateObject(self, ID):
@@ -217,6 +241,9 @@ class Session(DrawableManager):
         return ids
         
     def Clear(self):
+        """
+        Clear everything
+        """
         self.defaultFitter = Fitter(peakModel = "theuerkauf", bgdeg = 1)
         self.workFit = Fit(copy.copy(self.defaultFitter))
         self.workFit.active = True

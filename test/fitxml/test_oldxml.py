@@ -40,7 +40,7 @@ __main__.s.ListSpectra()
 raw_input("Press enter to continue\n")
 
 for testXML in testXMLs:
-    spectra.dict[0].Clear()
+    spectra.dict["0"].Clear()
     print 'Reading fits from file %s' %testXML
     __main__.fitxml.ReadFitlist(testXML)
     __main__.f.ListFits()
@@ -49,7 +49,7 @@ for testXML in testXMLs:
 print 'Saving fits to file %s' % newXML
 __main__.fitxml.WriteFitlist(newXML)
 print 'Deleting all fits'
-__main__.spectra.dict[0].Clear()
+__main__.spectra.dict["0"].Clear()
 print 'Reading fits from file %s' %newXML
 __main__.fitxml.ReadFitlist(newXML)
 __main__.f.ListFits()

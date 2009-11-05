@@ -32,7 +32,7 @@ print "-------------------------------------------------------------------------
 
 for i in range(0,5):
     __main__.s.LoadSpectra(testspectrum)
-    spectra.dict[i].cal=[0,(i+1)*0.5]
+    spectra.dict[str(i)].cal=[0,(i+1)*0.5]
 __main__.s.ListSpectra()
     
 raw_input("Press enter to continue ")
@@ -61,12 +61,12 @@ for i in range(0,5):
     raw_input("Press enter to continue ")
     
 print "Show 3"
-spectra.ShowObjects(3)
+spectra.ShowObjects("3")
 __main__.s.ListSpectra()
 raw_input("Press enter to continue ")
 
 print "Show 1"
-spectra.ShowObjects(1)
+spectra.ShowObjects("1")
 __main__.s.ListSpectra()
 raw_input("Press enter to continue ")
 
@@ -76,7 +76,7 @@ __main__.s.ListSpectra()
 raw_input("Press enter to continue ")
 
 print "Activate 2"
-spectra.ActivateObject(2)
+spectra.ActivateObject("2")
 __main__.s.ListSpectra()
 raw_input("Press enter to continue ")
 
@@ -86,9 +86,22 @@ __main__.s.ListSpectra()
 raw_input("Press enter to continue ")
 
 print "Activate 4 (which was not visible)"
-spectra.ActivateObject(4)
+spectra.ActivateObject("4")
+__main__.s.ListSpectra()
+raw_input("Press enter to continue ")
+
+print "Remove 3"
+spectra.Pop("3")
 __main__.s.ListSpectra()
 raw_input("Press enter to continue ")
     
+print "Reload one spectrum"
+__main__.s.LoadSpectra(testspectrum)
+__main__.s.ListSpectra()
+raw_input("Press enter to continue ")
 
-
+for i in range(3,10):
+    print "Show Next (should be %d)" %((i+1)%5)
+    spectra.ShowNext()
+    __main__.s.ListSpectra()
+    raw_input("Press enter to continue ")

@@ -32,8 +32,7 @@ namespace Display {
 DisplaySpec::DisplaySpec(const TH1* hist, int col)
    : DisplayBlock(col),
      fDrawUnderflowBin(false),
-     fDrawOverflowBin(false),
-     fID(-1)
+     fDrawOverflowBin(false)
 {
   //! Constructor
 

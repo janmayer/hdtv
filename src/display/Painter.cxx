@@ -174,10 +174,10 @@ void Painter::DrawXMarker(XMarker *marker, int x1, int x2)
 	gVirtualX->DrawLine(fDrawable, marker->GetGC_1()->GetGC(), 
 						xm1, fYBase, xm1, fYBase - fHeight);
 
-    if(!marker->GetTitle().empty())
+    if(!marker->GetID().empty())
 	  DrawString(marker->GetGC_1()->GetGC(),
 	             xm1 + 2, fYBase - fHeight + 2,
-	             marker->GetTitle().c_str(), marker->GetTitle().size(),
+	             marker->GetID().c_str(), marker->GetID().size(),
 	             kLeft, kTop);
   }
 
@@ -240,17 +240,15 @@ void Painter::DrawIDList(const std::list<DisplayObj*>& objects)
   
   DisplaySpec* spec;
   int x = fXBase;
-  char tmp[16];
-  int len;
-   
+  
   for(std::list<DisplayObj*>::const_iterator obj = objects.begin();
       obj != objects.end();
       ++obj) {
     spec = dynamic_cast<DisplaySpec*>(*obj);
     if(spec && spec->IsVisible()) {
-      len = snprintf(tmp, 16, "%d ", spec->GetID());
-      gVirtualX->DrawString(fDrawable, spec->GetGC()->GetGC(), x, fYBase - fHeight - 5, tmp, len);
-      x += gVirtualX->TextWidth(fFontStruct, tmp, len);
+      std::string tmp = spec->GetID() + " ";
+      gVirtualX->DrawString(fDrawable, spec->GetGC()->GetGC(), x, fYBase - fHeight - 5, tmp.c_str(), tmp.size());
+      x += gVirtualX->TextWidth(fFontStruct, tmp.c_str(), tmp.size());
     }
   }
 }

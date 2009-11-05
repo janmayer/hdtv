@@ -168,7 +168,10 @@ class DrawableManager(object):
         
     @property
     def ids(self):
-        return self.dict.keys()
+        # return sorted list of ids
+        ids = self.dict.keys()
+        ids.sort(cmp=hdtv.util.compareID)
+        return ids
     
     # active property
     def _set_active(self, state):
@@ -273,11 +276,12 @@ class DrawableManager(object):
         """
         Finds the first free index
         """
-        # Find a free ID
+        ids = [i.split(".") for i in self.ids]
+        ids = [int(i[0]) for i in ids]
         ID = 0
-        while ID in self.dict.iterkeys():
+        while ID in ids:
             ID += 1
-        return ID
+        return str(ID) 
 
 
     def Draw(self, viewport):
@@ -455,6 +459,7 @@ class DrawableManager(object):
             ids = list(self.visible)
         else:
             ids = self.dict.keys()
+        ids.sort(cmp=hdtv.util.compareID)
 
         try:
             firstID = min(ids)
@@ -471,7 +476,8 @@ class DrawableManager(object):
             ids = list(self.visible)
         else:
             ids = self.dict.keys()
-
+        ids.sort(cmp=hdtv.util.compareID)
+        
         try:
             lastID = max(ids)
         except ValueError:
@@ -492,7 +498,7 @@ class DrawableManager(object):
             else:
                 ids = self.dict.keys()
                 
-            ids.sort()
+            ids.sort(cmp=hdtv.util.compareID)
             nextIndex = (ids.index(self._iteratorID) + 1) % len(ids)
             nextID = ids[nextIndex]
 
@@ -513,7 +519,7 @@ class DrawableManager(object):
             else:
                 ids = self.dict.keys()
             
-            ids.sort()
+            ids.sort(cmp=hdtv.util.compareID)
             prevIndex = (ids.index(self._iteratorID) - 1) % len(ids)
             prevID = ids[prevIndex]
         except ValueError:
@@ -533,7 +539,7 @@ class DrawableManager(object):
         if nb > len(self.dict):
             self.ShowAll()
             return
-        ids = self.dict.keys()
+        ids = self.ids
         index = ids.index(self.nextID)
         ids = ids[index:index+nb]
         self.ShowObjects(ids, clear=True)
@@ -549,7 +555,7 @@ class DrawableManager(object):
         if nb > len(self.dict):
             self.ShowAll()
             return
-        ids = self.dict.keys()
+        ids = self.ids
         index = ids.index(self.prevID)
         ids = ids[index:index+nb]
         self.ShowObjects(ids, clear=True)
@@ -561,8 +567,7 @@ class DrawableManager(object):
         """
         if nb > len(self.dict):
             return self.ShowAll()
-        ids = self.dict.keys()
-        ids.sort()
+        ids = self.ids
         ids = ids[:nb]
         self.ShowObjects(ids, clear=True)
         return ids
@@ -574,8 +579,7 @@ class DrawableManager(object):
         if nb > len(self.dict):
             self.ShowAll()
             return
-        ids = self.dict.keys()
-        ids.sort()
+        ids = self.ids
         ids = ids[len(ids)-nb:]
         self.ShowObjects(ids, clear=True)
         return ids

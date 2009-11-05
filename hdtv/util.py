@@ -23,7 +23,6 @@ import math
 import re
 import os
 import glob
-import weakref
 
 def Median(values):
     """
@@ -38,6 +37,14 @@ def Median(values):
         return (values[(n - 1) / 2] + values[n / 2]) * 0.5
     else:
         return values[n / 2]
+        
+def compareID(a,b):
+    try:fa = float(a)
+    except ValueError:fa = a
+    try: fb = float(b)
+    except ValueError: fb=b
+    return cmp(fa,fb)
+
 
 class ErrValue:
     """
@@ -523,7 +530,10 @@ class Table(object):
             
         # sort 
         if not sortBy is None:
-            self.data.sort(key = lambda x: x[sortBy], reverse = reverseSort)
+            if sortBy.upper() is "ID":
+                self.data.sort(cmp=compareID, key = lambda x: x[sortBy], reverse = reverseSort)
+            else:
+                self.data.sort(key = lambda x: x[sortBy], reverse = reverseSort)
 
         if header is None: # No header given: set them from keys
             self.header = list()
@@ -607,36 +617,6 @@ class Table(object):
             text += str(self.extra_footer) + os.linesep
             
         return text
-
-# FIXME: Remove when all parent links are purged
-class Child(object):
-    """
-    Class for handling parent objects
-    """
-    def __init__(self, parent = None):
-        if parent is not None:
-            # self.__parent *must* never be a strong reference (see below)
-            self.__parent = weakref.proxy(parent)
-        else:
-            self.__parent = None
-        
-    # parent handling
-    def _set_parent(self, parent):
-        # Use weakref here, because strong references would create "cylic references"
-        # which breaks correct garbage collection
-        if parent is None:
-            self.__parent = None
-        else:
-            self.__parent = weakref.proxy(parent)
-        
-    def _get_parent(self):
-        return self.__parent
-    
-    parent = property(_get_parent, _set_parent)
-    
-
-
-
 
 class Position(object):
     """

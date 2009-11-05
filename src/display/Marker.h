@@ -62,29 +62,22 @@ class Marker: public DisplayObj {
     inline void SetDash(bool dash1, bool dash2=false)
       { fDash1 = dash1; fDash2 = dash2; Update(); }
     void SetColor(int col);
-    inline void SetTitle(const char *title) {
-      fTitle = title;
-      Update();
-    };
-    inline void SetTitle(const std::string &title) {
-      fTitle = title;
-      Update();
-    };
     inline void SetID(int ID){
         std::ostringstream ss;
-        ss <<"#"<<ID;
-        fTitle = ss.str(); 
-        Update();
-    }
-    
-    inline const std::string& GetTitle() const { return fTitle; }
+        ss <<ID; fID = ss.str(); 
+        Update(); }
+    inline void SetID(const std::string* ID)
+        { if(ID) { fID = *ID; } else { fID = ""; } Update(); }
+    inline void SetID(const char *ID)
+        { if(ID) { fID = ID; } else { fID = ""; } Update(); }
+    inline std::string GetID() const { return fID; }
     
     virtual int GetZIndex() { return Z_INDEX_MARKER; }
 
   protected:
     void InitGC(int col);
     void FreeGC();
-    std::string fTitle;
+    std::string fID;
 
     bool fDash1, fDash2;
     TGGC *fGC, *fDashedGC;

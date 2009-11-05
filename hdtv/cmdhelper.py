@@ -74,6 +74,7 @@ def ParseIds(strings, manager, only_existent=True):
         for ID in ids:
             # ID might be None, if e.g. activeID is None
             if ID is not None:
+                ID = str(ID)
                 if ID not in manager.ids:
                     hdtv.ui.warn("Non-existent id %s" %ID)
                 else:
