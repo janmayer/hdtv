@@ -222,7 +222,7 @@ class TvSpecInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog,usage=usage)
         parser.add_option("-s", "--spectrum", action="store",default=None, 
                           help="id for loaded spectrum")
-        hdtv.cmdline.AddCommand("spectrum get", self.SpectrumGet, level=0, 
+        hdtv.cmdline.AddCommand(prog, self.SpectrumGet, level=0, 
                                 minargs=1,fileargs=True, parser=parser)
         # the spectrum get command is registered with level=0, 
         # this allows "spectrum get" to be abbreviated as "spectrum", register 
@@ -233,7 +233,7 @@ class TvSpecInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
         parser.add_option("-v", "--visible", action="store_true", default=False, 
                           help="list only visible (and active) spectra")
-        hdtv.cmdline.AddCommand("spectrum list", self.SpectrumList, nargs=0, parser=parser)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumList, nargs=0, parser=parser)
         
         
         hdtv.cmdline.AddCommand("spectrum delete", self.SpectrumDelete, minargs=0,
@@ -250,7 +250,7 @@ class TvSpecInterface:
                                 usage="%prog <ids>|all|shown")
         hdtv.cmdline.AddCommand("spectrum write", self.SpectrumWrite, minargs=1, maxargs=2,
                                 usage="%prog <filename>'<format> [id]")
-        hdtv.cmdline.AddCommand("spectrum normalization", self.SpectrumNormalization,
+        hdtv.cmdline.AddCommand("spectrum normalize", self.SpectrumNormalization,
                                 minargs=1, usage="%prog [ids] <norm>")
 
         prog = "spectrum add"
@@ -297,7 +297,7 @@ class TvSpecInterface:
         Load Spectra from files
         """
         if options.spectrum is not None:
-            ID = int(options.spectrum)
+            ID = options.spectrum
         else:
             ID = None
         self.specIf.LoadSpectra(patterns = args, ID = ID)
@@ -505,9 +505,9 @@ class TvSpecInterface:
             try:
                 spec = self.spectra.dict[ID]
             except KeyError:
-                s += "Spectrum %d: ID not found\n" % ID
+                s += "Spectrum %s: ID not found\n" % ID
                 continue
-            s += "Spectrum %d:\n" % ID
+            s += "Spectrum %s:\n" % ID
             s += hdtv.cmdhelper.Indent(spec.info, "  ")
             s += "\n"
         hdtv.ui.msg(s, newline=False)

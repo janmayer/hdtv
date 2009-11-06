@@ -325,13 +325,13 @@ class DrawableManager(object):
         """
         if self.viewport:
             self.viewport.LockUpdate()
-        if isinstance(ids, int):
+        if isinstance(ids, str):
             ids = [ids]
         for ID in ids:
             try:
                 self.dict[ID].Refresh
             except KeyError:
-                hdtv.ui.error("Warning: ID %d not found" % ID)
+                hdtv.ui.error("ID %d not found" % ID)
         if self.viewport:
             self.viewport.UnlockUpdate()
         return ids
@@ -360,9 +360,8 @@ class DrawableManager(object):
         if self.viewport is None:
             return
         self.viewport.LockUpdate()
-        # check if ids is list/iterable or just single id 
-        try: iter(ids)
-        except TypeError:
+        # check if just single id 
+        if isinstance(ids, str):
             ids = [ids]
         for ID in ids:
             if ID in self.visible:
@@ -401,9 +400,8 @@ class DrawableManager(object):
         if self.viewport is None:
             return
         self.viewport.LockUpdate()
-        # check if ids is list/iterable or just single id 
-        try: iter(ids)
-        except TypeError:
+        # check if just single id 
+        if isinstance(ids, str):
             ids = [ids]
         if clear:
             # hide all other objects except in ids

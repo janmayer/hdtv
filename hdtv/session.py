@@ -30,6 +30,7 @@ from hdtv.window import Window
 from hdtv.drawable import DrawableManager
 from hdtv.fitter import Fitter
 from hdtv.fit import Fit
+from hdtv.matrix import CutSpectrum
 
 class Session(DrawableManager):
     """
@@ -47,6 +48,8 @@ class Session(DrawableManager):
         self.workFit = Fit(copy.copy(self.defaultFitter))
         self.workFit.active = True
         self.workFit.Draw(self.window.viewport)
+        self.workCut = CutSpectrum()
+        self.workCut.Draw(self.window.viewport)
         self.caldict = dict()
         # main session is always active
         self._active = True
@@ -83,13 +86,13 @@ class Session(DrawableManager):
             pos = self.viewport.GetCursorX()
         if mtype in ["bg", "peak", "region"]:
             self.workFit.ChangeMarker(mtype, pos, action="set")
-        elif mtype in ["cut"]:
-            # FIXME
-            pass
+        elif mtype in ["cut", "cutregion", "cutbg"]:
+            mtype = mtype[3:]
+            self.workCut.SetMarker(mtype, pos)
         
     def RemoveMarker(self, mtype, pos=None):
         """
-        Remove the marker of type "mtype" (bg, peak, region, cut), that is 
+        Remove the marker of type "mtype" (bg, peak, region), that is 
         closest to position "pos", if position is not given, the current position 
         of the cursor is used.
         """ 
@@ -97,9 +100,9 @@ class Session(DrawableManager):
             pos = self.viewport.GetCursorX()
         if mtype in ["bg", "peak", "region"]:
             self.workFit.ChangeMarker(mtype, pos, action="remove")
-        elif mtype in ["cut"]:
-            # FIXME
-            pass
+        elif mtype in ["cutregion","cutbg"]:
+            mtype = mtype[3:]
+            self.workCut.RemoveMarker(mtype, pos)
         
     # Functions to handle workFit 
     def ExecuteFit(self, peaks=True):
@@ -178,19 +181,51 @@ class Session(DrawableManager):
         self.workFit.active = True
         self.workFit.Draw(self.window.viewport)
         
-        
-    # Functions to handle workCut
-    def ExecuteCut(self):
-        pass
+#        
+#    # Functions to handle workCut
+#    def ExecuteCut(self):
+#        spec = self.GetActiveObject()
+#        if spec is None:
+#            hdtv.ui.error("There is no active spectrum")
+#            return 
+#        if not hasattr(spec, "matrix") or spec.matrix is None:
+#            hdtv.ui.error("Active spectrum does not belong to a matrix")
+#            return 
+#        self.workCut.Cut(spec.matrix)
+#        self.workCut.Draw(self.window.viewport)
         
     def ClearCut(self):
-        pass
+        self.workCut.cutRegionMarkers.Clear()
+        self.workCut.cutBgMarkers.Clear()
+        self.workCut.matrix = None
         
-    def ActivateCut(self, ID, sid=None):
-        pass
+#    def ActivateCut(self, ID):
+#        if ID not in self.ids:
+#            hdtv.ui.error("Invalid cut ID %s" ID)
+#            return
+#        cut = self.dict[ID]
+#        if not hasattr(cut, "matrix") or cut.matrix is None:
+#            hdtv.ui.error("Spectrum %s is not a cut spectrum")
+#        self.workCut = copy.copy(self.dict[ID])
+#        self.workCut.active = True
+#        self.workCut.Draw(self.window.viewport)
+#        
+#    def StoreCut(self, ID):
+#        hist = self.workCut.hist
+#        if hist is None:
+#            hdtv.ui.warn("No cut available to store")
+#            return
+#        if ID is None:
+#            ID = self.matrix.activeID
+#        ID = spec.Insert(self.workFit, ID)
+#        spec.dict[ID].active = False
+#        spec.ActivateObject(None)
+#        hdtv.ui.msg("Storing workFit with ID %s" % ID)
+#        self.workFit = copy.copy(self.workFit)
+#        self.workFit.active = True
+#        self.workFit.Draw(self.window.viewport)
+#        
         
-    def StoreCut(self, ID):
-        pass
 
     # Overwrite some functions of DrawableManager to do some extra work
     def ActivateObject(self, ID):

@@ -245,7 +245,7 @@ class Spectrum(DrawableManager):
   
     # delegate everthing to the underlying histogram
     def __setattr__(self, name, value):
-        if hasattr(self, "hist"):
+        if hasattr(self, "hist") and self.hist is not None:
             self.hist.__setattr__(name, value)
         DrawableManager.__setattr__(self, name, value)
         
@@ -289,7 +289,8 @@ class Spectrum(DrawableManager):
         self.viewport = viewport
         self.viewport.LockUpdate()
         DrawableManager.Draw(self, viewport)
-        self.hist.Draw(viewport)
+        if self.hist:
+            self.hist.Draw(viewport)
         self.viewport.UnlockUpdate()
         
     def Show(self):
@@ -297,7 +298,8 @@ class Spectrum(DrawableManager):
             return
         self.viewport.LockUpdate()
         DrawableManager.Show(self)
-        self.hist.Show()
+        if self.hist:
+            self.hist.Show()
         self.viewport.UnlockUpdate()
         
     def Hide(self):
@@ -305,7 +307,8 @@ class Spectrum(DrawableManager):
             return
         self.viewport.LockUpdate()
         DrawableManager.Hide(self)
-        self.hist.Hide()
+        if self.hist:
+            self.hist.Hide()
         self.viewport.UnlockUpdate()
         
     def Refresh(self):
@@ -313,7 +316,8 @@ class Spectrum(DrawableManager):
             return
         self.viewport.LockUpdate()
         DrawableManager.Refresh(self)
-        self.hist.Refresh()
+        if self.hist:
+            self.hist.Refresh()
         self.viewport.UnlockUpdate()
         
     

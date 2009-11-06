@@ -49,7 +49,7 @@ import hdtv.plugins.run
 import hdtv.plugins.specInterface 
 import hdtv.plugins.fitInterface
 import hdtv.plugins.calInterface
-#import hdtv.plugins.matrix
+import hdtv.plugins.matInterface
 import hdtv.plugins.rootInterface
 import hdtv.plugins.config
 import hdtv.plugins.fitlist
