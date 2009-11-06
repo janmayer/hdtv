@@ -43,6 +43,7 @@ def ParseIds(strings, manager, only_existent=True):
     If only_existent is True only currently existing IDs are returned
     """
     special = ["ALL","NONE","ACTIVE","VISIBLE", "NEXT", "PREV", "FIRST", "LAST"]
+
     # parse the arguments
     try:
         ids = ParseRange(strings, special)
@@ -110,16 +111,17 @@ def ParseRange(strings, special=["ALL", "NONE"]):
         for s in special:
             if s.startswith(part):
                 return s
-  
-    # Parse ranges
-    values = set()
-    for part in parts:
-        r = part.split("-")
-        if len(r) == 1:
-            values.add(int(r[0]))
-        elif len(r) == 2:
-            values |= set(range(int(r[0]), int(r[1])+1))
-        else:
-            raise ValueError, "Malformed range"
-            
-    return values
+    return parts
+# FIXME: find a clever way to parse ranges with STRING-IDs
+#    # Parse ranges
+#    values = set()
+#    for part in parts:
+#        r = part.split("-")
+#        if len(r) == 1:
+#            values.add(int(r[0]))
+#        elif len(r) == 2:
+#            values |= set(range(int(r[0]), int(r[1])+1))
+#        else:
+#            raise ValueError, "Malformed range"
+    
+#    return values
