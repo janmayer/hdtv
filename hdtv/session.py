@@ -215,8 +215,15 @@ class Session(DrawableManager):
             self.workCut = copy.copy(spec.matrix.GetActiveObject())
             self.workCut.Draw(self.window.viewport)
         
-    def StoreCut(self, ID):
-        pass
+    def StoreCut(self):
+        spec = self.GetActiveObject()
+        if spec is None:
+            hdtv.ui.error("There is no active spectrum")
+            return 
+        if not hasattr(spec, "matrix") or spec.matrix is None:
+            hdtv.ui.error("Active spectrum does not belong to a matrix")
+            return 
+        spec.matrix.ActivateObject(None)
 
     # Overwrite some functions of DrawableManager to do some extra work
     def ActivateObject(self, ID):

@@ -48,7 +48,9 @@ class MatInterface:
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_c, ROOT.kKey_b],
                                 lambda: self.spectra.RemoveMarker("cutbg"))
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_C], self.spectra.ClearCut)
+        self.window.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_C], self.spectra.StoreCut)
         self.window.AddHotkey(ROOT.kKey_C, self.spectra.ExecuteCut)
+        
 
         
     def LoadMatrix(self, fname, symtype, ID=None):
@@ -59,6 +61,7 @@ class MatInterface:
         print proj
         ID = self.spectra.GetFreeID()
         matrix.ID = ID
+        matrix.color = hdtv.color.ColorForID(ID)
         ID = self.spectra.Insert(proj, ID=ID+".x")
         self.spectra.ActivateObject(ID)
 
@@ -91,13 +94,19 @@ class TvMatInterface:
         description = "execute cut"
         usage = "%prog"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        hdtv.cmdline.AddCommand(prog, self.CutExecute, nargs=0, parser = parser)
+        hdtv.cmdline.AddCommand(prog, self.CutExecute, level=0, nargs=0, parser = parser)
         
         prog = "cut clear"
         description = "clear cut marker and remove last cut if it was not stored"
         usage = "%prog"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         hdtv.cmdline.AddCommand(prog, self.CutClear, nargs=0, parser = parser)
+        
+        prog = "cut store"
+        description = "deactivates last cut (overwrite protection)"
+        usage = "%prog"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        hdtv.cmdline.AddCommand(prog, self.CutStore, nargs=0, parser = parser)
                                 
                                 
     def MatrixGet(self, args, options):
@@ -159,6 +168,9 @@ class TvMatInterface:
         
     def CutClear(self, args, options):
         return self.spectra.ClearCut()
+        
+    def CutStore(self, args, options):
+        return self.spectra.StoreCut()
         
 # plugin initialisation
 import __main__

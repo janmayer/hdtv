@@ -1,3 +1,5 @@
+import copy
+
 import ROOT
 import hdtv.color
 
@@ -64,8 +66,11 @@ class CutSpectrum(Spectrum):
         markers = getattr(self, "cut%sMarkers" %mtype.title())
         markers.RemoveNearest(pos)
         
-    # get a valid hist for this cut spectrum
+
     def ExecuteCut(self, matrix, axis):
+        """
+        get a valid hist for this cut markers
+        """
         if not self.cutRegionMarkers.IsFull():
             hdtv.ui.warn("Missing cut region marker")
             return 
@@ -76,6 +81,9 @@ class CutSpectrum(Spectrum):
         self.hist = matrix.ExecuteCut(self.cutRegionMarkers, self.cutBgMarkers, axis)
         
     def __copy__(self):
+        """
+        copies marker of this cut
+        """
         new = CutSpectrum()
         for marker in self.cutRegionMarkers:
             new.cutRegionMarkers.SetMarker(marker.p1.pos_cal)
@@ -163,7 +171,25 @@ class Matrix(DrawableManager):
         self.histo2D = histo2D
         self._xproj=None
         self._yproj=None
-    
+        self._color = hdtv.color.default
+
+    # color property
+    def _set_color(self, color):
+        # give all cuts and projections the same color
+        self._color = color
+        for cut in self.dict.itervalues():
+            cut.color = color
+        if self._xproj is not None:
+            self._xproj.color = color
+        if self._yproj is not None:
+            self._yproj.color = color
+            
+    def _get_color(self):
+        return self._color
+        
+    color = property(_get_color, _set_color)
+        
+    # projections
     @property
     def xproj(self):
         return self.project(axis="x")
@@ -195,6 +221,7 @@ class Matrix(DrawableManager):
         Insert cut (as weakref) to internal dict
         """
         obj = weakref(obj)
+        obj.color = self._color
         if ID is None:
             ID = self.activeID
         ID = DrawableManager.Insert(self, obj, ID)
