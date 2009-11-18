@@ -75,10 +75,7 @@ class CutSpectrum(Spectrum):
             hdtv.ui.warn("Missing cut region marker")
             return 
         self.matrix = matrix
-        # cut is always orthogonal to given axis 
-        if axis=="x": self.axis = "y"
-        if axis=="y": self.axis = "x" 
-        self.hist = matrix.ExecuteCut(self.cutRegionMarkers, self.cutBgMarkers, axis)
+        matrix.ExecuteCut(self)
         
     def __copy__(self):
         """
@@ -210,10 +207,13 @@ class Matrix(DrawableManager):
         else:
             return getattr(self, "_%sproj" %axis)
         
-    def ExecuteCut(self, regionMarkers, bgMarkers, axis):
-        cutHisto = self.histo2D.ExecuteCut(regionMarkers, bgMarkers, axis)
-        self.Insert(cutHisto)
-        return cutHisto
+    def ExecuteCut(self, cut):
+        if not cut.matrix==self:
+            raise RuntimeError
+        cutHisto = self.histo2D.ExecuteCut(cut.cutRegionMarkers, 
+                                           cut.cutBgMarkers, cut.axis)
+        cut.hist = cutHisto
+        self.Insert(cut)
 
     # overwrite some functions from Drawable
     def Insert(self, obj, ID=None):
@@ -221,7 +221,9 @@ class Matrix(DrawableManager):
         Insert cut (as weakref) to internal dict
         """
         obj = weakref(obj)
-        obj.color = self._color
+        obj.color = self.color
+        obj.cutRegionMarkers.dashed = True
+        obj.cutBgMarkers.dashed = True
         if ID is None:
             ID = self.activeID
         ID = DrawableManager.Insert(self, obj, ID)
@@ -229,10 +231,21 @@ class Matrix(DrawableManager):
         
     def ActivateObject(self, ID):
         if ID is not None and ID not in self.ids:
-            raise KeyError
+            raise KeyError 
+        # housekeeping for old active cut
+        if self.activeID is not None:
+            cut = self.GetActiveObject()
+            cut.cutRegionMarkers.active = False
+            cut.cutBgMarkers.active = False
+        # change active ID
         self.activeID = ID 
-        # reset iterator
         self._iteratorID = self.activeID 
+        # housekeeping for new active cut
+        if self.activeID is not None:
+            cut = self.GetActiveObject()
+            cut.cutRegionMarkers.active = True
+            cut.cutBgMarkers.active = True
+            
     
     def Draw(self, viewport):
         """
