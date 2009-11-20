@@ -364,12 +364,11 @@ class DrawableManager(object):
         if isinstance(ids, str):
             ids = [ids]
         for ID in ids:
-            if ID in self.visible:
-                try:
-                    self.dict[ID].Hide()
-                    self.visible.discard(ID)
-                except KeyError:
-                    hdtv.ui.warn("ID %d not found" % ID)
+            try:
+                self.dict[ID].Hide()
+                self.visible.discard(ID)
+            except KeyError:
+                hdtv.ui.warn("ID %d not found" % ID)
         self.viewport.UnlockUpdate()
         return ids
 

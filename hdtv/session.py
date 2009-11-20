@@ -30,7 +30,7 @@ from hdtv.window import Window
 from hdtv.drawable import DrawableManager
 from hdtv.fitter import Fitter
 from hdtv.fit import Fit
-from hdtv.matrix import CutSpectrum
+from hdtv.cut import Cut
 
 class Session(DrawableManager):
     """
@@ -48,7 +48,8 @@ class Session(DrawableManager):
         self.workFit = Fit(copy.copy(self.defaultFitter))
         self.workFit.active = True
         self.workFit.Draw(self.window.viewport)
-        self.workCut = CutSpectrum()
+        self.workCut = Cut()
+        self.workCut.active = True
         self.workCut.Draw(self.window.viewport)
         self.caldict = dict()
         # main session is always active
@@ -190,17 +191,20 @@ class Session(DrawableManager):
         if not hasattr(spec, "matrix") or spec.matrix is None:
             hdtv.ui.error("Active spectrum does not belong to a matrix")
             return 
-        self.workCut.ExecuteCut(spec.matrix, spec.axis)
-        if self.workCut.hist is not None:
+        cutSpec = self.workCut.ExecuteCut(spec.matrix, spec.axis)
+        if cutSpec is not None:
             ID = spec.ID.split(".")[0]
-            self.Insert(self.workCut, ID=ID+"."+self.workCut.ID)
+            self.Insert(cutSpec, ID=ID+".c")
             self.workCut = copy.copy(self.workCut)
+            self.workCut.active = True
             self.workCut.Draw(self.window.viewport)
-            
+
     def ClearCut(self):
-        self.workCut.cutRegionMarkers.Clear()
-        self.workCut.cutBgMarkers.Clear()
-        self.workCut.matrix = None
+        self.workCut.regionMarkers.Clear()
+        self.workCut.bgMarkers.Clear()
+        self.workCut.axis = None
+        if self.workCut.spec is not None:
+            self.Pop(self.Index(self.workCut.spec))
 
     def ActivateCut(self, ID):
         spec = self.GetActiveObject()
@@ -213,17 +217,28 @@ class Session(DrawableManager):
         spec.matrix.ActivateObject(ID)
         if ID is not None:
             self.workCut = copy.copy(spec.matrix.GetActiveObject())
+            self.workCut.active = True
             self.workCut.Draw(self.window.viewport)
-        
-    def StoreCut(self):
+
+    def StoreCut(self, ID=None):
         spec = self.GetActiveObject()
         if spec is None:
             hdtv.ui.error("There is no active spectrum")
             return 
         if not hasattr(spec, "matrix") or spec.matrix is None:
             hdtv.ui.error("Active spectrum does not belong to a matrix")
-            return 
-        spec.matrix.ActivateObject(None)
+            return
+        mat = spec.matrix 
+        ID = mat.Insert(self.workCut, ID)
+        mat.dict[ID].active = False
+        mat.ActivateObject(None)
+        if self.workCut.spec is not None:
+            spec = self.Pop(self.Index(self.workCut.spec))
+            self.Insert(spec, ID = mat.ID+"."+ID)
+        hdtv.ui.msg("Storing workCut with ID %s" % ID)
+        self.workCut = copy.copy(self.workCut)
+        self.workCut.active = True
+        self.workCut.Draw(self.window.viewport)
 
     # Overwrite some functions of DrawableManager to do some extra work
     def ActivateObject(self, ID):

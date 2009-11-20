@@ -33,6 +33,7 @@ class MatInterface:
         hdtv.ui.msg("Loaded user interface for working with 2-d spectra")
         self.spectra= spectra
         self.window = spectra.window
+        self.oldcut = None
         
         # tv commands
         self.tv = TvMatInterface(self)
@@ -50,13 +51,97 @@ class MatInterface:
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_C], self.spectra.ClearCut)
         self.window.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_C], self.spectra.StoreCut)
         self.window.AddHotkey(ROOT.kKey_C, self.spectra.ExecuteCut)
+#        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_s],
+#                        lambda: self.window.EnterEditMode(prompt = "Show Cut: ",
+#                        handler = self._HotkeyShow))
+#        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_a],
+#                        lambda: self.window.EnterEditMode(prompt = "Activate Cut: ",
+#                        handler = self._HotkeyActivate))
+#        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_p], lambda: self._HotkeyShow("PREV"))
+#        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_n], lambda: self._HotkeyShow("NEXT"))
+        self.window.AddHotkey(ROOT.kKey_Tab, self.HotkeySwitch)
+        
+        
+    def _HotkeyShow(self, args):
+        """
+        Show wrapper for use with a Hotkey (internal use)
+        """
+        spec = self.spectra.GetActiveObject()
+        if spec is None:
+            self.window.viewport.SetStatusText("No active spectrum")
+            return
+        if not hasattr(spec, "matrix") or spec.matrix is None:
+            self.window.viewport.SetStatusText("No matrix")
+            return
+        try:
+            ids = hdtv.cmdhelper.ParseIds(args, spec.matrix)
+        except ValueError:
+            self.window.viewport.SetStatusText("Invalid cut identifier: %s" % args)
+            return
+        spec.ShowObjects(ids)
+  
+
+    def _HotkeyActivate(self, args):
+        """
+        ActivateObject wrapper for use with a Hotkey (internal use)
+        """
+        spec = self.spectra.GetActiveObject()
+        if spec is None:
+            self.window.viewport.SetStatusText("No active spectrum")
+            return
+        if not hasattr(spec, "matrix") or spec.matrix is None:
+            self.window.viewport.SetStatusText("No matrix")
+            return
+        try:
+            ids = hdtv.cmdhelper.ParseIds(args, spec.matrix)
+        except ValueError:
+            self.window.viewport.SetStatusText("Invalid cut identifier: %s" % args)
+            return
+        if len(ids) == 1:
+            self.window.viewport.SetStatusText("Activating cut %s" %ids[0])
+            self.spectra.ActivateCut(ids[0])
+        elif len(ids) == 0:
+            self.window.viewport.SetStatusText("Deactivating cut")
+            self.spectra.ActivateCut(None)
+        else:
+            self.window.viewport.SetStatusText("Can only activate one cut")
         
 
+    def HotkeySwitch(self):
+        #FIXME
+        spec = self.spectra.GetActiveObject()
+        if spec is None:
+            hdtv.ui.error("There is no active spectrum")
+            return 
+        if not hasattr(spec, "matrix") or spec.matrix is None:
+            hdtv.ui.error("Active spectrum does not belong to a matrix")
+            return 
+        mat = spec.matrix
+        # for a cut, switch to projection
+        if spec in mat.specs:
+            if spec.axis == "y":
+                # show x proj
+                ID = self.spectra.Index(mat.xproj)
+            else:
+                # show y proj
+                ID = self.spectra.Index(mat.yproj)
+            if ID is None:
+                hdtv.ui.warn("Projection is not loaded.")
+                return
+        # for a projection, cut to last shown cut
+        else:
+            ID = self.oldcut
+            if ID is None:
+                # FIXME
+                hdtv.ui.warn("No old cut")
+                return
+        self.spectra.ShowObjects(ID)
+    
         
     def LoadMatrix(self, fname, symtype, ID=None):
         # FIXME: just for testing!
         histo = Histo2D()
-        matrix = Matrix(histo)
+        matrix = Matrix(histo, self.spectra.viewport)
         proj = matrix.xproj
         print proj
         ID = self.spectra.GetFreeID()
@@ -109,12 +194,19 @@ class TvMatInterface:
         hdtv.cmdline.AddCommand(prog, self.CutStore, nargs=0, parser = parser)
                                 
                                 
+        prog = "cut activate"
+        description = "re-activates a cut from the cutlist"
+        usage = "%prog ID"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        hdtv.cmdline.AddCommand(prog, self.CutActivate, nargs=1, parser = parser)
+                                
     def MatrixGet(self, args, options):
         if options.spectrum is not None:
             ID = options.spectrum
         else:
             ID = None
         if args[0] not in ["asym", "sym"]:
+            # FIXME: is there really no way to test that automatically????
             hdtv.ui.error("Please specify if matrix is of type asym or sym")
             return "USAGE"
         self.matIf.LoadMatrix(args[1], args[0], ID = ID)
@@ -171,6 +263,33 @@ class TvMatInterface:
         
     def CutStore(self, args, options):
         return self.spectra.StoreCut()
+        
+    def CutActivate(self, args, options):
+        """
+        Activate a cut
+        
+        This marks a stored cut as active and copies its markers to the work cut
+        """
+        sid = self.spectra.activeID
+        if sid is None:
+            hdtv.ui.warn("No active spectrum")
+            return
+        spec = self.spectra.dict[sid]
+        if not hasattr(spec, "matrix") or spec.matrix is None:
+            hdtv.ui.warn("Active spectrum does not belong to a matrix")
+            return
+        try:
+            ids = hdtv.cmdhelper.ParseIds(args, spec.matrix)
+        except ValueError:
+            return "USAGE"
+        if len(ids) == 1:
+            hdtv.ui.msg("Activating cut %s" %ids[0])
+            self.spectra.ActivateCut(ids[0])
+        elif len(ids) == 0:
+            hdtv.ui.msg("Deactivating cut")
+            self.spectra.ActivateCut(None)
+        else:
+            hdtv.ui.error("Can only activate one cut")
         
 # plugin initialisation
 import __main__

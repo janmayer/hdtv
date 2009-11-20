@@ -152,37 +152,37 @@ class Histo2D(object):
 #            self.Draw(self.viewport)
     
 
-class ProjSpectrum(Spectrum):
-    def __init__(self, histo2D, axis):
-        self.matrix = histo2D
+class CutSpectrum(Spectrum):
+    def __init__(self,hist, matrix, axis):
+        self.matrix = matrix
         self.axis = axis
-        hist = getattr(self.matrix.histo2D, "%sproj" %axis)
         Spectrum.__init__(self, hist)
 
 
 class Matrix(DrawableManager):
-    def __init__(self, histo2D):
-        DrawableManager.__init__(self, viewport=None)
+    def __init__(self, histo2D, viewport):
+        DrawableManager.__init__(self, viewport)
         self.histo2D = histo2D
+        self.ID = None
         self._xproj=None
         self._yproj=None
         self._color = hdtv.color.default
 
 #    # color property
-#    def _set_color(self, color):
-#        # give all cuts and projections the same color
-#        self._color = color
-#        for cut in self.dict.itervalues():
-#            cut.color = color
-#        if self._xproj is not None:
-#            self._xproj.color = color
-#        if self._yproj is not None:
-#            self._yproj.color = color
-#            
-#    def _get_color(self):
-#        return self._color
-#        
-#    color = property(_get_color, _set_color)
+    def _set_color(self, color):
+        # give all cuts and projections the same color
+        self._color = color
+        for cut in self.dict.itervalues():
+            cut.color = color
+        if self._xproj is not None:
+            self._xproj.color = color
+        if self._yproj is not None:
+            self._yproj.color = color
+            
+    def _get_color(self):
+        return self._color
+        
+    color = property(_get_color, _set_color)
         
     # projections
     @property
@@ -199,51 +199,50 @@ class Matrix(DrawableManager):
         """
         if getattr(self, "_%sproj" %axis) is None:
             # no valid link to that projection, create fresh object
-            proj = ProjSpectrum(self, axis)
+            hist = getattr(self.histo2D, "%sproj" %axis)
+            proj = CutSpectrum(hist, self, axis)
             setattr(self, "_%sproj" %axis, weakref(proj))
             return proj
         else:
             return getattr(self, "_%sproj" %axis)
         
-#    def ExecuteCut(self, cut):
-#        if not cut.matrix==self:
-#            raise RuntimeError
-#        cutHisto = self.histo2D.ExecuteCut(cut.cutRegionMarkers, 
-#                                           cut.cutBgMarkers, cut.axis)
-#        cut.hist = cutHisto
-#        self.Insert(cut)
+    def ExecuteCut(self, cut):
+        #FIXME: axis handling
+        axis = cut.axis
+        cutHisto = self.histo2D.ExecuteCut(cut.regionMarkers, 
+                                           cut.bgMarkers, axis)
+        cutSpec = CutSpectrum(cutHisto, self, axis)
+        cutSpec.color = self.color
+        return cutSpec
 
-#    # overwrite some functions from Drawable
-#    def Insert(self, obj, ID=None):
-#        """
-#        Insert cut (as weakref) to internal dict
-#        """
-#        obj = weakref(obj)
-#        obj.color = self.color
-#        obj.cutRegionMarkers.dashed = True
-#        obj.cutBgMarkers.dashed = True
-#        if ID is None:
-#            ID = self.activeID
-#        ID = DrawableManager.Insert(self, obj, ID)
-#        self.ActivateObject(ID)
-#        
-#    def ActivateObject(self, ID):
-#        if ID is not None and ID not in self.ids:
-#            raise KeyError 
-#        # housekeeping for old active cut
-#        if self.activeID is not None:
-#            cut = self.GetActiveObject()
-#            cut.cutRegionMarkers.active = False
-#            cut.cutBgMarkers.active = False
-#        # change active ID
-#        self.activeID = ID 
-#        self._iteratorID = self.activeID 
-#        # housekeeping for new active cut
-#        if self.activeID is not None:
-#            cut = self.GetActiveObject()
-#            cut.cutRegionMarkers.active = True
-#            cut.cutBgMarkers.active = True
-#            
+    # overwrite some functions from Drawable
+    def Insert(self, obj, ID=None):
+        """
+        Insert cut to internal dict
+        """
+        obj.color = self.color
+        obj.dashed = True
+        if ID is None:
+            ID = self.activeID
+        ID = DrawableManager.Insert(self, obj, ID)
+        self.ActivateObject(ID)
+
+
+    def ActivateObject(self, ID):
+        if ID is not None and ID not in self.ids:
+            raise KeyError 
+        # housekeeping for old active cut
+        if self.activeID is not None:
+            cut = self.GetActiveObject()
+            cut.active = False
+        # change active ID
+        self.activeID = ID 
+        self._iteratorID = self.activeID 
+        # housekeeping for new active cut
+        if self.activeID is not None:
+            cut = self.GetActiveObject()
+            cut.active = True
+
 #    
 #    def Draw(self, viewport):
 #        """
