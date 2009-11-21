@@ -254,7 +254,8 @@ class DrawableManager(object):
             self.ActivateObject(None)
         if ID == self._iteratorID:
             # set iterator to the ID before the one we remove
-            self._iteratorID = self.prevID 
+            self._iteratorID = self.prevID
+        self.visible.discard(ID) 
         try:
             obj = self.dict.pop(ID)
             obj.ID = None

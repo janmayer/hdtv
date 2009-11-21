@@ -39,11 +39,11 @@ class MatInterface:
         self.tv = TvMatInterface(self)
 
         # Register hotkeys
-        self.window.AddHotkey(ROOT.kKey_c, lambda: self.spectra.SetMarker("cut"))
-#        self.window.AddHotkey([ROOT.kKey_c,ROOT.kKey_g],
-#                                lambda: self.spectra.SetMarker("cutregion"))
-#        self.window.AddHotkey([ROOT.kKey_c,ROOT.kKey_b],
-#                                lambda: self.spectra.SetMarker("cutbg"))
+        self.window.AddHotkey(ROOT.kKey_g, lambda: self.spectra.SetMarker("cut"))
+        self.window.AddHotkey([ROOT.kKey_c,ROOT.kKey_g],
+                                lambda: self.spectra.SetMarker("cutregion"))
+        self.window.AddHotkey([ROOT.kKey_c,ROOT.kKey_b],
+                                lambda: self.spectra.SetMarker("cutbg"))
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_c, ROOT.kKey_g], 
                                 lambda: self.spectra.RemoveMarker("cutregion"))
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_c, ROOT.kKey_b],
@@ -51,14 +51,14 @@ class MatInterface:
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_C], self.spectra.ClearCut)
         self.window.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_C], self.spectra.StoreCut)
         self.window.AddHotkey(ROOT.kKey_C, self.spectra.ExecuteCut)
-#        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_s],
-#                        lambda: self.window.EnterEditMode(prompt = "Show Cut: ",
-#                        handler = self._HotkeyShow))
-#        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_a],
-#                        lambda: self.window.EnterEditMode(prompt = "Activate Cut: ",
-#                        handler = self._HotkeyActivate))
-#        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_p], lambda: self._HotkeyShow("PREV"))
-#        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_n], lambda: self._HotkeyShow("NEXT"))
+        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_s],
+                        lambda: self.window.EnterEditMode(prompt = "Show Cut: ",
+                        handler = self._HotkeyShow))
+        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_a],
+                        lambda: self.window.EnterEditMode(prompt = "Activate Cut: ",
+                        handler = self._HotkeyActivate))
+        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_p], lambda: self._HotkeyShow("PREV"))
+        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_n], lambda: self._HotkeyShow("NEXT"))
         self.window.AddHotkey(ROOT.kKey_Tab, self.HotkeySwitch)
         
         
@@ -138,12 +138,11 @@ class MatInterface:
         self.spectra.ShowObjects(ID)
     
         
-    def LoadMatrix(self, fname, symtype, ID=None):
+    def LoadMatrix(self, fname, sym, ID=None):
         # FIXME: just for testing!
         histo = Histo2D()
-        matrix = Matrix(histo, self.spectra.viewport)
+        matrix = Matrix(histo, sym, self.spectra.viewport)
         proj = matrix.xproj
-        print proj
         ID = self.spectra.GetFreeID()
         matrix.ID = ID
         matrix.color = hdtv.color.ColorForID(ID)
@@ -166,7 +165,19 @@ class TvMatInterface:
                           help="base id for loaded projections")
         hdtv.cmdline.AddCommand(prog, self.MatrixGet, level=0, 
                                 nargs=2,fileargs=True, parser=parser)
-                                
+        
+        # FIXME
+        prog = "matrix list"
+        description = "list all loaded matrices and the belonging cuts and cut spectra."
+        
+        # FIXME
+        prog = "matrix project"
+        description = "reload projection of matrix"
+        
+        # FIXME
+        prog = "matrix view"
+        description = "show 2D view of the matrix"
+                                       
         prog = "cut marker"
         description = "set/delete a marker for cutting"
         description +="(possible types are background, region, peak)"
@@ -174,7 +185,8 @@ class TvMatInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         hdtv.cmdline.AddCommand(prog, self.CutMarkerChange, nargs=3,
                                 parser = parser, completer=self.MarkerCompleter)
-                                
+        
+        # FIXME: this should accept --cut to reload cut spectra for a cut
         prog = "cut execute"
         description = "execute cut"
         usage = "%prog"
@@ -199,6 +211,19 @@ class TvMatInterface:
         usage = "%prog ID"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         hdtv.cmdline.AddCommand(prog, self.CutActivate, nargs=1, parser = parser)
+        
+        # FIXME
+        prog = "cut delete"
+        description = "delete a cut"
+        
+        # FIXME
+        prog = "cut show"
+        description = "show a cut"
+        
+        # FIXME
+        prog = "cut hide"
+        description = "hide a cut"
+        
                                 
     def MatrixGet(self, args, options):
         if options.spectrum is not None:

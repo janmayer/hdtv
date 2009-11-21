@@ -99,6 +99,7 @@ class Cut(Drawable):
         self.viewport.UnlockUpdate()
         
     def Refresh(self):
+        # FIXME
         if self.matrix:
             self.matrix.ExecuteCut(self, self.axis)
         

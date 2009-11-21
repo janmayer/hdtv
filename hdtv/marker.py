@@ -128,13 +128,15 @@ class Marker(Drawable):
             self.displayObj = constructor(n, p1, p2, self._activeColor)
         else:
             self.displayObj = constructor(n, p1, p2, self._passiveColor)
+        # set some properties
+        if self.ID is not None:
+            self.displayObj.SetID(self.ID)
+        self.displayObj.SetDash(self.dashed, self.dashed)
         if self.xytype=="X":
             # these properties make only sense on the X axis
             self.displayObj.SetConnectTop(self.connecttop)
             if self.cal:
                 self.displayObj.SetCal(self.cal)
-            if self.ID is not None:
-                self.displayObj.SetID(self.ID)
         self.displayObj.Draw(self.viewport)
 
         

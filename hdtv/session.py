@@ -195,9 +195,6 @@ class Session(DrawableManager):
         if cutSpec is not None:
             ID = spec.ID.split(".")[0]
             self.Insert(cutSpec, ID=ID+".c")
-            self.workCut = copy.copy(self.workCut)
-            self.workCut.active = True
-            self.workCut.Draw(self.window.viewport)
 
     def ClearCut(self):
         self.workCut.regionMarkers.Clear()
