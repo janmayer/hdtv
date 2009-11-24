@@ -27,6 +27,7 @@ import ROOT
 import hdtv.ui
 
 from hdtv.matrix import Matrix
+from hdtv.histo2d import MHisto2D
 
 class MatInterface:
     def __init__(self, spectra):
@@ -140,14 +141,20 @@ class MatInterface:
         
     def LoadMatrix(self, fname, sym, ID=None):
         # FIXME: just for testing!
-        histo = Histo2D()
+        histo = MHisto2D()
         matrix = Matrix(histo, sym, self.spectra.viewport)
         proj = matrix.xproj
         ID = self.spectra.GetFreeID()
         matrix.ID = ID
         matrix.color = hdtv.color.ColorForID(ID)
-        ID = self.spectra.Insert(proj, ID=ID+".x")
-        self.spectra.ActivateObject(ID)
+        # load x projection
+        sid = self.spectra.Insert(proj, ID=ID+".x")
+        self.spectra.ActivateObject(sid)
+        if sym is False:
+            # also load y projection
+            proj = matrix.yproj
+            self.spectra.Insert(proj, ID=ID+".y")
+            
 
         
 class TvMatInterface:
@@ -230,11 +237,15 @@ class TvMatInterface:
             ID = options.spectrum
         else:
             ID = None
-        if args[0] not in ["asym", "sym"]:
+        if args[0] == "sym":
+            sym = True
+        elif args[0] == "asym":
+            sym = False
+        else:
             # FIXME: is there really no way to test that automatically????
             hdtv.ui.error("Please specify if matrix is of type asym or sym")
             return "USAGE"
-        self.matIf.LoadMatrix(args[1], args[0], ID = ID)
+        self.matIf.LoadMatrix(args[1], sym, ID = ID)
         
     def CutMarkerChange(self, args, options):
         """

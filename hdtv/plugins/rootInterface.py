@@ -235,12 +235,15 @@ class RootFileInterface:
             ID = options.spectrum
         else:
             ID = None
-        if args[0] not in ["asym", "sym"]:
+        
+        if args[0]=="sym":
+            sym=True
+        elif args[0]=="asym":
+            sym=False
+        else:
             # FIXME: is there really no way to test that automatically????
             hdtv.ui.error("Please specify if matrix is of type asym or sym")
             return "USAGE"
-        
-        sym = args[0]
         rhist = self.GetTH2(args[1])
         if rhist == None:
             hdtv.ui.error("Failed to open 2D histogram")
@@ -248,12 +251,17 @@ class RootFileInterface:
         
         hist = hdtv.histo2d.RHisto2D(rhist)
         matrix = hdtv.matrix.Matrix(hist, sym, self.spectra.viewport)
-        proj = matrix.xproj
         ID = self.spectra.GetFreeID()
         matrix.ID = ID
         matrix.color = hdtv.color.ColorForID(ID)
-        ID = self.spectra.Insert(proj, ID=ID+".x")
-        self.spectra.ActivateObject(ID)
+        # load x projection
+        proj = matrix.xproj
+        sid = self.spectra.Insert(proj, ID=ID+".x")
+        self.spectra.ActivateObject(sid)
+        # for asym matrix load also y projection
+        if sym is False:
+            proj = matrix.yproj
+            self.spectra.Insert(proj, ID=ID+".y")
     
     def RootGet(self, args, options):
         """
