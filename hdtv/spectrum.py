@@ -243,7 +243,7 @@ class Spectrum(DrawableManager):
         DrawableManager.__init__(self)
         self.hist = histogram
   
-    # delegate everthing to the underlying histogram
+    # delegate everything to the underlying histogram
     def __setattr__(self, name, value):
         if hasattr(self, "hist") and self.hist is not None:
             self.hist.__setattr__(name, value)

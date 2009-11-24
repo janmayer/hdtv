@@ -26,7 +26,7 @@ import ROOT
 
 import hdtv.ui
 
-from hdtv.matrix import Matrix, Histo2D
+from hdtv.matrix import Matrix
 
 class MatInterface:
     def __init__(self, spectra):
@@ -59,7 +59,7 @@ class MatInterface:
                         handler = self._HotkeyActivate))
         self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_p], lambda: self._HotkeyShow("PREV"))
         self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_n], lambda: self._HotkeyShow("NEXT"))
-        self.window.AddHotkey(ROOT.kKey_Tab, self.HotkeySwitch)
+        self.window.AddHotkey(ROOT.kKey_Tab, self._HotkeySwitch)
         
         
     def _HotkeyShow(self, args):
@@ -107,7 +107,7 @@ class MatInterface:
             self.window.viewport.SetStatusText("Can only activate one cut")
         
 
-    def HotkeySwitch(self):
+    def _HotkeySwitch(self):
         #FIXME
         spec = self.spectra.GetActiveObject()
         if spec is None:
@@ -156,8 +156,8 @@ class TvMatInterface:
         self.spectra = self.matIf.spectra
 
         prog = "matrix get"
-        description = "load a matrix, i.e. the projectionss"
-        description+= "if the matrix is symmetric it only loads one projections"
+        description = "load a matrix, i.e. the projections"
+        description+= "if the matrix is symmetric it only loads one projection"
         description+= "if it is asymmetric both projections will be loaded."
         usage="%prog [OPTIONS] asym|sym filename"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog,usage=usage)

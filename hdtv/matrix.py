@@ -1,3 +1,24 @@
+# -*- coding: utf-8 -*-
+
+# HDTV - A ROOT-based spectrum analysis software
+#  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+#
+# This file is part of HDTV.
+#
+# HDTV is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# HDTV is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with HDTV; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+
 import ROOT
 import hdtv.color
 
@@ -5,29 +26,6 @@ from hdtv.weakref import weakref
 from hdtv.spectrum import Spectrum
 from hdtv.drawable import DrawableManager
 
-######
-# HACK for testing until low-level object is implemented
-import copy
-from hdtv.spectrum import FileHistogram  
-class Histo2D(object):
-    def __init__(self):
-        self.projHisto = FileHistogram("test/mat/mat.prx")
-        self.projHisto.typeStr = "Projection"
-        self.cutHisto = FileHistogram("test/mat/cut.spc")
-        self.cutHisto.typeStr = "Cut spectrum"
-        
-    @property
-    def xproj(self):
-        return copy.copy(self.projHisto)
-        
-    @property
-    def yproj(self):
-        return copy.copy(self.projHisto)
-        
-    def ExecuteCut(self, regionMarkers, bgMarkers, axis):
-        return copy.copy(self.cutHisto)
-#####
-        
 class CutSpectrum(Spectrum):
     def __init__(self,hist, matrix, axis):
         self.matrix = matrix
@@ -44,7 +42,7 @@ class CutSpectrum(Spectrum):
 
     def Hide(self):
         """
-        Hide also the cut markers, but without chaning there visibility state in matrix 
+        Hide also the cut markers, but without changing the visibility state of the matrix 
         """
         Spectrum.Hide(self)
         if self.matrix:

@@ -193,7 +193,7 @@ class MarkerCollection(list):
         self.active = True     # By default markers are active when newly created
         self.fixedInCal = True # By default markers are fixed in calibrated space
         
-    # delegate everthing to the markers
+    # delegate everything to the markers
     def __setattr__(self, name, value):
         for marker in self:
             if hasattr(marker, name):
