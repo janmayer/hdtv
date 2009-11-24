@@ -237,6 +237,24 @@ class FileHistogram(Histogram):
             return
         self.hist = hist       
 
+class CutHistogram(Histogram):
+    def __init__(self, hist, axis, gates, color=hdtv.color.default, cal=None):
+        Histogram.__init__(self, hist, color, cal)
+        self.gates = gates
+        self.axis = axis
+    
+    @property
+    def info(self):
+        s = Histogram.info.fget(self)
+        s += "cut at gate at "
+        for i in range(len(self.gates)):
+            g = self.gates[i]
+            s+= "%d - %d " %(g.p1.pos_cal, g.p2.pos_cal)
+            if not i==len(self.gates):
+                "and gate at"
+        s +="on %s axis" % self.axis
+        return s
+
 
 class Spectrum(DrawableManager):
     def __init__(self, histogram):

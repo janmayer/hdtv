@@ -75,6 +75,8 @@ class Cut(Drawable):
         markers.RemoveNearest(pos)
     
     def ExecuteCut(self, matrix, axis):
+        if self.regionMarkers.IsPending() or len(self.regionMarkers)==0:
+            return None
         self.matrix = matrix
         self.axis = axis
         spec =  self.matrix.ExecuteCut(self)

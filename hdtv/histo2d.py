@@ -20,7 +20,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 import ROOT
-from hdtv.spectrum import Histogram
+from hdtv.spectrum import Histogram, CutHistogram
 
 # Don't add created spectra to the ROOT directory
 ROOT.TH1.AddDirectory(ROOT.kFALSE)
@@ -57,6 +57,7 @@ class RHisto2D(Histo2D):
             name = self.rhist.GetName() + "_prx"
             rprx = self.rhist.ProjectionX(name, 0, -1, "e")
             self._prx = Histogram(rprx)
+            self._prx.typeStr = "x projection"
     
         return self._prx
         
@@ -66,6 +67,7 @@ class RHisto2D(Histo2D):
             name = self.rhist.GetName() + "_pry"
             rpry = self.rhist.ProjectionY(name, 0, -1, "e")
             self._pry = Histogram(rpry)
+            self._pry.typeStr = "y projection"
         
         return self._pry
     
@@ -94,7 +96,7 @@ class RHisto2D(Histo2D):
         b1 = cutAxis.FindBin(regionMarkers[0].p1.pos_uncal)
         b2 = cutAxis.FindBin(regionMarkers[0].p2.pos_uncal)
         
-        name = self.rhist.GetName() + "_pro"
+        name = self.rhist.GetName() + "_cut"
         rhist = projector(name, min(b1,b2), max(b1,b2), "e")
         # Ensure proper garbage collection for ROOT histogram objects
         ROOT.SetOwnership(rhist, True)
@@ -125,7 +127,9 @@ class RHisto2D(Histo2D):
                 ROOT.SetOwnership(tmp, True)
                 rhist.Add(tmp, bgFactor)
         
-        return Histogram(rhist)
+        hist = CutHistogram(rhist, axis, regionMarkers)
+        hist.typeStr = "cut"
+        return hist
 
 ######
 # HACK for testing until low-level object is implemented
