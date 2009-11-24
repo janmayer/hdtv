@@ -106,6 +106,7 @@ class Matrix(DrawableManager):
             else:
                 a = axis
             proj = CutSpectrum(hist, self, axis=a)
+            proj.color = self.color
             setattr(self, "_%sproj" %axis, weakref(proj))
             return proj
         else:
