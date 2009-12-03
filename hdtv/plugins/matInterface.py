@@ -298,11 +298,11 @@ class TvMatInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         hdtv.cmdline.AddCommand(prog, self.CutActivate, nargs=1, parser = parser)
         
-#        prog = "cut delete"
-#        description = "delete a cut (marker and spectrum)"
-#        usage = "%prog <IDs>"
-#        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-#        hdtv.cmdline.AddCommand(prog, self.CutDelete, minargs = 1, parser = parser)
+        prog = "cut delete"
+        description = "delete a cut (marker and spectrum)"
+        usage = "%prog <IDs>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        hdtv.cmdline.AddCommand(prog, self.CutDelete, minargs = 1, parser = parser)
         
         # FIXME
         prog = "cut show"
@@ -449,7 +449,7 @@ class TvMatInterface:
             cut = spec.matrix.Pop(ID)
             # delete also cut spectrum
             if not cut.spec==None:
-                sid = self.spectra.Index(spec)
+                sid = self.spectra.Index(cut.spec)
                 print "remove spec %s" %sid
                 self.spectra.Pop(sid)
         
