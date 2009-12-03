@@ -53,7 +53,6 @@ class RootFileInterface:
         hdtv.cmdline.AddCommand("root cd", self.RootCd, nargs=1,
                                 completer=self.RootCd_Completer)
         
-
         prog = "root get"
         usage ="%prog [OPTIONS] <pattern>"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
@@ -63,21 +62,23 @@ class RootFileInterface:
                           default=False, help="load calibration from calibration dictionary")
         parser.add_option("-v", "--invisible", action="store_true",
                           default=False, help="do not make histograms visible, only add to display list")
-        hdtv.cmdline.AddCommand("root get", self.RootGet, minargs=1, completer=self.RootGet_Completer,
-                                parser=parser)
-                                
-                                
+        hdtv.cmdline.AddCommand("root get", self.RootGet, minargs=1, 
+                                completer=self.RootGet_Completer, parser=parser)
+        
+        # FIXME: make use of matrix ID possible for already loaded matrix
         prog = "root matrix view"
-        hdtv.cmdline.AddCommand(prog, self.RootMatrixView, minargs=1,
-                                completer=self.RootGet_Completer,
-                                usage="root matrix <matname> [<matname> ...]")
+        description = "show a 2D view of the matrix"
+        usage = "root matrix view <matname>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.RootMatrixView, minargs=1, 
+                                completer=self.RootGet_Completer, parser=parser)
         
         prog = "root matrix get"
         description = "load a matrix, i.e. the projections, from a ROOT file"
         description+= "if the matrix is symmetric it only loads one projection"
         description+= "if it is asymmetric both projections will be loaded."
         usage="%prog [OPTIONS] asym|sym filename"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog,usage=usage)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
         parser.add_option("-s", "--spectrum", action="store",default=None, 
                           help="base id for loaded projections")
         hdtv.cmdline.AddCommand(prog, self.RootMatrixGet,
@@ -87,8 +88,7 @@ class RootFileInterface:
         
         hdtv.cmdline.RegisterInteractive("gRootFile", self.rootfile)
 
-        
-    
+
     def RootBrowse(self, args):
         self.browser = ROOT.TBrowser()
         if self.rootfile != None and not self.rootfile.IsZombie():
@@ -222,7 +222,7 @@ class RootFileInterface:
 
         return hist
         
-    def RootMatrixView(self, args):
+    def RootMatrixView(self, args, options):
         """
         Load a 2D histogram (``matrix'') from a ROOT file and display it.
         """

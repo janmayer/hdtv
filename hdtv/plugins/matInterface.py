@@ -154,7 +154,71 @@ class MatInterface:
             # also load y projection
             proj = matrix.yproj
             self.spectra.Insert(proj, ID=ID+".y")
+
+           
+    def ListMatrix(self, matrix):
+        params = ["ID", "stat", "axis", "gates", "bg", "specID"]
+        cuts = list()
+        count = 0
+        
+        for (ID, obj) in matrix.dict.iteritems():
             
+            this = dict()
+
+            stat = str()
+            if ID==matrix.activeID:
+                stat+= "A"
+            if ID in matrix.visible:
+                stat+="V"
+
+            this["ID"] = ID
+            this["stat"] = stat
+            this["axis"] = obj.axis
+            
+            gates = str()
+            for gate in obj.regionMarkers:
+                p = [gate.p1.pos_cal, gate.p2.pos_cal]
+                p.sort()
+                gates += " %d - %d " %(p[0],p[1])
+            this["gates"] = gates
+            
+            bgs = str()
+            for bg in obj.bgMarkers:
+                bg = [bg.p1.pos_cal, bg.p2.pos_cal]
+                bg.sort()
+                bgs += " %d - %d " %(bg[0],bg[1])
+            this["bg"] = bgs
+            
+            if not obj.spec==None:
+                count +=1
+                sid = self.spectra.Index(obj.spec)
+                stat = str()
+                if sid==self.spectra.activeID:
+                    stat += "A"
+                if sid in self.spectra.visible:
+                    stat += "V"
+                if len(stat)>0:
+                    spec = sid + " ("+stat+")"
+                else:
+                    spec = sid
+            else:
+                spec = "not loaded"
+            this["specID"] = spec
+            
+            cuts.append(this)
+        table = hdtv.util.Table(cuts, params, sortBy="ID")
+        
+        
+        if matrix.sym:
+            sym="symmetric"
+        else:
+            sym="aymmetric"
+        header = "\nmatrix ID = "+matrix.ID+ " \""+matrix.name+"\" ("+sym+")\n"
+        footer = "\n"+str(len(matrix.ids)) + " cuts, "+str(count)+ " loaded cut spectra."
+        
+        table = hdtv.util.Table(cuts, params, sortBy="ID", extra_header = header, 
+                                                           extra_footer = footer)
+        return str(table)
 
         
 class TvMatInterface:
@@ -176,7 +240,18 @@ class TvMatInterface:
         # FIXME
         prog = "matrix list"
         description = "list all loaded matrices and the belonging cuts and cut spectra."
+        usage = "%prog"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog,usage=usage)
+        # TODO: sort for gates
+        #parser.add_option("-k", "--key-sort", action = "store", default = hdtv.options.Get("fit.list.sort_key"),
+        #                help = "sort by key")
+        #parser.add_option("-r", "--reverse-sort", action = "store_true", default = False,
+        #                help = "reverse the sort")
+        parser.add_option("-m", "--matrix", action = "store", default = "all",
+                        help = "select matrix to work on")  
+        hdtv.cmdline.AddCommand(prog, self.MatrixList, parser = parser)
         
+
         # FIXME
         prog = "matrix project"
         description = "reload projection of matrix"
@@ -184,6 +259,11 @@ class TvMatInterface:
         # FIXME
         prog = "matrix view"
         description = "show 2D view of the matrix"
+        
+        # FIXME
+        prog = "matrix delete"
+        description = "delete the matrix, with all cuts and cut spectra"
+        
                                        
         prog = "cut marker"
         description = "set/delete a marker for cutting"
@@ -212,16 +292,17 @@ class TvMatInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         hdtv.cmdline.AddCommand(prog, self.CutStore, nargs=0, parser = parser)
                                 
-                                
         prog = "cut activate"
         description = "re-activates a cut from the cutlist"
         usage = "%prog ID"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         hdtv.cmdline.AddCommand(prog, self.CutActivate, nargs=1, parser = parser)
         
-        # FIXME
-        prog = "cut delete"
-        description = "delete a cut"
+#        prog = "cut delete"
+#        description = "delete a cut (marker and spectrum)"
+#        usage = "%prog <IDs>"
+#        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+#        hdtv.cmdline.AddCommand(prog, self.CutDelete, minargs = 1, parser = parser)
         
         # FIXME
         prog = "cut show"
@@ -231,8 +312,11 @@ class TvMatInterface:
         prog = "cut hide"
         description = "hide a cut"
         
-                                
+
     def MatrixGet(self, args, options):
+        """
+        Load a matrix from file
+        """
         if options.spectrum is not None:
             ID = options.spectrum
         else:
@@ -246,6 +330,26 @@ class TvMatInterface:
             hdtv.ui.error("Please specify if matrix is of type asym or sym")
             return "USAGE"
         self.matIf.LoadMatrix(args[1], sym, ID = ID)
+         
+    def MatrixList(self, args, options):
+        """
+        Show a overview of matrices with all cuts and cut spectra
+        """
+        ids = hdtv.cmdhelper.ParseRange(options.matrix)
+        if ids=="NONE":
+            return
+        matrices = set()
+        
+        for spec in self.spectra.dict.itervalues():
+            if hasattr(spec, "matrix") and not spec.matrix==None :
+                if ids=="ALL" or spec.matrix.ID in ids:
+                    matrices.add(spec.matrix)
+        
+        result = str()
+        for mat in matrices:
+            result += self.matIf.ListMatrix(mat)
+        hdtv.ui.msg(result)
+
         
     def CutMarkerChange(self, args, options):
         """
@@ -306,11 +410,10 @@ class TvMatInterface:
         
         This marks a stored cut as active and copies its markers to the work cut
         """
-        sid = self.spectra.activeID
-        if sid is None:
+        spec = self.spectra.GetActiveObject()
+        if spec is None:
             hdtv.ui.warn("No active spectrum")
             return
-        spec = self.spectra.dict[sid]
         if not hasattr(spec, "matrix") or spec.matrix is None:
             hdtv.ui.warn("Active spectrum does not belong to a matrix")
             return
@@ -326,6 +429,29 @@ class TvMatInterface:
             self.spectra.ActivateCut(None)
         else:
             hdtv.ui.error("Can only activate one cut")
+            
+    def CutDelete(self, args, options):
+        """
+        Delete a cut and its cut spectrum
+        """
+        spec = self.spectra.GetActiveObject()
+        if spec is None:
+            hdtv.ui.warn("No active spectrum")
+            return
+        if not hasattr(spec, "matrix") or spec.matrix is None:
+            hdtv.ui.warn("Active spectrum does not belong to a matrix")
+            return
+        try:
+            ids = hdtv.cmdhelper.ParseIds(args, spec.matrix)
+        except ValueError:
+            return "USAGE"
+        for ID in ids:
+            cut = spec.matrix.Pop(ID)
+            # delete also cut spectrum
+            if not cut.spec==None:
+                sid = self.spectra.Index(spec)
+                print "remove spec %s" %sid
+                self.spectra.Pop(sid)
         
 # plugin initialisation
 import __main__

@@ -37,7 +37,7 @@ class Matrix(DrawableManager):
         self._yproj=None
         self._color = hdtv.color.default
 
-#    # color property
+    # color property
     def _set_color(self, color):
         # give all cuts and projections the same color
         self._color = color
@@ -52,6 +52,11 @@ class Matrix(DrawableManager):
         return self._color
         
     color = property(_get_color, _set_color)
+    
+    # name
+    @property
+    def name(self):
+        return self.histo2D.name
         
     # projections
     @property
@@ -79,6 +84,7 @@ class Matrix(DrawableManager):
             return proj
         else:
             return getattr(self, "_%sproj" %axis)
+            
         
     def ExecuteCut(self, cut):
         cutHisto = self.histo2D.ExecuteCut(cut.regionMarkers, 

@@ -490,7 +490,7 @@ class TvFitInterface:
         
         prog = "fit focus"
         description = "focus on fit with id"
-        usage = "fit focus [<id>]"
+        usage = "%prog [<id>]"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         hdtv.cmdline.AddCommand(prog, self.FitFocus, minargs = 0, parser = parser)
         

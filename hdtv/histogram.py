@@ -247,7 +247,7 @@ class CutHistogram(Histogram):
     def info(self):
         s = Histogram.info.fget(self)
         s += "cut "
-         s +="on %s axis gate: " % self.axis
+        s +="on %s axis gate: " % self.axis
         for i in range(len(self.gates)):
             g = self.gates[i]
             s+= "%d - %d " %(g.p1.pos_cal, g.p2.pos_cal)
@@ -259,6 +259,10 @@ class CutHistogram(Histogram):
 class Histo2D(object):
     def __init__(self):
         pass
+    
+    @property
+    def name(self):
+        return "generic 2D histogram"
     
     @property
     def xproj(self):
@@ -284,24 +288,29 @@ class RHisto2D(Histo2D):
         self._pry = None
         
     @property
+    def name(self):
+        return self.rhist.GetName()
+        
+    @property
     def xproj(self):
         if self._prx == None:
             name = self.rhist.GetName() + "_prx"
-            rprx = self.rhist.ProjectionX(name, 0, -1, "e")
-            self._prx = Histogram(rprx)
-            self._prx.typeStr = "x projection"
-    
-        return self._prx
+            self._prx = self.rhist.ProjectionX(name, 0, -1, "e")
+            # do not store the Histogram object here because of garbage collection
+            prx = Histogram(self._prx)
+            prx.typeStr = "x projection"
+        return prx
         
     @property
     def yproj(self):
         if self._pry == None:
             name = self.rhist.GetName() + "_pry"
-            rpry = self.rhist.ProjectionY(name, 0, -1, "e")
-            self._pry = Histogram(rpry)
-            self._pry.typeStr = "y projection"
-        
-        return self._pry
+            self._pry = self.rhist.ProjectionY(name, 0, -1, "e")
+            # do not store the Histogram object here because of garbage collection
+            pry = Histogram(self._pry)
+            pry.typeStr = "y projection"
+        return pry
+
     
     def ExecuteCut(self, regionMarkers, bgMarkers, axis):
         # _axis_ is the axis the markers refer to, so we project on the *other*

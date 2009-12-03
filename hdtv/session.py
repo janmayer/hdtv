@@ -193,7 +193,7 @@ class Session(DrawableManager):
             return 
         cutSpec = self.workCut.ExecuteCut(spec.matrix, spec.axis)
         if cutSpec is not None:
-            ID = spec.ID.split(".")[0]
+            ID = spec.matrix.ID
             self.Insert(cutSpec, ID=ID+".c")
 
     def ClearCut(self):
