@@ -40,7 +40,7 @@ def Median(values):
         
 def compareID(a,b):
     try:fa = float(a)
-    except ValueError:fa = a
+    except ValueError: fa=a
     try: fb = float(b)
     except ValueError: fb=b
     return cmp(fa,fb)
@@ -528,9 +528,9 @@ class Table(object):
                     tmp[k] = getattr(d, k)
             self.data.append(tmp)
             
-        # sort 
+        # sort
         if not sortBy is None:
-            if sortBy.upper() is "ID":
+            if sortBy.upper()=="ID":
                 self.data.sort(cmp=compareID, key = lambda x: x[sortBy], reverse = reverseSort)
             else:
                 self.data.sort(key = lambda x: x[sortBy], reverse = reverseSort)

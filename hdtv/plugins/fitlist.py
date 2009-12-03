@@ -68,7 +68,7 @@ def ReadFitlist(args, options):
         return
     for fname in fnames:
         for sid in sids:
-            hdtv.ui.msg("Reading fitlist %s to spectrum %d" %(fname, sid))
+            hdtv.ui.msg("Reading fitlist %s to spectrum %s" %(fname, sid))
             __main__.fitxml.ReadFitlist(fname, sid, refit=options.refit)
 
 prog = "fit write"

@@ -19,9 +19,10 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
+import os
+
 import ROOT
 import hdtv.color
-
 
 from hdtv.drawable import Drawable
 from hdtv.specreader import SpecReader, SpecReaderError
