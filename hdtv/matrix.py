@@ -23,41 +23,9 @@ import ROOT
 import hdtv.color
 
 from hdtv.weakref import weakref
-from hdtv.spectrum import Spectrum
+from hdtv.spectrum import CutSpectrum
 from hdtv.drawable import DrawableManager
 
-class CutSpectrum(Spectrum):
-    def __init__(self,hist, matrix, axis):
-        self.matrix = matrix
-        self.axis = axis
-        Spectrum.__init__(self, hist)
-        
-    def Show(self):
-        """
-        Show all visible cut markers for the axis of this spectrum
-        """
-        Spectrum.Show(self)
-        if self.matrix:
-            self.matrix.Show(axis=self.axis)
-
-    def Hide(self):
-        """
-        Hide also the cut markers, but without changing the visibility state of the matrix 
-        """
-        Spectrum.Hide(self)
-        if self.matrix:
-            self.matrix.Hide()
-        
-    def Refresh(self):
-        """
-        Repeat the cut
-        """
-        if self.matrix:
-            for cut in self.matrix.dict.itervalues():
-                if self == cut.spec:
-                    cut.Refresh()
-                    break
-        
 
 class Matrix(DrawableManager):
     def __init__(self, histo2D, sym, viewport):
@@ -113,6 +81,8 @@ class Matrix(DrawableManager):
             return getattr(self, "_%sproj" %axis)
         
     def ExecuteCut(self, cut):
+        cutHisto = self.histo2D.ExecuteCut(cut.regionMarkers, 
+                                           cut.bgMarkers, cut.axis)
         if cut.axis == "x":
             axis = "y"
         elif cut.axis == "y":
@@ -121,8 +91,6 @@ class Matrix(DrawableManager):
             axis = "0"
         else:
             raise RuntimeError
-        cutHisto = self.histo2D.ExecuteCut(cut.regionMarkers, 
-                                           cut.bgMarkers, axis)
         cutSpec = CutSpectrum(cutHisto, self, axis)
         cutSpec.color = self.color
         return cutSpec

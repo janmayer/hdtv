@@ -31,7 +31,8 @@ import hdtv.cal
 import hdtv.util
 import hdtv.ui
  
-from hdtv.spectrum import Spectrum, Histogram, FileHistogram
+from hdtv.spectrum import Spectrum
+from hdtv.histogram import FileHistogram
 from hdtv.specreader import SpecReaderError
 
 class SpecInterface:

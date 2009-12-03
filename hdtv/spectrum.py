@@ -24,237 +24,7 @@ import os
 import hdtv.color 
 import hdtv.ui
 
-from hdtv.drawable import Drawable, DrawableManager
-from hdtv.specreader import SpecReader, SpecReaderError
-
-# Don't add created spectra to the ROOT directory
-ROOT.TH1.AddDirectory(ROOT.kFALSE)
-
-class Histogram(Drawable):
-    """
-    Histogram object
-    
-    This class is hdtvs wrapper around a ROOT histogram. It adds a calibration,
-    plus some internal management for drawing the histogram to the hdtv spectrum
-    viewer.
-    """
-    def __init__(self, hist, color=hdtv.color.default, cal=None):
-        Drawable.__init__(self, color, cal)
-        self._hist = hist
-        self._norm = 1.0
-        self._ID = None
-        self.effCal = None
-        self.typeStr = "spectrum"
-
-    def __str__(self):
-        return self.name
-        
-    def __copy__(self):
-        # call C++ copy constructor
-        hist = self._hist.__class__(self._hist)
-        # create new spectrum object
-        return Histogram(hist, color=self.color, cal=self.cal)
-        
-    # hist property
-    def _set_hist(self, hist):
-        self._hist = hist
-        if self.displayObj:
-            self.displayObj.SetHist(self._hist)
-    
-    def _get_hist(self):
-        return self._hist
-        
-    hist = property(_get_hist, _set_hist)
-        
-    # name property
-    def _get_name(self):
-        if self._hist:
-            return self._hist.GetName()
-        
-    def _set_name(self, name):
-        self._hist.SetName(name)
-        
-    name = property(_get_name, _set_name)
-
-    # norm property
-    def _set_norm(self, norm):
-        self._norm = norm
-        if self.displayObj:
-            self.displayObj.SetNorm(self.norm)
-
-    def _get_norm(self):
-        return self._norm
-        
-    norm = property(_get_norm, _set_norm)
-    
-    @property   
-    def info(self):
-        """
-        Return a string describing this spectrum
-        """
-        s = "Spectrum type: %s\n" % self.typeStr
-        if not self._hist:
-            return s
-        s += "Name: %s\n" % str(self)
-        s += "Nbins: %d\n" % self._hist.GetNbinsX()
-        xmin = self._hist.GetXaxis().GetXmin()
-        xmax = self._hist.GetXaxis().GetXmax()
-        if self.cal and not self.cal.IsTrivial():
-            s += "Xmin: %.2f (cal)  %.2f (uncal)\n" % (self.cal.Ch2E(xmin), xmin)
-            s += "Xmax: %.2f (cal)  %.2f (uncal)\n" % (self.cal.Ch2E(xmax), xmax)
-        else:
-            s += "Xmin: %.2f\n" % xmin
-            s += "Xmax: %.2f\n" % xmax
-        
-        if not self.cal or self.cal.IsTrivial():
-            s += "Calibration: none\n"
-        elif type(self.cal) == ROOT.HDTV.Calibration:
-            s += "Calibration: Polynomial, degree %d\n" % self.cal.GetDegree()
-        else:
-            s += "Calibration: unknown\n"
-        return s
-              
-    # TODO: sumw2 function should be called at some point for correct error handling
-    def Plus(self, spec):
-        """
-        Add other spectrum to this one
-        """ 
-        self._hist.Add(spec._hist, 1.0)
-        self.typeStr = "spectrum, modified (sum)"
-        
-    def Minus(self, spec):
-        """
-        Substract other spectrum from this one
-        """ 
-        self._hist.Add(spec._hist, -1.0)
-        self.typeStr = "spectrum, modified (difference)"
-            
-    def Multiply(self, factor):
-        """
-        Multiply spectrum with factor
-        """ 
-        self._hist.Scale(factor)
-        self.typeStr = "spectrum, modified (multiplied)"
-        
-       
-    def Draw(self, viewport):
-        """
-        Draw this spectrum to the viewport
-        """
-        
-        if not self.viewport is None and not self.viewport == viewport:
-            # Unlike the DisplaySpec object of the underlying implementation,
-            # Spectrum() objects can only be drawn on a single viewport
-            raise RuntimeError, "Spectrum can only be drawn on a single viewport"
-        self.viewport = viewport
-        # Lock updates
-        self.viewport.LockUpdate()
-        # Show spectrum
-        if self.displayObj is None and not self._hist is None:
-            if self.active:
-                color = self._activeColor
-            else:
-                color= self._passiveColor
-            self.displayObj = ROOT.HDTV.Display.DisplaySpec(self._hist, color)
-            self.displayObj.SetNorm(self.norm)
-            self.displayObj.Draw(self.viewport)
-            # add calibration
-            if self.cal:
-                self.displayObj.SetCal(self.cal)
-            # and ID
-            if not self.ID is None:
-                self.displayObj.SetID(self.ID)
-        # finally unlock the viewport
-        self.viewport.UnlockUpdate()
-        
-
-    def WriteSpectrum(self, fname, fmt):
-        """
-        Write the spectrum to file
-        """
-        fname = os.path.expanduser(fname)
-        try:
-            SpecReader().WriteSpectrum(self._hist, fname, fmt)
-        except SpecReaderError, msg:
-            hdtv.ui.error("Failed to write spectrum: %s (file: %s)" % (msg, fname))
-            return False
-        return True
-       
-
-class FileHistogram(Histogram):
-    """
-    File spectrum object
-    
-    A spectrum that comes from a file in any of the formats supported by hdtv.
-    """
-    def __init__(self, fname, fmt=None, color=hdtv.color.default, cal=None):
-        """
-        Read a spectrum from file
-        """
-        # check if file exists
-        try:
-            os.path.exists(fname)
-        except OSError:
-            hdtv.ui.error("File %s not found" % fname)
-            raise
-        # call to SpecReader to get the hist
-        try:
-            hist = SpecReader().GetSpectrum(fname, fmt)
-        except SpecReaderError, msg:
-            hdtv.ui.error(str(msg))
-            raise 
-        self.fmt = fmt
-        self.filename = fname
-        Histogram.__init__(self, hist, color, cal)
-        self.typeStr = "spectrum, read from file"
-        
-    @property
-    def info(self):
-        # get the info property of the baseclass
-        s = Histogram.info.fget(self)
-        s += "Filename: %s\n" % self.filename
-        if self.fmt:
-            s += "File format: %s\n" % self.fmt
-        else:
-            s += "File format: autodetected\n"
-        return s
-    
-    def Refresh(self):
-        """
-        Reload the spectrum from disk
-        """
-        try:
-            os.path.exists(self.filename)
-        except OSError:
-            hdtv.ui.warn("File %s not found, keeping previous data" % self.filename)
-            return
-        # call to SpecReader to get the hist
-        try:
-            hist = SpecReader().GetSpectrum(self.filename, self.fmt)
-        except SpecReaderError, msg:
-            hdtv.ui.warn("Failed to load spectrum: %s (file: %s), keeping previous data" \
-                  % (msg, self.filename))
-            return
-        self.hist = hist       
-
-class CutHistogram(Histogram):
-    def __init__(self, hist, axis, gates, color=hdtv.color.default, cal=None):
-        Histogram.__init__(self, hist, color, cal)
-        self.gates = gates
-        self.axis = axis
-    
-    @property
-    def info(self):
-        s = Histogram.info.fget(self)
-        s += "cut at gate at "
-        for i in range(len(self.gates)):
-            g = self.gates[i]
-            s+= "%d - %d " %(g.p1.pos_cal, g.p2.pos_cal)
-            if not i==len(self.gates):
-                "and gate at"
-        s +="on %s axis" % self.axis
-        return s
-
+from hdtv.drawable import DrawableManager
 
 class Spectrum(DrawableManager):
     def __init__(self, histogram):
@@ -339,4 +109,34 @@ class Spectrum(DrawableManager):
         self.viewport.UnlockUpdate()
         
     
+class CutSpectrum(Spectrum):
+    def __init__(self,hist, matrix, axis):
+        self.matrix = matrix
+        self.axis = axis
+        Spectrum.__init__(self, hist)
+        
+    def Show(self):
+        """
+        Show all visible cut markers for the axis of this spectrum
+        """
+        Spectrum.Show(self)
+        if self.matrix:
+            self.matrix.Show(axis=self.axis)
 
+    def Hide(self):
+        """
+        Hide also the cut markers, but without changing the visibility state of the matrix 
+        """
+        Spectrum.Hide(self)
+        if self.matrix:
+            self.matrix.Hide()
+        
+    def Refresh(self):
+        """
+        Repeat the cut
+        """
+        if self.matrix:
+            for cut in self.matrix.dict.itervalues():
+                if self == cut.spec:
+                    cut.Refresh()
+                    break

@@ -20,19 +20,19 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 # Preliminary ROOT file interface for hdtv
-
-import ROOT
 import os
-import hdtv.cmdline
-import hdtv.tabformat
-import hdtv.spectrum
 import fnmatch
 import readline
-import hdtv.rfile_utils
-import hdtv.histo2d
-import hdtv.matrix
+import ROOT
 
-from hdtv.spectrum import Spectrum, Histogram
+import hdtv.cmdline
+import hdtv.tabformat
+import hdtv.rfile_utils
+
+from hdtv.spectrum import Spectrum
+from hdtv.histogram import Histogram, RHisto2D
+from hdtv.matrix import Matrix
+
 
 class RootFileInterface:
     def __init__(self, spectra):
@@ -44,16 +44,19 @@ class RootFileInterface:
         self.browser = None
         self.matviews = list()
         
-        hdtv.cmdline.AddCommand("root browse", self.RootBrowse, nargs=0)
         hdtv.cmdline.AddCommand("root ls", self.RootLs, maxargs=1)
-        hdtv.cmdline.AddCommand("root ll", self.RootLL, maxargs=1)
-        hdtv.cmdline.AddCommand("root open", self.RootOpen, nargs=1, level=0, fileargs=True)
+        hdtv.cmdline.AddCommand("root ll", self.RootLL, maxargs=1, level=0)
+        hdtv.cmdline.AddCommand("root pwd", self.RootPwd, nargs=0)
+        hdtv.cmdline.AddCommand("root browse", self.RootBrowse, nargs=0)
+        hdtv.cmdline.AddCommand("root open", self.RootOpen, nargs=1, fileargs=True)
         hdtv.cmdline.AddCommand("root close", self.RootClose, nargs=0)
         hdtv.cmdline.AddCommand("root cd", self.RootCd, nargs=1,
                                 completer=self.RootCd_Completer)
-        hdtv.cmdline.AddCommand("root pwd", self.RootPwd, nargs=0)
+        
 
-        parser = hdtv.cmdline.HDTVOptionParser(prog="root get", usage="%prog [OPTIONS] <pattern>")
+        prog = "root get"
+        usage ="%prog [OPTIONS] <pattern>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
         parser.add_option("-r", "--replace", action="store_true",
                           default=False, help="replace existing histogram list")
         parser.add_option("-c", "--load-cal", action="store_true",
@@ -62,12 +65,14 @@ class RootFileInterface:
                           default=False, help="do not make histograms visible, only add to display list")
         hdtv.cmdline.AddCommand("root get", self.RootGet, minargs=1, completer=self.RootGet_Completer,
                                 parser=parser)
-        
-        hdtv.cmdline.AddCommand("root matrix", self.RootMatrix, minargs=1,
+                                
+                                
+        prog = "root matrix view"
+        hdtv.cmdline.AddCommand(prog, self.RootMatrixView, minargs=1,
                                 completer=self.RootGet_Completer,
                                 usage="root matrix <matname> [<matname> ...]")
         
-        prog = "root project"
+        prog = "root matrix get"
         description = "load a matrix, i.e. the projections, from a ROOT file"
         description+= "if the matrix is symmetric it only loads one projection"
         description+= "if it is asymmetric both projections will be loaded."
@@ -75,11 +80,14 @@ class RootFileInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog,usage=usage)
         parser.add_option("-s", "--spectrum", action="store",default=None, 
                           help="base id for loaded projections")
-        hdtv.cmdline.AddCommand(prog, self.RootProject,
+        hdtv.cmdline.AddCommand(prog, self.RootMatrixGet,
                                 completer=self.RootGet_Completer,
                                 nargs=2, parser=parser)
 
+        
         hdtv.cmdline.RegisterInteractive("gRootFile", self.rootfile)
+
+        
     
     def RootBrowse(self, args):
         self.browser = ROOT.TBrowser()
@@ -214,7 +222,7 @@ class RootFileInterface:
 
         return hist
         
-    def RootMatrix(self, args):
+    def RootMatrixView(self, args):
         """
         Load a 2D histogram (``matrix'') from a ROOT file and display it.
         """
@@ -225,11 +233,10 @@ class RootFileInterface:
                 viewer = ROOT.HDTV.Display.MTViewer(400, 400, hist, title)
                 self.matviews.append(viewer)
 
-    def RootProject(self, args, options):
+    def RootMatrixGet(self, args, options):
         """
         Load a 2D histogram (``matrix'') from a ROOT file in projection mode.
         """
-        
         # FIXME: Copy and paste from matInterface.py -> unify?
         if options.spectrum is not None:
             ID = options.spectrum
@@ -249,8 +256,8 @@ class RootFileInterface:
             hdtv.ui.error("Failed to open 2D histogram")
             return False
         
-        hist = hdtv.histo2d.RHisto2D(rhist)
-        matrix = hdtv.matrix.Matrix(hist, sym, self.spectra.viewport)
+        hist = RHisto2D(rhist)
+        matrix = Matrix(hist, sym, self.spectra.viewport)
         ID = self.spectra.GetFreeID()
         matrix.ID = ID
         matrix.color = hdtv.color.ColorForID(ID)

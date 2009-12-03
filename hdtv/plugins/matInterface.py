@@ -27,7 +27,7 @@ import ROOT
 import hdtv.ui
 
 from hdtv.matrix import Matrix
-from hdtv.histo2d import MHisto2D
+from hdtv.histogram import MHisto2D
 
 class MatInterface:
     def __init__(self, spectra):
