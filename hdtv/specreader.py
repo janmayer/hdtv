@@ -47,14 +47,14 @@ class TextSpecReader:
      2: xy
      3: xye
      
-    The cmt parameter specifies the character(s) that starts a comment. It
-    defaults to "#"; cmt=None switches comment processing off. Comments extend
-    to the end of the line.
+    The cmts parameter is a tuple of possible strings that start a comment.
+    cmts=None switches comment processing off. Comments extend to the end of the
+    line. If unspecified, cmt defaults to ("#", "!", "//").
     """
-    def __init__(self, fmt=None, cmt="#"):
+    def __init__(self, fmt=None, cmts=("#", "!", "//")):
         self.xcol = self.ycol = self.ecol = None
         self.ncols = None
-        self.cmt = cmt
+        self.cmts = cmts
     
         # Parse the format specifier string, if one has been specified
         if fmt:
@@ -98,6 +98,17 @@ class TextSpecReader:
         
         return xbins
         
+    def StripComments(self, line):
+        end = len(line)
+        
+        if self.cmts:
+            for cmt in self.cmts:
+                pos = line.find(cmt)
+                if pos >= 0:
+                    end = min(end, pos)
+                
+        return line[:end]
+
     def GetSpectrum(self, fname, histname, histtitle):
         """
         Process a text file into a ROOT histogram object, using the format
@@ -111,8 +122,7 @@ class TextSpecReader:
         try:
             for line in f:
                 # Strip comments
-                if self.cmt:
-                    line = line.split(self.cmt)[0]
+                line = self.StripComments(line)
                     
                 # Split line into columns
                 cols = line.split()
