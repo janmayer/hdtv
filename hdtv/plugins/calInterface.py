@@ -751,7 +751,7 @@ class EnergyCalHDTVInterface(object):
         except:
             return "USAGE"
         # do the work
-        cal = self.EnergyCalIf.CalFromFits(spec.fits, pairs, degree, 
+        cal = self.EnergyCalIf.CalFromFits(spec.dict.values(), pairs, degree, 
                                            table=options.show_table, 
                                            fit=options.show_fit, 
                                            residual=options.show_residual)
