@@ -123,6 +123,7 @@ class CalibrationFitter:
         self.TGraph = ROOT.TGraphErrors(len(energies), channels, energies, channels_err, energies_err)
         
         fitoptions = "0" # Do not plot
+        fitoptions += "W" # FIXME: ignore errors, just a hack for now
         fitoptions += "Q" # Quit
 
         # Do the fit

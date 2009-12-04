@@ -516,9 +516,9 @@ class EnergyCalIf(object):
             fitID = p[0].split('.')
             try:
                 if len(fitID) == 2:
-                    channel = fits[int(fitID[0])].peakMarkers[int(fitID[1])].p1.pos_uncal
+                    channel = fits[fitID[0]].peakMarkers[int(fitID[1])].p1.pos_uncal
                 elif len(fitID)==1:
-                    channel = fits[int(fitID[0])].peakMarkers[0].p1.pos_uncal
+                    channel = fits[fitID[0]].peakMarkers[0].p1.pos_uncal
                 else:
                     raise ValueError
             except (KeyError, IndexError, ValueError):
@@ -751,7 +751,7 @@ class EnergyCalHDTVInterface(object):
         except:
             return "USAGE"
         # do the work
-        cal = self.EnergyCalIf.CalFromFits(spec.dict.values(), pairs, degree, 
+        cal = self.EnergyCalIf.CalFromFits(spec.dict, pairs, degree, 
                                            table=options.show_table, 
                                            fit=options.show_fit, 
                                            residual=options.show_residual)
