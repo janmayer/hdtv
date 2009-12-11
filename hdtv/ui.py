@@ -49,6 +49,16 @@ class SimpleUI(object):
         if newline:
             self.stdout.write(self.linesep)
     
+    def info(self, text, newline = True):
+        """
+        Print informational message
+        """
+        text = "INFO: " + text
+        self.stdout.write(text)
+        
+        if newline:
+            self.stdout.write(self.linesep)
+    
     def warn(self, text, newline = True):
         """
         Print warning message
@@ -89,6 +99,9 @@ class SimpleUI(object):
 ui = SimpleUI()
 def msg(text, newline = True):
     ui.msg(text, newline = newline)
+
+def info(text, newline = True):
+    ui.info(text, newline= newline)
 
 def warn(text, newline = True):
     ui.warn(text, newline = newline)

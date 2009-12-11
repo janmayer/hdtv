@@ -62,16 +62,19 @@ class ErrValue:
             tmp = self._fromString(value)
             self.value = tmp[0]
             self.error = tmp[1]
+            self.has_error = tmp[2]
         # Instantiate ErrValue from another ErrValue 
         elif isinstance(value, ErrValue):
             self.value = value.value
             self.error = value.error
+            self.has_error = value.has_error
         else:
             try:
                 self.error = abs(error) # Errors are always positive
             except TypeError:
                 self.error = error
-            self.value = value    
+            self.value = value
+            self.has_error = True
         try:
             self.rel_error = self.error / self.value * 100.0 # Error in percent
         except (ZeroDivisionError, TypeError):
@@ -218,8 +221,10 @@ class ErrValue:
             match = re.match(r".*\(([0-9]+)\)", strvalue)
             try:
                 err = match.group(1)
+                has_error = True
             except AttributeError:
                 err = "0"
+                has_error = False
 
                 
             # Extract value
@@ -241,8 +246,9 @@ class ErrValue:
         except AttributeError: # String does not contain error
             value = float(strvalue)
             error = 0
+            has_error = False
         
-        return (value, error)
+        return (value, error, has_error)
         
     
     def fmt(self):

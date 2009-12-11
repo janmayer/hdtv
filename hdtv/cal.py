@@ -67,7 +67,7 @@ class CalibrationFitter:
     def AddPair(self, ch, e):
         self.pairs.append([ch, e])
         
-    def FitCal(self, degree):
+    def FitCal(self, degree, ignoreErrors=False):
         """
         Use the reference peaks found in the histogram to fit the actual
         calibration function.
@@ -96,18 +96,26 @@ class CalibrationFitter:
         channels_err = array('d')
         energies     = array('d')
         energies_err = array('d')
+        allHaveError = True
+        anyHasError = False
+        anyHasXError = False
 
         for (ch,e) in self.pairs:
-            ener = float(e)
+            hasError = False
+            
             # Store channels
             try: # try to read from ErrValue
                 channel     = float(ch.value)
                 channel_err = float(ch.error)
                 channels.append(channel)
                 channels_err.append(channel_err)
+                if ch.has_error:
+                    hasError = True
             except AttributeError:
                 channels.append(float(ch))
                 channels_err.append(0.0)
+            
+            anyHasXError = hasError or anyHasXError
             
             # Store energies
             try: # try to read from ErrValue
@@ -115,16 +123,35 @@ class CalibrationFitter:
                 energy_err = float(e.error)
                 energies.append(energy)
                 energies_err.append(energy_err)
+                if e.has_error:
+                    hasError = True
             except AttributeError:
                 energies.append(float(e))
                 energies_err.append(0.0)
             
+            allHaveError = allHaveError and hasError
+            anyHasError = anyHasError or hasError
+        
         self.__TF1.SetRange(0, max(energies) * 1.1)
         self.TGraph = ROOT.TGraphErrors(len(energies), channels, energies, channels_err, energies_err)
         
         fitoptions = "0" # Do not plot
-        fitoptions += "W" # FIXME: ignore errors, just a hack for now
-        fitoptions += "Q" # Quit
+        fitoptions += "Q" # Quiet
+        
+        if not ignoreErrors and not allHaveError:
+            ignoreErrors = True
+            if anyHasError:
+                hdtv.ui.warn("Some values specified without error, ignoring all errors in fit")
+        
+        if ignoreErrors:
+            fitoptions += "W"
+        else:
+            hdtv.ui.info("doing error-weighted fit")
+            if anyHasXError:
+                # We must use the iterative fitter (minuit) to take x errors
+                # into account.
+                fitoptions += "F"
+                hdtv.ui.info("switching to non-linear fitter (minuit) for x error weighting")
 
         # Do the fit
         if self.TGraph.Fit(self.__TF1_id, fitoptions) != 0:

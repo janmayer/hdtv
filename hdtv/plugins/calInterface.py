@@ -488,14 +488,14 @@ class EnergyCalIf(object):
         return hdtv.cal.MakeCalibration(calpoly)
         
         
-    def CalFromPairs(self, pairs, degree=1, table=False, fit=False, residual=False):
+    def CalFromPairs(self, pairs, degree=1, table=False, fit=False, residual=False, ignoreErrors=False):
         """
         Create calibration from pairs of channel and energy
         """
         fitter = hdtv.cal.CalibrationFitter()
         for p in pairs:
             fitter.AddPair(p[0], p[1])
-        fitter.FitCal(degree)
+        fitter.FitCal(degree, ignoreErrors=ignoreErrors)
         print fitter.ResultStr()
         if table:
             print ""
@@ -507,7 +507,7 @@ class EnergyCalIf(object):
         return fitter.calib
         
         
-    def CalFromFits(self, fits, pairs, degree=1, table=False, fit=False, residual=False):
+    def CalFromFits(self, fits, pairs, degree=1, table=False, fit=False, residual=False, ignoreErrors=False):
         """
         Create a calibration from pairs of fits and energies
         """
@@ -516,16 +516,17 @@ class EnergyCalIf(object):
             fitID = p[0].split('.')
             try:
                 if len(fitID) == 2:
-                    channel = fits[fitID[0]].peakMarkers[int(fitID[1])].p1.pos_uncal
+                    channel = fits[fitID[0]].peaks[int(fitID[1])].pos
                 elif len(fitID)==1:
-                    channel = fits[fitID[0]].peakMarkers[0].p1.pos_uncal
+                    channel = fits[fitID[0]].peaks[0].pos
                 else:
                     raise ValueError
             except (KeyError, IndexError, ValueError):
                 hdtv.ui.error("Invalid fitID %s" %fitID)
                 return 
             p[0] = channel
-        cal = self.CalFromPairs(pairs, degree, table, fit, residual)
+        cal = self.CalFromPairs(pairs, degree, table, fit, residual,
+                                ignoreErrors=ignoreErrors)
         return cal
 
     def CalsFromList(self, fname):
@@ -600,6 +601,9 @@ class EnergyCalHDTVInterface(object):
                           default = False, help = "print table of energies given and energies obtained from fit")
         parser.add_option("-f", "--file", action = "store",
                           default = None, help = "get channel<->energy pairs from file")
+        parser.add_option("-i", "--ignore-errors", action = "store_true",
+                          default = False,
+                          help = "set all weights to 1 in fit (ignore error bars even if given)")
         hdtv.cmdline.AddCommand(prog, self.CalPosEnter, level=0, parser = parser,
                                 minargs = 0, fileargs = True) # Number of args can be 0 if "-f" is given 
         
@@ -639,6 +643,9 @@ class EnergyCalHDTVInterface(object):
                         help = "show residual of calibration fit")
         parser.add_option("-t", "--show-table", action = "store_true", default = False,
                         help = "print table of energies given and energies obtained from fit")
+        parser.add_option("-i", "--ignore-errors", action = "store_true",
+                          default = False,
+                          help = "set all weights to 1 in fit (ignore error bars even if given)")
         hdtv.cmdline.AddCommand("calibration position assign", self.CalPosAssign,
                                 parser = parser, minargs = 2)
     
@@ -687,7 +694,7 @@ class EnergyCalHDTVInterface(object):
             else:
                 if len(args) % 2 != 0: # Read from command line
                     hdtv.ui.error("Number of parameters must be even")
-                    raise hdtv.cmdline.HDTVCommandEror
+                    raise hdtv.cmdline.HDTVCommandError
                 for p in range(0, len(args), 2):
                     pairs.add(args[p], args[p + 1])
             sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
@@ -696,7 +703,8 @@ class EnergyCalHDTVInterface(object):
             return "USAGE"
         # do the work
         cal = self.EnergyCalIf.CalFromPairs(pairs, degree, options.show_table,
-                                            options.draw_fit, options.draw_residual)
+                                            options.draw_fit, options.draw_residual,
+                                            ignoreErrors=options.ignore_errors)
         if len(sids)==0:
             hdtv.ui.msg("calibration: %s" %hdtv.cal.PrintCal(cal))
             return True
@@ -754,7 +762,8 @@ class EnergyCalHDTVInterface(object):
         cal = self.EnergyCalIf.CalFromFits(spec.dict, pairs, degree, 
                                            table=options.show_table, 
                                            fit=options.show_fit, 
-                                           residual=options.show_residual)
+                                           residual=options.show_residual,
+                                           ignoreErrors=options.ignore_errors)
         self.spectra.ApplyCalibration(sids, cal)
         return True
 
