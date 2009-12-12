@@ -367,7 +367,8 @@ def WiedenhoeverTest():
             [ -1.275358e+10, -2.635262e+02,  7.242609e+05,  7.009434e+05,  3.099347e-02 ],
             [ -3.509266e+10, -7.741693e+02,  6.971664e+05,  5.506305e+09,  4.921834e+01	],
             [ -7.634589e+02, -1.617577e-05,  3.095811e-02,  4.921848e+01,  4.681867e-07	]]
-
+    
+    # NOTE: these numbers are chosen at random and carry no real significance.
     for E in (10., 25., 83., 100., 150., 413., 764., 1034., 2056., 5634., 10864.):
         (v0, e0) = WiedenhoeverManual(E, fVal, fCov)
         (v1, e1) = WiedenhoeverAuto(E, fVal, fCov)
@@ -422,7 +423,8 @@ def WunderTest():
             [  3.537369e-03,  2.970566e+03, -1.781463e-03, -1.906571e+02 ],
             [ -4.079504e-09, -1.781462e-03,  2.038979e-09,  3.218747e-05 ],
             [ -6.173008e-05, -1.906572e+02,  3.218765e-05,  2.387957e+01 ]]
-
+    
+    # NOTE: these numbers are chosen at random and carry no real significance.
     for E in (10., 25., 83., 100., 150., 413., 764., 1034., 2056., 5634., 10864.):
         (v0, e0) = WunderManual(E, fVal, fCov)
         (v1, e1) = WunderAuto(E, fVal, fCov)
