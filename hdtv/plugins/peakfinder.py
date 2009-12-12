@@ -157,15 +157,15 @@ class PeakFinder(object):
         text = str()
         for peak in fit.peaks:
             reason = None
-            if peak.vol <= 0.0:
+            if peak.vol.value <= 0.0:
                 bad = True
                 reason= "vol = %s" %peak.vol
-            elif not fit.regionMarkers[0].p1.pos_cal < peak.pos_cal < fit.regionMarkers[0].p2.pos_cal:
+            elif not fit.regionMarkers[0].p1.pos_cal < peak.pos_cal.value < fit.regionMarkers[0].p2.pos_cal:
                 bad = True
                 reason = "peak position outside of region"
-            # TODO: check for nans in errors
+            # TODO: check for NaNs in errors
             elif fit.fitter.peakModel.name == "theuerkauf":
-                if peak.width <= 0.0 or peak.width > 5*self.sigma_E:
+                if peak.width.value <= 0.0 or peak.width.value > 5*self.sigma_E:
                     bad = True
                     reason = "width = %s" %peak.width
             elif fit.fitter.peakModel.name == "ee":

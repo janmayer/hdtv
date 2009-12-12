@@ -24,25 +24,23 @@
 # class to handle fitter setup and data transfer to the Python side
 #-------------------------------------------------------------------------------
 import ROOT
-import hdtv.util
+import hdtv.errvalue
 
 hdtv.dlmgr.LoadLibrary("display")
 
-
-
-class FitValue(hdtv.util.ErrValue):
+class FitValue(hdtv.errvalue.ErrValue):
     """
     Error Value combined with status of parameter
     """
     def __init__(self, value, error, free):
-        hdtv.util.ErrValue.__init__(self, value, error)
+        hdtv.errvalue.ErrValue.__init__(self, value, error)
         self.free = free
         
     def fmt(self):
         if self.free:
-            return hdtv.util.ErrValue.fmt(self)
+            return hdtv.errvalue.ErrValue.fmt(self)
         else:
-            return hdtv.util.ErrValue.fmt_no_error(self) + " (HOLD)"
+            return hdtv.errvalue.ErrValue.fmt_no_error(self) + " (HOLD)"
 
 
 # Base class for all peak models
