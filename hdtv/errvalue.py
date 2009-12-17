@@ -223,8 +223,8 @@ class DepErrValue:
     def __cmp__(self, y):
         tb = traceback.extract_stack()[-2]
         hdtv.ui.warn("__cmp__() called on an ErrValue instance.\n"
-                     "    This may not do what you expect!\n"
-                     "    (Use cmp(x.value, y.value) to avoid this warning.)\n"
+                     "    This function is deprecated and should not be used!\n"
+                     "    (Use cmp(x.value, y.value) instead to avoid this warning.)\n"
                    + "    (called from file \"%s\", line %d, in %s)" % (tb[0], tb[1], tb[2]))
         
         try:
