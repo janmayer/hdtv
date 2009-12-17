@@ -21,9 +21,11 @@
 import ROOT
 import hdtv.color
 import hdtv.cal
-import hdtv.util
+
 from hdtv.drawable import Drawable
 from hdtv.marker import MarkerCollection
+from hdtv.errvalue import ErrValue
+from hdtv.util import Pairs
 from hdtv.weakref import weakref
 
 import copy
@@ -212,7 +214,7 @@ class Fit(Drawable):
         self.Erase()
         # fit background 
         if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
-            backgrounds = hdtv.util.Pairs()
+            backgrounds = Pairs()
             for m in self.bgMarkers:
                 backgrounds.add(m.p1.pos_uncal, m.p2.pos_uncal) 
             self.fitter.FitBackground(spec=self.spec, backgrounds=backgrounds)
@@ -225,7 +227,7 @@ class Fit(Drawable):
             for i in range(0, deg+1):
                 value = self.fitter.bgFitter.GetCoeff(i)
                 error = self.fitter.bgFitter.GetCoeffError(i)
-                self.bgCoeffs.append(hdtv.util.ErrValue(value, error))
+                self.bgCoeffs.append(ErrValue(value, error))
             
             
     def FitPeakFunc(self, spec, silent=False):
@@ -241,7 +243,7 @@ class Fit(Drawable):
         self.Erase()
         # fit background 
         if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
-            backgrounds = hdtv.util.Pairs()
+            backgrounds = Pairs()
             for m in self.bgMarkers:
                 backgrounds.add(m.p1.pos_uncal, m.p2.pos_uncal)
             self.fitter.FitBackground(spec=self.spec, backgrounds=backgrounds)
@@ -269,7 +271,7 @@ class Fit(Drawable):
                 for i in range(0, deg+1):
                     value = self.fitter.bgFitter.GetCoeff(i)
                     error = self.fitter.bgFitter.GetCoeffError(i)
-                    self.bgCoeffs.append(hdtv.util.ErrValue(value, error))
+                    self.bgCoeffs.append(ErrValue(value, error))
             # get peak function
             func = self.fitter.peakFitter.GetSumFunc()
             self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.region)
@@ -302,7 +304,7 @@ class Fit(Drawable):
         self.color = spec.color
         self.FixMarkerInUncal()
         if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
-            backgrounds = hdtv.util.Pairs()
+            backgrounds = Pairs()
             for m in self.bgMarkers:
                 backgrounds.add(m.p1.pos_uncal, m.p2.pos_uncal)
             self.fitter.RestoreBackground(backgrounds=backgrounds, coeffs=self.bgCoeffs, chisquare=self.bgChi)

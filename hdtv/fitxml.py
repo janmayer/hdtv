@@ -21,11 +21,14 @@
 import os
 import glob
 import xml.etree.cElementTree as ET
-import hdtv.fit
-import hdtv.fitter
+
 import hdtv.ui
-import hdtv.peakmodels
+
 from hdtv.util import Position
+from hdtv.errvalue import ErrValue
+from hdtv.fitter import Fitter
+from hdtv.fit import Fit
+from hdtv.peakmodels import FitValue, PeakModels
 
 # Increase the version number if you changed something related to the xml output.
 # If your change affect the reading, you should increase the major number 
@@ -265,7 +268,7 @@ class FitXml:
         # <error>
         errorElement = paramElement.find("error")
         error = float(errorElement.text)
-        return hdtv.peakmodels.FitValue(value, error, free)
+        return FitValue(value, error, free)
         
 
     def ReadPeaks(self, root):
@@ -279,7 +282,7 @@ class FitXml:
         """
         peaks = list()
         for fitElement in root.findall("fit"):
-            peakmodel = hdtv.peakmodels.PeakModels(fitElement.get("peakModel"))
+            peakmodel = PeakModels(fitElement.get("peakModel"))
             for peakElement in fitElement.findall("peak"):
                 # <uncal>
                 uncalElement = peakElement.find("uncal")
@@ -486,8 +489,8 @@ class FitXml:
         success = True
         peakModel = fitElement.get("peakModel")
         bgdeg = int(fitElement.get("bgDegree"))
-        fitter = hdtv.fitter.Fitter(peakModel, bgdeg)
-        fit = hdtv.fit.Fit(fitter, cal=calibration)
+        fitter = Fitter(peakModel, bgdeg)
+        fit = Fit(fitter, cal=calibration)
         try:
             fit.chi = float(fitElement.get("chi"))
         except ValueError:
@@ -535,7 +538,7 @@ class FitXml:
                 # <error>
                 errorElement = coeffElement.find("error")
                 error = float(errorElement.text)
-                coeff = hdtv.util.ErrValue(value, error)
+                coeff = ErrValue(value, error)
                 coeffs.append([deg, coeff])
             coeffs.sort()
             fit.bgCoeffs = [c[1] for c in coeffs]
@@ -602,7 +605,7 @@ class FitXml:
                 count = count+1
                 peakModel = fitElement.get("peakModel")
                 bgdeg = int(fitElement.get("bgDegree"))
-                fitter = hdtv.fitter.Fitter(peakModel, bgdeg)
+                fitter = itter(peakModel, bgdeg)
                 # <result>
                 params = dict()
                 for resultElement in fitElement.findall("result"):
@@ -621,7 +624,7 @@ class FitXml:
                     else:
                         status = ','.join(status)
                     fitter.SetParameter(parname, status)
-                fit = hdtv.fit.Fit(fitter, cal=spec.cal)
+                fit = Fit(fitter, cal=spec.cal)
                 # <background>
                 for bgElement in fitElement.findall("background"):
                     # Read begin/p1 marker

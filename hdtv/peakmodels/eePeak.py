@@ -24,8 +24,9 @@
 # Implementation requested by Oleksiy Burda <burda@ikp.tu-darmstadt.de>
 #-------------------------------------------------------------------------------
 import ROOT
-import hdtv.util
+
 from peak import PeakModel
+from hdtv.errvalue import ErrValue
 from hdtv.drawable import Drawable
 
 
@@ -56,7 +57,7 @@ class EEPeak(Drawable):
             pos_cal = self.cal.Ch2E(pos_uncal)
             pos_err_cal = abs(self.cal.dEdCh(pos_uncal) * pos_err_uncal)
             # FitValue is not supported because of missing code in C++
-            return hdtv.util.ErrValue(pos_cal, pos_err_cal)
+            return ErrValue(pos_cal, pos_err_cal)
         elif name=="sigma1_cal":
             if self.cal is None:
                 return self.sigma1
@@ -68,7 +69,7 @@ class EEPeak(Drawable):
             #  (which is true for Ch2E \approx linear)
             sigma1_err_cal = abs( self.cal.dEdCh(pos_uncal - sigma1_uncal) * sigma1_err_uncal)
             # FitValue is not supported because of missing code in C++
-            return hdtv.util.ErrValue(sigma1_cal, sigma1_err_cal)
+            return ErrValue(sigma1_cal, sigma1_err_cal)
         elif name=="sigma2_cal":
             if self.cal is None:
                 return self.sigma2
@@ -80,7 +81,7 @@ class EEPeak(Drawable):
             #  (which is true for Ch2E \approx linear)
             sigma2_err_cal = abs( self.cal.dEdCh(pos_uncal - sigma2_uncal) * sigma2_err_uncal)
             # FitValue is not supported because of missing code in C++
-            return hdtv.util.ErrValue(sigma2_cal, sigma2_err_cal)
+            return ErrValue(sigma2_cal, sigma2_err_cal)
         elif name in ["amp_cal","eta_cal","gamma_cal","vol_cal"]:
             name = name[0:name.rfind("_cal")]
             return getattr(self, name)
@@ -164,13 +165,13 @@ class PeakModelEE(PeakModel):
         Copies peak data from a C++ peak class to a Python class
         """
         # create ErrValues (the use of FitValues is not implemented in C++)
-        pos = hdtv.util.ErrValue(cpeak.GetPos(), cpeak.GetPosError())
-        amp = hdtv.util.ErrValue(cpeak.GetAmp(), cpeak.GetAmpError())
-        sigma1 = hdtv.util.ErrValue(cpeak.GetSigma1(), cpeak.GetSigma1Error())
-        sigma2 = hdtv.util.ErrValue(cpeak.GetSigma2(), cpeak.GetSigma2Error())
-        eta = hdtv.util.ErrValue(cpeak.GetEta(), cpeak.GetEtaError())
-        gamma = hdtv.util.ErrValue(cpeak.GetGamma(), cpeak.GetGammaError())
-        vol = hdtv.util.ErrValue(cpeak.GetVol(), cpeak.GetVolError())
+        pos = ErrValue(cpeak.GetPos(), cpeak.GetPosError())
+        amp = ErrValue(cpeak.GetAmp(), cpeak.GetAmpError())
+        sigma1 = ErrValue(cpeak.GetSigma1(), cpeak.GetSigma1Error())
+        sigma2 = ErrValue(cpeak.GetSigma2(), cpeak.GetSigma2Error())
+        eta = ErrValue(cpeak.GetEta(), cpeak.GetEtaError())
+        gamma = ErrValue(cpeak.GetGamma(), cpeak.GetGammaError())
+        vol = ErrValue(cpeak.GetVol(), cpeak.GetVolError())
         # create the peak object
         peak = self.Peak(pos, amp, sigma1, sigma2, eta, gamma, vol)
         func = cpeak.GetPeakFunc()
