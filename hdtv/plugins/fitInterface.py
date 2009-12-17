@@ -71,8 +71,10 @@ class FitInterface:
         self.window.AddHotkey(ROOT.kKey_Q, self.QuickFit)
         self.window.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_F], self.spectra.StoreFit)
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], self.spectra.ClearFit)
-        self.window.AddHotkey(ROOT.kKey_D, lambda: self.workFit.SetDecomp(True))
-        self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_D], lambda: self.workFit.SetDecomp(False))
+        self.window.AddHotkey(ROOT.kKey_D, 
+                                lambda: self.spectra.workFit.SetDecomp(True))
+        self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_D], 
+                                lambda: self.spectra.workFit.SetDecomp(False))
 
         self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_s],
                         lambda: self.window.EnterEditMode(prompt = "Show Fit: ",
