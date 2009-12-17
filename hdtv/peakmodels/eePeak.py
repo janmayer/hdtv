@@ -115,7 +115,7 @@ class EEPeak(Drawable):
         """
         compare peaks according to their position (uncalibrated)
         """
-        return cmp(self.pos, other.pos)
+        return cmp(self.pos.value, other.pos.value)
         
         
     def Draw(self, viewport):
