@@ -258,7 +258,7 @@ class TvSpecInterface:
         usage="%prog [OPTIONS] <target-id> <ids>|all"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
         parser.add_option("-n", "--normalize", action="store_true", 
-                          help="normalize <target-id> by dividing through number of added spectra afterwards")
+                help="normalize <target-id> by dividing through number of added spectra afterwards")
         hdtv.cmdline.AddCommand(prog, self.SpectrumAdd, level = 2, minargs=1, fileargs=False, parser=parser)
 
         prog = "spectrum substract"
