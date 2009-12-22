@@ -22,9 +22,11 @@
 # main session of hdtv
 import copy
 
+import hdtv.cal
 import hdtv.dlmgr
 hdtv.dlmgr.LoadLibrary("display")
 hdtv.dlmgr.LoadLibrary("fit")
+
 
 from hdtv.window import Window
 from hdtv.drawable import DrawableManager
@@ -67,12 +69,13 @@ class Session(DrawableManager):
             else:
                 if cal is None:
                     hdtv.ui.msg("Unsetting calibration of spectrum with id %s" % ID)
+                    self.caldict.pop(spec.name)
+                    spec.cal= None
                 else:
                     hdtv.ui.msg("Calibrated spectrum with id %s" % ID)
-                cal = hdtv.cal.MakeCalibration(cal)
-                # add calibration to list of known calibrations
-                spec.cal = cal
-                self.caldict[spec.name] = cal
+                    cal = hdtv.cal.MakeCalibration(cal)
+                    self.caldict[spec.name] = cal
+                    spec.cal = cal
                 if self.workFit.spec == spec:
                     self.workFit.cal = cal
 

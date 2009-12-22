@@ -569,6 +569,15 @@ class EnergyCalIf(object):
             lines.append(name + ": "+hdtv.cal.PrintCal(cal))
         text = "\n".join(lines)
         return text
+        
+    def CopyCal(self, source_id, ids):
+        """
+        Copy a calibration
+        """
+        cal = self.spectra.dict[source_id].cal
+        coeffs = hdtv.cal.GetCoeffs(cal)
+        cal = hdtv.cal.MakeCalibration(cal)
+        self.spectra.ApplyCalibration(ids, cal)
 
 class EnergyCalHDTVInterface(object):
     
@@ -581,7 +590,7 @@ class EnergyCalHDTVInterface(object):
         prog = "calibration position set"
         usage = "%prog [OPTIONS] <p0> <p1> [<p2> ...]"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
-        parser.add_option("-s", "--spectrum", action = "store", default = "all", 
+        parser.add_option("-s", "--spectrum", action = "store", default = "active", 
                           help = "spectrum ids to apply calibration to")
         hdtv.cmdline.AddCommand(prog, self.CalPosSet, parser = parser,
                                 minargs = 2)
@@ -589,9 +598,16 @@ class EnergyCalHDTVInterface(object):
         prog = "calibration position unset"
         usage = "%prog [OPTIONS]"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
-        parser.add_option("-s", "--spectrum", action = "store", default = "all", 
+        parser.add_option("-s", "--spectrum", action = "store", default = "active", 
                           help = "spectrum ids to unset calibration")
         hdtv.cmdline.AddCommand(prog, self.CalPosUnset, parser = parser,nargs=0)
+        
+        prog = "calibration position copy"
+        usage = "%prog <source_id> <ids>"
+        description = "apply the calibration that is used for the spectrum"
+        description+= "selected by source_id to the spectra with ids."
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.CalPosCopy, parser = parser,minargs=2)
         
         prog = "calibration position enter"
         description  = "Fit a calibration polynomial to the energy/channel pairs given. "
@@ -600,7 +616,7 @@ class EnergyCalHDTVInterface(object):
         usage = "%prog [OPTIONS] <ch0> <E0> [<ch1> <E1> ...]"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage=usage)
         parser.add_option("-s", "--spectrum", action = "store",
-                          default = "all", help = "spectrum ids to apply calibration to")
+                          default = "active", help = "spectrum ids to apply calibration to")
         parser.add_option("-d", "--degree", action = "store",
                           default = "1", help = "degree of calibration polynomial fitted [default: %default]")
         parser.add_option("-D", "--draw-fit", action = "store_true",
@@ -620,7 +636,7 @@ class EnergyCalHDTVInterface(object):
         prog = "calibration position read"
         usage = usage = "%prog [OPTIONS] <filename>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, usage = usage)
-        parser.add_option("-s", "--spectrum", action = "store", default = "all", 
+        parser.add_option("-s", "--spectrum", action = "store", default = "active", 
                           help = "spectrum ids to apply calibration to")
         hdtv.cmdline.AddCommand(prog, self.CalPosRead, parser = parser,
                                 nargs = 1, fileargs = True)
@@ -632,7 +648,7 @@ class EnergyCalHDTVInterface(object):
         description += "(if number is ommitted the first (and only?) peak is taken)."
         usage = "%prog [OPTIONS] <id0> <E0> [<od1> <E1> ...]"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-s", "--spectrum", action = "store", default = "all",
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
                         help = "spectrum ids to apply calibration to")
         parser.add_option("-d", "--degree", action = "store", default = "1",
                         help = "degree of calibration polynomial fitted [default: %default]")
@@ -704,6 +720,17 @@ class EnergyCalHDTVInterface(object):
             return
         self.spectra.ApplyCalibration(ids, None)
         return True
+    
+    def CalPosCopy(self, args, options):
+        """ 
+        Copy calibration from one spectrum to others
+        """
+        source_id = args[0]
+        if source_id not in self.spectra.ids:
+            hdtv.ui.error("Invalid source id.")
+            return
+        ids = args[1:]
+        self.EnergyCalIf.CopyCal(source_id, ids)
     
     def CalPosEnter(self, args, options):
         """
