@@ -59,10 +59,6 @@ class Session(DrawableManager):
         """
         Apply calibration cal to spectra with ids
         """
-        # check if ids is list/iterable or just single id 
-        try: iter(specIDs)
-        except TypeError:
-            specIDs = [specIDs]
         for ID in specIDs:
             try:
                 spec = self.dict[ID]
@@ -73,7 +69,10 @@ class Session(DrawableManager):
                     hdtv.ui.msg("Unsetting calibration of spectrum with id %s" % ID)
                 else:
                     hdtv.ui.msg("Calibrated spectrum with id %s" % ID)
+                cal = hdtv.cal.MakeCalibration(cal)
+                # add calibration to list of known calibrations
                 spec.cal = cal
+                self.caldict[spec.name] = cal
                 if self.workFit.spec == spec:
                     self.workFit.cal = cal
 

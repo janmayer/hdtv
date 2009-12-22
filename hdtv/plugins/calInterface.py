@@ -558,7 +558,17 @@ class EnergyCalIf(object):
                 hdtv.ui.warn("Could not parse line %d of file %s: ignored." % (linenum, fname))
         f.close()
         return calDict
-
+        
+    def CreateCalList(self, calDict):
+        """
+        Creates a printable list of all calibrations in calDict
+        <specname>: <cal0> <cal1> ...
+        """
+        lines = list()
+        for (name, cal) in calDict.iteritems():
+            lines.append(name + ": "+hdtv.cal.PrintCal(cal))
+        text = "\n".join(lines)
+        return text
 
 class EnergyCalHDTVInterface(object):
     
@@ -615,17 +625,6 @@ class EnergyCalHDTVInterface(object):
         hdtv.cmdline.AddCommand(prog, self.CalPosRead, parser = parser,
                                 nargs = 1, fileargs = True)
         
-   
-        prog = "calibration position getlist"
-        usage = "%prog <filename>"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
-        hdtv.cmdline.AddCommand(prog, self.CalPosGetlist,parser=parser,
-                                nargs = 1, fileargs = True)
-                                
-        prog = "calibration position clearlist"
-        usage = "%prog <filename>"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
-        hdtv.cmdline.AddCommand(prog, self.CalPosClearlist,parser=parser, nargs =0)
 
         prog = "calibration position assign"
         description = "Calibrate the active spectrum by asigning energies to fitted peaks. "
@@ -649,7 +648,31 @@ class EnergyCalHDTVInterface(object):
         hdtv.cmdline.AddCommand("calibration position assign", self.CalPosAssign,
                                 parser = parser, minargs = 2)
     
-
+        prog = "calibration position list"
+        usage = "%prog <filename>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.CalPosList, parser=parser, nargs =0)
+        
+        prog = "calibration position list write"
+        usage = "%prog <filename>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        parser.add_option("-F", "--force", action="store_true", default=False,
+                help = "overwrite existing files without asking")
+        hdtv.cmdline.AddCommand(prog, self.CalPosListWrite,parser=parser, 
+                                nargs =1, fileargs=True)
+        
+        prog = "calibration position list read"
+        usage = "%prog <filename>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.CalPosListRead,parser=parser,
+                                nargs = 1, fileargs = True)
+                                
+        prog = "calibration position list clear"
+        usage = "%prog <filename>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.CalPosListClear,parser=parser, nargs =0)
+        
+        
     def CalPosSet(self, args, options):
         """
         Create calibration from the coefficients p of a polynomial
@@ -767,8 +790,34 @@ class EnergyCalHDTVInterface(object):
         self.spectra.ApplyCalibration(sids, cal)
         return True
 
+    def CalPosList(self, args, options):
+        """
+        Print currently known calibration list
+        """
+        text = self.EnergyCalIf.CreateCalList(self.spectra.caldict)
+        hdtv.ui.msg(text)
+       
 
-    def CalPosGetlist(self, args, options):
+    def CalPosListWrite(self, args, options):
+        """
+        Write calibration list to file
+        """
+        text = self.EnergyCalIf.CreateCalList(self.spectra.caldict)
+        fname = args[0]
+        if not options.force and os.path.exists(fname):
+            hdtv.ui.warn("This file already exists:")
+            overwrite = None
+            while not overwrite in ["Y","y","N","n","","B","b"]:
+                question = "Do you want to replace it [y,n] or backup it [B]:"
+                overwrite = raw_input(question)
+            if overwrite in ["b","B",""]:
+                os.rename(fname,"%s.back" %fname)
+            elif overwrite in ["n","N"]:
+                return
+        calfile = file(fname, "w")
+        calfile.write(text)
+
+    def CalPosListRead(self, args, options):
         """
         Read calibrations for several spectra from file
         """
@@ -781,8 +830,7 @@ class EnergyCalHDTVInterface(object):
                     cal = caldict[name]
                     self.spectra.ApplyCalibration([sid], cal)
  
-    # TODO: more commands to manipulate calcdict
-    def CalPosClearlist(self, args, options):
+    def CalPosListClear(self, args, options):
         """
         Clear list of name <-> calibration pairs
         """

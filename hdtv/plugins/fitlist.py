@@ -77,7 +77,7 @@ usage = "%prog filename"
 parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
 parser.add_option("-s", "--spectrum", action = "store", default = "active",
                         help = "for which the fits should be saved (default=active)")
-parser.add_option("-f","--force",action = "store_true", default=False,
+parser.add_option("-F","--force",action = "store_true", default=False,
                         help = "overwrite existing files without asking")
 hdtv.cmdline.AddCommand(prog, WriteFitlist, nargs=1, fileargs=True, parser=parser)
 
