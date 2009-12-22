@@ -37,7 +37,6 @@ class PeakFinder(object):
     """
     def __init__(self, spectra):
         self.spectra = spectra
-        self.defaultFitter = spectra.defaultFitter
         hdtv.ui.msg( "loaded PeakFinder plugin")
         
     def __call__(self, sid, sigma, threshold, start=None, end=None, autofit=False, reject=False):
@@ -107,7 +106,7 @@ class PeakFinder(object):
         peak_count = 0
         while len(foundpeaks)>0:
             p = foundpeaks.pop(0)
-            fitter = copy.copy(self.defaultFitter)
+            fitter = copy.copy(self.spectra.workFit.fitter)
             fit = hdtv.fit.Fit(fitter, cal = self.spec.cal)
             pos_E = self.spec.cal.Ch2E(p)
             fit.ChangeMarker("peak", pos_E, action="set") 

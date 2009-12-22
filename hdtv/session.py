@@ -46,8 +46,7 @@ class Session(DrawableManager):
         self.window = Window() 
         DrawableManager.__init__(self, viewport=self.window.viewport)
         # TODO: make peakModel and bgdeg configurable
-        self.defaultFitter = Fitter(peakModel = "theuerkauf", bgdeg = 1)
-        self.workFit = Fit(copy.copy(self.defaultFitter))
+        self.workFit = Fit(Fitter(peakModel = "theuerkauf", bgdeg = 1))
         self.workFit.active = True
         self.workFit.Draw(self.window.viewport)
         self.workCut = Cut()
@@ -291,8 +290,7 @@ class Session(DrawableManager):
         """
         Clear everything
         """
-        self.defaultFitter = Fitter(peakModel = "theuerkauf", bgdeg = 1)
-        self.workFit = Fit(copy.copy(self.defaultFitter))
+        self.workFit = Fit(Fitter(peakModel = "theuerkauf", bgdeg = 1))
         self.workFit.active = True
         self.workFit.Draw(self.window.viewport)
         self.caldict = dict()

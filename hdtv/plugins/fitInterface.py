@@ -275,7 +275,7 @@ class FitInterface:
             peaklist.append(thispeak)
         return (peaklist, params)
         
-    def ShowFitterStatus(self, ids=None, default = False):
+    def ShowFitterStatus(self, ids=None):
         """
         Show status of the fit parameters of the work Fit.
         
@@ -286,19 +286,12 @@ class FitInterface:
         """
         if ids is None:
             ids = list()
-        try: iter(ids)
-        except TypeError: ids = [ids]
         ids.extend("a")
-        if default:
-            ids.extend("d")
         statstr = str()
         for ID in ids:
             if ID == "a":
                 fitter = self.spectra.workFit.fitter
                 statstr += "active fitter: \n"
-            elif ID == "d":
-                fitter = self.spectra.defaultFitter
-                statstr += "default fitter: \n"
             else:
                 spec = self.spectra.GetActiveObject()
                 if spec is None:
@@ -313,22 +306,15 @@ class FitInterface:
         hdtv.ui.msg(statstr)
         
         
-    def SetFitterParameter(self, parname, status, ids = None, default = False):
+    def SetFitterParameter(self, parname, status, ids = None):
         """
         Sets status of fitter parameter
         
         If not specified otherwise only the fitter of the workFit will be changed.
-        If default=True, also the default fitter will be changed,
-        if a list of fits is given, we try to set the parameter status also 
+        If a list of fits is given, we try to set the parameter status also 
         for these fits. Be aware that failures for the fits from the list will
         be silently ignored.
         """
-        # default fit
-        if default:
-            try:
-                self.spectra.defaultFitter.SetParameter(parname, status)
-            except ValueError, msg:
-                hdtv.ui.error("while editing default Fit: \n\t%s" % msg)
         # active fit
         fit = self.spectra.workFit
         try:
@@ -352,20 +338,16 @@ class FitInterface:
             except KeyError:
                 pass
  
-    def ResetFitterParameters(self, ids=None, default = False):
+    def ResetFitterParameters(self, ids=None):
         """
         Reset Status of Fitter
         
-        The fitter of the workFit is resetted to the status of the defaultFitter.
-        If default is True, the defaultFitter is resetted to the internal default 
-        values first. If a list with ids is given, they are treated in the same 
-        way as the workFit.
+        The fitter of the workFit is resetted to the internal default values . 
+        If a list with ids is given, they are treated in the same way as the workFit.
         """
-        if default:
-            self.spectra.defaultFitter.ResetParamStatus()
         # active Fit
         fit = self.spectra.workFit
-        fit.fitter = copy.copy(self.spectra.defaultFitter)
+        fit.fitter.ResetParamStatus()
         fit.Refresh()
         # fit list
         if not ids:  # works for None and empty list
@@ -377,21 +359,17 @@ class FitInterface:
         except TypeError: ids=[ids]
         for ID in ids:
             fit = spec.dict[ID]
-            fit.fitter= copy.copy(self.spectra.defaultFitter)
+            fit.fitter.ResetParamStatus()
             fit.Refresh() 
             
-    def SetPeakModel(self, peakmodel, ids=None, default = False):
+    def SetPeakModel(self, peakmodel, ids=None):
         """
         Set the peak model (function used for fitting peaks)
         
-        If default is True, the peak model of the default fitter is also set.
         If a list of ids is given, the peak model of the stored fits with that 
         ids will be set. Note, that the latter will fail silently for invalid 
         fit ids.
         """
-        # default
-        if default:
-            self.spectra.defaultFitter.SetPeakModel(peakmodel)
         # active fit
         fit = self.spectra.workFit
         fit.fitter.SetPeakModel(peakmodel)
@@ -516,8 +494,6 @@ class TvFitInterface:
         description = "show status of fit parameter, reset or set parameter"
         usage = "%prog [OPTIONS] status | reset | parname <valuePeak1>, <valuePeak2>, ..."
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-d", "--default", action = "store_true", default = False,
-                            help = "act on default fitter")
         parser.add_option("-f", "--fit", action = "store", default = None,
                             help = "change parameter of selected fit and refit")
         hdtv.cmdline.AddCommand(prog, self.FitParam, completer = self.ParamCompleter,
@@ -528,8 +504,6 @@ class TvFitInterface:
         description = "selects which peak model to use"
         usage = "%prog [OPTIONS] name"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-d", "--default", action = "store_true", default = False,
-                            help = "change default fitter")
         parser.add_option("-f", "--fit", action = "store", default = None,
                             help = "change selected fits and refit")
         hdtv.cmdline.AddCommand(prog, self.FitSetPeakModel,
@@ -806,7 +780,7 @@ class TvFitInterface:
                     ids = hdtv.cmdhelper.ParseFitIds(options.fit, spec)
                 except ValueError:
                     return "USAGE"
-            self.fitIf.SetPeakModel(name, ids, options.default)
+            self.fitIf.SetPeakModel(name, ids)
 
     def PeakModelCompleter(self, text, args=None):
         """
@@ -842,12 +816,12 @@ class TvFitInterface:
             except ValueError:
                 return "USAGE"
         if param=="status":
-            self.fitIf.ShowFitterStatus(ids, options.default)
+            self.fitIf.ShowFitterStatus(ids)
         elif param == "reset":
-            self.fitIf.ResetFitterParameters(ids, options.default)
+            self.fitIf.ResetFitterParameters(ids)
         else:
             try:
-                self.fitIf.SetFitterParameter(param, " ".join(args), ids, options.default)
+                self.fitIf.SetFitterParameter(param, " ".join(args), ids)
             except ValueError, msg:
                 hdtv.ui.error(msg)
         
@@ -855,39 +829,25 @@ class TvFitInterface:
         """
         Creates a completer for all possible parameter names 
         or valid states for a parameter (args[0]: parameter name).
-        If the different peak models are used for active fitter and default fitter,
-        options for both peak models are presented to the user.
         """
         if not args:
-            params = set(["status", "reset"])
-            defaultParams = set(self.spectra.defaultFitter.params)
-            activeParams  = set(self.spectra.workFit.fitter.params)
+            params = ["status", "reset"]
             # create a list of all possible parameter names
-            params = params.union(defaultParams).union(activeParams)
+            activeParams  = self.spectra.workFit.fitter.params
+            params.extend(activeParams)
             return hdtv.cmdhelper.GetCompleteOptions(text, params)
         else:
+            states = list()
             param = args[0]
-            states = set()
-            # valid states for param in default fitter
-            defaultPM = self.spectra.defaultFitter.peakModel
+            activePM = self.spectra.workFit.fitter.peakModel
             try:
-                defaultStates = set(defaultPM.fValidParStatus[param])
-                if len(defaultStates)>1:
-                    states.update(defaultStates)
-            except KeyError:
-                # param is not a parameter of the peak model of the default fitter
-                pass
-            # valid states for param in active fitter
-            activePM = self.fitIf.workFit.fitter.peakModel
-            try:
-                activeStates = activePM.fValidParStatus[param]
-                if len(activeStates)>1:
-                    states.update(activeStates)
+                states = activePM.fValidParStatus[param]
             except KeyError:
                 # param is not a parameter of the peak model of active fitter
-                pass
+                msg = "Invalid parameter %s for active peak model %s" %(param, activePM.name)
+                hdtv.ui.error(msg)
             # remove <type: float> option
-            states.discard(float)
+            states.remove(float)
             return hdtv.cmdhelper.GetCompleteOptions(text, states)
             
     def ResetFit(self, args, options):
