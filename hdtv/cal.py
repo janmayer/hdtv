@@ -199,10 +199,10 @@ class CalibrationFitter:
         for (ch, e_given) in self.pairs:
         
             tableline = dict()
-            e_fit = self.calib.Ch2E(ch)
+            e_fit = self.calib.Ch2E(ch.value)
             residual = e_given - e_fit
             
-            tableline["channel"] = "%10.2f" % ch
+            tableline["channel"] = "%10.2f" % ch.value
             tableline["e_given"] = "%10.2f" % e_given
             tableline["e_fit"] = "%10.2f" % e_fit
             tableline["residual"] = "%10.2f" % residual
@@ -221,18 +221,18 @@ class CalibrationFitter:
         # Prevent canvas from being closed as soon as this function finishes
         ROOT.SetOwnership(canvas, False)
     
-        min_ch = self.pairs[0][0]
-        max_ch = self.pairs[0][0]
-        graph = ROOT.TGraph(len(self.pairs))
-#        graph = self.TGraph
+        min_ch = self.pairs[0][0].value
+        max_ch = self.pairs[0][0].value
+        graph = ROOT.TGraphErrors(len(self.pairs))
         ROOT.SetOwnership(graph, False)
         
         i = 0
         for (ch,e) in self.pairs:
-            min_ch = min(min_ch, ch)
-            max_ch = max(max_ch, ch)
+            min_ch = min(min_ch, ch.value)
+            max_ch = max(max_ch, ch.value)
                 
-            graph.SetPoint(i, ch, e)
+            graph.SetPoint(i, ch.value, e)
+            graph.SetPointError(i, ch.error, 0)
             i += 1
         
         coeffs = self.calib.GetCoeffs()
@@ -262,17 +262,17 @@ class CalibrationFitter:
         # Prevent canvas from being closed as soon as this function finishes
         ROOT.SetOwnership(canvas, False)
     
-        min_ch = self.pairs[0][0]
-        max_ch = self.pairs[0][0]
+        min_ch = self.pairs[0][0].value
+        max_ch = self.pairs[0][0].value
         graph = ROOT.TGraph(len(self.pairs))
         ROOT.SetOwnership(graph, False)
         
         i = 0
         for (ch,e) in self.pairs:
-            min_ch = min(min_ch, ch)
-            max_ch = max(max_ch, ch)
+            min_ch = min(min_ch, ch.value)
+            max_ch = max(max_ch, ch.value)
             
-            graph.SetPoint(i, ch, e - self.calib.Ch2E(ch))
+            graph.SetPoint(i, ch.value, e - self.calib.Ch2E(ch.value))
             i += 1
                 
         nullfunc = ROOT.TF1("CalResidualFunc", "pol0", min_ch, max_ch)
