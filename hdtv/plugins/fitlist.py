@@ -42,17 +42,26 @@ class FitlistManager(object):
         
     def WriteXML(self, sid, fname=None):
         name = self.spectra.dict[sid].name
+        # remember absolut pathname for later use
+        fname = os.path.abspath(fname)
         self.list[name] = fname
         self.xml.WriteFitlist(fname, sid)
         
     def ReadXML(self, sid, fname, refit=False):
         spec = self.spectra.dict[sid]
+        # remember absolut pathname for later use
+        fname = os.path.abspath(fname)
         self.list[spec.name] = fname
         self.xml.ReadFitlist(fname, sid)
 
     def WriteList(self, fname):
         lines = list()
+        listpath = os.path.abspath(fname)
         for (spec, xml) in self.list.iteritems():
+            # create relativ path name
+            common = os.path.commonprefix([listpath,xml])
+            xml=xml.replace(common,"")
+            xml=xml.strip("/")
             lines.append(spec + ": "+xml)
         text = "\n".join(lines)
         f = file(fname, "w")
@@ -65,6 +74,7 @@ class FitlistManager(object):
         except IOError, msg:
             hdtv.ui.error("Error opening file: %s" % msg)
             return None
+        dirname = os.path.dirname(fname)
         linenum = 0
         for l in f:
             linenum += 1
@@ -76,6 +86,11 @@ class FitlistManager(object):
                 (k, v) = l.split(':', 1)
                 name = k.strip()
                 xmlfile = v.strip()
+                # create valid path from relative pathnames
+                xmlfile = os.path.join(dirname, xmlfile)
+                if not os.path.exists(xmlfile):
+                    hdtv.ui.warn("No such file %s" %xmlfile)
+                    continue
                 sid = None
                 for ID in self.spectra.ids:
                     if self.spectra.dict[ID].name == name:

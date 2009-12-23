@@ -565,7 +565,10 @@ class EnergyCalIf(object):
         <specname>: <cal0> <cal1> ...
         """
         lines = list()
-        for (name, cal) in calDict.iteritems():
+        names = calDict.keys()
+        names.sort()
+        for name in names:
+            cal = calDict[name]
             lines.append(name + ": "+hdtv.cal.PrintCal(cal))
         text = "\n".join(lines)
         return text
