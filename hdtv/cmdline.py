@@ -31,6 +31,8 @@ import atexit
 import subprocess
 import pwd
 import optparse
+import shlex
+import string
 import hdtv.util
 
 import readline
@@ -216,8 +218,13 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         cmdline = cmdline.split("#")[0] 
         if cmdline == "":
             return
-        
-        path = cmdline.split()
+#        path = cmdline.split()
+        try:
+            path = shlex.split(cmdline)
+        except ValueError:
+            print "Inappropriate use of quotation characters."
+            return []
+
         (node, args) = self.FindNode(path)
         
         while node and not node.command:
@@ -290,8 +297,14 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             files = os.listdir(directory)
         except OSError:
             files = []
-        
+
         l = len(text)
+
+        if l:
+            for f in files:
+                if string.find(f," ") > -1:
+                    files.remove(f)
+
         options = []
         for f in files:
             if f[0:l] == text:
@@ -299,7 +312,6 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                     options.append(f + "/")
                 elif not dirs_only:
                     options.append(f + " ")
-        
         return options
         
     def GetCompleteOptions(self, text):
@@ -312,8 +324,11 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         # Get the entire buffer from the readline library (we need the context)
         # and split it at spaces.
         buf = readline.get_line_buffer()
-        path = buf.split()
         
+        try:
+            path = shlex.split(buf)
+        except ValueError:
+            return []
         # If the buffer is empty or ends in a space, the children of the
         # node specificed by path are our completion options. (The empty
         # path corresponds to the root node). If the buffer does not end
@@ -321,7 +336,9 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         # of the node above are potential completion candidates, if their
         # names begin with the last part of the path.
         last_path = ""
-        if buf != "" and not buf[-1].isspace():
+        
+        # if buf != "" and not buf[-1].isspace():
+        if buf != "" and (not buf[-1].isspace() or path[-1][-1].isspace()):
                 last_path = path[-1]
                 path = path[0:-1]
         
@@ -361,11 +378,14 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             # files.
             filepath = ""
             if last_path:
-                filepath = os.path.split(last_path)[0]
+                (filepath, text) = os.path.split(last_path)
+                #filepath = os.path.split(last_path)[0]
+                
             
             # Note that the readline library splits at either space ' ' or
             # slash '/', so text, the last part of the command line, would
             # be an (incomplete) filename, always without a directory.
+
             options = self.GetFileCompleteOptions(filepath or ".", text, dirs_only)
         else:
             options = []
@@ -490,7 +510,7 @@ class CommandLine(object):
     
             
     def Complete(self, text, state):
-        """
+    	"""
         Suggest completions for the current command line, whose last token
         is text. This function is intended to be called from the readline
         library *only*.
@@ -499,6 +519,7 @@ class CommandLine(object):
         # one, until we return None. We prepare the complete list to
         # be returned at the initial call and then return it element by
         # element.
+
         if state == 0:
             self.fCompleteOptions = self.GetCompleteOptions(text)
         if state < len(self.fCompleteOptions):
@@ -548,7 +569,7 @@ class CommandLine(object):
             self.ExecCmdfile(cmd)
         elif cmd_type == "SHELL":
             self.ExecShell(cmd)
-    
+
     def MainLoop(self):
         self.fKeepRunning = True
 
@@ -558,7 +579,6 @@ class CommandLine(object):
         readline.set_completer(self.Complete)
         readline.set_completer_delims(" \t" + os.sep)
         readline.parse_and_bind("tab: complete")
-        
         while(self.fKeepRunning):
             # Read a command from the user
             # Choose correct prompt for current mode
@@ -617,7 +637,6 @@ class CommandLine(object):
             except Exception:
                 print "Unhandled exception:"
                 traceback.print_exc()
-
 def RegisterInteractive(name, ref):
     global command_line
     command_line.RegisterInteractive(name, ref)
