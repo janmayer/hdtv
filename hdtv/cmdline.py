@@ -46,6 +46,20 @@ class HDTVCommandAbort(Exception):
     pass
     
 class HDTVOptionParser(optparse.OptionParser):
+    def _process_args(self, largs, rargs, values):
+        # to avoid negative numbers being processed as options
+        # we add a whitespace in front, the parser no longer processes 
+        # them as options while typecast to numeric is unaffected
+        for i in range(len(rargs)):
+            if rargs[i][:1] == "-":
+                 try:
+                     if float(rargs[i]):
+                         rargs[i] = " " + rargs[i]
+                 except ValueError:
+                     pass
+
+        return optparse.OptionParser._process_args(self, largs, rargs, values)
+
     def error(self, msg):
         raise HDTVCommandError, msg
         
@@ -226,7 +240,6 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             return []
 
         (node, args) = self.FindNode(path)
-        
         while node and not node.command:
             node = node.PrimaryChild()
 
@@ -243,7 +256,6 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         try:
             if parser:
                 (options, args) = parser.parse_args(args)
-                
             if not self.CheckNumParams(node, len(args)):
                 raise HDTVCommandError, "Wrong number of arguments to command"
         except HDTVCommandAbort, msg:
