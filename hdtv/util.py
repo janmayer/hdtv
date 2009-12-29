@@ -434,3 +434,10 @@ class Position(object):
             self._fixedInCal = False
             self.pos_uncal = self._E2Ch(self._pos_cal)
         
+def GetCompleteOptions(text, keys):
+    options = []
+    l = len(text)
+    for k in keys:
+        if k[0:l] == text:
+            options.append(k)
+    return options
