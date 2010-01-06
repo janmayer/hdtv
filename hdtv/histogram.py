@@ -121,6 +121,9 @@ class Histogram(Drawable):
         Add other spectrum to this one
         """ 
         self._hist.Add(spec._hist, 1.0)
+        # update display
+        if self.displayObj:
+            self.displayObj.SetHist(self._hist)
         self.typeStr = "spectrum, modified (sum)"
         
     def Minus(self, spec):
@@ -128,6 +131,9 @@ class Histogram(Drawable):
         Substract other spectrum from this one
         """ 
         self._hist.Add(spec._hist, -1.0)
+        # update display
+        if self.displayObj:
+            self.displayObj.SetHist(self._hist)
         self.typeStr = "spectrum, modified (difference)"
             
     def Multiply(self, factor):
@@ -135,6 +141,9 @@ class Histogram(Drawable):
         Multiply spectrum with factor
         """ 
         self._hist.Scale(factor)
+        # update display
+        if self.displayObj:
+            self.displayObj.SetHist(self._hist)
         self.typeStr = "spectrum, modified (multiplied)"
         
        

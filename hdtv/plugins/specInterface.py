@@ -375,7 +375,9 @@ class TvSpecInterface:
         Add spectra (spec1 + spec2, ...)
         """
         try:
-            addTo = int(args[0])
+            # this is a test for valid id (is a string but can be an int)
+            int(args[0])
+            addTo = args[0]
             try:
                 ids = hdtv.cmdhelper.ParseIds(args[1:], self.spectra)
             except KeyError:
@@ -387,10 +389,13 @@ class TvSpecInterface:
         if len(ids) == 0:
             hdtv.ui.warn("Nothing to do")
             return
-
+        
+        # if addTo is a new spectrum 
         if not addTo in self.spectra.dict.keys():
+            # copy first of the spectra that should be added
             sid = self.specIf.CopySpectrum(ids.pop(), addTo)
         
+        # add all other spectra to the first spectrum
         for i in ids:
             try:
                 hdtv.ui.msg("Adding " + str(i) + " to " + str(addTo))
@@ -408,7 +413,7 @@ class TvSpecInterface:
         """
         Substract spectra (spec1 - spec2, ...)
         """   
-        subFrom = int(args[0])
+        subFrom = args[0]
         try:
             ids = hdtv.cmdhelper.ParseIds(args[1:], self.spectra)
         except KeyError:
