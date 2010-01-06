@@ -541,17 +541,17 @@ class TvSpecInterface:
         """
         # TODO: should accept somthing like "spec write all" -> Utilize: hdtv.cmdhelper.ParseSpecIds
         try:
-            (fname, fmt) = args[0].rsplit("'", 1)
+            (fname, fmt) = args[0].rsplit(":", 1)
             if len(args) == 1:
                 ID = self.spectra.activeID
             elif len(args)==2:
-                ID = int(args[1])
+                ID = args[1]
             else:
                 hdtv.ui.error("There is just one index possible here.")
                 raise ValueError
             try:
                 self.spectra.dict[ID].WriteSpectrum(fname, fmt)
-                hdtv.ui.msg("Wrote spectrum with id %d to file %s" %(ID, fname))
+                hdtv.ui.msg("Wrote spectrum with id %s to file %s" %(ID, fname))
             except KeyError:
                  hdtv.ui.warn("There is no spectrum with id: %s" %ID)
         except ValueError:
@@ -581,7 +581,7 @@ class TvSpecInterface:
             name = args[1]
         
         self.spectra.dict[ID].name = name
-        hdtv.ui.msg("Renamed spectrum %d to \'%s\'" % (ID, name))
+        hdtv.ui.msg("Renamed spectrum %s to \'%s\'" % (ID, name))
     
     def SpectrumNormalization(self, args):
         "Set normalization for spectrum"
