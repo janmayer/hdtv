@@ -244,7 +244,17 @@ class SpecReader:
             
             if result != ROOT.MFileHist.ERR_SUCCESS:
                 raise SpecReaderError, mhist.GetErrorMsg()
-            hist = mhist.ToTH1D(histname, histtitle, 0, 0)
+            
+            # Get spectra out of Mfile Mat structure
+            # Use the spectra given by line
+            level = 0
+            line = 0
+            if len(fmt.split(".")) == 3:
+                line = int(fmt.split(".")[0])-1
+                level = 0
+                print "Using spectra in line " + str(line)
+                
+            hist = mhist.ToTH1D(histname, histtitle, level, line)
             if not hist:
                 raise SpecReaderError, mhist.GetErrorMsg()
             return hist
