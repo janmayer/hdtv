@@ -38,7 +38,7 @@ def AssertEqual(x, y, eps=1e-10):
     """
     return _Assert(abs(x-y) <= eps * abs(x))
 
-def AssertEqual_Bool(x, y, eps=1e-10):
+def AssertEqual_Bool(x, y):
     """
     Test two booleans for equality
     """
@@ -78,6 +78,17 @@ def SimpleTest():
         z += ErrValue(i, i/10)
     AssertEqual(z.value, 45)
     AssertEqual(z.error, math.sqrt(2.85))
+    
+def CompareTest():
+    a = ErrValue(9.9, 1)
+    b = ErrValue(10, 1)
+    
+    AssertEqual_Bool(a < b, True)
+    AssertEqual_Bool(a.equal(b), True)
+    AssertEqual_Bool(a > b, False)
+    
+    AssertEqual_Bool(a < 9.95, True)
+    AssertEqual_Bool(b > 9.95, True)
 
 def ParseTest():
     x = ErrValue("0123")
@@ -200,6 +211,15 @@ def EqTest():
     Assert(not x.equal(z))
 
 def CovTest():
+    x = ErrValue(1, .1)
+    y = ErrValue(1, .1)
+    x.SetCov(y, 0.)
+    
+    z = x + y
+    
+    AssertEqual(z.value, 2)
+    AssertEqual(z.error, .1 * math.sqrt(2))
+
     x = ErrValue(2, 1)
     y = ErrValue(3, 2)
     
@@ -478,6 +498,7 @@ AssertEqual(1/2, .5)
 
 # General tests
 SimpleTest()
+CompareTest()
 ParseTest()
 EqTest()
 CovTest()
