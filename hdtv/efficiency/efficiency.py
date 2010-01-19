@@ -20,7 +20,8 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 from __future__ import with_statement
-from hdtv.util import ErrValue, TxtFile, Pairs
+from hdtv.util import TxtFile, Pairs
+from hdtv.errvalue import ErrValue
 from ROOT import TF1, TF2, TGraphErrors, TVirtualFitter
 import math
 import array
