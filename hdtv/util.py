@@ -271,6 +271,12 @@ class Table(object):
                 try:
                     value = d[keys[i]]
 
+                    try: # Handle ErrValues with value None
+                        if value.value is None: 
+                            if value.error == 0:
+                                value = ""
+                    except:
+                        pass
                     if value is None:
                         value = ""
                     else:
