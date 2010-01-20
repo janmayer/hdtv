@@ -475,8 +475,8 @@ class EnergyCalIf(object):
                         calpoly.append(float(p))
                     raise StopIteration
                 else:
-                    if l != "":
-                        calpoly.append(float(l))
+                    if l[0] != "":
+                        calpoly.append(float(l[0]))
                         
         except ValueError:
             f.close()
