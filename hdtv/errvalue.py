@@ -570,6 +570,8 @@ def tanh(x):
 class ErrValue(DepErrValue):
     def __init__(self, value, error = None):
         if isinstance(value, str):
+            if error is not None:
+                raise TypeError, "value of ErrValue is of type string, but error parameter is given"
             (value, error) = self._fromString(value)
         
         self._has_error = True
