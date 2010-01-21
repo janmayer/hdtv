@@ -43,7 +43,7 @@ class FitInterface:
 
         # Register configuration variables for fit interface
         # default region width for quickfit
-        opt = hdtv.options.Option(default = 20.0)
+        opt = hdtv.options.Option(default = 20.0, parse=lambda(x): float(x))
         hdtv.options.RegisterOption("fit.quickfit.region", opt) 
 
         
