@@ -462,13 +462,14 @@ class EnergyCalIf(object):
         """
         fname = os.path.expanduser(fname)
         try:
-            f = open(fname)
+            f = hdtv.util.TxtFile(fname)
+            f.read()
         except IOError, msg:
-            print msg
+            hdtv.ui.error(msg)
             return None
         try:
             calpoly = []
-            for line in f:
+            for line in f.lines:
                 l = line.split()
                 if len(l) > 1: # One line cal file
                     for p in l:
@@ -479,12 +480,11 @@ class EnergyCalIf(object):
                         calpoly.append(float(l[0]))
                         
         except ValueError:
-            f.close()
-            print "Malformed calibration parameter file."
+            hdtv.ui.error("Malformed calibration parameter file %s." % fname)
             raise ValueError
         except StopIteration: # end file reading
             pass
-        f.close()
+
         return hdtv.cal.MakeCalibration(calpoly)
         
         
