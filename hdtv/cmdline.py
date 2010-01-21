@@ -149,7 +149,19 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         self.command = None
         self.options = None
         self.default_level = 1
-        
+    
+    def SplitCmdline(self, s):
+        """
+        Split a string, handling escaped whitespace.
+        Essentially our own version of shlex.split, but with only double
+        quotes accepted as quotes.
+        """
+        lex = shlex.shlex(s, posix=True)
+        lex.whitespace_split = True
+        lex.quotes = "\""
+        lex.commenters = ""
+        return list(lex)
+    
     def SetDefaultLevel(self, level):
         self.default_level = level
         
@@ -234,7 +246,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             return
 #        path = cmdline.split()
         try:
-            path = shlex.split(cmdline)
+            path = self.SplitCmdline(cmdline)
         except ValueError:
             print "Inappropriate use of quotation characters."
             return []
@@ -338,7 +350,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         buf = readline.get_line_buffer()
         
         try:
-            path = shlex.split(buf)
+            path = self.SplitCmdline(buf)
         except ValueError:
             return []
         # If the buffer is empty or ends in a space, the children of the

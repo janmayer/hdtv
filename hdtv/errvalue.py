@@ -56,12 +56,12 @@
 # the above code), so it is recommended to set the error immediately after
 # creation of the ErrValue instance.
 #
-# For technical reasons, equality between ErrValue instances refers to equality
-# as instances (in the sense of id(a) == id(b)), not to equality of value and
-# error. For example, if a = ErrValue(1, .1) and b = ErrValue(1, .1), a == a,
-# but a != b. This makes sense insofar as (a + b) gives a result different from
-# (a + a) (because a and b are considered to be statistically independant).
-# (Note that you generally cannot use == to test for statistical independance.)
+# Comparison of ErrValue instances compares their values, without regard for
+# the error. This allows sort()ing of ErrValues to have the generally expected
+# semantics. There is an additional function equal() which allows to compare
+# ErrValue instances with errors taken into account. Example: 
+# ErrValue(1., .1) != ErrValue(1.01, .1), but
+# ErrValue(1., .1).equal(ErrValue(1.01, .1)) is True.
 
 # NOTES ON THE IMPLEMENTATION:
 # 1. In pratice, ErrValue inherits from DepErrValue, and is dependant on self
@@ -87,6 +87,14 @@
 # take quadratic time. (Also note that, after the loop has finished, s will keep
 # a lot of ErrValue instances alive, so s should be disposed of as soon as
 # possible.)
+#
+# 4. The equality test provided by ErrValue.__cmp__ does not test if two
+# ErrValue are independant. (Observe that for a = ErrValue(1, .1) and
+# b = ErrValue(1, .1), a + b and a + a give different results, even though
+# a == b.) Thus, the hash that keeps track of all ErrValue instances that a
+# DepErrValue instance is depedant on wraps the ErrValue instances in an
+# EVContainer, which provides the correct equality test.
+
 
 from __future__ import division
 import math
@@ -95,6 +103,24 @@ import re
 import copy
 import traceback
 import hdtv.ui
+
+class EVContainer:
+    # Helper class allowing to use ErrValues as keys in dictionaries
+    def __init__(self, ev):
+        self.ev = ev
+    
+    
+    def __hash__(self):
+        return id(self.ev)
+    
+    
+    def __eq__(self, y):
+        return id(self.ev) == id(y.ev)
+    
+    
+    def __cmp__(self, y):
+        raise RuntimeError, "EVContainer instances cannot be compared except for equality"
+
 
 class DepErrValue:
     def __init__(self, value, depends):
@@ -158,7 +184,7 @@ class DepErrValue:
         
         for (xi, dfdxi) in self.depends.iteritems():
             tmp = 0
-            for(xj, cij) in xi._cov.iteritems():
+            for(xj, cij) in xi.ev._cov.iteritems():
                 tmp += y.depends.get(xj, 0) * cij
             cov += dfdxi * tmp
         
@@ -212,21 +238,7 @@ class DepErrValue:
         return self.value
     
     
-    def __hash__(self):
-        return id(self)
-    
-    
-    def __eq__(self, y):
-        return id(self) == id(y)
-    
-    
     def __cmp__(self, y):
-        tb = traceback.extract_stack()[-2]
-        hdtv.ui.warn("__cmp__() called on an ErrValue instance.\n"
-                     "    This function is deprecated and should not be used!\n"
-                     "    (Use cmp(x.value, y.value) instead to avoid this warning.)\n"
-                   + "    (called from file \"%s\", line %d, in %s)" % (tb[0], tb[1], tb[2]))
-        
         try:
             return cmp(self.value, y.value)
         except AttributeError:
@@ -557,8 +569,8 @@ class ErrValue(DepErrValue):
             error = 0.
             self._has_error = False
         
-        self._cov = { self: error**2 }
-        DepErrValue.__init__(self, value, { self: 1 })
+        self._cov = { EVContainer(self): error**2 }
+        DepErrValue.__init__(self, value, { EVContainer(self): 1 })
     
     
     @property
@@ -580,7 +592,7 @@ class ErrValue(DepErrValue):
         """
         Sets the variance (error squared) of this variable.
         """
-        self._cov[self] = var
+        self._cov[EVContainer(self)] = var
     
     
     def SetCov(self, y, cov):
@@ -592,14 +604,14 @@ class ErrValue(DepErrValue):
         if not isinstance(y, ErrValue):
             raise TypeError, "Can only set covariances between two ErrValue objects"
             
-        if y == self:
+        if id(y) == id(self):
             self.SetVar(cov)
         else:
             # One could consider to store only one of cov(self, y) and
             # cov(y, self), but that would make the covariance calculation
             # code above more complicated.
-            self._cov[y] = cov
-            y._cov[self] = cov
+            self._cov[EVContainer(y)] = cov
+            y._cov[EVContainer(self)] = cov
     
     
     ### Functions for string input ###
