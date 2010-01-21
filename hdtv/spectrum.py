@@ -20,9 +20,6 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 import ROOT
-import os
-import hdtv.color 
-import hdtv.ui
 
 from hdtv.drawable import DrawableManager
 
