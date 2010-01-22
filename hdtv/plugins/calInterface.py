@@ -461,30 +461,25 @@ class EnergyCalIf(object):
             * Coefficients in one line, seperated by space, starting with p0
         """
         fname = os.path.expanduser(fname)
-        try:
-            f = open(fname)
-        except IOError, msg:
-            print msg
-            return None
+        
+        f = hdtv.util.TxtFile(fname)
+        f.read()
+        
         try:
             calpoly = []
-            for line in f:
+            for line in f.lines:
                 l = line.split()
                 if len(l) > 1: # One line cal file
                     for p in l:
                         calpoly.append(float(p))
                     raise StopIteration
                 else:
-                    if l != "":
-                        calpoly.append(float(l))
-                        
-        except ValueError:
-            f.close()
-            print "Malformed calibration parameter file."
-            raise ValueError
+                    if l[0] != "":
+                        calpoly.append(float(l[0]))
+
         except StopIteration: # end file reading
             pass
-        f.close()
+
         return hdtv.cal.MakeCalibration(calpoly)
         
         
@@ -779,8 +774,15 @@ class EnergyCalHDTVInterface(object):
             hdtv.ui.warn("Nothing to do")
             return
         # do the work
-        cal = self.EnergyCalIf.CalFromFile(fname)
-        self.spectra.ApplyCalibration(sids, cal)
+        try:
+            cal = self.EnergyCalIf.CalFromFile(fname)
+            self.spectra.ApplyCalibration(sids, cal)
+        except ValueError:
+            hdtv.ui.error("Malformed calibration parameter file \'%s\'." % fname)
+            return False
+        except IOError, msg:
+            hdtv.ui.error(str(msg))
+            return False
         return True
             
 

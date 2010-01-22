@@ -380,10 +380,14 @@ class DepErrValue:
         Return a string in the form "3.1415(92)e-6" giving this value and its
         error
         """
+
         # Call fmt_no_error() for values without error
         if self.error == 0:
             return self.fmt_no_error()
         
+        if self.value is None:
+            return "%s(%.0f)" % (self.value, self.error)
+                                             
         # Check and store sign
         if self.value < 0:
             sgn = "-"
@@ -398,7 +402,7 @@ class DepErrValue:
         # Catch the case where value is zero
         try:
             log10_val = math.floor(math.log(value) / math.log(10.))
-        except (ValueError, OverflowError):
+        except (ValueError, OverflowError, TypeError):
             log10_val = 0.
         
         if log10_val >= 6 or log10_val <= -2:
@@ -441,6 +445,10 @@ class DepErrValue:
     
     
     def fmt_no_error(self, prec = 6):
+        
+        if self.value is None:
+            return str(self.value)
+            
         # Check and store sign
         if self.value < 0:
             sgn = "-"
@@ -453,7 +461,7 @@ class DepErrValue:
         # Catch the case where value is zero
         try:
             log10_val = math.floor(math.log(value) / math.log(10.))
-        except (ValueError, OverflowError):
+        except (ValueError, OverflowError, TypeError):
             log10_val = 0.
         
         if log10_val >= 6 or log10_val <= -2:
@@ -562,6 +570,8 @@ def tanh(x):
 class ErrValue(DepErrValue):
     def __init__(self, value, error = None):
         if isinstance(value, str):
+            if error is not None:
+                raise TypeError, "value of ErrValue is of type string, but error parameter is given"
             (value, error) = self._fromString(value)
         
         self._has_error = True

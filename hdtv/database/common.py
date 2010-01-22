@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import hdtv.cmdline
-from hdtv.util import ErrValue
+from hdtv.errvalue import ErrValue
 import hdtv.ui
 import csv
 import os

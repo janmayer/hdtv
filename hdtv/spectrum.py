@@ -20,16 +20,14 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 import ROOT
-import os
-import hdtv.color 
-import hdtv.ui
 
 from hdtv.drawable import DrawableManager
 
 class Spectrum(DrawableManager):
     def __init__(self, histogram):
+        self.__dict__["hist"] = histogram   # Create histogram attribute avoiding __setattr__ method
         DrawableManager.__init__(self)
-        self.hist = histogram
+        
   
     # delegate everything to the underlying histogram
     def __setattr__(self, name, value):

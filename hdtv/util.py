@@ -29,7 +29,7 @@ import hdtv.ui
 
 def Median(values):
     """
-    Calculate Median of list
+    Calculate Median of a list
     """
     values.sort()
     n = len(values)
@@ -40,7 +40,16 @@ def Median(values):
         return (values[(n - 1) / 2] + values[n / 2]) * 0.5
     else:
         return values[n / 2]
-        
+
+def gcd(a, b):
+    """
+    Calculate greatest common denomiator of two integers
+    """
+    while b != 0:
+        (a, b) = (b, a%b)
+    return a
+
+
 def compareID(a,b):
     try:fa = float(a)
     except ValueError: fa=a
@@ -271,6 +280,12 @@ class Table(object):
                 try:
                     value = d[keys[i]]
 
+                    try: # Handle ErrValues with value None
+                        if value.value is None: 
+                            if value.error == 0:
+                                value = ""
+                    except:
+                        pass
                     if value is None:
                         value = ""
                     else:
@@ -441,3 +456,5 @@ def GetCompleteOptions(text, keys):
         if k[0:l] == text:
             options.append(k)
     return options
+
+

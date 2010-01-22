@@ -53,7 +53,7 @@ import hdtv.plugins.matInterface
 import hdtv.plugins.rootInterface
 import hdtv.plugins.config
 import hdtv.plugins.fitlist
-#import hdtv.plugins.dblookup
+import hdtv.plugins.dblookup
 import hdtv.plugins.peakfinder
 
 # Execute startup.py for user configuration in python
