@@ -53,6 +53,7 @@ import hdtv.plugins.matInterface
 import hdtv.plugins.rootInterface
 import hdtv.plugins.config
 import hdtv.plugins.fitlist
+import hdtv.plugins.fittex
 import hdtv.plugins.dblookup
 import hdtv.plugins.peakfinder
 

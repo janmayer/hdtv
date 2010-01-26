@@ -226,25 +226,30 @@ class Table(object):
     """
     def __init__(self, data, keys, header = None, ignoreEmptyCols = True,
                  sortBy = None, reverseSort = False, extra_header = None, extra_footer = None):
+        self.extra_header = extra_header
+        self.extra_footer = extra_footer
+        self.sortBy = sortBy
+        self.keys = keys
         
         self.col_sep_char = "|"
         self.empty_field = "-"
         self.header_sep_char = "-"
         self.crossing_char = "+"
-        self.extra_header = extra_header
-        self.extra_footer = extra_footer
-        
-        self.lines = list()
-        
-        self.sortBy = sortBy
         
         self._width = 0 # Width of table
         self._col_width = list() # width of columns
         
-        self._ignore_col = [ignoreEmptyCols for i in range(0, len(keys) + 1)] # One additional "border column"
+        # One additional "border column"
+        self._ignore_col = [ignoreEmptyCols for i in range(0, len(keys) + 1)] 
         
-        self.data = list()                   
-
+        self.read_data(data, keys, header)
+        if sortBy is not None:
+            self.sort_data(sortBy, reverseSort)
+        
+        
+    def read_data(self, data, keys, header=None):
+        # data
+        self.data = list()
         for d in data:
             if isinstance(d, dict):
                 tmp = d
@@ -253,76 +258,70 @@ class Table(object):
                 for k in keys:
                     tmp[k] = getattr(d, k)
             self.data.append(tmp)
-            
-        # sort
-        if not sortBy is None:
-            if sortBy.upper()=="ID":
-                self.data.sort(cmp=compareID, key = lambda x: x[sortBy], reverse = reverseSort)
-            else:
-                self.data.sort(key = lambda x: x[sortBy], reverse = reverseSort)
-
-        if header is None: # No header given: set them from keys
-            self.header = list()
-            for k in keys:
-                self.header.append(k)
+        # header
+        if header is None:
+            self.header = keys
         else:
             self.header = header
-
-        # Determine initial width of columns
+        # initial width of columns
         for header in self.header:
             # TODO: len fails on unicode characters (e.g. σ) -> str.decode(encoding)
-            self._col_width.append(len(str(header)) + 2)
-            
-        # Build lines
+            self._col_width.append(len(str(header)) + 2)  
+        
+    def build_lines(self):
+        lines = list()
         for d in self.data:
             line = list()
-            for i in range(0, len(keys)):
+            for i in range(0, len(self.keys)):
                 try:
-                    value = d[keys[i]]
-
-                    try: # Handle ErrValues with value None
-                        if value.value is None: 
-                            if value.error == 0:
-                                value = ""
+                    value = d[self.keys[i]]
+                    # deal with ErrValues
+                    try:
+                        if value.value is None:
+                            value = ""
                     except:
                         pass
                     if value is None:
                         value = ""
                     else:
                         value = str(value)
-                        
                     if not value is "" : # We have values in this columns -> don't ignore it
                         self._ignore_col[i] = False
                         
                     line.append(value)
                     # TODO: len fails on unicode characters (e.g. σ) -> str.decode(encoding)
-                    self._col_width[i] = max(self._col_width[i], len(value) + 2) # Store maximum col width
+                    # Store maximum col width
+                    self._col_width[i] = max(self._col_width[i], len(value) + 2) 
                 except KeyError:
                     line.append(self.empty_field)
-            self.lines.append(line)
-                        
+            lines.append(line)
+        return lines
+          
+    def sort_data(self, sortBy, reverseSort=False):
+        # FIXME: create ID class with proper __cmp__
+        if sortBy.upper()=="ID":
+            self.data.sort(cmp=compareID, key = lambda x: x[sortBy], reverse = reverseSort)
+        else:
+            self.data.sort(key = lambda x: x[sortBy], reverse = reverseSort)
+
+    def calc_width(self):
         # Determine table widths
         for w in self._col_width:
             self._width += w
-            # TODO: for unicode awareness we have to do something like len(col_sep_char.decode('utf-8')
+            # TODO: for unicode awareness we have to do something 
+            #       like len(col_sep_char.decode('utf-8')
             self._width += len(self.col_sep_char) 
 
-    def __str__(self):
-        
-        text = str()
-        if not self.extra_header is None:
-            text += str(self.extra_header) + os.linesep
-            
-        # Build Header
-        header_line = str()
+    def build_header(self):
+        headerline = str()
         for col in range(0, len(self.header)):
             if not self._ignore_col[col]:
-                header_line += str(" " + self.header[col] + " ").center(self._col_width[col]) 
+                headerline += str(" " + self.header[col] + " ").center(self._col_width[col]) 
             if not self._ignore_col[col + 1]:
-                header_line += self.col_sep_char 
-
-        text += header_line + os.linesep
-
+                headerline += self.col_sep_char 
+        return headerline
+        
+    def build_sep(self):
         # Seperator between header and data
         header_sep_line = str()
         for i in range(0, len(self._col_width)):
@@ -331,11 +330,23 @@ class Table(object):
                     header_sep_line += self.header_sep_char
                 if not self._ignore_col[i + 1]:
                     header_sep_line += self.crossing_char
-                        
+        return header_sep_line 
+        
+    def __str__(self):
+        text = str()
+        if not self.extra_header is None:
+            text += str(self.extra_header) + os.linesep
+        
+        # this must be before the header, because of self._ignore_col
+        lines = self.build_lines()
+        
+        headerline = self.build_header()
+        text += headerline + os.linesep
+
+        header_sep_line = self.build_sep()
         text += header_sep_line + os.linesep
                 
-        # Build lines
-        for line in self.lines:
+        for line in lines:
             line_str = ""
             for col in range(0, len(line)):
                 if not self._ignore_col[col]:
@@ -349,7 +360,7 @@ class Table(object):
             text += str(self.extra_footer) + os.linesep
             
         return text
-
+        
 class Position(object):
     """
     Class for storing postions that may be fixed in calibrated or uncalibrated space
