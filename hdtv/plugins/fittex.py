@@ -65,7 +65,7 @@ class TexTable(Table):
     
     def build_header(self):
         header = "\hline" + os.linesep
-        for i in range(1):
+        for i in range(2):
             for string in self.header:
                 header +="\multicolumn{1}{%s}{\\textbf{%s}} &" %(self.ha,string)
             header = header.rstrip("&")
