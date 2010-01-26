@@ -536,15 +536,15 @@ class Fit(Drawable):
         markers = list()
         # Get maximum of region markers, peak markers and peaks
         for r in self.regionMarkers:
-            markers.append(r.p1.pos_cal.value)
-            markers.append(r.p2.pos_cal.value)
+            markers.append(r.p1.pos_cal)
+            markers.append(r.p2.pos_cal)
         for p in self.peakMarkers:
-            markers.append(p.p1.pos_cal.value)
+            markers.append(p.p1.pos_cal)
         for p in self.peaks:
-            markers.append(p.pos_cal.value)
+            markers.append(p.pos_cal)
         for b in self.bgMarkers:
-            markers.append(b.p1.pos_cal.value)
-            markers.append(b.p2.pos_cal.value)
+            markers.append(b.p1.pos_cal)
+            markers.append(b.p2.pos_cal)
         # calulate region limits
         if len(markers) == 0: # No markers
             return None
