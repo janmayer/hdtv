@@ -65,29 +65,24 @@ class TexTable(Table):
     
     def build_header(self):
         header = "\hline" + os.linesep
-        for key in self.header:
-            header +="\multicolumn{1}{%s}{\\textbf{%s}}" %(self.ha,key)
-            if key is not self.header[-1]:
-                header +="&"
+        for i in range(1):
+            for string in self.header:
+                header +="\multicolumn{1}{%s}{\\textbf{%s}} &" %(self.ha,string)
+            header = header.rstrip("&")
+            header += "\\\ \hline" + os.linesep
+            if i==0:
+                header += "\endfirsthead" + os.linesep + os.linesep
+                header +="\hline" + os.linesep
             else:
-                header += "\\\ \hline" + os.linesep
-        header += "\endfirsthead" + os.linesep + os.linesep
-        header += "\hline"+ os.linesep
-        for key in self.header:
-            header +="\multicolumn{1}{%s}{\\textbf{%s}}" %(self.ha,key)
-            if key is not self.header[-1]:
-                header +="&"
-            else:
-                header += "\\\ \hline" + os.linesep+ os.linesep
-        header += "\endhead" + os.linesep + os.linesep
-        
+                header += "\endhead" + os.linesep + os.linesep
+            
         header +="\hline" + os.linesep
         header +="\multicolumn{%d}{r}{{wird fortgesetzt...}} \\\ " %len(self.header) + os.linesep 
         header +="\endfoot" + os.linesep + os.linesep
 
         header +="\hline \hline" + os.linesep
         header +="\endlastfoot" + os.linesep + os.linesep
-
+    
         return header
 
                  
@@ -152,6 +147,7 @@ class fitTex:
         
     def WriteTex(self, args, options):
         filename = args[0]
+        filename = os.path.expanduser(filename)
         
         # get list of fits
         fits = list()
