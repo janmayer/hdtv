@@ -854,6 +854,8 @@ class EnergyCalHDTVInterface(object):
         Read calibrations for several spectra from file
         """
         caldict = self.EnergyCalIf.CalsFromList(args[0])
+        if caldict is None:
+            return
         # update calcdict of main session
         self.spectra.caldict.update(caldict)
         for name in caldict.iterkeys():
