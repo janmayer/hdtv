@@ -25,7 +25,6 @@
 #-------------------------------------------------------------------------------
 import os
 
-import hdtv.spectrum
 import hdtv.efficiency
 import hdtv.cmdline
 import hdtv.cmdhelper
@@ -33,6 +32,7 @@ import hdtv.options
 import hdtv.ui
 import hdtv.cal
 import hdtv.util
+import hdtv.errvalue
 
 class EffCalIf(object):
     
@@ -576,6 +576,25 @@ class EnergyCalIf(object):
         coeffs = hdtv.cal.GetCoeffs(cal)
         cal = hdtv.cal.MakeCalibration(cal)
         self.spectra.ApplyCalibration(ids, cal)
+        
+    def RecalibFromNudat(self, fname, sid, ignoreUncertain=True, degree=1, 
+                        table=False, fit=False, residual=False, ignoreErrors=False):
+        nudat = hdtv.util.LevelsFromNudat(fname, ignoreUncertain)
+        spec = self.spectra.dict[sid]
+        pairs = hdtv.util.Pairs()
+        for ID in spec.ids:
+            fit = spec.dict[ID]
+            for peak in fit.peaks:
+                tol = 3
+                enlit = [n for n in nudat if n.equal(peak.pos_cal, f=tol)]
+                while len(enlit)>1 and tol >0:
+                    tol -= 1
+                    enlit = [n for n in nudat if n.equal(peak.pos_cal, f=tol)]
+                if len(enlit)>0:
+                    pairs.add(peak.pos, enlit[0])
+        cal = self.CalFromPairs(pairs, degree, table, fit, residual, ignoreErrors)
+        return cal
+    
 
 class EnergyCalHDTVInterface(object):
     
@@ -736,7 +755,7 @@ class EnergyCalHDTVInterface(object):
         """
         # parsing command
         try:
-            pairs = hdtv.util.Pairs(hdtv.util.ErrValue)
+            pairs = hdtv.util.Pairs(hdtv.errvalue.ErrValue)
             if not options.file is None: # Read from file     
                 pairs.fromFile(options.file)
             else:
@@ -821,6 +840,7 @@ class EnergyCalHDTVInterface(object):
                                            ignoreErrors=options.ignore_errors)
         self.spectra.ApplyCalibration(sids, cal)
         return True
+      
 
     def CalPosList(self, args, options):
         """

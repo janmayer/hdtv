@@ -203,9 +203,9 @@ class CalibrationFitter:
             residual = e_given - e_fit
             
             tableline["channel"] = "%10.2f" % ch.value
-            tableline["e_given"] = "%10.2f" % e_given
+            tableline["e_given"] = "%10.2f" % e_given.value
             tableline["e_fit"] = "%10.2f" % e_fit
-            tableline["residual"] = "%10.2f" % residual
+            tableline["residual"] = "%10.2f" % residual.value
             tabledata.append(tableline)
             
         return hdtv.util.Table(tabledata, keys, header = header, sortBy="channel")
@@ -230,8 +230,11 @@ class CalibrationFitter:
         for (ch,e) in self.pairs:
             min_ch = min(min_ch, ch.value)
             max_ch = max(max_ch, ch.value)
-                
-            graph.SetPoint(i, ch.value, e)
+            
+            try:
+                graph.SetPoint(i, ch.value, e.value)
+            except:
+                graph.SetPoint(i, ch.value, e)
             graph.SetPointError(i, ch.error, 0)
             i += 1
         
