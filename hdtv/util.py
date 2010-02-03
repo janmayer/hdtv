@@ -56,44 +56,7 @@ def compareID(a,b):
     try: fb = float(b)
     except ValueError: fb=b
     return cmp(fa,fb)
-
-
-def LevelsFromNudat(filename, ignore_uncertain=True):
-    levels = list()
-    lines = file(filename).readlines()
-    for l in lines:
-        words = l.split()
-        # remove trailing isotop
-        words = words[1:]
-        # stretch lines to have at least 5 words
-        while len(words)<6:
-            words.append("")
-        # level energies
-        if words[0]=="L":
-            en = words[1]
-            if float(en)==0:
-                error = 0
-                words.insert(3, words[2])
-            else:
-                try:
-                    index = words[2].index("(")
-                    error = words[2][:index]
-                    words.insert(3,words[2][index:])
-                except:
-                    error = words[2]
-            if words[3]=="?":
-                uncertain=True
-            else:
-                uncertain=False
-            if ignore_uncertain and uncertain:
-                continue
-            (value, error) = hdtv.errvalue.ErrValue._fromString("%s(%s)" %(en,error))
-            levels.append(hdtv.errvalue.ErrValue(value, error))
-    return levels
-
-
-
-
+    
 
 class ErrValue(hdtv.errvalue.ErrValue):
     def __init__(self, *args):

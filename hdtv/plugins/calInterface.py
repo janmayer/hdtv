@@ -809,7 +809,7 @@ class EnergyCalHDTVInterface(object):
         """ 
         Calibrate the active spectrum by assigning energies to fitted peaks
 
-        Peaks are specified by their id and the peak number within the peak.
+        Peaks are specified by their id and the peak number within the fit.
         Syntax: id.number
         If no number is given, the first peak in the fit is used.
         """
@@ -820,7 +820,7 @@ class EnergyCalHDTVInterface(object):
         # parsing of command
         try:
             if len(args) % 2 != 0:
-                hdtv.ui.error("Number of parameters must be even")
+                hdtv.ui.error("Number of arguments must be even")
                 raise hdtv.cmdline.HDTVCommandError
             else:
                 pairs = hdtv.util.Pairs()

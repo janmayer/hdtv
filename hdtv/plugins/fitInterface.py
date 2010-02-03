@@ -264,6 +264,11 @@ class FitInterface:
                     thispeak[p] = getattr(peak, p_cal)
                 if p not in params:
                     params.append(p)
+            # add extra params
+            for p in peak.extras.keys():
+                thispeak[p] = peak.extras[p]
+                if p not in params:
+                    params.append(p) 
             # Calculate normalized volume if efficiency calibration is present
             # FIXME: does this belong here?
             if fit.spec.effCal is not None:

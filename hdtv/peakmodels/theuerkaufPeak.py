@@ -39,6 +39,7 @@ class TheuerkaufPeak(Drawable):
         self.tr = tr
         self.sh = sh
         self.sw = sw
+        self.extras = dict()
         
     def __getattr__(self, name):
         """

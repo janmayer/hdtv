@@ -125,3 +125,17 @@ def ParseRange(strings, special=["ALL", "NONE"]):
 #            raise ValueError, "Malformed range"
     
 #    return values
+
+def ParsePeakID(pid):
+     # parse fit ids 
+    fid = pid.split('.')
+    try:
+        if len(fid) == 2:
+            return (fid[0], int(fid[1]))
+        if len(fid)==1:
+            return (fid[0], 0)
+        else:
+            raise ValueError
+    except (KeyError, IndexError, ValueError):
+        hdtv.ui.error("Invalid fitID %s" %fitID)
+        raise ValueError 
