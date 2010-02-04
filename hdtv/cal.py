@@ -274,6 +274,11 @@ class CalibrationFitter:
         for (ch,e) in self.pairs:
             min_ch = min(min_ch, ch.value)
             max_ch = max(max_ch, ch.value)
+            try:
+                # energie may be ErrValue
+                e = e.value
+            except:
+                pass
             
             graph.SetPoint(i, ch.value, e - self.calib.Ch2E(ch.value))
             i += 1

@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+import os
 
 import hdtv.cmdline
 import hdtv.cmdhelper
@@ -25,44 +26,11 @@ import hdtv.ui
 
 from hdtv.errvalue import ErrValue
 
-
-def LevelsFromNudat(filename, ignore_uncertain=True):
-    levels = list()
-    lines = file(filename).readlines()
-    for l in lines:
-        words = l.split()
-        # remove trailing isotop
-        words = words[1:]
-        # stretch lines to have at least 5 words
-        while len(words)<6:
-            words.append("")
-        # level energies
-        if words[0]=="L":
-            en = words[1]
-            if float(en)==0:
-                error = 0
-                words.insert(3, words[2])
-            else:
-                try:
-                    index = words[2].index("(")
-                    error = words[2][:index]
-                    words.insert(3,words[2][index:])
-                except:
-                    error = words[2]
-            if words[3]=="?":
-                uncertain=True
-            else:
-                uncertain=False
-            if ignore_uncertain and uncertain:
-                continue
-            (value, error) = hdtv.errvalue.ErrValue._fromString("%s(%s)" %(en,error))
-            levels.append(hdtv.errvalue.ErrValue(value, error))
-    return levels
-
 class FitMap(object):
-    def __init__(self, spectra):
+    def __init__(self, spectra, ecal):
         hdtv.ui.msg("loading plugin for setting nominal positions to peaks")
         self.spectra = spectra
+        self.ecal = ecal
         
         prog = "fit position assign"
         description = "assign energy valuey as nominal position for peak"
@@ -80,12 +48,24 @@ class FitMap(object):
         description = "read nominal position from nudat file"
         usage = "%prog filename"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        hdtv.cmdline.AddCommand(prog, self.FitPosMap, nargs=1, parser = parser)
+        hdtv.cmdline.AddCommand(prog, self.FitPosMap, nargs=1, fileargs=True, parser = parser)
 
-        prog = "cal pos recalibrate"
+        prog = "calibration position recalibrate"
         description = "use stored nominal positions of peaks to recalibrate the spectrum"
         usage = "%prog"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
+                        help = "spectrum ids to apply calibration to")
+        parser.add_option("-d", "--degree", action = "store", default = "1",
+                        help = "degree of calibration polynomial fitted [default: %default]")
+        parser.add_option("-f", "--show-fit", action = "store_true", default = False,
+                        help = "show fit used to obtain calibration")
+        parser.add_option("-r", "--show-residual", action = "store_true", default = False,
+                        help = "show residual of calibration fit")
+        parser.add_option("-t", "--show-table", action = "store_true", default = False,
+                        help = "print table of energies given and energies obtained from fit")
+        parser.add_option("-i", "--ignore-errors", action = "store_true", default = False,
+                          help = "set all weights to 1 in fit (ignore error bars even if given)")
         hdtv.cmdline.AddCommand(prog, self.CalPosRecalibrate, nargs=0, parser = parser)
 
     def FitPosAssign(self, args, options):
@@ -131,36 +111,73 @@ class FitMap(object):
             except:
                 continue
     
-#    def FitPosMap(self, args, options):
-#        """
-#        Read a list of energies from nudat file and map to the fitted peaks.
-#        
-#        The spectrum must be roughly calibrated for this to work.
-#        """ 
-#        nudat = hdtv.util.LevelsFromNudat(fname, ignoreUncertain=True)
-#        if self.spectra.activeID == None:
-#            hdtv.ui.warn("No active spectrum, no action taken.")
-#            return False
-#        spec = self.spectra.GetActiveObject()
-#        for fit in spec.dict.itervalues():
-#            fit = spec.dict[ID]
-#            for peak in fit.peaks:
-#                tol = 3
-#                enlit = [n for n in nudat if n.equal(peak.pos_cal, f=tol)]
-#                while len(enlit)>1 and tol >0:
-#                    tol -= 1
-#                    enlit = [n for n in nudat if n.equal(peak.pos_cal, f=tol)]
-#                if len(enlit)>0:
-#                    pairs.add(peak.pos, enlit[0])
+    def FitPosMap(self, args, options):
+        """
+        Read a list of energies from nudat file and map to the fitted peaks.
         
-        
-        
-        
+        The spectrum must be roughly calibrated for this to work.
+        """ 
+        f = hdtv.util.TxtFile(args[0])
+        f.read()
+        energies = list()
+        for line in f.lines:
+            energies.append(ErrValue(line.split(",")[0]))
+        if self.spectra.activeID == None:
+            hdtv.ui.warn("No active spectrum, no action taken.")
+            return False
+        spec = self.spectra.GetActiveObject()
+        count = 0
+        for fit in spec.dict.itervalues():
+            for peak in fit.peaks:
+                # erase old values
+                try:
+                    peak.extras.pop("pos_lit")
+                except:
+                    pass
+                # start with a rather coarse search
+                tol = 3
+                enlit = [e for e in energies if e.equal(peak.pos_cal, f=tol)]
+                # and then refine it, if necessary
+                while len(enlit)>1 and tol >0:
+                    tol -= 1
+                    enlit = [e for e in energies if e.equal(peak.pos_cal, f=tol)]
+                if len(enlit)>0:
+                    peak.extras["pos_lit"] = enlit[0]
+                    count +=1
+        # give a feetback to the user
+        hdtv.ui.msg("Mapped %s energies to peaks" %count)
+    
     def CalPosRecalibrate(self, args, options):
-        pass
-
+        if self.spectra.activeID == None:
+            hdtv.ui.warn("No active spectrum, no action taken.")
+            return False
+        spec = self.spectra.GetActiveObject() 
+        # parsing of command line
+        sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+        if len(sids)==0:
+            sids = [self.spectra.activeID]
+        degree = int(options.degree)
+        pairs = hdtv.util.Pairs()
+        for ID in spec.ids:
+            fit = spec.dict[ID]
+            for peak in fit.peaks:
+                try:
+                    enlit = peak.extras["pos_lit"]
+                    pairs.add(peak.pos, enlit)
+                except:
+                    continue
+        
+        cal = self.ecal.CalFromPairs(pairs, degree, table=options.show_table, 
+                                                    fit=options.show_fit, 
+                                                    residual=options.show_residual,
+                                                    ignoreErrors=options.ignore_errors)
+        self.spectra.ApplyCalibration(sids, cal)
+        return True
 
 # plugin initialisation
 import __main__
-__main__.fitmap = FitMap(__main__.spectra)       
+if not __main__.ecal:
+    import calInterface
+    __main__.ecal = calInterface.EnergyCalIf(__main__.spectra)
+__main__.fitmap = FitMap(__main__.spectra, __main__.ecal)       
 

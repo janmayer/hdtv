@@ -460,8 +460,6 @@ class EnergyCalIf(object):
             * One coefficient in each line, starting with p0
             * Coefficients in one line, seperated by space, starting with p0
         """
-        fname = os.path.expanduser(fname)
-        
         f = hdtv.util.TxtFile(fname)
         f.read()
         
@@ -577,24 +575,6 @@ class EnergyCalIf(object):
         cal = hdtv.cal.MakeCalibration(cal)
         self.spectra.ApplyCalibration(ids, cal)
         
-    def RecalibFromNudat(self, fname, sid, ignoreUncertain=True, degree=1, 
-                        table=False, fit=False, residual=False, ignoreErrors=False):
-        nudat = hdtv.util.LevelsFromNudat(fname, ignoreUncertain)
-        spec = self.spectra.dict[sid]
-        pairs = hdtv.util.Pairs()
-        for ID in spec.ids:
-            fit = spec.dict[ID]
-            for peak in fit.peaks:
-                tol = 3
-                enlit = [n for n in nudat if n.equal(peak.pos_cal, f=tol)]
-                while len(enlit)>1 and tol >0:
-                    tol -= 1
-                    enlit = [n for n in nudat if n.equal(peak.pos_cal, f=tol)]
-                if len(enlit)>0:
-                    pairs.add(peak.pos, enlit[0])
-        cal = self.CalFromPairs(pairs, degree, table, fit, residual, ignoreErrors)
-        return cal
-    
 
 class EnergyCalHDTVInterface(object):
     
