@@ -45,7 +45,7 @@ class FitMap(object):
         hdtv.cmdline.AddCommand(prog, self.FitPosErase, minargs=1, parser = parser)
 
         prog = "fit position map"
-        description = "read nominal position from nudat file"
+        description = "read nominal position from file"
         usage = "%prog filename"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         hdtv.cmdline.AddCommand(prog, self.FitPosMap, nargs=1, fileargs=True, parser = parser)

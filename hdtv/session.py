@@ -68,7 +68,8 @@ class Session(DrawableManager):
             else:
                 if cal is None:
                     hdtv.ui.msg("Unsetting calibration of spectrum with id %s" % ID)
-                    self.caldict.pop(spec.name)
+                    try:  self.caldict.pop(spec.name)
+                    except KeyError: pass
                     spec.cal= None
                 else:
                     hdtv.ui.msg("Calibrated spectrum with id %s" % ID)

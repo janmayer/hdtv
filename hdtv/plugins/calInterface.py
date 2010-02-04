@@ -179,7 +179,7 @@ class EffCalIf(object):
         Plot efficiency
         """
         
-        fitValues = hdtv.util.Pairs(hdtv.util.ErrValue)
+        fitValues = hdtv.util.Pairs(hdtv.errvalue.ErrValue)
          
         try:
             fitValues.fromFile(filename, sep=" ") # TODO: separator
@@ -500,27 +500,22 @@ class EnergyCalIf(object):
         return fitter.calib
         
         
-    def CalFromFits(self, fits, pairs, degree=1, table=False, fit=False, residual=False, ignoreErrors=False):
+    def CalFromFits(self, fits, pairs, degree=1, table=False, fit=False, 
+                                        residual=False, ignoreErrors=False):
         """
         Create a calibration from pairs of fits and energies
         """
         for p in pairs:
-            # parse fit ids 
-            fitID = p[0].split('.')
             try:
-                if len(fitID) == 2:
-                    channel = fits[fitID[0]].peaks[int(fitID[1])].pos
-                elif len(fitID)==1:
-                    channel = fits[fitID[0]].peaks[0].pos
-                else:
-                    raise ValueError
-            except (KeyError, IndexError, ValueError):
-                hdtv.ui.error("Invalid fitID %s" %fitID)
-                return 
-            p[0] = channel
-        cal = self.CalFromPairs(pairs, degree, table, fit, residual,
+                (fid, pid) = hdtv.cmdhelper.ParsePeakID(p[0])
+                peak = fits[fid].peaks[pid]
+                peak.extras["pos_lit"] = p[1]
+                p[0] = peak.pos 
+            except: 
+                return None
+        return self.CalFromPairs(pairs, degree, table, fit, residual,
                                 ignoreErrors=ignoreErrors)
-        return cal
+
 
     def CalsFromList(self, fname):
         """
@@ -794,7 +789,7 @@ class EnergyCalHDTVInterface(object):
             else:
                 pairs = hdtv.util.Pairs()
                 for i in range(0, len(args),2):
-                    pairs.add(args[i],float(args[i+1]))
+                    pairs.add(args[i], hdtv.errvalue.ErrValue(args[i+1]))
             sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
             if len(sids)==0:
                 sids = [self.spectra.activeID]
