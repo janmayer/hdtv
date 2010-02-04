@@ -44,6 +44,8 @@ class EEPeak(Drawable):
         self.gamma = gamma
         # vol is not a fit parameter, but rather the result of the fit
         self.vol = vol
+        # dictionary for storing additional user supplied values
+        self.extras = dict()
         
     def __getattr__(self, name):
         """

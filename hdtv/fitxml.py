@@ -39,7 +39,7 @@ from hdtv.peakmodels import FitValue, PeakModels
 #
 # There is a script in the test directory, to test reading and writing for 
 # some test cases, please make sure that your changes do not break those test cases
-VERSION="1.2"
+VERSION="1.3"
 
 class FitXml:
     """
@@ -49,7 +49,7 @@ class FitXml:
       self.spectra = spectra
       self.version = VERSION
       # Please point the following functions to the appropriate functions
-      self.RestoreFromXml = self.RestoreFromXml_v1_2
+      self.RestoreFromXml = self.RestoreFromXml_v1_3
       self.Xml2Fit = self.Xml2Fit_v1
       
 #### creating of xml ###########################################################
@@ -209,6 +209,20 @@ class FitXml:
                     if not param.error is None:
                         errorElement = ET.SubElement(paramElement, "error")
                         errorElement.text = str(param.error)
+            # <extras>
+            extraElement = ET.SubElement(peakElement, "extras")
+            for param in peak.extras.keys():
+                paramElement = ET.SubElement(extraElement, param)
+                param = peak.extras[param]
+                try:
+                    if not param.value is None:
+                        valueElement = ET.SubElement(paramElement, "value")
+                        valueElement.text = str(param.value)
+                    if not param.error is None:
+                        errorElement = ET.SubElement(paramElement, "error")
+                        errorElement.text = str(param.error)
+                except:
+                    paramElement.text = str(param)
         return fitElement
         
     def _indent(self, elem, level=0):
@@ -332,6 +346,9 @@ class FitXml:
                 # old versions
                 oldversion = root.get("version")
                 hdtv.ui.warn("The XML version of this file (%s) is outdated." %oldversion)
+                if oldversion=="1.2":
+                    hdtv.ui.msg("But this version should be fully compatible with the new version.")
+                    count = self.RestoreFromXml_v1_2(root, sid, refit=refit)
                 if oldversion=="1.1":
                     hdtv.ui.msg("But this version should be fully compatible with the new version.")
                     count = self.RestoreFromXml_v1_1(root, sid, refit=refit)
@@ -359,13 +376,13 @@ class FitXml:
             self.spectra.viewport.UnlockUpdate()
 
 #### version 1* ###############################################################
-    def RestoreFromXml_v1_2(self, root, sid, refit=False):
+    def RestoreFromXml_v1_3(self, root, sid, refit=False):
         """
-        Restores fits from xml file (version = 1.2)
+        Restores fits from xml file (version = 1.3)
         
-        Changes to version 1.1:
-        Calibrated AND Uncalibrated marker positions are saved in version 1.2,
-        where as in version 1.1 only one of both has been saved. No big change!
+        Changes to version 1.2:
+        Now it is possible to store additional user supplied parameter for
+        each peak. No big change!
         """
         spec = self.spectra.dict[sid]
         count = 0
@@ -396,6 +413,16 @@ class FitXml:
             if not sid in self.spectra.visible:
                 fit.Hide()
         return count
+        
+    def RestoreFromXml_v1_2(self, root, sid, refit=False):
+        """
+        Restores fits from xml file (version = 1.2)
+        
+        Changes to version 1.1:
+        Calibrated AND Uncalibrated marker positions are saved in version 1.2,
+        where as in version 1.1 only one of both has been saved. No big change!
+        """
+        return self.RestoreFromXml_v1_3(root, sid, refit)
         
     def RestoreFromXml_v1_1(self, root, sid, refit=False):
         """
@@ -558,6 +585,23 @@ class FitXml:
                     statusdict[name].append(status)
                 except KeyError:
                     statusdict[name]=[status]
+            # <extras>
+            extraElement = peakElement.find("extras")
+            extras = dict()
+            if extraElement is not None:
+                for paramElement in extraElement:
+                    name = paramElement.tag
+                    print name
+                    if len(paramElement) ==1:
+                        extras[name] = paramElement.text
+                    else:
+                        # <value>
+                        valueElement = paramElement.find("value")
+                        value = float(valueElement.text)
+                        # <error>
+                        errorElement = paramElement.find("error")
+                        error = float(errorElement.text)
+                        extras[name] = ErrValue(value, error)
             # create peak
             try:
                 peak = fit.fitter.peakModel.Peak(cal=calibration, **parameter)
@@ -565,6 +609,7 @@ class FitXml:
                 hdtv.ui.error("Error reading peak with parameters: %s" % str(parameter))
                 success = False
                 continue
+            peak.extras = extras
             fit.peaks.append(peak)
             # set parameter status of fitter
             for name in statusdict.keys():
