@@ -114,6 +114,7 @@ class TxtFile(object):
     def __init__(self, filename, mode = "r"):
                 
         self.lines = list()  
+        self.linos = list()
         self.mode = mode
         filename = filename.rstrip() # TODO: this has to be handled properly (escaped whitespaces, etc...)
         self.filename = os.path.expanduser(filename) 
@@ -129,7 +130,9 @@ class TxtFile(object):
         try:
             self.fd = open(self.filename, self.mode)
             prev_line = ""
+            number = 0
             for line in self.fd:
+                number +=1
                 line = line.rstrip('\r\n ')
                 if len(line) > 0 and line[-1] == '\\': # line is continued on next line
                     prev_line += line.rstrip('\\') 
@@ -146,6 +149,7 @@ class TxtFile(object):
                 if line.strip() == "":
                     continue
                 self.lines.append(line)
+                self.linos.append(number)
                 
         except IOError, msg:
             raise IOError, "Error opening file:" + str(msg) 

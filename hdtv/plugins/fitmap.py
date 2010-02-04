@@ -113,7 +113,7 @@ class FitMap(object):
     
     def FitPosMap(self, args, options):
         """
-        Read a list of energies from nudat file and map to the fitted peaks.
+        Read a list of energies from file and map to the fitted peaks.
         
         The spectrum must be roughly calibrated for this to work.
         """ 

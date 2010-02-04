@@ -529,27 +529,16 @@ class EnergyCalIf(object):
         The calibrations are written into the calibration dictionary.
         """
         calDict = dict()
-        fname = os.path.expanduser(fname)
-        try:
-            f = open(fname, "r")
-        except IOError, msg:
-            hdtv.ui.error("Error opening file: %s" % msg)
-            return None
-        linenum = 0
-        for l in f:
-            linenum += 1
-            # Remove comments and whitespace; ignore empty lines
-            l = l.split('#', 1)[0].strip()
-            if l == "":
-                continue
+        f = hdtv.util.TxtFile(fname)
+        f.read()
+        for (l,n) in zip(f.lines,f.linos):
             try:
                 (k, v) = l.split(':', 1)
                 name = k.strip()
                 coeff = [ float(s) for s in v.split() ]
                 calDict[name]= hdtv.cal.MakeCalibration(coeff)
             except ValueError:
-                hdtv.ui.warn("Could not parse line %d of file %s: ignored." % (linenum, fname))
-        f.close()
+                hdtv.ui.warn("Could not parse line %d of file %s: ignored." % (n, fname))
         return calDict
         
     def CreateCalList(self, calDict):
