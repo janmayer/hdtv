@@ -541,7 +541,7 @@ class TvSpecInterface:
         """
         # TODO: should accept somthing like "spec write all" -> Utilize: hdtv.cmdhelper.ParseSpecIds
         try:
-            (fname, fmt) = args[0].rsplit(":", 1)
+            (fname, fmt) = args[0].rsplit("'", 1)
             if len(args) == 1:
                 ID = self.spectra.activeID
             elif len(args)==2:
