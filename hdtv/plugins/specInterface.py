@@ -580,7 +580,10 @@ class TvSpecInterface:
             ID = ids[0]
             name = args[1]
         
-        self.spectra.dict[ID].name = name
+        spec = self.spectra.dict[ID]
+        spec.name = name
+        if spec.cal and not spec.cal.IsTrivial():
+            self.spectra.caldict[name] = spec.cal
         hdtv.ui.msg("Renamed spectrum %s to \'%s\'" % (ID, name))
     
     def SpectrumNormalization(self, args):
