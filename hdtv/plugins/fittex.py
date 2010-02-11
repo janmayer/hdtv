@@ -24,12 +24,12 @@ import hdtv.ui
 from hdtv.util import Table
     
 preamble="""\makeatletter
-\@ifundefined{standalonetrue}{\\newif\ifstandalone}{}
+\@ifundefined{standalonetrue}{\\newif\ifstandalone}{\let\ifbackup=\ifstandalone}
 \@ifundefined{section}{\standalonetrue}{\standalonefalse}
 \makeatother
 \ifstandalone
 
-\documentclass[12pt,twoside,a4paper]{report}
+\documentclass[12pt,oneside,a4paper]{report}
 \usepackage[ngerman]{babel}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -51,7 +51,11 @@ enddok="""\end{longtable}
 \end{center}
 
 \ifstandalone
-\end{document}
+\end{document} 
+\else
+\let\ifstandalone=\ifbackup
+\expandafter\endinput
+\\fi
 """
 
 class TexTable(Table):
@@ -80,7 +84,7 @@ class TexTable(Table):
         header +="\multicolumn{%d}{r}{{wird fortgesetzt...}} \\\ " %len(self.header) + os.linesep 
         header +="\endfoot" + os.linesep + os.linesep
 
-        header +="\hline \hline" + os.linesep
+        header +="\hline " + os.linesep
         header +="\endlastfoot" + os.linesep + os.linesep
     
         return header
