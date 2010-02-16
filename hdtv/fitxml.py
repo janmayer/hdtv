@@ -591,7 +591,6 @@ class FitXml:
             if extraElement is not None:
                 for paramElement in extraElement:
                     name = paramElement.tag
-                    print name
                     if len(paramElement) ==1:
                         extras[name] = paramElement.text
                     else:
