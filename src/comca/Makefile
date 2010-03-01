@@ -16,7 +16,7 @@ $(MODNAME).so: $(OBJ) rootdict-$(MODNAME).o Makefile
 	$(CPP) -fpic $(CFLAGS) $(LFLAGS) -shared -o $(MODNAME).so $(OBJ) rootdict-$(MODNAME).o
 
 rootdict-$(MODNAME).cxx:  Makefile $(HEADERS)
-	$(ROOTCINT) -f rootdict-$(MODNAME).cxx -c $(INCL_PATH) $(HEADERS)
+	$(ROOTCINT) -f rootdict-$(MODNAME).cxx -c -I$(INCL_PATH) $(HEADERS)
 
 %.o: %.cxx $(HEADERS) Makefile
 	$(CPP) $(CFLAGS) -fpic -c $<
