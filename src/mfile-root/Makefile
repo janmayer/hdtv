@@ -1,7 +1,7 @@
 # Makefile for mfile-root
 include ../Makefile.def
 
-LFLAGS=$(LFAGS) -L/ikpv2/lib -lmfile
+LFLAGS+= -L/ikpv2/lib -lmfile
 SOURCES= MFileHist.cxx VMatrix.cxx
 HEADERS= MFileHist.h VMatrix.h
 OBJ= $(SOURCES:.cxx=.o)
