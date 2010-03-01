@@ -27,19 +27,16 @@ class Spectrum(DrawableManager):
     def __init__(self, histogram):
         self.__dict__["hist"] = histogram   # Create histogram attribute avoiding __setattr__ method
         DrawableManager.__init__(self)
-        
-  
+
     # delegate everything to the underlying histogram
     def __setattr__(self, name, value):
-        if hasattr(self, "hist") and self.hist is not None:
+        if self.hist is not None:
             self.hist.__setattr__(name, value)
-        DrawableManager.__setattr__(self, name, value)
+        if hasattr(self, name): # Update attribut of this class, if existent
+            DrawableManager.__setattr__(self, name, value)
         
     def __getattr__(self, name):
-        if hasattr(self, "hist"):
-            return getattr(self.hist, name)
-        else:
-            raise AttributeError
+        return getattr(self.hist, name)
 
     # color property
     def _set_color(self, color):
