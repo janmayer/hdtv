@@ -89,11 +89,11 @@ class SpecInterface:
             elif len(ids) == 0: # Deactivate
                 oldactive = self.spectra.activeID
                 self.spectra.ActivateObject(None)
-                self.window.viewport.SetStatusText("Deactivated spectrum %d" % oldactive)
+                self.window.viewport.SetStatusText("Deactivated spectrum %s" % oldactive)
             else:
                 ID = ids[0]
                 self.spectra.ActivateObject(ID)
-                self.window.viewport.SetStatusText("Activated spectrum %d" % self.spectra.activeID)
+                self.window.viewport.SetStatusText("Activated spectrum %s" % self.spectra.activeID)
         except ValueError:
             self.window.viewport.SetStatusText("Invalid id: %s" % arg)
 
