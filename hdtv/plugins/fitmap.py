@@ -21,7 +21,6 @@
 import os
 
 import hdtv.cmdline
-import hdtv.cmdhelper
 import hdtv.ui
 
 from hdtv.errvalue import ErrValue
@@ -87,7 +86,8 @@ class FitMap(object):
             for i in range(0, len(args),2):
                 en = ErrValue(args[i+1])
                 try:
-                    (fid, pid) = hdtv.cmdhelper.ParsePeakID(args[i])
+                    # FIXME
+                    ids = hdtv.util.ID.ParseIds(args[i])
                 except:
                     continue
                 spec.dict[fid].peaks[pid].extras["pos_lit"] = en
@@ -135,7 +135,7 @@ class FitMap(object):
                 except:
                     pass
                 # start with a rather coarse search
-                tol = 3
+                tol = 5
                 enlit = [e for e in energies if e.equal(peak.pos_cal, f=tol)]
                 # and then refine it, if necessary
                 while len(enlit)>1 and tol >0:

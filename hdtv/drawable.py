@@ -22,6 +22,7 @@
 import hdtv.cal
 import hdtv.color
 import hdtv.ui
+import hdtv.id
 
 
 class Drawable(object):
@@ -92,6 +93,7 @@ class Drawable(object):
         self._ID = ID
         if self.displayObj:
             try:
+                ID = str(ID).strip(".")
                 self.displayObj.SetID(ID)
             except:
                 pass
@@ -156,7 +158,7 @@ class DrawableManager(object):
     def __init__(self, viewport=None):
         self.viewport = viewport
         # dictionary to store the drawable objects
-        self.dict = dict()
+        self.dict = hdtv.id.IDdict()
         self.visible = set()
         self.activeID = None
         # This should keep track of ID for nextID, prevID
@@ -170,7 +172,7 @@ class DrawableManager(object):
     def ids(self):
         # return sorted list of ids
         ids = self.dict.keys()
-        ids.sort(cmp=hdtv.util.compareID)
+        ids.sort()
         return ids
     
     # active property

@@ -25,7 +25,6 @@ import glob
 import copy
 
 import hdtv.cmdline
-import hdtv.cmdhelper
 import hdtv.color
 import hdtv.cal
 import hdtv.util
@@ -69,7 +68,7 @@ class SpecInterface:
         ShowObjects wrapper for use with Hotkey
         """
         try:
-            ids = hdtv.cmdhelper.ParseIds(arg, self.spectra)
+            ids = hdtv.util.ID.ParseIds(arg, self.spectra)
             if len(ids) == 0:
                 self.spectra.HideAll()
             else:
@@ -83,7 +82,7 @@ class SpecInterface:
         ActivateObject wrapper for use with Hotkey
         """
         try:
-            ids = hdtv.cmdhelper.ParseIds(arg, self.spectra)
+            ids = hdtv.util.ID.ParseIds(arg, self.spectra)
             if len(ids) > 1:
                 self.window.viewport.SetStatusText("Cannot activate more than one spectrum")
             elif len(ids) == 0: # Deactivate
@@ -309,7 +308,7 @@ class TvSpecInterface:
         Deletes spectra 
         """
         try:
-            ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
+            ids = hdtv.util.ID.ParseIds(args, self.spectra)
         except ValueError:
             return "USAGE"
                     
@@ -324,7 +323,7 @@ class TvSpecInterface:
         Activate one spectra
         """
         try:
-            ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
+            ids = hdtv.util.ID.ParseIds(args, self.spectra)
         except ValueError:
             return "USAGE"
 
@@ -342,7 +341,7 @@ class TvSpecInterface:
         """
         hdtv.ui.debug("SpectrumCopy: args= " + str(args) + " options= " + str(options), level=6)
         try:
-            ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
+            ids = hdtv.util.ID.ParseIds(args, self.spectra)
             
             if len(ids) == 0:
                 hdtv.ui.warn("Nothing to do")
@@ -351,7 +350,7 @@ class TvSpecInterface:
             return "USAGE"
         targetids = list()
         if options.spectrum is not None:
-            targetids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra, only_existent=False)
+            targetids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra, only_existent=False)
         if len(targetids) == 0:
             targetids = [None for i in range(0,len(ids))]
         elif len(targetids) == 1: # Only start ID is given
@@ -379,7 +378,7 @@ class TvSpecInterface:
             int(args[0])
             addTo = args[0]
             try:
-                ids = hdtv.cmdhelper.ParseIds(args[1:], self.spectra)
+                ids = hdtv.util.ID.ParseIds(args[1:], self.spectra)
             except KeyError:
                 hdtv.ui.msg("Adding active spectrum %d" % self.spectra.activeID)
                 ids = [self.spectra.activeID]
@@ -415,7 +414,7 @@ class TvSpecInterface:
         """   
         subFrom = args[0]
         try:
-            ids = hdtv.cmdhelper.ParseIds(args[1:], self.spectra)
+            ids = hdtv.util.ID.ParseIds(args[1:], self.spectra)
         except KeyError:
             ids = [self.spectra.activeID]
             hdtv.ui.msg("Substracting active spectrum %d" % self.spectra.activeID)
@@ -453,7 +452,7 @@ class TvSpecInterface:
                     hdtv.ui.msg("No active spectrum")
                     ids = list()
             else:
-                ids = hdtv.cmdhelper.ParseIds(args[:-1], self.spectra)
+                ids = hdtv.util.ID.ParseIds(args[:-1], self.spectra)
 
         except (IndexError, ValueError):
             return "USAGE"
@@ -487,7 +486,7 @@ class TvSpecInterface:
             ids = self.spectra.dict.keys()
         else:
             try:
-                ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
+                ids = hdtv.util.ID.ParseIds(args, self.spectra)
             except ValueError:
                 return "USAGE"
         if inverse:
@@ -503,7 +502,7 @@ class TvSpecInterface:
         if len(args)==0:
             args = ["active"]
         try:
-            ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
+            ids = hdtv.util.ID.ParseIds(args, self.spectra)
         except ValueError:
             return "USAGE"
         s = str()
@@ -514,7 +513,7 @@ class TvSpecInterface:
                 s += "Spectrum %s: ID not found\n" % ID
                 continue
             s += "Spectrum %s:\n" % ID
-            s += hdtv.cmdhelper.Indent(spec.info, "  ")
+            s += hdtv.util.Indent(spec.info, "  ")
             s += "\n"
         hdtv.ui.msg(s, newline=False)
 
@@ -526,7 +525,7 @@ class TvSpecInterface:
         if len(args)==0:
            ids = ["active"] 
         try:
-            ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
+            ids = hdtv.util.ID.ParseIds(args, self.spectra)
         except ValueError:
             return "USAGE"
         if len(ids) == 0:
@@ -539,7 +538,7 @@ class TvSpecInterface:
         """
         Write Spectrum to File
         """
-        # TODO: should accept somthing like "spec write all" -> Utilize: hdtv.cmdhelper.ParseSpecIds
+        # TODO: should accept somthing like "spec write all" 
         try:
             (fname, fmt) = args[0].rsplit("'", 1)
             if len(args) == 1:
@@ -566,7 +565,7 @@ class TvSpecInterface:
             name = args[0]
         else:
             try:
-                ids = hdtv.cmdhelper.ParseIds(args[0], self.spectra)
+                ids = hdtv.util.ID.ParseIds(args[0], self.spectra)
             except ValueError:
                 return "USAGE"
             
@@ -592,7 +591,7 @@ class TvSpecInterface:
             if len(args) == 1:
                 ids = [ self.spectra.activeID ]
             else:
-                ids = hdtv.cmdhelper.ParseIds(args[:-1], self.spectra)
+                ids = hdtv.util.ID.ParseIds(args[:-1], self.spectra)
                 if len(ids) == 0:
                     hdtv.ui.warn("Nothing to do")
                     return

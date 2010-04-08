@@ -27,6 +27,27 @@ import traceback
 import hdtv.errvalue
 import hdtv.ui
 
+
+def Indent(s, indent=" "):
+    """
+    Re-format a (possibly multi-line) string such that each line is indented.
+    """
+    return indent + ("\n" + indent).join(s.splitlines()) + "\n"
+
+def GetCompleteOptions(begin, options):
+    l = len(begin)
+    return [o + " " for o in options if o[0:l] == begin]
+
+# FIXME: remove
+#def GetCompleteOptions(text, keys):
+#    options = []
+#    l = len(text)
+#    for k in keys:
+#        if k[0:l] == text:
+#            options.append(k)
+#    return options
+
+
 def Median(values):
     """
     Calculate Median of a list
@@ -49,7 +70,7 @@ def gcd(a, b):
         (a, b) = (b, a%b)
     return a
 
-
+# FIXME: remove
 def compareID(a,b):
     try:fa = float(a)
     except ValueError: fa=a
@@ -57,7 +78,7 @@ def compareID(a,b):
     except ValueError: fb=b
     return cmp(fa,fb)
     
-
+# FIXME: remove
 class ErrValue(hdtv.errvalue.ErrValue):
     def __init__(self, *args):
         tb = traceback.extract_stack()[-2]
@@ -465,12 +486,172 @@ class Position(object):
             self._fixedInCal = False
             self.pos_uncal = self._E2Ch(self._pos_cal)
         
-def GetCompleteOptions(text, keys):
-    options = []
-    l = len(text)
-    for k in keys:
-        if k[0:l] == text:
-            options.append(k)
-    return options
+class ID(object):
+    def __init__(self, major=None, minor=None):
+        self.major = major
+        self.minor = minor
+        
+    def __cmp__(self, ID):
+        if self.major > ID.major:
+            return 1
+        if self.major < ID.major:
+            return -1
+        return cmp(self.minor, ID.minor)
+        
+    def __str__(self):
+        if self.major is None:
+            return "."+str(self.minor)
+        if self.minor is None:
+            return str(self.major)
+        return str(self.major)+"."+str(self.minor)
+    
+    @classmethod
+    def _parseSpecialID(cls, string, manager):
+        if string.upper()=="NONE":
+            return list()
+        elif string.upper() == "NEXT":
+            return [manager.nextID]
+        elif string.upper() == "PREV":
+            return [manager.prevID]
+        elif string.upper() == "FIRST":
+            return [manager.firstID]
+        elif string.upper() == "LAST":
+            return [manager.lastID]
+        elif string.upper()== "ACTIVE":
+            return [manager.activeID]
+        elif string.upper() == "ALL":
+            return manager.ids
+        elif string.upper() == "VISIBLE":
+            return list(manager.visible)
+        else:
+            return ValueError
+    
+    @classmethod
+    def _parseNormalID(cls, string, manager):
+        if "." in s:
+            major, minor = s.split(".")
+        else:
+            try:
+                # test for session class (hack!)
+                manager.window
+                major = None
+                minor = s
+            except:
+                major = s
+                minor = None
+            try:
+                return ID(int(major), int(minor))
+            except:
+                raise ValueError
+        
+    @classmethod
+    def ParseIds(cls, strings, manager, only_existent=True):
+        # Normalize separators
+        if not isinstance(strings, str):
+            strings = ",".join(strings)
+        strings = ",".join(strings.split())
+    
+        # Split string
+        parts = [p for p in strings.split(",") if p]
+    
+        ids = list()
+        for s in parts:
+            # first deal with ranges
+            if "-" in s:
+                start,stop = s.split("-")
+                # start
+                try:
+                    special = cls._parseSpecialID(start, manager)
+                except ValueError:
+                    start = cls._parseNormalID(start)
+                except AttributeError:
+                    hdtv.ui.error("Invalid key word %s" % start)
+                    raise ValueError
+                else:
+                    if len(special)==0:
+                        start = special[0]
+                    elif len(special) > 0:
+                        hdtv.error("Invalid ID %s" % start)
+                        raise ValueError
+                # stop
+                try:
+                    special = cls._parseSpecialID(stop, manager)
+                except ValueError:
+                    stop = cls._parseNormalID(stop)
+                except AttributeError:
+                    hdtv.ui.error("Invalid key word %s" %stop)
+                    raise ValueError
+                else:
+                    if len(special)==0:
+                        stop = special[0]
+                    elif len(special) > 0:
+                        hdtv.error("Invalid ID %s" % stop)
+                        raise ValueError
+                # fill the range
+                ids.extend([i for i in manager.ids if (i>=start and i<=stop)])
+            else:
+                try:
+                    special = cls._parseSpecialID(s, manager)
+                    ids.extend(special)
+                except ValueError:
+                    ids.append(self._parseNormalID(s))
+                except AttributeError:
+                    hdtv.ui.error("Invalid key word %s" % s)
+                    raise ValueError
+                    
+       
+        # filter non-existing ids
+        valid_ids = list() 
+        if only_existent:
+            for ID in ids:
+                # ID might be None, if e.g. activeID is None
+                if ID is not None and ID not in manager.ids:
+                    hdtv.ui.warn("Non-existent id %s" %ID)
+                else:
+                    valid_ids.append(ID)
+        else:
+            map(valid_ids.append, ids)
+        return valid_ids
+            
+class IDdict(dict):
+    def __getitem__(self, key):
+        key = str(key)
+        return dict.__getitem__(self, key)
+        
+    def __setitem__(self, key, value):
+        key = str(key)
+        return dict.__setitem__(self, key, value)
+        
+    def __delitem__(self, key):
+        key = str(key)
+        return dict.__delitem__(self, key)
+        
+    def pop(self, key):
+        key = str(key)
+        return dict.pop(key)
+    
+    def has_key(self, key):
+        key = str(key)
+        return dict.has_key(self, key)
+        
+    def get(self, key, d=None):
+        key = str(key)
+        return dict.get(self, key, d)
+        
+    def _toID(self, key):
+        if "." in key:
+            major, minor = key.split(".")
+            return ID(major, minor)
+        else:
+            return ID(k)
+        
+    def keys(self):
+        return [self._toID(k) for k in dict.keys(self)]
 
+    def popitem(self):
+        item = dict.popitem(self)
+        return (self._toID(item[0], self._toID(item[1])))
+        
+    def items(self):
+        return [(self._toID(k),v) for (k,v) in dict.items(self)]
 

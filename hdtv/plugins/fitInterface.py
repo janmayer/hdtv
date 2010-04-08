@@ -20,7 +20,6 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 import ROOT
 import hdtv.cmdline
-import hdtv.cmdhelper
 import hdtv.options
 import hdtv.util
 import hdtv.ui
@@ -95,7 +94,7 @@ class FitInterface:
             self.window.viewport.SetStatusText("No active spectrum")
             return
         try:
-            ids = hdtv.cmdhelper.ParseIds(args, spec)
+            ids = hdtv.util.ID.ParseIds(args, spec)
         except ValueError:
             self.window.viewport.SetStatusText("Invalid fit identifier: %s" % args)
             return
@@ -111,7 +110,7 @@ class FitInterface:
             self.window.viewport.SetStatusText("No active spectrum")
             return
         try:
-            ids = hdtv.cmdhelper.ParseIds(args, spec)
+            ids = hdtv.util.ID.ParseIds(args, spec)
         except ValueError:
             self.window.viewport.SetStatusText("Invalid fit identifier: %s" % args)
             return
@@ -555,10 +554,10 @@ class TvFitInterface:
         """
         if not args:
             mtypes = ["background","region", "peak"]
-            return hdtv.cmdhelper.GetCompleteOptions(text, mtypes)
+            return hdtv.util.GetCompleteOptions(text, mtypes)
         elif len(args)==1:
             actions = ["set", "delete"]
-            return hdtv.cmdhelper.GetCompleteOptions(text, actions)
+            return hdtv.util.GetCompleteOptions(text, actions)
         
             
     def FitExecute(self, args, options):
@@ -566,7 +565,7 @@ class TvFitInterface:
         Execute a fit
         """
         try:
-            specIDs = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            specIDs = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
         except ValueError:
             return "USAGE"
         if len(specIDs) == 0:
@@ -578,7 +577,7 @@ class TvFitInterface:
             doPeaks = True
         for specID in specIDs:
             try:
-                fitIDs = hdtv.cmdhelper.ParseIds(args, self.spectra.dict[specID])
+                fitIDs = hdtv.util.ID.ParseIds(args, self.spectra.dict[specID])
             except ValueError:
                 return "USAGE"
             if len(fitIDs) == 0:
@@ -634,7 +633,7 @@ class TvFitInterface:
             return
         spec = self.spectra.dict[sid]
         try:
-            ids = hdtv.cmdhelper.ParseIds(args, spec)
+            ids = hdtv.util.ID.ParseIds(args, spec)
         except ValueError:
             return "USAGE"
         if len(ids) == 1:
@@ -652,7 +651,7 @@ class TvFitInterface:
         Delete fits
         """
         try:
-            sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            sids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
         except ValueError:
             return "USAGE"
         if len(sids)==0:
@@ -662,7 +661,7 @@ class TvFitInterface:
             for s in sids:
                 spec = self.spectra.dict[s]
                 try:
-                    ids = hdtv.cmdhelper.ParseIds(args, spec)
+                    ids = hdtv.util.ID.ParseIds(args, spec)
                 except ValueError:
                     return "USAGE"
                 for ID in ids:
@@ -682,13 +681,13 @@ class TvFitInterface:
         inverse = True inverses the fit selection i.e. FitShow becomes FitHide
         """
         try:
-            sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            sids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
         except ValueError:
             return "USAGE"
         for sid in sids:
             spec = self.spectra.dict[sid]
             try:
-                fitIDs = hdtv.cmdhelper.ParseIds(args, spec)
+                fitIDs = hdtv.util.ID.ParseIds(args, spec)
             except ValueError:
                 return "USAGE"
             if inverse:
@@ -720,7 +719,7 @@ class TvFitInterface:
                 fit.append(activeFit)
         else:
             try:
-                ids = hdtv.cmdhelper.ParseIds(args, spec)
+                ids = hdtv.util.ID.ParseIds(args, spec)
             except ValueError:
                 return "USAGE"
             fits = [spec.dict[ID] for ID in ids]
@@ -739,7 +738,7 @@ class TvFitInterface:
         """
         self.fitIf.PrintWorkFit()
         try:
-            sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            sids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
         except ValueError:
             return "USAGE"
         if len(sids)==0:
@@ -750,7 +749,7 @@ class TvFitInterface:
         for sid in sids:
             spec = self.spectra.dict[sid]
             try:
-                ids = hdtv.cmdhelper.ParseIds(options.fit, spec)
+                ids = hdtv.util.ID.ParseIds(options.fit, spec)
             except ValueError:
                 return "USAGE"
             if options.visible:
@@ -782,7 +781,7 @@ class TvFitInterface:
                     hdtv.ui.warn("No active spectrum, no action taken.")
                     return
                 try:
-                    ids = hdtv.cmdhelper.ParseFitIds(options.fit, spec)
+                    ids = hdtv.util.ID.ParseIds(options.fit, spec)
                 except ValueError:
                     return "USAGE"
             self.fitIf.SetPeakModel(name, ids)
@@ -791,7 +790,7 @@ class TvFitInterface:
         """
         Helper function for FitSetPeakModel
         """
-        return hdtv.cmdhelper.GetCompleteOptions(text, hdtv.peakmodels.PeakModels.iterkeys())
+        return hdtv.util.GetCompleteOptions(text, hdtv.peakmodels.PeakModels.iterkeys())
 
     def FitParam(self, args, options):
         """
@@ -817,7 +816,7 @@ class TvFitInterface:
                 hdtv.ui.warn("No active spectrum, no action taken.")
                 return
             try:
-                ids = hdtv.cmdhelper.ParseIds(options.fit, spec)
+                ids = hdtv.util.ID.ParseIds(options.fit, spec)
             except ValueError:
                 return "USAGE"
         if param=="status":
@@ -840,7 +839,7 @@ class TvFitInterface:
             # create a list of all possible parameter names
             activeParams  = self.spectra.workFit.fitter.params
             params.extend(activeParams)
-            return hdtv.cmdhelper.GetCompleteOptions(text, params)
+            return hdtv.util.GetCompleteOptions(text, params)
         else:
             states = list()
             param = args[0]
@@ -853,14 +852,14 @@ class TvFitInterface:
                 hdtv.ui.error(msg)
             # remove <type: float> option
             states.remove(float)
-            return hdtv.cmdhelper.GetCompleteOptions(text, states)
+            return hdtv.util.GetCompleteOptions(text, states)
             
     def ResetFit(self, args, options):
         """
         Reset fitter of a fit to unfitted default.
         """
         try:
-            specIDs = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            specIDs = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
         except ValueError:
             return "USAGE"
         if len(specIDs) == 0:
@@ -868,7 +867,7 @@ class TvFitInterface:
             return
         for specID in specIDs:
             try:
-                fitIDs = hdtv.cmdhelper.ParseIds(args, self.spectra.dict[specID])
+                fitIDs = hdtv.util.ID.ParseIds(args, self.spectra.dict[specID])
             except ValueError:
                 return "USAGE"
             if len(fitIDs) == 0:

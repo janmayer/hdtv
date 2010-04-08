@@ -27,7 +27,6 @@ import os
 
 import hdtv.efficiency
 import hdtv.cmdline
-import hdtv.cmdhelper
 import hdtv.options
 import hdtv.ui
 import hdtv.cal
@@ -299,7 +298,7 @@ class EffCalHDTVInterface(object):
             covFileName = options.file + ".cov"
         
         try:
-            ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            ids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
         except ValueError:
             hdtv.ui.error("Invalid ID %s" % options.spectrum)
             return
@@ -321,7 +320,7 @@ class EffCalHDTVInterface(object):
         filename = args[0]
         
         try:
-            ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            ids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
         except ValueError:
             hdtv.ui.error("Invalid ID %s" % options.spectrum)
             return
@@ -340,7 +339,7 @@ class EffCalHDTVInterface(object):
         filename = args[0]
         
         try:
-            ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            ids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
         except ValueError:
             hdtv.ui.error("Invalid ID %s" % options.spectrum)
             return
@@ -358,7 +357,7 @@ class EffCalHDTVInterface(object):
         filename = args[0]
         
         try:
-            ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            ids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
         except ValueError:
             hdtv.ui.error("Invalid ID %s" % options.spectrum)
             return
@@ -381,7 +380,7 @@ class EffCalHDTVInterface(object):
         filename = args[0]
         
         try:
-            ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            ids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
         except ValueError:
             hdtv.ui.error("Invalid ID %s" % options.spectrum)
             return
@@ -399,7 +398,7 @@ class EffCalHDTVInterface(object):
         Plot efficiency
         """
         try:
-            ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
+            ids = hdtv.util.ID.ParseIds(args, self.spectra)
         except ValueError:
             hdtv.ui.error("Invalid ID %s" % args)
             return
@@ -416,7 +415,7 @@ class EffCalHDTVInterface(object):
         Fit efficiency
         """
         try:
-            ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
+            ids = hdtv.util.ID.ParseIds(args, self.spectra)
         except ValueError:
             hdtv.ui.error("Invalid ID %s" % args)
             return
@@ -433,7 +432,7 @@ class EffCalHDTVInterface(object):
         List efficiencies
         """
         try:
-            ids = hdtv.cmdhelper.ParseIds(args, self.spectra)
+            ids = hdtv.util.ID.ParseIds(args, self.spectra)
         except ValueError:
             hdtv.ui.error("Invalid ID %s" % args)
             return
@@ -677,7 +676,7 @@ class EnergyCalHDTVInterface(object):
         # parsing command
         try:
             cal = [float(i) for i in args]
-            ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            ids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
         except:
             return "USAGE"
         if len(ids) == 0:
@@ -693,7 +692,7 @@ class EnergyCalHDTVInterface(object):
         """
         # parsing command
         try:
-            ids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            ids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
         except:
             return "USAGE"
         if len(ids) == 0:
@@ -728,7 +727,7 @@ class EnergyCalHDTVInterface(object):
                     raise hdtv.cmdline.HDTVCommandError
                 for p in range(0, len(args), 2):
                     pairs.add(args[p], args[p + 1])
-            sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            sids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
             degree = int(options.degree)
         except:
             return "USAGE"
@@ -748,7 +747,7 @@ class EnergyCalHDTVInterface(object):
         """
         # parsing command
         try:
-            sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            sids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
             fname = args[0]
         except:
             return "USAGE"
@@ -790,7 +789,7 @@ class EnergyCalHDTVInterface(object):
                 pairs = hdtv.util.Pairs()
                 for i in range(0, len(args),2):
                     pairs.add(args[i], hdtv.errvalue.ErrValue(args[i+1]))
-            sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            sids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
             if len(sids)==0:
                 sids = [self.spectra.activeID]
             degree = int(options.degree)

@@ -25,6 +25,7 @@
 import ROOT
 
 import hdtv.ui
+import hdtv.util
 
 from hdtv.matrix import Matrix
 from hdtv.histogram import MHisto2D
@@ -75,7 +76,7 @@ class MatInterface:
             self.window.viewport.SetStatusText("No matrix")
             return
         try:
-            ids = hdtv.cmdhelper.ParseIds(args, spec.matrix)
+            ids = hdtv.util.ID.ParseIds(args, spec.matrix)
         except ValueError:
             self.window.viewport.SetStatusText("Invalid cut identifier: %s" % args)
             return
@@ -94,7 +95,7 @@ class MatInterface:
             self.window.viewport.SetStatusText("No matrix")
             return
         try:
-            ids = hdtv.cmdhelper.ParseIds(args, spec.matrix)
+            ids = hdtv.util.ID.ParseIds(args, spec.matrix)
         except ValueError:
             self.window.viewport.SetStatusText("Invalid cut identifier: %s" % args)
             return
@@ -335,7 +336,7 @@ class TvMatInterface:
         """
         Show a overview of matrices with all cuts and cut spectra
         """
-        ids = hdtv.cmdhelper.ParseRange(options.matrix)
+        ids = hdtv.util.ID.ParseRange(options.matrix)
         if ids=="NONE":
             return
         matrices = set()
@@ -390,10 +391,10 @@ class TvMatInterface:
         """
         if not args:
             mtypes = ["background","region"]
-            return hdtv.cmdhelper.GetCompleteOptions(text, mtypes)
+            return hdtv.util.GetCompleteOptions(text, mtypes)
         elif len(args)==1:
             actions = ["set", "delete"]
-            return hdtv.cmdhelper.GetCompleteOptions(text, actions)
+            return hdtv.util.GetCompleteOptions(text, actions)
             
     def CutExecute(self, args, options):
         return self.spectra.ExecuteCut()
@@ -418,7 +419,7 @@ class TvMatInterface:
             hdtv.ui.warn("Active spectrum does not belong to a matrix")
             return
         try:
-            ids = hdtv.cmdhelper.ParseIds(args, spec.matrix)
+            ids = hdtv.util.ID.ParseIds(args, spec.matrix)
         except ValueError:
             return "USAGE"
         if len(ids) == 1:
@@ -442,7 +443,7 @@ class TvMatInterface:
             hdtv.ui.warn("Active spectrum does not belong to a matrix")
             return
         try:
-            ids = hdtv.cmdhelper.ParseIds(args, spec.matrix)
+            ids = hdtv.util.ID.ParseIds(args, spec.matrix)
         except ValueError:
             return "USAGE"
         for ID in ids:
