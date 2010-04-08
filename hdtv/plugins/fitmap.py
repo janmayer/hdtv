@@ -86,11 +86,17 @@ class FitMap(object):
             for i in range(0, len(args),2):
                 en = ErrValue(args[i+1])
                 try:
-                    # FIXME
-                    ids = hdtv.util.ID.ParseIds(args[i])
-                except:
+                    ids = hdtv.util.ID.ParseIds(args[i], spec, only_existent=False)
+                    pid = ids[0].minor
+                    if pid is None:  pid = 0
+                    fid = ids[0]
+                    fid.minor = None
+                    spec.dict[fid].peaks[pid].extras["pos_lit"] = en
+                except ValueError:
                     continue
-                spec.dict[fid].peaks[pid].extras["pos_lit"] = en
+                except KeyError:
+                    hdtv.ui.warn("no peak with id %s" %args[i])
+                
 
     def FitPosErase(self, args, options):
         """
@@ -98,19 +104,38 @@ class FitMap(object):
         
         Peaks are specified by their id and the peak number within the fit.
         Syntax: id.number
-        If no number is given, the first peak in the fit is used.
+        If no number is given, the all peaks in that fit are used.
         """
         if self.spectra.activeID == None:
             hdtv.ui.warn("No active spectrum, no action taken.")
             return False
         spec = self.spectra.GetActiveObject()
+        pids = set()
         for ID in args:
             try:
-                (fid, pid) = hdtv.cmdhelper.ParsePeakID(ID)
-                spec.dict[fid].peaks[pid].extras.pop("pos_lit")
-            except:
+                fids = hdtv.util.ID.ParseIds(ID, spec, only_existent=False)
+                for i in fids:
+                    if i.minor is None:
+                        pid = "all"
+                    else:
+                        pid = str(i)
+                        i.minor = None
+                    pids.update(set(hdtv.util.ID.ParseIds(pid, spec.dict[i])))
+            except ValueError:
                 continue
-    
+            for i in pids:
+                pid = i.minor
+                i.minor = None
+                try:
+                    peak = spec.dict[i].peaks[pid]
+                except KeyError:
+                    hdtv.ui.warn("no peak with id %s.%s" %(i.major, pid))
+                try:   
+                    peak.extras.pop("pos_lit")
+                except KeyError:
+                    continue
+  
+                    
     def FitPosMap(self, args, options):
         """
         Read a list of energies from file and map to the fitted peaks.
@@ -153,7 +178,7 @@ class FitMap(object):
             return False
         spec = self.spectra.GetActiveObject() 
         # parsing of command line
-        sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+        sids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
         if len(sids)==0:
             sids = [self.spectra.activeID]
         degree = int(options.degree)

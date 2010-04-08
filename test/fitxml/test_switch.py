@@ -32,7 +32,7 @@ print "-------------------------------------------------------------------------
 
 for i in range(0,5):
     __main__.s.LoadSpectra(testspectrum)
-    spectra.dict[str(i)].cal=[0,(i+1)*0.5]
+    spectra.Get(i).cal=[0,(i+1)*0.5]
 __main__.s.ListSpectra()
     
 raw_input("Press enter to continue ")

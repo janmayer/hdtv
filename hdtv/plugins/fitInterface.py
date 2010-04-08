@@ -242,9 +242,11 @@ class FitInterface:
         for peak in fit.peaks:
             thispeak = dict()
             if fit.ID is None:
-                thispeak["id"] = "." + str(fit.peaks.index(peak))
+                #thispeak["id"] = "." + str(fit.peaks.index(peak))
+                thispeak["id"] = hdtv.util.ID(None, fit.peaks.index(peak))
             else:
-                thispeak["id"] = str(fit.ID)+"." + str(fit.peaks.index(peak))
+                #thispeak["id"] = str(fit.ID)+"." + str(fit.peaks.index(peak))
+                thispeak["id"] = hdtv.util.ID(fit.ID.major, fit.peaks.index(peak))
             thispeak["stat"] = str()
             if fit.active:
                 thispeak["stat"] += "A"
@@ -661,10 +663,22 @@ class TvFitInterface:
             for s in sids:
                 spec = self.spectra.dict[s]
                 try:
-                    ids = hdtv.util.ID.ParseIds(args, spec)
+                    ids = hdtv.util.ID.ParseIds(args, spec, only_existent=False)
                 except ValueError:
                     return "USAGE"
+                already_removed = set()
                 for ID in ids:
+                    # only whole fits can be removed not single peaks
+                    if ID.minor is not None: 
+                        if ID.major in already_removed:
+                            continue
+                        else:
+                            msg = "It is not possible to remove single peaks, "
+                            msg += "removing whole fit with id %s instead." % ID.major
+                            hdtv.ui.warn(msg)
+                            ID.minor = None
+                            already_removed.add(ID.major)
+                    # do the work
                     spec.Pop(ID)
 
     def FitHide(self, args, options):

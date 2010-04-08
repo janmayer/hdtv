@@ -139,9 +139,9 @@ print " Fit should appear at the same position as before"
 print "-------------------------------------------------------------------------"
 spectra.ActivateFit(None)
 spectra.ClearFit()
-__main__.fitxml.WriteFitlist(testXML)
-spectra.dict["0"].Clear()
-__main__.fitxml.ReadFitlist(testXML)
+__main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
+spectra.Get(0).Clear()
+__main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
 __main__.f.ListFits()
 
 raw_input("Press enter to continue...")
@@ -161,11 +161,11 @@ print "-------------------------------------------------------------------------
 print " Case 12: Write/Read fit and change calibration in between"
 print " Fit should appear at the new calibrated position"
 print "-------------------------------------------------------------------------"
-__main__.fitxml.WriteFitlist(testXML)
-spectra.dict["0"].Clear()
-spectra.ApplyCalibration("0", [0,2])
+__main__.fitxml.WriteXML(spectra.Get(0).ID,testXML)
+spectra.Get(0).Clear()
+spectra.ApplyCalibration(0, [0,2])
 spectra.window.GoToPosition(2920)
-__main__.fitxml.ReadFitlist(testXML)
+__main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
 __main__.f.ListFits()
 
 raw_input("Press enter to continue...")

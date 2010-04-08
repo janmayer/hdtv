@@ -60,6 +60,8 @@ class Session(DrawableManager):
         """
         Apply calibration cal to spectra with ids
         """
+        if isinstance(specIDs, (str, int, float)):
+            specIDs=hdtv.util.ID.ParseIds(str(specIDs), self)
         for ID in specIDs:
             try:
                 spec = self.dict[ID]
@@ -150,6 +152,9 @@ class Session(DrawableManager):
         
         Note: that a call to Store will overwrite the active fit withworkFit
         """
+        # for interactive use of this function
+        if isinstance(ID, (str,int,float)):
+            ID=hdtv.util.ID.ParseIds(ID, self)[0]
         if sid is None:
             sid = self.activeID
         if sid is None:
@@ -170,6 +175,9 @@ class Session(DrawableManager):
         If no ID is given, the next free ID is used.
         The markers are kept in workFit, for possible re-use.
         """ 
+        # for interactive use of this function
+        if isinstance(ID, (str,int,float)):
+            ID=hdtv.util.ID.ParseIds(ID, self)[0]
         spec = self.workFit.spec
         if spec is None:
             hdtv.ui.warn("No fit available to store")
@@ -206,6 +214,9 @@ class Session(DrawableManager):
             self.Pop(self.Index(self.workCut.spec))
 
     def ActivateCut(self, ID):
+        # for interactive use of this function
+        if isinstance(ID, (str,int,float)):
+            ID=hdtv.util.ID.ParseIds(ID, self)[0]
         spec = self.GetActiveObject()
         if spec is None:
             hdtv.ui.error("There is no active spectrum")
@@ -220,6 +231,9 @@ class Session(DrawableManager):
             self.workCut.Draw(self.window.viewport)
 
     def StoreCut(self, ID=None):
+        # for interactive use of this function
+        if isinstance(ID, (str,int,float)):
+            ID=hdtv.util.ID.ParseIds(ID, self)[0]
         spec = self.GetActiveObject()
         if spec is None:
             hdtv.ui.error("There is no active spectrum")
@@ -244,6 +258,9 @@ class Session(DrawableManager):
         """
         Activate Object and reset workFit when activating another spectrum
         """
+        # for interactive use of this function
+        if isinstance(ID, (str,int,float)):
+            ID=hdtv.util.ID.ParseIds(ID, self)[0]
         if ID is not self.activeID:
             # reset workFit
             self.workFit.spec = None
@@ -258,6 +275,9 @@ class Session(DrawableManager):
         """
         Pop spectrum with ID and activate prevID if ID was activeID
         """
+        # for interactive use of this function
+        if isinstance(ID, (str,int,float)):
+            ID=hdtv.util.ID.ParseIds(ID, self)[0]
         if self.activeID is ID:
             self.ActivateObject(self.prevID)
         return DrawableManager.Pop(self, ID)

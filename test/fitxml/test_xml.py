@@ -40,8 +40,8 @@ __main__.s.ListSpectra()
 print "-------------------------------------------------------------------------"
 print "case 0: all parameter free, just one peak, no background, theuerkauf model"
 print "-------------------------------------------------------------------------"
-__main__.f.SetPeakModel("theuerkauf", default=True)
-__main__.f.ResetFitterParameters(default=True)
+__main__.f.SetPeakModel("theuerkauf")
+__main__.f.ResetFitterParameters()
 spectra.SetMarker("region", 1450)
 spectra.SetMarker("region", 1470)
 spectra.SetMarker("peak", 1460)
@@ -57,11 +57,11 @@ __main__.f.ListFits()
 raw_input("Press enter to continue")
 
 print 'Saving fits to file %s' % testXML
-__main__.fitxml.WriteFitlist(testXML)
+__main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
 print 'Deleting all fits'
-spectra.dict["0"].Clear()
+spectra.Get(0).Clear()
 print 'Reading fits from file %s' %testXML
-__main__.fitxml.ReadFitlist(testXML)
+__main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
 __main__.f.ListFits()
 
 raw_input("Press enter to continue")
@@ -88,11 +88,11 @@ __main__.f.ListFits()
 raw_input("Press enter to continue")
 
 print 'Saving fits to file %s' % testXML
-__main__.fitxml.WriteFitlist(testXML)
+__main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
 print 'Deleting all fits'
-spectra.dict["0"].Clear()
+spectra.Get(0).Clear()
 print 'Reading fits from file %s' %testXML
-__main__.fitxml.ReadFitlist(testXML)
+__main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
 __main__.f.ListFits()
 
 raw_input("Press enter to continue")
@@ -120,11 +120,11 @@ __main__.f.ListFits()
 raw_input("Press enter to continue")
 
 print 'Saving fits to file %s' % testXML
-__main__.fitxml.WriteFitlist(testXML)
+__main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
 print 'Deleting all fits'
-spectra.dict["0"].Clear()
+spectra.Get(0).Clear()
 print 'Reading fits from file %s' %testXML
-__main__.fitxml.ReadFitlist(testXML)
+__main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
 __main__.f.ListFits()
 
 raw_input("Press enter to continue")
@@ -154,11 +154,11 @@ __main__.f.ListFits()
 raw_input("Press enter to continue")
 
 print 'Saving fits to file %s' % testXML
-__main__.fitxml.WriteFitlist(testXML)
+__main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
 print 'Deleting all fits'
-spectra.dict["0"].Clear()
+spectra.Get(0).Clear()
 print 'Reading fits from file %s' %testXML
-__main__.fitxml.ReadFitlist(testXML)
+__main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
 __main__.f.ListFits()
 
 raw_input("Press enter to continue")
@@ -189,11 +189,11 @@ __main__.f.ListFits()
 raw_input("Press enter to continue")
 
 print 'Saving fits to file %s' % testXML
-__main__.fitxml.WriteFitlist(testXML)
+__main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
 print 'Deleting all fits'
-spectra.dict["0"].Clear()
+spectra.Get(0).Clear()
 print 'Reading fits from file %s' %testXML
-__main__.fitxml.ReadFitlist(testXML)
+__main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
 __main__.f.ListFits()
 
 raw_input("Press enter to continue")
@@ -219,11 +219,11 @@ __main__.f.ListFits()
 raw_input("Press enter to continue")
 
 print 'Saving fits to file %s' % testXML
-__main__.fitxml.WriteFitlist(testXML)
+__main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
 print 'Deleting all fits'
-spectra.dict["0"].Clear()
+spectra.Get(0).Clear()
 print 'Reading fits from file %s' %testXML
-__main__.fitxml.ReadFitlist(testXML)
+__main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
 __main__.f.ListFits()
 
 raw_input("Press enter to continue")

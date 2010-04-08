@@ -67,7 +67,8 @@ class Spectrum(DrawableManager):
         
     def Pop(self, ID):
         fit = DrawableManager.Pop(self, ID)
-        fit.spec = None
+        if fit is not None:
+            fit.spec = None
         return fit
         
     def Draw(self, viewport):

@@ -22,8 +22,6 @@
 import hdtv.cal
 import hdtv.color
 import hdtv.ui
-import hdtv.id
-
 
 class Drawable(object):
     def __init__(self, color=None, cal=None):
@@ -158,7 +156,7 @@ class DrawableManager(object):
     def __init__(self, viewport=None):
         self.viewport = viewport
         # dictionary to store the drawable objects
-        self.dict = hdtv.id.IDdict()
+        self.dict = dict()
         self.visible = set()
         self.activeID = None
         # This should keep track of ID for nextID, prevID
@@ -218,6 +216,12 @@ class DrawableManager(object):
             return None
         else:
             return self.dict[self.activeID]
+
+    def Get(self, ID):
+        if not isinstance(ID, str):
+            ID = str(ID)
+        ID = hdtv.util.ID.ParseIds(ID, self)[0]
+        return self.dict[ID]
 
 
     def Index(self, obj):
@@ -279,12 +283,11 @@ class DrawableManager(object):
         """
         Finds the first free index
         """
-        ids = [i.split(".") for i in self.ids]
-        ids = [int(i[0]) for i in ids]
+        ids = [i.major for i in self.ids]
         ID = 0
         while ID in ids:
             ID += 1
-        return str(ID) 
+        return hdtv.util.ID(major=ID)
 
 
     def Draw(self, viewport):
@@ -328,8 +331,8 @@ class DrawableManager(object):
         """
         if self.viewport:
             self.viewport.LockUpdate()
-        if isinstance(ids, str):
-            ids = [ids]
+        try: iter(ids)
+        except: ids = [ids]
         for ID in ids:
             try:
                 self.dict[ID].Refresh
@@ -364,8 +367,8 @@ class DrawableManager(object):
             return
         self.viewport.LockUpdate()
         # check if just single id 
-        if isinstance(ids, str):
-            ids = [ids]
+        try: iter(ids)
+        except:  ids = [ids]
         for ID in ids:
             try:
                 self.dict[ID].Hide()
@@ -403,8 +406,8 @@ class DrawableManager(object):
             return
         self.viewport.LockUpdate()
         # check if just single id 
-        if isinstance(ids, str):
-            ids = [ids]
+        try: iter(ids)
+        except: ids = [ids]
         if clear:
             # hide all other objects except in ids
             # do not use HideAll, because if the active objects is among 
@@ -459,7 +462,7 @@ class DrawableManager(object):
             ids = list(self.visible)
         else:
             ids = self.dict.keys()
-        ids.sort(cmp=hdtv.util.compareID)
+        ids.sort()
 
         try:
             firstID = min(ids)
@@ -476,7 +479,7 @@ class DrawableManager(object):
             ids = list(self.visible)
         else:
             ids = self.dict.keys()
-        ids.sort(cmp=hdtv.util.compareID)
+        ids.sort()
         
         try:
             lastID = max(ids)
@@ -498,7 +501,7 @@ class DrawableManager(object):
             else:
                 ids = self.dict.keys()
                 
-            ids.sort(cmp=hdtv.util.compareID)
+            ids.sort()
             nextIndex = (ids.index(self._iteratorID) + 1) % len(ids)
             nextID = ids[nextIndex]
 
@@ -519,7 +522,7 @@ class DrawableManager(object):
             else:
                 ids = self.dict.keys()
             
-            ids.sort(cmp=hdtv.util.compareID)
+            ids.sort()
             prevIndex = (ids.index(self._iteratorID) - 1) % len(ids)
             prevID = ids[prevIndex]
         except ValueError:

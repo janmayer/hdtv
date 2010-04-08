@@ -1,4 +1,4 @@
-<hdtv version="1.2">
+<hdtv version="1.3">
   <fit bgDegree="1" chi="2889.25213636" peakModel="theuerkauf">
     <spectrum calibration="0.000000  0.500000" name="osiris_bg.spc" />
     <regionMarker>
@@ -54,6 +54,7 @@
         <tl status="none" />
         <sh status="none" />
       </cal>
+      <extras />
     </peak>
   </fit>
 </hdtv>

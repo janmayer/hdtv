@@ -81,7 +81,7 @@ class Histogram(Drawable):
     def _set_norm(self, norm):
         self._norm = norm
         if self.displayObj:
-            self.displayObj.SetNorm(self.norm)
+            self.displayObj.SetNorm(norm)
 
     def _get_norm(self):
         return self._norm
@@ -173,7 +173,8 @@ class Histogram(Drawable):
                 self.displayObj.SetCal(self.cal)
             # and ID
             if not self.ID is None:
-                self.displayObj.SetID(self.ID)
+                ID = str(self.ID).strip(".")
+                self.displayObj.SetID(ID)
         # finally unlock the viewport
         self.viewport.UnlockUpdate()
         

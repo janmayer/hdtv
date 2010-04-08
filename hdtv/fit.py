@@ -25,7 +25,7 @@ import hdtv.cal
 from hdtv.drawable import Drawable
 from hdtv.marker import MarkerCollection
 from hdtv.errvalue import ErrValue
-from hdtv.util import Pairs
+from hdtv.util import Pairs, ID
 from hdtv.weakref import weakref
 
 import copy
@@ -73,7 +73,7 @@ class Fit(Drawable):
     def _set_ID(self, ID):
         self._ID = ID
         if ID is not None:
-            self.peakMarkers.ID = "#"+ID
+            self.peakMarkers.ID = ID
         else:
             self.peakMarkers.ID = ID
 
@@ -160,6 +160,14 @@ class Fit(Drawable):
         return self._spec
         
     spec = property(_get_spec, _set_spec)
+
+    # ids property to get the ids of the peaks
+    @property
+    def ids(self):
+        ids = list()
+        for i in range(len(self.peaks)):
+            ids.append(ID(self.ID.major, i))
+        return ids
 
     def __str__(self):
         return self.formatted_str(verbose=False)

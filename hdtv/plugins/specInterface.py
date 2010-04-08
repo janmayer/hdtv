@@ -142,11 +142,10 @@ class SpecInterface:
                     hdtv.ui.warn("Could not load %s'%s" % (fname, fmt))
                 else:
                     sid = self.spectra.Insert(spec, ID)
-                    spec.color = hdtv.color.ColorForID(sid)
+                    spec.color = hdtv.color.ColorForID(sid.major)
                     if spec.name in self.spectra.caldict.keys():
                         spec.cal = self.spectra.caldict[spec.name]
                     loaded.append(sid)
-                    
                     if fmt == None:
                         hdtv.ui.msg("Loaded %s into %s" % (fname, sid))
                     else:
@@ -202,7 +201,7 @@ class SpecInterface:
         hist = copy.copy(self.spectra.dict[ID].hist)
         # create new spectrum object
         spec = Spectrum(hist)
-        spec.color = hdtv.color.ColorForID(copyTo)
+        spec.color = hdtv.color.ColorForID(copyTo.major)
         spec.typeStr = "spectrum, copy"
         sid = self.spectra.Insert(spec, copyTo)
         hdtv.ui.msg("Copied spectrum " + str(ID) + " to " + str(sid))
@@ -355,12 +354,10 @@ class TvSpecInterface:
             targetids = [None for i in range(0,len(ids))]
         elif len(targetids) == 1: # Only start ID is given
             startID = targetids[0]
-            targetids = [i for i in range(startID, startID+len(ids))]
+            targetids = [hdtv.util.ID(i) for i in range(startID.major, startID.major+len(ids))]
         elif len(targetids) != len(ids):
             hdtv.ui.error("Number of target ids does not match number of ids to copy")
             return
-        # TODO: unfortunately ParseRange() in ParseIDs() uses unsorted sets
-        ids.sort()
         targetids.sort()
         for i in range(0, len(ids)):
             try:                
@@ -374,14 +371,7 @@ class TvSpecInterface:
         Add spectra (spec1 + spec2, ...)
         """
         try:
-            # this is a test for valid id (is a string but can be an int)
-            int(args[0])
-            addTo = args[0]
-            try:
-                ids = hdtv.util.ID.ParseIds(args[1:], self.spectra)
-            except KeyError:
-                hdtv.ui.msg("Adding active spectrum %d" % self.spectra.activeID)
-                ids = [self.spectra.activeID]
+            ids = hdtv.util.ID.ParseIds(args, self.spectra, only_existent=False)
         except ValueError:
             return "USAGE"
         
@@ -389,13 +379,14 @@ class TvSpecInterface:
             hdtv.ui.warn("Nothing to do")
             return
         
+        addTo = ids[0]
         # if addTo is a new spectrum 
         if not addTo in self.spectra.dict.keys():
             # copy first of the spectra that should be added
             sid = self.specIf.CopySpectrum(ids.pop(), addTo)
         
         # add all other spectra to the first spectrum
-        for i in ids:
+        for i in ids[1:]:
             try:
                 hdtv.ui.msg("Adding " + str(i) + " to " + str(addTo))
                 self.spectra.dict[addTo].Plus(self.spectra.dict[i])
@@ -412,12 +403,8 @@ class TvSpecInterface:
         """
         Substract spectra (spec1 - spec2, ...)
         """   
-        subFrom = args[0]
         try:
-            ids = hdtv.util.ID.ParseIds(args[1:], self.spectra)
-        except KeyError:
-            ids = [self.spectra.activeID]
-            hdtv.ui.msg("Substracting active spectrum %d" % self.spectra.activeID)
+            ids = hdtv.util.ID.ParseIds(args, self.spectra, only_existent=False)
         except ValueError:
             return "USAGE"
             
@@ -425,10 +412,11 @@ class TvSpecInterface:
             hdtv.ui.warn("Nothing to do")
             return
 
+        subFrom = ids[0]
         if not subFrom in self.spectra.dict.keys():
             sid = self.specIf.CopySpectrum(ids.pop(), subFrom)
         
-        for i in ids:
+        for i in ids[1:]:
             try:
                 hdtv.ui.msg("Substracting " + str(i) + " from " + str(subFrom))
                 self.spectra.dict[subFrom].Minus(self.spectra.dict[i])
@@ -445,7 +433,7 @@ class TvSpecInterface:
             
             if len(args) == 1:
                 if self.spectra.activeID is not None:
-                    msg = "Using active spectrum %d for multiplication" % self.spectra.activeID
+                    msg = "Using active spectrum %s for multiplication" % self.spectra.activeID
                     hdtv.ui.msg(msg)
                     ids = [self.spectra.activeID]
                 else:
@@ -523,7 +511,7 @@ class TvSpecInterface:
         Refresh spectra
         """
         if len(args)==0:
-           ids = ["active"] 
+           args = ["active"] 
         try:
             ids = hdtv.util.ID.ParseIds(args, self.spectra)
         except ValueError:
@@ -544,7 +532,11 @@ class TvSpecInterface:
             if len(args) == 1:
                 ID = self.spectra.activeID
             elif len(args)==2:
-                ID = args[1]
+                ids = hdtv.util.ID.ParseIds(args[1], self.spectra)
+                if len(ids)!=1:
+                    hdtv.ui.error("There is just one index possible here.")
+                    raise ValueError
+                ID = ids[0]
             else:
                 hdtv.ui.error("There is just one index possible here.")
                 raise ValueError
@@ -555,6 +547,7 @@ class TvSpecInterface:
                  hdtv.ui.warn("There is no spectrum with id: %s" %ID)
         except ValueError:
             return "USAGE"
+            
             
     def SpectrumName(self, args, options):
         """

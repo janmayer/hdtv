@@ -324,11 +324,7 @@ class Table(object):
         return lines
           
     def sort_data(self, sortBy, reverseSort=False):
-        # FIXME: create ID class with proper __cmp__
-        if sortBy.upper()=="ID":
-            self.data.sort(cmp=compareID, key = lambda x: x[sortBy], reverse = reverseSort)
-        else:
-            self.data.sort(key = lambda x: x[sortBy], reverse = reverseSort)
+        self.data.sort(key = lambda x: x[sortBy], reverse = reverseSort)
 
     def calc_width(self):
         # Determine table widths
@@ -492,11 +488,17 @@ class ID(object):
         self.minor = minor
         
     def __cmp__(self, ID):
+        if ID is None:
+            return 1
         if self.major > ID.major:
             return 1
         if self.major < ID.major:
             return -1
         return cmp(self.minor, ID.minor)
+        
+    def __hash__(self):
+        # this is needed to use IDs as keys in dicts and in sets
+        return hash(self.major)^hash(self.minor)
         
     def __str__(self):
         if self.major is None:
@@ -524,25 +526,19 @@ class ID(object):
         elif string.upper() == "VISIBLE":
             return list(manager.visible)
         else:
-            return ValueError
+            raise ValueError
     
     @classmethod
-    def _parseNormalID(cls, string, manager):
-        if "." in s:
-            major, minor = s.split(".")
+    def _parseNormalID(cls, string):
+        if "." in string:
+            major, minor = [int(m) for m in string.split(".")]
         else:
-            try:
-                # test for session class (hack!)
-                manager.window
-                major = None
-                minor = s
-            except:
-                major = s
-                minor = None
-            try:
-                return ID(int(major), int(minor))
-            except:
-                raise ValueError
+            major = int(string)
+            minor = None
+        try:
+            return ID(major, minor)
+        except:
+            raise ValueError
         
     @classmethod
     def ParseIds(cls, strings, manager, only_existent=True):
@@ -594,64 +590,27 @@ class ID(object):
                     special = cls._parseSpecialID(s, manager)
                     ids.extend(special)
                 except ValueError:
-                    ids.append(self._parseNormalID(s))
+                    ids.append(cls._parseNormalID(s))
                 except AttributeError:
                     hdtv.ui.error("Invalid key word %s" % s)
                     raise ValueError
-                    
-       
+        
+        # ID might be None, if e.g. activeID is None
+        count = ids.count(None)
+        for i in range(count):
+            ids.remove(None)
+        
         # filter non-existing ids
         valid_ids = list() 
         if only_existent:
             for ID in ids:
-                # ID might be None, if e.g. activeID is None
-                if ID is not None and ID not in manager.ids:
+                if ID not in manager.ids:
                     hdtv.ui.warn("Non-existent id %s" %ID)
                 else:
                     valid_ids.append(ID)
         else:
-            map(valid_ids.append, ids)
+            valid_ids=ids
+        
         return valid_ids
             
-class IDdict(dict):
-    def __getitem__(self, key):
-        key = str(key)
-        return dict.__getitem__(self, key)
-        
-    def __setitem__(self, key, value):
-        key = str(key)
-        return dict.__setitem__(self, key, value)
-        
-    def __delitem__(self, key):
-        key = str(key)
-        return dict.__delitem__(self, key)
-        
-    def pop(self, key):
-        key = str(key)
-        return dict.pop(key)
-    
-    def has_key(self, key):
-        key = str(key)
-        return dict.has_key(self, key)
-        
-    def get(self, key, d=None):
-        key = str(key)
-        return dict.get(self, key, d)
-        
-    def _toID(self, key):
-        if "." in key:
-            major, minor = key.split(".")
-            return ID(major, minor)
-        else:
-            return ID(k)
-        
-    def keys(self):
-        return [self._toID(k) for k in dict.keys(self)]
-
-    def popitem(self):
-        item = dict.popitem(self)
-        return (self._toID(item[0], self._toID(item[1])))
-        
-    def items(self):
-        return [(self._toID(k),v) for (k,v) in dict.items(self)]
 
