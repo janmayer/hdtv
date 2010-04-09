@@ -20,8 +20,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 import os
 import hdtv.ui
-
-from hdtv.util import Table
+import util
     
 preamble="""\makeatletter
 \@ifundefined{standalonetrue}{\\newif\ifstandalone}{\let\ifbackup=\ifstandalone}
@@ -58,9 +57,9 @@ enddok="""\end{longtable}
 \\fi
 """
 
-class TexTable(Table):
+class TexTable(hdtv.util.Table):
     def __init__(self, data, keys, header = None, sortBy = None, reverseSort = False, ha="c"):
-        Table.__init__(self, data, keys, header , ignoreEmptyCols = False, sortBy=sortBy, 
+        hdtv.util.Table.__init__(self, data, keys, header , ignoreEmptyCols = False, sortBy=sortBy, 
                        reverseSort = reverseSort, extra_header=preamble, extra_footer=enddok)
         self.col_sep_char = "&"
         self.empty_field = " "
@@ -71,6 +70,7 @@ class TexTable(Table):
         header = "\hline" + os.linesep
         for i in range(2):
             for string in self.header:
+                string = string.replace("_","-")
                 header +="\multicolumn{1}{%s}{\\textbf{%s}} &" %(self.ha,string)
             header = header.rstrip("&")
             header += "\\\ \hline" + os.linesep
@@ -156,7 +156,7 @@ class fitTex:
         # get list of fits
         fits = list()
         try:
-            sids = hdtv.cmdhelper.ParseIds(options.spectrum, self.spectra)
+            sids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
         except ValueError:
             return "USAGE"
         if len(sids)==0:
@@ -165,7 +165,7 @@ class fitTex:
         for sid in sids:
             spec = self.spectra.dict[sid]
             try:
-                ids = hdtv.cmdhelper.ParseIds(options.fit, spec)
+                ids = hdtv.util.ID.ParseIds(options.fit, spec)
             except ValueError:
                 return "USAGE"
             fits.extend([spec.dict[ID] for ID in ids])
