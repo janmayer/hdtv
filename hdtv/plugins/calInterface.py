@@ -705,11 +705,12 @@ class EnergyCalHDTVInterface(object):
         """ 
         Copy calibration from one spectrum to others
         """
-        source_id = args[0]
-        if source_id not in self.spectra.ids:
-            hdtv.ui.error("Invalid source id.")
-            return
-        ids = args[1:]
+        try:
+            ids = hdtv.util.ID.ParseIds(args, self.spectra)
+        except:
+            return "USAGE"
+        source_id = ids[0]
+        ids = ids[1:]
         self.EnergyCalIf.CopyCal(source_id, ids)
     
     def CalPosEnter(self, args, options):
