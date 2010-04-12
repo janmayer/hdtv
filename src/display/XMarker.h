@@ -48,6 +48,7 @@ class XMarker : public Marker {
       { fCal1 = cal1; fCal2 = cal2; Update(); }
     inline void SetConnectTop(bool ct)
       { fConnectTop = ct; Update(); }
+    int GetWidth(const FontStruct_t& fs);
     virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter)
       { if(IsVisible()) painter.DrawXMarker(this, x1, x2); }
       
