@@ -20,7 +20,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 import os
 import hdtv.ui
-import util
+import hdtv.util
     
 preamble="""\makeatletter
 \@ifundefined{standalonetrue}{\\newif\ifstandalone}{\let\ifbackup=\ifstandalone}
