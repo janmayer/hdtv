@@ -566,17 +566,13 @@ class Fit(Drawable):
         """
         Sets whether to display a decomposition of the fit
         """
-        if self.showDecomp == stat:
-            # this is already the situation, thus nothing to be done here
-            return
+        self.showDecomp =  stat
+        if stat:
+            for peak in self.peaks:
+                peak.Show()
         else:
-            self.showDecomp =  stat
-            if stat:
-                for peak in self.peaks:
-                    peak.Show()
-            else:
-                for peak in self.peaks:
-                    peak.Hide()
+            for peak in self.peaks:
+                peak.Hide()
 
 
 
