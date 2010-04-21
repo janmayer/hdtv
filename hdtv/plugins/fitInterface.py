@@ -237,15 +237,14 @@ class FitInterface:
             params  : a ordered list of valid parameter names 
         """
         peaklist = list()
-        params = ["id", "stat"]
+        params = ["id", "stat", "chi"]
         # Get peaks
         for peak in fit.peaks:
             thispeak = dict()
+            thispeak["chi"] = "%d" %fit.chi
             if fit.ID is None:
-                #thispeak["id"] = "." + str(fit.peaks.index(peak))
                 thispeak["id"] = hdtv.util.ID(None, fit.peaks.index(peak))
             else:
-                #thispeak["id"] = str(fit.ID)+"." + str(fit.peaks.index(peak))
                 thispeak["id"] = hdtv.util.ID(fit.ID.major, fit.peaks.index(peak))
             thispeak["stat"] = str()
             if fit.active:

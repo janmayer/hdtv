@@ -182,6 +182,7 @@ class Fit(Drawable):
             peakstr =("\n".ljust(10)).join(peakstr)
             text += peakstr
             i+=1
+        text += "\n\n chi^2 of fit: %d" %self.chi
         return text
     
     def ChangeMarker(self, mtype, pos, action):
