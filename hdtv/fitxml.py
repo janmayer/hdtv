@@ -284,7 +284,7 @@ class FitXml:
         error = float(errorElement.text)
         return FitValue(value, error, free)
         
-
+    # FIXME: remove!
     def ReadPeaks(self, root):
         """
         Creates a list of peaks from xml data.
@@ -387,6 +387,7 @@ class FitXml:
         spec = self.spectra.dict[sid]
         count = 0
         do_fit = ""
+        fits = list()
         for fitElement in root.findall("fit"):
             (fit, success) = self.Xml2Fit_v1(fitElement, calibration=spec.cal)
             # restore fit
@@ -408,6 +409,10 @@ class FitXml:
                     if do_fit in ["Y", "y", "", "A", "a"]:
                         fit.FitPeakFunc(spec)
             # finish this fit
+            fits.append(fit)
+        # add fits to spectrum
+        fits.sort()
+        for fit in fits:
             ID = spec.Insert(fit)
             count += 1
             if not sid in self.spectra.visible:

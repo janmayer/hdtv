@@ -534,6 +534,9 @@ class Fit(Drawable):
             if marker.p2:
                 new.peakMarkers.SetMarker(marker.p2.pos_cal)
         return new
+        
+    def __cmp__(self, other):
+        return cmp(self.xdimensions, other.xdimensions)
 
     @property
     def xdimensions(self):
