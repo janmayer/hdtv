@@ -89,11 +89,11 @@ class SpecInterface:
             elif len(ids) == 0: # Deactivate
                 oldactive = self.spectra.activeID
                 self.spectra.ActivateObject(None)
-                self.window.viewport.SetStatusText("Deactivated spectrum %d" % oldactive)
+                self.window.viewport.SetStatusText("Deactivated spectrum %s" % oldactive)
             else:
                 ID = ids[0]
                 self.spectra.ActivateObject(ID)
-                self.window.viewport.SetStatusText("Activated spectrum %d" % self.spectra.activeID)
+                self.window.viewport.SetStatusText("Activated spectrum %s" % self.spectra.activeID)
         except ValueError:
             self.window.viewport.SetStatusText("Invalid id: %s" % arg)
 
@@ -381,7 +381,7 @@ class TvSpecInterface:
             try:
                 ids = hdtv.cmdhelper.ParseIds(args[1:], self.spectra)
             except KeyError:
-                hdtv.ui.msg("Adding active spectrum %d" % self.spectra.activeID)
+                hdtv.ui.msg("Adding active spectrum %s" % self.spectra.activeID)
                 ids = [self.spectra.activeID]
         except ValueError:
             return "USAGE"
@@ -405,7 +405,7 @@ class TvSpecInterface:
                 
         if options.normalize:
             norm_fac = len(ids)
-            hdtv.ui.msg("Normalizing spectrum %d by 1/%d" % (addTo, norm_fac))
+            hdtv.ui.msg("Normalizing spectrum %s by 1/%d" % (addTo, norm_fac))
             self.spectra.dict[addTo].Multiply(1./norm_fac)
 
 
@@ -418,7 +418,7 @@ class TvSpecInterface:
             ids = hdtv.cmdhelper.ParseIds(args[1:], self.spectra)
         except KeyError:
             ids = [self.spectra.activeID]
-            hdtv.ui.msg("Substracting active spectrum %d" % self.spectra.activeID)
+            hdtv.ui.msg("Substracting active spectrum %s" % self.spectra.activeID)
         except ValueError:
             return "USAGE"
             
@@ -446,7 +446,7 @@ class TvSpecInterface:
             
             if len(args) == 1:
                 if self.spectra.activeID is not None:
-                    msg = "Using active spectrum %d for multiplication" % self.spectra.activeID
+                    msg = "Using active spectrum %s for multiplication" % self.spectra.activeID
                     hdtv.ui.msg(msg)
                     ids = [self.spectra.activeID]
                 else:
