@@ -40,6 +40,33 @@ def Median(values):
         return (values[(n - 1) / 2] + values[n / 2]) * 0.5
     else:
         return values[n / 2]
+    
+def stdDeviation(values):
+    
+    n = len(values)
+    mean = wMean(values)
+    
+    ssum = .0
+    for val in values:
+        ssum += (val.value - mean)**2
+        
+    stdDev = math.sqrt(1./n * ssum)
+    return stdDev
+
+def wMean(values):
+    """
+    Calculates weighted mean of a list of errvalues
+    """
+    wsum = .0
+    weights = .0
+    
+    for val in values:
+        weights += 1/val.rel_error
+        wsum += (val.value * 1./val.rel_error)
+        
+    mean = wsum / weights
+    
+    return mean   
 
 def gcd(a, b):
     """

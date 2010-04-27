@@ -201,7 +201,7 @@ class DepErrValue:
     def rel_error(self):
         # the relative error (error / value) of this variable
         try:
-            return self.error / self.value
+            return abs(self.error / self.value)
         except ZeroDivisionError:
             return None
     
@@ -210,7 +210,7 @@ class DepErrValue:
     def rel_error_percent(self):
         # the relative error (error / value) of this variable, in percent
         try:
-            return self.error / self.value * 100
+            return abs(self.error / self.value) * 100
         except ZeroDivisionError:
             return None
     
