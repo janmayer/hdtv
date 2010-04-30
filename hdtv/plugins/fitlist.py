@@ -222,7 +222,7 @@ class FitlistHDTVInterface(object):
         fname = os.path.expanduser(args[0])
         fname = glob.glob(fname)
         if len(fname)>1:
-            return USAGE
+            return "USAGE"
         fname = fname[0]
         if not os.path.exists(fname):
             hdtv.ui.error("No such file %s" %fname)
