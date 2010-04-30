@@ -112,7 +112,7 @@ class FitlistHDTVInterface(object):
 
         prog = "fit write"
         description = "write fits to xml file"
-        usage = "%prog filename"
+        usage = "%prog filename (filename may contain %s as placeholder for spectrum id)"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-s", "--spectrum", action = "store", default = "active",
                                 help = "for which the fits should be saved (default=active)")
@@ -149,38 +149,48 @@ class FitlistHDTVInterface(object):
         """
         Saving a fitlist as xml
         """
+        # TODO: this need urgent cleanup and testing, especially for the saving
+        # of fitlists from multiple spectra, but I'm really in a hurry now. Sorry. Ralf
         # get spectrum
         sids = hdtv.cmdhelper.ParseIds(options.spectrum, __main__.spectra)
         if len(sids)==0:
             hdtv.ui.error("There is no active spectrum")
             return
         if len(sids)>1:
-            hdtv.ui.error("Can only save fitlist of one spectrum")
-            return
-        sid = sids[0]
-        # get filename 
-        if len(args)==0:
-            name = self.spectra.dict[sid].name
-            try:
-                fname = self.FitlistIf.list[name]
-            except KeyError:
-                (base, ext) = os.path.splitext(name)
-                fname = base + ".xfl"
-        else:
-            fname = os.path.expanduser(args[0])
-        hdtv.ui.msg("Saving fits to %s" %fname)
-        if not options.force and os.path.exists(fname):
-            hdtv.ui.warn("This file already exists:")
-            overwrite = None
-            while not overwrite in ["Y","y","N","n","","B","b"]:
-                question = "Do you want to replace it [y,n] or backup it [B]:"
-                overwrite = raw_input(question)
-            if overwrite in ["b","B",""]:
-                os.rename(fname,"%s.back" %fname)
-            elif overwrite in ["n","N"]:
-                return 
-        # do the work
-        self.FitlistIf.WriteXML(sid, fname)
+            # TODO: Check if placeholder character is present in filename and warn if not
+            pass
+#            hdtv.ui.error("Can only save fitlist of one spectrum")
+#            return
+        for sid in sids:
+#            sid = sids[0]
+            # get filename 
+            if len(args)==0:
+                name = self.spectra.dict[sid].name
+                try:
+                    fname = self.FitlistIf.list[name]
+                except KeyError:
+                    (base, ext) = os.path.splitext(name)
+                    fname = base + ".xfl"
+            else:
+                fname = os.path.expanduser(args[0])
+                # Try to replace placeholder "%s" in filename with specid
+                try:
+                    fname = fname % sid
+                except TypeError: # No placeholder found
+                    pass # TODO: do something sensible here... Luckily hdtv will not overwrite spectra without asking...
+            hdtv.ui.msg("Saving fits to %s" %fname)
+            if not options.force and os.path.exists(fname):
+                hdtv.ui.warn("This file already exists:")
+                overwrite = None
+                while not overwrite in ["Y","y","N","n","","B","b"]:
+                    question = "Do you want to replace it [y,n] or backup it [B]:"
+                    overwrite = raw_input(question)
+                if overwrite in ["b","B",""]:
+                    os.rename(fname,"%s.back" %fname)
+                elif overwrite in ["n","N"]:
+                    return 
+            # do the work
+            self.FitlistIf.WriteXML(sid, fname)
 
     def FitRead(self, args, options):
         """
