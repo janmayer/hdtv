@@ -48,9 +48,11 @@ def stdDeviation(values):
     
     ssum = .0
     for val in values:
-        ssum += (val.value - mean)**2
+        s = (val.value - mean)**2
+        ssum +=s
         
     stdDev = math.sqrt(1./n * ssum)
+
     return stdDev
 
 def wMean(values):
