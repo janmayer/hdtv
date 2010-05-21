@@ -273,10 +273,12 @@ class FitInterface:
             # FIXME: does this belong here?
             if fit.spec.effCal is not None:
                 volume = thispeak["vol"]
-                par_index = params.index("vol") + 1
                 energy = thispeak["pos"]
-                norm_volume = volume / spec.effCal(energy)
-                thispeak["vol/eff"] = norm_volume
+                norm_volume = volume / fit.spec.effCal(energy)
+                par = "vol/eff"
+                par_index = params.index("vol") + 1
+                params.insert(par_index, par)
+                thispeak[par] = norm_volume
             peaklist.append(thispeak)
         return (peaklist, params)
         
