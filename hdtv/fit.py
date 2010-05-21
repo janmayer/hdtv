@@ -25,7 +25,7 @@ import hdtv.cal
 from hdtv.drawable import Drawable
 from hdtv.marker import MarkerCollection
 from hdtv.errvalue import ErrValue
-from hdtv.util import Pairs
+from hdtv.util import Pairs, ID
 from hdtv.weakref import weakref
 
 import copy
@@ -73,7 +73,7 @@ class Fit(Drawable):
     def _set_ID(self, ID):
         self._ID = ID
         if ID is not None:
-            self.peakMarkers.ID = "#"+ID
+            self.peakMarkers.ID = ID
         else:
             self.peakMarkers.ID = ID
 
@@ -161,6 +161,14 @@ class Fit(Drawable):
         
     spec = property(_get_spec, _set_spec)
 
+    # ids property to get the ids of the peaks
+    @property
+    def ids(self):
+        ids = list()
+        for i in range(len(self.peaks)):
+            ids.append(ID(self.ID.major, i))
+        return ids
+
     def __str__(self):
         return self.formatted_str(verbose=False)
         
@@ -174,6 +182,7 @@ class Fit(Drawable):
             peakstr =("\n".ljust(10)).join(peakstr)
             text += peakstr
             i+=1
+        text += "\n\n chi^2 of fit: %d" %self.chi
         return text
     
     def ChangeMarker(self, mtype, pos, action):
@@ -525,6 +534,9 @@ class Fit(Drawable):
             if marker.p2:
                 new.peakMarkers.SetMarker(marker.p2.pos_cal)
         return new
+        
+    def __cmp__(self, other):
+        return cmp(self.xdimensions, other.xdimensions)
 
     @property
     def xdimensions(self):
@@ -557,17 +569,13 @@ class Fit(Drawable):
         """
         Sets whether to display a decomposition of the fit
         """
-        if self.showDecomp == stat:
-            # this is already the situation, thus nothing to be done here
-            return
+        self.showDecomp =  stat
+        if stat:
+            for peak in self.peaks:
+                peak.Show()
         else:
-            self.showDecomp =  stat
-            if stat:
-                for peak in self.peaks:
-                    peak.Show()
-            else:
-                for peak in self.peaks:
-                    peak.Hide()
+            for peak in self.peaks:
+                peak.Hide()
 
 
 

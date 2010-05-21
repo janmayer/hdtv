@@ -27,6 +27,7 @@
 #include "YMarker.h"
 
 #include <Riostream.h>
+#include <TGX11.h>
 
 
 namespace HDTV {
@@ -170,15 +171,23 @@ void Painter::DrawXMarker(XMarker *marker, int x1, int x2)
 
   // Draw first marker of the pair
   xm1 = EtoX(marker->GetE1());
-  if(xm1 >= x1 && xm1 <= x2) {
+  if((xm1 + marker->GetWidth(fFontStruct)) >= x1 && xm1 <= x2) {
 	gVirtualX->DrawLine(fDrawable, marker->GetGC_1()->GetGC(), 
 						xm1, fYBase, xm1, fYBase - fHeight);
 
-    if(!marker->GetID().empty())
+    if(!marker->GetID().empty()) {
+      Rectangle_t rect;
+      rect.fX = x1;
+      rect.fY = fYBase - fHeight;
+      rect.fWidth = x2 - x1 + 1;
+      rect.fHeight = fHeight;
+      gVirtualX->SetClipRectangles(marker->GetGC_1()->GetGC(), 0, 0, &rect, 1);
 	  DrawString(marker->GetGC_1()->GetGC(),
 	             xm1 + 2, fYBase - fHeight + 2,
 	             marker->GetID().c_str(), marker->GetID().size(),
 	             kLeft, kTop);
+	  marker->GetGC_1()->SetClipMask(None);
+	}
   }
 
   if(marker->GetN() > 1) {

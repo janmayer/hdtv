@@ -26,9 +26,9 @@
 import os
 import glob
 import hdtv.cmdline
-import hdtv.cmdhelper
 import hdtv.fitxml 
 import hdtv.ui
+import hdtv.util
 
 
 class FitlistManager(object):
@@ -152,7 +152,7 @@ class FitlistHDTVInterface(object):
         # TODO: this need urgent cleanup and testing, especially for the saving
         # of fitlists from multiple spectra, but I'm really in a hurry now. Sorry. Ralf
         # get spectrum
-        sids = hdtv.cmdhelper.ParseIds(options.spectrum, __main__.spectra)
+        sids = hdtv.util.ID.ParseIds(options.spectrum, __main__.spectra)
         if len(sids)==0:
             hdtv.ui.error("There is no active spectrum")
             return
@@ -203,7 +203,7 @@ class FitlistHDTVInterface(object):
             if len(more)==0:
                 hdtv.ui.warn("No such file %s" %fname)
             fnames.extend(more)
-        sids = hdtv.cmdhelper.ParseIds(options.spectrum, __main__.spectra)
+        sids = hdtv.util.ID.ParseIds(options.spectrum, __main__.spectra)
         if len(sids)==0:
             hdtv.ui.error("There is no active spectrum")
             return
@@ -232,7 +232,7 @@ class FitlistHDTVInterface(object):
         fname = os.path.expanduser(args[0])
         fname = glob.glob(fname)
         if len(fname)>1:
-            return USAGE
+            return "USAGE"
         fname = fname[0]
         if not os.path.exists(fname):
             hdtv.ui.error("No such file %s" %fname)

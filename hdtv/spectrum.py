@@ -32,11 +32,13 @@ class Spectrum(DrawableManager):
     def __setattr__(self, name, value):
         if self.hist is not None:
             self.hist.__setattr__(name, value)
-        if hasattr(self, name): # Update attribut of this class, if existent
+        if hasattr(self, name): # Update attribute of this class, if existent
             DrawableManager.__setattr__(self, name, value)
         
     def __getattr__(self, name):
-        return getattr(self.hist, name)
+        # The use of self.__dict__ replaces an infinite recusion by a KeyError
+        #  if self.hist does not exist
+        return getattr(self.__dict__["hist"], name)
 
     # color property
     def _set_color(self, color):
@@ -65,7 +67,8 @@ class Spectrum(DrawableManager):
         
     def Pop(self, ID):
         fit = DrawableManager.Pop(self, ID)
-        fit.spec = None
+        if fit is not None:
+            fit.spec = None
         return fit
         
     def Draw(self, viewport):
@@ -105,10 +108,12 @@ class Spectrum(DrawableManager):
         
     
 class CutSpectrum(Spectrum):
-    def __init__(self,hist, matrix, axis):
-        self.matrix = matrix
-        self.axis = axis
+    def __init__(self, hist, matrix, axis):
         Spectrum.__init__(self, hist)
+        
+        # Use self.__dict__ to avoid delegation to the underlying histogram
+        self.__dict__["matrix"] = matrix
+        self.__dict__["axis"] = axis
         
     def Show(self):
         """
