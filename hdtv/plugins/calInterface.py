@@ -191,11 +191,12 @@ class EffCalIf(object):
             if show_graph:
                 self.spectra.dict[spectrumID].effCal.TGraph.Draw("a*")
                 self.spectra.dict[spectrumID].effCal.TF1.Draw("same")
+
             if fit_panel:
-                self.spectra.dict[spectrumID].effCal.TF1.FitPanel()
+                self.spectra.dict[spectrumID].effCal.TGraph.FitPanel()
         except AttributeError:
             hdtv.ui.error("No efficiency for spectrum ID %d set", spectrumID)
-        
+
    
 class EffCalHDTVInterface(object):
     

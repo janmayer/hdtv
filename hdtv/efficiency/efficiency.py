@@ -23,6 +23,8 @@ from __future__ import with_statement
 from hdtv.util import TxtFile, Pairs
 from hdtv.errvalue import ErrValue
 from ROOT import TF1, TF2, TGraphErrors, TVirtualFitter
+import hdtv.ui
+
 import math
 import array
 import string
@@ -115,7 +117,7 @@ class _Efficiency(object):
         
         'energies' and 'efficiencies' may be a list of hdtv.util.ErrValues()
         """
-        
+        # TODO: Unify this with the energy calibration fitter
         if fitPairs is not None:
             self.fitInput = fitPairs
 
@@ -127,11 +129,12 @@ class _Efficiency(object):
 
 #        map(energies.append(self.fitInput[0]), self.fitInput)
 #        map(efficiencies.append(self.fitInput[1]), self.fitInput)
-        
+        hasXerror = False
         # Convert energies to array needed by ROOT        
         try:
             map(lambda x: E.append(x[0].value), self.fitInput)
             map(lambda x: delta_E.append(x[0].error), self.fitInput)
+            hasXerrors = True
         except AttributeError: # energies does not seem to be ErrValue list
             map(lambda x: E.append(x[0]), self.fitInput)
             map(lambda x: delta_E.append(0.0), self.fitInput)
@@ -154,19 +157,23 @@ class _Efficiency(object):
         self.TF1.SetRange(0, max(E) * 1.1)
         self.TF1.SetParameter(0, 1) # Unset normalization for fitting
 
-        for i in range(0, len(self.fitInput)):
-            self.TGraph.SetPoint(i, E[i], eff[i])
-            self.TGraph.SetPointError(i, delta_E[i], delta_eff[i])
-        
+        self.TGraph = TGraphErrors(len(E), E, eff, delta_E, delta_eff)
         
         # Do the fit
-        fitopts = "0"
+        fitopts = "0" # Do not plot
+        
+        if hasXerrors:
+            # We must use the iterative fitter (minuit) to take x errors
+            # into account.
+            fitopts += "F"
+            hdtv.ui.info("switching to non-linear fitter (minuit) for x error weighting")
+            
         if quiet:
             fitopts += "Q"
-
+        
         if self.TGraph.Fit(self.id, fitopts) != 0:
             raise RuntimeError, "Fit failed"
-        
+
         # Final normalization
         if self._doNorm:
             self.normalize()
@@ -185,7 +192,11 @@ class _Efficiency(object):
 
     def normalize(self):
         # Normalize the efficiency funtion
-        self.norm = 1.0 / self.TF1.GetMaximum(0.0, 0.0)
+        try:
+            self.norm = 1.0 / self.TF1.GetMaximum(0.0, 0.0)
+        except ZeroDivisionError:
+            self.norm = 1.0
+        
         self.TF1.SetParameter(0, self.norm)
         normfunc = TF2("norm_" + hex(id(self)), "[0]*y")
         normfunc.SetParameter(0, self.norm)
