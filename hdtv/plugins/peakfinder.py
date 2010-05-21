@@ -252,7 +252,7 @@ parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, u
 parser.add_option("-S", "--sigma", action = "store", default = hdtv.options.Get("fit.peakfind.sigma"),
                 help = "FWHM of peaks")
 parser.add_option("-T", "--threshold", action = "store", default = hdtv.options.Get("fit.peakfind.threshold"),
-                help = "Threshold of peaks to accept in fraction of the amplitude of highest peak (in %)")
+                help = "Threshold of peaks to accept in fraction of the amplitude of highest peak (0. < threshold < 1.)")
 parser.add_option("-a", "--autofit", action = "store_true", default = hdtv.options.Get("fit.peakfind.auto_fit"),
                 help = "automatically fit found peaks")
 parser.add_option("-r", "--reject", action = "store_true", default = False,
