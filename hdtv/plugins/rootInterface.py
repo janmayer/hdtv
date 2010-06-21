@@ -28,6 +28,7 @@ import ROOT
 import hdtv.cmdline
 import hdtv.tabformat
 import hdtv.rfile_utils
+import hdtv.util
 
 from hdtv.spectrum import Spectrum
 from hdtv.histogram import Histogram, RHisto2D
@@ -260,15 +261,15 @@ class RootFileInterface:
         matrix = Matrix(hist, sym, self.spectra.viewport)
         ID = self.spectra.GetFreeID()
         matrix.ID = ID
-        matrix.color = hdtv.color.ColorForID(ID)
+        matrix.color = hdtv.color.ColorForID(ID.major)
         # load x projection
         proj = matrix.xproj
-        sid = self.spectra.Insert(proj, ID=ID+".x")
+        sid = self.spectra.Insert(proj, ID=hdtv.util.ID(ID.major, "x"))
         self.spectra.ActivateObject(sid)
         # for asym matrix load also y projection
         if sym is False:
             proj = matrix.yproj
-            self.spectra.Insert(proj, ID=ID+".y")
+            self.spectra.Insert(proj, ID=hdtv.util.ID(ID.major, "y"))
     
     def RootGet(self, args, options):
         """
@@ -293,7 +294,7 @@ class RootFileInterface:
                 if isinstance(obj, ROOT.TH1):
                     spec = Spectrum(Histogram(obj))
                     sid = self.spectra.Insert(spec)
-                    spec.color = hdtv.color.ColorForID(sid)
+                    spec.color = hdtv.color.ColorForID(sid.major)
                     loaded.append(sid)
                     if options.load_cal:
                         if spec.name in self.spectra.caldict:

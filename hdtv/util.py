@@ -560,7 +560,12 @@ class ID(object):
     @classmethod
     def _parseNormalID(cls, string):
         if "." in string:
-            major, minor = [int(m) for m in string.split(".")]
+            major_s, minor_s = [m for m in string.split(".")]
+            major = int(major_s)
+            if minor_s.lower() in ("x", "y", "c"):
+                minor = minor_s
+            else:
+                minor = int(minor_s)
         else:
             major = int(string)
             minor = None
