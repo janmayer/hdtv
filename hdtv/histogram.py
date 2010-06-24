@@ -267,6 +267,61 @@ class CutHistogram(Histogram):
         return s
 
 
+class THnSparseWrapper(object):
+    """
+    Wrapper around a 2d THnSparse object, providing ProjectionX and
+    ProjectionY.
+    """
+    def __init__(self, hist):
+        if not (isinstance(hist, ROOT.THnSparse) and hist.GetNdimensions() == 2):
+            raise RuntimeError, "Class needs a THnSparse histogram of dimension 2"
+        self.__dict__["_hist"] = hist
+    
+    
+    def __setattr__(self, name, value):
+        self.__dict__["_hist"].__setattr__(name, value)
+    
+    
+    def __getattr__(self, name):
+        return getattr(self.__dict__["_hist"], name)
+    
+    
+    def GetXaxis(self):
+        return self._hist.GetAxis(0)
+    
+    
+    def GetYaxis(self):
+        return self._hist.GetAxis(1)
+    
+    
+    def ProjectionX(self, name, b1, b2, opt):
+        a = self._hist.GetAxis(1)
+        if b1 > b2:
+            a.SetRange(0, a.GetNbins())
+        else:
+            a.SetRange(b1, b2)
+        
+        proj = self._hist.Projection(0, opt)
+        a.SetRange(0, a.GetNbins())
+        
+        proj.SetName(name)
+        return proj
+    
+    
+    def ProjectionY(self, name, b1, b2, opt):
+        a = self._hist.GetAxis(0)
+        if b1 > b2:
+            a.SetRange(0, a.GetNbins())
+        else:
+            a.SetRange(b1, b2)
+        
+        proj = self._hist.Projection(1, opt)
+        a.SetRange(0, a.GetNbins())
+        
+        proj.SetName(name)
+        return proj
+
+
 class Histo2D(object):
     def __init__(self):
         pass

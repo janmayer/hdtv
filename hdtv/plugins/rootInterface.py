@@ -31,7 +31,7 @@ import hdtv.rfile_utils
 import hdtv.util
 
 from hdtv.spectrum import Spectrum
-from hdtv.histogram import Histogram, RHisto2D
+from hdtv.histogram import Histogram, RHisto2D, THnSparseWrapper
 from hdtv.matrix import Matrix
 
 
@@ -190,7 +190,8 @@ class RootFileInterface:
                 
     def GetTH2(self, path):
         """
-        Load a 2D histogram (``matrix'') from a ROOT file.
+        Load a 2D histogram (``matrix'') from a ROOT file. This can be either
+        a ``true'' TH2 histogram or a THnSparse of dimension 2.
         
         Note: Unlike RootGet(), this function does not support shell-style
         pattern expansion, as this make it too easy to undeliberately load
@@ -217,10 +218,12 @@ class RootFileInterface:
             if rfile:
                 rfile.Close()
     
-        if hist == None or not isinstance(hist, ROOT.TH2):
+        if hist == None or not \
+          (isinstance(hist, ROOT.TH2) or \
+          (isinstance(hist, ROOT.THnSparse) and hist.GetNdimensions() == 2)):
             print "Error: %s is not a 2d histogram" % path
             return None
-
+        
         return hist
         
     def RootMatrixView(self, args, options):
@@ -257,7 +260,13 @@ class RootFileInterface:
             hdtv.ui.error("Failed to open 2D histogram")
             return False
         
-        hist = RHisto2D(rhist)
+        if isinstance(rhist, ROOT.TH2):
+            hist = RHisto2D(rhist)
+        elif isinstance(rhist, ROOT.THnSparse):
+            hist = RHisto2D(THnSparseWrapper(rhist))
+        else:
+            raise RuntimeError
+        
         matrix = Matrix(hist, sym, self.spectra.viewport)
         ID = self.spectra.GetFreeID()
         matrix.ID = ID
