@@ -24,6 +24,7 @@
 #define __MTViewer_h__
 
 #include <TH2.h>
+#include <THnSparse.h>
 #include <TGFrame.h>
 #include <TGStatusBar.h>
 #include "View2D.h"
@@ -34,14 +35,18 @@ namespace Display {
 //! Class implementing a window (ROOT TGMainFrame) containting a View2D widget and a statusbar.
 class MTViewer : public TGMainFrame {
   public:
-    MTViewer(UInt_t w, UInt_t h, TH2 *mat, const char *title);
+    MTViewer(UInt_t w, UInt_t h, TH2* mat, const char* title, bool copy=false);
+    MTViewer(UInt_t w, UInt_t h, THnSparse* mat, const char* title);
     ~MTViewer();
     
     ClassDef(MTViewer, 1)
     
   private:
+    void Init(UInt_t w, UInt_t h, TH2* mat, const char* title);
+  
     HDTV::Display::View2D *fView;
     TGStatusBar *fStatusBar;
+    TH2* fMatCopy;
 };
 
 } // end namespace Display
