@@ -61,9 +61,9 @@ class View2D : public View {
     Bool_t HandleCrossing(Event_t *ev);
     
     inline double XTileToE(int x)
-       { return ((double) x) / fPainter.GetXZoom(); }
+       { return ((double) x) / fPainter.GetXZoom() - fXEOffset; }
     inline double YTileToE(int y)
-       { return ((double) y) / fPainter.GetYZoom(); }
+       { return ((double) y) / fPainter.GetYZoom() + fYEOffset; }
     inline int XScrToTile(int x)
        { return x - fXTileOffset; }
     inline int YScrToTile(int y)
@@ -97,6 +97,7 @@ class View2D : public View {
     TH2 *fMatrix;
     double fMatrixMax;
     
+    double fXEOffset, fYEOffset;
     int fXTileOffset, fYTileOffset;
     int fXNumTiles, fYNumTiles;
     

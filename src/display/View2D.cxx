@@ -32,6 +32,7 @@ namespace Display {
 
 View2D::View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
   : View(p, w, h),
+    fXEOffset(0.), fYEOffset(0.), fXTileOffset(0), fYTileOffset(0),
     fPainter()
 {
   SetBackgroundColor(GetBlackPixel());
@@ -46,8 +47,6 @@ View2D::View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
   fTopBorder = 10;
   fBottomBorder = 30;
   
-  // The first call to Layout() messes up fYTileOffset, because the is no
-  // previous height, but fYTileOffset is recalculated by ZoomFull() anyway...
   Layout();
   ZoomFull(false);
   fZVisibleRegion = Log(fMatrixMax)+1.0;
@@ -169,9 +168,17 @@ void View2D::Update()
 
 void View2D::ZoomAroundCursor(double f, Bool_t update)
 {
-  fXTileOffset = (int)((1.0 - f) * (double) fCursorX + (double) fXTileOffset * f);
-  fYTileOffset = (int)((1.0 - f) * (double) fCursorY + (double) fYTileOffset * f);
+  // Convert offset to energy units
+  fXEOffset += (fXTileOffset-fLeftBorder) / fPainter.GetXZoom();
+  fYEOffset += (fYTileOffset-fTopBorder-fVPHeight) / fPainter.GetYZoom();
+  fXTileOffset = fLeftBorder;
+  fYTileOffset = fTopBorder + fVPHeight;
 
+  // Adjust offset such that the energy coordinates at the cursor position
+  // stay constant
+  fXEOffset -= fPainter.GetXOffsetDelta(fCursorX, f);
+  fYEOffset += fPainter.GetYOffsetDelta(fCursorY, f);
+  
   fPainter.SetXVisibleRegion(fPainter.GetXVisibleRegion()/f);
   fPainter.SetYVisibleRegion(fPainter.GetYVisibleRegion()/f);
   
@@ -188,9 +195,11 @@ void View2D::ZoomFull(Bool_t update)
   
   fPainter.SetXVisibleRegion(xvis);
   fPainter.SetYVisibleRegion(yvis);
-      
-  fXTileOffset = fLeftBorder - xmin * fPainter.GetXZoom();
-  fYTileOffset = fTopBorder + fVPHeight + ymin * fPainter.GetYZoom();
+  fXEOffset = -xmin;
+  fYEOffset = ymin;
+  
+  fXTileOffset = fLeftBorder;
+  fYTileOffset = fTopBorder + fVPHeight;
     
   if(update)
     Update();
@@ -385,16 +394,19 @@ void View2D::Layout()
 {
   //! Callback for changes in size of our screen area
   
-  int heightDelta = fHeight - fVPHeight - fTopBorder - fBottomBorder;
+  // Convert offset to energy units
+  fXEOffset += (fXTileOffset-fLeftBorder) / fPainter.GetXZoom();
+  fYEOffset += (fYTileOffset-fTopBorder-fVPHeight) / fPainter.GetYZoom();
   
   fVPWidth = fWidth - fLeftBorder - fRightBorder;
   fVPHeight = fHeight - fTopBorder - fBottomBorder;
   
-  fYTileOffset += heightDelta;
+  fXTileOffset = fLeftBorder;
+  fYTileOffset = fTopBorder + fVPHeight;
   
   fPainter.SetBasePoint(fLeftBorder, fHeight - fBottomBorder);
   fPainter.SetSize(fVPWidth, fVPHeight);
-                   
+  
   FlushTiles();
 }
 
