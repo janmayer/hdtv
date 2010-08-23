@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+ *  Copyright (C) 2006-2010  The HDTV development team (see file AUTHORS)
  *
  * This file is part of HDTV.
  *
@@ -23,7 +23,6 @@
 #include "View2D.h"
 #include <X11/Xlib.h>
 #include <iostream>
-#include <complex>
 #include <KeySymbols.h>
 #include <TMath.h>
 
@@ -62,6 +61,20 @@ View2D::View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
 View2D::~View2D()
 {
   FlushTiles();
+}
+
+void View2D::AddCut(const TCutG& cut, bool invertAxes)
+{
+  fCuts.push_back(DisplayCut(cut, invertAxes));
+  FlushTiles();
+  gClient->NeedRedraw(this);
+}
+
+void View2D::DeleteAllCuts()
+{
+  fCuts.clear();
+  FlushTiles();
+  gClient->NeedRedraw(this);
 }
 
 void View2D::ShiftOffset(int dX, int dY)
@@ -334,7 +347,53 @@ Pixmap_t View2D::RenderTile(int xoff, int yoff)
             0, 0, 0, 0, cTileSize, cTileSize);
   gVirtualX->DeleteImage(img);
   
+  RenderCuts(xoff, yoff, pixmap);
+  
   return pixmap;
+}
+
+void View2D::RenderCuts(int xoff, int yoff, Pixmap_t pixmap)
+{
+    for(std::list<DisplayCut>::const_iterator cut = fCuts.begin();
+      cut != fCuts.end(); ++cut) {
+        RenderCut(*cut, xoff, yoff, pixmap);
+    }
+}
+
+void View2D::RenderCut(const DisplayCut& cut, int xoff, int yoff, Pixmap_t pixmap)
+{
+    const double x1 = XTileToE(xoff*cTileSize);
+    const double y1 = YTileToE(-(yoff+1)*cTileSize+1);
+    const double x2 = XTileToE((xoff+1)*cTileSize-1);
+    const double y2 = YTileToE(-yoff*cTileSize);
+    
+    if(x2 < cut.BB_x1() || x1 > cut.BB_x2() || y2 < cut.BB_y1() || y1 > cut.BB_y2())
+        return;
+    
+    const int N = cut.GetPoints().size();
+    TArrayS points(2*N + 2);
+    for(int i=0; i<N; ++i) {
+        points[2*i] = EToXTile(cut.GetPoints()[i].x) - xoff*cTileSize;
+        points[2*i+1] = -EToYTile(cut.GetPoints()[i].y) - yoff*cTileSize;
+    }
+    points[2*N] = points[0];
+    points[2*N+1] = points[1];
+    
+    DrawPolyLine(pixmap, GetWhiteGC()(), N+1, points.GetArray());
+    
+    /* double x1 = EToXTile(cut.BB_x1()) - xoff*cTileSize;
+    double y1 = -EToYTile(cut.BB_y1()) - yoff*cTileSize;
+    double x2 = EToXTile(cut.BB_x2()) - xoff*cTileSize;
+    double y2 = -EToYTile(cut.BB_y2()) - yoff*cTileSize;
+    gVirtualX->DrawRectangle(pixmap, GetWhiteGC()(),
+                             x1, y2, x2-x1, y1-y2); */
+}
+
+void View2D::DrawPolyLine(Drawable_t id, GContext_t gc, Int_t n, short* points)
+{
+    XDrawLines((::Display*) gVirtualX->GetDisplay(),
+               (Drawable) id, (GC) gc,
+               (XPoint*) points, n, CoordModeOrigin);
 }
 
 void View2D::WeedTiles()

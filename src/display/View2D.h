@@ -23,11 +23,13 @@
 #ifndef __View2D_h__
 #define __View2D_h__
 
+#include <list>
 #include <map>
 #include <stdint.h>
 #include <TGStatusBar.h>
 #include <TH2.h>
 #include <math.h>
+#include "DisplayCut.h"
 #include "Painter.h"
 #include "View.h"
 
@@ -40,6 +42,8 @@ class View2D : public View {
     View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat);
     ~View2D();
     Pixmap_t RenderTile(int xoff, int yoff);
+    void RenderCuts(int xoff, int yoff, Pixmap_t pixmap);
+    void RenderCut(const DisplayCut& cut, int xoff, int yoff, Pixmap_t pixmap);
     Pixmap_t GetTile(int x, int y);
     void FlushTiles();
     void WeedTiles();
@@ -53,7 +57,12 @@ class View2D : public View {
     inline void SetStatusBar(TGStatusBar *sb)
       { fStatusBar = sb; }
     
+    void AddCut(const TCutG& cut, bool invertAxes=false);
+    void DeleteAllCuts();
+    
     Bool_t HandleKey(Event_t *ev);
+    
+    void DrawPolyLine(Drawable_t id, GContext_t gc, Int_t n, short* points);
     
     /* Copied from GSViewport: Merge? */
     Bool_t HandleMotion(Event_t *ev);
@@ -64,6 +73,10 @@ class View2D : public View {
        { return ((double) x) / fPainter.GetXZoom() - fXEOffset; }
     inline double YTileToE(int y)
        { return ((double) y) / fPainter.GetYZoom() + fYEOffset; }
+    inline int EToXTile(double e)
+       { return (int) TMath::Ceil((e + fXEOffset) * fPainter.GetXZoom() - 0.5); }
+    inline int EToYTile(double e)
+       { return (int) TMath::Ceil((e - fYEOffset) * fPainter.GetYZoom() - 0.5); }
     inline int XScrToTile(int x)
        { return x - fXTileOffset; }
     inline int YScrToTile(int y)
@@ -90,6 +103,8 @@ class View2D : public View {
   ClassDef(View2D, 1)
   
   protected:
+    std::list<DisplayCut> fCuts;
+    
     std::map<uint32_t, Pixmap_t> fTiles;
     double fZVisibleRegion, fZOffset;
     Bool_t fLogScale;

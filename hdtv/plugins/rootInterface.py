@@ -85,7 +85,24 @@ class RootFileInterface:
         hdtv.cmdline.AddCommand(prog, self.RootMatrixGet,
                                 completer=self.RootGet_Completer,
                                 nargs=2, parser=parser)
-
+        
+        prog = "root cut view"
+        description = "load a cut (TCutG) from a ROOT file and display it"
+        description+= "overlaid on the current matrix view"
+        usage = "%prog <path>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        parser.add_option("-i", "--invert-axes", action="store_true",
+                          default=False, help="Exchange coordinate axes of cut (x <-> y)")
+        hdtv.cmdline.AddCommand(prog, self.RootCutView,
+                                completer=self.RootGet_Completer,
+                                nargs=1, parser=parser)
+        
+        prog = "root cut delete"
+        description = "delete all cuts currently shown"
+        usage = "%prog"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.RootCutDelete, nargs=0, parser=parser)
+        
         
         hdtv.cmdline.RegisterInteractive("gRootFile", self.rootfile)
 
@@ -187,7 +204,47 @@ class RootFileInterface:
                 return hdtv.rfile_utils.PathComplete(".", cur_root_dir, "", text, dirs_only)
             else:
                 return hdtv.rfile_utils.PathComplete(".", cur_root_dir, dirs[0], text, dirs_only)
-                
+    
+    
+    def GetObj(self, path):
+        """
+        Load an object from a ROOT file
+        """
+        
+        dirs = path.rsplit("/", 1)
+        if len(dirs) == 1:
+            # Load object from current directory
+            obj = ROOT.gDirectory.Get(dirs[0])
+        else:
+            if self.rootfile:
+                cur_root_dir = ROOT.gDirectory
+            else:
+                cur_root_dir = None
+        
+            (posix_path, rfile, root_dir) = hdtv.rfile_utils.GetRelDirectory(os.getcwd(), cur_root_dir, dirs[0])
+        
+            if root_dir:
+                obj = root_dir.Get(dirs[1])
+            else:
+                obj = None
+            
+            if rfile:
+                rfile.Close()
+        
+        return obj
+    
+    def GetCut(self, path):
+        """
+        Load a cut (TCutG) from a ROOT file.
+        """
+        cut = self.GetObj(path)
+        
+        if cut == None or not isinstance(cut, ROOT.TCutG):
+            print "Error: %s is not a ROOT cut (TCutG)" % path
+            return None
+        
+        return cut
+    
     def GetTH2(self, path):
         """
         Load a 2D histogram (``matrix'') from a ROOT file. This can be either
@@ -198,25 +255,7 @@ class RootFileInterface:
         too many histograms. As they use a lot of memory, this would likely
         lead to a crash of the program.
         """
-        dirs = path.rsplit("/", 1)
-        if len(dirs) == 1:
-            # Load 2d histogram from current directory
-            hist = ROOT.gDirectory.Get(dirs[0])
-        else:
-            if self.rootfile:
-                cur_root_dir = ROOT.gDirectory
-            else:
-                cur_root_dir = None
-        
-            (posix_path, rfile, root_dir) = hdtv.rfile_utils.GetRelDirectory(os.getcwd(), cur_root_dir, dirs[0])
-        
-            if root_dir:
-                hist = root_dir.Get(dirs[1])
-            else:
-                hist = None
-            
-            if rfile:
-                rfile.Close()
+        hist = self.GetObj(path)
     
         if hist == None or not \
           (isinstance(hist, ROOT.TH2) or \
@@ -226,6 +265,28 @@ class RootFileInterface:
         
         return hist
         
+    def RootCutView(self, args, options):
+        """
+        Load a ROOT cut (TCutG) from a ROOT file and display it.
+        """
+        if len(self.matviews) == 0:
+            hdtv.ui.error("Cannot display cut: no matrix view open")
+            return False
+        for path in args:
+            cut = self.GetCut(path)
+            if cut:
+                self.matviews[-1].AddCut(cut, options.invert_axes)
+    
+    
+    def RootCutDelete(self, args, options):
+        """
+        Delete all cuts shown in the current matrix view.
+        """
+        if len(self.matviews) == 0:
+            hdtv.ui.error("No matrix view open")
+            return False
+        self.matviews[-1].DeleteAllCuts()
+    
     def RootMatrixView(self, args, options):
         """
         Load a 2D histogram (``matrix'') from a ROOT file and display it.

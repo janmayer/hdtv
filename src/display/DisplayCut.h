@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2009  Norbert Braun <n.braun@ikp.uni-koeln.de>
+ *  Copyright (C) 2006-2010  The HDTV development team (see file AUTHORS)
  *
  * This file is part of HDTV.
  *
@@ -20,42 +20,43 @@
  * 
  */
 
-#ifndef __MTViewer_h__
-#define __MTViewer_h__
+#ifndef __DisplayCut_h__
+#define __DisplayCut_h__
 
-#include <TH2.h>
-#include <THnSparse.h>
+#include <vector>
 #include <TCutG.h>
-#include <TGFrame.h>
-#include <TGStatusBar.h>
-#include "View2D.h"
 
 namespace HDTV {
 namespace Display {
 
-//! Class implementing a window (ROOT TGMainFrame) containing a View2D widget and a statusbar.
-class MTViewer : public TGMainFrame {
+class DisplayCut {
   public:
-    MTViewer(UInt_t w, UInt_t h, TH2* mat, const char* title, bool copy=false);
-    MTViewer(UInt_t w, UInt_t h, THnSparse* mat, const char* title);
-    ~MTViewer();
+    class CutPoint {
+      public:
+        CutPoint(double _x, double _y)  { x = _x; y = _y; }
+        double x, y;
+    };
     
-    inline void AddCut(const TCutG& cut, bool invertAxes=false)
-        { fView->AddCut(cut, invertAxes); }
-    inline void DeleteAllCuts()
-        { fView->DeleteAllCuts(); }
+    DisplayCut() {}
+    DisplayCut(int n, const double* x, const double* y)
+        { Init(n, x, y); }
+    DisplayCut(const TCutG& cut, bool invertAxes=false);
     
-    ClassDef(MTViewer, 1)
+    const std::vector<CutPoint>& GetPoints() const
+        { return fPoints; }
+    inline double BB_x1() const { return fX1; }
+    inline double BB_y1() const { return fY1; }
+    inline double BB_x2() const { return fX2; }
+    inline double BB_y2() const { return fY2; }
     
   private:
-    void Init(UInt_t w, UInt_t h, TH2* mat, const char* title);
-  
-    HDTV::Display::View2D *fView;
-    TGStatusBar *fStatusBar;
-    TH2* fMatCopy;
+    void Init(int n, const double* x, const double* y);
+    std::vector<CutPoint> fPoints;
+    double fX1, fY1, fX2, fY2;   // bounding box
 };
 
 } // end namespace Display
 } // end namespace HDTV
 
 #endif
+

@@ -1,10 +1,10 @@
 # Makefile for HDTV::Display
 include ../Makefile.def
 
-SOURCES= DisplaySpec.cxx DisplayFunc.cxx DisplayBlock.cxx DisplayObj.cxx DisplayStack.cxx Viewer.cxx Painter.cxx Marker.cxx XMarker.cxx YMarker.cxx Calibration.cxx View.cxx View1D.cxx View2D.cxx MTViewer.cxx
+SOURCES= DisplaySpec.cxx DisplayFunc.cxx DisplayBlock.cxx DisplayObj.cxx DisplayStack.cxx DisplayCut.cxx Viewer.cxx Painter.cxx Marker.cxx XMarker.cxx YMarker.cxx Calibration.cxx View.cxx View1D.cxx View2D.cxx MTViewer.cxx
 # The ordering matters here: rootcint will complain on (some) different orderings.
 # The reason for this is unclear.
-EXPHEADERS= Calibration.h View.h View1D.h View2D.h MTViewer.h Viewer.h DisplaySpec.h DisplayFunc.h DisplayBlock.h DisplayObj.h Marker.h XMarker.h YMarker.h
+EXPHEADERS= Calibration.h View.h View1D.h View2D.h MTViewer.h Viewer.h DisplaySpec.h DisplayFunc.h DisplayBlock.h DisplayObj.h DisplayCut.h Marker.h XMarker.h YMarker.h
 HEADERS= $(EXPHEADERS) Painter.h
 OBJ= $(SOURCES:.cxx=.o)
 MODNAME= display
