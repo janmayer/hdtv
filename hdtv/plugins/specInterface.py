@@ -252,6 +252,11 @@ class TvSpecInterface:
         hdtv.cmdline.AddCommand("spectrum normalize", self.SpectrumNormalization,
                                 minargs=1, usage="%prog [ids] <norm>")
 
+        prog = "spectrum rebin"
+        usage="%prog [OPTIONS] [ids]|all|... <ngroup>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumRebin, level = 2, minargs=1, fileargs=False, parser=parser)
+
         prog = "spectrum add"
         usage="%prog [OPTIONS] <target-id> <ids>|all"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
@@ -266,7 +271,7 @@ class TvSpecInterface:
                                 fileargs=False, parser=parser)
         
         prog = "spectrum multiply"
-        usage="%prog [OPTIONS]  [ids]|all|... <factor>"
+        usage="%prog [OPTIONS] [ids]|all|... <factor>"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
         hdtv.cmdline.AddCommand(prog, self.SpectrumMultiply, level = 2, minargs=1, 
                                 fileargs=False, parser=parser)
@@ -319,7 +324,7 @@ class TvSpecInterface:
 
     def SpectrumActivate(self, args):
         """
-        Activate one spectra
+        Activate one spectrum
         """
         try:
             ids = hdtv.util.ID.ParseIds(args, self.spectra)
@@ -454,8 +459,40 @@ class TvSpecInterface:
                 hdtv.ui.msg("Multiplying " + str(i) + " with " + str(factor))
                 self.spectra.dict[i].Multiply(factor)
             else:
-                hdtv.ui.error("Cannot multiply spectrum " + str(i) + " (Does not exist)")  
+                hdtv.ui.error("Cannot multiply spectrum " + str(i) + " (Does not exist)")
     
+    
+    def SpectrumRebin(self, args, options):
+        """
+        Rebin spectrum
+        """
+        try:
+            ngroup = int(args[-1])
+            
+            if len(args) == 1:
+                if self.spectra.activeID is not None:
+                    msg = "Using active spectrum %s for rebinning" % self.spectra.activeID
+                    hdtv.ui.msg(msg)
+                    ids = [self.spectra.activeID]
+                else:
+                    hdtv.ui.msg("No active spectrum")
+                    ids = list()
+            else:
+                ids = hdtv.util.ID.ParseIds(args[:-1], self.spectra)
+            
+        except (IndexError, ValueError):
+            return "USAGE"
+        
+        if len(ids) == 0:
+            hdtv.ui.warn("Nothing to do")
+            return
+        
+        for i in ids:
+            if i in self.spectra.dict.keys():
+                hdtv.ui.msg("Rebinning " + str(i) + " with " + str(ngroup) + " bins per new bin")
+                self.spectra.dict[i].Rebin(ngroup)
+            else:
+                hdtv.ui.error("Cannot rebin spectrum " + str(i) + " (Does not exist)")
     
     def SpectrumHide(self, args):
         """

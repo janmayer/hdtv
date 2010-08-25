@@ -145,8 +145,17 @@ class Histogram(Drawable):
         if self.displayObj:
             self.displayObj.SetHist(self._hist)
         self.typeStr = "spectrum, modified (multiplied)"
-        
-       
+    
+    def Rebin(self, ngroup):
+        """
+        Rebin spectrum by adding ngroup bins into one
+        """
+        self._hist.Rebin(ngroup)
+        # update display
+        if self.displayObj:
+            self.displayObj.SetHist(self._hist)
+        self.typeStr = "spectrum, modified (rebinned)"
+    
     def Draw(self, viewport):
         """
         Draw this spectrum to the viewport
