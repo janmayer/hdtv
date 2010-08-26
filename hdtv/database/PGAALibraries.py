@@ -88,7 +88,7 @@ class PGAAlib_IKI2000(GammaLib):
                     halflife = ErrValue(float(line[7]), None)
                 except ValueError:
                     halflife = ErrValue(None, None)
-                gamma = PGAAGamma(Nuclides(Z, A), energy, sigma = sigma, intensity = intensity, halflife = halflife, k0_comp = self.k0_comp)
+                gamma = PGAAGamma(Nuclides(Z, A)[0], energy, sigma = sigma, intensity = intensity, halflife = halflife, k0_comp = self.k0_comp)
                 self.append(gamma)
         except csv.Error, e:
             hdtv.ui.error('file %s, line %d: %s' % (self.csvfile, reader.line_num, e))
