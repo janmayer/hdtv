@@ -40,7 +40,7 @@ class SpecInterface:
     """
     def __init__(self, spectra):
         hdtv.ui.msg("Loaded user interface for working with 1-d spectra")
-        self.spectra= spectra
+        self.spectra = spectra
         self.window = spectra.window
         self.caldict = spectra.caldict
         
@@ -511,7 +511,7 @@ class TvSpecInterface:
         Refresh spectra
         """
         if len(args)==0:
-           args = ["active"] 
+            args = ["active"] 
         try:
             ids = hdtv.util.ID.ParseIds(args, self.spectra)
         except ValueError:
@@ -544,7 +544,7 @@ class TvSpecInterface:
                 self.spectra.dict[ID].WriteSpectrum(fname, fmt)
                 hdtv.ui.msg("Wrote spectrum with id %s to file %s" %(ID, fname))
             except KeyError:
-                 hdtv.ui.warn("There is no spectrum with id: %s" %ID)
+                hdtv.ui.warn("There is no spectrum with id: %s" %ID)
         except ValueError:
             return "USAGE"
             
