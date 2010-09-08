@@ -117,10 +117,20 @@ Bool_t View2D::HandleButton(Event_t *ev)
 	    fDragging = true;
 	    break;
 	  case 4:
-        ZoomAroundCursor(M_SQRT2);
+        if(ev->fState & kKeyShiftMask)
+          ZoomAroundCursor(1., M_SQRT2);
+        else if(ev->fState & kKeyControlMask)
+          ZoomAroundCursor(M_SQRT2, 1.);
+        else
+          ZoomAroundCursor(M_SQRT2, M_SQRT2);
 	    break;
 	  case 5:
-        ZoomAroundCursor(M_SQRT1_2);
+	    if(ev->fState & kKeyShiftMask)
+          ZoomAroundCursor(1., M_SQRT1_2);
+        else if(ev->fState & kKeyControlMask)
+          ZoomAroundCursor(M_SQRT1_2, 1.);
+        else
+          ZoomAroundCursor(M_SQRT1_2, M_SQRT1_2);
         break;
 	}
   } else if(ev->fType == kButtonRelease) {
@@ -148,13 +158,13 @@ Bool_t View2D::HandleKey(Event_t *ev)
 	    Update();
 	    break;
 	  case kKey_z:
-	    ZoomAroundCursor(2.0);
+	    ZoomAroundCursor(2.0, 2.0);
 	    break;
 	  case kKey_x:
-		ZoomAroundCursor(0.5);
+		ZoomAroundCursor(0.5, 0.5);
 	    break;
 	  case kKey_1:
-	    ZoomAroundCursor(1.0 / fPainter.GetXZoom());
+	    ZoomAroundCursor(1.0 / fPainter.GetXZoom(), 1.0 / fPainter.GetYZoom());
 	    break;
 	  case kKey_f:
 	    ZoomFull();
@@ -179,7 +189,7 @@ void View2D::Update()
   UpdateStatusBar();
 }
 
-void View2D::ZoomAroundCursor(double f, Bool_t update)
+void View2D::ZoomAroundCursor(double fx, double fy, Bool_t update)
 {
   // Convert offset to energy units
   fXEOffset += (fXTileOffset-fLeftBorder) / fPainter.GetXZoom();
@@ -189,11 +199,11 @@ void View2D::ZoomAroundCursor(double f, Bool_t update)
 
   // Adjust offset such that the energy coordinates at the cursor position
   // stay constant
-  fXEOffset -= fPainter.GetXOffsetDelta(fCursorX, f);
-  fYEOffset += fPainter.GetYOffsetDelta(fCursorY, f);
+  fXEOffset -= fPainter.GetXOffsetDelta(fCursorX, fx);
+  fYEOffset += fPainter.GetYOffsetDelta(fCursorY, fy);
   
-  fPainter.SetXVisibleRegion(fPainter.GetXVisibleRegion()/f);
-  fPainter.SetYVisibleRegion(fPainter.GetYVisibleRegion()/f);
+  fPainter.SetXVisibleRegion(fPainter.GetXVisibleRegion()/fx);
+  fPainter.SetYVisibleRegion(fPainter.GetYVisibleRegion()/fy);
   
   if(update)
     Update();

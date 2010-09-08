@@ -52,7 +52,7 @@ class View2D : public View {
     void Update();
     void UpdateStatusBar();
     void ZoomFull(Bool_t update=true);
-    void ZoomAroundCursor(double f, Bool_t update=true);
+    void ZoomAroundCursor(double fx, double fy, Bool_t update=true);
     double Log(double x);
     inline void SetStatusBar(TGStatusBar *sb)
       { fStatusBar = sb; }
