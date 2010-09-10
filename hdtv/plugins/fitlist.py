@@ -52,7 +52,7 @@ class FitlistManager(object):
         # remember absolut pathname for later use
         fname = os.path.abspath(fname)
         self.list[spec.name] = fname
-        self.xml.ReadFitlist(fname, sid)
+        self.xml.ReadFitlist(fname, sid, refit)
 
     def WriteList(self, fname):
         lines = list()
