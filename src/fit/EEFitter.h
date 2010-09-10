@@ -114,8 +114,8 @@ class EEFitter : public Fitter {
     inline double GetChisquare() { return fChisquare; }
     inline TF1* GetSumFunc() { return fSumFunc.get(); }
     TF1* GetBgFunc();
-    void Restore(const Background& bg, double ChiSquare);
-    void Restore(int intBgDeg, double ChiSquare);
+    bool Restore(const Background& bg, double ChiSquare);
+    bool Restore(const TArrayD& bgPolValues, const TArrayD& bgPolErrors,  double ChiSquare);
     
     // For debugging only
     //inline double GetVol()          { return fInt; }
