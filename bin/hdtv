@@ -29,7 +29,7 @@ sys.path.append(configpath + "/plugins")
 hdtvpath=sys.path[0].split(os.sep)
 hdtvpath = os.sep.join(hdtvpath[:-1])
 if os.path.exists(hdtvpath+os.sep+'hdtv'):
-    sys.path.insert(2,hdtvpath)
+    sys.path.insert(1,hdtvpath)
 
 # Import core modules
 import hdtv.cmdline
