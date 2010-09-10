@@ -139,6 +139,8 @@ class FitInterface:
         if peaks:
             fit.FitPeakFunc(spec, silent=False)
         else:
+            if fit.fitter.bgdeg==-1:
+                raise RuntimeError, "background degree of -1"
             fit.FitBgFunc(spec)
         fit.Draw(self.window.viewport)
             
@@ -599,7 +601,7 @@ class TvFitInterface:
             for fitID in fitIDs:
                 try:    
                     self.fitIf.ExecuteRefit(specID=specID, fitID=fitID, peaks=doPeaks)
-                except KeyError, e:
+                except (KeyError, RuntimeError), e:
                     hdtv.ui.warn(e)
                     continue
                 

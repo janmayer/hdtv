@@ -118,10 +118,13 @@ class Session(DrawableManager):
         """
         spec = self.GetActiveObject()
         if spec is None:
-            hdtv.ui.error("There is no active spectrum")
+            hdtv.ui.error("There is no active spectrum.")
             return 
         fit = self.workFit
         if not peaks and len(fit.bgMarkers) > 0:
+            if fit.fitter.bgdeg==-1:
+                hdtv.ui.error("Background degree of -1 contradicts background fit.")
+                return
             # pure background fit
             fit.FitBgFunc(spec)
         if peaks:

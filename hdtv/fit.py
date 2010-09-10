@@ -251,7 +251,7 @@ class Fit(Drawable):
         self.spec = spec
         self.Erase()
         # fit background 
-        if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
+        if self.fitter.bgdeg!=-1 and len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
             backgrounds = Pairs()
             for m in self.bgMarkers:
                 backgrounds.add(m.p1.pos_uncal, m.p2.pos_uncal)
