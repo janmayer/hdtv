@@ -860,16 +860,19 @@ class TvFitInterface:
         else:
             states = list()
             param = args[0]
-            activePM = self.spectra.workFit.fitter.peakModel
-            try:
-                states = activePM.fValidParStatus[param]
-            except KeyError:
-                # param is not a parameter of the peak model of active fitter
-                msg = "Invalid parameter %s for active peak model %s" %(param, activePM.name)
-                hdtv.ui.error(msg)
-            # remove <type: float> option
-            states.remove(float)
-            return hdtv.util.GetCompleteOptions(text, states)
+            if params == "background":
+                return hdtv.util.GetCompleteOptions(text, states)
+            else:
+                activePM = self.spectra.workFit.fitter.peakModel
+                try:
+                    states = activePM.fValidParStatus[param]
+                except KeyError:
+                    # param is not a parameter of the peak model of active fitter
+                    msg = "Invalid parameter %s for active peak model %s" %(param, activePM.name)
+                    hdtv.ui.error(msg)
+                # remove <type: float> option
+                states.remove(float)
+                return hdtv.util.GetCompleteOptions(text, states)
             
     def ResetFit(self, args, options):
         """

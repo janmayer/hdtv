@@ -139,7 +139,7 @@ class Fitter(object):
             except ValueError:
                 try: # HACK! 'background degree <degree>' should still be possible
                     deg = int(status.split()[1])
-                except ValueError:
+                except (ValueError, IndexError):
                     msg = "Failed to parse status specifier `%s'" % status
                     raise ValueError, msg
             self.bgdeg = deg
