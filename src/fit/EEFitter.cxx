@@ -257,16 +257,6 @@ void EEPeak::StoreIntegral()
 }
 
 /*** EEFitter ***/
-EEFitter::EEFitter(double r1, double r2)
-  : Fitter()
-{
-  fMin = TMath::Min(r1, r2);
-  fMax = TMath::Max(r1, r2);
-  
-  fNumPeaks = 0;
-  fIntBgDeg = -1;
-}
-
 void EEFitter::AddPeak(const EEPeak& peak)
 {
   fPeaks.push_back(peak);

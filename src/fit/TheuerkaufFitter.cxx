@@ -236,21 +236,6 @@ double TheuerkaufPeak::GetNorm(double sigma, double tl, double tr)
 }
 
 // *** TheuerkaufFitter ***
-TheuerkaufFitter::TheuerkaufFitter(double r1, double r2, bool debugShowInipar)
- : Fitter(),
-   fDebugShowInipar(debugShowInipar)
-{
-  //! Constructor
-
-  fMin = TMath::Min(r1, r2);
-  fMax = TMath::Max(r1, r2);
-  
-  fNumPeaks = 0;
-  fIntBgDeg = -1;
-  
-  fChisquare = std::numeric_limits<double>::quiet_NaN();
-}
-
 void TheuerkaufFitter::AddPeak(const TheuerkaufPeak& peak)
 {
   //! Adds a peak to the peak list

@@ -33,7 +33,6 @@
 
 #include "Param.h"
 #include "Fitter.h"
-#include "Background.h"
 
 #include <Riostream.h>
 
@@ -139,14 +138,14 @@ class TheuerkaufPeak {
 //! Fitting multiple TheuerkaufPeaks
 class TheuerkaufFitter : public Fitter {
   public:
-    TheuerkaufFitter(double r1, double r2, bool debugShowInipar=false);
-
+    TheuerkaufFitter(double r1, double r2, bool debugShowInipar=false)
+     : Fitter(r1, r2), fDebugShowInipar(debugShowInipar) {}
+    
     void AddPeak(const TheuerkaufPeak& peak);
     void Fit(TH1& hist, const Background& bg);
     void Fit(TH1& hist, int intBgDeg=-1);
     inline int GetNumPeaks() { return fNumPeaks; }
     inline const TheuerkaufPeak& GetPeak(int i) { return fPeaks[i]; }
-    inline double GetChisquare() { return fChisquare; }
     inline TF1* GetSumFunc() { return fSumFunc.get(); }
     TF1* GetBgFunc();
     bool Restore(const Background& bg, double ChiSquare);
@@ -154,7 +153,7 @@ class TheuerkaufFitter : public Fitter {
 
   private:
     // Copying the fitter is not supported
-    TheuerkaufFitter(const TheuerkaufFitter& src) { }
+    TheuerkaufFitter(const TheuerkaufFitter& src) : Fitter(0., 0.) { }
     TheuerkaufFitter& operator=(const TheuerkaufFitter& src) { return *this; }
     
     typedef std::vector<TheuerkaufPeak> PeakVector_t;
@@ -174,15 +173,8 @@ class TheuerkaufFitter : public Fitter {
     double EvalBg(double *x, double *p);
     void _Fit(TH1& hist);
     void _Restore(double ChiSquare);
-
-    int fIntBgDeg;
-    double fMin, fMax;
+    
     std::vector<TheuerkaufPeak> fPeaks;
-    std::auto_ptr<Background> fBackground;
-    std::auto_ptr<TF1> fSumFunc;
-    std::auto_ptr<TF1> fBgFunc;
-    int fNumPeaks;
-    double fChisquare;
     bool fDebugShowInipar;
 };
 
