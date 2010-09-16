@@ -53,7 +53,7 @@ void Fitter::SetParameter(TF1& func, Param& param, double ival)
 
 double Fitter::GetIntBgCoeff(int i) const
 {
-  if(fSumFunc.get() == 0 || i < 0 || i >= fIntBgDeg)
+  if(fSumFunc.get() == 0 || i < 0 || i > fIntBgDeg)
     return std::numeric_limits<double>::quiet_NaN();
   else
     return fSumFunc->GetParameter(fNumParams - fIntBgDeg - 1 + i);
@@ -61,7 +61,7 @@ double Fitter::GetIntBgCoeff(int i) const
 
 double Fitter::GetIntBgCoeffError(int i) const
 {
-  if(fSumFunc.get() != 0 || i < 0 || i >= fIntBgDeg)
+  if(fSumFunc.get() != 0 || i < 0 || i > fIntBgDeg)
     return std::numeric_limits<double>::quiet_NaN();
   else
     return fSumFunc->GetParError(fNumParams - fIntBgDeg - 1 + i);

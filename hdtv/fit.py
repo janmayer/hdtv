@@ -270,17 +270,25 @@ class Fit(Drawable):
             peaks.sort()
             self.fitter.FitPeaks(spec=self.spec, region=region, peaklist=peaks)
             # get background function
+            self.bgCoeffs = []
+            deg = self.fitter.bgdeg
             func = self.fitter.peakFitter.GetBgFunc()
-            self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
-            self.dispBgFunc.SetCal(self.cal)
-            if self.fitter.bgFitter:
+            if not self.fitter.bgFitter:
+                # internal background
+                self.bgChi = func.GetChisquare() #FIXME
+                for i in range(deg+1):
+                    value=self.fitter.peakFitter.GetIntBgCoeff(i)
+                    error=self.fitter.peakFitter.GetIntBgCoeffError(i)
+                    self.bgCoeffs.append(ErrValue(value, error))
+            else:
+                # external background
                 self.bgChi = self.fitter.bgFitter.GetChisquare()
-                self.bgCoeffs = []
-                deg = self.fitter.bgFitter.GetDegree()
-                for i in range(0, deg+1):
+                for i in range(deg+1):
                     value = self.fitter.bgFitter.GetCoeff(i)
                     error = self.fitter.bgFitter.GetCoeffError(i)
                     self.bgCoeffs.append(ErrValue(value, error))
+            self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
+            self.dispBgFunc.SetCal(self.cal)
             # get peak function
             func = self.fitter.peakFitter.GetSumFunc()
             self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.region)
@@ -319,7 +327,8 @@ class Fit(Drawable):
             self.fitter.RestoreBackground(backgrounds=backgrounds, coeffs=self.bgCoeffs, chisquare=self.bgChi)
         region = [self.regionMarkers[0].p1.pos_uncal, self.regionMarkers[0].p2.pos_uncal]
         region.sort()
-        self.fitter.RestorePeaks(cal=self.cal, region=region, peaks=self.peaks, chisquare=self.chi)
+        self.fitter.RestorePeaks(cal=self.cal, region=region, peaks=self.peaks, 
+                                 chisquare=self.chi, coeffs=self.bgCoeffs)
         # get background function
         func = self.fitter.peakFitter.GetBgFunc()
         self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, self.color)
