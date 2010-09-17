@@ -371,14 +371,14 @@
         <uncal>1460.76166653</uncal>
       </position>
     </peakMarker>
-    <background chisquare="0.0" deg="1">
+    <background chisquare="None" deg="1">
       <coeff deg="0">
         <value>58016.3955962</value>
-        <error>nan</error>
+        <error>1569.72934174</error>
       </coeff>
       <coeff deg="1">
         <value>-39.1097137764</value>
-        <error>nan</error>
+        <error>1.07377263038</error>
       </coeff>
     </background>
     <peak>
@@ -572,14 +572,14 @@
         <uncal>1120.52916656</uncal>
       </position>
     </peakMarker>
-    <background chisquare="0.0" deg="1">
+    <background chisquare="None" deg="1">
       <coeff deg="0">
         <value>30835.2860057</value>
-        <error>nan</error>
+        <error>16.2674562826</error>
       </coeff>
       <coeff deg="1">
         <value>-25.8222355408</value>
-        <error>nan</error>
+        <error>0.014523880622</error>
       </coeff>
     </background>
     <peak>

@@ -272,11 +272,8 @@ class Fit(Drawable):
             # get background function
             self.bgCoeffs = []
             deg = self.fitter.bgdeg
-            func = self.fitter.peakFitter.GetBgFunc()
             if not self.fitter.bgFitter:
-                # internal background
-                self.bgChi = func.GetChisquare() #FIXME
-                for i in range(deg+1):
+                 for i in range(deg+1):
                     value=self.fitter.peakFitter.GetIntBgCoeff(i)
                     error=self.fitter.peakFitter.GetIntBgCoeffError(i)
                     self.bgCoeffs.append(ErrValue(value, error))
@@ -287,6 +284,7 @@ class Fit(Drawable):
                     value = self.fitter.bgFitter.GetCoeff(i)
                     error = self.fitter.bgFitter.GetCoeffError(i)
                     self.bgCoeffs.append(ErrValue(value, error))
+            func = self.fitter.peakFitter.GetBgFunc()
             self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
             self.dispBgFunc.SetCal(self.cal)
             # get peak function

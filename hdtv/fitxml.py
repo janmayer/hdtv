@@ -555,11 +555,10 @@ class FitXml:
         # <background>
         bgElement = fitElement.find("background")
         if bgElement:
-            try: 
+            try:
                 fit.bgChi = float(bgElement.get("chisquare"))
             except ValueError:
-                hdtv.ui.error("Error reading chisquare for background element: %s" % bgElement.get("chisquare"))
-                success = False
+                pass
             coeffs = list()
             for coeffElement in bgElement.findall("coeff"):
                 deg = int(coeffElement.get("deg")) 

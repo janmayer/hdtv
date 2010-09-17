@@ -104,7 +104,6 @@ class Fitter(object):
             self.peakFitter.Restore(self.bgFitter, chisquare)
         else:
             # internal background
-            # TODO: Use values from XML here
             values = ROOT.TArrayD(self.bgdeg + 1)
             errors = ROOT.TArrayD(self.bgdeg + 1)
             for i in range(0, self.bgdeg + 1):
