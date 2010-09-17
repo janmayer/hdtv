@@ -250,6 +250,8 @@ class Session(DrawableManager):
         mat.ActivateObject(None)
         if self.workCut.spec is not None:
             spec = self.Pop(self.Index(self.workCut.spec))
+            # give it a new color
+            spec.color = hdtv.color.ColorForID(ID.major)
             self.Insert(spec, ID = hdtv.util.ID(mat.ID.major, ID.major))
         hdtv.ui.msg("Storing workCut with ID %s" % ID)
         self.workCut = copy.copy(self.workCut)
