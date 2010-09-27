@@ -129,7 +129,7 @@ class _Efficiency(object):
 
 #        map(energies.append(self.fitInput[0]), self.fitInput)
 #        map(efficiencies.append(self.fitInput[1]), self.fitInput)
-        hasXerror = False
+        hasXerrors = False
         # Convert energies to array needed by ROOT        
         try:
             map(lambda x: E.append(x[0].value), self.fitInput)
