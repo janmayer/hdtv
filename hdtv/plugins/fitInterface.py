@@ -139,6 +139,8 @@ class FitInterface:
         if peaks:
             fit.FitPeakFunc(spec, silent=False)
         else:
+            if fit.fitter.bgdeg==-1:
+                raise RuntimeError, "background degree of -1"
             fit.FitBgFunc(spec)
         fit.Draw(self.window.viewport)
             
@@ -599,7 +601,7 @@ class TvFitInterface:
             for fitID in fitIDs:
                 try:    
                     self.fitIf.ExecuteRefit(specID=specID, fitID=fitID, peaks=doPeaks)
-                except KeyError, e:
+                except (KeyError, RuntimeError), e:
                     hdtv.ui.warn(e)
                     continue
                 
@@ -858,16 +860,19 @@ class TvFitInterface:
         else:
             states = list()
             param = args[0]
-            activePM = self.spectra.workFit.fitter.peakModel
-            try:
-                states = activePM.fValidParStatus[param]
-            except KeyError:
-                # param is not a parameter of the peak model of active fitter
-                msg = "Invalid parameter %s for active peak model %s" %(param, activePM.name)
-                hdtv.ui.error(msg)
-            # remove <type: float> option
-            states.remove(float)
-            return hdtv.util.GetCompleteOptions(text, states)
+            if params == "background":
+                return hdtv.util.GetCompleteOptions(text, states)
+            else:
+                activePM = self.spectra.workFit.fitter.peakModel
+                try:
+                    states = activePM.fValidParStatus[param]
+                except KeyError:
+                    # param is not a parameter of the peak model of active fitter
+                    msg = "Invalid parameter %s for active peak model %s" %(param, activePM.name)
+                    hdtv.ui.error(msg)
+                # remove <type: float> option
+                states.remove(float)
+                return hdtv.util.GetCompleteOptions(text, states)
             
     def ResetFit(self, args, options):
         """

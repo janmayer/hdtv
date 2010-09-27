@@ -28,9 +28,10 @@ import ROOT
 import hdtv.cmdline
 import hdtv.tabformat
 import hdtv.rfile_utils
+import hdtv.util
 
 from hdtv.spectrum import Spectrum
-from hdtv.histogram import Histogram, RHisto2D
+from hdtv.histogram import Histogram, RHisto2D, THnSparseWrapper
 from hdtv.matrix import Matrix
 
 
@@ -84,7 +85,24 @@ class RootFileInterface:
         hdtv.cmdline.AddCommand(prog, self.RootMatrixGet,
                                 completer=self.RootGet_Completer,
                                 nargs=2, parser=parser)
-
+        
+        prog = "root cut view"
+        description = "load a cut (TCutG) from a ROOT file and display it"
+        description+= "overlaid on the current matrix view"
+        usage = "%prog <path>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        parser.add_option("-i", "--invert-axes", action="store_true",
+                          default=False, help="Exchange coordinate axes of cut (x <-> y)")
+        hdtv.cmdline.AddCommand(prog, self.RootCutView,
+                                completer=self.RootGet_Completer,
+                                nargs=1, parser=parser)
+        
+        prog = "root cut delete"
+        description = "delete all cuts currently shown"
+        usage = "%prog"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.RootCutDelete, nargs=0, parser=parser)
+        
         
         hdtv.cmdline.RegisterInteractive("gRootFile", self.rootfile)
 
@@ -186,20 +204,17 @@ class RootFileInterface:
                 return hdtv.rfile_utils.PathComplete(".", cur_root_dir, "", text, dirs_only)
             else:
                 return hdtv.rfile_utils.PathComplete(".", cur_root_dir, dirs[0], text, dirs_only)
-                
-    def GetTH2(self, path):
+    
+    
+    def GetObj(self, path):
         """
-        Load a 2D histogram (``matrix'') from a ROOT file.
+        Load an object from a ROOT file
+        """
         
-        Note: Unlike RootGet(), this function does not support shell-style
-        pattern expansion, as this make it too easy to undeliberately load
-        too many histograms. As they use a lot of memory, this would likely
-        lead to a crash of the program.
-        """
         dirs = path.rsplit("/", 1)
         if len(dirs) == 1:
-            # Load 2d histogram from current directory
-            hist = ROOT.gDirectory.Get(dirs[0])
+            # Load object from current directory
+            obj = ROOT.gDirectory.Get(dirs[0])
         else:
             if self.rootfile:
                 cur_root_dir = ROOT.gDirectory
@@ -209,19 +224,69 @@ class RootFileInterface:
             (posix_path, rfile, root_dir) = hdtv.rfile_utils.GetRelDirectory(os.getcwd(), cur_root_dir, dirs[0])
         
             if root_dir:
-                hist = root_dir.Get(dirs[1])
+                obj = root_dir.Get(dirs[1])
             else:
-                hist = None
+                obj = None
             
             if rfile:
                 rfile.Close()
+        
+        return obj
     
-        if hist == None or not isinstance(hist, ROOT.TH2):
+    def GetCut(self, path):
+        """
+        Load a cut (TCutG) from a ROOT file.
+        """
+        cut = self.GetObj(path)
+        
+        if cut == None or not isinstance(cut, ROOT.TCutG):
+            print "Error: %s is not a ROOT cut (TCutG)" % path
+            return None
+        
+        return cut
+    
+    def GetTH2(self, path):
+        """
+        Load a 2D histogram (``matrix'') from a ROOT file. This can be either
+        a ``true'' TH2 histogram or a THnSparse of dimension 2.
+        
+        Note: Unlike RootGet(), this function does not support shell-style
+        pattern expansion, as this make it too easy to undeliberately load
+        too many histograms. As they use a lot of memory, this would likely
+        lead to a crash of the program.
+        """
+        hist = self.GetObj(path)
+    
+        if hist == None or not \
+          (isinstance(hist, ROOT.TH2) or \
+          (isinstance(hist, ROOT.THnSparse) and hist.GetNdimensions() == 2)):
             print "Error: %s is not a 2d histogram" % path
             return None
-
+        
         return hist
         
+    def RootCutView(self, args, options):
+        """
+        Load a ROOT cut (TCutG) from a ROOT file and display it.
+        """
+        if len(self.matviews) == 0:
+            hdtv.ui.error("Cannot display cut: no matrix view open")
+            return False
+        for path in args:
+            cut = self.GetCut(path)
+            if cut:
+                self.matviews[-1].AddCut(cut, options.invert_axes)
+    
+    
+    def RootCutDelete(self, args, options):
+        """
+        Delete all cuts shown in the current matrix view.
+        """
+        if len(self.matviews) == 0:
+            hdtv.ui.error("No matrix view open")
+            return False
+        self.matviews[-1].DeleteAllCuts()
+    
     def RootMatrixView(self, args, options):
         """
         Load a 2D histogram (``matrix'') from a ROOT file and display it.
@@ -256,19 +321,25 @@ class RootFileInterface:
             hdtv.ui.error("Failed to open 2D histogram")
             return False
         
-        hist = RHisto2D(rhist)
+        if isinstance(rhist, ROOT.TH2):
+            hist = RHisto2D(rhist)
+        elif isinstance(rhist, ROOT.THnSparse):
+            hist = RHisto2D(THnSparseWrapper(rhist))
+        else:
+            raise RuntimeError
+        
         matrix = Matrix(hist, sym, self.spectra.viewport)
         ID = self.spectra.GetFreeID()
         matrix.ID = ID
-        matrix.color = hdtv.color.ColorForID(ID)
+        matrix.color = hdtv.color.ColorForID(ID.major)
         # load x projection
         proj = matrix.xproj
-        sid = self.spectra.Insert(proj, ID=ID+".x")
+        sid = self.spectra.Insert(proj, ID=hdtv.util.ID(ID.major, "x"))
         self.spectra.ActivateObject(sid)
         # for asym matrix load also y projection
         if sym is False:
             proj = matrix.yproj
-            self.spectra.Insert(proj, ID=ID+".y")
+            self.spectra.Insert(proj, ID=hdtv.util.ID(ID.major, "y"))
     
     def RootGet(self, args, options):
         """
@@ -293,7 +364,7 @@ class RootFileInterface:
                 if isinstance(obj, ROOT.TH1):
                     spec = Spectrum(Histogram(obj))
                     sid = self.spectra.Insert(spec)
-                    spec.color = hdtv.color.ColorForID(sid)
+                    spec.color = hdtv.color.ColorForID(sid.major)
                     loaded.append(sid)
                     if options.load_cal:
                         if spec.name in self.spectra.caldict:

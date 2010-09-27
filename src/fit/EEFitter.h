@@ -32,7 +32,6 @@
 
 #include "Param.h"
 #include "Fitter.h"
-#include "Background.h"
 
 namespace HDTV {
 namespace Fit {
@@ -105,17 +104,18 @@ class EEPeak {
 //! Fitting multiple EEPeaks
 class EEFitter : public Fitter {
   public:
-    EEFitter(double r1, double r2);
+    EEFitter(double r1, double r2)
+      : Fitter(r1, r2) {}
+    
     void AddPeak(const EEPeak& peak);
     void Fit(TH1& hist, const Background& bg);
     void Fit(TH1& hist, int intBgDeg=-1);
     inline int GetNumPeaks() { return fNumPeaks; }
     inline const EEPeak& GetPeak(int i) { return fPeaks[i]; }
-    inline double GetChisquare() { return fChisquare; }
     inline TF1* GetSumFunc() { return fSumFunc.get(); }
     TF1* GetBgFunc();
-    void Restore(const Background& bg, double ChiSquare);
-    void Restore(int intBgDeg, double ChiSquare);
+    bool Restore(const Background& bg, double ChiSquare);
+    bool Restore(const TArrayD& bgPolValues, const TArrayD& bgPolErrors,  double ChiSquare);
     
     // For debugging only
     //inline double GetVol()          { return fInt; }
@@ -123,7 +123,7 @@ class EEFitter : public Fitter {
     
   private:
     // Copying the fitter is not supported
-    EEFitter(const EEFitter& src) { }
+    EEFitter(const EEFitter& src) : Fitter(0., 0.) { }
     EEFitter& operator=(const EEFitter& src) { return *this; }
   
     double Eval(double *x, double *p);
@@ -131,14 +131,7 @@ class EEFitter : public Fitter {
     void _Fit(TH1& hist);
     void _Restore(double ChiSquare);
   
-    int fIntBgDeg;
-    double fMin, fMax;
     std::vector<EEPeak> fPeaks;
-    std::auto_ptr<Background> fBackground;
-    std::auto_ptr<TF1> fSumFunc;
-    std::auto_ptr<TF1> fBgFunc;
-    int fNumPeaks;
-    double fChisquare;
     
     // For debugging only
     //double fInt, fIntError;

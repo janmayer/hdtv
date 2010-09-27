@@ -251,7 +251,7 @@ class Fit(Drawable):
         self.spec = spec
         self.Erase()
         # fit background 
-        if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
+        if self.fitter.bgdeg!=-1 and len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
             backgrounds = Pairs()
             for m in self.bgMarkers:
                 backgrounds.add(m.p1.pos_uncal, m.p2.pos_uncal)
@@ -270,17 +270,23 @@ class Fit(Drawable):
             peaks.sort()
             self.fitter.FitPeaks(spec=self.spec, region=region, peaklist=peaks)
             # get background function
-            func = self.fitter.peakFitter.GetBgFunc()
-            self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
-            self.dispBgFunc.SetCal(self.cal)
-            if self.fitter.bgFitter:
+            self.bgCoeffs = []
+            deg = self.fitter.bgdeg
+            if not self.fitter.bgFitter:
+                 for i in range(deg+1):
+                    value=self.fitter.peakFitter.GetIntBgCoeff(i)
+                    error=self.fitter.peakFitter.GetIntBgCoeffError(i)
+                    self.bgCoeffs.append(ErrValue(value, error))
+            else:
+                # external background
                 self.bgChi = self.fitter.bgFitter.GetChisquare()
-                self.bgCoeffs = []
-                deg = self.fitter.bgFitter.GetDegree()
-                for i in range(0, deg+1):
+                for i in range(deg+1):
                     value = self.fitter.bgFitter.GetCoeff(i)
                     error = self.fitter.bgFitter.GetCoeffError(i)
                     self.bgCoeffs.append(ErrValue(value, error))
+            func = self.fitter.peakFitter.GetBgFunc()
+            self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
+            self.dispBgFunc.SetCal(self.cal)
             # get peak function
             func = self.fitter.peakFitter.GetSumFunc()
             self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.region)
@@ -319,7 +325,8 @@ class Fit(Drawable):
             self.fitter.RestoreBackground(backgrounds=backgrounds, coeffs=self.bgCoeffs, chisquare=self.bgChi)
         region = [self.regionMarkers[0].p1.pos_uncal, self.regionMarkers[0].p2.pos_uncal]
         region.sort()
-        self.fitter.RestorePeaks(cal=self.cal, region=region, peaks=self.peaks, chisquare=self.chi)
+        self.fitter.RestorePeaks(cal=self.cal, region=region, peaks=self.peaks, 
+                                 chisquare=self.chi, coeffs=self.bgCoeffs)
         # get background function
         func = self.fitter.peakFitter.GetBgFunc()
         self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, self.color)

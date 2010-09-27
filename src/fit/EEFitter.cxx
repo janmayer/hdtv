@@ -257,16 +257,6 @@ void EEPeak::StoreIntegral()
 }
 
 /*** EEFitter ***/
-EEFitter::EEFitter(double r1, double r2)
-  : Fitter()
-{
-  fMin = TMath::Min(r1, r2);
-  fMax = TMath::Max(r1, r2);
-  
-  fNumPeaks = 0;
-  fIntBgDeg = -1;
-}
-
 void EEFitter::AddPeak(const EEPeak& peak)
 {
   fPeaks.push_back(peak);
@@ -437,7 +427,7 @@ void EEFitter::_Fit(TH1& hist)
   fIntError = func->IntegralError(pos - 10. * sigma1, pos + 5. * sigma1);
 } */
 
-void EEFitter::Restore(const Background& bg, double ChiSquare)
+bool EEFitter::Restore(const Background& bg, double ChiSquare)
 {
   // Restore the fit, using the given background function
 
@@ -445,14 +435,21 @@ void EEFitter::Restore(const Background& bg, double ChiSquare)
   fIntBgDeg = -1;
 
   _Restore(ChiSquare);
+  return true;
 }
 
-void EEFitter::Restore(int intBgDeg, double ChiSquare)
+bool EEFitter::Restore(const TArrayD& bgPolValues, const TArrayD& bgPolErrors,  double ChiSquare)
 {
-  // Restore the fit, using the given background function
+  //! Restore the fit, using the given internal background polynomial
 
   fBackground.reset();
-  fIntBgDeg = intBgDeg;
+
+  if (bgPolValues.GetSize() != bgPolErrors.GetSize()) {
+    Warning("HDTV::EEFitter::Restore", "sizes of value and error arrays for internal background do no match.");
+    return false;
+  }
+
+  fIntBgDeg = bgPolValues.GetSize() - 1;
 
   // Allocate additional parameters for internal polynomial background
   // Note that a polynomial of degree n has n+1 parameters!
@@ -461,6 +458,14 @@ void EEFitter::Restore(int intBgDeg, double ChiSquare)
   }
   
   _Restore(ChiSquare);
+
+  int bgOffset = fNumParams - fIntBgDeg - 1;
+  // Set background parameters of sum function
+  for(int i=0; i<=fIntBgDeg; ++i) {
+    fSumFunc->SetParameter(i + bgOffset, bgPolValues[i]);
+    fSumFunc->SetParError(i + bgOffset, bgPolErrors[i]);
+  }
+  return true;
 }
 
 void EEFitter::_Restore(double ChiSquare)

@@ -24,22 +24,37 @@
 #define __Fitter_h__
 
 #include "Param.h"
+#include "Background.h"
+#include <memory>
 
 namespace HDTV {
 namespace Fit {
 
 //! Common base class for all different (foreground) fitters
-/** Right now, it only handles parameter management */
 class Fitter {
   public:
-    Fitter();
+    Fitter(double r1, double r2);
     Param AllocParam();
     Param AllocParam(double ival);
-    inline bool IsFinal() { return fFinal; }
+    inline bool IsFinal() const { return fFinal; }
+    
+    double GetIntBgCoeff(int i) const;
+    double GetIntBgCoeffError(int i) const;
+    inline int GetIntBgDegree() const { return fIntBgDeg; }
+    
+    inline double GetChisquare() const { return fChisquare; }
     
   protected:
     int fNumParams;
     bool fFinal;
+    
+    double fMin, fMax;
+    int fNumPeaks;
+    int fIntBgDeg;
+    std::auto_ptr<Background> fBackground;
+    std::auto_ptr<TF1> fSumFunc;
+    std::auto_ptr<TF1> fBgFunc;
+    double fChisquare;
     
     void SetParameter(TF1& func, Param& param, double ival=0.0);
 };

@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+ *  Copyright (C) 2006-2010  The HDTV development team (see file AUTHORS)
  *
  * This file is part of HDTV.
  *
@@ -23,7 +23,6 @@
 #include "View2D.h"
 #include <X11/Xlib.h>
 #include <iostream>
-#include <complex>
 #include <KeySymbols.h>
 #include <TMath.h>
 
@@ -32,6 +31,7 @@ namespace Display {
 
 View2D::View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
   : View(p, w, h),
+    fXEOffset(0.), fYEOffset(0.), fXTileOffset(0), fYTileOffset(0),
     fPainter()
 {
   SetBackgroundColor(GetBlackPixel());
@@ -46,8 +46,6 @@ View2D::View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
   fTopBorder = 10;
   fBottomBorder = 30;
   
-  // The first call to Layout() messes up fYTileOffset, because the is no
-  // previous height, but fYTileOffset is recalculated by ZoomFull() anyway...
   Layout();
   ZoomFull(false);
   fZVisibleRegion = Log(fMatrixMax)+1.0;
@@ -63,6 +61,20 @@ View2D::View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
 View2D::~View2D()
 {
   FlushTiles();
+}
+
+void View2D::AddCut(const TCutG& cut, bool invertAxes)
+{
+  fCuts.push_back(DisplayCut(cut, invertAxes));
+  FlushTiles();
+  gClient->NeedRedraw(this);
+}
+
+void View2D::DeleteAllCuts()
+{
+  fCuts.clear();
+  FlushTiles();
+  gClient->NeedRedraw(this);
 }
 
 void View2D::ShiftOffset(int dX, int dY)
@@ -105,10 +117,20 @@ Bool_t View2D::HandleButton(Event_t *ev)
 	    fDragging = true;
 	    break;
 	  case 4:
-        ZoomAroundCursor(M_SQRT2);
+        if(ev->fState & kKeyShiftMask)
+          ZoomAroundCursor(1., M_SQRT2);
+        else if(ev->fState & kKeyControlMask)
+          ZoomAroundCursor(M_SQRT2, 1.);
+        else
+          ZoomAroundCursor(M_SQRT2, M_SQRT2);
 	    break;
 	  case 5:
-        ZoomAroundCursor(M_SQRT1_2);
+	    if(ev->fState & kKeyShiftMask)
+          ZoomAroundCursor(1., M_SQRT1_2);
+        else if(ev->fState & kKeyControlMask)
+          ZoomAroundCursor(M_SQRT1_2, 1.);
+        else
+          ZoomAroundCursor(M_SQRT1_2, M_SQRT1_2);
         break;
 	}
   } else if(ev->fType == kButtonRelease) {
@@ -136,13 +158,13 @@ Bool_t View2D::HandleKey(Event_t *ev)
 	    Update();
 	    break;
 	  case kKey_z:
-	    ZoomAroundCursor(2.0);
+	    ZoomAroundCursor(2.0, 2.0);
 	    break;
 	  case kKey_x:
-		ZoomAroundCursor(0.5);
+		ZoomAroundCursor(0.5, 0.5);
 	    break;
 	  case kKey_1:
-	    ZoomAroundCursor(1.0 / fPainter.GetXZoom());
+	    ZoomAroundCursor(1.0 / fPainter.GetXZoom(), 1.0 / fPainter.GetYZoom());
 	    break;
 	  case kKey_f:
 	    ZoomFull();
@@ -167,13 +189,21 @@ void View2D::Update()
   UpdateStatusBar();
 }
 
-void View2D::ZoomAroundCursor(double f, Bool_t update)
+void View2D::ZoomAroundCursor(double fx, double fy, Bool_t update)
 {
-  fXTileOffset = (int)((1.0 - f) * (double) fCursorX + (double) fXTileOffset * f);
-  fYTileOffset = (int)((1.0 - f) * (double) fCursorY + (double) fYTileOffset * f);
+  // Convert offset to energy units
+  fXEOffset += (fXTileOffset-fLeftBorder) / fPainter.GetXZoom();
+  fYEOffset += (fYTileOffset-fTopBorder-fVPHeight) / fPainter.GetYZoom();
+  fXTileOffset = fLeftBorder;
+  fYTileOffset = fTopBorder + fVPHeight;
 
-  fPainter.SetXVisibleRegion(fPainter.GetXVisibleRegion()/f);
-  fPainter.SetYVisibleRegion(fPainter.GetYVisibleRegion()/f);
+  // Adjust offset such that the energy coordinates at the cursor position
+  // stay constant
+  fXEOffset -= fPainter.GetXOffsetDelta(fCursorX, fx);
+  fYEOffset += fPainter.GetYOffsetDelta(fCursorY, fy);
+  
+  fPainter.SetXVisibleRegion(fPainter.GetXVisibleRegion()/fx);
+  fPainter.SetYVisibleRegion(fPainter.GetYVisibleRegion()/fy);
   
   if(update)
     Update();
@@ -188,9 +218,11 @@ void View2D::ZoomFull(Bool_t update)
   
   fPainter.SetXVisibleRegion(xvis);
   fPainter.SetYVisibleRegion(yvis);
-      
-  fXTileOffset = fLeftBorder - xmin * fPainter.GetXZoom();
-  fYTileOffset = fTopBorder + fVPHeight + ymin * fPainter.GetYZoom();
+  fXEOffset = -xmin;
+  fYEOffset = ymin;
+  
+  fXTileOffset = fLeftBorder;
+  fYTileOffset = fTopBorder + fVPHeight;
     
   if(update)
     Update();
@@ -325,7 +357,53 @@ Pixmap_t View2D::RenderTile(int xoff, int yoff)
             0, 0, 0, 0, cTileSize, cTileSize);
   gVirtualX->DeleteImage(img);
   
+  RenderCuts(xoff, yoff, pixmap);
+  
   return pixmap;
+}
+
+void View2D::RenderCuts(int xoff, int yoff, Pixmap_t pixmap)
+{
+    for(std::list<DisplayCut>::const_iterator cut = fCuts.begin();
+      cut != fCuts.end(); ++cut) {
+        RenderCut(*cut, xoff, yoff, pixmap);
+    }
+}
+
+void View2D::RenderCut(const DisplayCut& cut, int xoff, int yoff, Pixmap_t pixmap)
+{
+    const double x1 = XTileToE(xoff*cTileSize);
+    const double y1 = YTileToE(-(yoff+1)*cTileSize+1);
+    const double x2 = XTileToE((xoff+1)*cTileSize-1);
+    const double y2 = YTileToE(-yoff*cTileSize);
+    
+    if(x2 < cut.BB_x1() || x1 > cut.BB_x2() || y2 < cut.BB_y1() || y1 > cut.BB_y2())
+        return;
+    
+    const int N = cut.GetPoints().size();
+    TArrayS points(2*N + 2);
+    for(int i=0; i<N; ++i) {
+        points[2*i] = EToXTile(cut.GetPoints()[i].x) - xoff*cTileSize;
+        points[2*i+1] = -EToYTile(cut.GetPoints()[i].y) - yoff*cTileSize;
+    }
+    points[2*N] = points[0];
+    points[2*N+1] = points[1];
+    
+    DrawPolyLine(pixmap, GetWhiteGC()(), N+1, points.GetArray());
+    
+    /* double x1 = EToXTile(cut.BB_x1()) - xoff*cTileSize;
+    double y1 = -EToYTile(cut.BB_y1()) - yoff*cTileSize;
+    double x2 = EToXTile(cut.BB_x2()) - xoff*cTileSize;
+    double y2 = -EToYTile(cut.BB_y2()) - yoff*cTileSize;
+    gVirtualX->DrawRectangle(pixmap, GetWhiteGC()(),
+                             x1, y2, x2-x1, y1-y2); */
+}
+
+void View2D::DrawPolyLine(Drawable_t id, GContext_t gc, Int_t n, short* points)
+{
+    XDrawLines((::Display*) gVirtualX->GetDisplay(),
+               (Drawable) id, (GC) gc,
+               (XPoint*) points, n, CoordModeOrigin);
 }
 
 void View2D::WeedTiles()
@@ -385,16 +463,19 @@ void View2D::Layout()
 {
   //! Callback for changes in size of our screen area
   
-  int heightDelta = fHeight - fVPHeight - fTopBorder - fBottomBorder;
+  // Convert offset to energy units
+  fXEOffset += (fXTileOffset-fLeftBorder) / fPainter.GetXZoom();
+  fYEOffset += (fYTileOffset-fTopBorder-fVPHeight) / fPainter.GetYZoom();
   
   fVPWidth = fWidth - fLeftBorder - fRightBorder;
   fVPHeight = fHeight - fTopBorder - fBottomBorder;
   
-  fYTileOffset += heightDelta;
+  fXTileOffset = fLeftBorder;
+  fYTileOffset = fTopBorder + fVPHeight;
   
   fPainter.SetBasePoint(fLeftBorder, fHeight - fBottomBorder);
   fPainter.SetSize(fVPWidth, fVPHeight);
-                   
+  
   FlushTiles();
 }
 

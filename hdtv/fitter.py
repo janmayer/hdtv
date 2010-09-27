@@ -90,7 +90,7 @@ class Fitter(object):
             # internal background
             self.peakFitter.Fit(spec.hist.hist, self.bgdeg)
         
-    def RestorePeaks(self, cal=None, region=Pairs(), peaks=list(), chisquare=0.0):
+    def RestorePeaks(self, cal=None, region=Pairs(), peaks=list(), chisquare=0.0, coeffs=list()):
         """
         Create the Peak Fitter object and 
         restore all peaks
@@ -104,12 +104,11 @@ class Fitter(object):
             self.peakFitter.Restore(self.bgFitter, chisquare)
         else:
             # internal background
-            # TODO: Use values from XML here
             values = ROOT.TArrayD(self.bgdeg + 1)
             errors = ROOT.TArrayD(self.bgdeg + 1)
             for i in range(0, self.bgdeg + 1):
-                values[i] = 0.0
-                errors[i] = 0.0
+                values[i] = coeffs[i].value
+                errors[i] = coeffs[i].error
             self.peakFitter.Restore(values, errors, chisquare)
         if not len(peaks)==self.peakFitter.GetNumPeaks():
             raise RuntimeError, "Number of peaks does not match"
@@ -139,7 +138,7 @@ class Fitter(object):
             except ValueError:
                 try: # HACK! 'background degree <degree>' should still be possible
                     deg = int(status.split()[1])
-                except ValueError:
+                except (ValueError, IndexError):
                     msg = "Failed to parse status specifier `%s'" % status
                     raise ValueError, msg
             self.bgdeg = deg

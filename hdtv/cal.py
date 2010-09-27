@@ -147,6 +147,7 @@ class CalibrationFitter:
         
         fitoptions = "0" # Do not plot
         fitoptions += "Q" # Quiet
+        fitoptions += "S" # Return TFitResult for new ROOT versions
         
         if not ignoreErrors and not allHaveError:
             ignoreErrors = True
@@ -164,9 +165,17 @@ class CalibrationFitter:
                 hdtv.ui.info("switching to non-linear fitter (minuit) for x error weighting")
 
         # Do the fit
-        if self.TGraph.Fit(self.__TF1_id, fitoptions) != 0:
-            raise RuntimeError, "Fit failed"
-    
+        result = self.TGraph.Fit(self.__TF1_id, fitoptions)
+        if(type(result) == int):
+            if result != 0:
+                raise RuntimeError, "Fit failed"
+        elif(type(result) == ROOT.TFitResultPtr):
+            if result.Get().Status() != 0:
+                raise RuntimeError, "Fit failed"
+        else:  # Fallback, attempt to cast result to an int
+            if int(result) != 0:
+                raise RuntimeError, "Fit failed"
+        
         # Save the fit result
         self.calib = MakeCalibration([self.__TF1.GetParameter(i) for i in range(0, degree+1)])
         self.chi2 = self.__TF1.GetChisquare()

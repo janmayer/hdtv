@@ -40,7 +40,7 @@ Painter::Painter()
   SetLogScale(false);
   SetUseNorm(false);
   SetBasePoint(0, 0);
-  SetSize(0, 0);
+  SetSize(1, 1);
   SetViewMode(kVMHollow);
   SetXOffset(0.0);
   SetYOffset(0.0);

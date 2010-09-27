@@ -151,21 +151,20 @@ class FitXml:
             uncalElement = ET.SubElement(positionElement, "uncal")
             uncalElement.text = str(marker.p1.pos_uncal) 
         # <background>
-        if not fit.fitter.bgFitter is None:
-            bgElement = ET.SubElement(fitElement,"background")
-            deg = len(fit.bgCoeffs)-1
-            bgElement.set("deg", str(deg))
-            bgElement.set("chisquare", str(fit.bgChi))
-            # <coeff>
-            for i in range(0,deg+1):
-                coeffElement = ET.SubElement(bgElement, "coeff")
-                coeffElement.set("deg", str(i))
-                # <value>
-                valueElement = ET.SubElement(coeffElement, "value")
-                valueElement.text = str(fit.bgCoeffs[i].value)
-                # <error>
-                errorElement = ET.SubElement(coeffElement, "error")
-                errorElement.text = str(fit.bgCoeffs[i].error)
+        bgElement = ET.SubElement(fitElement,"background")
+        deg = len(fit.bgCoeffs)-1
+        bgElement.set("deg", str(deg))
+        bgElement.set("chisquare", str(fit.bgChi))
+        # <coeff>
+        for i in range(0,deg+1):
+            coeffElement = ET.SubElement(bgElement, "coeff")
+            coeffElement.set("deg", str(i))
+            # <value>
+            valueElement = ET.SubElement(coeffElement, "value")
+            valueElement.text = str(fit.bgCoeffs[i].value)
+            # <error>
+            errorElement = ET.SubElement(coeffElement, "error")
+            errorElement.text = str(fit.bgCoeffs[i].error)
         # <peak>
         for peak in fit.peaks:
             peakElement = ET.SubElement(fitElement, "peak")
@@ -556,11 +555,10 @@ class FitXml:
         # <background>
         bgElement = fitElement.find("background")
         if bgElement:
-            try: 
+            try:
                 fit.bgChi = float(bgElement.get("chisquare"))
             except ValueError:
-                hdtv.ui.error("Error reading chisquare for background element: %s" % bgElement.get("chisquare"))
-                success = False
+                pass
             coeffs = list()
             for coeffElement in bgElement.findall("coeff"):
                 deg = int(coeffElement.get("deg")) 

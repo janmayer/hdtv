@@ -118,10 +118,13 @@ class Session(DrawableManager):
         """
         spec = self.GetActiveObject()
         if spec is None:
-            hdtv.ui.error("There is no active spectrum")
+            hdtv.ui.error("There is no active spectrum.")
             return 
         fit = self.workFit
         if not peaks and len(fit.bgMarkers) > 0:
+            if fit.fitter.bgdeg==-1:
+                hdtv.ui.error("Background degree of -1 contradicts background fit.")
+                return
             # pure background fit
             fit.FitBgFunc(spec)
         if peaks:
@@ -204,7 +207,7 @@ class Session(DrawableManager):
         cutSpec = self.workCut.ExecuteCut(spec.matrix, spec.axis)
         if cutSpec is not None:
             ID = spec.matrix.ID
-            self.Insert(cutSpec, ID=ID+".c")
+            self.Insert(cutSpec, ID=hdtv.util.ID(ID.major, "c"))
 
     def ClearCut(self):
         self.workCut.regionMarkers.Clear()
@@ -247,7 +250,7 @@ class Session(DrawableManager):
         mat.ActivateObject(None)
         if self.workCut.spec is not None:
             spec = self.Pop(self.Index(self.workCut.spec))
-            self.Insert(spec, ID = mat.ID+"."+ID)
+            self.Insert(spec, ID = hdtv.util.ID(mat.ID.major, ID.major))
         hdtv.ui.msg("Storing workCut with ID %s" % ID)
         self.workCut = copy.copy(self.workCut)
         self.workCut.active = True
