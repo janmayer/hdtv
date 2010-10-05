@@ -721,6 +721,7 @@ class EnergyCalHDTVInterface(object):
         # parsing command
         try:
             pairs = hdtv.util.Pairs(hdtv.errvalue.ErrValue)
+            degree = int(options.degree)
             if not options.file is None: # Read from file     
                 pairs.fromFile(options.file)
             else:
@@ -730,13 +731,17 @@ class EnergyCalHDTVInterface(object):
                 for p in range(0, len(args), 2):
                     pairs.add(args[p], args[p + 1])
             sids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
-            degree = int(options.degree)
         except:
             return "USAGE"
-        # do the work
-        cal = self.EnergyCalIf.CalFromPairs(pairs, degree, options.show_table,
+        try:
+            # do the work
+            cal = self.EnergyCalIf.CalFromPairs(pairs, degree, options.show_table,
                                             options.draw_fit, options.draw_residual,
                                             ignoreErrors=options.ignore_errors)
+        except RuntimeError, msg:
+            hdtv.ui.error(str(msg))
+            return False
+        
         if len(sids)==0:
             hdtv.ui.msg("calibration: %s" %hdtv.cal.PrintCal(cal))
             return True
