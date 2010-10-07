@@ -112,7 +112,7 @@ class FitlistHDTVInterface(object):
 
         prog = "fit write"
         description = "write fits to xml file"
-        usage = "%prog filename (filename may contain %s (or any python format specifier) as placeholder for spectrum id)"
+        usage = "%prog filename (filename may contain %s, %d, %02d (or other python format specifier) as placeholder for spectrum id)"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-s", "--spectrum", action = "store", default = "active",
                                 help = "for which the fits should be saved (default=active)")
@@ -122,7 +122,7 @@ class FitlistHDTVInterface(object):
 
         prog = "fit read"
         description = "read fits from xml file"
-        usage ="%prog filename (filename may contain %s (or any python format specifier) as placeholder for spectrum id)"
+        usage ="%prog filename (filename may contain %s, %d, %02d (or any python format specifier) as placeholder for spectrum id)"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-s", "--spectrum", action = "store", default = "active",
                                 help = "spectra to which the fits should be added (default=active)")
@@ -178,7 +178,7 @@ class FitlistHDTVInterface(object):
                     fname = fname % sid
                 except TypeError: # No placeholder found
                     pass # TODO: do something sensible here... Luckily hdtv will not overwrite spectra without asking...
-            hdtv.ui.msg("Saving fits to %s" %fname)
+            hdtv.ui.msg("Saving fits of spectrum %d to %s" % (sid, fname))
             if not options.force and os.path.exists(fname):
                 hdtv.ui.warn("This file already exists:")
                 overwrite = None
