@@ -136,7 +136,7 @@ class PromptGammas(GammaLib):
                 energy = ErrValue(line[2])
                 sigma = ErrValue(line[3])
                 k0 = ErrValue(line[4])
-                gamma = PGAAGamma(Nuclides(Z, A), energy, sigma = sigma, k0 = k0, k0_comp = self.k0_comp)
+                gamma = PGAAGamma(Nuclides(Z, A)[0], energy, sigma = sigma, k0 = k0, k0_comp = self.k0_comp)
                 self.append(gamma)
         except csv.Error, e:
             hdtv.ui.error('file %s, line %d: %s' % (self.csvfile, reader.line_num, e))
