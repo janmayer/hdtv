@@ -301,7 +301,7 @@ class TvSpecInterface:
         Load Spectra from files
         """
         if options.spectrum is not None:
-            ID = options.spectrum
+            ID = hdtv.util.ID(major=options.spectrum)
         else:
             ID = None
         self.specIf.LoadSpectra(patterns = args, ID = ID)
