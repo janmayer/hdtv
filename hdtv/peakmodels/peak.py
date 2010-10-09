@@ -161,17 +161,20 @@ class PeakModel:
         """
         Set status for a certain parameter. Status is a string describing the
         desired status. Raises ValueError in case of invalid input.
+        
+        status may be single string which will be taken for all peaks, or
+        list, where each item will be assigned to corresponing peak
         """
         parname = parname.strip().lower()
         
         if not parname in self.fValidParStatus.keys():
             raise ValueError, "Invalid parameter name %s for peak model %s" % (parname, self.name)
-            
-        if "," in status:
-            self.fParStatus[parname] = map(lambda s: self.ParseParamStatus(parname, s),
-                                           status.split(","))
-        else:
+        
+        if type(status) == type(status[0]): # Single string
             self.fParStatus[parname] = self.ParseParamStatus(parname, status)
+        else: # list of stati
+            self.fParStatus[parname] = map(lambda s: self.ParseParamStatus(parname, s), status)
+
         
 
     def GetParam(self, name, peak_id, pos_uncal, cal, ival=None):

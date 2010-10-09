@@ -326,6 +326,9 @@ class FitInterface:
         """
         # active fit
         fit = self.spectra.workFit
+        status = status.split(",") # Create list from multiple stati
+        if len(status) == 1:
+            status = status[0]  # Only single status was given so SetParameter need single string
         try:
             fit.fitter.SetParameter(parname, status)
             fit.Refresh()
