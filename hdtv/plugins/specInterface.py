@@ -127,9 +127,9 @@ class SpecInterface:
             files = glob.glob(os.path.expanduser(fpat))
             
             if len(files) == 0:
-                hdtv.ui.warn("Warning: %s: no such file" % fpat)
+                hdtv.ui.warn("%s: no such file" % fpat)
             elif ID is not None and len(files) > 1:
-                hdtv.ui.error("Error: pattern %s is ambiguous and you specified an ID" % fpat)
+                hdtv.ui.error("pattern %s is ambiguous and you specified an ID" % fpat)
                 break
                 
             files.sort()
@@ -234,23 +234,45 @@ class TvSpecInterface:
                           help="list only visible (and active) spectra")
         hdtv.cmdline.AddCommand(prog, self.SpectrumList, nargs=0, parser=parser)
         
+        prog = "spectrum delete"   
+        usage=usage="%prog <ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog,usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumDelete, minargs=0, parser=parser)
+                                
+        prog = "spectrum activate"
+        usage="%prog <id>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog,usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumActivate, nargs=1, parser=parser)
         
-        hdtv.cmdline.AddCommand("spectrum delete", self.SpectrumDelete, minargs=0,
-                                usage="%prog <ids>")
-        hdtv.cmdline.AddCommand("spectrum activate", self.SpectrumActivate, nargs=1,
-                                usage="%prog <id>")
-        hdtv.cmdline.AddCommand("spectrum show", self.SpectrumShow, minargs=0,
-                                usage="%prog <ids>|all|none|...")
-        hdtv.cmdline.AddCommand("spectrum hide", self.SpectrumHide, minargs=0,
-                                usage="%prog <ids>|all|none|...", level = 2)
-        hdtv.cmdline.AddCommand("spectrum info", self.SpectrumInfo, minargs=0,
-                                usage="%prog [ids]")
-        hdtv.cmdline.AddCommand("spectrum update", self.SpectrumUpdate, minargs=0,
-                                usage="%prog <ids>|all|shown")
-        hdtv.cmdline.AddCommand("spectrum write", self.SpectrumWrite, minargs=1, maxargs=2,
-                                usage="%prog <filename>'<format> [id]")
-        hdtv.cmdline.AddCommand("spectrum normalize", self.SpectrumNormalization,
-                                minargs=1, usage="%prog [ids] <norm>")
+        prog = "spectrum show"
+        usage = "%prog <ids>|all|none|..."
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog,usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumShow, minargs=0, parser=parser)
+
+        prog = "spectrum hide"
+        usage = "%prog <ids>|all|none|..."
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumHide, minargs=0, level = 2, parser=parser)
+        
+        prog = "spectrum info"
+        usage="%prog [ids]"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumInfo, minargs=0, parser=parser)
+        
+        prog = "spectrum update"
+        usage = "%prog <ids>|all|shown"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumUpdate, minargs=0, parser=parser)
+        
+        prog = "spectrum write"
+        usage = "%prog <filename>'<format> [id]"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumWrite, minargs=1, maxargs=2, parser=parser)
+        
+        prog = "spectrum normalize"
+        usage = "%prog [ids] <norm>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumNormalization,minargs=1, parser=parser)
 
         prog = "spectrum rebin"
         usage="%prog [OPTIONS] [ids]|all|... <ngroup>"

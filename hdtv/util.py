@@ -99,21 +99,21 @@ def gcd(a, b):
         (a, b) = (b, a%b)
     return a
 
-# FIXME: remove
-def compareID(a,b):
-    try:fa = float(a)
-    except ValueError: fa=a
-    try: fb = float(b)
-    except ValueError: fb=b
-    return cmp(fa,fb)
-    
-# FIXME: remove
-class ErrValue(hdtv.errvalue.ErrValue):
-    def __init__(self, *args):
-        tb = traceback.extract_stack()[-2]
-        hdtv.ui.warn("ErrValue class has been moved to file errvalue.py!\n"
-                     + "    (called from file \"%s\", line %d, in %s)" % (tb[0], tb[1], tb[2]))
-        hdtv.errvalue.ErrValue.__init__(self, *args)
+## FIXME: remove
+#def compareID(a,b):
+#    try:fa = float(a)
+#    except ValueError: fa=a
+#    try: fb = float(b)
+#    except ValueError: fb=b
+#    return cmp(fa,fb)
+#    
+## FIXME: remove
+#class ErrValue(hdtv.errvalue.ErrValue):
+#    def __init__(self, *args):
+#        tb = traceback.extract_stack()[-2]
+#        hdtv.ui.warn("ErrValue class has been moved to file errvalue.py!\n"
+#                     + "    (called from file \"%s\", line %d, in %s)" % (tb[0], tb[1], tb[2]))
+#        hdtv.errvalue.ErrValue.__init__(self, *args)
 
 class Linear:
     """

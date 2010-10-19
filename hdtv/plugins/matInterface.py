@@ -147,14 +147,14 @@ class MatInterface:
         proj = matrix.xproj
         ID = self.spectra.GetFreeID()
         matrix.ID = ID
-        matrix.color = hdtv.color.ColorForID(ID)
+        matrix.color = hdtv.color.ColorForID(ID.major)
         # load x projection
-        sid = self.spectra.Insert(proj, ID=ID+".x")
+        sid = self.spectra.Insert(proj, ID=hdtv.util.ID(ID.major, "x"))
         self.spectra.ActivateObject(sid)
         if sym is False:
             # also load y projection
             proj = matrix.yproj
-            self.spectra.Insert(proj, ID=ID+".y")
+            self.spectra.Insert(proj, ID=hdtv.util.ID(ID.major, "y"))
 
            
     def ListMatrix(self, matrix):
