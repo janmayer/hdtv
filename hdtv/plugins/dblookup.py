@@ -160,7 +160,7 @@ class Database(object):
                 self.showDBfields(db)
                 
             except KeyError:
-                hdtv.ui.error("No such database: " + dbname)
+                hdtv.ui.error("No such database: " + db.name)
                 return False
         
             hdtv.ui.newline() # Newline

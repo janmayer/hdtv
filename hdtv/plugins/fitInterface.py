@@ -326,6 +326,9 @@ class FitInterface:
         """
         # active fit
         fit = self.spectra.workFit
+        status = status.split(",") # Create list from multiple stati
+        if len(status) == 1:
+            status = status[0]  # Only single status was given so SetParameter need single string
         try:
             fit.fitter.SetParameter(parname, status)
             fit.Refresh()
@@ -418,6 +421,8 @@ class TvFitInterface:
                             help = "fit only the background")
         parser.add_option("-q","--quick", action="store", default=None,
                             help = "set position for doing a quick fit")
+        parser.add_option("-S", "--store", action = "store_true", default = False,
+                            help = "store peak after fit")
         hdtv.cmdline.AddCommand(prog, self.FitExecute, level=0, parser = parser)
         # the "fit execute" command is registered with level=0, 
         # this allows "fit execute" to be abbreviated as "fit", 
@@ -581,25 +586,28 @@ class TvFitInterface:
         else:
             doPeaks = True
         for specID in specIDs:
+            self.spectra.ActivateObject(ID=specID)
             try:
                 fitIDs = hdtv.util.ID.ParseIds(args, self.spectra.dict[specID])
             except ValueError:
                 return "USAGE"
             if len(fitIDs) == 0:
-                if specID==self.spectra.activeID:
-                    if options.quick is not None:
-                        try:
-                            pos = float(options.quick)
-                        except:
-                            hdtv.ui.error("Invalid position for quick fit.")
-                            return
-                        self.fitIf.QuickFit(pos)
-                    else:
-                        self.spectra.ExecuteFit(peaks=doPeaks) 
+                if options.quick is not None:
+                    try:
+                        pos = float(options.quick)
+                    except:
+                        hdtv.ui.error("Invalid position for quick fit.")
+                        return
+                    self.fitIf.QuickFit(pos)
                 else:
-                    hdtv.ui.warn("No fit for spectrum %s to work on." %specID)
+                    self.spectra.ExecuteFit(peaks=doPeaks)
+                    
+                if options.store is True:   # Needed when options.quick is set for multiple spectra, else fits will be lost
+                    self.spectra.StoreFit() # Store current fit
+
             for fitID in fitIDs:
-                try:    
+                try:
+                    hdtv.ui.msg("Executing fit %s in spectrum %s" %(fitID, specID))
                     self.fitIf.ExecuteRefit(specID=specID, fitID=fitID, peaks=doPeaks)
                 except (KeyError, RuntimeError), e:
                     hdtv.ui.warn(e)

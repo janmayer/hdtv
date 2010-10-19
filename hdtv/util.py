@@ -536,6 +536,17 @@ class ID(object):
             return str(self.major)
         return str(self.major)+"."+str(self.minor)
     
+    def __int__(self):
+        return int(self.major)
+    
+    def __float__(self):
+        if self.major is None:
+            return int(self.minor)/10.
+        if self.minor is None:
+            return int(self.major)
+        return int(self.major) + int(self.minor)/10.
+    
+    
     @classmethod
     def _parseSpecialID(cls, string, manager):
         if string.upper()=="NONE":

@@ -112,7 +112,7 @@ class FitlistHDTVInterface(object):
 
         prog = "fit write"
         description = "write fits to xml file"
-        usage = "%prog filename (filename may contain %s as placeholder for spectrum id)"
+        usage = "%prog filename (filename may contain %s, %d, %02d (or other python format specifier) as placeholder for spectrum id)"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-s", "--spectrum", action = "store", default = "active",
                                 help = "for which the fits should be saved (default=active)")
@@ -122,13 +122,13 @@ class FitlistHDTVInterface(object):
 
         prog = "fit read"
         description = "read fits from xml file"
-        usage ="%prog filename"
+        usage ="%prog filename (filename may contain %s, %d, %02d (or any python format specifier) as placeholder for spectrum id)"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-s", "--spectrum", action = "store", default = "active",
                                 help = "spectra to which the fits should be added (default=active)")
         parser.add_option("-r", "--refit", action = "store_true", default = False,
                                 help = "Force refitting during load")
-        hdtv.cmdline.AddCommand(prog, self.FitRead, nargs=1, fileargs=True, parser=parser)
+        hdtv.cmdline.AddCommand(prog, self.FitRead, fileargs=True, parser=parser)
 
         prog = "fit getlists"
         description = "reads fitlists according to the list saved in a file"
@@ -178,7 +178,7 @@ class FitlistHDTVInterface(object):
                     fname = fname % sid
                 except TypeError: # No placeholder found
                     pass # TODO: do something sensible here... Luckily hdtv will not overwrite spectra without asking...
-            hdtv.ui.msg("Saving fits to %s" %fname)
+            hdtv.ui.msg("Saving fits of spectrum %d to %s" % (sid, fname))
             if not options.force and os.path.exists(fname):
                 hdtv.ui.warn("This file already exists:")
                 overwrite = None
@@ -196,19 +196,30 @@ class FitlistHDTVInterface(object):
         """
         reading a fitlist from xml 
         """
-        fnames = list()
-        for fname in args:
-            fname = os.path.expanduser(fname)
-            more = glob.glob(fname)
-            if len(more)==0:
-                hdtv.ui.warn("No such file %s" %fname)
-            fnames.extend(more)
+        fnames = dict() # Filenames for each spectrum ID
         sids = hdtv.util.ID.ParseIds(options.spectrum, __main__.spectra)
         if len(sids)==0:
             hdtv.ui.error("There is no active spectrum")
             return
-        for fname in fnames:
-            for sid in sids:
+        
+        # Build list of files to load for each spectrum
+        for sid in sids:
+            fnames[sid] = list() # Filenames for this spectrum ID
+            for fname_raw in args:
+                try:
+                    fname = fname_raw % sid     # Try to replace format placeholder (e.g. %s) with spectrum ID 
+                except TypeError: # No placeholder found
+                    fname = fname_raw
+
+                fname = os.path.expanduser(fname)
+                more = glob.glob(fname)
+                if len(more)==0:
+                    hdtv.ui.warn("No such file %s" %fname)
+                fnames[sid].extend(more)
+        
+        # Load files
+        for sid in sids:
+            for fname in fnames[sid]:    
                 hdtv.ui.msg("Reading fitlist %s to spectrum %s" %(fname, sid))
                 self.FitlistIf.ReadXML(sid, fname, refit=options.refit)
 

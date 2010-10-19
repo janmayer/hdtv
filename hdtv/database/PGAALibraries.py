@@ -9,7 +9,7 @@ class PGAAGamma(Gamma):
     Store data about PGAA gammas
     
     k0_comp is the comparator element for k0 values which k0 should be normed to 1.0
-        given as tuple (Z, A)
+        given as tuple (Z, A) (default: 1-H)
     """
     k0_norm = None
     __slots__ = ("ID", "nuclide", "energy", "sigma", "intensity", "halflife", "_k0")
@@ -19,8 +19,9 @@ class PGAAGamma(Gamma):
         super(PGAAGamma, self).__init__(nuclide, energy, sigma, intensity)
         self.halflife = halflife
         self._k0 = k0 # TODO
-        if nuclide == Nuclides(k0_comp[0], k0_comp[1]) and not PGAAGamma.k0_norm:
-            PGAAGamma.k0_norm = 1.0 / self.getk0(isNorm = True) # Normalize reference element to k0=1.0
+        if nuclide == Nuclides(k0_comp[0], k0_comp[1])[0] and not PGAAGamma.k0_norm:
+            # Normalize reference element to k0=1.0
+            PGAAGamma.k0_norm = 1.0 / self.getk0(isNorm = True) 
 
             
     def getk0(self, isNorm = False):
@@ -88,7 +89,7 @@ class PGAAlib_IKI2000(GammaLib):
                     halflife = ErrValue(float(line[7]), None)
                 except ValueError:
                     halflife = ErrValue(None, None)
-                gamma = PGAAGamma(Nuclides(Z, A), energy, sigma = sigma, intensity = intensity, halflife = halflife, k0_comp = self.k0_comp)
+                gamma = PGAAGamma(Nuclides(Z, A)[0], energy, sigma = sigma, intensity = intensity, halflife = halflife, k0_comp = self.k0_comp)
                 self.append(gamma)
         except csv.Error, e:
             hdtv.ui.error('file %s, line %d: %s' % (self.csvfile, reader.line_num, e))
@@ -100,7 +101,7 @@ class PGAAlib_IKI2000(GammaLib):
         
 class PromptGammas(GammaLib):
     """
-    Extensive Prompt-Gamma library
+    Extensive IAEA Prompt-Gamma library
     """
     def __init__(self, csvfile = os.path.join(hdtv.datadir, "PromptGammas.dat"), has_header = True, k0_comp = (1, 1)):
     
@@ -135,7 +136,7 @@ class PromptGammas(GammaLib):
                 energy = ErrValue(line[2])
                 sigma = ErrValue(line[3])
                 k0 = ErrValue(line[4])
-                gamma = PGAAGamma(Nuclides(Z, A), energy, sigma = sigma, k0 = k0, k0_comp = self.k0_comp)
+                gamma = PGAAGamma(Nuclides(Z, A)[0], energy, sigma = sigma, k0 = k0, k0_comp = self.k0_comp)
                 self.append(gamma)
         except csv.Error, e:
             hdtv.ui.error('file %s, line %d: %s' % (self.csvfile, reader.line_num, e))

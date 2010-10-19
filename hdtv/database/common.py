@@ -149,8 +149,16 @@ class _Nuclide(_Element):
         text += "Z:             " + str(self.z) + " \n"
         text += "A:             " + str(self.a) + "\n"
         text += "atomic Mass:   " + str(self.m) + " u\n"
-        text += "Abundance:     " + str(self.abundance * 100.0) + " %\n"
-        text += "Sigma_0:       " + str(self.sigma) + " b\n"
+        try:
+            abundance = str(self.abundance * 100.0) + " %"
+        except TypeError:   # Unstable nuclide -> no abundance
+            abundance = "---"
+        text += "Abundance:     " + abundance + " \n"
+        if self.sigma.value is None:
+            sigma = "???"
+        else:
+            sigma = str(self.sigma) + " b"
+        text += "Sigma_0:       " + sigma + "\n"
         return text
 
 
@@ -190,29 +198,58 @@ class _Nuclides(object):
             datfile.close()
 
     def __call__(self, Z = None, A = None, symbol = None, name = None):
+        '''
+        Return a list of nuclides with given properties (Z, A, symbol, name)
+        
+        e.g.: Nuclides(A=197, symbol="Au") returns [Au-197]
+              Nuclides(symbol="Au") or Nuclides(name="gold") or Nuclides(Z=79) return list of all gold nuclides
+        '''
         
         ret = list()
-        if symbol:
-            for e in self._storage.itervalues():
-                if e.symbol == symbol:
+        
+        if Z is not None: # Z is given, so it is faster if we start with nuclides of this Z
+            if A is not None: # Nuclide uniquely defined
+                ret.append(self._storage[Z][A])
+            else:   # All nuclides with given Z
+                for n in self._storage[Z].itervalues():
+                    ret.append(n)
+        
+        if len(ret) == 0: # Z was not given, so we have to cycle through all nuclides
+            for n in self._storage.itervalues():
+                for e in n.itervalues():
                     ret.append(e)
-            if len(ret) == 0:
-                raise ValueError # No nuclide with this symbol
-            return ret     
-        if name:
-            for e in self._storage.itervalues():
-                if e.name == name:
-                    ret.append(e)
-            if len(ret) == 0:
-                raise ValueError # No nuclide with this name
-            return ret
-                
-        if Z:
-            if A:
-                return self._storage[Z][A]
-            else:
-                return self._storage[Z]
+        
+        tmp = list()
+        
+        # Select by A
+        if A is not None:
+            for n in ret:
+                if n.a == A:
+                    tmp.append(n)
+        
+            ret = tmp
+            tmp = list()
             
+        
+        # Select by symbol
+        if symbol is not None:
+            for n in ret:
+                if n.symbol.lower() == symbol.lower():
+                    tmp.append(n)
+                    
+            ret = tmp
+            tmp = list()
+            
+        # Select by name
+        if name is not None:
+            for n in ret:
+                if n.name.lower() == name.lower():
+                    tmp.append(n)
+        
+            ret = tmp
+        
+        return ret 
+
 
 class Gamma(object):
     """Class for storing information about gammas"""

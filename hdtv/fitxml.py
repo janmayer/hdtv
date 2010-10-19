@@ -616,11 +616,6 @@ class FitXml:
             # set parameter status of fitter
             for name in statusdict.keys():
                 status = statusdict[name]
-                # check if all values in status are the same
-                if status.count(status[0])==len(status):
-                    status = str(status[0])
-                else:
-                    status = ','.join(status)
                 fitter.SetParameter(name, status)
         return (fit, success)
 
@@ -652,7 +647,7 @@ class FitXml:
                 count = count+1
                 peakModel = fitElement.get("peakModel")
                 bgdeg = int(fitElement.get("bgDegree"))
-                fitter = itter(peakModel, bgdeg)
+                fitter = Fitter(peakModel, bgdeg)
                 # <result>
                 params = dict()
                 for resultElement in fitElement.findall("result"):
@@ -665,11 +660,6 @@ class FitXml:
                             params[parname]=[status]
                 for parname in params.keys():
                     status = params[parname]
-                    # check if all values in status are the same
-                    if status.count(status[0])==len(status):
-                        status = str(status[0])
-                    else:
-                        status = ','.join(status)
                     fitter.SetParameter(parname, status)
                 fit = Fit(fitter, cal=spec.cal)
                 # <background>
