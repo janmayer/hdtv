@@ -29,6 +29,7 @@ import hdtv.util
 
 from hdtv.matrix import Matrix
 from hdtv.histogram import MHisto2D
+from hdtv.specreader import SpecReaderError
 
 class MatInterface:
     def __init__(self, spectra):
@@ -142,7 +143,12 @@ class MatInterface:
         
     def LoadMatrix(self, fname, sym, ID=None):
         # FIXME: just for testing!
-        histo = MHisto2D()
+        try:
+            histo = MHisto2D(fname, sym)
+        except (OSError, SpecReaderError):
+            hdtv.ui.warn("Could not load %s" % fname)
+            return
+        
         matrix = Matrix(histo, sym, self.spectra.viewport)
         proj = matrix.xproj
         ID = self.spectra.GetFreeID()

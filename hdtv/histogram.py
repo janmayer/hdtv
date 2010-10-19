@@ -23,6 +23,7 @@ import os
 
 import ROOT
 import hdtv.color
+import hdtv.dlmgr
 
 from hdtv.drawable import Drawable
 from hdtv.specreader import SpecReader, SpecReaderError
@@ -447,26 +448,144 @@ class RHisto2D(Histo2D):
         hist.typeStr = "cut"
         return hist
 
-######
-# HACK for testing until low-level object is implemented
-import copy
 
 class MHisto2D(Histo2D):
-    def __init__(self):
-        self.projHisto = FileHistogram("test/mat/mat.prx")
-        self.projHisto.typeStr = "Projection"
-        self.cutHisto = FileHistogram("test/mat/cut.spc")
-        self.cutHisto.typeStr = "Cut spectrum"
+    """
+    MFile-backed matrix for projection
+    """
+    def __init__(self, fname, sym):
+        # check if file exists
+        try:
+            os.stat(fname)
+        except OSError, error:
+            hdtv.ui.error(str(error))
+            raise
         
+        self.GenerateFiles(fname, sym)
+        
+        basename = self.GetBasename(fname)
+        
+        # call to SpecReader to get the hist
+        try:
+            self.vmatrix = SpecReader().GetVMatrix(fname)
+        except SpecReaderError, msg:
+            hdtv.ui.error(str(msg))
+            raise
+        
+        self._xproj = FileHistogram(basename + ".prx")
+        self._xproj.typeStr = "Projection"
+        
+        if sym:
+            self._yproj = None
+            self.tvmatrix = None
+        else:
+            self._yproj = FileHistogram(basename + ".pry")
+            self._yproj.typeStr = "Projection"
+            
+            try:
+                self.tvmatrix = SpecReader().GetVMatrix(basename + ".tmtx")
+            except SpecReaderError, msg:
+                hdtv.ui.error(str(msg))
+                raise
+        
+        self.filename = fname
+    
     @property
     def xproj(self):
-        return copy.copy(self.projHisto)
+        return self._xproj
         
     @property
     def yproj(self):
-        return copy.copy(self.projHisto)
+        return self._yproj
         
     def ExecuteCut(self, regionMarkers, bgMarkers, axis):
-        return copy.copy(self.cutHisto)
-#####
+        # _axis_ is the axis the markers refer to, so we project on the *other*
+        # axis. We call _axis_ the cut axis and the other axis the projection
+        # axis. If the matrix is symmetric, this does not matter, so _axis_ is
+        # "0" and the implementation can choose.
+        
+        if len(regionMarkers) < 1:
+            raise RuntimeError, "Need at least one gate for cut"
+        
+        if axis == "0":
+            axis = "x"
+            
+        if not axis in ("x", "y"):
+            raise ValueError, "Bad value for axis parameter"
+            
+        if axis == "x":
+            matrix = self.vmatrix
+        else:
+            matrix = self.tvmatrix
+        
+        matrix.ResetRegions()
+        
+        for r in regionMarkers:
+            b1 = matrix.FindCutBin(r.p1.pos_uncal)
+            b2 = matrix.FindCutBin(r.p2.pos_uncal)
+            matrix.AddCutRegion(b1, b2)
+        
+        for b in bgMarkers:
+            b1 = matrix.FindCutBin(b.p1.pos_uncal)
+            b2 = matrix.FindCutBin(b.p2.pos_uncal)
+            matrix.AddBgRegion(b1, b2)
+        
+        name = self.filename + "_cut"
+        rhist = matrix.Cut(name, name)
+        # Ensure proper garbage collection for ROOT histogram objects
+        ROOT.SetOwnership(rhist, True)
+        
+        hist = CutHistogram(rhist, axis, regionMarkers)
+        hist.typeStr = "cut"
+        return hist
+    
+    def GetBasename(self, fname):
+        if fname.endswith(".mtx") or fname.endswith(".mtx"):
+            return fname[:-4]
+        else:
+            return fname
+    
+    def GenerateFiles(self, fname, sym):
+        """
+        Generate projection(s) and possibly transpose (for asymmetric matrices),
+        if they do not exist yet.
+        """
+        
+        hdtv.dlmgr.LoadLibrary("mfile-root")
+        
+        basename = self.GetBasename(fname)
+        
+        # Generate projection(s)
+        prx_fname = basename + ".prx"
+        pry_fname = ""
+        if os.path.exists(prx_fname):
+            hdtv.ui.info("Using %s for x projection" % prx_fname)
+            prx_fname = ""
+            
+        if not sym:
+            pry_fname = basename + ".pry"
+            if os.path.exists(pry_fname):
+                hdtv.ui.info("Using %s for y projection" % pry_fname)
+                pry_fname = ""
+        
+        if prx_fname or pry_fname:
+            errno = ROOT.MatOp.Project(fname, prx_fname, pry_fname)
+            if errno != ROOT.MatOp.ERR_SUCCESS:
+                raise RuntimeError, "Project: " + ROOT.MatOp.GetErrorString(errno)
+            
+            if prx_fname:
+                hdtv.ui.info("Generated x projection: %s" % prx_fname)
+            if pry_fname:
+                hdtv.ui.info("Generated y projection: %s" % pry_fname)
+        
+        # Generate transpose
+        if not sym:
+            trans_fname = basename + ".tmtx"
+            if os.path.exists(trans_fname):
+                hdtv.ui.info("Using %s for transpose" % trans_fname)
+            else:
+                errno = ROOT.MatOp.Transpose(fname, trans_fname)
+                if errno != ROOT.MatOp.ERR_SUCCESS:
+                    raise RuntimeError, "Transpose: " + ROOT.MatOp.GetErrorString(errno)
+                hdtv.ui.info("Generated transpose: %s" % trans_fname)
 

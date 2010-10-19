@@ -259,12 +259,46 @@ class SpecReader:
                 raise SpecReaderError, mhist.GetErrorMsg()
             return hist
         
-    def GetMatrix(self, filename, fmt, histname, histtitle):
+    def GetMatrix(self, fname, fmt=None, histname=None, histtitle=None):
+        if histname == None:
+            histname = os.path.basename(fname)
+        if histtitle == None:
+            histtitle = os.path.basename(fname)
+        
         hdtv.dlmgr.LoadLibrary("mfile-root")
         mhist = ROOT.MFileHist()
-        mhist.Open(filename)  ### FIXME: error handling
-        return mhist.ToTH2D(histname, histtitle, 0)
         
+        ### FIXME: error handling
+        if not fmt or fmt.lower() == "mfile":
+            mhist.Open(fname)
+        else:
+            mhist.Open(fname, fmt)
+        
+        # FIXME: this ignores possibly specified bin errors
+        return mhist.ToTH2D(histname, histtitle, 0)
+    
+    def GetVMatrix(self, fname, fmt=None, histname=None, histtitle=None):
+        """
+        Load a ``virtual'' matrix, i.e. a matrix that is not completely loaded
+        into memory.
+        """
+        if histname == None:
+            histname = os.path.basename(fname)
+        if histtitle == None:
+            histtitle = os.path.basename(fname)
+        
+        hdtv.dlmgr.LoadLibrary("mfile-root")
+        mhist = ROOT.MFileHist()
+        
+        ### FIXME: error handling
+        if not fmt or fmt.lower() == "mfile":
+            mhist.Open(fname)
+        else:
+            mhist.Open(fname, fmt)
+        
+        # FIXME: this ignores possibly specified bin errors
+        return ROOT.MFMatrix(mhist, 0)
+    
     def WriteSpectrum(self, hist, fname, fmt):
         hdtv.dlmgr.LoadLibrary("mfile-root")
         result = ROOT.MFileHist.WriteTH1(hist, fname, fmt)
