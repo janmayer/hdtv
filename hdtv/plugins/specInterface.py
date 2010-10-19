@@ -329,7 +329,7 @@ class TvSpecInterface:
         self.specIf.LoadSpectra(patterns = args, ID = ID)
 
 
-    def SpectrumDelete(self, args):
+    def SpectrumDelete(self, args, options):
         """ 
         Deletes spectra 
         """
@@ -344,7 +344,7 @@ class TvSpecInterface:
         for ID in ids:
             self.spectra.Pop(ID)
 
-    def SpectrumActivate(self, args):
+    def SpectrumActivate(self, args, options):
         """
         Activate one spectrum
         """
@@ -516,14 +516,22 @@ class TvSpecInterface:
             else:
                 hdtv.ui.error("Cannot rebin spectrum " + str(i) + " (Does not exist)")
     
-    def SpectrumHide(self, args):
+    def SpectrumHide(self, args, options):
         """
         Hides spectra
         """
-        return self.SpectrumShow(args, inverse=True)
+        if len(args) == 0:
+            ids = self.spectra.dict.keys()
+        else:
+            try:
+                ids = hdtv.util.ID.ParseIds(args, self.spectra)
+            except ValueError:
+                return "USAGE"
+        
+        self.spectra.HideObjects(ids)
         
     
-    def SpectrumShow(self, args, inverse=False):
+    def SpectrumShow(self, args, options):
         """
         Shows spectra
         
@@ -536,13 +544,11 @@ class TvSpecInterface:
                 ids = hdtv.util.ID.ParseIds(args, self.spectra)
             except ValueError:
                 return "USAGE"
-        if inverse:
-            self.spectra.HideObjects(ids)
-        else:
-            self.spectra.ShowObjects(ids)
+        
+        self.spectra.ShowObjects(ids)
      
             
-    def SpectrumInfo(self, args):
+    def SpectrumInfo(self, args, options):
         """
         Print info on spectrum objects
         """
@@ -565,7 +571,7 @@ class TvSpecInterface:
         hdtv.ui.msg(s, newline=False)
 
 
-    def SpectrumUpdate(self, args):
+    def SpectrumUpdate(self, args, options):
         """
         Refresh spectra
         """
@@ -581,7 +587,7 @@ class TvSpecInterface:
         self.spectra.RefreshObjects(ids)
 
             
-    def SpectrumWrite(self, args):
+    def SpectrumWrite(self, args, options):
         """
         Write Spectrum to File
         """
@@ -637,7 +643,7 @@ class TvSpecInterface:
             self.spectra.caldict[name] = spec.cal
         hdtv.ui.msg("Renamed spectrum %s to \'%s\'" % (ID, name))
     
-    def SpectrumNormalization(self, args):
+    def SpectrumNormalization(self, args, options):
         "Set normalization for spectrum"
         try:
             if len(args) == 1:
