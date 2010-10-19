@@ -557,8 +557,11 @@ class CommandLine(object):
         """
         hdtv.ui.msg("Execute file: " + fname)
         
-        file = hdtv.util.TxtFile(fname)
-        file.read()
+        try:
+            file = hdtv.util.TxtFile(fname)
+            file.read()
+        except IOError, msg:
+            hdtv.ui.error("%s" % msg)
         for line in file.lines:
             print "file>", line
             self.DoLine(line)
