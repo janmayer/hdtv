@@ -84,7 +84,10 @@ class _Efficiency(object):
  
     def __call__(self, E):
         value = self.value(E)
-        error = self.error(E)
+        try:
+            error = self.error(E)
+        except TypeError:
+            error = None
         return ErrValue(value, error)
 
 
