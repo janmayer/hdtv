@@ -161,7 +161,7 @@ class _Efficiency(object):
         
         # Do the fit
         fitopts = "0" # Do not plot
-        
+
         if hasXerrors:
             # We must use the iterative fitter (minuit) to take x errors
             # into account.
@@ -170,8 +170,16 @@ class _Efficiency(object):
             
         if quiet:
             fitopts += "Q"
+
+        fitopts +="S" # Additional fitinfo returned needed for ROOT5.26 workaround below 
+        fitreturn = self.TGraph.Fit(self.id, fitopts) 
         
-        if self.TGraph.Fit(self.id, fitopts) != 0:
+        try:
+            fitstatus = fitreturn.Get().Status() # Workaround for checking the fitstatus in ROOT 5.26 (TFitResultPtr does not cast properly to int)
+        except AttributeError: # This is for ROOT <= 5.24, where fit returns an int
+            fitstatus = int(fitreturn)
+            
+        if  fitstatus != 0:
             raise RuntimeError, "Fit failed"
 
         # Final normalization
