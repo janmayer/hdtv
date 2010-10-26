@@ -232,6 +232,8 @@ class TxtFile(object):
 class Pairs(list):
     """
     List of pair values
+    
+    conv_func: conversion function to be called berfore storage of pair
     """
     def __init__(self, conv_func = lambda x: x): # default conversion is "identity" -> No conversion
         
@@ -513,8 +515,18 @@ class Position(object):
         
 class ID(object):
     def __init__(self, major=None, minor=None):
-        self.major = major
-        self.minor = minor
+        if major is None:
+            self.major = None
+        else:
+            self.major = int(major)
+            if self.major < 0:
+                raise ValueError, "Only positive major IDs allowed"
+        if minor is None:
+            self.minor = None
+        else:
+            self.minor = int(minor)
+            if self.minor < 0:
+                raise ValueError, "Only positive minor IDs allowed"
         
     def __cmp__(self, ID):
         if ID is None:
@@ -573,17 +585,16 @@ class ID(object):
         if "." in string:
             major_s, minor_s = [m for m in string.split(".")]
             major = int(major_s)
-            if minor_s.lower() in ("x", "y", "c"):
-                minor = minor_s
-            else:
-                minor = int(minor_s)
+            # TODO
+#            if minor_s.lower() in ("x", "y", "c"):
+#                minor = minor_s 
+#            else:
+            minor = int(minor_s)
         else:
             major = int(string)
             minor = None
-        try:
-            return ID(major, minor)
-        except:
-            raise ValueError
+            
+        return ID(major, minor)
         
     @classmethod
     def ParseIds(cls, strings, manager, only_existent=True):
@@ -612,7 +623,7 @@ class ID(object):
                     if len(special)==0:
                         start = special[0]
                     elif len(special) > 0:
-                        hdtv.error("Invalid ID %s" % start)
+                        hdtv.ui.error("Invalid ID %s" % start)
                         raise ValueError
                 # stop
                 try:
@@ -626,7 +637,7 @@ class ID(object):
                     if len(special)==0:
                         stop = special[0]
                     elif len(special) > 0:
-                        hdtv.error("Invalid ID %s" % stop)
+                        hdtv.ui.error("Invalid ID %s" % stop)
                         raise ValueError
                 # fill the range
                 ids.extend([i for i in manager.ids if (i>=start and i<=stop)])
@@ -644,15 +655,19 @@ class ID(object):
         count = ids.count(None)
         for i in range(count):
             ids.remove(None)
-        
+
         # filter non-existing ids
         valid_ids = list() 
         if only_existent:
             for ID in ids:
-                if ID not in manager.ids:
+                for mID in manager.ids:
+                    if (mID.major == ID.major) and (mID.minor == ID.minor):
+                        valid_ids.append(ID)
+                        break # break out of for mID in manager.ids loop
+    
+                if ID not in valid_ids: # This only works because we appended IDs above, not mIDs, because they are different instances of the ID object
                     hdtv.ui.warn("Non-existent id %s" %ID)
-                else:
-                    valid_ids.append(ID)
+
         else:
             valid_ids=ids
         

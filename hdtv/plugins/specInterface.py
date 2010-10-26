@@ -323,7 +323,15 @@ class TvSpecInterface:
         Load Spectra from files
         """
         if options.spectrum is not None:
-            ID = hdtv.util.ID(major=options.spectrum)
+            try:
+                ids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra, only_existent=False)
+                if len(ids) > 1:
+                    hdtv.ui.error("More than one ID given")
+                    return
+                ID = ids[0]
+            except ValueError, msg:
+                hdtv.ui.error("Invalid ID: %s" % msg)
+                return
         else:
             ID = None
         self.specIf.LoadSpectra(patterns = args, ID = ID)
@@ -544,7 +552,7 @@ class TvSpecInterface:
                 ids = hdtv.util.ID.ParseIds(args, self.spectra)
             except ValueError:
                 return "USAGE"
-        
+
         self.spectra.ShowObjects(ids)
      
             

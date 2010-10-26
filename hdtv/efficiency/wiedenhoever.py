@@ -36,7 +36,7 @@ class WiedenhoeverEff(_Efficiency):
         self.name = "Wiedenhoever"
         self.id = self.name + "_" + hex(id(self))
 
-        self.TF1 = TF1(self.id, "[0]*([1]*pow(x - [3] + [4] * exp(-[5] *x), -[2]))", 0, 0) # [0] is normalization factor
+        self.TF1 = TF1(self.id, "[0] * pow(x - [2] + [3] * exp(-[4] *x), -[1]))", 0, 0) # [0] is normalization factor
         
         _Efficiency.__init__(self, num_pars = 5, pars = pars, norm = norm)
         

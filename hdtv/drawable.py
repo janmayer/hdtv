@@ -218,8 +218,8 @@ class DrawableManager(object):
             return self.dict[self.activeID]
 
     def Get(self, ID):
-        if not isinstance(ID, str):
-            ID = str(ID)
+#        if not isinstance(ID, str):
+#            ID = str(ID)
         ID = hdtv.util.ID.ParseIds(ID, self)[0]
         return self.dict[ID]
 

@@ -43,7 +43,7 @@ class _Efficiency(object):
         # Normalization factors
         self._doNorm = norm
         self.norm = 1.0
-        self.TF1.FixParameter(0, self.norm) # Normalization
+#        self.TF1.FixParameter(0, self.norm) # Normalization
         self.TF1.SetRange(0, 10000) # Default range for efficiency function
          
         self._fitInput = Pairs(ErrValue)
@@ -53,12 +53,12 @@ class _Efficiency(object):
 #         else:
 #             self.parameter = [None for i in range(1, self._numPars + 1)]
 #             
-        self.TF1.SetParName(0, "N") # Normalization
+#        self.TF1.SetParName(0, "N") # Normalization
          
         for i in range(0, num_pars):
             self._dEff_dP.append(None)
             if num_pars <= len(string.ascii_lowercase):
-                self.TF1.SetParName(i + 1, string.ascii_lowercase[i])
+                self.TF1.SetParName(i, string.ascii_lowercase[i])
  
     def _getParameter(self):
         """
@@ -66,7 +66,7 @@ class _Efficiency(object):
         """
         pars = list()
         for i in range(self._numPars):
-            pars.append(self.TF1.GetParameter(i + 1))
+            pars.append(self.TF1.GetParameter(i))
             
         return pars
         
@@ -76,18 +76,15 @@ class _Efficiency(object):
         """
         for i in range(self._numPars):
             try:
-                self.TF1.SetParameter(i + 1, pars[i])
+                self.TF1.SetParameter(i, pars[i])
             except IndexError:
-                self.TF1.SetParameter(i + 1, 0)
+                self.TF1.SetParameter(i, 0)
 
     parameter = property(_getParameter, _setParameter)
  
     def __call__(self, E):
         value = self.value(E)
-        try:
-            error = self.error(E)
-        except TypeError:
-            error = None
+        error = self.error(E)
         return ErrValue(value, error)
 
 
@@ -98,14 +95,21 @@ class _Efficiency(object):
         for i in range(len(self._fitInput)):
             p = self._fitInput[i]
             try:
-                values = [p[0].value, p[1].value]
-                errors = [p[0].error, p[1].error]
+                e_value = p[0].value
+                e_error = p[0].error
             except AttributeError:
-                values = [p[0], p[1]]
-                errors = [0., 0.] 
+                e_value = float(p[0])
+                e_error = 0.
                 
-            self.TGraph.SetPoint(i, values[0], values[1])
-            self.TGraph.SetPointError(i, errors[0], errors[1])
+            try:
+                eff_value = p[1].value
+                eff_error = p[1].error
+            except AttributeError:
+                eff_value = float(p[1])
+                eff_error = 0. 
+                
+            self.TGraph.SetPoint(i, e_value, eff_value)
+            self.TGraph.SetPointError(i, e_error, eff_error)
         
         
     def _get_fitInput(self):
@@ -135,20 +139,20 @@ class _Efficiency(object):
         hasXerrors = False
         # Convert energies to array needed by ROOT        
         try:
-            map(lambda x: E.append(x[0].value), self.fitInput)
-            map(lambda x: delta_E.append(x[0].error), self.fitInput)
+            map(lambda x: E.append(x[0].value), self._fitInput)
+            map(lambda x: delta_E.append(x[0].error), self._fitInput)
             hasXerrors = True
         except AttributeError: # energies does not seem to be ErrValue list
-            map(lambda x: E.append(x[0]), self.fitInput)
-            map(lambda x: delta_E.append(0.0), self.fitInput)
+            map(lambda x: E.append(x[0]), self._fitInput)
+            map(lambda x: delta_E.append(0.0), self._fitInput)
 
         # Convert efficiencies to array needed by ROOT
         try:
-            map(lambda x: eff.append(x[1].value), self.fitInput)
-            map(lambda x: delta_eff.append(x[1].error), self.fitInput)
+            map(lambda x: eff.append(x[1].value), self._fitInput)
+            map(lambda x: delta_eff.append(x[1].error), self._fitInput)
         except AttributeError: # energies does not seem to be ErrValue list
-            map(lambda x: eff.append(x[1]), self.fitInput)
-            map(lambda x: delta_eff.append(0.0), self.fitInput)
+            map(lambda x: eff.append(x[1]), self._fitInput)
+            map(lambda x: delta_eff.append(0.0), self._fitInput)
 
         # Preliminary normalization
 #        if self._doNorm:
@@ -158,7 +162,7 @@ class _Efficiency(object):
 #                delta_eff[i] *= self.norm
         
         self.TF1.SetRange(0, max(E) * 1.1)
-        self.TF1.SetParameter(0, 1) # Unset normalization for fitting
+#        self.TF1.SetParameter(0, 1) # Unset normalization for fitting
 
         self.TGraph = TGraphErrors(len(E), E, eff, delta_E, delta_eff)
         
@@ -191,7 +195,7 @@ class _Efficiency(object):
 
         # Get parameter
         for i in range(self._numPars):
-            self.parameter[i] = self.TF1.GetParameter(i + 1)
+            self.parameter[i] = self.TF1.GetParameter(i)
 
         # Get covariance matrix
         tvf = TVirtualFitter.GetFitter()
@@ -208,10 +212,10 @@ class _Efficiency(object):
         except ZeroDivisionError:
             self.norm = 1.0
         
-        self.TF1.SetParameter(0, self.norm)
-        normfunc = TF2("norm_" + hex(id(self)), "[0]*y")
-        normfunc.SetParameter(0, self.norm)
-        self.TGraph.Apply(normfunc)
+#        self.TF1.SetParameter(0, self.norm)
+#        normfunc = TF2("norm_" + hex(id(self)), "[0]*y")
+#        normfunc.SetParameter(0, self.norm)
+#        self.TGraph.Apply(normfunc)
         
     def value(self, E):
         try:
@@ -219,7 +223,7 @@ class _Efficiency(object):
         except AttributeError:
             value = E
         
-        return self.TF1.Eval(value, 0.0, 0.0, 0.0)
+        return self.norm * self.TF1.Eval(value, 0.0, 0.0, 0.0)
     
     def error(self, E):
         """
@@ -247,7 +251,7 @@ class _Efficiency(object):
             
             res += (self._dEff_dP[i](value, self.parameter) * tmp)
         
-        return math.sqrt(res)
+        return self.norm * math.sqrt(res)
     
     def loadPar(self, parfile):
         """

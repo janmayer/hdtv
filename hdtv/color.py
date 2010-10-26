@@ -65,7 +65,7 @@ def HueForID(ID):
     if ID==0:
         hue = 0.0
     else:
-        p = math.floor(math.log(ID) / math.log(2))
+        p = math.floor(math.log(float(ID)) / math.log(2))
         q = ID - 2**p
         hue = 2**(-p-1) + q*2**(-p)
     return hue

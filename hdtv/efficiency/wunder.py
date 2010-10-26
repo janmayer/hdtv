@@ -33,7 +33,7 @@ class WunderEff(_Efficiency):
         
         self.name = "Wunder"
         self.id = self.name + "_" + hex(id(self))
-        self.TF1 = TF1(self.id, "[0] * ([1]*x + [2]/x) * exp([3]*x + [4]/x)", 0, 0) # [0] is normalization factor
+        self.TF1 = TF1(self.id, "([0]*x + [1]/x) * exp([1]*x + [3]/x)", 0, 0)
         
         _Efficiency.__init__(self, num_pars=4, pars=pars, norm=norm)
         
