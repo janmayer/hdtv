@@ -203,6 +203,7 @@ class SpecInterface:
         spec = Spectrum(hist)
         spec.color = hdtv.color.ColorForID(copyTo.major)
         spec.typeStr = "spectrum, copy"
+        spec.name = "%s (copy)" % spec.name
         sid = self.spectra.Insert(spec, copyTo)
         hdtv.ui.msg("Copied spectrum " + str(ID) + " to " + str(sid))
 
