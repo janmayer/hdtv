@@ -48,56 +48,6 @@ def GetCompleteOptions(begin, options):
 #    return options
 
 
-def Median(values):
-    """
-    Calculate Median of a list
-    """
-    values.sort()
-    n = len(values)
-    if not n:
-        return None
-    
-    if n % 2 == 0: 
-        return (values[(n - 1) / 2] + values[n / 2]) * 0.5
-    else:
-        return values[n / 2]
-    
-def stdDeviation(values):
-    
-    n = len(values)
-    mean = wMean(values)
-    
-    ssum = .0
-    for val in values:
-        s = (val.value - mean)**2
-        ssum +=s
-        
-    stdDev = math.sqrt(1./n * ssum)
-
-    return stdDev
-
-def wMean(values):
-    """
-    Calculates weighted mean of a list of errvalues
-    """
-    wsum = .0
-    weights = .0
-    
-    for val in values:
-        weights += 1/val.rel_error
-        wsum += (val.value * 1./val.rel_error)
-        
-    mean = wsum / weights
-    
-    return mean   
-
-def gcd(a, b):
-    """
-    Calculate greatest common denomiator of two integers
-    """
-    while b != 0:
-        (a, b) = (b, a%b)
-    return a
 
 ## FIXME: remove
 #def compareID(a,b):
@@ -114,47 +64,6 @@ def gcd(a, b):
 #        hdtv.ui.warn("ErrValue class has been moved to file errvalue.py!\n"
 #                     + "    (called from file \"%s\", line %d, in %s)" % (tb[0], tb[1], tb[2]))
 #        hdtv.errvalue.ErrValue.__init__(self, *args)
-
-class Linear:
-    """
-    A linear relationship, i.e. y = p1 * x + p0
-    """
-    def __init__(self, p0 = 0., p1 = 0.):
-        self.p0 = p0
-        self.p1 = p1
-        
-    def Y(self, x):
-        """
-        Get y corresponding to a certain x
-        """
-        return self.p1 * x + self.p0
-        
-    def X(self, y):
-        """
-        Get x corresponding to a certain y
-        May raise a ZeroDivisionError
-        """
-        return (y - self.p0) / self.p1
-        
-    @classmethod
-    def FromXYPairs(cls, a, b):
-        """
-        Construct a linear relationship from two (x,y) pairs
-        """
-        l = cls()
-        l.p1 = (b[1] - a[1]) / (b[0] - a[0])
-        l.p0 = a[1] - l.p1 * a[0]
-        return l
-        
-    @classmethod
-    def FromPointAndSlope(cls, point, p1):
-        """
-        Construct a linear relationship from a slope and a point ( (x,y) pair )
-        """
-        l = cls()
-        l.p1 = p1
-        l.p0 = point[1] - l.p1 * point[0]
-        return l
 
 
 class TxtFile(object):
