@@ -543,6 +543,8 @@ class TvFitInterface:
         description = "focus on fit with id"
         usage = "%prog [<id>]"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
+                        help = "select spectra")
         hdtv.cmdline.AddCommand(prog, self.FitFocus, minargs = 0, parser = parser)
         
         prog = "fit list"
@@ -828,29 +830,31 @@ class TvFitInterface:
         
         If no fit is given focus the active fit.
         """
-        spec = self.spectra.GetActiveObject()
-        if spec is None:
-            hdtv.ui.error("There is no active spectrum")
-            return
-        
-        assert self.spectra.activeID in self.spectra.visible, "Active objects should always be visible"
-        
+
+        try:
+            sids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
+        except ValueError:
+            return "USAGE"
+               
         fits = list()
         if len(args) == 0:
             fits.append(self.spectra.workFit)
+            spec = self.spectra.GetActiveObject()
             activeFit = spec.GetActiveObject()
             if activeFit is not None:
                 fit.append(activeFit)
         else:
-            try:
-                ids = hdtv.util.ID.ParseIds(args, spec)
-            except ValueError:
-                return "USAGE"
-            fits = [spec.dict[ID] for ID in ids]
-            spec.ShowObjects(ids, clear=False)
-        if len(fits)==0:
-            hdtv.ui.warn("Nothing to focus")
-            return
+            for sid in sids:
+                spec = self.spectra.dict[sid]
+                try:
+                    ids = hdtv.util.ID.ParseIds(args, spec)
+                except ValueError:
+                    return "USAGE"
+                fits.extend([spec.dict[ID] for ID in ids])
+                spec.ShowObjects(ids, clear=False)
+                if len(fits)==0:
+                    hdtv.ui.warn("Nothing to focus in spectrum %s" % sid)
+                    return
         self.spectra.window.FocusObjects(fits)
 
  
