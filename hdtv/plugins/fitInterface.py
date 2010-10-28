@@ -522,6 +522,22 @@ class TvFitInterface:
         parser.add_option("-s", "--spectrum", action = "store", default = "active",
                         help = "select spectra to work on")
         hdtv.cmdline.AddCommand(prog, self.FitHide, parser = parser)
+
+        prog = "fit show decomposition"
+        description = "display decomposition of fits"
+        usage = "%prog <ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
+                        help = "select spectra to work on")
+        hdtv.cmdline.AddCommand(prog, self.FitShowDecomp, minargs = 1, parser = parser)
+
+        prog = "fit hide decomposition"
+        description = "display decomposition of fits"
+        usage = "%prog <ids>"
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
+        parser.add_option("-s", "--spectrum", action = "store", default = "active",
+                        help = "select spectra to work on")
+        hdtv.cmdline.AddCommand(prog, self.FitHideDecomp, minargs = 1, parser = parser)
         
         prog = "fit focus"
         description = "focus on fit with id"
@@ -763,6 +779,32 @@ class TvFitInterface:
                 if options.adjust_viewport:
                     fits = [spec.dict[ID] for ID in fitIDs]
                     self.spectra.window.FocusObjects(fits)
+               
+    def FitHideDecomp(self, args, options):
+        """
+        Hide decomposition of fits
+        """
+        self.FitShowDecomp(args, options, show=False)
+        
+    def FitShowDecomp(self, args, options, show=True):
+        """
+        Show decomposition of fits
+        
+        show = False hides decomposition
+        """
+        try:
+            sids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
+        except ValueError:
+            return "USAGE"
+        for sid in sids:
+            spec = self.spectra.dict[sid]
+            try:
+                fitIDs = hdtv.util.ID.ParseIds(args, spec)
+            except ValueError:
+                return "USAGE"
+            
+            for fitID in fitIDs:
+                self.fitIf.ShowDecomposition(show, sids=[sid], ids=[fitID])
                 
     def FitFocus(self, args, options):
         """
