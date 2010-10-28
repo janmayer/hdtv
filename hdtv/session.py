@@ -147,6 +147,10 @@ class Session(DrawableManager):
             self.workFit.bgMarkers.Clear()
             self.workFit.peakMarkers.Clear()
             self.workFit.regionMarkers.Clear()
+            # Keeping positions on hold for a new fit is not really sensible
+            if "pos" in self.workFit.fitter.params:
+                self.workFit.fitter.SetParameter("pos", "free")
+                hdtv.ui.msg("\'pos\' fit parameter reset to \'free\'")
             self.workFit.spec = None
         
     def ActivateFit(self, ID, sid=None):
