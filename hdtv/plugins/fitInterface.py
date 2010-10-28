@@ -642,33 +642,49 @@ class TvFitInterface:
             doPeaks = False
         else:
             doPeaks = True
-        for specID in specIDs:
-            self.spectra.ActivateObject(ID=specID)
-            try:
-                fitIDs = hdtv.util.ID.ParseIds(args, self.spectra.dict[specID])
-            except ValueError:
-                return "USAGE"
-            if len(fitIDs) == 0:
-                if options.quick is not None:
-                    try:
-                        pos = float(options.quick)
-                    except:
-                        hdtv.ui.error("Invalid position for quick fit.")
-                        return
-                    self.fitIf.QuickFit(pos)
-                else:
-                    self.spectra.ExecuteFit(peaks=doPeaks)
-                    
-                if options.store is True:   # Needed when options.quick is set for multiple spectra, else fits will be lost
-                    self.spectra.StoreFit() # Store current fit
-
-            for fitID in fitIDs:
+            
+        # Store active spec ID before activation of other spectra
+        oldActiveID = self.spectra.activeID
+        
+        class Return(Exception): # raise this exception to jump out of loops and return usage
+            pass
+        
+        try:
+            for specID in specIDs:
+                self.spectra.ActivateObject(ID=specID)
                 try:
-                    hdtv.ui.msg("Executing fit %s in spectrum %s" %(fitID, specID))
-                    self.fitIf.ExecuteRefit(specID=specID, fitID=fitID, peaks=doPeaks)
-                except (KeyError, RuntimeError), e:
-                    hdtv.ui.warn(e)
-                    continue
+                    fitIDs = hdtv.util.ID.ParseIds(args, self.spectra.dict[specID])
+                except ValueError:
+                    raise Return("USAGE")
+                if len(fitIDs) == 0:
+                    if options.quick is not None:
+                        try:
+                            pos = float(options.quick)
+                        except:
+                            hdtv.ui.error("Invalid position for quick fit.")
+                            return
+                        self.fitIf.QuickFit(pos)
+                    else:
+                        self.spectra.ExecuteFit(peaks=doPeaks)
+                        
+                    if options.store is True:   # Needed when options.quick is set for multiple spectra, else fits will be lost
+                        self.spectra.StoreFit() # Store current fit
+    
+                for fitID in fitIDs:
+                    try:
+                        hdtv.ui.msg("Executing fit %s in spectrum %s" %(fitID, specID))
+                        self.fitIf.ExecuteRefit(specID=specID, fitID=fitID, peaks=doPeaks)
+                    except (KeyError, RuntimeError), e:
+                        hdtv.ui.warn(e)
+                        continue
+        except Return, msg:
+            ret = msg
+        else:
+            ret = None
+        
+        if oldActiveID is not None: # Reactivate spectrum that was active in the beginning
+            self.spectra.ActivateObject(ID=oldActiveID)
+        return ret
                 
     def FitClear(self, args, options):
         """
