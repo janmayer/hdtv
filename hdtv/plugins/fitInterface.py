@@ -23,6 +23,7 @@ import hdtv.cmdline
 import hdtv.options
 import hdtv.util
 import hdtv.ui
+import hdtv.fit
 
 import copy
 import sys
@@ -47,7 +48,7 @@ class FitInterface:
         self.opt['quickfit.region'] = hdtv.options.Option(default = 20.0, parse=lambda(x): float(x))
         hdtv.options.RegisterOption("fit.quickfit.region", self.opt['quickfit.region']) 
 
-        self.opt['display.decomp'] = hdtv.options.Option(default = False, parse = hdtv.options.ParseBool, changeCallback = lambda x: self.ShowDecomposition(x)) 
+        self.opt['display.decomp'] = hdtv.options.Option(default = False, parse = hdtv.options.ParseBool, changeCallback = lambda x: self.SetDecomposition(x)) 
         hdtv.options.RegisterOption("fit.display.decomp", self.opt['display.decomp'])
         
         # Register hotkeys
@@ -402,12 +403,21 @@ class FitInterface:
             fit = spec.dict[ID]
             fit.fitter.SetPeakModel(peakmodel)
             fit.Refresh()
+           
             
+    def SetDecomposition(self, default_enable):
+        '''
+        Set default decomposition display status
+        ''' 
+        # default_enable may be an hdtv.options.opt instance, so we excplicitely convert to bool here
+        default_enable = bool(default_enable)
+        hdtv.fit.Fit.showDecomp = default_enable
+        self.ShowDecomposition(default_enable) # now show these decompositions
+        
     def ShowDecomposition(self, enable, sids=None, ids=None):
         '''
         Show decomposition of fits
-        '''            
-        enable = bool(enable) # enable may be an hdtv.options.opt instance, so we excplicitely convert to bool here
+        '''             
         
         fits = list()
         if sids is None:

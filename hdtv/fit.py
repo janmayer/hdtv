@@ -46,6 +46,7 @@ class Fit(Drawable):
     # that calls them as first argument
     FitPeakPreHooks = list()
     FitPeakPostHooks = list()
+    showDecomp = False  # Default value for decomposition status
     
     def __init__(self, fitter, color=None, cal=None):
         self.regionMarkers = MarkerCollection("X", paired=True, maxnum=1,
@@ -59,7 +60,7 @@ class Fit(Drawable):
         self.chi = None
         self.bgChi = None
         self.bgCoeffs = []
-        self.showDecomp = False
+        self._showDecomp = Fit.showDecomp
         self.dispPeakFunc = None
         self.dispBgFunc = None
         Drawable.__init__(self, color, cal)
@@ -308,8 +309,6 @@ class Fit(Drawable):
             if not silent:
                 print "\n"+6*" "+self.formatted_str(verbose=True)
                 
-        self.SetDecomp(self.showDecomp)
-        
         # Call post hooks
         for func in Fit.FitPeakPostHooks:
             func(self)
@@ -442,7 +441,7 @@ class Fit(Drawable):
         # peak list
         for peak in self.peaks:
             peak.color = hdtv.color.peak
-            if self.showDecomp:
+            if self._showDecomp:
                 peak.Show()
             else:
                 peak.Hide()
@@ -468,7 +467,7 @@ class Fit(Drawable):
         # peak list
         for peak in self.peaks:
             peak.color = self.color
-            if self.showDecomp:
+            if self._showDecomp:
                 peak.Show()
             else:
                 peak.Hide()
@@ -497,7 +496,7 @@ class Fit(Drawable):
         # peak list
         for peak in self.peaks:
             peak.color = self.color
-            if self.showDecomp:
+            if self._showDecomp:
                 peak.Show()
             else:
                 peak.Hide()
@@ -585,7 +584,7 @@ class Fit(Drawable):
         """
         Sets whether to display a decomposition of the fit
         """
-        self.showDecomp =  stat
+        self._showDecomp =  stat
         if stat:
             for peak in self.peaks:
                 peak.Show()
