@@ -42,9 +42,13 @@ class FitInterface:
 
         # Register configuration variables for fit interface
         # default region width for quickfit
-        opt = hdtv.options.Option(default = 20.0, parse=lambda(x): float(x))
-        hdtv.options.RegisterOption("fit.quickfit.region", opt) 
 
+        self.opt = dict()
+        self.opt['quickfit.region'] = hdtv.options.Option(default = 20.0, parse=lambda(x): float(x))
+        hdtv.options.RegisterOption("fit.quickfit.region", self.opt['quickfit.region']) 
+
+        self.opt['display.decomp'] = hdtv.options.Option(default = False, parse = hdtv.options.ParseBool, changeCallback = lambda x: self.ShowDecomposition(x)) 
+        hdtv.options.RegisterOption("fit.display.decomp", self.opt['display.decomp'])
         
         # Register hotkeys
         self.window.AddHotkey(ROOT.kKey_b, 
@@ -71,9 +75,9 @@ class FitInterface:
         self.window.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_F], self.spectra.StoreFit)
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_F], self.spectra.ClearFit)
         self.window.AddHotkey(ROOT.kKey_D, 
-                                lambda: self.spectra.workFit.SetDecomp(True))
+                                lambda: self.ShowDecomposition(True))
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_D], 
-                                lambda: self.spectra.workFit.SetDecomp(False))
+                                lambda: self.ShowDecomposition(False))
 
         self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_s],
                         lambda: self.window.EnterEditMode(prompt = "Show Fit: ",
@@ -398,6 +402,33 @@ class FitInterface:
             fit = spec.dict[ID]
             fit.fitter.SetPeakModel(peakmodel)
             fit.Refresh()
+            
+    def ShowDecomposition(self, enable, sids=None, ids=None):
+        '''
+        Show decomposition of fits
+        '''            
+        enable = bool(enable) # enable may be an hdtv.options.opt instance, so we excplicitely convert to bool here
+        
+        fits = list()
+        if sids is None:
+            sids = self.spectra.ids
+
+        for sid in sids:
+            spec = self.spectra.dict[sid]
+            if ids is None:
+                fids = spec.ids
+            else:
+                fids = ids
+
+            fits = [spec.dict[ID] for ID in fids]
+            
+            try:
+                self.spectra.workFit.SetDecomp(enable)
+            except AttributeError:
+                pass
+            
+            for fit in fits:
+                fit.SetDecomp(enable)
        
 class TvFitInterface:
     """

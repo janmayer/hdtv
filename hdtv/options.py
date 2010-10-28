@@ -36,7 +36,13 @@ class Option:
         self.Parse = parse
         self.ToStr = toStr
         self.ChangeCallback = changeCallback
-        
+    
+    def __nonzero__(self):
+        """
+        How to convert option to 'bool'
+        """
+        return bool(self.value)
+    
     def Set(self, value):
         """
         Set the variable to the specified value

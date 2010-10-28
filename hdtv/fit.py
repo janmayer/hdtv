@@ -308,6 +308,8 @@ class Fit(Drawable):
             if not silent:
                 print "\n"+6*" "+self.formatted_str(verbose=True)
                 
+        self.SetDecomp(self.showDecomp)
+        
         # Call post hooks
         for func in Fit.FitPeakPostHooks:
             func(self)
