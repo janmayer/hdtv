@@ -16,6 +16,7 @@ parser.add_option("-b", "--batch", dest="batchfile",
                   help="Open and execute hdtv batchfile")
 
 (options, args) = parser.parse_args()
+sys.argv = [sys.argv[0]] # Reset command line arguments so that ROOT does not stumble about them
 
 # Get ~/.hdtv directory
 try:
