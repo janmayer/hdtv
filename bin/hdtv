@@ -8,6 +8,15 @@
 import sys
 import os
 
+from optparse import OptionParser
+
+# Command line arguments
+parser = OptionParser()
+parser.add_option("-b", "--batch", dest="batchfile",
+                  help="Open and execute hdtv batchfile")
+
+(options, args) = parser.parse_args()
+
 # Get ~/.hdtv directory
 try:
     configpath = os.environ["HDTV_USER_PATH"]
@@ -73,7 +82,7 @@ try:
         hdtv.ui.msg("No startup.hdtv file")
 except IOError, msg:
     hdtv.ui.msg("Error reading %s: %s" % (startup_hdtv, msg))
-    
+
 hdtv.ui.newline()
 hdtv.ui.msg("=========================================================")
 hdtv.ui.msg(" HDTV - Nuclear Spectrum Analysis Tool")
@@ -84,8 +93,17 @@ hdtv.ui.newline()
 hdtv.ui.msg("  This software is licensed under the GPL.") 
 hdtv.ui.msg("=========================================================")
 hdtv.ui.newline()
-# Go
 
+# Execute batchfile given on command line
+try:
+    if options.batchfile is not None:
+        hdtv.ui.msg("Executing \'%s\'" % options.batchfile)
+        hdtv.cmdline.command_line.ExecCmdfile(options.batchfile)
+except IOError, msg:
+    hdtv.ui.msg("Error reading %s: %s" % (options.batchfile, msg))
+   
+
+# Go
 hdtv.cmdline.MainLoop()
 hdtv.cmdline.command_tree.SetDefaultLevel(1)
 
