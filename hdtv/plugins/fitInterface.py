@@ -412,33 +412,33 @@ class FitInterface:
         # default_enable may be an hdtv.options.opt instance, so we excplicitely convert to bool here
         default_enable = bool(default_enable)
         hdtv.fit.Fit.showDecomp = default_enable
-        self.ShowDecomposition(default_enable) # now show these decompositions
+        self.ShowDecomposition(default_enable) # show these decompositions for workFit
+        # show these decompositions for all other fits
+        for specID in self.spectra.ids:
+            fitIDs = self.spectra.dict[sID].ids
+            self.ShowDecomposition(default_enable, sid=specID, ids=fitIDs) 
         
-    def ShowDecomposition(self, enable, sids=None, ids=None):
+    def ShowDecomposition(self, enable, sid=None, ids=None):
         '''
         Show decomposition of fits
         '''             
         
         fits = list()
-        if sids is None:
-            sids = self.spectra.ids
-
-        for sid in sids:
+        if sid is None:
+            spec = self.spectra.GetActiveObject()
+        else:
             spec = self.spectra.dict[sid]
-            if ids is None:
-                fids = spec.ids
-            else:
-                fids = ids
+            
+        fits = list()
+        if ids is None:
+            if self.spectra.workFit is not None:
+                fits.append(self.spectra.workFit)
+        else:
+            fits = [spec.dict[ID] for ID in ids]
+                
+        for fit in fits:
+            fit.SetDecomp(enable)
 
-            fits = [spec.dict[ID] for ID in fids]
-            
-            try:
-                self.spectra.workFit.SetDecomp(enable)
-            except AttributeError:
-                pass
-            
-            for fit in fits:
-                fit.SetDecomp(enable)
        
 class TvFitInterface:
     """
@@ -529,7 +529,7 @@ class TvFitInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-s", "--spectrum", action = "store", default = "active",
                         help = "select spectra to work on")
-        hdtv.cmdline.AddCommand(prog, self.FitShowDecomp, minargs = 1, parser = parser)
+        hdtv.cmdline.AddCommand(prog, self.FitShowDecomp, minargs = 0, parser = parser)
 
         prog = "fit hide decomposition"
         description = "display decomposition of fits"
@@ -537,7 +537,7 @@ class TvFitInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-s", "--spectrum", action = "store", default = "active",
                         help = "select spectra to work on")
-        hdtv.cmdline.AddCommand(prog, self.FitHideDecomp, minargs = 1, parser = parser)
+        hdtv.cmdline.AddCommand(prog, self.FitHideDecomp, minargs = 0, parser = parser)
         
         prog = "fit focus"
         description = "focus on fit with id"
@@ -820,9 +820,10 @@ class TvFitInterface:
                 fitIDs = hdtv.util.ID.ParseIds(args, spec)
             except ValueError:
                 return "USAGE"
-            
-            for fitID in fitIDs:
-                self.fitIf.ShowDecomposition(show, sids=[sid], ids=[fitID])
+
+            if len(fitIDs) == 0:
+                fitIDs = None
+            self.fitIf.ShowDecomposition(show, sid=sid, ids=fitIDs)
                 
     def FitFocus(self, args, options):
         """
