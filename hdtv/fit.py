@@ -337,12 +337,13 @@ class Fit(Drawable):
         self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, self.color)
         self.dispPeakFunc.SetCal(self.cal)
         
-        # restore peak list
-#        for i in range(0, self.fitter.peakFitter.GetNumPeaks()):
-#            cpeak = self.fitter.peakFitter.GetPeak(i)
-#            peak = self.fitter.peakModel.CopyPeak(cpeak, self.color, self.cal)
-#            self.peaks.append(peak)
-#            
+        # restore display functions of single peaks
+        for i in range(0, self.fitter.peakFitter.GetNumPeaks()):
+            cpeak = self.fitter.peakFitter.GetPeak(i)
+            func = cpeak.GetPeakFunc()
+            self.peaks[i].displayObj = ROOT.HDTV.Display.DisplayFunc(func, self.color)
+            self.peaks[i].displayObj.SetCal(self.cal)
+ 
         # print result
         if not silent:
             print "\n"+6*" "+str(self)
