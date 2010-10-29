@@ -338,11 +338,11 @@ class Fit(Drawable):
         self.dispPeakFunc.SetCal(self.cal)
         
         # restore peak list
-        for i in range(0, self.fitter.peakFitter.GetNumPeaks()):
-            cpeak = self.fitter.peakFitter.GetPeak(i)
-            peak = self.fitter.peakModel.CopyPeak(cpeak, self.color, self.cal)
-            self.peaks.append(peak)
-            
+#        for i in range(0, self.fitter.peakFitter.GetNumPeaks()):
+#            cpeak = self.fitter.peakFitter.GetPeak(i)
+#            peak = self.fitter.peakModel.CopyPeak(cpeak, self.color, self.cal)
+#            self.peaks.append(peak)
+#            
         # print result
         if not silent:
             print "\n"+6*" "+str(self)
