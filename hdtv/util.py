@@ -196,6 +196,7 @@ class Table(object):
         self.extra_footer = extra_footer
         self.sortBy = sortBy
         self.keys = keys
+        self.data = list()
         
         self.col_sep_char = "|"
         self.empty_field = "-"
@@ -205,6 +206,7 @@ class Table(object):
         self._width = 0 # Width of table
         self._col_width = list() # width of columns
         
+        
         # One additional "border column"
         self._ignore_col = [ignoreEmptyCols for i in range(0, len(keys) + 1)] 
         
@@ -212,7 +214,14 @@ class Table(object):
         if sortBy is not None:
             self.sort_data(sortBy, reverseSort)
         
-        
+    @property
+    def num_columns(self):
+        return len(self.keys)
+    
+    @property
+    def num_rows(self):
+        return len(self.data)
+    
     def read_data(self, data, keys, header=None):
         # data
         self.data = list()
