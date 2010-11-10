@@ -345,6 +345,8 @@ class GammaLib(list):
             except KeyError:
                 hdtv.ui.error("Invalid key " + str(key))
                 raise KeyError
+            if value is None:
+                continue
             args_lower[key.lower()] = conv(value)
 
         # Prepare find args
