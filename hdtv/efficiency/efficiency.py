@@ -31,60 +31,64 @@ import string
 import os
 
 class _Efficiency(object):
-    
+
     def __init__(self, num_pars = 0, pars = list(), norm = True):
-    
-        self._numPars = num_pars 
+
+        self._numPars = num_pars
         self.parameter = pars
         self.fCov = [[None for j in range(self._numPars)] for i in range(self._numPars)] # Simple matrix replacement
         self._dEff_dP = list()
-        self.TGraph = TGraphErrors() 
-         
+        self.TGraph = TGraphErrors()
+
         # Normalization factors
         self._doNorm = norm
         self.norm = 1.0
-#        self.TF1.FixParameter(0, self.norm) # Normalization
+        self.TF1.FixParameter(0, self.norm) # Normalization
         self.TF1.SetRange(0, 10000) # Default range for efficiency function
-         
+
         self._fitInput = Pairs(ErrValue)
-         
+
 #         if self.parameter: # Parameters were given
 #             map(lambda i: self.TF1.SetParameter(i + 1, self.parameter[i]), range(1, len(pars))) # Set initial parameters
 #         else:
 #             self.parameter = [None for i in range(1, self._numPars + 1)]
 #             
-#        self.TF1.SetParName(0, "N") # Normalization
-         
+        self.TF1.SetParName(0, "N") # Normalization
+
         for i in range(0, num_pars):
             self._dEff_dP.append(None)
             if num_pars <= len(string.ascii_lowercase):
-                self.TF1.SetParName(i, string.ascii_lowercase[i])
- 
+                self.TF1.SetParName(i + 1, string.ascii_lowercase[i])
+
     def _getParameter(self):
         """
         Get parameter of efficiency function
         """
         pars = list()
         for i in range(self._numPars):
-            pars.append(self.TF1.GetParameter(i))
-            
+            pars.append(self.TF1.GetParameter(i + 1))
+
         return pars
-        
+
     def _setParameter(self, pars):
         """
         Set parameter for efficiency function
         """
         for i in range(self._numPars):
             try:
-                self.TF1.SetParameter(i, pars[i])
+                self.TF1.SetParameter(i + 1, pars[i])
             except IndexError:
-                self.TF1.SetParameter(i, 0)
+                self.TF1.SetParameter(i + 1, 0)
+        
 
     parameter = property(_getParameter, _setParameter)
- 
+
     def __call__(self, E):
         value = self.value(E)
-        error = self.error(E)
+        try:
+            error = self.error(E)
+        except TypeError:
+            error = None
         return ErrValue(value, error)
 
 
@@ -100,24 +104,24 @@ class _Efficiency(object):
             except AttributeError:
                 e_value = float(p[0])
                 e_error = 0.
-                
+
             try:
                 eff_value = p[1].value
                 eff_error = p[1].error
             except AttributeError:
                 eff_value = float(p[1])
-                eff_error = 0. 
-                
+                eff_error = 0.
+
             self.TGraph.SetPoint(i, e_value, eff_value)
             self.TGraph.SetPointError(i, e_error, eff_error)
-        
-        
+
+
     def _get_fitInput(self):
         return self._fitInput
-        
+
     fitInput = property(_get_fitInput, _set_fitInput)
-    
-    def fit(self, fitPairs=None, quiet = True):
+
+    def fit(self, fitPairs = None, quiet = True):
         """
         Fit efficiency curve to values given by 'fitPairs' which should be a list
         of energy<->efficiency pairs. (See hdtv.util.Pairs())
@@ -132,7 +136,7 @@ class _Efficiency(object):
         delta_E = array.array("d")
         eff = array.array("d")
         delta_eff = array.array("d")
-        
+
 
 #        map(energies.append(self.fitInput[0]), self.fitInput)
 #        map(efficiencies.append(self.fitInput[1]), self.fitInput)
@@ -160,12 +164,12 @@ class _Efficiency(object):
 #            for i in range(len(eff)):
 #                eff[i] *= self.norm
 #                delta_eff[i] *= self.norm
-        
+
         self.TF1.SetRange(0, max(E) * 1.1)
-#        self.TF1.SetParameter(0, 1) # Unset normalization for fitting
+        self.TF1.SetParameter(0, 1) # Unset normalization for fitting
 
         self.TGraph = TGraphErrors(len(E), E, eff, delta_E, delta_eff)
-        
+
         # Do the fit
         fitopts = "0" # Do not plot
 
@@ -174,18 +178,18 @@ class _Efficiency(object):
             # into account.
             fitopts += "F"
             hdtv.ui.info("switching to non-linear fitter (minuit) for x error weighting")
-            
+
         if quiet:
             fitopts += "Q"
 
-        fitopts +="S" # Additional fitinfo returned needed for ROOT5.26 workaround below 
-        fitreturn = self.TGraph.Fit(self.id, fitopts) 
-        
+        fitopts += "S" # Additional fitinfo returned needed for ROOT5.26 workaround below 
+        fitreturn = self.TGraph.Fit(self.id, fitopts)
+
         try:
             fitstatus = fitreturn.Get().Status() # Workaround for checking the fitstatus in ROOT 5.26 (TFitResultPtr does not cast properly to int)
         except AttributeError: # This is for ROOT <= 5.24, where fit returns an int
             fitstatus = int(fitreturn)
-            
+
         if  fitstatus != 0:
             raise RuntimeError, "Fit failed"
 
@@ -195,7 +199,7 @@ class _Efficiency(object):
 
         # Get parameter
         for i in range(self._numPars):
-            self.parameter[i] = self.TF1.GetParameter(i)
+            self.parameter[i] = self.TF1.GetParameter(i + 1)
 
         # Get covariance matrix
         tvf = TVirtualFitter.GetFitter()
@@ -204,27 +208,27 @@ class _Efficiency(object):
             for j in range(0, self._numPars):
                 self.fCov[i][j] = tvf.GetCovarianceMatrixElement(i, j)
 ##                 self.fCov[i][j] = cov[i * self._numPars + j]
-
+            
     def normalize(self):
         # Normalize the efficiency funtion
         try:
             self.norm = 1.0 / self.TF1.GetMaximum(0.0, 0.0)
         except ZeroDivisionError:
             self.norm = 1.0
-        
-#        self.TF1.SetParameter(0, self.norm)
-#        normfunc = TF2("norm_" + hex(id(self)), "[0]*y")
-#        normfunc.SetParameter(0, self.norm)
-#        self.TGraph.Apply(normfunc)
-        
+
+        self.TF1.SetParameter(0, self.norm)
+        normfunc = TF2("norm_" + hex(id(self)), "[0]*y")
+        normfunc.SetParameter(0, self.norm)
+        self.TGraph.Apply(normfunc)
+
     def value(self, E):
         try:
             value = E.value
         except AttributeError:
             value = E
-        
-        return self.norm * self.TF1.Eval(value, 0.0, 0.0, 0.0)
-    
+
+        return self.TF1.Eval(value, 0.0, 0.0, 0.0)
+
     def error(self, E):
         """
         Calculate error using the covariance matrix via:
@@ -232,39 +236,38 @@ class _Efficiency(object):
           delta_Eff = sqrt((dEff_dP[0], dEff_dP[1], ... dEff_dP[num_pars]) x cov x (dEff_dP[0], dEff_dP[1], ... dEff_dP[num_pars]))
              
         """
-        
         try:
             value = E.value
         except AttributeError:
             value = E
-        
-        if not self.fCov or len(self.fCov) != self._numPars:
+
+        if not self.fCov or (len(self.fCov) != self._numPars):
             raise ValueError, "Incorrect size of covariance matrix"
-        
+
         res = 0.0
-        
+
         # Do matrix multiplication
         for i in range(0, self._numPars):
-            tmp = 0.0   
+            tmp = 0.0
             for j in range(0, self._numPars):
                 tmp += (self._dEff_dP[j](value, self.parameter) * self.fCov[i][j])
-            
+
             res += (self._dEff_dP[i](value, self.parameter) * tmp)
-        
-        return self.norm * math.sqrt(res)
-    
+
+        return math.sqrt(res)
+
     def loadPar(self, parfile):
         """
         Read parameter from file
         """
         vals = []
-    
+        
         file = TxtFile(parfile)
         file.read()
-        
+
         for line in file.lines:
             vals.append(float(line))
-                
+
         if len(vals) != self._numPars:
             raise RuntimeError, "Incorrect number of parameters found in file"
 
@@ -277,12 +280,12 @@ class _Efficiency(object):
         """
         Load covariance matrix from file
         """
-        
+
         vals = []
 
         file = TxtFile(covfile)
         file.read()
-        
+
         for line in file.lines:
             val_row = map(lambda s: float(s), line.split())
             if len(val_row) != self._numPars:
@@ -291,7 +294,7 @@ class _Efficiency(object):
 
         if len(vals) != self._numPars:
             raise RuntimeError, "Incorrect format of parameter error file"
-        
+
         self.fCov = vals
 
 
@@ -300,7 +303,7 @@ class _Efficiency(object):
         Read parameter and covariance matrix from file
         """
         self.loadPar(parfile)
-                    
+
         if covfile:
             self.loadCov(covfile)
 
@@ -310,18 +313,18 @@ class _Efficiency(object):
         Save parameter to file
         """
         file = TxtFile(parfile, "w")
-        
+
         for p in self.parameter:
             file.lines.append(str(p))
-        
+
         file.write()
-        
+
     def saveCov(self, covfile):
         """
         Save covariance matrix to file
         """
         file = TxtFile(covfile, "w")
-        
+
         for i in range(0, self._numPars):
             line = ""
             for j in range(0, self._numPars):
@@ -329,17 +332,17 @@ class _Efficiency(object):
             file.lines.append(line)
 
         file.write()
-    
-    
+
+
     def save(self, parfile, covfile = None):
         """
         Save parameter and covariance matrix to files
         """
         # Write paramter
         self.savePar(parfile)
-        
+
         # Write covariance matrix
         if covfile is not None:
             self.saveCov(covfile)
-        
+
 
