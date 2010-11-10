@@ -189,6 +189,8 @@ class Pairs(list):
 class Table(object):
     """
     Class to store tables
+    
+    data: iterable that contains 'keys' as attributes or dict entries
     """
     def __init__(self, data, keys, header = None, ignoreEmptyCols = True,
                  sortBy = None, reverseSort = False, extra_header = None, extra_footer = None):
@@ -226,10 +228,12 @@ class Table(object):
         # data
         self.data = list()
         for d in data:
-            if isinstance(d, dict):
-                tmp = d
-            else: # convert to dict
-                tmp = dict()
+            tmp = dict()
+            try:
+                for k in keys:
+                    tmp[k] = d[k]
+            except TypeError:
+                # Data is no dict so we try to read attributes
                 for k in keys:
                     tmp[k] = getattr(d, k)
             self.data.append(tmp)
