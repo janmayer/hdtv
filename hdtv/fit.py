@@ -64,9 +64,9 @@ class Fit(Drawable):
         self.dispPeakFunc = None
         self.dispBgFunc = None
         Drawable.__init__(self, color, cal)
-        self.spec = None
+        self._spec = None
         self.active = False
-
+        
     # ID property
     def _get_ID(self):
         return self._ID
