@@ -121,16 +121,19 @@ class Session(DrawableManager):
             hdtv.ui.error("There is no active spectrum.")
             return 
         fit = self.workFit
-        if not peaks and len(fit.bgMarkers) > 0:
-            if fit.fitter.bgdeg==-1:
-                hdtv.ui.error("Background degree of -1 contradicts background fit.")
-                return
-            # pure background fit
-            fit.FitBgFunc(spec)
-        if peaks:
-            # full fit
-            fit.FitPeakFunc(spec)
-        fit.Draw(self.window.viewport)
+        try:
+            if not peaks and len(fit.bgMarkers) > 0:
+                if fit.fitter.bgdeg==-1:
+                    hdtv.ui.error("Background degree of -1 contradicts background fit.")
+                    return
+                # pure background fit
+                fit.FitBgFunc(spec)
+            if peaks:
+                # full fit
+                fit.FitPeakFunc(spec)
+            fit.Draw(self.window.viewport)
+        except OverflowError, msg:
+            hdtv.ui.error("Fit failed: %s" % msg)
 
     def ClearFit(self, bg_only=False):
         """
