@@ -214,7 +214,7 @@ class Session(DrawableManager):
         cutSpec = self.workCut.ExecuteCut(spec.matrix, spec.axis)
         if cutSpec is not None:
             ID = spec.matrix.ID
-            self.Insert(cutSpec, ID=hdtv.util.ID(ID.major, "c"))
+            self.Insert(cutSpec, ID=hdtv.util.ID(ID.major, 1010))
 
     def ClearCut(self):
         self.workCut.regionMarkers.Clear()
