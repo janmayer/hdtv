@@ -22,10 +22,13 @@
 #-------------------------------------------------------------------------------
 # Matrix interface for hdtv
 #-------------------------------------------------------------------------------
+
 import ROOT
+import os
 
 import hdtv.ui
 import hdtv.util
+from hdtv.specreader import SpecReader, SpecReaderError
 
 from hdtv.matrix import Matrix
 from hdtv.histogram import MHisto2D
@@ -263,9 +266,12 @@ class TvMatInterface:
         prog = "matrix project"
         description = "reload projection of matrix"
         
-        # FIXME
         prog = "matrix view"
         description = "show 2D view of the matrix"
+        usage = "%prog filename'fmt"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.MatrixView, level=0, nargs=1,
+                                fileargs=True, parser=parser)
         
         # FIXME
         prog = "matrix delete"
@@ -319,7 +325,37 @@ class TvMatInterface:
         prog = "cut hide"
         description = "hide a cut"
         
-
+        # List of MTViewers (2d matrix views)
+        self.matviews = []
+    
+    def MatrixView(self, args, options):
+        """
+        Load a matrix from file, then display it in 2d
+        """
+        # split off format if specified (fname'fmt)
+        p = args[0].rsplit("'", 1)
+        if len(p) == 1 or not p[1]:
+            (fname, fmt) = (p[0], None)
+        else:
+            (fname, fmt) = p
+        
+        # check if file exists
+        try:
+            os.stat(fname)
+        except OSError, error:
+            hdtv.ui.error(str(error))
+            raise
+        
+        try:
+            hist = SpecReader().GetMatrix(fname, fmt)
+        except SpecReaderError, msg:
+            hdtv.ui.error(str(msg))
+            raise
+        
+        title = hist.GetTitle()
+        viewer = ROOT.HDTV.Display.MTViewer(400, 400, hist, title)
+        self.matviews.append(viewer)
+    
     def MatrixGet(self, args, options):
         """
         Load a matrix from file

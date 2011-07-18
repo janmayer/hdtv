@@ -275,7 +275,10 @@ class SpecReader:
             mhist.Open(fname, fmt)
         
         # FIXME: this ignores possibly specified bin errors
-        return mhist.ToTH2D(histname, histtitle, 0)
+        hist = mhist.ToTH2D(histname, histtitle, 0)
+        if not hist:
+            raise SpecReaderError, mhist.GetErrorMsg()
+        return hist
     
     def GetVMatrix(self, fname, fmt=None, histname=None, histtitle=None):
         """
