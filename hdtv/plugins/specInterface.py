@@ -236,7 +236,7 @@ class TvSpecInterface:
         hdtv.cmdline.AddCommand(prog, self.SpectrumList, nargs=0, parser=parser)
         
         prog = "spectrum delete"   
-        usage=usage="%prog <ids>"
+        usage="%prog <ids>"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog,usage=usage)
         hdtv.cmdline.AddCommand(prog, self.SpectrumDelete, minargs=0, parser=parser)
                                 

@@ -3,7 +3,7 @@ import sys
 sys.path.append("/home/braun/projects/hdtv")
 import hdtv.specreader
 import hdtv.dlmgr
-from hdtv.util import ErrValue
+from hdtv.errvalue import ErrValue
 import ROOT
 import math
 hdtv.dlmgr.LoadLibrary("fit")

@@ -88,6 +88,8 @@ class FitInterface:
                         handler = self._HotkeyActivate))
         self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_p], lambda: self._HotkeyShow("PREV"))
         self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_n], lambda: self._HotkeyShow("NEXT"))
+        
+        self.window.AddHotkey(ROOT.kKey_I, self.spectra.ExecuteIntegral)
     
     
     def _HotkeyShow(self, args):

@@ -33,6 +33,7 @@ from hdtv.drawable import DrawableManager
 from hdtv.fitter import Fitter
 from hdtv.fit import Fit
 from hdtv.cut import Cut
+from hdtv.integral import Integrate
 
 class Session(DrawableManager):
     """
@@ -108,7 +109,24 @@ class Session(DrawableManager):
         elif mtype in ["cutregion","cutbg"]:
             mtype = mtype[3:]
             self.workCut.RemoveMarker(mtype, pos)
+    
+    def ExecuteIntegral(self):
+        spec = self.GetActiveObject()
+        if spec is None:
+            hdtv.ui.error("There is no active spectrum.")
+            return
         
+        fit = self.workFit
+        fit.spec = spec
+        if not fit.regionMarkers.IsFull():
+            hdtv.ui.error("Region not set.")
+            return
+        
+        region = [fit.regionMarkers[0].p1.pos_uncal, fit.regionMarkers[0].p2.pos_uncal]
+        bg = fit.fitter.bgFitter
+        
+        hdtv.integral.Integrate(spec, bg, region)
+    
     # Functions to handle workFit 
     def ExecuteFit(self, peaks=True):
         """

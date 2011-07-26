@@ -209,7 +209,7 @@ class Fit(Drawable):
     
     def FixMarkerInUncal(self):
         """
-        Fix marker in calibrated space
+        Fix marker in uncalibrated space
         """
         for m in [self.bgMarkers, self.regionMarkers, self.peakMarkers]:
             m.FixInUncal()
