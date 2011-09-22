@@ -67,6 +67,7 @@ import hdtv.plugins.fittex
 import hdtv.plugins.fitmap
 import hdtv.plugins.dblookup
 import hdtv.plugins.peakfinder
+import hdtv.plugins.printing
 
 # Execute startup.py for user configuration in python
 try:
