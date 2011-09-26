@@ -25,14 +25,9 @@ import hdtv.cal
 import numpy
 import scipy
 import pylab
+import math
 
 
-#def hist2Numpy(hist):
-#    nbins = hist.GetNbinsX()
-#    print nbins
-    
-#s=spectra.GetActiveObject()
-#s.hist.hist.GetNbinsX()
 
     
 class PrintOut(object):
@@ -51,27 +46,35 @@ class PrintOut(object):
         
         pylab.figure(figsize=(8.5,4.2))
 
+        # viewport limits
+        x1= int(math.floor(self.spectra.viewport.GetOffset()))
+        x2= int(x1+ math.ceil(self.spectra.viewport.GetXVisibleRegion()))
         
         # add spectra, fits, marker etc.
         for spec in specs:
-            self.PrintHistogram(spec)
+            self.PrintHistogram(spec, x1, x2)
+          
+        # apply limits to plot  
+        pylab.xlim(x1,x2)
         
         # show finished plot and/or save
         pylab.show()
         
         
         
-    def PrintHistogram(self, spec):
-        # get numbers of bins
-        nbins = spec.hist.hist.GetNbinsX()
-        # create values for x axis with calibration
-        en = numpy.arange(nbins)
+    def PrintHistogram(self, spec,x1,x2):
+        # create values for x axis
+        en = numpy.arange(x1,x2)
+        # transform from channel numbers to energy
         en = self.apply_calibration(en, spec.cal)
+        # get numbers of bins
+        nbins = len(en)
         # extract bin contents to numpy array
         data = numpy.zeros(nbins)
         for i in range(nbins):
-            data[i]=spec.hist.hist.GetBinContent(i)
+            data[i]=spec.hist.hist.GetBinContent(x1+i)
         print data
+        print en
         #create spectrum plot
         pylab.step(en, data)
         
