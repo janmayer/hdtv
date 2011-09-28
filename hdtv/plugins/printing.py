@@ -52,7 +52,7 @@ class PrintOut(object):
         
         # add spectra, fits, marker etc.
         for spec in specs:
-            self.PrintHistogram(spec, x1, x2)
+            self.PrintHistogram(spec)
           
         # apply limits to plot  
         pylab.xlim(x1,x2)
@@ -60,37 +60,19 @@ class PrintOut(object):
         # show finished plot and/or save
         pylab.show()
         
-        
-        
-    def PrintHistogram(self, spec,x1,x2):
+
+    def PrintHistogram(self, spec):
+        nbins = spec.hist.hist.GetNbinsX()
         # create values for x axis
-        en = numpy.arange(x1,x2)
-        # transform from channel numbers to energy
+        en = numpy.arange(nbins)
         en = self.apply_calibration(en, spec.cal)
-        # get numbers of bins
-        nbins = len(en)
         # extract bin contents to numpy array
         data = numpy.zeros(nbins)
         for i in range(nbins):
-            data[i]=spec.hist.hist.GetBinContent(x1+i)
-        print data
-        print en
+            data[i]=spec.hist.hist.GetBinContent(i)
         #create spectrum plot
         pylab.step(en, data)
         
-#    def slice_spec(en, data, xmin, xmax):
-#    """
-#    returns the part of the spectrum that is between xmin and xmax
-#    """
-#    if xmin is not None:
-#        index = numpy.argmin(numpy.abs(en-xmin))
-#        data = numpy.delete(data,numpy.s_[:index])
-#        en = numpy.delete(en,numpy.s_[:index])
-#    if xmax is not None:
-#        index = numpy.argmin(numpy.abs(en-xmax))
-#        data = numpy.delete(data, numpy.s_[index:])
-#        en = numpy.delete(en,numpy.s_[index:])
-#    return (en, data)
 
     def apply_calibration(self, en, cal):
         """ 
