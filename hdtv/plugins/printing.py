@@ -54,6 +54,13 @@ class PrintOut(object):
         # add spectra, fits, marker etc.
         for spec in specs:
             self.PrintHistogram(spec)
+            # extract visible fits for this spectrum
+            fids = list(spec.visible)
+            fits = [spec.dict[i] for i in fids]
+            for fit in fits:
+                if self.spectra.window.IsInVisibleRegion(fit):
+                    self.PrintFit(fit)
+                    
           
         # apply limits to plot  
         pylab.xlim(x1,x2)
@@ -91,11 +98,13 @@ class PrintOut(object):
         return en
 
     def PrintFit(self, fit):
-        pass
+        for p in fit.peakMarkers:
+            self.PrintMarker(p)
 
     def PrintMarker(self, marker):
-        pass
-
+        pos = marker.p1.pos_cal
+        (r,g,b)= hdtv.color.GetRGB(marker.color)
+        pylab.axvline(pos, color=(r,g,b))
 
 
 class PrintInterface(object):
