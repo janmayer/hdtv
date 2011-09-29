@@ -98,6 +98,15 @@ def Highlight(color, active=True):
     (r,g,b) = colorsys.hsv_to_rgb(hue/360, satur, value)
     return ROOT.TColor.GetColor(r,g,b)
 
+def GetRGB(color):
+    color = ROOT.gROOT.GetColor(color)
+    if not color:
+        # FIXME
+        raise RuntimeError
+    r= ROOT.TColor.GetRed(color)
+    g= ROOT.TColor.GetGreen(color)
+    b= ROOT.TColor.GetBlue(color)
+    return (r,g,b)
 
 # obsolete, use colorsys instead
 #def HSV2RGB(hue, satur, value):

@@ -21,6 +21,7 @@
 import hdtv.ui
 import hdtv.cmdline
 import hdtv.cal
+import hdtv.color
 
 import numpy
 import scipy
@@ -65,16 +66,20 @@ class PrintOut(object):
         nbins = spec.hist.hist.GetNbinsX()
         # create values for x axis
         en = numpy.arange(nbins)
-        en = self.apply_calibration(en, spec.cal)
+        # shift in order to get values at bin center
+        en=en-0.5
+        # calibrate 
+        en = self.ApplyCalibration(en, spec.cal)
         # extract bin contents to numpy array
         data = numpy.zeros(nbins)
         for i in range(nbins):
             data[i]=spec.hist.hist.GetBinContent(i)
         #create spectrum plot
-        pylab.step(en, data)
+        (r,g,b)= hdtv.color.GetRGB(spec.color)
+        pylab.step(en, data, color=(r,g,b))
         
 
-    def apply_calibration(self, en, cal):
+    def ApplyCalibration(self, en, cal):
         """ 
         return calibrated values
         """
