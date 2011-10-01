@@ -26,9 +26,6 @@ import hdtv.color
 import numpy
 import scipy
 import pylab
-import math
-
-
 
     
 class PrintOut(object):
@@ -48,8 +45,8 @@ class PrintOut(object):
         pylab.figure(figsize=(8.5,4.2))
 
         # viewport limits
-        x1= int(math.floor(self.spectra.viewport.GetOffset()))
-        x2= int(x1+ math.ceil(self.spectra.viewport.GetXVisibleRegion()))
+        x1= self.spectra.viewport.GetOffset()
+        x2= x1+ self.spectra.viewport.GetXVisibleRegion()
         
         # add spectra, fits, marker etc.
         for spec in specs:
@@ -100,11 +97,26 @@ class PrintOut(object):
     def PrintFit(self, fit):
         for p in fit.peakMarkers:
             self.PrintMarker(p)
+        func = fit.dispPeakFunc
+        self.PrintFunc(func, fit.cal, fit.color)
 
     def PrintMarker(self, marker):
         pos = marker.p1.pos_cal
         (r,g,b)= hdtv.color.GetRGB(marker.color)
         pylab.axvline(pos, color=(r,g,b))
+        
+    def PrintFunc(self, func, cal, color):
+        x1 = func.GetMinCh()
+        x2 = func.GetMaxCh()
+        nbins = int(x2-x1)*20
+        en = numpy.linspace(x1,x2,nbins)
+        data = numpy.zeros(nbins)
+        for i in range(nbins):
+            data[i]=func.Eval(en[i])
+        en = self.ApplyCalibration(en, cal)
+        #create function plot
+        (r,g,b)= hdtv.color.GetRGB(color)
+        pylab.plot(en, data, color=(r,g,b))
 
 
 class PrintInterface(object):
