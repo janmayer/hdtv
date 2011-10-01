@@ -31,8 +31,12 @@ import pylab
 class PrintOut(object):
     def __init__(self, spectra):
         self.spectra = spectra
+
         
     def Execute(self):
+        """
+        creates a plot with all currently visible objects
+        """
         # extract visible spectrum objects
         ids = list(self.spectra.visible)
         specs = [self.spectra.dict[i] for i in ids]
@@ -65,8 +69,10 @@ class PrintOut(object):
         # show finished plot and/or save
         pylab.show()
         
-
     def PrintHistogram(self, spec):
+        """
+        print histogramm 
+        """
         nbins = spec.hist.hist.GetNbinsX()
         # create values for x axis
         en = numpy.arange(nbins)
@@ -82,34 +88,39 @@ class PrintOut(object):
         (r,g,b)= hdtv.color.GetRGB(spec.color)
         pylab.step(en, data, color=(r,g,b))
         
-
-    def ApplyCalibration(self, en, cal):
-        """ 
-        return calibrated values
-        """
-        if cal and not cal.IsTrivial():
-            calpolynom = hdtv.cal.GetCoeffs(cal)
-            # scipy needs highes order first
-            calpolynom.reverse()
-            en = scipy.polyval(calpolynom, en)
-        return en
-
     def PrintFit(self, fit):
+        """
+        print fit including peak marker and functions
+        """
         for p in fit.peakMarkers:
             self.PrintMarker(p)
+        # peak function
         func = fit.dispPeakFunc
         if func:
             self.PrintFunc(func, fit.cal, fit.color)
+        # background function
         bgfunc = fit.dispBgFunc
         if bgfunc:
             self.PrintFunc(bgfunc, fit.cal, fit.color)
+        # maybe functions for each peak 
+        if fit._showDecomp:
+            for p in fit.peaks:
+                peakfunc = p.displayObj
+                self.PrintFunc(peakfunc, fit.cal, fit.color)
+            
 
     def PrintMarker(self, marker):
+        """
+        print marker
+        """
         pos = marker.p1.pos_cal
         (r,g,b)= hdtv.color.GetRGB(marker.color)
         pylab.axvline(pos, color=(r,g,b))
         
     def PrintFunc(self, func, cal, color):
+        """
+        print function by evaluation it at several points
+        """
         x1 = func.GetMinCh()
         x2 = func.GetMaxCh()
         nbins = int(x2-x1)*20
@@ -121,6 +132,17 @@ class PrintOut(object):
         #create function plot
         (r,g,b)= hdtv.color.GetRGB(color)
         pylab.plot(en, data, color=(r,g,b))
+        
+    def ApplyCalibration(self, en, cal):
+        """ 
+        return calibrated values 
+        """
+        if cal and not cal.IsTrivial():
+            calpolynom = hdtv.cal.GetCoeffs(cal)
+            # scipy needs highes order first
+            calpolynom.reverse()
+            en = scipy.polyval(calpolynom, en)
+        return en
 
 
 class PrintInterface(object):
