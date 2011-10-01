@@ -98,7 +98,11 @@ class PrintOut(object):
         for p in fit.peakMarkers:
             self.PrintMarker(p)
         func = fit.dispPeakFunc
-        self.PrintFunc(func, fit.cal, fit.color)
+        if func:
+            self.PrintFunc(func, fit.cal, fit.color)
+        bgfunc = fit.dispBgFunc
+        if bgfunc:
+            self.PrintFunc(bgfunc, fit.cal, fit.color)
 
     def PrintMarker(self, marker):
         pos = marker.p1.pos_cal
