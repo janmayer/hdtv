@@ -47,11 +47,7 @@ class PrintOut(object):
         pylab.rc("svg",embed_char_paths = False)
         
         pylab.figure(figsize=(8.5,4.2))
-
-        # viewport limits
-        x1= self.spectra.viewport.GetOffset()
-        x2= x1+ self.spectra.viewport.GetXVisibleRegion()
-        
+               
         # add spectra, fits, marker etc.
         for spec in specs:
             self.PrintHistogram(spec)
@@ -61,10 +57,16 @@ class PrintOut(object):
             for fit in fits:
                 if self.spectra.window.IsInVisibleRegion(fit):
                     self.PrintFit(fit)
+         
+         # viewport limits
+        x1= self.spectra.viewport.GetXOffset()
+        x2= x1+ self.spectra.viewport.GetXVisibleRegion()
+        y1 = self.spectra.viewport.GetYOffset()
+        y2= y1 + self.spectra.viewport.GetYVisibleRegion()
                     
-          
         # apply limits to plot  
         pylab.xlim(x1,x2)
+        pylab.ylim(y1,y2)
         
         # show finished plot and/or save
         pylab.show()

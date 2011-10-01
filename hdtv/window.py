@@ -346,7 +346,7 @@ class Window(KeyHandler):
         if xdim is None: # Object has no dimensions
             return True
         # get viewport limits
-        viewport_start = self.viewport.GetOffset()
+        viewport_start = self.viewport.GetXOffset()
         viewport_end = viewport_start + self.viewport.GetXVisibleRegion()
         # do the check
         if (xdim[0] > viewport_start) and (xdim[1] < viewport_end):
