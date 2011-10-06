@@ -87,7 +87,7 @@ class PrintOut(object):
             data[i]=spec.hist.hist.GetBinContent(i)
         #create spectrum plot
         (r,g,b)= hdtv.color.GetRGB(spec.color)
-        pylab.step(en, data, color=(r,g,b))
+        pylab.step(en, data, color=(r,g,b), label=spec.name)
         
     def PrintFit(self, fit):
         """
@@ -156,7 +156,15 @@ class PrintInterface(object):
         usage = "%prog <filename>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-F","--force",action = "store_true", default=False,
-                            help = "overwrite existing files without asking")        
+                            help = "overwrite existing files without asking") 
+        parser.add_option("-y","--ylabel",action="store", default=None,
+                            help = "add label for y-axis")
+        parser.add_option("-x","--xlabel",action="store", default=None,
+                            help = "add label for x-axis")
+        parser.add_option("-t","--title",action="store", default=None,
+                            help = "add title for plot")
+        parser.add_option("-l", "--legend",action="store_true", default=False,
+                            help = "add legend")
         hdtv.cmdline.AddCommand(prog, self.Print,  nargs=1, fileargs=True, parser=parser)
 
     
@@ -176,10 +184,19 @@ class PrintInterface(object):
         p= PrintOut(self.spectra)
         p.Execute()
         
+        if options.title:
+            pylab.title(options.title)
+        if options.ylabel:
+            pylab.ylabel(options.ylabel)
+        if options.xlabel:
+            pylab.xlabel(options.xlabel)
+        if options.legend:
+            pylab.legend(frameon=False)
+        
         # show finished plot and/or save
         #pylab.show()    
         try:    
-            pylab.savefig(fname)
+            pylab.savefig(fname, bbox_inches="tight")
         except ValueError as msg:
             hdtv.ui.error(str(msg))
 
