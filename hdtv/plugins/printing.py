@@ -23,6 +23,7 @@ import hdtv.cmdline
 import hdtv.cal
 import hdtv.color
 
+import os
 import numpy
 import scipy
 import pylab
@@ -31,7 +32,6 @@ import pylab
 class PrintOut(object):
     def __init__(self, spectra):
         self.spectra = spectra
-
         
     def Execute(self):
         """
@@ -68,8 +68,7 @@ class PrintOut(object):
         pylab.xlim(x1,x2)
         pylab.ylim(y1,y2)
         
-        # show finished plot and/or save
-        pylab.show()
+
         
     def PrintHistogram(self, spec):
         """
@@ -153,17 +152,37 @@ class PrintInterface(object):
                 
         # command line interface 
         prog = "print"
-        description = "create print out"
-        usage = "%prog"
+        description = "prints all visible items to file. Supported formats: emf, eps, pdf, png, ps, raw, rgba, svg, svgz. "
+        usage = "%prog <filename>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        #parser.add_option("-s", "--spectrum", action = "store", default = "active",
-        #                            help = "for which the fits should be saved (default=active)")
-        hdtv.cmdline.AddCommand(prog, self.Print, parser=parser)
+        parser.add_option("-F","--force",action = "store_true", default=False,
+                            help = "overwrite existing files without asking")        
+        hdtv.cmdline.AddCommand(prog, self.Print,  nargs=1, fileargs=True, parser=parser)
 
     
     def Print(self, args, options):
+        fname = os.path.expanduser(args[0])
+        if not options.force and os.path.exists(fname):
+            hdtv.ui.warn("This file already exists:")
+            overwrite = None
+            while not overwrite in ["Y","y","N","n","","B","b"]:
+                question = "Do you want to replace it [y,n] or backup it [B]:"
+                overwrite = raw_input(question)
+            if overwrite in ["b","B",""]:
+                os.rename(fname,"%s.back" %fname)
+            elif overwrite in ["n","N"]:
+                return 
+    
         p= PrintOut(self.spectra)
         p.Execute()
+        
+        # show finished plot and/or save
+        #pylab.show()    
+        try:    
+            pylab.savefig(fname)
+        except ValueError as msg:
+            hdtv.ui.error(str(msg))
+
     
 # plugin initialisation
 import __main__
