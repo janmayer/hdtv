@@ -335,7 +335,7 @@ class Window(KeyHandler):
             self.viewport.SetXVisibleRegion(view_width)
             self.viewport.SetXCenter(view_center)
             
-    def IsInVisibleRegion(self, obj):
+    def IsInVisibleRegion(self, obj, part=False):
         """
         Check if obj is in the visible region of the viewport
         """
@@ -348,11 +348,20 @@ class Window(KeyHandler):
         # get viewport limits
         viewport_start = self.viewport.GetXOffset()
         viewport_end = viewport_start + self.viewport.GetXVisibleRegion()
-        # do the check
-        if (xdim[0] > viewport_start) and (xdim[1] < viewport_end):
-            return True
-        else:
-            return False
+        # check if the full object is visible
+        if not part:
+            if (xdim[0] > viewport_start) and (xdim[1] < viewport_end):
+                return True
+            else:
+                return False
+        # check if a part of the object is visible
+        if part:
+            if (xdim[0] < viewport_start) and (xdim[1]<viewport_start):
+                return False
+            elif (xdim[0]>viewport_end) and (xdim[1]>viewport_end):
+                return False
+            else:
+                return True
 
 
     def ExpandX(self):

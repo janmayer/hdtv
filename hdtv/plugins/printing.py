@@ -60,11 +60,11 @@ class PrintOut(object):
             # extract visible fits for this spectrum
             fids = list(spec.visible)
             fits = [spec.dict[i] for i in fids]
+            # add workFit
+            fits.append(self.spectra.workFit)
             for fit in fits:
-                if self.spectra.window.IsInVisibleRegion(fit):
+                if self.spectra.window.IsInVisibleRegion(fit, part=True):
                     self.PrintFit(fit)
-            # print also workFit
-            self.PrintFit(self.spectra.workFit)
          
          # viewport limits
         x1= self.spectra.viewport.GetXOffset()
