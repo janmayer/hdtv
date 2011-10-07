@@ -57,6 +57,8 @@ class PrintOut(object):
             for fit in fits:
                 if self.spectra.window.IsInVisibleRegion(fit):
                     self.PrintFit(fit)
+            # print also workFit
+            self.PrintFit(self.spectra.workFit)
          
          # viewport limits
         x1= self.spectra.viewport.GetXOffset()
@@ -89,34 +91,57 @@ class PrintOut(object):
         (r,g,b)= hdtv.color.GetRGB(spec.color)
         pylab.step(en, data, color=(r,g,b), label=spec.name)
         
+        
     def PrintFit(self, fit):
         """
         print fit including peak marker and functions
         """
+        # peak marker
         for p in fit.peakMarkers:
             self.PrintMarker(p)
+        # print all marker for a workFit
+        if fit.active:
+            for m in fit.bgMarkers:
+                self.PrintMarker(m)
+            for m in fit.regionMarkers:
+                self.PrintMarker(m)
         # peak function
         func = fit.dispPeakFunc
+        if fit.active:
+            color = hdtv.color.region
+        else:
+            color = fit.color
         if func:
-            self.PrintFunc(func, fit.cal, fit.color)
+            self.PrintFunc(func, fit.cal, color)
         # background function
         bgfunc = fit.dispBgFunc
+        if fit.active:
+            color = hdtv.color.bg
+        else:
+            color = fit.color
         if bgfunc:
             self.PrintFunc(bgfunc, fit.cal, fit.color)
         # maybe functions for each peak 
         if fit._showDecomp:
             for p in fit.peaks:
                 peakfunc = p.displayObj
-                self.PrintFunc(peakfunc, fit.cal, fit.color)
+                self.PrintFunc(peakfunc, p.cal, p.color)
             
 
     def PrintMarker(self, marker):
         """
         print marker
         """
+        if marker.active:
+            color = marker._activeColor
+        else:
+            color = marker.color
+        (r,g,b)= hdtv.color.GetRGB(color)
         pos = marker.p1.pos_cal
-        (r,g,b)= hdtv.color.GetRGB(marker.color)
         pylab.axvline(pos, color=(r,g,b))
+        if marker.p2 is not None:
+            pos = marker.p2.pos_cal
+            pylab.axvline(pos, color=(r,g,b))
         
     def PrintFunc(self, func, cal, color):
         """
