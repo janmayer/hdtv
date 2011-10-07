@@ -414,10 +414,11 @@ class FitInterface:
         # default_enable may be an hdtv.options.opt instance, so we excplicitely convert to bool here
         default_enable = bool(default_enable)
         hdtv.fit.Fit.showDecomp = default_enable
-        self.ShowDecomposition(default_enable) # show these decompositions for workFit
+        # show these decompositions for workFit
+        self.ShowDecomposition(default_enable) 
         # show these decompositions for all other fits
         for specID in self.spectra.ids:
-            fitIDs = self.spectra.dict[sID].ids
+            fitIDs = self.spectra.dict[specID].ids
             self.ShowDecomposition(default_enable, sid=specID, ids=fitIDs) 
         
     def ShowDecomposition(self, enable, sid=None, ids=None):

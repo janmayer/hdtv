@@ -31,7 +31,7 @@ import pylab
 import matplotlib.transforms as transforms
 
 
-
+# TODO: add cut marker
 
     
 class PrintOut(object):
