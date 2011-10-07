@@ -418,16 +418,17 @@ class TvSpecInterface:
         addTo = ids[0]
         # if addTo is a new spectrum 
         if not addTo in self.spectra.dict.keys():
-            # copy first of the spectra that should be added
+            # first copy last of the spectra that should be added
             sid = self.specIf.CopySpectrum(ids.pop(), addTo)
         
-        # add all other spectra to the first spectrum
+        # add all other spectra to the last spectrum
         for i in ids[1:]:
             try:
                 hdtv.ui.msg("Adding " + str(i) + " to " + str(addTo))
                 self.spectra.dict[addTo].Plus(self.spectra.dict[i])
             except KeyError:
                 hdtv.ui.error("Could not add " + str(i))
+        self.spectra.dict[addTo].name = "sum"
                 
         if options.normalize:
             norm_fac = len(ids)
@@ -458,7 +459,8 @@ class TvSpecInterface:
                 self.spectra.dict[subFrom].Minus(self.spectra.dict[i])
             except KeyError:
                 hdtv.ui.error("Could not substract " + str(i))
-
+        self.spectra.dict[addTo].name = "difference"
+        
     
     def SpectrumMultiply(self, args, options):
         """
