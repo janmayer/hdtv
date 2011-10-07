@@ -126,10 +126,12 @@ class PrintOut(object):
             color = fit.color
         if bgfunc:
             self.PrintFunc(bgfunc, fit.cal, fit.color)
+        i = 0
         for p in fit.peaks:
             # maybe energy labels for each peak
             if self.labels:
-                self.PrintLabel(p)
+                self.PrintLabel(p, i)
+                i = i+1
             # maybe functions for each peak 
             if fit._showDecomp:
                 peakfunc = p.displayObj
@@ -151,11 +153,11 @@ class PrintOut(object):
             pylab.axvline(pos, color=(r,g,b))
            
             
-    def PrintLabel(self, peak):
+    def PrintLabel(self, peak, i):
         x = peak.pos_cal.value
         ax = pylab.gca()
         trans = transforms.blended_transform_factory(ax.transData, ax.transAxes)
-        pylab.text(x,0.9, peak.pos_cal.fmt(),transform=trans)
+        pylab.text(x,0.94-0.06*i, peak.pos_cal.fmt(),transform=trans)
 
 
     def PrintFunc(self, func, cal, color):
