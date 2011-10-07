@@ -28,10 +28,16 @@ import numpy
 import scipy
 import pylab
 
+import matplotlib.transforms as transforms
+
+
+
+
     
 class PrintOut(object):
-    def __init__(self, spectra):
+    def __init__(self, spectra, energies=False):
         self.spectra = spectra
+        self.labels = energies
         
     def Execute(self):
         """
@@ -71,7 +77,6 @@ class PrintOut(object):
         pylab.ylim(y1,y2)
         
 
-        
     def PrintHistogram(self, spec):
         """
         print histogramm 
@@ -121,13 +126,15 @@ class PrintOut(object):
             color = fit.color
         if bgfunc:
             self.PrintFunc(bgfunc, fit.cal, fit.color)
-        # maybe functions for each peak 
-        if fit._showDecomp:
-            for p in fit.peaks:
+        for p in fit.peaks:
+            # maybe energy labels for each peak
+            if self.labels:
+                self.PrintLabel(p)
+            # maybe functions for each peak 
+            if fit._showDecomp:
                 peakfunc = p.displayObj
                 self.PrintFunc(peakfunc, p.cal, p.color)
             
-
     def PrintMarker(self, marker):
         """
         print marker
@@ -142,7 +149,15 @@ class PrintOut(object):
         if marker.p2 is not None:
             pos = marker.p2.pos_cal
             pylab.axvline(pos, color=(r,g,b))
-        
+           
+            
+    def PrintLabel(self, peak):
+        x = peak.pos_cal.value
+        ax = pylab.gca()
+        trans = transforms.blended_transform_factory(ax.transData, ax.transAxes)
+        pylab.text(x,0.9, peak.pos_cal.fmt(),transform=trans)
+
+
     def PrintFunc(self, func, cal, color):
         """
         print function by evaluation it at several points
@@ -158,6 +173,7 @@ class PrintOut(object):
         #create function plot
         (r,g,b)= hdtv.color.GetRGB(color)
         pylab.plot(en, data, color=(r,g,b))
+        
         
     def ApplyCalibration(self, en, cal):
         """ 
@@ -190,6 +206,8 @@ class PrintInterface(object):
                             help = "add title for plot")
         parser.add_option("-l", "--legend",action="store_true", default=False,
                             help = "add legend")
+        parser.add_option("-e", "--energies",action="store_true", default=False,
+                            help = "add energy labels to each fitted peak")
         hdtv.cmdline.AddCommand(prog, self.Print,  nargs=1, fileargs=True, parser=parser)
 
     
@@ -206,7 +224,7 @@ class PrintInterface(object):
             elif overwrite in ["n","N"]:
                 return 
     
-        p= PrintOut(self.spectra)
+        p= PrintOut(self.spectra, options.energies)
         p.Execute()
         
         if options.title:
@@ -218,8 +236,7 @@ class PrintInterface(object):
         if options.legend:
             pylab.legend(frameon=False)
         
-        # show finished plot and/or save
-        #pylab.show()    
+        # save finished plot to file
         try:    
             pylab.savefig(fname, bbox_inches="tight")
         except ValueError as msg:
