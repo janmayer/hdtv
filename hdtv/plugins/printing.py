@@ -195,7 +195,10 @@ class PrintInterface(object):
                 
         # command line interface 
         prog = "print"
-        description = "prints all visible items to file. Supported formats: emf, eps, pdf, png, ps, raw, rgba, svg, svgz. "
+        description = "Prints all visible items to file. The file format is specified by the filename extension."
+        description+= "Supported formats are: emf, eps, pdf, png, ps, raw, rgba, svg, svgz. "
+        description+= "If no filename is given, an interactive mode is entered and the plot can be manipulated using pylab."
+        description+= "Change to the python prompt and import the pylab module for that to work."
         usage = "%prog <filename>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         parser.add_option("-F","--force",action = "store_true", default=False,
@@ -210,21 +213,24 @@ class PrintInterface(object):
                             help = "add legend")
         parser.add_option("-e", "--energies",action="store_true", default=False,
                             help = "add energy labels to each fitted peak")
-        hdtv.cmdline.AddCommand(prog, self.Print,  nargs=1, fileargs=True, parser=parser)
+        hdtv.cmdline.AddCommand(prog, self.Print,  maxargs=1, fileargs=True, parser=parser)
 
     
     def Print(self, args, options):
-        fname = os.path.expanduser(args[0])
-        if not options.force and os.path.exists(fname):
-            hdtv.ui.warn("This file already exists:")
-            overwrite = None
-            while not overwrite in ["Y","y","N","n","","B","b"]:
-                question = "Do you want to replace it [y,n] or backup it [B]:"
-                overwrite = raw_input(question)
-            if overwrite in ["b","B",""]:
-                os.rename(fname,"%s.back" %fname)
-            elif overwrite in ["n","N"]:
-                return 
+        if len(args)==0:
+            fname = None
+        else:
+            fname = os.path.expanduser(args[0])
+            if not options.force and os.path.exists(fname):
+                hdtv.ui.warn("This file already exists:")
+                overwrite = None
+                while not overwrite in ["Y","y","N","n","","B","b"]:
+                    question = "Do you want to replace it [y,n] or backup it [B]:"
+                    overwrite = raw_input(question)
+                if overwrite in ["b","B",""]:
+                    os.rename(fname,"%s.back" %fname)
+                elif overwrite in ["n","N"]:
+                    return 
     
         p= PrintOut(self.spectra, options.energies)
         p.Execute()
@@ -239,11 +245,16 @@ class PrintInterface(object):
             pylab.legend(frameon=False)
         
         # save finished plot to file
-        try:    
-            pylab.savefig(fname, bbox_inches="tight")
-        except ValueError as msg:
-            hdtv.ui.error(str(msg))
-
+        if fname:
+            try:    
+                pylab.savefig(fname, bbox_inches="tight")
+            except ValueError as msg:
+                hdtv.ui.error(str(msg))
+        else:
+            # else go to interactive mode
+            pylab.ion()
+            # hack to open the plot window
+            pylab.text(0,0,"")
     
 # plugin initialisation
 import __main__
