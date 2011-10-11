@@ -242,7 +242,8 @@ class PrintInterface(object):
         if options.xlabel:
             pylab.xlabel(options.xlabel)
         if options.legend:
-            pylab.legend(frameon=False)
+            legend = pylab.legend()
+            legend.draw_frame(False)
         
         # save finished plot to file
         if fname:
