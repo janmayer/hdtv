@@ -154,10 +154,13 @@ class PrintOut(object):
            
             
     def PrintLabel(self, peak, i):
+        """
+        print energy labels for peaks
+        """
         x = peak.pos_cal.value
         ax = pylab.gca()
         trans = transforms.blended_transform_factory(ax.transData, ax.transAxes)
-        pylab.text(x,0.94-0.06*i, peak.pos_cal.fmt(),transform=trans)
+        pylab.text(x,0.94-0.06*i, peak.pos_cal.fmt(),transform=trans, size="small")
 
 
     def PrintFunc(self, func, cal, color):
@@ -217,6 +220,8 @@ class PrintInterface(object):
 
     
     def Print(self, args, options):
+        pylab.ioff()
+        # process filename
         if len(args)==0:
             fname = None
         else:
@@ -235,6 +240,7 @@ class PrintInterface(object):
         p= PrintOut(self.spectra, options.energies)
         p.Execute()
         
+        # add some decorations
         if options.title:
             pylab.title(options.title)
         if options.ylabel:
