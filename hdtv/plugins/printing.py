@@ -248,10 +248,12 @@ class PrintInterface(object):
         if options.xlabel:
             pylab.xlabel(options.xlabel)
         if options.legend:
-            pylab.legend(frameon=False)
+            legend = pylab.legend(prop=dict(size="x-small"))
+            legend.draw_frame(False)
         
         # save finished plot to file
         if fname:
+            pylab.ioff()
             try:    
                 pylab.savefig(fname, bbox_inches="tight")
             except ValueError as msg:
