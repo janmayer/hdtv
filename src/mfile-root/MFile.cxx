@@ -27,7 +27,7 @@ MFile::MFile(const char* fname, const char* mode)
     : fZombie(false), fFile(0)
 {
     if(fname) {
-        fFile = mopen(fname, mode);
+        fFile = mopen((char*)fname, (char*)mode);
         if(fFile == 0) {
             fZombie = true;
         }

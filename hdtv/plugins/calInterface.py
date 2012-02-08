@@ -506,12 +506,14 @@ class EnergyCalIf(object):
         Create a calibration from pairs of fits and energies
         """
         for p in pairs:
-            try:
-                (fid, pid) = hdtv.cmdhelper.ParsePeakID(p[0])
+            try:                
+                fid = hdtv.util.ID(p[0].split(".")[0])
+                pid = int(p[0].split(".")[1])	
                 peak = fits[fid].peaks[pid]
                 peak.extras["pos_lit"] = p[1]
-                p[0] = peak.pos 
+                p[0] = hdtv.errvalue.ErrValue(peak.pos.value)
             except: 
+                hdtv.ui.warn("CalFromFits throws Exception!")
                 return None
         return self.CalFromPairs(pairs, degree, table, fit, residual,
                                 ignoreErrors=ignoreErrors)

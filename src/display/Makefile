@@ -16,7 +16,7 @@ all: build copy
 build: $(MODNAME).so
 
 $(MODNAME).so: $(OBJ) rootdict-$(MODNAME).o Makefile
-	$(CPP) -fpic $(CFLAGS) $(LFLAGS) -shared -o $(MODNAME).so $(OBJ) rootdict-$(MODNAME).o
+	$(CPP) -fpic $(CFLAGS) -shared -o $(MODNAME).so $(OBJ) rootdict-$(MODNAME).o $(LFLAGS) 
 
 rootdict-$(MODNAME).cxx:  Makefile $(EXPHEADERS) LinkDef.h
 	$(ROOTCINT) -f rootdict-$(MODNAME).cxx -c $(EXPHEADERS) LinkDef.h
