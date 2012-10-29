@@ -615,7 +615,12 @@ class FitXml:
             fit.peaks.append(peak)
             # set parameter status of fitter
             for name in statusdict.keys():
-                status = statusdict[name]
+                # check if status is the same for all peaks
+                check = set(statusdict[name])
+                if len(check)==1:
+                    status = statusdict[name][0]
+                else:
+                    status = statusdict[name]
                 fitter.SetParameter(name, status)
         return (fit, success)
 
