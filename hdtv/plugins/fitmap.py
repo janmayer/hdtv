@@ -94,7 +94,7 @@ class FitMap(object):
                     spec.dict[fid].peaks[pid].extras["pos_lit"] = en
                 except ValueError:
                     continue
-                except KeyError:
+                except (KeyError,IndexError):
                     hdtv.ui.warn("no peak with id %s" %args[i])
                 
 

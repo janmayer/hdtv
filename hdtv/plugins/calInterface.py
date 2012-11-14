@@ -506,11 +506,10 @@ class EnergyCalIf(object):
         Create a calibration from pairs of fits and energies
         """
         valid_pairs = hdtv.util.Pairs()
-        for p in pairs:  
+        for p in pairs:
+            pid = p[0].minor
+            if pid is None:  pid = 0
             fid = p[0]
-            pid = fid.minor
-            if pid is None: 
-                pid = 0
             fid.minor=None
             try:
                 peak = fits[fid].peaks[pid]
