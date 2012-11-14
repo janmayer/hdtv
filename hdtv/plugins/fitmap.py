@@ -191,11 +191,16 @@ class FitMap(object):
                     pairs.add(peak.pos, enlit)
                 except:
                     continue
-        
-        cal = self.ecal.CalFromPairs(pairs, degree, table=options.show_table, 
+        try:
+            import pdb
+            pdb.set_trace()
+            cal = self.ecal.CalFromPairs(pairs, degree, table=options.show_table, 
                                                     fit=options.show_fit, 
                                                     residual=options.show_residual,
                                                     ignoreErrors=options.ignore_errors)
+        except RuntimeError, msg:
+            hdtv.ui.error(str(msg))
+            return False
         self.spectra.ApplyCalibration(sids, cal)
         return True
 
