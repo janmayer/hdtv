@@ -505,18 +505,23 @@ class EnergyCalIf(object):
         """
         Create a calibration from pairs of fits and energies
         """
-        for p in pairs:
-            try:                
-                fid = hdtv.util.ID(p[0].split(".")[0])
-                pid = int(p[0].split(".")[1])	
+        valid_pairs = hdtv.util.Pairs()
+        for p in pairs:  
+            fid = p[0]
+            pid = fid.minor
+            if pid is None: 
+                pid = 0
+            fid.minor=None
+            try:
                 peak = fits[fid].peaks[pid]
-                peak.extras["pos_lit"] = p[1]
-                p[0] = hdtv.errvalue.ErrValue(peak.pos.value)
-            except: 
-                hdtv.ui.warn("CalFromFits throws Exception!")
-                return None
-        return self.CalFromPairs(pairs, degree, table, fit, residual,
-                                ignoreErrors=ignoreErrors)
+            except (IndexError,KeyError):
+                fid.minor = pid
+                hdtv.ui.warn("Ignoring invalid peak id %s" % fid)
+                continue 
+            peak.extras["pos_lit"] = p[1]
+            valid_pairs.add(hdtv.errvalue.ErrValue(peak.pos.value),p[1])
+        return self.CalFromPairs(valid_pairs, degree, table, fit, residual,
+                                     ignoreErrors=ignoreErrors)
 
 
     def CalsFromList(self, fname):
@@ -797,7 +802,9 @@ class EnergyCalHDTVInterface(object):
             else:
                 pairs = hdtv.util.Pairs()
                 for i in range(0, len(args),2):
-                    pairs.add(args[i], hdtv.errvalue.ErrValue(args[i+1]))
+                    ID = hdtv.util.ID.ParseIds(args[i], spec,only_existent=False )[0]
+                    value = hdtv.errvalue.ErrValue(args[i+1])
+                    pairs.add(ID, value)
             sids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
             if len(sids)==0:
                 sids = [self.spectra.activeID]
@@ -805,11 +812,15 @@ class EnergyCalHDTVInterface(object):
         except:
             return "USAGE"
         # do the work
-        cal = self.EnergyCalIf.CalFromFits(spec.dict, pairs, degree, 
+        try:
+            cal = self.EnergyCalIf.CalFromFits(spec.dict, pairs, degree, 
                                            table=options.show_table, 
                                            fit=options.show_fit, 
                                            residual=options.show_residual,
                                            ignoreErrors=options.ignore_errors)
+        except RuntimeError, msg:
+            hdtv.ui.error(str(msg))
+            return False
         self.spectra.ApplyCalibration(sids, cal)
         return True
       
