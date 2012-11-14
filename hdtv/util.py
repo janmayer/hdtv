@@ -225,16 +225,17 @@ class Table(object):
         return len(self.data)
     
     def read_data(self, data, keys, header=None):
-        # data
         self.data = list()
         for d in data:
             tmp = dict()
-            try:
-                for k in keys:
+            for k in keys:
+                try:
                     tmp[k] = d[k]
-            except TypeError:
-                # Data is no dict so we try to read attributes
-                for k in keys:
+                except KeyError:
+                    # there is a missing value in the data
+                    tmp[k] = None
+                except TypeError:
+                    # Data is no dict so we try to read attribute
                     tmp[k] = getattr(d, k)
             self.data.append(tmp)
         # header

@@ -195,8 +195,8 @@ class FitInterface:
             table = hdtv.util.Table(objects, params, sortBy=sortBy, reverseSort=reverseSort,
                                     extra_header = result_header, extra_footer = result_footer)
             hdtv.ui.msg(str(table))
-        except KeyError:
-            hdtv.ui.error("Spectrum " + str(sid) + ": No such attribute: " + str(sortBy))
+        except KeyError, e:
+            hdtv.ui.error("Spectrum " + str(sid) + ": No such attribute: " + str(e))
             hdtv.ui.error("Spectrum " + str(sid) + ": Valid attributes are: " + str(params))
             
     def PrintWorkFit(self):
