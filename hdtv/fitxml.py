@@ -392,7 +392,7 @@ class FitXml:
             # restore fit
             if success and not refit:
                 try:
-                    fit.Restore(spec=spec, silent=True)
+                    fit.Restore(spec=spec)
                 except (TypeError, IndexError):
                     success = False
             # deal with failure

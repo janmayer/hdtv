@@ -144,11 +144,12 @@ class FitInterface:
         except KeyError:
             raise KeyError, "invalid fit ID"
         if peaks:
-            fit.FitPeakFunc(spec, silent=False)
+            fit.FitPeakFunc(spec)
         else:
             if fit.fitter.bgdeg==-1:
                 raise RuntimeError, "background degree of -1"
             fit.FitBgFunc(spec)
+        hdtv.ui.msg(str(fit))
         fit.Draw(self.window.viewport)
             
 
@@ -205,12 +206,8 @@ class FitInterface:
         """
         fit = self.spectra.workFit
         if fit.spec is not None:
-            (objects, params) = self.ExtractFits([fit])
-            header = "WorkFit on spectrum: " + str(fit.spec.ID) + " (" + fit.spec.name + ")"
-            footer = "\n" + str(len(objects)) + " peaks in WorkFit"
-            table = hdtv.util.Table(objects, list(params), sortBy="id",
-                                    extra_header = header, extra_footer = footer)
-            hdtv.ui.msg(str(table))
+            hdtv.ui.msg(str(fit))
+
     
     def ExtractFits(self, fits):
         """
@@ -225,7 +222,7 @@ class FitInterface:
         # loop through fits
         for fit in fits:
             # Get peaks
-            (peaklist, fitparams) = self.ExtractPeaklist(fit)
+            (peaklist, fitparams) = fit.ExtractParams()
             if len(peaklist)==0:
                 continue
             # update list of valid params
@@ -237,59 +234,7 @@ class FitInterface:
             fitlist.extend(peaklist)
         return (fitlist, params)
                
-    def ExtractPeaklist(self, fit):
-        """
-        Helper function for use with ListFits and PrintWorkFit functions.
-        
-        Return values:
-            peaklist: a list of dicts for each peak in the fit
-            params  : a ordered list of valid parameter names 
-        """
-        peaklist = list()
-        params = ["id", "stat", "chi"]
-        # Get peaks
-        for peak in fit.peaks:
-            thispeak = dict()
-            thispeak["chi"] = "%d" %fit.chi
-            if fit.ID is None:
-                thispeak["id"] = hdtv.util.ID(None, fit.peaks.index(peak))
-            else:
-                thispeak["id"] = hdtv.util.ID(fit.ID.major, fit.peaks.index(peak))
-            thispeak["stat"] = str()
-            if fit.active:
-                thispeak["stat"] += "A"
-            if fit.ID in fit.spec.visible or fit.ID is None:   # ID of workFit is None
-                thispeak["stat"] += "V"
-            # get parameter of this fit
-            for p in fit.fitter.peakModel.fOrderedParamKeys:
-                if p == "pos": 
-                    # Store channel additionally to position
-                    thispeak["channel"] = getattr(peak, "pos")
-                    if "channel" not in params:
-                        params.append("channel")
-                # Use calibrated values of params if available 
-                p_cal = p + "_cal"   
-                if hasattr(peak, p_cal):
-                    thispeak[p] = getattr(peak, p_cal)
-                if p not in params:
-                    params.append(p)
-            # add extra params
-            for p in peak.extras.keys():
-                thispeak[p] = peak.extras[p]
-                if p not in params:
-                    params.append(p) 
-            # Calculate normalized volume if efficiency calibration is present
-            # FIXME: does this belong here?
-            if fit.spec.effCal is not None:
-                volume = thispeak["vol"]
-                energy = thispeak["pos"]
-                norm_volume = volume / fit.spec.effCal(energy)
-                par = "vol/eff"
-                par_index = params.index("vol") + 1
-                params.insert(par_index, par)
-                thispeak[par] = norm_volume
-            peaklist.append(thispeak)
-        return (peaklist, params)
+
         
     def ShowFitterStatus(self, ids=None):
         """

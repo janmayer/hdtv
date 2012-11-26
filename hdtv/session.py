@@ -149,6 +149,8 @@ class Session(DrawableManager):
             if peaks:
                 # full fit
                 fit.FitPeakFunc(spec)
+            # show fit result
+            hdtv.ui.msg(str(fit))
             fit.Draw(self.window.viewport)
         except OverflowError, msg:
             hdtv.ui.error("Fit failed: %s" % msg)

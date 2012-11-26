@@ -25,7 +25,7 @@ import hdtv.cal
 from hdtv.drawable import Drawable
 from hdtv.marker import MarkerCollection
 from hdtv.errvalue import ErrValue
-from hdtv.util import Pairs, ID
+from hdtv.util import Pairs, ID, Table
 from hdtv.weakref import weakref
 
 import copy
@@ -171,9 +171,22 @@ class Fit(Drawable):
         return ids
 
     def __str__(self):
-        return self.formatted_str(verbose=False)
+        """
+        show fit results in a nice table
+        """
+        (objects, params) = self.ExtractParams()
+        header = "WorkFit on spectrum: " + str(self.spec.ID) + " (" + self.spec.name + ")"
+        footer = "\n" + str(len(objects)) + " peaks in WorkFit"
+        table = Table(objects, list(params), sortBy="id", 
+                      extra_header = header, extra_footer = footer)
+        return str(table)
         
     def formatted_str(self, verbose=True):
+        """
+        show fit results in a more tv like way
+
+        TODO: Since we do not use this any longer, we may as well remove it.
+        """
         i=0
         text = str()
         for peak in self.peaks:
@@ -185,6 +198,61 @@ class Fit(Drawable):
             i+=1
         text += "\n\n chi^2 of fit: %d" %self.chi
         return text
+
+    def ExtractParams(self):
+        """
+        Helper function for use for printing fit results in a nice table
+        
+        Return values:
+            peaklist: a list of dicts for each peak in the fit
+            params  : a ordered list of valid parameter names 
+        """
+        peaklist = list()
+        params = ["id", "stat", "chi"]
+        # Get peaks
+        for peak in self.peaks:
+            thispeak = dict()
+            thispeak["chi"] = "%d" %self.chi
+            if self.ID is None:
+                thispeak["id"] = hdtv.util.ID(None, self.peaks.index(peak))
+            else:
+                thispeak["id"] = hdtv.util.ID(self.ID.major, self.peaks.index(peak))
+            thispeak["stat"] = str()
+            if self.active:
+                thispeak["stat"] += "A"
+            if self.ID in self.spec.visible or self.ID is None:   # ID of workFit is None
+                thispeak["stat"] += "V"
+            # get parameter of this fit
+            for p in self.fitter.peakModel.fOrderedParamKeys:
+                if p == "pos": 
+                    # Store channel additionally to position
+                    thispeak["channel"] = getattr(peak, "pos")
+                    if "channel" not in params:
+                        params.append("channel")
+                # Use calibrated values of params if available 
+                p_cal = p + "_cal"   
+                if hasattr(peak, p_cal):
+                    thispeak[p] = getattr(peak, p_cal)
+                if p not in params:
+                    params.append(p)
+            # add extra params
+            for p in peak.extras.keys():
+                thispeak[p] = peak.extras[p]
+                if p not in params:
+                    params.append(p) 
+            # Calculate normalized volume if efficiency calibration is present
+            # FIXME: does this belong here?
+            if self.spec.effCal is not None:
+                volume = thispeak["vol"]
+                energy = thispeak["pos"]
+                norm_volume = volume / self.spec.effCal(energy)
+                par = "vol/eff"
+                par_index = params.index("vol") + 1
+                params.insert(par_index, par)
+                thispeak[par] = norm_volume
+            peaklist.append(thispeak)
+        return (peaklist, params)
+
     
     def ChangeMarker(self, mtype, pos, action):
         """
@@ -240,7 +308,7 @@ class Fit(Drawable):
                 self.bgCoeffs.append(ErrValue(value, error))
             
             
-    def FitPeakFunc(self, spec, silent=False):
+    def FitPeakFunc(self, spec):
         """
         Do the actual peak fit and extract the functions for display
         Note: You still need to call Draw afterwards.
@@ -305,15 +373,12 @@ class Fit(Drawable):
             for (marker, peak) in zip(self.peakMarkers, self.peaks):
                 # Marker is fixed in uncalibrated space
                 marker.p1.pos_uncal = peak.pos.value
-            # print result
-            if not silent:
-                print "\n"+6*" "+self.formatted_str(verbose=True)
-                
+
         # Call post hooks
         for func in Fit.FitPeakPostHooks:
             func(self)
 
-    def Restore(self, spec, silent=False):
+    def Restore(self, spec):
         # do not call Erase() while setting spec!
         self._spec = weakref(spec)
         self.cal = spec.cal
@@ -343,10 +408,6 @@ class Fit(Drawable):
             func = cpeak.GetPeakFunc()
             self.peaks[i].displayObj = ROOT.HDTV.Display.DisplayFunc(func, self.color)
             self.peaks[i].displayObj.SetCal(self.cal)
- 
-        # print result
-        if not silent:
-            print "\n"+6*" "+str(self)
 
     def Draw(self, viewport):
         """
