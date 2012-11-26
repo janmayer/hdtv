@@ -110,32 +110,35 @@ class FitMap(object):
             hdtv.ui.warn("No active spectrum, no action taken.")
             return False
         spec = self.spectra.GetActiveObject()
+        # use set, to prevent duplicates
         pids = set()
-        for ID in args:
-            try:
-                fids = hdtv.util.ID.ParseIds(ID, spec, only_existent=False)
-                for i in fids:
-                    if i.minor is None:
-                        pid = "all"
-                    else:
-                        pid = str(i)
-                        i.minor = None
-                    pids.update(set(hdtv.util.ID.ParseIds(pid, spec.dict[i])))
-            except ValueError:
-                continue
-            for i in pids:
-                pid = i.minor
-                i.minor = None
+        fids = hdtv.util.ID.ParseIds(args, spec, only_existent=False)
+        for i in fids:
+            if i.minor is not None:
+                pids.add(i)
+            else:
                 try:
-                    peak = spec.dict[i].peaks[pid]
+                    # collect all peaks in this fit
+                    pids.update(set(hdtv.util.ID.ParseIds("all", spec.dict[i])))
                 except KeyError:
-                    hdtv.ui.warn("no peak with id %s.%s" %(i.major, pid))
-                try:   
-                    peak.extras.pop("pos_lit")
-                except KeyError:
+                    hdtv.ui.warn("no peak with id %s" %i.major)
                     continue
-  
-                    
+        for i in pids:
+            pid = i.minor
+            i.minor = None
+            try:
+                peak = spec.dict[i].peaks[pid]
+            except (KeyError,IndexError):
+                # ignore invalid peaks, but give a warning
+                hdtv.ui.warn("no peak with id %s.%s" %(i.major,pid))
+                continue
+            try:
+                peak.extras.pop("pos_lit")
+            except KeyError:
+                # ignore peaks where "pos_lit" is unset
+                continue
+
+                  
     def FitPosMap(self, args, options):
         """
         Read a list of energies from file and map to the fitted peaks.
@@ -192,8 +195,6 @@ class FitMap(object):
                 except:
                     continue
         try:
-            import pdb
-            pdb.set_trace()
             cal = self.ecal.CalFromPairs(pairs, degree, table=options.show_table, 
                                                     fit=options.show_fit, 
                                                     residual=options.show_residual,
