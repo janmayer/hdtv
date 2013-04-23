@@ -26,6 +26,8 @@ import hdtv.color
 import os
 import numpy
 import scipy
+import matplotlib
+matplotlib.use("agg") # Must be before import pylab!
 import pylab
 
 import matplotlib.transforms as transforms
