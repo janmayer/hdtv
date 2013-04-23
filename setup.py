@@ -2,25 +2,35 @@
 
 import os
 import glob
+import subprocess
 
 from distutils.core import setup, Extension
 
+root_incdir  = subprocess.Popen(["root-config", "--incdir"],stdout=subprocess.PIPE).communicate()[0].strip()
+root_ldflags = subprocess.Popen(["root-config", "--glibs"],stdout=subprocess.PIPE).communicate()[0].strip().split(' ')
+
+subprocess.call(["make", "-C", "src/display", "rootdict-display.cxx"])
+subprocess.call(["make", "-C", "src/fit", "rootdict-fit.cxx"])
+subprocess.call(["make", "-C", "src/mfile-root", "rootdict-mfile-root.cxx"])
 
 display = Extension('display', 
                     sources = glob.glob('src/display/*.cxx'), 
-                    include_dirs=['/usr/include/root'],
-                    depends=''
+                    include_dirs = [root_incdir],
+                    depends = '',
+		    extra_link_args = [] + root_ldflags
                     )
 fit     = Extension('fit', 
                     sources=glob.glob('src/fit/*.cxx'), 
-                    include_dirs=['/usr/include/root'],
-                    depends=''
+                    include_dirs = [root_incdir],
+                    depends='',
+		    extra_link_args = [] + root_ldflags
                     )
 mfile_root = Extension('mfile-root', 
                     sources=glob.glob('src/mfile-root/*.cxx'), 
-                    include_dirs=['/usr/include/root'],
+                    include_dirs = [root_incdir],
                     libraries=['mfile', 'stdc++'],
-                    depends =''
+                    depends ='',
+		    extra_link_args = [] + root_ldflags
                     )
 
 data = glob.glob('hdtv/share/*')
