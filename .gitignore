@@ -1,0 +1,7 @@
+*.pyc
+*.so
+rootdict-*.cxx
+rootdict-*.h
+hdtv_history
+build
+.history
