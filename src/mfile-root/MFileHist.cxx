@@ -38,7 +38,7 @@ const int MFileHist::ERR_WRITE_CLOSE = 10;
 const int MFileHist::ERR_INVALID_FORMAT = 11;
 const int MFileHist::ERR_UNKNOWN = 12;
 
-const char *MFileHist::GetErrorMsg(int errno)
+const char *MFileHist::GetErrorMsg(int error_nr)
 {
 	static const char *errorDesc[] = {
 	  "No error",
@@ -56,10 +56,10 @@ const char *MFileHist::GetErrorMsg(int errno)
 	  "Unknown error"
 	};
 	
-	if(errno < 0 || errno > ERR_UNKNOWN)
+	if(error_nr < 0 || error_nr > ERR_UNKNOWN)
 		errno = ERR_UNKNOWN;
 	
-	return errorDesc[errno];
+	return errorDesc[error_nr];
 }
 
 MFileHist::MFileHist()

@@ -117,11 +117,11 @@ int MatOp::Transpose(const char* src_fname, const char* dst_fname)
     return ERR_SUCCESS;
 }
 
-const char* MatOp::GetErrorString(int errno)
+const char* MatOp::GetErrorString(int error_nr)
 {
-    if(errno < 0 || errno > MAX_ERR)
-        errno = ERR_UNKNOWN;
+    if(error_nr < 0 || error_nr > MAX_ERR)
+    	error_nr = ERR_UNKNOWN;
     
-    return ErrDesc[errno];
+    return ErrDesc[error_nr];
 }
 

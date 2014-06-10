@@ -67,7 +67,7 @@ class MFileHist {
 	static int WriteTH1(const TH1 *hist, char *fname, char *fmt);
 	static int WriteTH2(const TH2 *hist, char *fname, char *fmt);
 	
-	static const char *GetErrorMsg(int errno);
+	static const char *GetErrorMsg(int error_nr);
 	inline const char *GetErrorMsg() { return GetErrorMsg(fErrno); }
 	
 	static const int ERR_SUCCESS;
