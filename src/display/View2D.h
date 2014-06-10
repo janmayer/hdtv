@@ -25,7 +25,14 @@
 
 #include <list>
 #include <map>
+
+// Seems root 5 cint cannot handle the OS X stdint.h
+#if defined(__APPLE__) && defined(__CINT__)
+typedef unsigned int uint32_t;
+#else
 #include <stdint.h>
+#endif
+
 #include <TGStatusBar.h>
 #include <TH2.h>
 #include <math.h>
