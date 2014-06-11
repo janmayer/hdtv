@@ -1,10 +1,11 @@
 # Common defines for Makefiles below src/
-PREFIX=/ikpv2
+PREFIX=/opt/local
 
 CPP=g++
 CC=gcc
 ROOTCINT=rootcint
 INCL_PATH=$(PREFIX)/include
+LIB_PATH=$(PREFIX)/lib
 CFLAGS=$(shell root-config --cflags) -I$(INCL_PATH) -Wall -g
-LFLAGS=$(shell root-config --glibs)
+LFLAGS=$(shell root-config --glibs) -L$(LIB_PATH)
 DESTDIR=../../hdtv/clib
