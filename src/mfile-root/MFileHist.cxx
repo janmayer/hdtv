@@ -57,7 +57,7 @@ const char *MFileHist::GetErrorMsg(int error_nr)
 	};
 	
 	if(error_nr < 0 || error_nr > ERR_UNKNOWN)
-		errno = ERR_UNKNOWN;
+		error_nr = ERR_UNKNOWN;
 	
 	return errorDesc[error_nr];
 }

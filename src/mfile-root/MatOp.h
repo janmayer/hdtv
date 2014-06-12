@@ -29,7 +29,7 @@ class MatOp {
         const char* pry_fname = 0);
     static int Transpose(const char* src_fname, const char* dst_fname);
     
-    static const char* GetErrorString(int errno);
+    static const char* GetErrorString(int error_nr);
     
     const static int ERR_SUCCESS;
     const static int ERR_UNKNOWN;
