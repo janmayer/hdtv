@@ -1,7 +1,7 @@
 # Common defines for Makefiles below src/
 PREFIX=/opt/local
-
-CPP=g++
+ 
+CPP=g++ 
 CC=gcc
 ROOTCINT=rootcint
 INCL_PATH=$(PREFIX)/include
