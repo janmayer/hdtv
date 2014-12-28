@@ -34,4 +34,5 @@ clean:
 copy: $(DESTDIR)/$(MODNAME).so
 
 $(DESTDIR)/$(MODNAME).so: $(MODNAME).so
+	mkdir -p $(DESTDIR)
 	cp $(MODNAME).so $(DESTDIR)
