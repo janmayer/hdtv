@@ -134,7 +134,7 @@ class KeyHandler(HotkeyList):
             self.viewport.SetStatusText("")
             self.fEditHandler(self.fEditStr)
         elif self.viewer.fKeyStr != "":
-            self.fEditStr += self.viewer.fKeyStr
+            self.fEditStr += self.viewer.fKeyStr[0]
             self.viewport.SetStatusText(self.fEditPrompt + self.fEditStr)
         else:
             return False
