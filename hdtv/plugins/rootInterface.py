@@ -334,12 +334,12 @@ class RootFileInterface:
         matrix.color = hdtv.color.ColorForID(ID.major)
         # load x projection
         proj = matrix.xproj
-        sid = self.spectra.Insert(proj, ID=hdtv.util.ID(ID.major, "x"))
+        sid = self.spectra.Insert(proj, ID=hdtv.util.ID(ID.major, 0))
         self.spectra.ActivateObject(sid)
         # for asym matrix load also y projection
         if sym is False:
             proj = matrix.yproj
-            self.spectra.Insert(proj, ID=hdtv.util.ID(ID.major, "y"))
+            self.spectra.Insert(proj, ID=hdtv.util.ID(ID.major, 1))
     
     def RootGet(self, args, options):
         """
