@@ -186,7 +186,7 @@ void Painter::DrawXMarker(XMarker *marker, int x1, int x2)
 	             xm1 + 2, fYBase - fHeight + 2,
 	             marker->GetID().c_str(), marker->GetID().size(),
 	             kLeft, kTop);
-	  marker->GetGC_1()->SetClipMask(None);
+	  marker->GetGC_1()->SetClipMask(kNone);
 	}
   }
 

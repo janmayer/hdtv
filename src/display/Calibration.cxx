@@ -161,7 +161,7 @@ double Calibration::E2Ch(double e) const
   }
   
   if(TMath::Abs(de / _e) > 1e-10) {
-    cout << "Warning: Solver failed to converge in Calibration::E2Ch()." << endl;
+    std::cout << "Warning: Solver failed to converge in Calibration::E2Ch()." << std::endl;
   } 
   
   return ch;

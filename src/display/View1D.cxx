@@ -150,7 +150,7 @@ void View1D::ShiftOffset(int dO)
 
   // TODO: debug code, remove
   if(dO == 0) {
-	cout << "WARNING: Pointless call to ShiftOffset()." << endl;
+	std::cout << "WARNING: Pointless call to ShiftOffset()." << std::endl;
 	return;
   }
 

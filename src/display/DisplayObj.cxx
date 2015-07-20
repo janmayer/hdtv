@@ -58,7 +58,7 @@ void DisplayObj::Draw(View1D *view)
   //! Add the object to view s display stack
 
   if(!view) {
-    cout << "Error: Draw to NULL view: no action taken." << endl;
+    std::cout << "Error: Draw to NULL view: no action taken." << std::endl;
     return;
   }
 
