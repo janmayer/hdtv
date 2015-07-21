@@ -1,5 +1,6 @@
 *.pyc
 *.so
+*.o
 rootdict-*.cxx
 rootdict-*.h
 hdtv_history
