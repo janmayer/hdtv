@@ -123,7 +123,7 @@ class PeakFinder(object):
                     fit.ChangeMarker("peak", pos_E, "set")
                 # right region marker
                 fit.ChangeMarker("region", pos_E + region_width / 2., "set")
-                fit.FitPeakFunc(self.spec, silent = True)
+                fit.FitPeakFunc(self.spec)#, silent = True
                 # check fits 
                 result = self.BadFit(fit)
                 if reject:
