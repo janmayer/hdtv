@@ -24,6 +24,7 @@
 # 
 #-------------------------------------------------------------------------------
 import os
+import json
 
 import hdtv.efficiency
 import hdtv.cmdline
@@ -32,6 +33,10 @@ import hdtv.ui
 import hdtv.cal
 import hdtv.util
 import hdtv.errvalue
+from hdtv.fitxml import FitXml
+import EnergyCalibration
+
+
 
 class EffCalIf(object):
     
@@ -619,6 +624,16 @@ class EnergyCalHDTVInterface(object):
                           help = "set all weights to 1 in fit (ignore error bars even if given)")
         hdtv.cmdline.AddCommand(prog, self.CalPosEnter, level=0, parser = parser,
                                 minargs = 0, fileargs = True) # Number of args can be 0 if "-f" is given 
+
+        prog = "calibration position nuclid"
+        description = "Fit a calibration polynominal to a given nuclid."
+        usage = "%prog [OPTIONS] <nuclid0> [<nuclid1> ...]" 
+        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage=usage)
+        parser.add_option("-S", "--sigma", action = "store", default = "0.0001",
+                help = "allowed error by variation of energy/chanel")
+        parser.add_option("-s", "--spectrum", action = "store", default = None,
+                        help = "spectrum ids to apply calibration to", nargs = 1)
+        hdtv.cmdline.AddCommand(prog, self.CalPosNuc, parser = parser) 
         
         prog = "calibration position read"
         usage = usage = "%prog [OPTIONS] <filename>"
@@ -751,8 +766,88 @@ class EnergyCalHDTVInterface(object):
         if len(sids)==0:
             hdtv.ui.msg("calibration: %s" %hdtv.cal.PrintCal(cal))
             return True
-        self.spectra.ApplyCalibration(sids, cal)            
+        self.spectra.ApplyCalibration(sids, cal)        
         return True
+
+    def CalPosNuc(self, args, options): 
+        """
+        Create a calibration for given nuclid. 
+        """
+
+        if args == []:
+            raise hdtv.cmdline.HDTVCommandError("You must name at least one nuclid.")
+
+        #option sigma
+        try:
+            sigma = float(options.sigma) 
+        except:
+            raise hdtv.cmdline.HDTVCommandError("Invalid sigma")
+
+        #option spectrum
+        spectrumID = []
+        try:
+            spectrumIDList = list(options.spectrum)
+            optionSpectrum = True #check if option spectrum is called
+        except:
+            optionSpectrum = False
+
+        if optionSpectrum == True:
+            # TODO: Use build in -s parsing
+            if len(spectrumIDList)>1:
+                for i in range(1,len(spectrumIDList)-1,2): #check if string is like '1,2,3 ...'
+                    if spectrumIDList[i] != ',':
+                        raise hdtv.cmdline.HDTVCommandError("Invalid spectrumID, it has to look like '0,1'")
+            for i in range(0,len(spectrumIDList),2): #makes a list of all spectrum IDs
+                try:
+                    spectrumID.append(int(spectrumIDList[i])) #check if spectrumIDs are integers and save them
+                except:
+                    raise hdtv.cmdline.HDTVCommandError("Invalid specrtumID, it has to look like '0,1'")
+        else:
+            if not __main__.spectra.activeID in __main__.spectra.visible:#check if active spectrum is visible
+                raise hdtv.cmdline.HDTVCommandError("Active spectrum is not visible, no action taken")
+            spectrumID.append(int(self.spectra.activeID)) #when no Option is called the active spectrum is used
+                 
+        nuclid = args
+        Energies = []
+        Peaks = []
+        
+        #position of the fitted peaks saved in Peaks       
+        for ID in spectrumID:
+            try:
+                fits = self.spectra.dict[hdtv.util.ID(ID)].dict
+                for fit in fits.values():
+                    Peaks.append(fit.ExtractParams()[0][0]['channel'].value)
+            except: #errormessage if there is no spectrum with the given ID
+                raise hdtv.cmdline.HDTVCommandError("Spectrum with ID "+str(ID)+" is not visible, no action taken")
+
+        
+        #finds the right energies for the given nuclid(s) from table
+        for nucl in nuclid:
+            for Energy in EnergyCalibration.SearchEnergies(nucl):
+                Energies.append(Energy)
+
+        Match = EnergyCalibration.MatchPeaksAndEnergies(Peaks, Energies, sigma)#mathes the right peaks with the right energy
+        
+        #prints all important values
+        nuclidStr = '' 
+        spectrumIDStr = ''
+        for nucl in nuclid:
+            nuclidStr = nuclidStr+' '+str(nucl)
+        for spec in spectrumID:
+            spectrumIDStr = spectrumIDStr+' '+str(spec)
+
+        print "Create a calibration for nuclid "+nuclidStr+" (sigma: "+str(sigma)+", spectrum"+spectrumIDStr+")" 
+
+        #calibration
+        degree = 1 
+        fitter = hdtv.cal.CalibrationFitter()
+        for p in Match: #builds pairs
+            fitter.AddPair(p[0], p[1])
+        fitter.FitCal(degree, ignoreErrors=True)
+        print fitter.ResultStr()
+        cal = fitter.calib
+        for ID in spectrumID:
+            self.spectra.ApplyCalibration(ID, cal) #do the calibration
     
     def CalPosRead(self, args, options):
         """

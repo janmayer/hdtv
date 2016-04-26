@@ -1,0 +1,2759 @@
+[
+  {
+    "name": "11-Na-22_IAEA",
+    "nuclide": "Na-22",
+    "halflife": 82129248,
+    "halflife_uncertainty": 19872,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 511,
+        "energy_uncertainty": 0,
+        "intensity": 1.798,
+        "intensity_uncertainty": 0.002
+      },
+      {
+        "energy": 1274.537,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.9994,
+        "intensity_uncertainty": 0.00014
+      }
+    ]
+  },
+  {
+    "name": "11-Na-24_IAEA",
+    "nuclide": "Na-24",
+    "halflife": 53852.256,
+    "halflife_uncertainty": 5.184,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 1368.626,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.999935,
+        "intensity_uncertainty": 5.0e-6
+      },
+      {
+        "energy": 2754.007,
+        "energy_uncertainty": 0.011,
+        "intensity": 0.99872,
+        "intensity_uncertainty": 8.0e-5
+      }
+    ]
+  },
+  {
+    "name": "19-K-40_IAEA",
+    "nuclide": "K-40",
+    "halflife": 3.942432e+16,
+    "halflife_uncertainty": 1.1232e+14,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 1460.822,
+        "energy_uncertainty": 0.006,
+        "intensity": 0.1066,
+        "intensity_uncertainty": 0.0013
+      }
+    ]
+  },
+  {
+    "name": "21-Sc-46_IAEA",
+    "nuclide": "Sc-46",
+    "halflife": 7239456,
+    "halflife_uncertainty": 3456,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 889.271,
+        "energy_uncertainty": 0.002,
+        "intensity": 0.999833,
+        "intensity_uncertainty": 5.0e-6
+      },
+      {
+        "energy": 1120.537,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.99986,
+        "intensity_uncertainty": 4.0e-5
+      }
+    ]
+  },
+  {
+    "name": "24-Cr-51_IAEA",
+    "nuclide": "Cr-51",
+    "halflife": 2393357.76,
+    "halflife_uncertainty": 172.8,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 320.0835,
+        "energy_uncertainty": 0.0004,
+        "intensity": 0.0987,
+        "intensity_uncertainty": 0.0005
+      }
+    ]
+  },
+  {
+    "name": "25-Mn-54_IAEA",
+    "nuclide": "Mn-54",
+    "halflife": 26981856,
+    "halflife_uncertainty": 22464,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 834.838,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.999746,
+        "intensity_uncertainty": 1.1e-5
+      }
+    ]
+  },
+  {
+    "name": "25-Mn-56_IAEA",
+    "nuclide": "Mn-56",
+    "halflife": 9283.5936,
+    "halflife_uncertainty": 1.6416,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 846.7638,
+        "energy_uncertainty": 0.0019,
+        "intensity": 0.9885,
+        "intensity_uncertainty": 0.0003
+      },
+      {
+        "energy": 1810.726,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.269,
+        "intensity_uncertainty": 0.004
+      },
+      {
+        "energy": 2113.092,
+        "energy_uncertainty": 0.006,
+        "intensity": 0.142,
+        "intensity_uncertainty": 0.003
+      },
+      {
+        "energy": 2523.06,
+        "energy_uncertainty": 0.05,
+        "intensity": 0.0102,
+        "intensity_uncertainty": 0.0002
+      }
+    ]
+  },
+  {
+    "name": "26-Fe-59_IAEA",
+    "nuclide": "Fe-59",
+    "halflife": 3844281.6,
+    "halflife_uncertainty": 1123.2,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 142.651,
+        "energy_uncertainty": 0.002,
+        "intensity": 0.00972,
+        "intensity_uncertainty": 0.00015
+      },
+      {
+        "energy": 192.349,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.0292,
+        "intensity_uncertainty": 0.0003
+      },
+      {
+        "energy": 1099.245,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.5659,
+        "intensity_uncertainty": 0.0021
+      },
+      {
+        "energy": 1291.59,
+        "energy_uncertainty": 0.006,
+        "intensity": 0.4321,
+        "intensity_uncertainty": 0.0025
+      }
+    ]
+  },
+  {
+    "name": "27-Co-57_IAEA",
+    "nuclide": "Co-57",
+    "halflife": 23483520,
+    "halflife_uncertainty": 4320,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 14.41295,
+        "energy_uncertainty": 0.00031,
+        "intensity": 0.0915,
+        "intensity_uncertainty": 0.0017
+      },
+      {
+        "energy": 122.06065,
+        "energy_uncertainty": 0.00012,
+        "intensity": 0.8551,
+        "intensity_uncertainty": 0.0006
+      },
+      {
+        "energy": 136.47356,
+        "energy_uncertainty": 0.00029,
+        "intensity": 0.1071,
+        "intensity_uncertainty": 0.0015
+      }
+    ]
+  },
+  {
+    "name": "27-Co-58_IAEA",
+    "nuclide": "Co-58",
+    "halflife": 6122304,
+    "halflife_uncertainty": 5184,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 511,
+        "energy_uncertainty": 0,
+        "intensity": 0.3,
+        "intensity_uncertainty": 0.004
+      },
+      {
+        "energy": 810.759,
+        "energy_uncertainty": 0.002,
+        "intensity": 0.9945,
+        "intensity_uncertainty": 0.0001
+      }
+    ]
+  },
+  {
+    "name": "27-Co-60_IAEA",
+    "nuclide": "Co-60",
+    "halflife": 166339872,
+    "halflife_uncertainty": 23328,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 1173.228,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.9985,
+        "intensity_uncertainty": 0.0003
+      },
+      {
+        "energy": 1332.492,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.999826,
+        "intensity_uncertainty": 6.0e-6
+      }
+    ]
+  },
+  {
+    "name": "29-Cu-64_IAEA",
+    "nuclide": "Cu-64",
+    "halflife": 45730.656,
+    "halflife_uncertainty": 15.552,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 511,
+        "energy_uncertainty": 0,
+        "intensity": 0.3572,
+        "intensity_uncertainty": 0.0028
+      },
+      {
+        "energy": 1345.77,
+        "energy_uncertainty": 0.16,
+        "intensity": 0.00475,
+        "intensity_uncertainty": 0.0001
+      }
+    ]
+  },
+  {
+    "name": "30-Zn-65_IAEA",
+    "nuclide": "Zn-65",
+    "halflife": 21069504,
+    "halflife_uncertainty": 17280,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 511,
+        "energy_uncertainty": 0,
+        "intensity": 0.0284,
+        "intensity_uncertainty": 0.0004
+      },
+      {
+        "energy": 1115.539,
+        "energy_uncertainty": 0.002,
+        "intensity": 0.506,
+        "intensity_uncertainty": 0.0022
+      }
+    ]
+  },
+  {
+    "name": "41-Nb-94_IAEA",
+    "nuclide": "Nb-94",
+    "halflife": 630720000000,
+    "halflife_uncertainty": 77760000000,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 702.639,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.99815,
+        "intensity_uncertainty": 6.0e-5
+      },
+      {
+        "energy": 871.114,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.99892,
+        "intensity_uncertainty": 3.0e-5
+      }
+    ]
+  },
+  {
+    "name": "43-Tc-99m_IAEA",
+    "nuclide": "Tc-99m",
+    "halflife": 21624.2784,
+    "halflife_uncertainty": 1.9008,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 140.511,
+        "energy_uncertainty": 0.001,
+        "intensity": 0.885,
+        "intensity_uncertainty": 0.002
+      },
+      {
+        "energy": 142.683,
+        "energy_uncertainty": 0.001,
+        "intensity": 0.00023,
+        "intensity_uncertainty": 2.0e-5
+      }
+    ]
+  },
+  {
+    "name": "52-Te-123m_IAEA",
+    "nuclide": "Te-123m",
+    "halflife": 10320480,
+    "halflife_uncertainty": 21600,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 158.97,
+        "energy_uncertainty": 0.05,
+        "intensity": 0.8399,
+        "intensity_uncertainty": 0.0008
+      }
+    ]
+  },
+  {
+    "name": "53-I-125_IAEA",
+    "nuclide": "I-125",
+    "halflife": 5132332.8,
+    "halflife_uncertainty": 1209.6,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 35.4919,
+        "energy_uncertainty": 0.0005,
+        "intensity": 0.0667,
+        "intensity_uncertainty": 0.0017
+      }
+    ]
+  },
+  {
+    "name": "53-I-129_IAEA",
+    "nuclide": "I-129",
+    "halflife": 5.08896e+14,
+    "halflife_uncertainty": 19872000000000,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 39.578,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.0742,
+        "intensity_uncertainty": 0.0008
+      }
+    ]
+  },
+  {
+    "name": "27-Co-56_IAEA",
+    "nuclide": "Co-56",
+    "halflife": 6673190.4,
+    "halflife_uncertainty": 2246.4,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 846.7638,
+        "energy_uncertainty": 0.0019,
+        "intensity": 0.999399,
+        "intensity_uncertainty": 2.3e-5
+      },
+      {
+        "energy": 977.363,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.01422,
+        "intensity_uncertainty": 7.0e-5
+      },
+      {
+        "energy": 1037.8333,
+        "energy_uncertainty": 0.0024,
+        "intensity": 0.1403,
+        "intensity_uncertainty": 0.0005
+      },
+      {
+        "energy": 1175.0878,
+        "energy_uncertainty": 0.0022,
+        "intensity": 0.02249,
+        "intensity_uncertainty": 9.0e-5
+      },
+      {
+        "energy": 1238.2736,
+        "energy_uncertainty": 0.0022,
+        "intensity": 0.6641,
+        "intensity_uncertainty": 0.0016
+      },
+      {
+        "energy": 1360.196,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.0428,
+        "intensity_uncertainty": 0.00013
+      },
+      {
+        "energy": 1771.327,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.1545,
+        "intensity_uncertainty": 0.0004
+      },
+      {
+        "energy": 2015.176,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.03017,
+        "intensity_uncertainty": 0.00014
+      },
+      {
+        "energy": 2034.752,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.07741,
+        "intensity_uncertainty": 0.00013
+      },
+      {
+        "energy": 2598.438,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.1696,
+        "intensity_uncertainty": 0.0004
+      },
+      {
+        "energy": 3009.559,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.01038,
+        "intensity_uncertainty": 0.00019
+      },
+      {
+        "energy": 3201.93,
+        "energy_uncertainty": 0.011,
+        "intensity": 0.03203,
+        "intensity_uncertainty": 0.00013
+      },
+      {
+        "energy": 3253.402,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.0787,
+        "intensity_uncertainty": 0.0003
+      },
+      {
+        "energy": 3272.978,
+        "energy_uncertainty": 0.006,
+        "intensity": 0.01855,
+        "intensity_uncertainty": 9.0e-5
+      },
+      {
+        "energy": 3451.119,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.00942,
+        "intensity_uncertainty": 6.0e-5
+      }
+    ]
+  },
+  {
+    "name": "31-Ga-66_IAEA",
+    "nuclide": "Ga-66",
+    "halflife": 33600.96,
+    "halflife_uncertainty": 293.76,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 833.5324,
+        "energy_uncertainty": 0.0021,
+        "intensity": 0.059,
+        "intensity_uncertainty": 0.005
+      },
+      {
+        "energy": 1039.22,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.37,
+        "intensity_uncertainty": 0.03
+      },
+      {
+        "energy": 1333.112,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.0117,
+        "intensity_uncertainty": 0.0009
+      },
+      {
+        "energy": 1418.754,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.0061,
+        "intensity_uncertainty": 0.0005
+      },
+      {
+        "energy": 1508.158,
+        "energy_uncertainty": 0.007,
+        "intensity": 0.0055,
+        "intensity_uncertainty": 0.0004
+      },
+      {
+        "energy": 1898.823,
+        "energy_uncertainty": 0.008,
+        "intensity": 0.0039,
+        "intensity_uncertainty": 0.0003
+      },
+      {
+        "energy": 1918.329,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.0199,
+        "intensity_uncertainty": 0.0016
+      },
+      {
+        "energy": 2189.616,
+        "energy_uncertainty": 0.006,
+        "intensity": 0.053,
+        "intensity_uncertainty": 0.004
+      },
+      {
+        "energy": 2422.525,
+        "energy_uncertainty": 0.007,
+        "intensity": 0.0188,
+        "intensity_uncertainty": 0.0015
+      },
+      {
+        "energy": 2751.835,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.227,
+        "intensity_uncertainty": 0.018
+      },
+      {
+        "energy": 3228.8,
+        "energy_uncertainty": 0.006,
+        "intensity": 0.0151,
+        "intensity_uncertainty": 0.0012
+      },
+      {
+        "energy": 3380.85,
+        "energy_uncertainty": 0.006,
+        "intensity": 0.0146,
+        "intensity_uncertainty": 0.0012
+      },
+      {
+        "energy": 3422.04,
+        "energy_uncertainty": 0.008,
+        "intensity": 0.0086,
+        "intensity_uncertainty": 0.0007
+      },
+      {
+        "energy": 3791.004,
+        "energy_uncertainty": 0.008,
+        "intensity": 0.0109,
+        "intensity_uncertainty": 0.0009
+      },
+      {
+        "energy": 4085.853,
+        "energy_uncertainty": 0.009,
+        "intensity": 0.0127,
+        "intensity_uncertainty": 0.001
+      },
+      {
+        "energy": 4295.187,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.038,
+        "intensity_uncertainty": 0.003
+      },
+      {
+        "energy": 4461.202,
+        "energy_uncertainty": 0.009,
+        "intensity": 0.0084,
+        "intensity_uncertainty": 0.0007
+      },
+      {
+        "energy": 4806.007,
+        "energy_uncertainty": 0.009,
+        "intensity": 0.0186,
+        "intensity_uncertainty": 0.0015
+      }
+    ]
+  },
+  {
+    "name": "31-Ga-67_IAEA",
+    "nuclide": "Ga-67",
+    "halflife": 281802.24,
+    "halflife_uncertainty": 34.56,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 91.265,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.0307,
+        "intensity_uncertainty": 0.0011
+      },
+      {
+        "energy": 93.31,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.378,
+        "intensity_uncertainty": 0.009
+      },
+      {
+        "energy": 184.576,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.209,
+        "intensity_uncertainty": 0.007
+      },
+      {
+        "energy": 208.95,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.0237,
+        "intensity_uncertainty": 0.0008
+      },
+      {
+        "energy": 300.217,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.168,
+        "intensity_uncertainty": 0.006
+      },
+      {
+        "energy": 393.527,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.0466,
+        "intensity_uncertainty": 0.0016
+      }
+    ]
+  },
+  {
+    "name": "31-Ga-68_IAEA",
+    "nuclide": "Ga-68",
+    "halflife": 4063.392,
+    "halflife_uncertainty": 6.048,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 511,
+        "energy_uncertainty": 0,
+        "intensity": 1.7828,
+        "intensity_uncertainty": 0.0022
+      },
+      {
+        "energy": 1077.34,
+        "energy_uncertainty": 0.05,
+        "intensity": 0.0322,
+        "intensity_uncertainty": 0.0003
+      }
+    ]
+  },
+  {
+    "name": "34-Se-75_IAEA",
+    "nuclide": "Se-75",
+    "halflife": 10348819.2,
+    "halflife_uncertainty": 2505.6,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 66.0518,
+        "energy_uncertainty": 0.0008,
+        "intensity": 0.01112,
+        "intensity_uncertainty": 0.00012
+      },
+      {
+        "energy": 96.734,
+        "energy_uncertainty": 0.0009,
+        "intensity": 0.0342,
+        "intensity_uncertainty": 0.0003
+      },
+      {
+        "energy": 121.1155,
+        "energy_uncertainty": 0.0011,
+        "intensity": 0.172,
+        "intensity_uncertainty": 0.003
+      },
+      {
+        "energy": 136.0001,
+        "energy_uncertainty": 0.0006,
+        "intensity": 0.582,
+        "intensity_uncertainty": 0.007
+      },
+      {
+        "energy": 198.606,
+        "energy_uncertainty": 0.0012,
+        "intensity": 0.0148,
+        "intensity_uncertainty": 0.0004
+      },
+      {
+        "energy": 264.6576,
+        "energy_uncertainty": 0.0009,
+        "intensity": 0.589,
+        "intensity_uncertainty": 0.003
+      },
+      {
+        "energy": 279.5422,
+        "energy_uncertainty": 0.001,
+        "intensity": 0.2499,
+        "intensity_uncertainty": 0.0013
+      },
+      {
+        "energy": 303.9236,
+        "energy_uncertainty": 0.001,
+        "intensity": 0.01316,
+        "intensity_uncertainty": 8.0e-5
+      },
+      {
+        "energy": 400.6572,
+        "energy_uncertainty": 0.0008,
+        "intensity": 0.1147,
+        "intensity_uncertainty": 0.0009
+      }
+    ]
+  },
+  {
+    "name": "36-Kr-85_IAEA",
+    "nuclide": "Kr-85",
+    "halflife": 339292800,
+    "halflife_uncertainty": 691200,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 513.997,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.00435,
+        "intensity_uncertainty": 0.0001
+      }
+    ]
+  },
+  {
+    "name": "38-Sr-85_IAEA",
+    "nuclide": "Sr-85",
+    "halflife": 5603126.4,
+    "halflife_uncertainty": 432,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 514.0048,
+        "energy_uncertainty": 0.0022,
+        "intensity": 0.985,
+        "intensity_uncertainty": 0.004
+      }
+    ]
+  },
+  {
+    "name": "39-Y-88_IAEA",
+    "nuclide": "Y-88",
+    "halflife": 9212400,
+    "halflife_uncertainty": 2073.6,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 898.036,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.939,
+        "intensity_uncertainty": 0.0023
+      },
+      {
+        "energy": 1836.052,
+        "energy_uncertainty": 0.013,
+        "intensity": 0.9938,
+        "intensity_uncertainty": 0.0003
+      }
+    ]
+  },
+  {
+    "name": "41-Nb-93m_IAEA",
+    "nuclide": "Nb-93m",
+    "halflife": 495072000,
+    "halflife_uncertainty": 19008000,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 30.77,
+        "energy_uncertainty": 0.02,
+        "intensity": 5.59e-6,
+        "intensity_uncertainty": 1.6e-7
+      }
+    ]
+  },
+  {
+    "name": "41-Nb-95_IAEA",
+    "nuclide": "Nb-95",
+    "halflife": 3022704,
+    "halflife_uncertainty": 1036.8,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 765.803,
+        "energy_uncertainty": 0.006,
+        "intensity": 0.99808,
+        "intensity_uncertainty": 7.0e-5
+      }
+    ]
+  },
+  {
+    "name": "42-Mo-99\/43-Tc-99m_IAEA",
+    "nuclide": "Mo-99\/43-Tc-99m",
+    "halflife": 1,
+    "halflife_uncertainty": 0,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 40.58323,
+        "energy_uncertainty": 0.00017,
+        "intensity": 0.01022,
+        "intensity_uncertainty": 0.00027
+      },
+      {
+        "energy": 140.511,
+        "energy_uncertainty": 0.001,
+        "intensity": 0.896,
+        "intensity_uncertainty": 0.017
+      },
+      {
+        "energy": 181.094,
+        "energy_uncertainty": 0.002,
+        "intensity": 0.0601,
+        "intensity_uncertainty": 0.0011
+      },
+      {
+        "energy": 366.421,
+        "energy_uncertainty": 0.015,
+        "intensity": 0.01194,
+        "intensity_uncertainty": 0.00023
+      },
+      {
+        "energy": 739.5,
+        "energy_uncertainty": 0.017,
+        "intensity": 0.1212,
+        "intensity_uncertainty": 0.0015
+      },
+      {
+        "energy": 777.921,
+        "energy_uncertainty": 0.02,
+        "intensity": 0.0428,
+        "intensity_uncertainty": 0.0008
+      }
+    ]
+  },
+  {
+    "name": "44-Ru-103_IAEA",
+    "nuclide": "Ru-103",
+    "halflife": 3390940.8,
+    "halflife_uncertainty": 1123.2,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 39.76,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.00071,
+        "intensity_uncertainty": 3.0e-5
+      },
+      {
+        "energy": 53.275,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.00384,
+        "intensity_uncertainty": 6.0e-5
+      },
+      {
+        "energy": 294.98,
+        "energy_uncertainty": 0.02,
+        "intensity": 0.00289,
+        "intensity_uncertainty": 6.0e-5
+      },
+      {
+        "energy": 443.8,
+        "energy_uncertainty": 0.02,
+        "intensity": 0.00344,
+        "intensity_uncertainty": 3.0e-5
+      },
+      {
+        "energy": 497.08,
+        "energy_uncertainty": 0.02,
+        "intensity": 0.9131,
+        "intensity_uncertainty": 0.0007
+      },
+      {
+        "energy": 557.04,
+        "energy_uncertainty": 0.02,
+        "intensity": 0.00855,
+        "intensity_uncertainty": 5.0e-5
+      },
+      {
+        "energy": 610.33,
+        "energy_uncertainty": 0.02,
+        "intensity": 0.0578,
+        "intensity_uncertainty": 0.0003
+      }
+    ]
+  },
+  {
+    "name": "44-Ru-106\/45-Rh-106_IAEA",
+    "nuclide": "Ru-106\/45-Rh-106",
+    "halflife": 1,
+    "halflife_uncertainty": 0,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 511.8534,
+        "energy_uncertainty": 0.0023,
+        "intensity": 0.205,
+        "intensity_uncertainty": 0.0021
+      },
+      {
+        "energy": 616.22,
+        "energy_uncertainty": 0.09,
+        "intensity": 0.00724,
+        "intensity_uncertainty": 0.00013
+      },
+      {
+        "energy": 621.93,
+        "energy_uncertainty": 0.06,
+        "intensity": 0.0986,
+        "intensity_uncertainty": 0.0011
+      },
+      {
+        "energy": 873.49,
+        "energy_uncertainty": 0.05,
+        "intensity": 0.00435,
+        "intensity_uncertainty": 8.0e-5
+      },
+      {
+        "energy": 1050.41,
+        "energy_uncertainty": 0.06,
+        "intensity": 0.01488,
+        "intensity_uncertainty": 0.00022
+      },
+      {
+        "energy": 1128.07,
+        "energy_uncertainty": 0.05,
+        "intensity": 0.00399,
+        "intensity_uncertainty": 6.0e-5
+      }
+    ]
+  },
+  {
+    "name": "47-Ag-110m_IAEA",
+    "nuclide": "Ag-110m",
+    "halflife": 21587040,
+    "halflife_uncertainty": 8640,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 446.812,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.0365,
+        "intensity_uncertainty": 0.0005
+      },
+      {
+        "energy": 620.3553,
+        "energy_uncertainty": 0.0017,
+        "intensity": 0.0272,
+        "intensity_uncertainty": 0.0008
+      },
+      {
+        "energy": 657.76,
+        "energy_uncertainty": 0.0011,
+        "intensity": 0.9438,
+        "intensity_uncertainty": 0.0008
+      },
+      {
+        "energy": 677.6217,
+        "energy_uncertainty": 0.0012,
+        "intensity": 0.1056,
+        "intensity_uncertainty": 0.0006
+      },
+      {
+        "energy": 687.0091,
+        "energy_uncertainty": 0.0018,
+        "intensity": 0.0645,
+        "intensity_uncertainty": 0.0003
+      },
+      {
+        "energy": 706.676,
+        "energy_uncertainty": 0.0015,
+        "intensity": 0.1648,
+        "intensity_uncertainty": 0.0008
+      },
+      {
+        "energy": 744.2755,
+        "energy_uncertainty": 0.0018,
+        "intensity": 0.0471,
+        "intensity_uncertainty": 0.0003
+      },
+      {
+        "energy": 763.9424,
+        "energy_uncertainty": 0.0017,
+        "intensity": 0.2231,
+        "intensity_uncertainty": 0.0009
+      },
+      {
+        "energy": 818.0244,
+        "energy_uncertainty": 0.0018,
+        "intensity": 0.0733,
+        "intensity_uncertainty": 0.0004
+      },
+      {
+        "energy": 884.6781,
+        "energy_uncertainty": 0.0013,
+        "intensity": 0.74,
+        "intensity_uncertainty": 0.012
+      },
+      {
+        "energy": 937.483,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.3451,
+        "intensity_uncertainty": 0.0027
+      },
+      {
+        "energy": 1384.2931,
+        "energy_uncertainty": 0.002,
+        "intensity": 0.247,
+        "intensity_uncertainty": 0.005
+      },
+      {
+        "energy": 1475.7792,
+        "energy_uncertainty": 0.0023,
+        "intensity": 0.0403,
+        "intensity_uncertainty": 0.0005
+      },
+      {
+        "energy": 1505.028,
+        "energy_uncertainty": 0.002,
+        "intensity": 0.1316,
+        "intensity_uncertainty": 0.0016
+      },
+      {
+        "energy": 1562.294,
+        "energy_uncertainty": 0.018,
+        "intensity": 0.0121,
+        "intensity_uncertainty": 0.0003
+      }
+    ]
+  },
+  {
+    "name": "48-Cd-109_IAEA",
+    "nuclide": "Cd-109",
+    "halflife": 39864960,
+    "halflife_uncertainty": 103680,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 88.0336,
+        "energy_uncertainty": 0.0011,
+        "intensity": 0.03626,
+        "intensity_uncertainty": 0.0002
+      }
+    ]
+  },
+  {
+    "name": "49-In-111_IAEA",
+    "nuclide": "In-111",
+    "halflife": 242343.36,
+    "halflife_uncertainty": 51.84,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 171.28,
+        "energy_uncertainty": 0.03,
+        "intensity": 0.9066,
+        "intensity_uncertainty": 0.0025
+      },
+      {
+        "energy": 245.35,
+        "energy_uncertainty": 0.04,
+        "intensity": 0.9409,
+        "intensity_uncertainty": 0.0006
+      }
+    ]
+  },
+  {
+    "name": "50-Sn-113_IAEA",
+    "nuclide": "Sn-113",
+    "halflife": 9943776,
+    "halflife_uncertainty": 3456,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 255.134,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.0211,
+        "intensity_uncertainty": 0.0008
+      },
+      {
+        "energy": 391.698,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.6494,
+        "intensity_uncertainty": 0.0017
+      }
+    ]
+  },
+  {
+    "name": "51-Sb-125_IAEA",
+    "nuclide": "Sb-125",
+    "halflife": 87046272,
+    "halflife_uncertainty": 18144,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 176.314,
+        "energy_uncertainty": 0.002,
+        "intensity": 0.0682,
+        "intensity_uncertainty": 0.0007
+      },
+      {
+        "energy": 380.452,
+        "energy_uncertainty": 0.008,
+        "intensity": 0.0152,
+        "intensity_uncertainty": 0.00015
+      },
+      {
+        "energy": 427.874,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.2955,
+        "intensity_uncertainty": 0.0024
+      },
+      {
+        "energy": 463.365,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.1048,
+        "intensity_uncertainty": 0.0009
+      },
+      {
+        "energy": 600.597,
+        "energy_uncertainty": 0.002,
+        "intensity": 0.1776,
+        "intensity_uncertainty": 0.0018
+      },
+      {
+        "energy": 606.713,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.0502,
+        "intensity_uncertainty": 0.0005
+      },
+      {
+        "energy": 635.95,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.1132,
+        "intensity_uncertainty": 0.001
+      },
+      {
+        "energy": 671.441,
+        "energy_uncertainty": 0.006,
+        "intensity": 0.01783,
+        "intensity_uncertainty": 0.00016
+      }
+    ]
+  },
+  {
+    "name": "53-I-123_IAEA",
+    "nuclide": "I-123",
+    "halflife": 47604.672,
+    "halflife_uncertainty": 7.776,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 158.97,
+        "energy_uncertainty": 0.05,
+        "intensity": 0.8325,
+        "intensity_uncertainty": 0.0021
+      },
+      {
+        "energy": 528.96,
+        "energy_uncertainty": 0.05,
+        "intensity": 0.0132,
+        "intensity_uncertainty": 0.0008
+      }
+    ]
+  },
+  {
+    "name": "53-I-131_IAEA",
+    "nuclide": "I-131",
+    "halflife": 693169.92,
+    "halflife_uncertainty": 207.36,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 80.185,
+        "energy_uncertainty": 0.0019,
+        "intensity": 0.02607,
+        "intensity_uncertainty": 0.00027
+      },
+      {
+        "energy": 284.305,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.0606,
+        "intensity_uncertainty": 0.0006
+      },
+      {
+        "energy": 364.489,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.812,
+        "intensity_uncertainty": 0.008
+      },
+      {
+        "energy": 636.989,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.0726,
+        "intensity_uncertainty": 0.0008
+      },
+      {
+        "energy": 722.911,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.01796,
+        "intensity_uncertainty": 0.0002
+      }
+    ]
+  },
+  {
+    "name": "55-Cs-134_IAEA",
+    "nuclide": "Cs-134",
+    "halflife": 65102400,
+    "halflife_uncertainty": 86400,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 563.243,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.0837,
+        "intensity_uncertainty": 0.0003
+      },
+      {
+        "energy": 569.327,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.1538,
+        "intensity_uncertainty": 0.0004
+      },
+      {
+        "energy": 604.72,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.9765,
+        "intensity_uncertainty": 0.00018
+      },
+      {
+        "energy": 795.83,
+        "energy_uncertainty": 0.03,
+        "intensity": 0.855,
+        "intensity_uncertainty": 0.003
+      },
+      {
+        "energy": 801.945,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.087,
+        "intensity_uncertainty": 0.0003
+      },
+      {
+        "energy": 1365.186,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.03017,
+        "intensity_uncertainty": 0.00012
+      }
+    ]
+  },
+  {
+    "name": "55-Cs-137_IAEA",
+    "nuclide": "Cs-137",
+    "halflife": 949536000,
+    "halflife_uncertainty": 3456000,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 661.657,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.8499,
+        "intensity_uncertainty": 0.002
+      }
+    ]
+  },
+  {
+    "name": "56-Ba-133_IAEA",
+    "nuclide": "Ba-133",
+    "halflife": 332527680,
+    "halflife_uncertainty": 103680,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 53.1622,
+        "energy_uncertainty": 0.0006,
+        "intensity": 0.0214,
+        "intensity_uncertainty": 0.0003
+      },
+      {
+        "energy": 79.6142,
+        "energy_uncertainty": 0.0012,
+        "intensity": 0.0265,
+        "intensity_uncertainty": 0.0005
+      },
+      {
+        "energy": 80.9979,
+        "energy_uncertainty": 0.0011,
+        "intensity": 0.329,
+        "intensity_uncertainty": 0.003
+      },
+      {
+        "energy": 276.3989,
+        "energy_uncertainty": 0.0012,
+        "intensity": 0.0716,
+        "intensity_uncertainty": 0.0005
+      },
+      {
+        "energy": 302.8508,
+        "energy_uncertainty": 0.0005,
+        "intensity": 0.1834,
+        "intensity_uncertainty": 0.0013
+      },
+      {
+        "energy": 356.0129,
+        "energy_uncertainty": 0.0007,
+        "intensity": 0.6205,
+        "intensity_uncertainty": 0.0019
+      },
+      {
+        "energy": 383.8485,
+        "energy_uncertainty": 0.0012,
+        "intensity": 0.0894,
+        "intensity_uncertainty": 0.0006
+      }
+    ]
+  },
+  {
+    "name": "58-Ce-139_IAEA",
+    "nuclide": "Ce-139",
+    "halflife": 11892268.8,
+    "halflife_uncertainty": 1728,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 165.8575,
+        "energy_uncertainty": 0.0011,
+        "intensity": 0.799,
+        "intensity_uncertainty": 0.0004
+      }
+    ]
+  },
+  {
+    "name": "58-Ce-141_IAEA",
+    "nuclide": "Ce-141",
+    "halflife": 2808259.2,
+    "halflife_uncertainty": 1209.6,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 145.4433,
+        "energy_uncertainty": 0.0014,
+        "intensity": 0.4829,
+        "intensity_uncertainty": 0.002
+      }
+    ]
+  },
+  {
+    "name": "58-Ce-144\/59-Pr-144_IAEA",
+    "nuclide": "Ce-144\/59-Pr-144",
+    "halflife": 1,
+    "halflife_uncertainty": 0,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 33.568,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.00235,
+        "intensity_uncertainty": 0.00012
+      },
+      {
+        "energy": 40.98,
+        "energy_uncertainty": 0.1,
+        "intensity": 0.0041,
+        "intensity_uncertainty": 0.0025
+      },
+      {
+        "energy": 80.12,
+        "energy_uncertainty": 0.05,
+        "intensity": 0.0152,
+        "intensity_uncertainty": 0.001
+      },
+      {
+        "energy": 133.515,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.1109,
+        "intensity_uncertainty": 0.0016
+      },
+      {
+        "energy": 696.505,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.01342,
+        "intensity_uncertainty": 0.00014
+      },
+      {
+        "energy": 1489.148,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.00296,
+        "intensity_uncertainty": 5.0e-5
+      },
+      {
+        "energy": 2185.645,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.0068,
+        "intensity_uncertainty": 0.00018
+      }
+    ]
+  },
+  {
+    "name": "62-Sm-153_IAEA",
+    "nuclide": "Sm-153",
+    "halflife": 167443.2,
+    "halflife_uncertainty": 864,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 69.67301,
+        "energy_uncertainty": 0.00018,
+        "intensity": 0.0473,
+        "intensity_uncertainty": 0.0003
+      },
+      {
+        "energy": 83.36716,
+        "energy_uncertainty": 0.00017,
+        "intensity": 0.00192,
+        "intensity_uncertainty": 7.0e-5
+      },
+      {
+        "energy": 89.48593,
+        "energy_uncertainty": 0.00021,
+        "intensity": 0.00158,
+        "intensity_uncertainty": 0.00015
+      },
+      {
+        "energy": 97.43095,
+        "energy_uncertainty": 0.00017,
+        "intensity": 0.00772,
+        "intensity_uncertainty": 0.00018
+      },
+      {
+        "energy": 103.18007,
+        "energy_uncertainty": 0.00013,
+        "intensity": 0.293,
+        "intensity_uncertainty": 0.003
+      },
+      {
+        "energy": 172.85295,
+        "energy_uncertainty": 0.00021,
+        "intensity": 0.000737,
+        "intensity_uncertainty": 2.0e-5
+      }
+    ]
+  },
+  {
+    "name": "63-Eu-152_IAEA",
+    "nuclide": "Eu-152",
+    "halflife": 426902400,
+    "halflife_uncertainty": 604800,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 121.7817,
+        "energy_uncertainty": 0.0003,
+        "intensity": 0.2841,
+        "intensity_uncertainty": 0.0013
+      },
+      {
+        "energy": 244.6974,
+        "energy_uncertainty": 0.0008,
+        "intensity": 0.0755,
+        "intensity_uncertainty": 0.0004
+      },
+      {
+        "energy": 344.2785,
+        "energy_uncertainty": 0.0012,
+        "intensity": 0.2658,
+        "intensity_uncertainty": 0.0012
+      },
+      {
+        "energy": 411.1165,
+        "energy_uncertainty": 0.0012,
+        "intensity": 0.02237,
+        "intensity_uncertainty": 0.0001
+      },
+      {
+        "energy": 443.965,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.03125,
+        "intensity_uncertainty": 0.00014
+      },
+      {
+        "energy": 778.9045,
+        "energy_uncertainty": 0.0024,
+        "intensity": 0.1296,
+        "intensity_uncertainty": 0.0006
+      },
+      {
+        "energy": 867.38,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.04241,
+        "intensity_uncertainty": 0.00023
+      },
+      {
+        "energy": 964.072,
+        "energy_uncertainty": 0.018,
+        "intensity": 0.1462,
+        "intensity_uncertainty": 0.0006
+      },
+      {
+        "energy": 1085.837,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.1013,
+        "intensity_uncertainty": 0.0006
+      },
+      {
+        "energy": 1089.737,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.01731,
+        "intensity_uncertainty": 0.0001
+      },
+      {
+        "energy": 1112.076,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.134,
+        "intensity_uncertainty": 0.0006
+      },
+      {
+        "energy": 1212.948,
+        "energy_uncertainty": 0.011,
+        "intensity": 0.01415,
+        "intensity_uncertainty": 9.0e-5
+      },
+      {
+        "energy": 1299.142,
+        "energy_uncertainty": 0.008,
+        "intensity": 0.01632,
+        "intensity_uncertainty": 9.0e-5
+      },
+      {
+        "energy": 1408.013,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.2085,
+        "intensity_uncertainty": 0.0009
+      }
+    ]
+  },
+  {
+    "name": "63-Eu-154_IAEA",
+    "nuclide": "Eu-154",
+    "halflife": 271131840,
+    "halflife_uncertainty": 120960,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 123.0706,
+        "energy_uncertainty": 0.0009,
+        "intensity": 0.404,
+        "intensity_uncertainty": 0.005
+      },
+      {
+        "energy": 247.9288,
+        "energy_uncertainty": 0.0007,
+        "intensity": 0.0689,
+        "intensity_uncertainty": 0.0007
+      },
+      {
+        "energy": 591.755,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.0495,
+        "intensity_uncertainty": 0.0005
+      },
+      {
+        "energy": 692.4205,
+        "energy_uncertainty": 0.0018,
+        "intensity": 0.0179,
+        "intensity_uncertainty": 0.0003
+      },
+      {
+        "energy": 723.3014,
+        "energy_uncertainty": 0.0022,
+        "intensity": 0.2005,
+        "intensity_uncertainty": 0.0021
+      },
+      {
+        "energy": 756.802,
+        "energy_uncertainty": 0.0023,
+        "intensity": 0.0453,
+        "intensity_uncertainty": 0.0005
+      },
+      {
+        "energy": 873.1834,
+        "energy_uncertainty": 0.0023,
+        "intensity": 0.1217,
+        "intensity_uncertainty": 0.0012
+      },
+      {
+        "energy": 996.262,
+        "energy_uncertainty": 0.006,
+        "intensity": 0.105,
+        "intensity_uncertainty": 0.001
+      },
+      {
+        "energy": 1004.725,
+        "energy_uncertainty": 0.007,
+        "intensity": 0.1785,
+        "intensity_uncertainty": 0.0017
+      },
+      {
+        "energy": 1246.121,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.00862,
+        "intensity_uncertainty": 8.0e-5
+      },
+      {
+        "energy": 1274.429,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.349,
+        "intensity_uncertainty": 0.003
+      },
+      {
+        "energy": 1596.4804,
+        "energy_uncertainty": 0.0028,
+        "intensity": 0.01783,
+        "intensity_uncertainty": 0.00017
+      }
+    ]
+  },
+  {
+    "name": "63-Eu-155_IAEA",
+    "nuclide": "Eu-155",
+    "halflife": 149990400,
+    "halflife_uncertainty": 518400,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 26.531,
+        "energy_uncertainty": 0.021,
+        "intensity": 0.00316,
+        "intensity_uncertainty": 0.00022
+      },
+      {
+        "energy": 45.299,
+        "energy_uncertainty": 0.001,
+        "intensity": 0.0131,
+        "intensity_uncertainty": 0.0005
+      },
+      {
+        "energy": 60.0086,
+        "energy_uncertainty": 0.001,
+        "intensity": 0.0122,
+        "intensity_uncertainty": 0.0005
+      },
+      {
+        "energy": 86.0591,
+        "energy_uncertainty": 0.001,
+        "intensity": 0.00154,
+        "intensity_uncertainty": 0.00017
+      },
+      {
+        "energy": 86.5479,
+        "energy_uncertainty": 0.001,
+        "intensity": 0.307,
+        "intensity_uncertainty": 0.003
+      },
+      {
+        "energy": 105.3083,
+        "energy_uncertainty": 0.001,
+        "intensity": 0.211,
+        "intensity_uncertainty": 0.006
+      }
+    ]
+  },
+  {
+    "name": "67-Ho-166_IAEA",
+    "nuclide": "Ho-166",
+    "halflife": 96465.6,
+    "halflife_uncertainty": 112.32,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 80.576,
+        "energy_uncertainty": 0.002,
+        "intensity": 0.0655,
+        "intensity_uncertainty": 0.0008
+      },
+      {
+        "energy": 1379.437,
+        "energy_uncertainty": 0.006,
+        "intensity": 0.00933,
+        "intensity_uncertainty": 0.00016
+      },
+      {
+        "energy": 1581.833,
+        "energy_uncertainty": 0.007,
+        "intensity": 0.00186,
+        "intensity_uncertainty": 4.0e-5
+      },
+      {
+        "energy": 1662.439,
+        "energy_uncertainty": 0.006,
+        "intensity": 0.00118,
+        "intensity_uncertainty": 5.0e-5
+      }
+    ]
+  },
+  {
+    "name": "69-Tm-170_IAEA",
+    "nuclide": "Tm-170",
+    "halflife": 11041920,
+    "halflife_uncertainty": 69120,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 78.59,
+        "energy_uncertainty": 0.02,
+        "intensity": 3.4e-5,
+        "intensity_uncertainty": 3.0e-6
+      },
+      {
+        "energy": 84.25474,
+        "energy_uncertainty": 8.0e-5,
+        "intensity": 0.0248,
+        "intensity_uncertainty": 0.0009
+      }
+    ]
+  },
+  {
+    "name": "70-Yb-169_IAEA",
+    "nuclide": "Yb-169",
+    "halflife": 2766182.4,
+    "halflife_uncertainty": 518.4,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 63.12044,
+        "energy_uncertainty": 4.0e-5,
+        "intensity": 0.4405,
+        "intensity_uncertainty": 0.0024
+      },
+      {
+        "energy": 93.61447,
+        "energy_uncertainty": 8.0e-5,
+        "intensity": 0.02571,
+        "intensity_uncertainty": 0.00017
+      },
+      {
+        "energy": 109.77924,
+        "energy_uncertainty": 4.0e-5,
+        "intensity": 0.1736,
+        "intensity_uncertainty": 0.0009
+      },
+      {
+        "energy": 118.1894,
+        "energy_uncertainty": 0.00014,
+        "intensity": 0.0187,
+        "intensity_uncertainty": 0.0001
+      },
+      {
+        "energy": 130.52293,
+        "energy_uncertainty": 6.0e-5,
+        "intensity": 0.1138,
+        "intensity_uncertainty": 0.0005
+      },
+      {
+        "energy": 177.21307,
+        "energy_uncertainty": 6.0e-5,
+        "intensity": 0.2232,
+        "intensity_uncertainty": 0.001
+      },
+      {
+        "energy": 197.95675,
+        "energy_uncertainty": 7.0e-5,
+        "intensity": 0.3593,
+        "intensity_uncertainty": 0.0012
+      },
+      {
+        "energy": 261.07712,
+        "energy_uncertainty": 9.0e-5,
+        "intensity": 0.01687,
+        "intensity_uncertainty": 8.0e-5
+      },
+      {
+        "energy": 307.73586,
+        "energy_uncertainty": 0.0001,
+        "intensity": 0.10046,
+        "intensity_uncertainty": 0.00045
+      }
+    ]
+  },
+  {
+    "name": "77-Ir-192_IAEA",
+    "nuclide": "Ir-192",
+    "halflife": 6378220.8,
+    "halflife_uncertainty": 777.6,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 205.7943,
+        "energy_uncertainty": 9.0e-5,
+        "intensity": 0.0334,
+        "intensity_uncertainty": 0.0004
+      },
+      {
+        "energy": 295.9565,
+        "energy_uncertainty": 0.00015,
+        "intensity": 0.2872,
+        "intensity_uncertainty": 0.0014
+      },
+      {
+        "energy": 308.45507,
+        "energy_uncertainty": 0.00017,
+        "intensity": 0.2968,
+        "intensity_uncertainty": 0.0015
+      },
+      {
+        "energy": 316.50618,
+        "energy_uncertainty": 0.00017,
+        "intensity": 0.8275,
+        "intensity_uncertainty": 0.0021
+      },
+      {
+        "energy": 468.06885,
+        "energy_uncertainty": 0.00026,
+        "intensity": 0.4781,
+        "intensity_uncertainty": 0.0024
+      },
+      {
+        "energy": 484.5751,
+        "energy_uncertainty": 0.0004,
+        "intensity": 0.03189,
+        "intensity_uncertainty": 0.00024
+      },
+      {
+        "energy": 588.581,
+        "energy_uncertainty": 0.0007,
+        "intensity": 0.04517,
+        "intensity_uncertainty": 0.00022
+      },
+      {
+        "energy": 604.41105,
+        "energy_uncertainty": 0.00025,
+        "intensity": 0.082,
+        "intensity_uncertainty": 0.0004
+      },
+      {
+        "energy": 612.46215,
+        "energy_uncertainty": 0.00026,
+        "intensity": 0.0534,
+        "intensity_uncertainty": 0.0008
+      }
+    ]
+  },
+  {
+    "name": "79-Au-198_IAEA",
+    "nuclide": "Au-198",
+    "halflife": 232848,
+    "halflife_uncertainty": 60.48,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 411.80205,
+        "energy_uncertainty": 0.00017,
+        "intensity": 0.9554,
+        "intensity_uncertainty": 0.0007
+      },
+      {
+        "energy": 675.8836,
+        "energy_uncertainty": 0.0007,
+        "intensity": 0.00806,
+        "intensity_uncertainty": 7.0e-5
+      },
+      {
+        "energy": 1087.6842,
+        "energy_uncertainty": 0.0007,
+        "intensity": 0.00159,
+        "intensity_uncertainty": 3.0e-5
+      }
+    ]
+  },
+  {
+    "name": "80-Hg-203_IAEA",
+    "nuclide": "Hg-203",
+    "halflife": 4025721.6,
+    "halflife_uncertainty": 1036.8,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 279.1952,
+        "energy_uncertainty": 0.001,
+        "intensity": 0.8148,
+        "intensity_uncertainty": 0.0008
+      }
+    ]
+  },
+  {
+    "name": "81-Tl-201_IAEA",
+    "nuclide": "Tl-201",
+    "halflife": 262846.08,
+    "halflife_uncertainty": 146.88,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 135.312,
+        "energy_uncertainty": 0.034,
+        "intensity": 0.02604,
+        "intensity_uncertainty": 0.00022
+      },
+      {
+        "energy": 167.45,
+        "energy_uncertainty": 0.03,
+        "intensity": 0.1,
+        "intensity_uncertainty": 0.001
+      }
+    ]
+  },
+  {
+    "name": "81-Tl-208_IAEA",
+    "nuclide": "Tl-208",
+    "halflife": 1,
+    "halflife_uncertainty": 0,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 277.37,
+        "energy_uncertainty": 0.03,
+        "intensity": 0.0237,
+        "intensity_uncertainty": 0.0011
+      },
+      {
+        "energy": 583.187,
+        "energy_uncertainty": 0.002,
+        "intensity": 0.3055,
+        "intensity_uncertainty": 0.0017
+      },
+      {
+        "energy": 860.56,
+        "energy_uncertainty": 0.03,
+        "intensity": 0.0448,
+        "intensity_uncertainty": 0.0004
+      },
+      {
+        "energy": 2614.511,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.3585,
+        "intensity_uncertainty": 0.0007
+      }
+    ]
+  },
+  {
+    "name": "83-Bi-207_IAEA",
+    "nuclide": "Bi-207",
+    "halflife": 1019520000,
+    "halflife_uncertainty": 25920000,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 569.698,
+        "energy_uncertainty": 0.002,
+        "intensity": 0.9776,
+        "intensity_uncertainty": 0.0003
+      },
+      {
+        "energy": 1063.656,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.7458,
+        "intensity_uncertainty": 0.0049
+      },
+      {
+        "energy": 1770.228,
+        "energy_uncertainty": 0.009,
+        "intensity": 0.0687,
+        "intensity_uncertainty": 0.0003
+      }
+    ]
+  },
+  {
+    "name": "86-Rn-220_IAEA",
+    "nuclide": "Rn-220",
+    "halflife": 1,
+    "halflife_uncertainty": 0,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 549.76,
+        "energy_uncertainty": 0.04,
+        "intensity": 0.00115,
+        "intensity_uncertainty": 0.00015
+      }
+    ]
+  },
+  {
+    "name": "67-Ho-166m_IAEA",
+    "nuclide": "Ho-166m",
+    "halflife": 38016000000,
+    "halflife_uncertainty": 6048000000,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 80.5725,
+        "energy_uncertainty": 0.0013,
+        "intensity": 0.1266,
+        "intensity_uncertainty": 0.0023
+      },
+      {
+        "energy": 184.4107,
+        "energy_uncertainty": 0.0011,
+        "intensity": 0.725,
+        "intensity_uncertainty": 0.005
+      },
+      {
+        "energy": 215.871,
+        "energy_uncertainty": 0.007,
+        "intensity": 0.0266,
+        "intensity_uncertainty": 0.0017
+      },
+      {
+        "energy": 259.736,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.01078,
+        "intensity_uncertainty": 0.0001
+      },
+      {
+        "energy": 280.463,
+        "energy_uncertainty": 0.0023,
+        "intensity": 0.2954,
+        "intensity_uncertainty": 0.0025
+      },
+      {
+        "energy": 300.741,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.0373,
+        "intensity_uncertainty": 0.0004
+      },
+      {
+        "energy": 365.768,
+        "energy_uncertainty": 0.006,
+        "intensity": 0.0246,
+        "intensity_uncertainty": 0.0004
+      },
+      {
+        "energy": 410.956,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.1135,
+        "intensity_uncertainty": 0.0018
+      },
+      {
+        "energy": 451.54,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.02915,
+        "intensity_uncertainty": 0.00014
+      },
+      {
+        "energy": 464.798,
+        "energy_uncertainty": 0.006,
+        "intensity": 0.0125,
+        "intensity_uncertainty": 0.0004
+      },
+      {
+        "energy": 529.825,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.094,
+        "intensity_uncertainty": 0.004
+      },
+      {
+        "energy": 570.995,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.0543,
+        "intensity_uncertainty": 0.002
+      },
+      {
+        "energy": 611.579,
+        "energy_uncertainty": 0.006,
+        "intensity": 0.0131,
+        "intensity_uncertainty": 0.0021
+      },
+      {
+        "energy": 670.526,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.0534,
+        "intensity_uncertainty": 0.0021
+      },
+      {
+        "energy": 691.253,
+        "energy_uncertainty": 0.007,
+        "intensity": 0.0132,
+        "intensity_uncertainty": 0.0007
+      },
+      {
+        "energy": 711.697,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.549,
+        "intensity_uncertainty": 0.012
+      },
+      {
+        "energy": 752.28,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.122,
+        "intensity_uncertainty": 0.003
+      },
+      {
+        "energy": 810.286,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.573,
+        "intensity_uncertainty": 0.011
+      },
+      {
+        "energy": 830.565,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.0972,
+        "intensity_uncertainty": 0.0018
+      },
+      {
+        "energy": 950.988,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.02744,
+        "intensity_uncertainty": 0.00019
+      }
+    ]
+  },
+  {
+    "name": "82-Pb-212_IAEA",
+    "nuclide": "Pb-212",
+    "halflife": 1,
+    "halflife_uncertainty": 0,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 115.183,
+        "energy_uncertainty": 0.005,
+        "intensity": 0.00623,
+        "intensity_uncertainty": 0.00022
+      },
+      {
+        "energy": 238.632,
+        "energy_uncertainty": 0.002,
+        "intensity": 0.436,
+        "intensity_uncertainty": 0.003
+      },
+      {
+        "energy": 300.09,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.0318,
+        "intensity_uncertainty": 0.0013
+      }
+    ]
+  },
+  {
+    "name": "82-Pb-214_IAEA",
+    "nuclide": "Pb-214",
+    "halflife": 1,
+    "halflife_uncertainty": 0,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 53.2275,
+        "energy_uncertainty": 0.0021,
+        "intensity": 0.01066,
+        "intensity_uncertainty": 0.00014
+      },
+      {
+        "energy": 241.997,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.0719,
+        "intensity_uncertainty": 0.0006
+      },
+      {
+        "energy": 295.224,
+        "energy_uncertainty": 0.002,
+        "intensity": 0.1828,
+        "intensity_uncertainty": 0.0014
+      },
+      {
+        "energy": 351.932,
+        "energy_uncertainty": 0.002,
+        "intensity": 0.3534,
+        "intensity_uncertainty": 0.0027
+      }
+    ]
+  },
+  {
+    "name": "83-Bi-212_IAEA",
+    "nuclide": "Bi-212",
+    "halflife": 1,
+    "halflife_uncertainty": 0,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 727.33,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.0674,
+        "intensity_uncertainty": 0.0012
+      },
+      {
+        "energy": 785.37,
+        "energy_uncertainty": 0.09,
+        "intensity": 0.0111,
+        "intensity_uncertainty": 0.0001
+      },
+      {
+        "energy": 1620.74,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.0151,
+        "intensity_uncertainty": 0.0003
+      }
+    ]
+  },
+  {
+    "name": "83-Bi-214_IAEA",
+    "nuclide": "Bi-214",
+    "halflife": 1,
+    "halflife_uncertainty": 0,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 609.316,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.4516,
+        "intensity_uncertainty": 0.0033
+      },
+      {
+        "energy": 665.453,
+        "energy_uncertainty": 0.022,
+        "intensity": 0.01521,
+        "intensity_uncertainty": 0.00011
+      },
+      {
+        "energy": 768.367,
+        "energy_uncertainty": 0.011,
+        "intensity": 0.0485,
+        "intensity_uncertainty": 0.00038
+      },
+      {
+        "energy": 806.185,
+        "energy_uncertainty": 0.011,
+        "intensity": 0.01255,
+        "intensity_uncertainty": 0.00011
+      },
+      {
+        "energy": 934.061,
+        "energy_uncertainty": 0.012,
+        "intensity": 0.03074,
+        "intensity_uncertainty": 0.00025
+      },
+      {
+        "energy": 1120.287,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.1478,
+        "intensity_uncertainty": 0.0011
+      },
+      {
+        "energy": 1155.19,
+        "energy_uncertainty": 0.02,
+        "intensity": 0.01624,
+        "intensity_uncertainty": 0.00014
+      },
+      {
+        "energy": 1238.11,
+        "energy_uncertainty": 0.012,
+        "intensity": 0.05785,
+        "intensity_uncertainty": 0.00045
+      },
+      {
+        "energy": 1280.96,
+        "energy_uncertainty": 0.02,
+        "intensity": 0.01425,
+        "intensity_uncertainty": 0.00012
+      },
+      {
+        "energy": 1377.669,
+        "energy_uncertainty": 0.012,
+        "intensity": 0.03954,
+        "intensity_uncertainty": 0.00033
+      },
+      {
+        "energy": 1401.516,
+        "energy_uncertainty": 0.014,
+        "intensity": 0.01324,
+        "intensity_uncertainty": 0.00011
+      },
+      {
+        "energy": 1407.993,
+        "energy_uncertainty": 0.007,
+        "intensity": 0.02369,
+        "intensity_uncertainty": 0.00019
+      },
+      {
+        "energy": 1509.217,
+        "energy_uncertainty": 0.008,
+        "intensity": 0.02108,
+        "intensity_uncertainty": 0.00021
+      },
+      {
+        "energy": 1661.316,
+        "energy_uncertainty": 0.013,
+        "intensity": 0.01037,
+        "intensity_uncertainty": 0.0001
+      },
+      {
+        "energy": 1729.64,
+        "energy_uncertainty": 0.012,
+        "intensity": 0.02817,
+        "intensity_uncertainty": 0.00023
+      },
+      {
+        "energy": 1764.539,
+        "energy_uncertainty": 0.015,
+        "intensity": 0.1517,
+        "intensity_uncertainty": 0.0012
+      },
+      {
+        "energy": 1847.42,
+        "energy_uncertainty": 0.025,
+        "intensity": 0.02,
+        "intensity_uncertainty": 0.00018
+      },
+      {
+        "energy": 2118.536,
+        "energy_uncertainty": 0.008,
+        "intensity": 0.01148,
+        "intensity_uncertainty": 0.00011
+      },
+      {
+        "energy": 2204.071,
+        "energy_uncertainty": 0.021,
+        "intensity": 0.0489,
+        "intensity_uncertainty": 0.001
+      },
+      {
+        "energy": 2447.673,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.01536,
+        "intensity_uncertainty": 0.00015
+      }
+    ]
+  },
+  {
+    "name": "88-Ra-224_IAEA",
+    "nuclide": "Ra-224",
+    "halflife": 1,
+    "halflife_uncertainty": 0,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 240.986,
+        "energy_uncertainty": 0.006,
+        "intensity": 0.0412,
+        "intensity_uncertainty": 0.0004
+      }
+    ]
+  },
+  {
+    "name": "88-Ra-226_IAEA",
+    "nuclide": "Ra-226",
+    "halflife": 50647680000,
+    "halflife_uncertainty": 190080000,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 53.2275,
+        "energy_uncertainty": 0.0021,
+        "intensity": 0.01066,
+        "intensity_uncertainty": 0.00014
+      },
+      {
+        "energy": 186.211,
+        "energy_uncertainty": 0.013,
+        "intensity": 0.03533,
+        "intensity_uncertainty": 0.00028
+      },
+      {
+        "energy": 241.997,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.0719,
+        "intensity_uncertainty": 0.0006
+      },
+      {
+        "energy": 295.224,
+        "energy_uncertainty": 0.002,
+        "intensity": 0.1828,
+        "intensity_uncertainty": 0.0014
+      },
+      {
+        "energy": 351.932,
+        "energy_uncertainty": 0.002,
+        "intensity": 0.3534,
+        "intensity_uncertainty": 0.0027
+      },
+      {
+        "energy": 609.316,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.4516,
+        "intensity_uncertainty": 0.0033
+      },
+      {
+        "energy": 665.453,
+        "energy_uncertainty": 0.022,
+        "intensity": 0.01521,
+        "intensity_uncertainty": 0.00011
+      },
+      {
+        "energy": 768.367,
+        "energy_uncertainty": 0.011,
+        "intensity": 0.0485,
+        "intensity_uncertainty": 0.00038
+      },
+      {
+        "energy": 806.185,
+        "energy_uncertainty": 0.011,
+        "intensity": 0.01255,
+        "intensity_uncertainty": 0.00011
+      },
+      {
+        "energy": 934.061,
+        "energy_uncertainty": 0.012,
+        "intensity": 0.03074,
+        "intensity_uncertainty": 0.00025
+      },
+      {
+        "energy": 1120.287,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.1478,
+        "intensity_uncertainty": 0.0011
+      },
+      {
+        "energy": 1155.19,
+        "energy_uncertainty": 0.02,
+        "intensity": 0.01624,
+        "intensity_uncertainty": 0.00014
+      },
+      {
+        "energy": 1238.11,
+        "energy_uncertainty": 0.012,
+        "intensity": 0.05785,
+        "intensity_uncertainty": 0.00045
+      },
+      {
+        "energy": 1280.96,
+        "energy_uncertainty": 0.02,
+        "intensity": 0.01425,
+        "intensity_uncertainty": 0.00012
+      },
+      {
+        "energy": 1377.669,
+        "energy_uncertainty": 0.012,
+        "intensity": 0.03954,
+        "intensity_uncertainty": 0.00033
+      },
+      {
+        "energy": 1401.516,
+        "energy_uncertainty": 0.014,
+        "intensity": 0.01324,
+        "intensity_uncertainty": 0.00011
+      },
+      {
+        "energy": 1407.993,
+        "energy_uncertainty": 0.007,
+        "intensity": 0.02369,
+        "intensity_uncertainty": 0.00019
+      },
+      {
+        "energy": 1509.217,
+        "energy_uncertainty": 0.008,
+        "intensity": 0.02108,
+        "intensity_uncertainty": 0.00021
+      },
+      {
+        "energy": 1661.316,
+        "energy_uncertainty": 0.013,
+        "intensity": 0.01037,
+        "intensity_uncertainty": 0.0001
+      },
+      {
+        "energy": 1729.64,
+        "energy_uncertainty": 0.012,
+        "intensity": 0.02817,
+        "intensity_uncertainty": 0.00023
+      },
+      {
+        "energy": 1764.539,
+        "energy_uncertainty": 0.015,
+        "intensity": 0.1517,
+        "intensity_uncertainty": 0.0012
+      },
+      {
+        "energy": 1847.42,
+        "energy_uncertainty": 0.025,
+        "intensity": 0.02,
+        "intensity_uncertainty": 0.00018
+      },
+      {
+        "energy": 2118.536,
+        "energy_uncertainty": 0.008,
+        "intensity": 0.01148,
+        "intensity_uncertainty": 0.00011
+      },
+      {
+        "energy": 2204.071,
+        "energy_uncertainty": 0.021,
+        "intensity": 0.0489,
+        "intensity_uncertainty": 0.001
+      },
+      {
+        "energy": 2447.673,
+        "energy_uncertainty": 0.01,
+        "intensity": 0.01536,
+        "intensity_uncertainty": 0.00015
+      }
+    ]
+  },
+  {
+    "name": "90-Th-228_IAEA",
+    "nuclide": "Th-228",
+    "halflife": 60359040,
+    "halflife_uncertainty": 19872,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 84.373,
+        "energy_uncertainty": 0.003,
+        "intensity": 0.0117,
+        "intensity_uncertainty": 0.0005
+      },
+      {
+        "energy": 131.612,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.00124,
+        "intensity_uncertainty": 6.0e-5
+      },
+      {
+        "energy": 215.985,
+        "energy_uncertainty": 0.004,
+        "intensity": 0.00226,
+        "intensity_uncertainty": 0.0002
+      }
+    ]
+  },
+  {
+    "name": "91-Pa-234m_IAEA",
+    "nuclide": "Pa-234m",
+    "halflife": 69.552,
+    "halflife_uncertainty": 0.9504,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 258.24,
+        "energy_uncertainty": 0.07,
+        "intensity": 0.000726,
+        "intensity_uncertainty": 9.0e-6
+      },
+      {
+        "energy": 742.814,
+        "energy_uncertainty": 0.022,
+        "intensity": 0.00096,
+        "intensity_uncertainty": 3.0e-5
+      },
+      {
+        "energy": 766.358,
+        "energy_uncertainty": 0.02,
+        "intensity": 0.00318,
+        "intensity_uncertainty": 5.0e-5
+      },
+      {
+        "energy": 786.272,
+        "energy_uncertainty": 0.022,
+        "intensity": 0.00054,
+        "intensity_uncertainty": 1.0e-5
+      },
+      {
+        "energy": 1001.025,
+        "energy_uncertainty": 0.022,
+        "intensity": 0.00832,
+        "intensity_uncertainty": 0.0001
+      }
+    ]
+  },
+  {
+    "name": "95-Am-241_IAEA",
+    "nuclide": "Am-241",
+    "halflife": 13638240000,
+    "halflife_uncertainty": 19872000,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 26.3446,
+        "energy_uncertainty": 0.0002,
+        "intensity": 0.024,
+        "intensity_uncertainty": 0.0003
+      },
+      {
+        "energy": 33.1963,
+        "energy_uncertainty": 0.0003,
+        "intensity": 0.00121,
+        "intensity_uncertainty": 3.0e-5
+      },
+      {
+        "energy": 59.5409,
+        "energy_uncertainty": 0.0001,
+        "intensity": 0.3578,
+        "intensity_uncertainty": 0.0009
+      }
+    ]
+  },
+  {
+    "name": "95-Am-243_IAEA",
+    "nuclide": "Am-243",
+    "halflife": 232588800000,
+    "halflife_uncertainty": 691200000,
+    "reference": "IAEA xgamma standards",
+    "description": null,
+    "absolute_intensities": 1,
+    "transitions": [
+      {
+        "energy": 43.53,
+        "energy_uncertainty": 0.02,
+        "intensity": 0.0589,
+        "intensity_uncertainty": 0.001
+      },
+      {
+        "energy": 74.66,
+        "energy_uncertainty": 0.02,
+        "intensity": 0.672,
+        "intensity_uncertainty": 0.012
+      }
+    ]
+  }
+]
