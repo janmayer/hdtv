@@ -15,6 +15,15 @@ parser = OptionParser()
 parser.add_option("-b", "--batch", dest="batchfile",
                   help="Open and execute hdtv batchfile")
 
+# Add HDTV include path to ROOT_INCLUDE_PATH
+hdtv_incl_path = sys.exec_prefix + '/share/hdtv/include'
+root_incl_path = os.environ.get('ROOT_INCLUDE_PATH', '')
+if root_incl_path.strip():
+    root_incl_path = root_incl_path.strip() + ':' + hdtv_incl_path
+else:
+    root_incl_path = hdtv_incl_path
+os.environ['ROOT_INCLUDE_PATH'] = root_incl_path
+
 (options, args) = parser.parse_args()
 sys.argv = [sys.argv[0]] # Reset command line arguments so that ROOT does not stumble about them
 
