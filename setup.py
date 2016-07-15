@@ -27,6 +27,7 @@ display = Extension('display',
                     sources = glob.glob('src/display/*.cxx'),
                     include_dirs = [root_incdir],
                     depends = '',
+                    libraries = ['X11'],
 		    extra_link_args = [] + root_ldflags,
 		    extra_compile_args = [] + root_compile_args
                     )
