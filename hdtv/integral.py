@@ -26,6 +26,7 @@ from hdtv.errvalue import ErrValue
 def Integrate(spec, bg, region):
     hist = spec.hist.hist
     
+    region.sort()
     int_tot = ROOT.HDTV.Fit.TH1Integral(hist, region[0], region[1])
     
     int_bac = None
