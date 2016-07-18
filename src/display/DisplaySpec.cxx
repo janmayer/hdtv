@@ -23,6 +23,7 @@
 #include "DisplaySpec.h"
 #include <TROOT.h>
 #include <Riostream.h>
+#include <utility>
 
 #include "DisplayStack.h"
 
@@ -106,8 +107,9 @@ double DisplaySpec::GetMax_Cached(int b1, int b2)
   if(b1 < 0) b1 = 0;
   if(b2 > GetNbinsX() + 1) b2 = GetNbinsX() + 1;
 
-  if(b2 < b1)
-	return -1;
+  if(b2 < b1){
+    std::swap(b1, b2);
+  }
 
   if(fCachedB2 < b1 || fCachedB1 > b2 || fCachedB1 > fCachedB2) {
 	fCachedB1 = b1;
