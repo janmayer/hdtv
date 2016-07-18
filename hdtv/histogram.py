@@ -151,10 +151,18 @@ class Histogram(Drawable):
         """
         Rebin spectrum by adding ngroup bins into one
         """
-        self._hist.Rebin(ngroup)
+        bins = self._hist.GetNbinsX()
+        self._hist.RebinX(ngroup)
+        self._hist.GetXaxis().SetLimits(0,bins/ngroup);
         # update display
         if self.displayObj:
             self.displayObj.SetHist(self._hist)
+        # update calibration
+        if self.cal and not self.cal.IsTrivial():
+            self.cal.Rebin(ngroup)
+            self.displayObj.SetCal(self.cal)
+            hdtv.ui.info("Calibration updated for rebinned spectrum")
+
         self.typeStr = "spectrum, modified (rebinned)"
     
     def Draw(self, viewport):

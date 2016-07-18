@@ -78,6 +78,7 @@ class Calibration {
     double dEdCh(double ch) const;
     double E2Ch(double e) const;
     
+    void Rebin(const unsigned int nBins);
     void Apply(TAxis *axis, int nbins);
     
   private:

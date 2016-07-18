@@ -23,6 +23,7 @@
 #include "Calibration.h"
 #include <TMath.h>
 #include <Riostream.h>
+#include <cmath>
 
 namespace HDTV {
 
@@ -178,6 +179,16 @@ void Calibration::Apply(TAxis *axis, int nbins)
   axis->Set(nbins, centers);
   
   delete[] centers;
+}
+
+void Calibration::Rebin(const unsigned int nBins)
+{
+  const unsigned int size = fCal.size();
+  for(unsigned int i = 0; i < size; i++)
+  {
+    fCal[i] *= std::pow(nBins, i);
+  }
+  UpdateDerivative();
 }
 
 } // end namespace HDTV

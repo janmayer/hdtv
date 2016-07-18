@@ -204,6 +204,10 @@ class SpecInterface:
         spec.color = hdtv.color.ColorForID(copyTo.major)
         spec.typeStr = "spectrum, copy"
         spec.name = "%s (copy)" % spec.name
+        if hist.cal:
+            cal = copy.copy(hist.cal)
+            self.caldict[spec.name] = cal
+            spec.cal = cal
         sid = self.spectra.Insert(spec, copyTo)
         hdtv.ui.msg("Copied spectrum " + str(ID) + " to " + str(sid))
 
