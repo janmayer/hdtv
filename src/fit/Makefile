@@ -23,7 +23,7 @@ rootdict-$(MODNAME).cxx:  Makefile $(EXPHEADERS) LinkDef.h
 	$(CPP) $(CFLAGS) -fpic -c $<
 
 clean:
-	-/bin/rm -f rootdict-$(MODNAME).cxx rootdict-$(MODNAME).h rootdict-$(MODNAME).o
+	-/bin/rm -f rootdict-$(MODNAME).cxx rootdict-$(MODNAME).h rootdict-$(MODNAME).o rootdict-$(MODNAME)_rdict.pcm
 	-/bin/rm -f *~
 	-/bin/rm -f $(OBJ)
 
@@ -32,3 +32,4 @@ copy: $(DESTDIR)/$(MODNAME).so
 $(DESTDIR)/$(MODNAME).so: $(MODNAME).so
 	mkdir -p $(DESTDIR)
 	cp $(MODNAME).so $(DESTDIR)
+	cp rootdict-$(MODNAME)_rdict.pcm $(DESTDIR)

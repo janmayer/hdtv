@@ -1,8 +1,15 @@
+# Compiled filed and build directories
+hdtv/clib
+build
 *.pyc
 *.so
 *.o
-rootdict-*.cxx
+
+# ROOT generated filed
 rootdict-*.h
+rootdict-*.cxx
+rootdict-*.pcm
+
+# Other
 hdtv_history
-build
 .history
