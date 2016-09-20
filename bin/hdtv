@@ -14,6 +14,8 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-b", "--batch", dest="batchfile",
                   help="Open and execute hdtv batchfile")
+parser.add_option("-v", "--version", action="store_true", dest="version", default=False,
+                  help="Show HDTV Version")
 
 (options, args) = parser.parse_args()
 sys.argv = [sys.argv[0]] # Reset command line arguments so that ROOT does not stumble about them
@@ -52,6 +54,12 @@ else:
     os.environ['ROOT_INCLUDE_PATH'] = root_incl_path
 
 
+# Print Version Information
+import hdtv.version
+if options.version:
+    print("HDTV " + hdtv.version.VERSION)
+    quit()
+
 # Import core modules
 import hdtv.cmdline
 import hdtv.session
@@ -80,32 +88,26 @@ import hdtv.plugins.dblookup
 import hdtv.plugins.peakfinder
 import hdtv.plugins.printing
 
+
+hdtv.ui.msg("HDTV - Nuclear Spectrum Analysis Tool")
+
+
 # Execute startup.py for user configuration in python
 try:
     import startup
 except ImportError:
-    hdtv.ui.msg("No startup.py file")
+    hdtv.ui.debug("No startup.py file")
 
 # Execute startup.hdtv for user configuration in "hdtv" language
 try:
     startup_hdtv = configpath + os.sep + "startup.hdtv"
     if os.path.exists(startup_hdtv):
+        hdtv.ui.msg("Reading startup.hdtv")
         hdtv.cmdline.command_line.ExecCmdfile(startup_hdtv)
     else:
-        hdtv.ui.msg("No startup.hdtv file")
+        hdtv.ui.debug("No startup.hdtv file")
 except IOError, msg:
-    hdtv.ui.msg("Error reading %s: %s" % (startup_hdtv, msg))
-
-hdtv.ui.newline()
-hdtv.ui.msg("=========================================================")
-hdtv.ui.msg(" HDTV - Nuclear Spectrum Analysis Tool")
-hdtv.ui.newline()
-hdtv.ui.msg("  Copyleft: Institut for Nuclear Physics, Cologne")
-hdtv.ui.msg("  Authors:  Norbert Braun, Tanja Kotthaus, Ralf Schulze")
-hdtv.ui.newline()
-hdtv.ui.msg("  This software is licensed under the GPL.") 
-hdtv.ui.msg("=========================================================")
-hdtv.ui.newline()
+    hdtv.ui.error("Error reading %s: %s" % (startup_hdtv, msg))
 
 # Execute batchfile given on command line
 try:
@@ -119,4 +121,3 @@ except IOError, msg:
 # Go
 hdtv.cmdline.MainLoop()
 hdtv.cmdline.command_tree.SetDefaultLevel(1)
-

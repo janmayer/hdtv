@@ -33,7 +33,7 @@ class FitInterface:
     User interface for fitting 1-d spectra
     """
     def __init__(self, spectra):
-        hdtv.ui.msg("Loaded user interface for fitting of 1-d spectra")
+        hdtv.ui.debug("Loaded user interface for fitting of 1-d spectra")
 
         self.spectra = spectra
         self.window = self.spectra.window

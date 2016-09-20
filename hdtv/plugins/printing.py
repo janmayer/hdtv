@@ -269,4 +269,4 @@ class PrintInterface(object):
 # plugin initialisation
 import __main__
 __main__.p =PrintInterface(__main__.spectra)
-hdtv.ui.msg("Loaded user interface for printing")
+hdtv.ui.debug("Loaded user interface for printing")

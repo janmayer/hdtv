@@ -39,7 +39,8 @@ class SpecInterface:
     User interface to work with 1-d spectra
     """
     def __init__(self, spectra):
-        hdtv.ui.msg("Loaded user interface for working with 1-d spectra")
+        hdtv.ui.debug("Loaded user interface for working with 1-d spectra")
+        
         self.spectra = spectra
         self.window = spectra.window
         self.caldict = spectra.caldict

@@ -37,7 +37,7 @@ class PeakFinder(object):
     """
     def __init__(self, spectra):
         self.spectra = spectra
-        hdtv.ui.msg( "loaded PeakFinder plugin")
+        hdtv.ui.debug("Loaded PeakFinder plugin")
         
     def __call__(self, sid, sigma, threshold, start=None, end=None, autofit=False, reject=False):
         self.spec = self.spectra.dict[sid]

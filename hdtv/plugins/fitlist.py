@@ -33,7 +33,8 @@ import hdtv.util
 
 class FitlistManager(object):
     def __init__(self, spectra):
-        hdtv.ui.msg("loaded fitlist plugin")
+        hdtv.ui.debug("Loaded fitlist plugin")
+        
         self.spectra = spectra
         self.xml = hdtv.fitxml.FitXml(spectra)
         self.list = dict()

@@ -27,7 +27,8 @@ from hdtv.errvalue import ErrValue
 
 class FitMap(object):
     def __init__(self, spectra, ecal):
-        hdtv.ui.msg("loading plugin for setting nominal positions to peaks")
+        hdtv.ui.debug("Loaded plugin for setting nominal positions to peaks")
+        
         self.spectra = spectra
         self.ecal = ecal
         

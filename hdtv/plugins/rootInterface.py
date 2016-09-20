@@ -37,7 +37,8 @@ from hdtv.matrix import Matrix
 
 class RootFileInterface:
     def __init__(self, spectra):
-        print "Loaded user interface for working with root files"
+        hdtv.ui.debug("Loaded user interface for working with root files")
+        
         self.spectra = spectra
         self.window = spectra.window
         self.caldict = spectra.caldict
@@ -103,9 +104,7 @@ class RootFileInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
         hdtv.cmdline.AddCommand(prog, self.RootCutDelete, nargs=0, parser=parser)
         
-        
         hdtv.cmdline.RegisterInteractive("gRootFile", self.rootfile)
-
 
     def RootBrowse(self, args):
         self.browser = ROOT.TBrowser()

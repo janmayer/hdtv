@@ -124,7 +124,7 @@ class fitTex:
     document. It uses the longtable package.
     """
     def __init__(self, spectra, fitInterface):
-        hdtv.ui.msg("loading plugin for exporting fitlist to tex")
+        hdtv.ui.debug("Loaded plugin for exporting fitlist to tex")
     
         self.spectra = spectra
         self.f = fitInterface

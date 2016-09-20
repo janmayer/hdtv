@@ -33,6 +33,7 @@ import signal
 class TextInterface(hdtv.ui.SimpleUI):
     
     def __init__(self, height = 25, width = 80):
+        hdtv.ui.debug("Loaded TextInterface")
         
         super(TextInterface, self).__init__()
         # Set options
@@ -47,7 +48,6 @@ class TextInterface(hdtv.ui.SimpleUI):
         self._fallback_canvaswidth = width       
         self._updateTerminalSize(None, None)
 
-        self.msg("loaded TextInterface")
         signal.signal(signal.SIGWINCH, self._updateTerminalSize)
 
 # TODO: this does not work(?)

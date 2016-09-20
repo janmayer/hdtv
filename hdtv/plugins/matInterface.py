@@ -36,7 +36,8 @@ from hdtv.specreader import SpecReaderError
 
 class MatInterface:
     def __init__(self, spectra):
-        hdtv.ui.msg("Loaded user interface for working with 2-d spectra")
+        hdtv.ui.debug("Loaded user interface for working with 2-d spectra")
+        
         self.spectra= spectra
         self.window = spectra.window
         self.oldcut = None

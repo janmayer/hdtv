@@ -40,5 +40,6 @@ def run(args):
         print msg
     print "Finished!"
 
-print "loaded run plugin"
 hdtv.cmdline.AddCommand("run", run, nargs=1, fileargs=True)
+
+hdtv.ui.debug("Loaded run plugin")

@@ -35,9 +35,8 @@ import hdtv.fit
 class Database(object):
     
     def __init__(self):
+        hdtv.ui.debug("Loaded Database Lookup plugin")
         
-        hdtv.ui.msg("loaded Database Lookup plugin")
-
         self.opt = dict()
         self.database = None
         

@@ -62,5 +62,5 @@ hdtv.cmdline.AddCommand("config show", ConfigShow, maxargs=1, level=2,
 hdtv.cmdline.AddCommand("config reset", ConfigReset, maxargs=1, level=2,
                         usage="%prog [variable]",
                         completer=ConfigVarCompleter)
-                        
-print "Loaded user interface for configuration variables"
+
+hdtv.ui.debug("Loaded user interface for configuration variables")
