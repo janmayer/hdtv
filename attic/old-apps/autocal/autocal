@@ -1,7 +1,0 @@
-#!/bin/sh
-
-export PYTHONPATH="/home/braun/hdtv/pylib"
-
-python -i autocal.py
-
-
