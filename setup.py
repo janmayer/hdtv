@@ -62,11 +62,11 @@ sys_includes = ['src/display/Calibration.h','src/display/DisplayBlock.h',
      'src/fit/TheuerkaufFitter.h', 'src/mfile-root/MatOp.h',
      'src/mfile-root/MFileHist.h', 'src/mfile-root/VMatrix.h']
 
+
+import hdtv.version
 setup(name='hdtv',
-    version = '0.1',
-    description='hdtv',
-    author = open('./AUTHORS', 'r').read(),
-    long_description=open('./README','r').read(),
+    version = hdtv.version.VERSION,
+    description='HDTV - Nuclear Spectrum Analysis Tool',
     scripts = ['bin/hdtv'],
     packages=['hdtv', 'hdtv.plugins', 'hdtv.peakmodels', 'hdtv.efficiency', 'hdtv.database'],
     package_data={'hdtv':['share/*', 'clib/*.pcm']},
@@ -74,4 +74,3 @@ setup(name='hdtv',
     ext_modules=[display, fit, mfile_root ],
     data_files=[('share/hdtv/include', sys_includes)]
     )
-
