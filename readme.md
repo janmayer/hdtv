@@ -94,13 +94,22 @@ Note: Hotkeys are case sensitive.
 
 ## Install
 
-1.) Install locally and run from source directory
+1. Run locally from source directory
 
-	Execute "make" in the src subdirectory
+	```
+	cd src
+	make
+	cd ..
+	./bin/hdtv
+	```
 
-2.) Install into system (requires superuser's rights)
+2. Install into system for current user only
 
-	Run "python setup.py install"
+	`python setup.py install --user`
+
+3. Install into system (requires superuser's rights)
+
+	`python setup.py install`
 
 
 
