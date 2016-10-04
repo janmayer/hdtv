@@ -22,3 +22,6 @@
 from . wiedenhoever import WiedenhoeverEff
 from . wunder import WunderEff
 from . polyeff import PolyEff
+from . exp import ExpEff
+from . pow import PowEff
+#from . orthogonal import OrthogonalEff

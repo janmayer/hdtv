@@ -122,3 +122,12 @@ class PolyEff(_Efficiency):
         error = abs(tmp1 - tmp2)/2.
 
         return self.norm * error 
+
+    def returnFunktion(self, x, Parameter):
+        """
+        Returns the value of the fitted function at x.
+        """
+        function = 0
+        for i in range(0,self._degree+1):
+            function = function + Parameter[i] * pow(x,i)
+        return(function)

@@ -130,12 +130,15 @@ class _Efficiency(object):
         """
         # TODO: Unify this with the energy calibration fitter
         if fitPairs is not None:
-            self.fitInput = fitPairs
+            #self.fitInput = fitPairs 
+            self._fitInput = fitPairs 
 
-        E = array.array("d")
+        E = array.array("d") 
         delta_E = array.array("d")
         eff = array.array("d")
         delta_eff = array.array("d")
+        EN = array.array("d")
+        effN = array.array("d")
 
 
 #        map(energies.append(self.fitInput[0]), self.fitInput)
@@ -143,8 +146,9 @@ class _Efficiency(object):
         hasXerrors = False
         # Convert energies to array needed by ROOT        
         try:
-            map(lambda x: E.append(x[0].value), self._fitInput)
-            map(lambda x: delta_E.append(x[0].error), self._fitInput)
+            map(lambda x: E.append(x[0].value.value), self._fitInput) 
+            map(lambda x: delta_E.append(x[0].value.error), self._fitInput)
+            map(lambda x: EN.append(0.0), self._fitInput)
             hasXerrors = True
         except AttributeError: # energies does not seem to be ErrValue list
             map(lambda x: E.append(x[0]), self._fitInput)
@@ -152,11 +156,21 @@ class _Efficiency(object):
 
         # Convert efficiencies to array needed by ROOT
         try:
-            map(lambda x: eff.append(x[1].value), self._fitInput)
-            map(lambda x: delta_eff.append(x[1].error), self._fitInput)
+            map(lambda x: eff.append(x[1].value.value), self._fitInput)
+            map(lambda x: delta_eff.append(x[1].value.error), self._fitInput)
+            map(lambda x: effN.append(0.0), self._fitInput)
         except AttributeError: # energies does not seem to be ErrValue list
             map(lambda x: eff.append(x[1]), self._fitInput)
             map(lambda x: delta_eff.append(0.0), self._fitInput)
+
+        #if fit has errors we first fit without errors to get good initial values
+        if hasXerrors == True:
+            print "Fit parameter without errors included:"
+            self.TGraphWithoutErrors = TGraphErrors(len(E), E, eff, EN, effN)
+            fitWithoutErrors = self.TGraphWithoutErrors.Fit(self.id)
+
+            print
+            print "Fit parameter with errors included:"
 
         # Preliminary normalization
 #        if self._doNorm:
@@ -165,20 +179,19 @@ class _Efficiency(object):
 #                eff[i] *= self.norm
 #                delta_eff[i] *= self.norm
 
-        self.TF1.SetRange(0, max(E) * 1.1)
-        self.TF1.SetParameter(0, 1) # Unset normalization for fitting
-
+        #self.TF1.SetRange(0, max(E) * 1.1)
+        #self.TF1.SetParameter(0, 1) # Unset normalization for fitting
+        
         self.TGraph = TGraphErrors(len(E), E, eff, delta_E, delta_eff)
 
-        # Do the fit
-        fitopts = "0" # Do not plot
+        #Do the fit
+        fitopts = "0" # Do not plot 
 
         if hasXerrors:
             # We must use the iterative fitter (minuit) to take x errors
             # into account.
-            fitopts += "F"
+            fitopts += "F" 
             hdtv.ui.info("switching to non-linear fitter (minuit) for x error weighting")
-
         if quiet:
             fitopts += "Q"
 
@@ -193,9 +206,9 @@ class _Efficiency(object):
         if  fitstatus != 0:
             raise RuntimeError, "Fit failed"
 
-        # Final normalization
-        if self._doNorm:
-            self.normalize()
+#         # Final normalization 
+#         if self._doNorm:
+#             self.normalize()
 
         # Get parameter
         for i in range(self._numPars):
@@ -208,6 +221,8 @@ class _Efficiency(object):
             for j in range(0, self._numPars):
                 self.fCov[i][j] = tvf.GetCovarianceMatrixElement(i, j)
 ##                 self.fCov[i][j] = cov[i * self._numPars + j]
+
+        return self.parameter
             
     def normalize(self):
         # Normalize the efficiency funtion

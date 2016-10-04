@@ -242,14 +242,14 @@ class Fit(Drawable):
                     params.append(p) 
             # Calculate normalized volume if efficiency calibration is present
             # FIXME: does this belong here?
-            if self.spec.effCal is not None:
-                volume = thispeak["vol"]
-                energy = thispeak["pos"]
-                norm_volume = volume / self.spec.effCal(energy)
-                par = "vol/eff"
-                par_index = params.index("vol") + 1
-                params.insert(par_index, par)
-                thispeak[par] = norm_volume
+            #if self.spec.effCal is not None:
+            #    volume = thispeak["vol"]
+            #    energy = thispeak["pos"]
+            #    norm_volume = volume / self.spec.effCal(energy)
+            #    par = "vol/eff"
+            #    par_index = params.index("vol") + 1
+            #    params.insert(par_index, par)
+            #    thispeak[par] = norm_volume
             peaklist.append(thispeak)
         return (peaklist, params)
 

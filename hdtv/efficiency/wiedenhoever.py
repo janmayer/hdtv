@@ -27,7 +27,8 @@ class WiedenhoeverEff(_Efficiency):
     """
     'Wiedenhoever' efficiency formula.
     
-    eff(E) = a * (E - c+ d * exp(-e * E))^-b 
+    former formula: eff(E) = a * (E - c+ d * exp(-e * E))^-b 
+    new formula: eff(E) = d * (E - b + c * exp(-d * E))^-a 
     """
     
     def __init__(self, pars = list(), norm = True):
@@ -36,7 +37,8 @@ class WiedenhoeverEff(_Efficiency):
         self.name = "Wiedenhoever"
         self.id = self.name + "_" + hex(id(self))
 
-        self.TF1 = TF1(self.id, "[0] * pow(x - [2] + [3] * exp(-[4] *x), -[1]))", 0, 0) # [0] is normalization factor
+        self.TF1 = TF1(self.id, "([4]*[0] * pow(x - [2] + [3] * exp(-[4] *x), -[1]))", 0, 0) # [0] is normalization factor
+        #originally the [4] was not the first coefficient but it did not work without
         
         _Efficiency.__init__(self, num_pars = 5, pars = pars, norm = norm)
         
@@ -46,7 +48,7 @@ class WiedenhoeverEff(_Efficiency):
         self._dEff_dP[1] = lambda E, fPars: self.norm * (-self.value(E)) * math.log(E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E)) # dEff/db
         self._dEff_dP[2] = lambda E, fPars: self.norm * self.value(E) * fPars[1] / (E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E))  # dEff/dc
         self._dEff_dP[3] = lambda E, fPars: self.norm * (-self.value(E)) * fPars[1] / (E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E)) * math.exp(-fPars[4] * E) # dEff/dd 
-        self._dEff_dP[4] = lambda E, fPars: self.norm * self.value(E) * fPars[1] / (E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E)) * fPars[3] * math.exp(-fPars[4] * E) * E # dEff/de
+        self._dEff_dP[4] = lambda E, fPars: self.norm * self.value(E) * ( 1 / fPars[4] + fPars[1] / (E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E)) * fPars[3] * math.exp(-fPars[4] * E) * E) # dEff/de
         	
     # Compatibility functions for old code
     def eff(self, E):
@@ -54,3 +56,9 @@ class WiedenhoeverEff(_Efficiency):
     
     def effErr(self, E):
         return self.error(E)
+
+    def returnFunktion(self, x, Parameter):
+        """
+        Returns the value of the fitted function at x.
+        """
+        return(Parameter[3]*pow(x - Parameter[1] + Parameter[2] * math.exp(-Parameter[3] * x), -Parameter[0]))

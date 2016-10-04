@@ -23,32 +23,32 @@ from . efficiency import _Efficiency
 from ROOT import TF1
 import math
 
-class WunderEff(_Efficiency):
+class PowEff(_Efficiency):
     """
-    'Wunder' efficiency formula.
+    Power function efficiency formula.
     
-    eff(E) = (a*E + b/E) * exp(c*E + d/E) 
+    eff(E) = a + b * pow(E,-c)
     """
     def __init__(self, pars=list(), norm=True):
         
-        self.name = "Wunder"
+        self.name = "Potency"
         self.id = self.name + "_" + hex(id(self))
-        self.TF1 = TF1(self.id, "[0] * ([1]*x + [2]/x) * exp([3]*x + [4]/x)", 0, 0)#[0] is fix
-        
+        self.TF1 = TF1(self.id, "([0]*([1]+[2]*x**(-[3])))", 0, 0)#[0] is fix
+              
         _Efficiency.__init__(self, num_pars=4, pars=pars, norm=norm)
         
-        # List of derivatives
-        self._dEff_dP = [None, None, None, None]
-        
-        self._dEff_dP[0] = lambda E, fPars: self.norm * fPars[4] * E * math.exp(fPars[2]*E + fPars[3]/E)    # dEff/da
-        self._dEff_dP[1] = lambda E, fPars: self.norm * fPars[4] * 1./E * math.exp(fPars[2]*E + fPars[3]/E)  # dEff/db
-        self._dEff_dP[2] = lambda E, fPars: self.norm * fPars[4] * (fPars[0]*E + fPars[1]/E) * E * math.exp(fPars[2]*E + fPars[3]/E)  # dEff/dc
-        self._dEff_dP[3] = lambda E, fPars: self.norm * fPars[4] * (fPars[0]*E + fPars[1]/E) * 1./E * math.exp(fPars[2]*E + fPars[3]/E)  # dEff/dd
-        #Test
-        #self._dEff_dP[4] = lambda E, fPars: self.norm * (fPars[0]*E + fPars[1]/E) * E * math.exp(fPars[2]*E + fPars[3]/E)  # dEff/d
+        #List of derivatives
+        self._dEff_dP = [None, None, None, None, None]
+
+        self._dEff_dP[0] = lambda E, fPars: self.norm * fPars[1] + fPars[2] * pow(E,-fPars[3])
+        self._dEff_dP[1] = lambda E, fPars: self.norm * fPars[0]  # dEff/da
+        self._dEff_dP[2] = lambda E, fPars: self.norm * fPars[0] * pow(E,-fPars[3])  # dEff/db
+        self._dEff_dP[3] = lambda E, fPars: self.norm * fPars[0] * fPars[2] * (-fPars[3]) * pow(E,(-fPars[3]-1)) # dEff/dc
 
     def returnFunktion(self, x, Parameter):
         """
         Returns the value of the fitted function at x.
         """
-        return((Parameter[0] * x + Parameter[1] / x) * math.exp(Parameter[2] * x + Parameter[3] / x)) 
+        return(Parameter[0]+Parameter[1]*pow(x,-Parameter[2]))
+
+        
