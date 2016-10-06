@@ -26,30 +26,21 @@ import math
 class ExpEff(_Efficiency):
     """
     'Exponential' efficiency formula.
-    
+
     eff(E) = a * exp(-b*E) + c * exp(-d*E)
     """
     def __init__(self, pars=list(), norm=True):
-        
         self.name = "Exponential"
         self.id = self.name + "_" + hex(id(self))
-        self.TF1 = TF1(self.id, "([0]*[1]*exp(-[2]*x)+[3]*exp(-[4]*x))", 0, 0)#[0] because the first parameter is always fixed
-              
-        _Efficiency.__init__(self, num_pars=5, pars=pars, norm=norm)
-        
-        #List of derivatives
-        self._dEff_dP = [None, None, None, None, None]
+        #                       "( N *( a *exp(- b *E)+ c *exp(- d *E)))"
+        self.TF1 = TF1(self.id, "([0]*([1]*exp(-[2]*x)+[3]*exp(-[4]*x)))", 0, 0) # [0] is fixed
 
-        self._dEff_dP[0] = lambda E, fPars: self.norm * fPars[1] * math.exp((-1.0) * fPars[2] * E)
+        _Efficiency.__init__(self, num_pars=5, pars=pars, norm=norm)
+
+        # List of derivatives
+        self._dEff_dP = [None, None, None, None, None]
+        self._dEff_dP[0] = lambda E, fPars: self.norm * (fPars[1] * math.exp((-1.0) * fPars[2] * E) + fPars[3] * math.exp((-1.0) * fPars[4] * E))  # dEff/dN
         self._dEff_dP[1] = lambda E, fPars: self.norm * fPars[0] * math.exp((-1.0) * fPars[2] * E)  # dEff/da
         self._dEff_dP[2] = lambda E, fPars: self.norm * (-1.0) * fPars[0] * fPars[1] * E * math.exp((-1.0) * fPars[2] * E)  # dEff/db
-        self._dEff_dP[3] = lambda E, fPars: self.norm * math.exp((-1.0) * fPars[4] * E) # dEff/dc
-        self._dEff_dP[4] = lambda E, fPars: self.norm * (-1.0) * fPars[3] * E * math.exp((-1.0) * fPars[4] * E)  # dEff/dd
-
-    def returnFunktion(self, x, Parameter):
-        """
-        Returns the value of the fitted function at x.
-        """
-        return(Parameter[0]*math.exp(-Parameter[1]*x)+Parameter[2]*math.exp(-Parameter[3]*x))
-
-        
+        self._dEff_dP[3] = lambda E, fPars: self.norm * fPars[0] * math.exp((-1.0) * fPars[4] * E)  # dEff/dc
+        self._dEff_dP[4] = lambda E, fPars: self.norm * (-1.0) * fPars[0] * fPars[3] * E * math.exp((-1.0) * fPars[4] * E)  # dEff/dd

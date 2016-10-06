@@ -24,6 +24,7 @@ import re
 import os
 import glob
 import traceback
+import hdtv.options
 import hdtv.errvalue
 import hdtv.ui
 
@@ -56,7 +57,7 @@ def GetCompleteOptions(begin, options):
 #    try: fb = float(b)
 #    except ValueError: fb=b
 #    return cmp(fa,fb)
-#    
+#
 ## FIXME: remove
 #class ErrValue(hdtv.errvalue.ErrValue):
 #    def __init__(self, *args):
@@ -71,18 +72,18 @@ class TxtFile(object):
     Handle txt files, ignoring commented lines
     """
     def __init__(self, filename, mode = "r"):
-                
-        self.lines = list()  
+
+        self.lines = list()
         self.linos = list()
         self.mode = mode
         filename = filename.rstrip() # TODO: this has to be handled properly (escaped whitespaces, etc...)
-        self.filename = os.path.expanduser(filename) 
+        self.filename = os.path.expanduser(filename)
         self.fd = None
-        
+
     def read(self, verbose = False):
         """
         Read text file to self.lines
-        
+
         Comments are stripped and lines seperated by '\' are automatically
         concatenated
         """
@@ -94,7 +95,7 @@ class TxtFile(object):
                 number +=1
                 line = line.rstrip('\r\n ')
                 if len(line) > 0 and line[-1] == '\\': # line is continued on next line
-                    prev_line += line.rstrip('\\') 
+                    prev_line += line.rstrip('\\')
                     continue
                 else:
                     if prev_line != "":
@@ -102,26 +103,26 @@ class TxtFile(object):
                     prev_line = ""
                 if verbose:
                     hdtv.ui.msg("file> " + str(line))
-                
-                # Strip comments 
-                line = line.split("#")[0] 
+
+                # Strip comments
+                line = line.split("#")[0]
                 if line.strip() == "":
                     continue
                 self.lines.append(line)
                 self.linos.append(number)
-                
+
         except IOError, msg:
-            raise IOError, "Error opening file:" + str(msg) 
+            raise IOError, "Error opening file:" + str(msg)
         except: # Let MainLoop handle other exceptions
             raise
         finally:
             if not self.fd is None:
                 self.fd.close()
-                
+
     def write(self):
         """
         Write lines stored in self.lines to text file
-        
+
         Newlines are automatically appended if necessary
         """
         try:
@@ -137,34 +138,34 @@ class TxtFile(object):
         finally:
             if not self.fd is None:
                 self.fd.close()
-    
+
 class Pairs(list):
     """
     List of pair values
-    
+
     conv_func: conversion function to be called berfore storage of pair
     """
     def __init__(self, conv_func = lambda x: x): # default conversion is "identity" -> No conversion
-        
+
         super(Pairs, self).__init__()
         self.conv_func = conv_func # Conversion function, e.g. float
-        
+
     def add(self, x, y):
         """
         Add a pair
         """
         self.append([self.conv_func(x), self.conv_func(y)])
-        
+
     def remove(self, pair):
         """
         TODO
         """
         pass
-        
+
     def fromFile(self, fname, sep = None):
         """
         Read pairs from file
-        """    
+        """
         file = TxtFile(fname)
         file.read()
         for line in file.lines:
@@ -173,7 +174,7 @@ class Pairs(list):
                 self.add(pair[0], pair[1])
             except (ValueError, IndexError):
                 print "Invalid Line in", fname, ":", line
-                
+
     def fromLists(self, list1, list2):
         """
         Create pairs from to lists by assigning corresponding indices
@@ -181,15 +182,18 @@ class Pairs(list):
         if len(list1) != len(list2):
             hdtv.ui.error("Lists for Pairs.fromLists() are of different length")
             return False
-        
+
         for i in range(0, len(list1)):
             self.add(list1[i], list2[i])
-        
-        
+
+
+opt = hdtv.options.Option(default = "classic")
+hdtv.options.RegisterOption("table", opt)
+
 class Table(object):
     """
     Class to store tables
-    
+
     data: iterable that contains 'keys' as attributes or dict entries
     """
     def __init__(self, data, keys, header = None, ignoreEmptyCols = True,
@@ -199,31 +203,39 @@ class Table(object):
         self.sortBy = sortBy
         self.keys = keys
         self.data = list()
-        
-        self.col_sep_char = "|"
-        self.empty_field = "-"
-        self.header_sep_char = "-"
-        self.crossing_char = "+"
-        
+
+        self.style = style = hdtv.options.Get("table")
+
+        if style == "classic":
+            self.col_sep_char = "|"
+            self.empty_field = "-"
+            self.header_sep_char = "-"
+            self.crossing_char = "+"
+        else:
+            self.col_sep_char = "\t"
+            self.empty_field = ""
+            self.header_sep_char = ""
+            self.crossing_char = ""
+
         self._width = 0 # Width of table
         self._col_width = list() # width of columns
-        
-        
+
+
         # One additional "border column"
-        self._ignore_col = [ignoreEmptyCols for i in range(0, len(keys) + 1)] 
-        
+        self._ignore_col = [ignoreEmptyCols for i in range(0, len(keys) + 1)]
+
         self.read_data(data, keys, header)
         if sortBy is not None:
             self.sort_data(sortBy, reverseSort)
-        
+
     @property
     def num_columns(self):
         return len(self.keys)
-    
+
     @property
     def num_rows(self):
         return len(self.data)
-    
+
     def read_data(self, data, keys, header=None):
         self.data = list()
         for d in data:
@@ -246,8 +258,8 @@ class Table(object):
         # initial width of columns
         for header in self.header:
             # TODO: len fails on unicode characters (e.g. σ) -> str.decode(encoding)
-            self._col_width.append(len(str(header)) + 2)  
-        
+            self._col_width.append(len(str(header)) + 2)
+
     def build_lines(self):
         lines = list()
         for d in self.data:
@@ -264,19 +276,25 @@ class Table(object):
                     if value is None:
                         value = ""
                     else:
-                        value = str(value)
+                        if self.style == "classic":
+                            value = str(value)
+                        else:
+                            try:
+                                value = value.fmt_long(prec=4, separator=" ")
+                            except:
+                                value = str(value)
                     if not value is "" : # We have values in this columns -> don't ignore it
                         self._ignore_col[i] = False
-                        
+
                     line.append(value)
                     # TODO: len fails on unicode characters (e.g. σ) -> str.decode(encoding)
                     # Store maximum col width
-                    self._col_width[i] = max(self._col_width[i], len(value) + 2) 
+                    self._col_width[i] = max(self._col_width[i], len(value) + 2)
                 except KeyError:
                     line.append(self.empty_field)
             lines.append(line)
         return lines
-          
+
     def sort_data(self, sortBy, reverseSort=False):
         self.data.sort(key = lambda x: x[sortBy], reverse = reverseSort)
 
@@ -284,19 +302,19 @@ class Table(object):
         # Determine table widths
         for w in self._col_width:
             self._width += w
-            # TODO: for unicode awareness we have to do something 
+            # TODO: for unicode awareness we have to do something
             #       like len(col_sep_char.decode('utf-8')
-            self._width += len(self.col_sep_char) 
+            self._width += len(self.col_sep_char)
 
     def build_header(self):
         headerline = str()
         for col in range(0, len(self.header)):
             if not self._ignore_col[col]:
-                headerline += str(" " + self.header[col] + " ").center(self._col_width[col]) 
+                headerline += str(" " + self.header[col] + " ").center(self._col_width[col])
             if not self._ignore_col[col + 1]:
-                headerline += self.col_sep_char 
+                headerline += self.col_sep_char
         return headerline
-        
+
     def build_sep(self):
         # Seperator between header and data
         header_sep_line = str()
@@ -306,42 +324,42 @@ class Table(object):
                     header_sep_line += self.header_sep_char
                 if not self._ignore_col[i + 1]:
                     header_sep_line += self.crossing_char
-        return header_sep_line 
-        
+        return header_sep_line
+
     def __str__(self):
         text = str()
         if not self.extra_header is None:
             text += str(self.extra_header) + os.linesep
-        
+
         # this must be before the header, because of self._ignore_col
         lines = self.build_lines()
-        
+
         headerline = self.build_header()
         text += headerline + os.linesep
 
         header_sep_line = self.build_sep()
         text += header_sep_line + os.linesep
-                
+
         for line in lines:
             line_str = ""
             for col in range(0, len(line)):
                 if not self._ignore_col[col]:
-                    line_str += str(" " + line[col] + " ").rjust(self._col_width[col]) 
+                    line_str += str(" " + line[col] + " ").rjust(self._col_width[col])
                 if not self._ignore_col[col + 1]:
                     line_str += self.col_sep_char
 
             text += line_str + os.linesep
-   
+
         if not self.extra_footer is None:
             text += str(self.extra_footer) + os.linesep
-            
+
         return text
-        
+
 class Position(object):
     """
     Class for storing postions that may be fixed in calibrated or uncalibrated space
-    
-    if self.pos_cal is set the position is fixed in calibrated space. 
+
+    if self.pos_cal is set the position is fixed in calibrated space.
     if self.pos_uncal is set the position is fixed in uncalibrated space.
     """
     def __init__(self, pos, fixedInCal, cal = None):
@@ -354,49 +372,49 @@ class Position(object):
             self._pos_cal = None
             self._pos_uncal = pos
 
-    # pos_cal 
+    # pos_cal
     def _set_pos_cal(self, pos):
         if not self.fixedInCal:
             raise TypeError, "Position is fixed in uncalibrated space"
         self._pos_cal = pos
         self._pos_uncal = None
-        
+
     def _get_pos_cal(self):
         if self.fixedInCal:
             return self._pos_cal
         else:
             return self._Ch2E(self._pos_uncal)
-        
+
     pos_cal = property(_get_pos_cal, _set_pos_cal)
-    
+
     # pos_uncal
     def _set_pos_uncal(self, pos):
         if self._fixedInCal:
             raise TypeError, "Position is fixed in calibrated space"
         self._pos_uncal = pos
         self._pos_cal = None
-    
+
     def _get_pos_uncal(self):
         if self.fixedInCal:
             return self._E2Ch(self._pos_cal)
         else:
             return self._pos_uncal
-    
+
     pos_uncal = property(_get_pos_uncal, _set_pos_uncal)
-    
+
     # fixedInCal property
     def _set_fixedInCal(self, fixedInCal):
         if fixedInCal:
             self.FixInCal()
         else:
             self.FixInUncal()
-            
+
     def _get_fixedInCal(self):
         return self._fixedInCal
-        
+
     fixedInCal = property(_get_fixedInCal, _set_fixedInCal)
-        
-           
+
+
     # other functions
     def __str__(self):
         text = str()
@@ -405,21 +423,21 @@ class Position(object):
         else:
             text += "Uncal: %s" % self._pos_uncal
         return text
-    
+
     def _Ch2E(self, Ch):
         if self.cal is None:
             E = Ch
         else:
             E = self.cal.Ch2E(Ch)
         return E
-    
+
     def _E2Ch(self, E):
         if self.cal is None:
             Ch = E
         else:
             Ch = self.cal.E2Ch(E)
         return Ch
-        
+
     def FixInCal(self):
         """
         Fix position in calibrated space
@@ -427,7 +445,7 @@ class Position(object):
         if not self._fixedInCal:
             self._fixedInCal = True
             self.pos_cal = self._Ch2E(self._pos_uncal)
-         
+
     def FixInUncal(self):
         """
         Fix position in uncalibrated space
@@ -435,7 +453,7 @@ class Position(object):
         if self._fixedInCal:
             self._fixedInCal = False
             self.pos_uncal = self._E2Ch(self._pos_cal)
-        
+
 class ID(object):
     def __init__(self, major=None, minor=None):
         if major is None:
@@ -450,7 +468,7 @@ class ID(object):
             self.minor = int(minor)
             if self.minor < 0:
                 raise ValueError, "Only positive minor IDs allowed"
-        
+
     def __cmp__(self, ID):
         if ID is None:
             return 1
@@ -459,29 +477,29 @@ class ID(object):
         if self.major < ID.major:
             return -1
         return cmp(self.minor, ID.minor)
-        
+
     def __hash__(self):
         # this is needed to use IDs as keys in dicts and in sets
         return hash(self.major)^hash(self.minor)
-        
+
     def __str__(self):
         if self.major is None:
             return "."+str(self.minor)
         if self.minor is None:
             return str(self.major)
         return str(self.major)+"."+str(self.minor)
-    
+
     def __int__(self):
         return int(self.major)
-    
+
     def __float__(self):
         if self.major is None:
             return int(self.minor)/10.
         if self.minor is None:
             return int(self.major)
         return int(self.major) + int(self.minor)/10.
-    
-    
+
+
     @classmethod
     def _parseSpecialID(cls, string, manager):
         if string.upper()=="NONE":
@@ -502,7 +520,7 @@ class ID(object):
             return list(manager.visible)
         else:
             raise ValueError
-    
+
     @classmethod
     def _parseNormalID(cls, string):
         if "." in string:
@@ -510,25 +528,25 @@ class ID(object):
             major = int(major_s)
             # TODO
 #            if minor_s.lower() in ("x", "y", "c"):
-#                minor = minor_s 
+#                minor = minor_s
 #            else:
             minor = int(minor_s)
         else:
             major = int(string)
             minor = None
-            
+
         return ID(major, minor)
-        
+
     @classmethod
     def ParseIds(cls, strings, manager, only_existent=True):
         # Normalize separators
         if not isinstance(strings, str):
             strings = ",".join(strings)
         strings = ",".join(strings.split())
-    
+
         # Split string
         parts = [p for p in strings.split(",") if p]
-    
+
         ids = list()
         for s in parts:
             # first deal with ranges
@@ -573,27 +591,27 @@ class ID(object):
                 except AttributeError:
                     hdtv.ui.error("Invalid key word %s" % s)
                     raise ValueError
-        
+
         # ID might be None, if e.g. activeID is None
         count = ids.count(None)
         for i in range(count):
             ids.remove(None)
 
         # filter non-existing ids
-        valid_ids = list() 
+        valid_ids = list()
         if only_existent:
             for ID in ids:
                 for mID in manager.ids:
                     if (mID.major == ID.major) and (mID.minor == ID.minor):
                         valid_ids.append(ID)
                         break # break out of for mID in manager.ids loop
-    
+
                 if ID not in valid_ids: # This only works because we appended IDs above, not mIDs, because they are different instances of the ID object
                     hdtv.ui.warn("Non-existent id %s" %ID)
 
         else:
             valid_ids=ids
-        
+
         return valid_ids
-            
+
 

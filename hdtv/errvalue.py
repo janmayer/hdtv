@@ -474,6 +474,40 @@ class DepErrValue:
         
         return "%s%.*f%s" % (sgn, prec, value, suffix)
     
+    def fmt_long(self, prec = 6, separator = " ± "):
+        if self.value is None:
+            return str(self.value)
+        
+        if self.error == 0:
+            return self.fmt_no_error()
+
+        # Check and store sign
+        if self.value < 0:
+            sgn = "-"
+            value = -self.value
+        else:
+            sgn = ""
+            value = self.value
+        error = self.error
+        
+
+        # Check whether to switch to scientific notation
+        # Catch the case where value is zero
+        try:
+            log10_val = math.floor(math.log(value) / math.log(10.))
+        except (ValueError, OverflowError, TypeError):
+            log10_val = 0.
+        
+        if log10_val >= 6 or log10_val <= -2:
+            # Use scientific notation
+            suffix = "e%d" % int(log10_val)
+            value /= 10 ** log10_val
+            error /= 10 ** log10_val
+        else:
+            # Use normal notation
+            suffix = ""
+
+        return "%s%.*f%s%s%.*f%s" % (sgn, prec, value, suffix, separator, prec, value, suffix)
     ###
 
 def _chain(f, dfdg, g):

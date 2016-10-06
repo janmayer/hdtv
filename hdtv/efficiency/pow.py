@@ -25,30 +25,21 @@ import math
 
 class PowEff(_Efficiency):
     """
-    Power function efficiency formula.
-    
+    'Power function' efficiency formula.
+
     eff(E) = a + b * pow(E,-c)
     """
     def __init__(self, pars=list(), norm=True):
-        
-        self.name = "Potency"
+        self.name = "Power"
         self.id = self.name + "_" + hex(id(self))
-        self.TF1 = TF1(self.id, "([0]*([1]+[2]*x**(-[3])))", 0, 0)#[0] is fix
-              
-        _Efficiency.__init__(self, num_pars=4, pars=pars, norm=norm)
-        
-        #List of derivatives
-        self._dEff_dP = [None, None, None, None, None]
+        #                       "( N *( a + b *E ^( -c )))"
+        self.TF1 = TF1(self.id, "([0]*([1]+[2]*x**(-[3])))", 0, 0) # [0] is fixed
 
-        self._dEff_dP[0] = lambda E, fPars: self.norm * fPars[1] + fPars[2] * pow(E,-fPars[3])
+        _Efficiency.__init__(self, num_pars=4, pars=pars, norm=norm)
+
+        # List of derivatives
+        self._dEff_dP = [None, None, None, None, None]
+        self._dEff_dP[0] = lambda E, fPars: self.norm * fPars[1] + fPars[2] * pow(E,-fPars[3])  # dEff/dN
         self._dEff_dP[1] = lambda E, fPars: self.norm * fPars[0]  # dEff/da
         self._dEff_dP[2] = lambda E, fPars: self.norm * fPars[0] * pow(E,-fPars[3])  # dEff/db
         self._dEff_dP[3] = lambda E, fPars: self.norm * fPars[0] * fPars[2] * (-fPars[3]) * pow(E,(-fPars[3]-1)) # dEff/dc
-
-    def returnFunktion(self, x, Parameter):
-        """
-        Returns the value of the fitted function at x.
-        """
-        return(Parameter[0]+Parameter[1]*pow(x,-Parameter[2]))
-
-        

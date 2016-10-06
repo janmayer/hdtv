@@ -52,7 +52,7 @@ class _Efficiency(object):
 #             map(lambda i: self.TF1.SetParameter(i + 1, self.parameter[i]), range(1, len(pars))) # Set initial parameters
 #         else:
 #             self.parameter = [None for i in range(1, self._numPars + 1)]
-#             
+#
         self.TF1.SetParName(0, "N") # Normalization
 
         for i in range(0, num_pars):
@@ -66,7 +66,7 @@ class _Efficiency(object):
         """
         pars = list()
         for i in range(self._numPars):
-            pars.append(self.TF1.GetParameter(i + 1))
+            pars.append(self.TF1.GetParameter(i))
 
         return pars
 
@@ -76,10 +76,10 @@ class _Efficiency(object):
         """
         for i in range(self._numPars):
             try:
-                self.TF1.SetParameter(i + 1, pars[i])
+                self.TF1.SetParameter(i, pars[i])
             except IndexError:
-                self.TF1.SetParameter(i + 1, 0)
-        
+                self.TF1.SetParameter(i, 0)
+
 
     parameter = property(_getParameter, _setParameter)
 
@@ -93,9 +93,9 @@ class _Efficiency(object):
 
 
     def _set_fitInput(self, fitPairs):
-        
+
         self._fitInput = fitPairs
-        
+
         for i in range(len(self._fitInput)):
             p = self._fitInput[i]
             try:
@@ -125,15 +125,15 @@ class _Efficiency(object):
         """
         Fit efficiency curve to values given by 'fitPairs' which should be a list
         of energy<->efficiency pairs. (See hdtv.util.Pairs())
-        
+
         'energies' and 'efficiencies' may be a list of hdtv.util.ErrValues()
         """
         # TODO: Unify this with the energy calibration fitter
         if fitPairs is not None:
-            #self.fitInput = fitPairs 
-            self._fitInput = fitPairs 
+            #self.fitInput = fitPairs
+            self._fitInput = fitPairs
 
-        E = array.array("d") 
+        E = array.array("d")
         delta_E = array.array("d")
         eff = array.array("d")
         delta_eff = array.array("d")
@@ -144,9 +144,9 @@ class _Efficiency(object):
 #        map(energies.append(self.fitInput[0]), self.fitInput)
 #        map(efficiencies.append(self.fitInput[1]), self.fitInput)
         hasXerrors = False
-        # Convert energies to array needed by ROOT        
+        # Convert energies to array needed by ROOT
         try:
-            map(lambda x: E.append(x[0].value.value), self._fitInput) 
+            map(lambda x: E.append(x[0].value.value), self._fitInput)
             map(lambda x: delta_E.append(x[0].value.error), self._fitInput)
             map(lambda x: EN.append(0.0), self._fitInput)
             hasXerrors = True
@@ -164,13 +164,12 @@ class _Efficiency(object):
             map(lambda x: delta_eff.append(0.0), self._fitInput)
 
         #if fit has errors we first fit without errors to get good initial values
-        if hasXerrors == True:
-            print "Fit parameter without errors included:"
-            self.TGraphWithoutErrors = TGraphErrors(len(E), E, eff, EN, effN)
-            fitWithoutErrors = self.TGraphWithoutErrors.Fit(self.id)
+        #if hasXerrors == True:
+            #print "Fit parameter without errors included:"
+            #self.TGraphWithoutErrors = TGraphErrors(len(E), E, eff, EN, effN)
+            #fitWithoutErrors = self.TGraphWithoutErrors.Fit(self.id, "SF")
 
-            print
-            print "Fit parameter with errors included:"
+        print "Fit parameter with errors included:"
 
         # Preliminary normalization
 #        if self._doNorm:
@@ -181,21 +180,21 @@ class _Efficiency(object):
 
         #self.TF1.SetRange(0, max(E) * 1.1)
         #self.TF1.SetParameter(0, 1) # Unset normalization for fitting
-        
+
         self.TGraph = TGraphErrors(len(E), E, eff, delta_E, delta_eff)
 
         #Do the fit
-        fitopts = "0" # Do not plot 
+        fitopts = "0" # Do not plot
 
         if hasXerrors:
             # We must use the iterative fitter (minuit) to take x errors
             # into account.
-            fitopts += "F" 
+            fitopts += "F"
             hdtv.ui.info("switching to non-linear fitter (minuit) for x error weighting")
         if quiet:
             fitopts += "Q"
 
-        fitopts += "S" # Additional fitinfo returned needed for ROOT5.26 workaround below 
+        fitopts += "S" # Additional fitinfo returned needed for ROOT5.26 workaround below
         fitreturn = self.TGraph.Fit(self.id, fitopts)
 
         try:
@@ -204,15 +203,16 @@ class _Efficiency(object):
             fitstatus = int(fitreturn)
 
         if  fitstatus != 0:
-            raise RuntimeError, "Fit failed"
+            #raise RuntimeError, "Fit failed"
+            hdtv.ui.msg("Fit failed")
 
-#         # Final normalization 
+#         # Final normalization
 #         if self._doNorm:
 #             self.normalize()
 
         # Get parameter
         for i in range(self._numPars):
-            self.parameter[i] = self.TF1.GetParameter(i + 1)
+            self.parameter[i] = self.TF1.GetParameter(i)
 
         # Get covariance matrix
         tvf = TVirtualFitter.GetFitter()
@@ -223,7 +223,7 @@ class _Efficiency(object):
 ##                 self.fCov[i][j] = cov[i * self._numPars + j]
 
         return self.parameter
-            
+
     def normalize(self):
         # Normalize the efficiency funtion
         try:
@@ -242,14 +242,14 @@ class _Efficiency(object):
         except AttributeError:
             value = E
 
-        return self.TF1.Eval(value, 0.0, 0.0, 0.0)
+        return self.TF1.Eval(value)
 
     def error(self, E):
         """
         Calculate error using the covariance matrix via:
-        
+
           delta_Eff = sqrt((dEff_dP[0], dEff_dP[1], ... dEff_dP[num_pars]) x cov x (dEff_dP[0], dEff_dP[1], ... dEff_dP[num_pars]))
-             
+
         """
         try:
             value = E.value
@@ -276,7 +276,7 @@ class _Efficiency(object):
         Read parameter from file
         """
         vals = []
-        
+
         file = TxtFile(parfile)
         file.read()
 
@@ -359,5 +359,3 @@ class _Efficiency(object):
         # Write covariance matrix
         if covfile is not None:
             self.saveCov(covfile)
-
-

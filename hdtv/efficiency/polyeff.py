@@ -29,16 +29,16 @@ import math
 class PolyEff(_Efficiency):
     """
     'Polynom' efficiency
-    
+
     Internally working on double logarithmic E and eff scale
-    
+
     """
     def __init__(self, pars = list(), degree = 4, norm = False):
 
         self.name = "Polynom"
         self.id = self.name + "_" + hex(id(self))
         self._degree = degree
-        
+
         # Building root function string
         TFString = "[0] * ([1]"
 
@@ -51,21 +51,21 @@ class PolyEff(_Efficiency):
         _Efficiency.__init__(self, num_pars = degree + 1 , pars = pars, norm = norm)
 
         # Builing derivatives dEff/dParameter[x]
-        
+
         # See
         # http://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture-in-python#2295372
         # http://code.activestate.com/recipes/502271/
         # for this strange constructor
         def dEff_dP(i):
             return lambda logE, fPars: self.norm * math.pow(logE, i)
-        
+
         for i in range(0, degree + 1):
-            self._dEff_dP[i] = dEff_dP(i) 
-            
+            self._dEff_dP[i] = dEff_dP(i)
+
 
 
     def _set_fitInput(self, fitPairs):
-        
+
         ln_fitPairs = Pairs(conv_func = log)
 
         for p in fitPairs:
@@ -121,13 +121,4 @@ class PolyEff(_Efficiency):
 
         error = abs(tmp1 - tmp2)/2.
 
-        return self.norm * error 
-
-    def returnFunktion(self, x, Parameter):
-        """
-        Returns the value of the fitted function at x.
-        """
-        function = 0
-        for i in range(0,self._degree+1):
-            function = function + Parameter[i] * pow(x,i)
-        return(function)
+        return self.norm * error

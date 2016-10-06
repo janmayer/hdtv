@@ -26,29 +26,22 @@ import math
 class WunderEff(_Efficiency):
     """
     'Wunder' efficiency formula.
-    
-    eff(E) = (a*E + b/E) * exp(c*E + d/E) 
+
+    eff(E) = (a*E + b/E) * exp(c*E + d/E)
     """
     def __init__(self, pars=list(), norm=True):
-        
+
         self.name = "Wunder"
         self.id = self.name + "_" + hex(id(self))
-        self.TF1 = TF1(self.id, "[0] * ([1]*x + [2]/x) * exp([3]*x + [4]/x)", 0, 0)#[0] is fix
-        
-        _Efficiency.__init__(self, num_pars=4, pars=pars, norm=norm)
-        
-        # List of derivatives
-        self._dEff_dP = [None, None, None, None]
-        
-        self._dEff_dP[0] = lambda E, fPars: self.norm * fPars[4] * E * math.exp(fPars[2]*E + fPars[3]/E)    # dEff/da
-        self._dEff_dP[1] = lambda E, fPars: self.norm * fPars[4] * 1./E * math.exp(fPars[2]*E + fPars[3]/E)  # dEff/db
-        self._dEff_dP[2] = lambda E, fPars: self.norm * fPars[4] * (fPars[0]*E + fPars[1]/E) * E * math.exp(fPars[2]*E + fPars[3]/E)  # dEff/dc
-        self._dEff_dP[3] = lambda E, fPars: self.norm * fPars[4] * (fPars[0]*E + fPars[1]/E) * 1./E * math.exp(fPars[2]*E + fPars[3]/E)  # dEff/dd
-        #Test
-        #self._dEff_dP[4] = lambda E, fPars: self.norm * (fPars[0]*E + fPars[1]/E) * E * math.exp(fPars[2]*E + fPars[3]/E)  # dEff/d
+        #                        ( N  * ( a *E +  b /E) * exp( c *E +  d /E))
+        self.TF1 = TF1(self.id, "([0] * ([1]*x + [2]/x) * exp([3]*x + [4]/x))", 0, 0) # [0] is fixed
 
-    def returnFunktion(self, x, Parameter):
-        """
-        Returns the value of the fitted function at x.
-        """
-        return((Parameter[0] * x + Parameter[1] / x) * math.exp(Parameter[2] * x + Parameter[3] / x)) 
+        _Efficiency.__init__(self, num_pars=5, pars=pars, norm=norm)
+
+        # List of derivatives
+        self._dEff_dP = [None, None, None, None, None]
+        self._dEff_dP[0] = lambda E, fPars: self.norm * (fPars[1]*E + fPars[2]/E) * math.exp(fPars[3]*E + fPars[4]/E)  # dEff/dN
+        self._dEff_dP[0] = lambda E, fPars: self.norm * fPars[0] * E    * math.exp(fPars[3]*E + fPars[4]/E)  # dEff/da
+        self._dEff_dP[1] = lambda E, fPars: self.norm * fPars[0] * 1./E * math.exp(fPars[3]*E + fPars[4]/E)  # dEff/db
+        self._dEff_dP[2] = lambda E, fPars: self.norm * fPars[0] * (fPars[1]*E + fPars[2]/E) * E    * math.exp(fPars[3]*E + fPars[4]/E)  # dEff/dc
+        self._dEff_dP[3] = lambda E, fPars: self.norm * fPars[0] * (fPars[1]*E + fPars[1]/E) * 1./E * math.exp(fPars[3]*E + fPars[4]/E)  # dEff/dd
