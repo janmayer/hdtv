@@ -1,5 +1,11 @@
 # HDTV Change Log
 
+## 16.11
+- Fixed spectrum subtract crashing
++ Added support to add/subtract calibrated spectra
++ Added command `spectrum calbin` to rebin spectra to calibration unit.
+- Fixed rebinning sometimes not updating calibration
+
 ## 16.10
 + wide tables: `config set table wide` for easier Copy & Pasting of tabular data. Use `config set table classic` to change back
 + Nuclide Decay Databases: e.g., `nuclide Ra-226` (@ehoemann)
