@@ -35,7 +35,7 @@ ROOT.TH1.AddDirectory(ROOT.kFALSE)
 class Histogram(Drawable):
     """
     Histogram object
-    
+
     This class is hdtvs wrapper around a ROOT histogram. It adds a calibration,
     plus some internal management for drawing the histogram to the hdtv spectrum
     viewer.
@@ -50,32 +50,32 @@ class Histogram(Drawable):
 
     def __str__(self):
         return self.name
-        
+
     def __copy__(self):
         # call C++ copy constructor
         hist = self._hist.__class__(self._hist)
         # create new spectrum object
         return Histogram(hist, color=self.color, cal=self.cal)
-        
+
     # hist property
     def _set_hist(self, hist):
         self._hist = hist
         if self.displayObj:
             self.displayObj.SetHist(self._hist)
-    
+
     def _get_hist(self):
         return self._hist
-        
+
     hist = property(_get_hist, _set_hist)
-        
+
     # name property
     def _get_name(self):
         if self._hist:
             return self._hist.GetName()
-        
+
     def _set_name(self, name):
         self._hist.SetName(name)
-        
+
     name = property(_get_name, _set_name)
 
     # norm property
@@ -86,10 +86,10 @@ class Histogram(Drawable):
 
     def _get_norm(self):
         return self._norm
-        
+
     norm = property(_get_norm, _set_norm)
-    
-    @property   
+
+    @property
     def info(self):
         """
         Return a string describing this spectrum
@@ -107,7 +107,7 @@ class Histogram(Drawable):
         else:
             s += "Xmin: %.2f\n" % xmin
             s += "Xmax: %.2f\n" % xmax
-        
+
         if not self.cal or self.cal.IsTrivial():
             s += "Calibration: none\n"
         elif type(self.cal) == ROOT.HDTV.Calibration:
@@ -115,38 +115,66 @@ class Histogram(Drawable):
         else:
             s += "Calibration: unknown\n"
         return s
-              
+
     # TODO: sumw2 function should be called at some point for correct error handling
     def Plus(self, spec):
         """
         Add other spectrum to this one
-        """ 
-        self._hist.Add(spec._hist, 1.0)
+        """
+        # If the spectra have the same calibration (~= have the same binning), the root build-in add can be used
+        if self.cal == spec.cal or (self.cal.IsTrivial() and spec.cal.IsTrivial()):
+            hdtv.ui.info("Adding binwise")
+            self._hist.Add(spec._hist, 1.0)
+        # If the binning is different, determine the amount to add to each bin by integrating the other spectrum
+        else:
+            hdtv.ui.info("Adding calibrated")
+            nbins = self._hist.GetNbinsX()
+            for n in range(0, nbins):
+                integral = ROOT.HDTV.TH1IntegateWithPartialBins(spec._hist,
+                    spec.cal.E2Ch(self.cal.Ch2E(n-0.5)),
+                    spec.cal.E2Ch(self.cal.Ch2E(n+0.5)))
+                # Note: Can't use Fill due to bin errors?
+                self._hist.SetBinContent(n+1, self._hist.GetBinContent(n+1) + integral)
+
         # update display
         if self.displayObj:
             self.displayObj.SetHist(self._hist)
         self.typeStr = "spectrum, modified (sum)"
-        
+
     def Minus(self, spec):
         """
         Substract other spectrum from this one
-        """ 
-        self._hist.Add(spec._hist, -1.0)
+        """
+        # If the spectra have the same calibration (~= have the same binning), the root build-in add can be used
+        if self.cal == spec.cal or (self.cal.IsTrivial() and spec.cal.IsTrivial()):
+            hdtv.ui.info("Adding binwise")
+            self._hist.Add(spec._hist, -1.0)
+        # If the binning is different, determine the amount to add to each bin by integrating the other spectrum
+        else:
+            hdtv.ui.info("Adding calibrated")
+            nbins = self._hist.GetNbinsX()
+            for n in range(0, nbins):
+                integral = ROOT.HDTV.TH1IntegateWithPartialBins(spec._hist,
+                    spec.cal.E2Ch(self.cal.Ch2E(n-0.5)),
+                    spec.cal.E2Ch(self.cal.Ch2E(n+0.5)))
+                # Note: Can't use Fill due to bin errors?
+                self._hist.SetBinContent(n+1, self._hist.GetBinContent(n+1) - integral)
+
         # update display
         if self.displayObj:
             self.displayObj.SetHist(self._hist)
         self.typeStr = "spectrum, modified (difference)"
-            
+
     def Multiply(self, factor):
         """
         Multiply spectrum with factor
-        """ 
+        """
         self._hist.Scale(factor)
         # update display
         if self.displayObj:
             self.displayObj.SetHist(self._hist)
         self.typeStr = "spectrum, modified (multiplied)"
-    
+
     def Rebin(self, ngroup):
         """
         Rebin spectrum by adding ngroup bins into one
@@ -158,18 +186,47 @@ class Histogram(Drawable):
         if self.displayObj:
             self.displayObj.SetHist(self._hist)
         # update calibration
-        if self.cal and not self.cal.IsTrivial():
+        if self.cal:
             self.cal.Rebin(ngroup)
             self.displayObj.SetCal(self.cal)
             hdtv.ui.info("Calibration updated for rebinned spectrum")
+            self.typeStr = "spectrum, modified (rebinned)"
 
-        self.typeStr = "spectrum, modified (rebinned)"
-    
+    def Calbin(self):
+        """
+        Rebin spectrum to match calibration unit
+        """
+        nbins = self._hist.GetNbinsX()
+        lower = int(self.cal.Ch2E(0))
+        upper = int(self.cal.Ch2E(nbins))
+        if lower > upper:
+            lower, upper = upper, lower
+
+        # Create new histogram with number of bins equal
+        # to the calibrated range of the old histogram
+        newhist = ROOT.TH1D(self._hist.GetName(), self._hist.GetTitle(),
+            upper-lower, lower-0.5, upper-0.5)
+
+        # For each bin in the new histogram, integrate the respective part in the old histogram
+        for i, e in enumerate(range(lower, upper)):
+            integral = ROOT.HDTV.TH1IntegateWithPartialBins(self._hist, self.cal.E2Ch(e-0.5), self.cal.E2Ch(e+0.5) )
+            # Note: Can't use Fill due to bin errors? i+1, as bin 0 is underflow
+            newhist.SetBinContent(i+1, integral)
+
+        self._hist = newhist
+        # update display
+        if self.displayObj:
+            self.displayObj.SetHist(self._hist)
+        # update calibration
+        self.cal.SetCal(0, 1)
+        self.displayObj.SetCal(self.cal)
+        hdtv.ui.info("Rebinned to calibration unit")
+
     def Draw(self, viewport):
         """
         Draw this spectrum to the viewport
         """
-        
+
         if not self.viewport is None and not self.viewport == viewport:
             # Unlike the DisplaySpec object of the underlying implementation,
             # Spectrum() objects can only be drawn on a single viewport
@@ -195,7 +252,7 @@ class Histogram(Drawable):
                 self.displayObj.SetID(ID)
         # finally unlock the viewport
         self.viewport.UnlockUpdate()
-        
+
 
     def WriteSpectrum(self, fname, fmt):
         """
@@ -208,12 +265,12 @@ class Histogram(Drawable):
             hdtv.ui.error("Failed to write spectrum: %s (file: %s)" % (msg, fname))
             return False
         return True
-       
+
 
 class FileHistogram(Histogram):
     """
     File spectrum object
-    
+
     A spectrum that comes from a file in any of the formats supported by hdtv.
     """
     def __init__(self, fname, fmt=None, color=hdtv.color.default, cal=None):
@@ -231,12 +288,12 @@ class FileHistogram(Histogram):
             hist = SpecReader().GetSpectrum(fname, fmt)
         except SpecReaderError, msg:
             hdtv.ui.error(str(msg))
-            raise 
+            raise
         self.fmt = fmt
         self.filename = fname
         Histogram.__init__(self, hist, color, cal)
         self.typeStr = "spectrum, read from file"
-        
+
     @property
     def info(self):
         # get the info property of the baseclass
@@ -247,7 +304,7 @@ class FileHistogram(Histogram):
         else:
             s += "File format: autodetected\n"
         return s
-    
+
     def Refresh(self):
         """
         Reload the spectrum from disk
@@ -264,14 +321,14 @@ class FileHistogram(Histogram):
             hdtv.ui.warn("Failed to load spectrum: %s (file: %s), keeping previous data" \
                   % (msg, self.filename))
             return
-        self.hist = hist       
+        self.hist = hist
 
 class CutHistogram(Histogram):
     def __init__(self, hist, axis, gates, color=hdtv.color.default, cal=None):
         Histogram.__init__(self, hist, color, cal)
         self.gates = gates
         self.axis = axis
-    
+
     @property
     def info(self):
         s = Histogram.info.fget(self)
@@ -294,48 +351,48 @@ class THnSparseWrapper(object):
         if not (isinstance(hist, ROOT.THnSparse) and hist.GetNdimensions() == 2):
             raise RuntimeError, "Class needs a THnSparse histogram of dimension 2"
         self.__dict__["_hist"] = hist
-    
-    
+
+
     def __setattr__(self, name, value):
         self.__dict__["_hist"].__setattr__(name, value)
-    
-    
+
+
     def __getattr__(self, name):
         return getattr(self.__dict__["_hist"], name)
-    
-    
+
+
     def GetXaxis(self):
         return self._hist.GetAxis(0)
-    
-    
+
+
     def GetYaxis(self):
         return self._hist.GetAxis(1)
-    
-    
+
+
     def ProjectionX(self, name, b1, b2, opt):
         a = self._hist.GetAxis(1)
         if b1 > b2:
             a.SetRange(0, a.GetNbins())
         else:
             a.SetRange(b1, b2)
-        
+
         proj = self._hist.Projection(0, opt)
         a.SetRange(0, a.GetNbins())
-        
+
         proj.SetName(name)
         return proj
-    
-    
+
+
     def ProjectionY(self, name, b1, b2, opt):
         a = self._hist.GetAxis(0)
         if b1 > b2:
             a.SetRange(0, a.GetNbins())
         else:
             a.SetRange(b1, b2)
-        
+
         proj = self._hist.Projection(1, opt)
         a.SetRange(0, a.GetNbins())
-        
+
         proj.SetName(name)
         return proj
 
@@ -343,19 +400,19 @@ class THnSparseWrapper(object):
 class Histo2D(object):
     def __init__(self):
         pass
-    
+
     @property
     def name(self):
         return "generic 2D histogram"
-    
+
     @property
     def xproj(self):
         return None
-        
+
     @property
     def yproj(self):
         return None
-        
+
     def ExecuteCut(self, regionMarkers, bgMarkers, axis):
         return None
 
@@ -366,15 +423,15 @@ class RHisto2D(Histo2D):
     """
     def __init__(self, rhist):
         self.rhist = rhist
-        
+
         # Lazy generation of projections
         self._prx = None
         self._pry = None
-        
+
     @property
     def name(self):
         return self.rhist.GetName()
-        
+
     @property
     def xproj(self):
         if self._prx == None:
@@ -384,7 +441,7 @@ class RHisto2D(Histo2D):
             prx = Histogram(self._prx)
             prx.typeStr = "x projection"
         return prx
-        
+
     @property
     def yproj(self):
         if self._pry == None:
@@ -395,47 +452,47 @@ class RHisto2D(Histo2D):
             pry.typeStr = "y projection"
         return pry
 
-    
+
     def ExecuteCut(self, regionMarkers, bgMarkers, axis):
         # _axis_ is the axis the markers refer to, so we project on the *other*
         # axis. We call _axis_ the cut axis and the other axis the projection
         # axis. If the matrix is symmetric, this does not matter, so _axis_ is
         # "0" and the implementation can choose.
-        
+
         if len(regionMarkers) < 1:
             raise RuntimeError, "Need at least one gate for cut"
-        
+
         if axis == "0":
             axis = "x"
-            
+
         if not axis in ("x", "y"):
             raise ValueError, "Bad value for axis parameter"
-            
+
         if axis == "x":
             cutAxis = self.rhist.GetXaxis()
             projector = self.rhist.ProjectionY
         else:
             cutAxis = self.rhist.GetYaxis()
             projector = self.rhist.ProjectionX
-        
+
         b1 = cutAxis.FindBin(regionMarkers[0].p1.pos_uncal)
         b2 = cutAxis.FindBin(regionMarkers[0].p2.pos_uncal)
-        
+
         name = self.rhist.GetName() + "_cut"
         rhist = projector(name, min(b1,b2), max(b1,b2), "e")
         # Ensure proper garbage collection for ROOT histogram objects
         ROOT.SetOwnership(rhist, True)
-        
+
         numFgBins = abs(b2 - b1) + 1
         for r in regionMarkers[1:]:
             b1 = cutAxis.FindBin(r.p1.pos_uncal)
             b2 = cutAxis.FindBin(r.p2.pos_uncal)
             numFgBins += (abs(b2 - b1) + 1)
-        
+
             tmp = projector("proj_tmp", min(b1,b2), max(b1,b2), "e")
             ROOT.SetOwnership(tmp, True)
             rhist.Add(tmp, 1.)
-        
+
         bgBins = []
         numBgBins = 0
         for b in bgMarkers:
@@ -443,7 +500,7 @@ class RHisto2D(Histo2D):
             b2 = cutAxis.FindBin(b.p2.pos_uncal)
             numBgBins += (abs(b2-b1) + 1)
             bgBins.append((min(b1,b2), max(b1,b2)))
-            
+
         if numBgBins > 0:
             bgFactor = -float(numFgBins) / float(numBgBins)
 
@@ -451,7 +508,7 @@ class RHisto2D(Histo2D):
                 tmp = projector("proj_tmp", b[0], b[1], "e")
                 ROOT.SetOwnership(tmp, True)
                 rhist.Add(tmp, bgFactor)
-        
+
         hist = CutHistogram(rhist, axis, regionMarkers)
         hist.typeStr = "cut"
         return hist
@@ -468,124 +525,124 @@ class MHisto2D(Histo2D):
         except OSError, error:
             hdtv.ui.error(str(error))
             raise
-        
+
         self.GenerateFiles(fname, sym)
-        
+
         basename = self.GetBasename(fname)
-        
+
         # call to SpecReader to get the hist
         try:
             self.vmatrix = SpecReader().GetVMatrix(fname)
         except SpecReaderError, msg:
             hdtv.ui.error(str(msg))
             raise
-        
+
         self._xproj = FileHistogram(basename + ".prx")
         self._xproj.typeStr = "Projection"
-        
+
         if sym:
             self._yproj = None
             self.tvmatrix = None
         else:
             self._yproj = FileHistogram(basename + ".pry")
             self._yproj.typeStr = "Projection"
-            
+
             try:
                 self.tvmatrix = SpecReader().GetVMatrix(basename + ".tmtx")
             except SpecReaderError, msg:
                 hdtv.ui.error(str(msg))
                 raise
-        
+
         self.filename = fname
-    
+
     @property
     def xproj(self):
         return self._xproj
-        
+
     @property
     def yproj(self):
         return self._yproj
-        
+
     def ExecuteCut(self, regionMarkers, bgMarkers, axis):
         # _axis_ is the axis the markers refer to, so we project on the *other*
         # axis. We call _axis_ the cut axis and the other axis the projection
         # axis. If the matrix is symmetric, this does not matter, so _axis_ is
         # "0" and the implementation can choose.
-        
+
         if len(regionMarkers) < 1:
             raise RuntimeError, "Need at least one gate for cut"
-        
+
         if axis == "0":
             axis = "x"
-            
+
         if not axis in ("x", "y"):
             raise ValueError, "Bad value for axis parameter"
-            
+
         if axis == "x":
             matrix = self.vmatrix
         else:
             matrix = self.tvmatrix
-        
+
         matrix.ResetRegions()
-        
+
         for r in regionMarkers:
             b1 = matrix.FindCutBin(r.p1.pos_uncal)
             b2 = matrix.FindCutBin(r.p2.pos_uncal)
             matrix.AddCutRegion(b1, b2)
-        
+
         for b in bgMarkers:
             b1 = matrix.FindCutBin(b.p1.pos_uncal)
             b2 = matrix.FindCutBin(b.p2.pos_uncal)
             matrix.AddBgRegion(b1, b2)
-        
+
         name = self.filename + "_cut"
         rhist = matrix.Cut(name, name)
         # Ensure proper garbage collection for ROOT histogram objects
         ROOT.SetOwnership(rhist, True)
-        
+
         hist = CutHistogram(rhist, axis, regionMarkers)
         hist.typeStr = "cut"
         return hist
-    
+
     def GetBasename(self, fname):
         if fname.endswith(".mtx") or fname.endswith(".mtx"):
             return fname[:-4]
         else:
             return fname
-    
+
     def GenerateFiles(self, fname, sym):
         """
         Generate projection(s) and possibly transpose (for asymmetric matrices),
         if they do not exist yet.
         """
-        
+
         hdtv.dlmgr.LoadLibrary("mfile-root")
-        
+
         basename = self.GetBasename(fname)
-        
+
         # Generate projection(s)
         prx_fname = basename + ".prx"
         pry_fname = ""
         if os.path.exists(prx_fname):
             hdtv.ui.info("Using %s for x projection" % prx_fname)
             prx_fname = ""
-            
+
         if not sym:
             pry_fname = basename + ".pry"
             if os.path.exists(pry_fname):
                 hdtv.ui.info("Using %s for y projection" % pry_fname)
                 pry_fname = ""
-        
+
         if prx_fname or pry_fname:
             errno = ROOT.MatOp.Project(fname, prx_fname, pry_fname)
             if errno != ROOT.MatOp.ERR_SUCCESS:
                 raise RuntimeError, "Project: " + ROOT.MatOp.GetErrorString(errno)
-            
+
             if prx_fname:
                 hdtv.ui.info("Generated x projection: %s" % prx_fname)
             if pry_fname:
                 hdtv.ui.info("Generated y projection: %s" % pry_fname)
-        
+
         # Generate transpose
         if not sym:
             trans_fname = basename + ".tmtx"

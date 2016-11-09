@@ -285,6 +285,11 @@ class TvSpecInterface:
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
         hdtv.cmdline.AddCommand(prog, self.SpectrumRebin, level = 2, minargs=1, fileargs=False, parser=parser)
 
+        prog = "spectrum calbin"
+        usage="%prog [OPTIONS] [ids]|all|..."
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumCalbin, level = 2, minargs=1, fileargs=False, parser=parser)
+
         prog = "spectrum add"
         usage="%prog [OPTIONS] <target-id> <ids>|all"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
@@ -531,6 +536,37 @@ class TvSpecInterface:
                 self.spectra.dict[i].Rebin(ngroup)
             else:
                 hdtv.ui.error("Cannot rebin spectrum " + str(i) + " (Does not exist)")
+
+
+    def SpectrumCalbin(self, args, options):
+        """
+        Rebin spectrum
+        """
+        try:
+            if len(args) == 0:
+                if self.spectra.activeID is not None:
+                    msg = "Using active spectrum %s for rebinning" % self.spectra.activeID
+                    hdtv.ui.msg(msg)
+                    ids = [self.spectra.activeID]
+                else:
+                    hdtv.ui.msg("No active spectrum")
+                    ids = list()
+            else:
+                ids = hdtv.util.ID.ParseIds(args, self.spectra)
+
+        except (IndexError, ValueError):
+            return "USAGE"
+
+        if len(ids) == 0:
+            hdtv.ui.warn("Nothing to do")
+            return
+
+        for i in ids:
+            if i in self.spectra.dict.keys():
+                self.spectra.dict[i].Calbin()
+            else:
+                hdtv.ui.error("Cannot rebin spectrum " + str(i) + " (Does not exist)")
+
 
     def SpectrumHide(self, args, options):
         """

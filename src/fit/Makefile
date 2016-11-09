@@ -2,7 +2,7 @@
 include ../Makefile.def
 
 SOURCES= Integral.cxx PolyBg.cxx Param.cxx Fitter.cxx TheuerkaufFitter.cxx EEFitter.cxx Util.cxx
-EXPHEADERS= Integral.h Background.h PolyBg.h Param.h Fitter.h TheuerkaufFitter.h EEFitter.h
+EXPHEADERS= Integral.h Background.h PolyBg.h Param.h Fitter.h TheuerkaufFitter.h EEFitter.h Util.h
 HEADERS= $(EXPHEADERS)
 OBJ= $(SOURCES:.cxx=.o)
 MODNAME= fit

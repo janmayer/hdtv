@@ -17,17 +17,20 @@
  * You should have received a copy of the GNU General Public License
  * along with HDTV; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
- * 
+ *
  */
- 
+
 #ifndef __Util_h__
 #define __Util_h__
 
 #include <string>
+#include <TH1.h>
 
 namespace HDTV {
 
 std::string GetFuncUniqueName(const char *prefix, void *ptr);
+
+double TH1IntegateWithPartialBins(const TH1 *spec, const double xmin, const double xmax);
 
 } // end namespace HDTV
 

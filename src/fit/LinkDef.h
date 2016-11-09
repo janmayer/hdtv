@@ -12,3 +12,4 @@
 #pragma link C++ class HDTV::Fit::TheuerkaufFitter;
 #pragma link C++ class HDTV::Fit::EEPeak;
 #pragma link C++ class HDTV::Fit::EEFitter;
+#pragma link C++ function HDTV::TH1IntegateWithPartialBins;

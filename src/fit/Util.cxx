@@ -17,27 +17,39 @@
  * You should have received a copy of the GNU General Public License
  * along with HDTV; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
- * 
+ *
  */
- 
+
 #include "Util.h"
+#include "TAxis.h"
 
 #include <sstream>
 
 namespace HDTV {
 
-static int num=0;
+static int num = 0;
 
 std::string GetFuncUniqueName(const char *prefix, void *ptr)
 {
-  // Constructs a unique name for a function by concatenation of an instance-unique prefix,
-  // a textual representation of this, and an increasing number.
-  // FIXME: not thread safe. The whole requirement of unique names is extremely ugly anyway.
-  
-  std::ostringstream name;
-  name << prefix << "_" << ptr << "_" << ++num;
-  
-  return name.str();
+    // Constructs a unique name for a function by concatenation of an instance-unique prefix,
+    // a textual representation of this, and an increasing number.
+    // FIXME: not thread safe. The whole requirement of unique names is extremely ugly anyway.
+
+    std::ostringstream name;
+    name << prefix << "_" << ptr << "_" << ++num;
+
+    return name.str();
+}
+
+double TH1IntegateWithPartialBins(const TH1 *spec, const double xmin, const double xmax)
+{
+    const TAxis *axis = spec->GetXaxis();
+    const int bmin = axis->FindBin(xmin);
+    const int bmax = axis->FindBin(xmax);
+    double integral  = spec->Integral(bmin, bmax);
+    integral -= spec->GetBinContent(bmin) * (xmin - axis->GetBinLowEdge(bmin)) / axis->GetBinWidth(bmin);
+    integral -= spec->GetBinContent(bmax) * (axis->GetBinUpEdge(bmax) - xmax) / axis->GetBinWidth(bmax);
+    return integral;
 }
 
 } // end namespace HDTV
