@@ -579,20 +579,30 @@ class MHisto2D(Histo2D):
             raise ValueError, "Bad value for axis parameter"
 
         if axis == "x":
+            # FIXME: Calibrations for gated spectra asym/sym
+            thiscal = self._xproj.cal
+            if self._yproj:
+                othercal = self._yproj.cal
+            else:
+                othercal = self._xproj.cal
             matrix = self.vmatrix
         else:
+            thiscal = self._yproj.cal
+            othercal = self._xproj.cal
             matrix = self.tvmatrix
 
         matrix.ResetRegions()
 
         for r in regionMarkers:
-            b1 = matrix.FindCutBin(r.p1.pos_uncal)
-            b2 = matrix.FindCutBin(r.p2.pos_uncal)
+            # FIXME: The region markers are not used correctly in many parts
+            # of the code. Workaround by explicitly using the cal here
+            b1 = matrix.FindCutBin(thiscal.E2Ch(r.p1.pos_cal))
+            b2 = matrix.FindCutBin(thiscal.E2Ch(r.p2.pos_cal))
             matrix.AddCutRegion(b1, b2)
 
         for b in bgMarkers:
-            b1 = matrix.FindCutBin(b.p1.pos_uncal)
-            b2 = matrix.FindCutBin(b.p2.pos_uncal)
+            b1 = matrix.FindCutBin(thiscal.E2Ch(b.p1.pos_cal))
+            b2 = matrix.FindCutBin(thiscal.E2Ch(b.p2.pos_cal))
             matrix.AddBgRegion(b1, b2)
 
         name = self.filename + "_cut"
@@ -602,6 +612,7 @@ class MHisto2D(Histo2D):
 
         hist = CutHistogram(rhist, axis, regionMarkers)
         hist.typeStr = "cut"
+        hist._cal = othercal
         return hist
 
     def GetBasename(self, fname):
