@@ -1,5 +1,9 @@
 # HDTV Change Log
 
+## 16.12
++ Fixed cutting calibrated mfile matrices
++ Fixed wide tables errvalue
+
 ## 16.11
 - Fixed spectrum subtract crashing
 + Added support to add/subtract calibrated spectra
