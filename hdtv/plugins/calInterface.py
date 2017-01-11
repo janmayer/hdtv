@@ -242,11 +242,13 @@ class EffCalIf(object):
             #except: #TODO: errormessage
             #    raise hdtv.cmdline.HDTVCommandError#("Spectrum with ID "+str(ID)+" is not visible, no action taken")
 
+            maxEnergy = Efficiency[0][len(Efficiency[0])-1] #in the region [0;maxEnergy] the relative efficiency will be corrected to the fit
+
             if len(spectrumIDs) > 1:
                 for j in range(1,len(spectrumIDs)):
                     #if the observed spectrum has no coefficient it has to be corrected
                     if coefficients[j] == None:
-                        NewEff = self.EffCorrection(spectrumIDs[0], spectrumIDs[j], fitValues, nuclides[j], source, sigma)
+                        NewEff = self.EffCorrection(spectrumIDs[0], maxEnergy, spectrumIDs[j], fitValues, nuclides[j], source, sigma)
                     #if it has its own coefficient only the efficiency has to be calculated
                     else:
                         NewEff = self.CalculateEff(spectrumIDs[j], nuclides[j], coefficients[j], source, sigma)
@@ -351,7 +353,7 @@ class EffCalIf(object):
 
         return(PeakFinal, Efficiency, Intensity, Vol)
 
-    def EffCorrection(self, referenceID, spectrumID, fitValues, nuclide, source, sigma):
+    def EffCorrection(self, referenceID, maxEnergy, spectrumID, fitValues, nuclide, source, sigma):
         """
         If there is one spectrum given without coefficient, you have to correct it by calculation the missing factor
         that it fits to the other one.
@@ -372,13 +374,28 @@ class EffCalIf(object):
         try:
             for i in range(0,len(Efficiency[0])):
                 energy = Efficiency[0][i].value
-                functionValue = self.spectra.dict[referenceID].effCal.value(energy)
+                if energy <= maxEnergy:
+                    functionValue = self.spectra.dict[referenceID].effCal.value(energy)
 
-                division = Efficiency[1][i].value/functionValue
-                amountDivisionError = amountDivisionError + division*(Efficiency[1][i].error)**(-2)
-                amountError = amountError + (Efficiency[1][i].error)**(-2)
+                    division = Efficiency[1][i].value/functionValue
+                    amountDivisionError = amountDivisionError + division*(Efficiency[1][i].error)**(-2)
+                    amountError = amountError + (Efficiency[1][i].error)**(-2)
 
         except:
+            division = 0.0
+            amountDivisionError = 0.0
+            amountError = 0.0
+
+            for i in range(0,len(Efficiency[0])):
+                energy = Efficiency[0][i].value
+                if energy <= maxEnergy:
+                    functionValue = self.spectra.dict[referenceID].effCal.value(energy)
+
+                    division = Efficiency[1][i].value/functionValue
+                    amountDivisionError = amountDivisionError + division
+                    amountError = amountError + 1
+
+        if amountError == 0:
             division = 0.0
             amountDivisionError = 0.0
             amountError = 0.0
@@ -389,7 +406,7 @@ class EffCalIf(object):
 
                 division = Efficiency[1][i].value/functionValue
                 amountDivisionError = amountDivisionError + division
-                amountError = amountError + 1
+                amountError = amountError + 1            
 
         #the mean value of the divisions is calculated
         factor = amountDivisionError / amountError
