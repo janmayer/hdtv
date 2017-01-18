@@ -52,8 +52,8 @@ class PrintOut(object):
         # create matplotlib plot
         pylab.rc("font", size=16)
         pylab.rc("lines",linewidth=1)
-        pylab.rc("svg",embed_char_paths = False)
-        
+        pylab.rc("svg",fonttype="path")
+
         pylab.figure(figsize=(8.5,4.2))
                
         # add spectra, fits, marker etc.
