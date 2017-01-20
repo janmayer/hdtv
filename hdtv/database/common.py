@@ -63,7 +63,7 @@ class _Elements(list):
                     Mass = None
                 element = _Element(Z, Symbol, Name, Mass)
                 tmp.append(element)
-        except csv.Error, e:
+        except csv.Error as e:
             hdtv.ui.error('file %s, line %d: %s' % (csvfile, reader.line_num, e))
         finally:
             datfile.close()
@@ -192,7 +192,7 @@ class _Nuclides(object):
                 if not Z in self._storage:
                     self._storage[Z] = dict()
                 self._storage[Z][A] = _Nuclide(element, A, abundance = abd, sigma = sigma, M = M)
-        except csv.Error, e:
+        except csv.Error as e:
             hdtv.ui.error('file %s, line %d: %s' % (csvfile, reader.line_num, e))      
         finally:
             datfile.close()

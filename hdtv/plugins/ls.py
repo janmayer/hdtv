@@ -70,7 +70,7 @@ def cd(args):
     try:
         os.chdir(path)
         print(path)
-    except OSError, msg:
+    except OSError as msg:
         print(msg)
 
 

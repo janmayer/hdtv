@@ -72,7 +72,7 @@ class FitlistManager(object):
     def ReadList(self, fname):
         try:
             f = file(fname, "r")
-        except IOError, msg:
+        except IOError as msg:
             hdtv.ui.error("Error opening file: %s" % msg)
             return None
         dirname = os.path.dirname(fname)

@@ -200,7 +200,7 @@ class FitMap(object):
                                                     fit=options.show_fit, 
                                                     residual=options.show_residual,
                                                     ignoreErrors=options.ignore_errors)
-        except RuntimeError, msg:
+        except RuntimeError as msg:
             hdtv.ui.error(str(msg))
             return False
         self.spectra.ApplyCalibration(sids, cal)

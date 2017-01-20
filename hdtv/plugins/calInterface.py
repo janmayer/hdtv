@@ -110,9 +110,9 @@ class EffCalIf(object):
         """
         try:
             self.spectra.dict[spectrumID].effCal.loadPar(filename)
-        except RuntimeError, msg:
+        except RuntimeError as msg:
             hdtv.ui.error(str(msg))
-        except IOError, msg:
+        except IOError as msg:
             hdtv.ui.error(str(msg))
         except IndexError:
             hdtv.ui.error("Invalid spectrum ID %d", spectrumID)
@@ -125,9 +125,9 @@ class EffCalIf(object):
         """
         try:
             self.spectra.dict[spectrumID].effCal.loadCov(filename)
-        except RuntimeError, msg:
+        except RuntimeError as msg:
             hdtv.ui.error(str(msg))
-        except IOError, msg:
+        except IOError as msg:
             hdtv.ui.error(str(msg))
         except IndexError:
             hdtv.ui.error("Invalid spectrum ID %d", spectrumID)
@@ -140,7 +140,7 @@ class EffCalIf(object):
         """
         try:
             self.spectra.dict[spectrumID].effCal.savePar(filename)
-        except IOError, msg:
+        except IOError as msg:
             hdtv.ui.error(str(msg))
         except IndexError:
             hdtv.ui.error("Invalid spectrum ID %d", spectrumID)
@@ -153,7 +153,7 @@ class EffCalIf(object):
         """
         try:
             self.spectra.dict[spectrumID].effCal.saveCov(filename)
-        except IOError, msg:
+        except IOError as msg:
             hdtv.ui.error(str(msg))
         except IndexError:
             hdtv.ui.error("Invalid spectrum ID %d", spectrumID)
@@ -211,7 +211,7 @@ class EffCalIf(object):
                 fitValues.fromFile(filename, sep=" ") # TODO: separator
                 print(spectrumIDs)
                 spectrumID = spectrumIDs[0]
-            except IOError, msg:
+            except IOError as msg:
                 hdtv.ui.error(str(msg))
                 return
         else:#the spectrum has to be calibrated
@@ -1023,7 +1023,7 @@ class EnergyCalHDTVInterface(object):
             cal = self.EnergyCalIf.CalFromPairs(pairs, degree, options.show_table,
                                             options.draw_fit, options.draw_residual,
                                             ignoreErrors=options.ignore_errors)
-        except RuntimeError, msg:
+        except RuntimeError as msg:
             hdtv.ui.error(str(msg))
             return False
 
@@ -1136,7 +1136,7 @@ class EnergyCalHDTVInterface(object):
         except ValueError:
             hdtv.ui.error("Malformed calibration parameter file \'%s\'." % fname)
             return False
-        except IOError, msg:
+        except IOError as msg:
             hdtv.ui.error(str(msg))
             return False
         return True
@@ -1178,7 +1178,7 @@ class EnergyCalHDTVInterface(object):
                                            fit=options.show_fit,
                                            residual=options.show_residual,
                                            ignoreErrors=options.ignore_errors)
-        except RuntimeError, msg:
+        except RuntimeError as msg:
             hdtv.ui.error(str(msg))
             return False
         self.spectra.ApplyCalibration(sids, cal)

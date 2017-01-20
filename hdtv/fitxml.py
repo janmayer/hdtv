@@ -362,7 +362,7 @@ class FitXml:
                     hdtv.ui.msg("This will take some time...")
                     raw_input("Please press enter to continue...\n")
                     count = self.RestoreFromXml_v0(root, True)
-        except SyntaxError, e:
+        except SyntaxError as e:
             print("Error reading \'" + fname + "\':\n\t", e)
         else:
             msg = "\'%s\' loaded" %(fname)

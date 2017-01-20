@@ -111,7 +111,7 @@ class TxtFile(object):
                 self.lines.append(line)
                 self.linos.append(number)
 
-        except IOError, msg:
+        except IOError as msg:
             raise IOError("Error opening file:" + str(msg))
         except: # Let MainLoop handle other exceptions
             raise
@@ -131,7 +131,7 @@ class TxtFile(object):
                 line.rstrip('\r\n ')
                 line += os.linesep
                 self.fd.write(line)
-        except IOError, msg:
+        except IOError as msg:
             raise IOError(("Error opening file: %s" % msg))
         except:
             raise

@@ -343,13 +343,13 @@ class TvMatInterface:
         # check if file exists
         try:
             os.stat(fname)
-        except OSError, error:
+        except OSError as error:
             hdtv.ui.error(str(error))
             raise
         
         try:
             hist = SpecReader().GetMatrix(fname, fmt)
-        except SpecReaderError, msg:
+        except SpecReaderError as msg:
             hdtv.ui.error(str(msg))
             raise
         
