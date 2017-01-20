@@ -71,7 +71,7 @@ class PGAAlib_IKI2000(GammaLib):
         if self.opened:
             return True
 
-        datfile = open(self.csvfile, "rb")
+        datfile = open(self.csvfile, "rt")
         
         reader = csv.reader(datfile)
         
@@ -122,7 +122,7 @@ class PromptGammas(GammaLib):
         if self.opened:
             return True
         
-        datfile = open(self.csvfile, "rb")
+        datfile = open(self.csvfile, "rt")
         
         reader = csv.reader(datfile)
         
