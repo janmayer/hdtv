@@ -78,7 +78,7 @@ def pwd(args):
     """
     print name of current/working directory
     """
-    print(os.getcwdu())
+    print(os.getcwd())
 
 
 hdtv.cmdline.AddCommand("ls", ls, level=2, maxargs=1, dirargs=True)
