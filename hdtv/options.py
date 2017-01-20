@@ -28,8 +28,8 @@ class Option:
     A configuration variable
     """
     def __init__(self, default=None,
-                 parse=lambda(x): x,
-                 toStr=lambda(x): str(x),
+                 parse=lambda x: x,
+                 toStr=lambda x: str(x),
                  changeCallback=None):
         self.defaultValue = default
         self.value = self.defaultValue

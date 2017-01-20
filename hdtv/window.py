@@ -252,7 +252,7 @@ class Window(KeyHandler):
         
         # Register configuration variables
         opt = hdtv.options.Option(default = self.viewport.GetYMinVisibleRegion(),
-                                  parse = lambda(x): float(x),
+                                  parse = lambda x: float(x),
                                   changeCallback = self.YMinVisibleRegionChanged)
 
         hdtv.options.RegisterOption("display.YMinVisibleRegion", opt)
