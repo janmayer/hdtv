@@ -302,7 +302,7 @@ class MarkerCollection(list):
                 p2 = m.p2.pos_cal
                 diff = abs(pos-p2)
                 index[diff] = m
-        nearest = index[min(index.keys())]
+        nearest = index[min(list(index.keys()))]
         self.remove(nearest)
         self.Refresh()
         

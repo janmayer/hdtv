@@ -167,7 +167,7 @@ class PeakModel:
         """
         parname = parname.strip().lower()
         
-        if not parname in self.fValidParStatus.keys():
+        if not parname in list(self.fValidParStatus.keys()):
             raise ValueError("Invalid parameter name %s for peak model %s" % (parname, self.name))
         
         if type(status) == type(status[0]): # Single string

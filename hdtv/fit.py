@@ -236,7 +236,7 @@ class Fit(Drawable):
                 if p not in params:
                     params.append(p)
             # add extra params
-            for p in peak.extras.keys():
+            for p in list(peak.extras.keys()):
                 thispeak[p] = peak.extras[p]
                 if p not in params:
                     params.append(p) 

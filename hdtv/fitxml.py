@@ -171,7 +171,7 @@ class FitXml:
             # <uncal>
             uncalElement = ET.SubElement(peakElement, "uncal")
             # Parameter
-            for param in fit.fitter.fParStatus.iterkeys():
+            for param in fit.fitter.fParStatus.keys():
                 paramElement = ET.SubElement(uncalElement, param)
                 status = fit.fitter.fParStatus[param]
                 if type(status)==list:
@@ -191,7 +191,7 @@ class FitXml:
             # <cal>
             calElement = ET.SubElement(peakElement, "cal")
             # Parameter
-            for param in fit.fitter.fParStatus.iterkeys():
+            for param in fit.fitter.fParStatus.keys():
                 paramElement = ET.SubElement(calElement, param)
                 status = fit.fitter.fParStatus[param]
                 if type(status)==list:
@@ -210,7 +210,7 @@ class FitXml:
                         errorElement.text = str(param.error)
             # <extras>
             extraElement = ET.SubElement(peakElement, "extras")
-            for param in peak.extras.keys():
+            for param in list(peak.extras.keys()):
                 paramElement = ET.SubElement(extraElement, param)
                 param = peak.extras[param]
                 try:
@@ -314,7 +314,7 @@ class FitXml:
                 for paramElement in peakElement.findall("more"):
                     name = paramElement.tag
                     parameter[name] = self._readParamElement(paramElement)
-                for name in parameter.keys():
+                for name in list(parameter.keys()):
                     print(name)
                     setattr(peak, name, parameter[name])
                 peaks.append(peak)
@@ -614,7 +614,7 @@ class FitXml:
             peak.extras = extras
             fit.peaks.append(peak)
             # set parameter status of fitter
-            for name in statusdict.keys():
+            for name in list(statusdict.keys()):
                 # check if status is the same for all peaks
                 check = set(statusdict[name])
                 if len(check)==1:
@@ -663,7 +663,7 @@ class FitXml:
                             params[parname].append(status)
                         except KeyError:
                             params[parname]=[status]
-                for parname in params.keys():
+                for parname in list(params.keys()):
                     status = params[parname]
                     fitter.SetParameter(parname, status)
                 fit = Fit(fitter, cal=spec.cal)
