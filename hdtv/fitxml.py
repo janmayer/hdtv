@@ -21,6 +21,7 @@
 import os
 import glob
 import xml.etree.cElementTree as ET
+import sys
 
 import hdtv.ui
 
@@ -354,13 +355,19 @@ class FitXml:
                 if oldversion=="1.0":
                     hdtv.ui.msg("Restoring only fits belonging to spectrum %s" % sid)
                     hdtv.ui.msg("There may be fits belonging to other spectra in this file.")
-                    raw_input("Please press enter to continue...\n")
+                    if sys.version_info[:2] <= (2, 7):
+                        raw_input("Please press enter to continue...\n")
+                    else:
+                        input("Please press enter to continue...\n")
                     count = self.RestoreFromXml_v1_0(root, [sid], calibrate=False, refit=refit)
                 if oldversion.startswith("0"):
                     hdtv.ui.msg("Only the fit markers have been saved in this file.")
                     hdtv.ui.msg("All the fits therefor have to be repeated.")
                     hdtv.ui.msg("This will take some time...")
-                    raw_input("Please press enter to continue...\n")
+                    if sys.version_info[:2] <= (2, 7):
+                        raw_input("Please press enter to continue...\n")
+                    else:
+                        input("Please press enter to continue...\n")
                     count = self.RestoreFromXml_v0(root, True)
         except SyntaxError as e:
             print("Error reading \'" + fname + "\':\n\t", e)
@@ -404,7 +411,10 @@ class FitXml:
                         do_fit = None
                     while not do_fit in ["Y","y","N","n","", "A", "a", "V", "v"]:
                         question = "Could not restore fit. Refit? [(Y)es/(n)o/(a)lways/ne(v)er]"
-                        do_fit = raw_input(question)
+                        if sys.version_info[:2] <= (2, 7):
+                            do_fit = raw_input(question)
+                        else:
+                            do_fit = input(question)
                     if do_fit in ["Y", "y", "", "A", "a"]:
                         fit.FitPeakFunc(spec)
             # finish this fit
@@ -503,7 +513,10 @@ class FitXml:
                             do_fit = None
                         while not do_fit in ["Y","y","N","n","", "A", "a", "V", "v"]:
                             question = "Could not restore fit. Refit? [(Y)es/(n)o/(a)lways/ne(v)er]"
-                            do_fit = raw_input(question)
+                            if sys.version_info[:2] <= (2, 7):
+                                do_fit = raw_input(question)
+                            else:
+                                do_fit = input(question)
                         if do_fit in ["Y", "y", "", "A", "a"]:
                             fit.FitPeakFunc(spec)
                 # finish this fit
