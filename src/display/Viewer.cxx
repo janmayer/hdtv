@@ -68,6 +68,7 @@ Viewer::~Viewer()
 Bool_t Viewer::HandleKey(Event_t *ev)
 {
   if(ev->fType == kGKeyPress) {
+	memset(fKeyStr, 0, 16);
 	gVirtualX->LookupString(ev, fKeyStr, 16, fKeySym);
 	fKeyState = ev->fState;
 	KeyPressed();
