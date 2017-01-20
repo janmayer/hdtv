@@ -19,6 +19,8 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
+from __future__ import print_function
+
 import hdtv.options
 import hdtv.cmdline
 import hdtv.util
@@ -36,7 +38,7 @@ def ConfigSet(args):
 
 def ConfigShow(args):
     if len(args) == 0:
-        print(hdtv.options.Str(),)
+        print(hdtv.options.Str(), end=' ')
     else:
         try:
             print(hdtv.options.Show(args[0]))
@@ -45,7 +47,7 @@ def ConfigShow(args):
     
 def ConfigReset(args):
     if len(args) == 0:
-        print(hdtv.options.Str(),)
+        print(hdtv.options.Str(), end=' ')
     else:
         try:
             hdtv.options.Reset(args[0])
