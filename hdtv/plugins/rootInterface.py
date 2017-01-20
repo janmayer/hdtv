@@ -138,7 +138,7 @@ class RootFileInterface:
     
         (posix_path, rfile, root_dir) = hdtv.rfile_utils.GetRelDirectory(os.getcwd(), cur_root_dir, args[0])
         if (posix_path, rfile, root_dir) == (None, None, None):
-            print "Error: invalid path specified."
+            print("Error: invalid path specified.")
             return
             
         os.chdir(posix_path)
@@ -147,11 +147,11 @@ class RootFileInterface:
         # a POSIX directory. If rfile is not None, we *changed* the ROOT file.
         if root_dir == None or rfile != None:
             if self.rootfile != None:
-                print "Info: closing old root file %s" % self.rootfile.GetName()
+                print("Info: closing old root file %s" % self.rootfile.GetName())
                 self.rootfile.Close()
             self.rootfile = rfile
             if self.rootfile != None:
-                print "Info: opened new root file %s" % self.rootfile.GetName()
+                print("Info: opened new root file %s" % self.rootfile.GetName())
             
         if root_dir != None:
             root_dir.cd()
@@ -160,14 +160,14 @@ class RootFileInterface:
         if self.rootfile != None:
             ROOT.gDirectory.pwd()
         else:
-            print os.getcwd()
+            print(os.getcwd())
             
     def RootOpen(self, args):
         return self.RootCd(args)
         
     def RootClose(self, args):
         if self.rootfile == None:
-            print "Info: no root file open, no action taken"
+            print("Info: no root file open, no action taken")
         else:
             self.rootfile.Close()
             self.rootfile = None
@@ -239,7 +239,7 @@ class RootFileInterface:
         cut = self.GetObj(path)
         
         if cut == None or not isinstance(cut, ROOT.TCutG):
-            print "Error: %s is not a ROOT cut (TCutG)" % path
+            print("Error: %s is not a ROOT cut (TCutG)" % path)
             return None
         
         return cut
@@ -259,7 +259,7 @@ class RootFileInterface:
         if hist == None or not \
           (isinstance(hist, ROOT.TH2) or \
           (isinstance(hist, ROOT.THnSparse) and hist.GetNdimensions() == 2)):
-            print "Error: %s is not a 2d histogram" % path
+            print("Error: %s is not a 2d histogram" % path)
             return None
         
         return hist
@@ -369,7 +369,7 @@ class RootFileInterface:
                         if spec.name in self.spectra.caldict:
                             spec.cal = self.caldict[spec.name]
                         else:
-                            print "Warning: no calibration found for %s" % spec.name
+                            print("Warning: no calibration found for %s" % spec.name)
                 else:
                     hdtv.ui.warn("%s is not a 1D histogram object" % obj.GetName())
             hdtv.ui.msg("%d spectra loaded" % len(loaded))

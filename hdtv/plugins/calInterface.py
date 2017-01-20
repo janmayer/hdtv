@@ -209,7 +209,7 @@ class EffCalIf(object):
         #TODO: maybe it makes more sense to write another method for this
             try:
                 fitValues.fromFile(filename, sep=" ") # TODO: separator
-                print spectrumIDs
+                print(spectrumIDs)
                 spectrumID = spectrumIDs[0]
             except IOError, msg:
                 hdtv.ui.error(str(msg))
@@ -290,7 +290,7 @@ class EffCalIf(object):
 
         #if table option is called a table will be created
         if show_table:
-            print
+            print()
             table = hdtv.util.Table(data=tabledata, keys=["ID", "Nuclide", "Peak", "Efficiency", "Intensity", "Vol"], sortBy="ID", ignoreEmptyCols=False)
             hdtv.ui.msg(str(table))
 
@@ -738,10 +738,10 @@ class EnergyCalIf(object):
         for p in pairs:
             fitter.AddPair(p[0], p[1])
         fitter.FitCal(degree, ignoreErrors=ignoreErrors)
-        print fitter.ResultStr()
+        print(fitter.ResultStr())
         if table:
-            print ""
-            print fitter.ResultTable()
+            print("")
+            print(fitter.ResultTable())
         if fit:
             fitter.DrawCalFit()
         if residual:
@@ -1102,7 +1102,7 @@ class EnergyCalHDTVInterface(object):
         for spec in spectrumID:
             spectrumIDStr = spectrumIDStr+' '+str(spec)
 
-        print "Create a calibration for nuclide "+nuclideStr+" (sigma: "+str(sigma)+", spectrum"+spectrumIDStr+", database "+database+")"
+        print("Create a calibration for nuclide "+nuclideStr+" (sigma: "+str(sigma)+", spectrum"+spectrumIDStr+", database "+database+")")
 
         #calibration
         degree = 1
@@ -1110,7 +1110,7 @@ class EnergyCalHDTVInterface(object):
         for p in Match: #builds pairs
             fitter.AddPair(p[0], p[1])
         fitter.FitCal(degree, ignoreErrors=True)
-        print fitter.ResultStr()
+        print(fitter.ResultStr())
         cal = fitter.calib
         for ID in spectrumID:
             self.spectra.ApplyCalibration(ID, cal) #do the calibration

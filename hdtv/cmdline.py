@@ -22,6 +22,7 @@
 #-------------------------------------------------------------------------------
 # HDTV command line
 #-------------------------------------------------------------------------------
+
 import os
 import sys
 import signal
@@ -248,7 +249,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         try:
             path = self.SplitCmdline(cmdline)
         except ValueError:
-            print "Inappropriate use of quotation characters."
+            print("Inappropriate use of quotation characters.")
             return []
 
         (node, args) = self.FindNode(path)
@@ -272,16 +273,16 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                 raise HDTVCommandError, "Wrong number of arguments to command"
         except HDTVCommandAbort, msg:
             if msg:
-                print msg
+                print(msg)
             return
         except HDTVCommandError, msg:
             if msg:
-                print msg
+                print(msg)
             if parser:
-                print parser.get_usage()
+                print(parser.get_usage())
             elif "usage" in node.options:
                 usage = node.options["usage"].replace("%prog", node.FullTitle())
-                print "usage: " + usage
+                print("usage: " + usage)
             return
             
         # Execute the command
@@ -293,10 +294,10 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         # Print usage if requested
         if result == "USAGE":
             if parser:
-                print parser.get_usage()
+                print(parser.get_usage())
             elif "usage" in node.options:
                 usage = node.options["usage"].replace("%prog", node.FullTitle())
-                print "usage: " + usage
+                print("usage: " + usage)
         
     def RemoveCommand(self, title):
         """
@@ -477,7 +478,7 @@ class CommandLine(object):
         self.fPyMode = True
     
     def ExitPython(self):
-        print ""
+        print("")
         self.fPyMode = False
         
     def EnterShell(self, args=None):
@@ -499,7 +500,7 @@ class CommandLine(object):
         os.kill(os.getpid(), signal.SIGINT)
         
     def EOFHandler(self):
-        print ""
+        print("")
         self.Exit()
         
     def GetCompleteOptions(self, text):
@@ -563,7 +564,7 @@ class CommandLine(object):
         except IOError, msg:
             hdtv.ui.error("%s" % msg)
         for line in file.lines:
-            print "file>", line
+            print("file>", line)
             self.DoLine(line)
             if self.fPyMore: # TODO: HACK: How should I teach this micky mouse language that a python statement (e.g. "for ...:") has ended???
                 self.fPyMore = self._py_console.push("")
@@ -632,7 +633,7 @@ class CommandLine(object):
                 # exception) is used for asynchronous exit, i.e. if another thread
                 # (e.g. the GUI thread) wants to exit the application.
                 if not self.fKeepRunning:
-                    print ""
+                    print("")
                     break
                 
                 # If we get here, we assume the KeyboardInterrupt is due to the user
@@ -644,11 +645,11 @@ class CommandLine(object):
                 if self.fPyMore:
                     self._py_console.resetbuffer()
                     self.fPyMore = False
-                    print ""
+                    print("")
                 elif readline.get_line_buffer() != "":
-                    print ""
+                    print("")
                 else:
-                    print "\nKeyboardInterrupt: Use \'Ctrl-D\' to exit"
+                    print("\nKeyboardInterrupt: Use \'Ctrl-D\' to exit")
                 continue
             
             # Execute the command
@@ -656,13 +657,13 @@ class CommandLine(object):
                self.DoLine(s)
                     
             except KeyboardInterrupt:
-                print "Aborted"
+                print("Aborted")
             except HDTVCommandError, msg:
-                print "Error: %s" % msg
+                print("Error: %s" % msg)
             except SystemExit:
                 self.Exit()
             except Exception:
-                print "Unhandled exception:"
+                print("Unhandled exception:")
                 traceback.print_exc()
 def RegisterInteractive(name, ref):
     global command_line

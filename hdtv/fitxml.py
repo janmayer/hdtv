@@ -315,7 +315,7 @@ class FitXml:
                     name = paramElement.tag
                     parameter[name] = self._readParamElement(paramElement)
                 for name in parameter.keys():
-                    print name
+                    print(name)
                     setattr(peak, name, parameter[name])
                 peaks.append(peak)
         return peaks
@@ -363,7 +363,7 @@ class FitXml:
                     raw_input("Please press enter to continue...\n")
                     count = self.RestoreFromXml_v0(root, True)
         except SyntaxError, e:
-            print "Error reading \'" + fname + "\':\n\t", e
+            print("Error reading \'" + fname + "\':\n\t", e)
         else:
             msg = "\'%s\' loaded" %(fname)
             if count ==1:

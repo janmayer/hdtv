@@ -390,7 +390,7 @@ class Window(KeyHandler):
         """
         # check the input
         if xytype not in ["X","Y"]:
-            print "invalid parameter %s to the private function _Expand" % xytype
+            print("invalid parameter %s to the private function _Expand" % xytype)
             return
         
         zoomMarkers = getattr(self,"%sZoomMarkers" %xytype)

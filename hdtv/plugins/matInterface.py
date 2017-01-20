@@ -494,7 +494,7 @@ class TvMatInterface:
             # delete also cut spectrum
             if not cut.spec==None:
                 sid = self.spectra.Index(cut.spec)
-                print "remove spec %s" %sid
+                print("remove spec %s" %sid)
                 self.spectra.Pop(sid)
         
 # plugin initialisation
