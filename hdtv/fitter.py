@@ -111,7 +111,7 @@ class Fitter(object):
                 errors[i] = coeffs[i].error
             self.peakFitter.Restore(values, errors, chisquare)
         if not len(peaks)==self.peakFitter.GetNumPeaks():
-            raise RuntimeError, "Number of peaks does not match"
+            raise RuntimeError("Number of peaks does not match")
         for i in range(0,len(peaks)):
             cpeak = self.peakFitter.GetPeak(i)
             peak = peaks[i]
@@ -140,7 +140,7 @@ class Fitter(object):
                     deg = int(status.split()[1])
                 except (ValueError, IndexError):
                     msg = "Failed to parse status specifier `%s'" % status
-                    raise ValueError, msg
+                    raise ValueError(msg)
             self.bgdeg = deg
         else:
             # all other parnames are treated in the peakmodel

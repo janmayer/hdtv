@@ -119,7 +119,7 @@ class EVContainer:
 
 
     def __cmp__(self, y):
-        raise RuntimeError, "EVContainer instances cannot be compared except for equality"
+        raise RuntimeError("EVContainer instances cannot be compared except for equality")
 
 
 class DepErrValue:
@@ -605,7 +605,7 @@ class ErrValue(DepErrValue):
     def __init__(self, value, error = None):
         if isinstance(value, str):
             if error is not None:
-                raise TypeError, "value of ErrValue is of type string, but error parameter is given"
+                raise TypeError("value of ErrValue is of type string, but error parameter is given")
             (value, error) = self._fromString(value)
 
         self._has_error = True
@@ -646,7 +646,7 @@ class ErrValue(DepErrValue):
         y.SetCov() is redundant.
         """
         if not isinstance(y, ErrValue):
-            raise TypeError, "Can only set covariances between two ErrValue objects"
+            raise TypeError("Can only set covariances between two ErrValue objects")
 
         if id(y) == id(self):
             self.SetVar(cov)
@@ -668,7 +668,7 @@ class ErrValue(DepErrValue):
         """
 
         if not strvalue:
-            raise ValueError, "empty string for ErrValue()"
+            raise ValueError("empty string for ErrValue()")
 
         # TODO: Handle decimal seperator properly, depending on locale
         expr_value = r"([+\-]?[0-9]*\.?(?:[0-9]*))"
@@ -679,7 +679,7 @@ class ErrValue(DepErrValue):
 
         match = re.match(expr, strvalue)
         if match == None:
-            raise ValueError, "invalid literal for ErrValue(): %s" % strvalue
+            raise ValueError("invalid literal for ErrValue(): %s" % strvalue)
 
         # Extract value
         value = float(match.group(1))

@@ -108,7 +108,7 @@ class Marker(Drawable):
         """
         if self.viewport and not self.viewport == viewport:
             # Marker can only be drawn to a single viewport
-            raise RuntimeError, "Marker cannot be realized on multiple viewports"
+            raise RuntimeError("Marker cannot be realized on multiple viewports")
         self.viewport = viewport
         # adjust the position values for the creation of the makers
         # on the C++ side all values must be uncalibrated

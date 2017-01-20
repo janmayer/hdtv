@@ -62,13 +62,13 @@ class HDTVOptionParser(optparse.OptionParser):
         return optparse.OptionParser._process_args(self, largs, rargs, values)
 
     def error(self, msg):
-        raise HDTVCommandError, msg
+        raise HDTVCommandError(msg)
         
     def exit(self, status=0, msg=None):
         if status == 0:
-            raise HDTVCommandAbort, msg
+            raise HDTVCommandAbort(msg)
         else:
-            raise HDTVCommandError, msg
+            raise HDTVCommandError(msg)
     
 class HDTVCommandTreeNode(object):
     def __init__(self, parent, title, level):
@@ -195,7 +195,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         # does and we are not allowed to overwrite it, raise an error
         if not overwrite:
             if path[-1] in map(lambda n: n.title, node.childs):
-                raise RuntimeError, "Refusing to overwrite already existing command"
+                raise RuntimeError("Refusing to overwrite already existing command")
         
         # Create the last node
         node = HDTVCommandTreeNode(node, path[-1], level)
@@ -217,7 +217,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             elem = path.pop(0)
             next = node.FindChild(elem, use_levels)
             if next == None:  # more than one node found
-                raise HDTVCommandError, "Command is ambiguous"
+                raise HDTVCommandError("Command is ambiguous")
             elif next == 0:   # no nodes found
                 path.insert(0, elem)
                 break
@@ -257,7 +257,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             node = node.PrimaryChild()
 
         if not node or not node.command:
-            raise HDTVCommandError, "Command not recognized"
+            raise HDTVCommandError("Command not recognized")
             
         # Check if node has a parser option set
         if "parser" in node.options:
@@ -270,7 +270,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             if parser:
                 (options, args) = parser.parse_args(args)
             if not self.CheckNumParams(node, len(args)):
-                raise HDTVCommandError, "Wrong number of arguments to command"
+                raise HDTVCommandError("Wrong number of arguments to command")
         except HDTVCommandAbort, msg:
             if msg:
                 print(msg)
@@ -305,7 +305,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         """
         (node, args) = self.FindNode(title.split(), False)
         if len(args) != 0 or not node.command:
-            raise RuntimeError, "No valid command node specified"
+            raise RuntimeError("No valid command node specified")
             
         while not node.HasChildren() and node.parent != None:
             node.parent.RemoveChild(node)
