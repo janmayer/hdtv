@@ -52,10 +52,10 @@ class TheuerkaufPeak {
   friend class TheuerkaufFitter;
   public:
     TheuerkaufPeak(const Param& pos, const Param& vol, const Param& sigma,
-                   const Param& tl = Param::None(),
-                   const Param& tr = Param::None(),
-                   const Param& sh = Param::None(),
-                   const Param& sw = Param::None());
+                   const Param& tl = Param::NoPar(),
+                   const Param& tr = Param::NoPar(),
+                   const Param& sh = Param::NoPar(),
+                   const Param& sw = Param::NoPar());
     TheuerkaufPeak(const TheuerkaufPeak& src);
     TheuerkaufPeak& operator=(const TheuerkaufPeak& src);
 
