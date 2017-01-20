@@ -336,10 +336,10 @@ class GammaLib(list):
         # convert keys to lowercase
         fields_lower = dict()
         args_lower = dict()
-        for (key, conv) in self.fParamConv.items():
+        for (key, conv) in list(self.fParamConv.items()):
             fields_lower[key.lower()] = conv
             
-        for (key, value) in args.items():
+        for (key, value) in list(args.items()):
             try:
                 conv = fields_lower[key.lower()] # if this raises a KeyError it was an invalid argument
             except KeyError:
@@ -352,7 +352,7 @@ class GammaLib(list):
         # Prepare find args
         fargs = dict()
 
-        for (key, conv) in fields_lower.items():
+        for (key, conv) in list(fields_lower.items()):
             try:
                 fargs[key] = conv(args_lower[key]) # Convert as described in fParamConv dict
             except KeyError:
@@ -368,7 +368,7 @@ class GammaLib(list):
         if len(fargs) == 0:
             return []
 
-        for (key, value) in fargs.items():
+        for (key, value) in list(fargs.items()):
             if not value is None:
                 if isinstance(value, int): 
                     results = filter(lambda x: getattr(x, key) == value, results)

@@ -136,5 +136,5 @@ class CorrelationGroups:
                     corgroups[key].append([self.fDetectors[i], self.fDetectors[j]])
                     
         self.fGroups = list()
-        for (k,v) in corgroups.iteritems():
+        for (k,v) in corgroups.items():
             self.fGroups.append(CorrelationGroup(k[0], k[1], k[2], v))

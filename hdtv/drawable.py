@@ -228,7 +228,7 @@ class DrawableManager(object):
         """
         Return index such that self[index] == obj
         """
-        index = [k for (k,v) in self.dict.iteritems() if v == obj]
+        index = [k for (k,v) in self.dict.items() if v == obj]
         if len(index) == 0:
             raise ValueError("Object not found in this collection")
         else:

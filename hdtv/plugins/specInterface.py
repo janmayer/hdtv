@@ -168,7 +168,7 @@ class SpecInterface:
         spectra = list()
         params = ["ID", "stat", "name", "fits"]
 
-        for (ID, obj) in self.spectra.dict.iteritems():
+        for (ID, obj) in self.spectra.dict.items():
             if visible and (ID not in self.spectra.visible):
                 continue
 
