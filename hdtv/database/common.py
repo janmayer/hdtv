@@ -51,7 +51,7 @@ class _Elements(list):
         try:
             datfile = open(csvfile, "rb")
             reader = csv.reader(datfile)
-            reader.next() # Skip header
+            next(reader) # Skip header
             
             for line in reader:
                 Z = int(line[0])
@@ -170,7 +170,7 @@ class _Nuclides(object):
         try:
             datfile = open(csvfile, "rb")
             reader = csv.reader(datfile)
-            reader.next() # Skip header
+            next(reader) # Skip header
             
             for line in reader:
                 Z = int(line[0].strip())

@@ -76,7 +76,7 @@ class PGAAlib_IKI2000(GammaLib):
         reader = csv.reader(datfile)
         
         if self._has_header:
-            reader.next()
+            next(reader)
         
         try:
             for line in reader:
@@ -127,8 +127,8 @@ class PromptGammas(GammaLib):
         reader = csv.reader(datfile)
         
         if self._has_header:
-            reader.next()
-        
+            next(reader)
+
         try:
             for line in reader:
                 A = int(line[0])
