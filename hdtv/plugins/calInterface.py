@@ -34,7 +34,7 @@ import hdtv.cal
 import hdtv.util
 import hdtv.errvalue
 from hdtv.fitxml import FitXml
-import EnergyCalibration
+from . import EnergyCalibration
 import math
 
 

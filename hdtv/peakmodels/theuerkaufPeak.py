@@ -20,7 +20,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 import math
 import ROOT
-from peak import PeakModel, FitValue
+from .peak import PeakModel, FitValue
 from hdtv.drawable import Drawable
 import hdtv.options
 
