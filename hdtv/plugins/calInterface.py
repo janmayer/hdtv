@@ -311,9 +311,9 @@ class EffCalIf(object):
 
         #Peaks from the given spectrum are saved in Peak
         peaks = self.spectra.dict[hdtv.util.ID(spectrumID)].dict
-        for i in range(0,len(peaks.values())):
+        for i in range(0,len(list(peaks.values()))):
             peakID.append(i)
-            Peak.append(peaks.values()[i].ExtractParams()[0][0]['pos'].value)
+            Peak.append(list(peaks.values())[i].ExtractParams()[0][0]['pos'].value)
 
         if Peak == []:
             raise hdtv.cmdline.HDTVCommandError("You must fit at least one peak.")
@@ -338,9 +338,9 @@ class EffCalIf(object):
         #saves the right intensities for the peaks
         i = 0
         for ID in peakID:
-            Vol.append(hdtv.errvalue.ErrValue(peaks.values()[ID].ExtractParams()[0][0]['vol'].value))
-            Vol[i].SetError(peaks.values()[ID].ExtractParams()[0][0]['vol'].error)
-            Peak[i].SetError(peaks.values()[ID].ExtractParams()[0][0]['pos'].error)
+            Vol.append(hdtv.errvalue.ErrValue(list(peaks.values())[ID].ExtractParams()[0][0]['vol'].value))
+            Vol[i].SetError(list(peaks.values())[ID].ExtractParams()[0][0]['vol'].error)
+            Peak[i].SetError(list(peaks.values())[ID].ExtractParams()[0][0]['pos'].error)
             i = i+1
 
         #Calculates the efficiency and its error and saves all peaks with errors
@@ -1079,7 +1079,7 @@ class EnergyCalHDTVInterface(object):
         for ID in spectrumID:
             try:
                 fits = self.spectra.dict[hdtv.util.ID(ID)].dict
-                for fit in fits.values():
+                for fit in list(fits.values()):
                     Peaks.append(fit.ExtractParams()[0][0]['channel'].value)
             except: #errormessage if there is no spectrum with the given ID
                 raise hdtv.cmdline.HDTVCommandError("Spectrum with ID "+str(ID)+" is not visible, no action taken")

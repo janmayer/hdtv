@@ -42,7 +42,7 @@ class Spectrum(DrawableManager):
 
     # color property
     def _set_color(self, color):
-        for fit in self.dict.itervalues():
+        for fit in self.dict.values():
             fit.color = color
             
     def _get_color(self):
@@ -52,7 +52,7 @@ class Spectrum(DrawableManager):
         
     # cal property
     def _set_cal(self, cal):
-        for fit in self.dict.itervalues():
+        for fit in self.dict.values():
             fit.cal = cal
     
     def _get_cal(self):
@@ -136,7 +136,7 @@ class CutSpectrum(Spectrum):
         Repeat the cut
         """
         if self.matrix:
-            for cut in self.matrix.dict.itervalues():
+            for cut in self.matrix.dict.values():
                 if self == cut.spec:
                     cut.Refresh()
                     break

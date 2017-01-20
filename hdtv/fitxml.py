@@ -79,7 +79,7 @@ class FitXml:
         # create xml tree
         root = ET.Element("hdtv")
         root.set("version", VERSION)
-        for fit in fits.itervalues():
+        for fit in fits.values():
             root.append(self.Fit2Xml(fit))
         self._indent(root)
         return root

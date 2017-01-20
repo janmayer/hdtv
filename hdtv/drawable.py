@@ -350,7 +350,7 @@ class DrawableManager(object):
         """
         # do not call HideAll here, as then we loose the info about 
         # visible/active states of the objects
-        for obj in self.dict.itervalues():
+        for obj in self.dict.values():
             obj.Hide()
         
     def HideAll(self):
