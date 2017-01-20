@@ -478,6 +478,22 @@ class ID(object):
             return -1
         return cmp(self.minor, ID.minor)
 
+    def __lt__(self, ID):
+        if ID is None:
+            return 1
+        if self.major > ID.major:
+            return 1
+        if self.major < ID.major:
+            return -1
+        return cmp(self.minor, ID.minor)
+
+    def __eq__(self, ID):
+        if ID is None:
+            return 0
+        if self.major != ID.major:
+            return 0
+        return 1
+
     def __hash__(self):
         # this is needed to use IDs as keys in dicts and in sets
         return hash(self.major)^hash(self.minor)
