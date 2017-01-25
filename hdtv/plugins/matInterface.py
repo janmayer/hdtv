@@ -224,7 +224,7 @@ class MatInterface:
             sym="symmetric"
         else:
             sym="aymmetric"
-        header = "\nmatrix ID = "+matrix.ID+ " \""+matrix.name+"\" ("+sym+")\n"
+        header = "\nmatrix ID = "+str(matrix.ID)+ " \""+matrix.name+"\" ("+sym+")\n"
         footer = "\n"+str(len(matrix.ids)) + " cuts, "+str(count)+ " loaded cut spectra."
         
         table = hdtv.util.Table(cuts, params, sortBy="ID", extra_header = header, 
@@ -379,7 +379,7 @@ class TvMatInterface:
         """
         Show a overview of matrices with all cuts and cut spectra
         """
-        ids = hdtv.util.ID.ParseRange(options.matrix)
+        ids = hdtv.util.ID.ParseIds(options.matrix, self.spectra)
         if ids=="NONE":
             return
         matrices = set()
