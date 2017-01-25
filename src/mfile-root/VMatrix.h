@@ -49,6 +49,7 @@
 class VMatrix {
   public:
     VMatrix() : fFail(false) { };
+    virtual ~VMatrix() {};
   
     inline void AddCutRegion(int c1, int c2) { AddRegion(fCutRegions, c1, c2); }
     inline void AddBgRegion(int c1, int c2) { AddRegion(fBgRegions, c1, c2); }
@@ -84,6 +85,7 @@ class RMatrix: public VMatrix {
     enum ProjAxis_t { PROJ_X, PROJ_Y };
   
     RMatrix(TH2* hist, ProjAxis_t paxis);
+    virtual ~RMatrix() {};
         
     virtual int FindCutBin(double x)
        { TAxis *a = (fProjAxis == PROJ_X) ? fHist->GetYaxis() : fHist->GetXaxis();
@@ -115,6 +117,7 @@ class RMatrix: public VMatrix {
 class MFMatrix: public VMatrix {
   public:
     MFMatrix(MFileHist *mat, unsigned int level);
+    virtual ~MFMatrix() {};
     virtual int FindCutBin(double x)  // convert channel to bin number
       { return (int) ceil(x - 0.5); }
 
