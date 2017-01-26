@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 import sys
 sys.path.append("/home/braun/projects/hdtv")
 import hdtv.specreader
