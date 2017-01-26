@@ -379,9 +379,10 @@ class TvMatInterface:
         """
         Show a overview of matrices with all cuts and cut spectra
         """
-        ids = hdtv.util.ID.ParseIds(options.matrix, self.spectra)
-        if ids=="NONE":
-            return
+#        ids = hdtv.util.ID.ParseIds(options.matrix, self.spectra)
+#        if ids=="NONE":
+#            return
+        ids = "ALL"
         matrices = set()
         
         for spec in self.spectra.dict.values():
