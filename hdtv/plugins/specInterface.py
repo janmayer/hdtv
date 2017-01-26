@@ -108,7 +108,7 @@ class SpecInterface:
         # Avoid multiple updates
         self.window.viewport.LockUpdate()
         # only one filename is given
-        if type(patterns) == str or type(patterns) == unicode:
+        if type(patterns) == str:
             patterns = [patterns]
 
         if ID is not None and len(patterns) > 1:
