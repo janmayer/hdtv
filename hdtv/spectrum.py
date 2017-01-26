@@ -62,7 +62,7 @@ class Spectrum(DrawableManager):
     
     # overwrite some functions of DrawableManager to do some extra work
     def Insert(self, fit, ID=None):
-        fit.spec = self
+#        fit.spec = self
         return DrawableManager.Insert(self, fit, ID)
         
     def Pop(self, ID):
