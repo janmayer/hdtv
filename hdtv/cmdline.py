@@ -535,7 +535,7 @@ class CommandLine(object):
     
             
     def Complete(self, text, state):
-    	"""
+        """
         Suggest completions for the current command line, whose last token
         is text. This function is intended to be called from the readline
         library *only*.
