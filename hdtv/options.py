@@ -81,7 +81,7 @@ def RegisterOption(varname, variable):
     Adds a configuration variable
     """
     global variables
-    if varname in variables.keys():
+    if varname in list(variables.keys()):
         raise RuntimeError("Refusing to overwrite existing configuration variable")
     variables[varname] = variable
     

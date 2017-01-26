@@ -144,7 +144,7 @@ class SpecInterface:
                 else:
                     sid = self.spectra.Insert(spec, ID)
                     spec.color = hdtv.color.ColorForID(sid.major)
-                    if spec.name in self.spectra.caldict.keys():
+                    if spec.name in list(self.spectra.caldict.keys()):
                         spec.cal = self.spectra.caldict[spec.name]
                     loaded.append(sid)
                     if fmt == None:
@@ -427,7 +427,7 @@ class TvSpecInterface:
 
         addTo = ids[0]
         # if addTo is a new spectrum
-        if not addTo in self.spectra.dict.keys():
+        if not addTo in list(self.spectra.dict.keys()):
             # first copy last of the spectra that should be added
             sid = self.specIf.CopySpectrum(ids.pop(), addTo)
 
@@ -460,7 +460,7 @@ class TvSpecInterface:
             return
 
         subFrom = ids[0]
-        if not subFrom in self.spectra.dict.keys():
+        if not subFrom in list(self.spectra.dict.keys()):
             sid = self.specIf.CopySpectrum(ids.pop(), subFrom)
 
         for i in ids[1:]:
@@ -498,7 +498,7 @@ class TvSpecInterface:
             return
 
         for i in ids:
-            if i in self.spectra.dict.keys():
+            if i in list(self.spectra.dict.keys()):
                 hdtv.ui.msg("Multiplying " + str(i) + " with " + str(factor))
                 self.spectra.dict[i].Multiply(factor)
             else:
@@ -531,7 +531,7 @@ class TvSpecInterface:
             return
 
         for i in ids:
-            if i in self.spectra.dict.keys():
+            if i in list(self.spectra.dict.keys()):
                 hdtv.ui.msg("Rebinning " + str(i) + " with " + str(ngroup) + " bins per new bin")
                 self.spectra.dict[i].Rebin(ngroup)
             else:
@@ -562,7 +562,7 @@ class TvSpecInterface:
             return
 
         for i in ids:
-            if i in self.spectra.dict.keys():
+            if i in list(self.spectra.dict.keys()):
                 self.spectra.dict[i].Calbin()
             else:
                 hdtv.ui.error("Cannot rebin spectrum " + str(i) + " (Does not exist)")
@@ -573,7 +573,7 @@ class TvSpecInterface:
         Hides spectra
         """
         if len(args) == 0:
-            ids = self.spectra.dict.keys()
+            ids = list(self.spectra.dict.keys())
         else:
             try:
                 ids = hdtv.util.ID.ParseIds(args, self.spectra)
@@ -590,7 +590,7 @@ class TvSpecInterface:
         When inverse == True SpectrumShow behaves like SpectrumHide
         """
         if len(args) == 0:
-            ids = self.spectra.dict.keys()
+            ids = list(self.spectra.dict.keys())
         else:
             try:
                 ids = hdtv.util.ID.ParseIds(args, self.spectra)

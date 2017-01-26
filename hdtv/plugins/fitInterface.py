@@ -867,7 +867,7 @@ class TvFitInterface:
         """
         Helper function for FitSetPeakModel
         """
-        return hdtv.util.GetCompleteOptions(text, hdtv.peakmodels.PeakModels.iterkeys())
+        return hdtv.util.GetCompleteOptions(text, hdtv.peakmodels.PeakModels.keys())
 
     def FitParam(self, args, options):
         """

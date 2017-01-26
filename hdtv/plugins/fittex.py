@@ -93,7 +93,7 @@ class TexTable(hdtv.util.Table):
     def __str__(self):
         text = str()
         if not self.extra_header is None:
-            text += str(self.extra_header)+"{"+len(self.keys)*self.ha+"}" + os.linesep
+            text += str(self.extra_header)+"{"+len(list(self.keys))*self.ha+"}" + os.linesep
             
         lines = self.build_lines()
         

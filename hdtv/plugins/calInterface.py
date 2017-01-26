@@ -797,7 +797,7 @@ class EnergyCalIf(object):
         <specname>: <cal0> <cal1> ...
         """
         lines = list()
-        names = calDict.keys()
+        names = list(calDict.keys())
         names.sort()
         for name in names:
             cal = calDict[name]
@@ -1221,8 +1221,8 @@ class EnergyCalHDTVInterface(object):
             return
         # update calcdict of main session
         self.spectra.caldict.update(caldict)
-        for name in caldict.iterkeys():
-            for sid in self.spectra.dict.iterkeys():
+        for name in caldict.keys():
+            for sid in self.spectra.dict.keys():
                 if self.spectra.dict[sid].name==name:
                     cal = caldict[name]
                     self.spectra.ApplyCalibration([sid], cal)
@@ -1231,8 +1231,8 @@ class EnergyCalHDTVInterface(object):
         """
         Clear list of name <-> calibration pairs
         """
-        for name in self.spectra.caldict.iterkeys():
-            for sid in self.spectra.dict.iterkeys():
+        for name in self.spectra.caldict.keys():
+            for sid in self.spectra.dict.keys():
                 if self.spectra.dict[sid].name==name:
                     self.spectra.ApplyCalibration([sid], None)
         self.spectra.caldict.clear()

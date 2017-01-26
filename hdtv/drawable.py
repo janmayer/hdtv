@@ -169,7 +169,7 @@ class DrawableManager(object):
     @property
     def ids(self):
         # return sorted list of ids
-        ids = self.dict.keys()
+        ids = list(self.dict.keys())
         ids.sort()
         return ids
     
@@ -300,7 +300,7 @@ class DrawableManager(object):
             raise RuntimeError("Object can only be drawn on a single viewport")
         self.viewport = viewport
         self.viewport.LockUpdate()
-        for ID in self.dict.iterkeys():
+        for ID in self.dict.keys():
             self.dict[ID].Draw(self.viewport)
             self.visible.add(ID)
         self.viewport.UnlockUpdate()
@@ -317,7 +317,7 @@ class DrawableManager(object):
         """
         Refresh all objects in dict
         """
-        return self.RefreshObjects(self.dict.iterkeys())
+        return self.RefreshObjects(self.dict.keys())
         
     def RefreshVisible(self):
         """
@@ -357,7 +357,7 @@ class DrawableManager(object):
         """
         Hide all child objects
         """
-        return self.HideObjects(self.dict.keys())
+        return self.HideObjects(list(self.dict.keys()))
 
     def HideObjects(self, ids):
         """
@@ -392,7 +392,7 @@ class DrawableManager(object):
         """
         Show all 
         """
-        return self.ShowObjects(self.dict.keys())
+        return self.ShowObjects(list(self.dict.keys()))
     
     def ShowObjects(self, ids, clear=True):
         """
@@ -412,7 +412,7 @@ class DrawableManager(object):
             # hide all other objects except in ids
             # do not use HideAll, because if the active objects is among 
             # the objects that should be shown, its state would be lost
-            others = set(self.dict.keys())-set(ids)
+            others = set(list(self.dict.keys()))-set(ids)
             self.HideObjects(others)
         for ID in ids:
             try:
@@ -461,7 +461,7 @@ class DrawableManager(object):
         if onlyVisible:
             ids = list(self.visible)
         else:
-            ids = self.dict.keys()
+            ids = list(self.dict.keys())
         ids.sort()
 
         try:
@@ -478,7 +478,7 @@ class DrawableManager(object):
         if onlyVisible:
             ids = list(self.visible)
         else:
-            ids = self.dict.keys()
+            ids = list(self.dict.keys())
         ids.sort()
         
         try:
@@ -499,7 +499,7 @@ class DrawableManager(object):
             if onlyVisible:
                 ids = list(self.visible)
             else:
-                ids = self.dict.keys()
+                ids = list(self.dict.keys())
                 
             ids.sort()
             nextIndex = (ids.index(self._iteratorID) + 1) % len(ids)
@@ -520,7 +520,7 @@ class DrawableManager(object):
             if onlyVisible:
                 ids = list(self.visible)
             else:
-                ids = self.dict.keys()
+                ids = list(self.dict.keys())
             
             ids.sort()
             prevIndex = (ids.index(self._iteratorID) - 1) % len(ids)

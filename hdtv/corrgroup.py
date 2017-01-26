@@ -131,7 +131,7 @@ class CorrelationGroups:
                     phi = self.fDetectors[i].fPhi - self.fDetectors[j].fPhi
                     key = self.NormKey(t1, t2, phi)
         
-                    if not key in corgroups.keys():
+                    if not key in list(corgroups.keys()):
                         corgroups[key] = []
                     corgroups[key].append([self.fDetectors[i], self.fDetectors[j]])
                     
