@@ -129,4 +129,4 @@ def tabformat(cells, **kwargs):
             
     # Output the table, row by row
     for i in range(0, n_rows):
-        print fmtstr % tuple(rows[i])
+        print(fmtstr % tuple(rows[i]))

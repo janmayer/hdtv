@@ -173,7 +173,7 @@ class Pairs(list):
             try:
                 self.add(pair[0], pair[1])
             except (ValueError, IndexError):
-                print "Invalid Line in", fname, ":", line
+                print("Invalid Line in", fname, ":", line)
 
     def fromLists(self, list1, list2):
         """

@@ -3,6 +3,7 @@
 #-------------------------------------------------------------------------------
 # This is the main HDTV application.
 #-------------------------------------------------------------------------------
+from __future__ import print_function
 
 # Load required modules
 import sys
@@ -30,8 +31,8 @@ if not os.access(configpath, os.W_OK):
     try:
         os.mkdir(configpath, 0755)
     except OSError:
-        print >>sys.stderr, "Could not access config path", configpath
-        print >>sys.stderr, "Try setting HDTV_USER_PATH environment variable."
+        print("Could not access config path", configpath, file=sys.stderr)
+        print("Try setting HDTV_USER_PATH environment variable.", file=sys.stderr)
         sys.exit(1)
 
 sys.path.append(configpath)
@@ -57,7 +58,7 @@ else:
 # Print Version Information
 import hdtv.version
 if options.version:
-    print("HDTV " + hdtv.version.VERSION)
+    print(("HDTV " + hdtv.version.VERSION))
     quit()
 
 # Import core modules
