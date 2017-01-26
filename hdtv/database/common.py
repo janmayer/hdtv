@@ -49,7 +49,7 @@ class _Elements(list):
         tmp = list()
         
         try:
-            datfile = open(csvfile, "rb")
+            datfile = open(csvfile, "rt")
             reader = csv.reader(datfile)
             next(reader) # Skip header
             
@@ -168,7 +168,7 @@ class _Nuclides(object):
         
         self._storage = dict()
         try:
-            datfile = open(csvfile, "rb")
+            datfile = open(csvfile, "rt")
             reader = csv.reader(datfile)
             next(reader) # Skip header
             
