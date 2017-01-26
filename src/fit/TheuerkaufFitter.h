@@ -125,7 +125,7 @@ class TheuerkaufPeak {
     Param fPos, fVol, fSigma, fTL, fTR, fSH, fSW;
     bool fHasLeftTail, fHasRightTail, fHasStep;
     TF1 *fFunc;
-    std::auto_ptr<TF1> fPeakFunc;
+    std::unique_ptr<TF1> fPeakFunc;
     
     double fCachedNorm;
     double fCachedSigma, fCachedTL, fCachedTR;

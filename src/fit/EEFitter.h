@@ -94,7 +94,7 @@ class EEPeak {
     Param fPos, fAmp, fSigma1, fSigma2, fEta, fGamma;
     double fVol, fVolError;
     TF1 *fFunc;
-    std::auto_ptr<TF1> fPeakFunc;
+    std::unique_ptr<TF1> fPeakFunc;
     
     void RestoreParam(const Param& param, double value, double error);
     
