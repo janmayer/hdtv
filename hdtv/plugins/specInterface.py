@@ -340,7 +340,7 @@ class TvSpecInterface:
                     hdtv.ui.error("More than one ID given")
                     return
                 ID = ids[0]
-            except ValueError, msg:
+            except ValueError as msg:
                 hdtv.ui.error("Invalid ID: %s" % msg)
                 return
         else:

@@ -196,7 +196,7 @@ class FitInterface:
             table = hdtv.util.Table(objects, params, sortBy=sortBy, reverseSort=reverseSort,
                                     extra_header = result_header, extra_footer = result_footer)
             hdtv.ui.msg(str(table))
-        except KeyError, e:
+        except KeyError as e:
             hdtv.ui.error("Spectrum " + str(sid) + ": No such attribute: " + str(e))
             hdtv.ui.error("Spectrum " + str(sid) + ": Valid attributes are: " + str(params))
             
@@ -284,7 +284,7 @@ class FitInterface:
         try:
             fit.fitter.SetParameter(parname, status)
             fit.Refresh()
-        except ValueError, msg:
+        except ValueError as msg:
             hdtv.ui.error("while editing active Fit: \n\t%s" % msg)
         # fit list
         if not ids:   # works for None and empty list
@@ -624,10 +624,10 @@ class TvFitInterface:
                     try:
                         hdtv.ui.msg("Executing fit %s in spectrum %s" %(fitID, specID))
                         self.fitIf.ExecuteRefit(specID=specID, fitID=fitID, peaks=doPeaks)
-                    except (KeyError, RuntimeError), e:
+                    except (KeyError, RuntimeError) as e:
                         hdtv.ui.warn(e)
                         continue
-        except Return, msg:
+        except Return as msg:
             ret = msg
         else:
             ret = None
@@ -903,7 +903,7 @@ class TvFitInterface:
         else:
             try:
                 self.fitIf.SetFitterParameter(param, " ".join(args), ids)
-            except ValueError, msg:
+            except ValueError as msg:
                 hdtv.ui.error(msg)
         
     def ParamCompleter(self, text, args=None):

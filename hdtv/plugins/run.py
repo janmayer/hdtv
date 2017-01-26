@@ -36,7 +36,7 @@ def run(args):
     print("Running script %s" %fname)
     try:
         execfile(fname)
-    except IOError, msg:
+    except IOError as msg:
         print(msg)
     print("Finished!")
 

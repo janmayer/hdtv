@@ -271,11 +271,11 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                 (options, args) = parser.parse_args(args)
             if not self.CheckNumParams(node, len(args)):
                 raise HDTVCommandError("Wrong number of arguments to command")
-        except HDTVCommandAbort, msg:
+        except HDTVCommandAbort as msg:
             if msg:
                 print(msg)
             return
-        except HDTVCommandError, msg:
+        except HDTVCommandError as msg:
             if msg:
                 print(msg)
             if parser:
@@ -561,7 +561,7 @@ class CommandLine(object):
         try:
             file = hdtv.util.TxtFile(fname)
             file.read()
-        except IOError, msg:
+        except IOError as msg:
             hdtv.ui.error("%s" % msg)
         for line in file.lines:
             print("file>", line)
@@ -658,7 +658,7 @@ class CommandLine(object):
                     
             except KeyboardInterrupt:
                 print("Aborted")
-            except HDTVCommandError, msg:
+            except HDTVCommandError as msg:
                 print("Error: %s" % msg)
             except SystemExit:
                 self.Exit()

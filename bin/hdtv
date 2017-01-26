@@ -107,7 +107,7 @@ try:
         hdtv.cmdline.command_line.ExecCmdfile(startup_hdtv)
     else:
         hdtv.ui.debug("No startup.hdtv file")
-except IOError, msg:
+except IOError as msg:
     hdtv.ui.error("Error reading %s: %s" % (startup_hdtv, msg))
 
 # Execute batchfile given on command line
@@ -115,7 +115,7 @@ try:
     if options.batchfile is not None:
         hdtv.ui.msg("Executing \'%s\'" % options.batchfile)
         hdtv.cmdline.command_line.ExecCmdfile(options.batchfile)
-except IOError, msg:
+except IOError as msg:
     hdtv.ui.msg("Error reading %s: %s" % (options.batchfile, msg))
    
 
