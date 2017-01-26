@@ -47,7 +47,7 @@ class HotkeyList:
         though (i.e. redefine x in the example above).
         """
         curNode = self.fKeyCmds
-        if type(key) == ListType:
+        if type(key) == list:
             for k in key[0:-1]:
                 try:
                     curNode = curNode[k]
