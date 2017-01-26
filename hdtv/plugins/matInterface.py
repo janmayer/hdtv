@@ -172,7 +172,7 @@ class MatInterface:
         cuts = list()
         count = 0
         
-        for (ID, obj) in matrix.dict.iteritems():
+        for (ID, obj) in matrix.dict.items():
             
             this = dict()
 

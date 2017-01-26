@@ -119,7 +119,7 @@ def Str():
     """
     global variables
     string = ""
-    for (k,v) in variables.iteritems():
+    for (k,v) in variables.items():
         string += "%s: %s\n" % (k, str(v))
     return string
 

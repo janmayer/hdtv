@@ -41,7 +41,7 @@ class TextInterface(hdtv.ui.SimpleUI):
         self.opt["ui.pager.cmd"] = hdtv.options.Option(default = "less") # default pager
         self.opt["ui.pager.args"] = hdtv.options.Option(default = "-F -X") # default pager cmd line options
         
-        for (key, opt) in self.opt.items():
+        for (key, opt) in list(self.opt.items()):
             hdtv.options.RegisterOption(key, opt) 
 
         self._fallback_canvasheight = height

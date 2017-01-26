@@ -179,7 +179,7 @@ class Database(object):
         """
         List available databases
         """
-        for (name, db) in hdtv.database.databases.items():
+        for (name, db) in list(hdtv.database.databases.items()):
             hdtv.ui.msg(name + ": " + db().description)
         
     def showDBfields(self, db=None):

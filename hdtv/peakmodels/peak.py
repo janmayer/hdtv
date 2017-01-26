@@ -107,7 +107,7 @@ class PeakModel:
         has at least minlen entires. Raises a ValueError with an appropriate
         error message if the check fails.
         """
-        for (parname, status) in self.fParStatus.iteritems():
+        for (parname, status) in self.fParStatus.items():
             if type(status) == list and len(status) < minlen:
                 raise ValueError("Not enough values for status of %s" % parname)
         

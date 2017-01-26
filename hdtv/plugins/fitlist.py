@@ -58,7 +58,7 @@ class FitlistManager(object):
     def WriteList(self, fname):
         lines = list()
         listpath = os.path.abspath(fname)
-        for (spec, xml) in self.list.iteritems():
+        for (spec, xml) in self.list.items():
             # create relativ path name
             common = os.path.commonprefix([listpath,xml])
             xml=xml.replace(common,"")
