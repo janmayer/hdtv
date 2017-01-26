@@ -469,6 +469,7 @@ class ID(object):
             if self.minor < 0:
                 raise ValueError("Only positive minor IDs allowed")
 
+#   This version is used by python 2.x. It is OK to use cmp.
     def __cmp__(self, ID):
         if ID is None:
             return 1
@@ -478,6 +479,8 @@ class ID(object):
             return -1
         return cmp(self.minor, ID.minor)
 
+#   This version is used by python 3.x. We can't use cmp, because that has
+#   been removed in python 3.x.
     def __lt__(self, ID):
         if ID is None:
             return 1
@@ -485,7 +488,7 @@ class ID(object):
             return 1
         if self.major < ID.major:
             return -1
-        return cmp(self.minor, ID.minor)
+        return ((self.minor > ID.minor) - (self.minor < ID.minor))
 
     def __eq__(self, ID):
         if ID is None:
