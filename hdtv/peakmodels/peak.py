@@ -206,7 +206,7 @@ class PeakModel:
             else:
                 return ROOT.HDTV.Fit.Param.Fixed(ival)
         elif parStatus == "none":
-            return ROOT.HDTV.Fit.Param.None()
+            return ROOT.HDTV.Fit.Param.NoPar()
         elif type(parStatus) == float:
             return ROOT.HDTV.Fit.Param.Fixed(self.Uncal(name, parStatus, pos_uncal, cal))
         else:
