@@ -1212,7 +1212,7 @@ class EnergyCalHDTVInterface(object):
                 os.rename(fname,"%s.back" %fname)
             elif overwrite in ["n","N"]:
                 return
-        calfile = file(fname, "w")
+        calfile = open(fname, "w")
         calfile.write(text)
 
     def CalPosListRead(self, args, options):
