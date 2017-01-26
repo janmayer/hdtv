@@ -156,7 +156,7 @@ class FitMap(object):
             return False
         spec = self.spectra.GetActiveObject()
         count = 0
-        for fit in spec.dict.itervalues():
+        for fit in spec.dict.values():
             for peak in fit.peaks:
                 # erase old values
                 try:

@@ -384,7 +384,7 @@ class TvMatInterface:
             return
         matrices = set()
         
-        for spec in self.spectra.dict.itervalues():
+        for spec in self.spectra.dict.values():
             if hasattr(spec, "matrix") and not spec.matrix==None :
                 if ids=="ALL" or spec.matrix.ID in ids:
                     matrices.add(spec.matrix)

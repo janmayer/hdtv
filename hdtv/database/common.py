@@ -211,12 +211,12 @@ class _Nuclides(object):
             if A is not None: # Nuclide uniquely defined
                 ret.append(self._storage[Z][A])
             else:   # All nuclides with given Z
-                for n in self._storage[Z].itervalues():
+                for n in self._storage[Z].values():
                     ret.append(n)
         
         if len(ret) == 0: # Z was not given, so we have to cycle through all nuclides
-            for n in self._storage.itervalues():
-                for e in n.itervalues():
+            for n in self._storage.values():
+                for e in n.values():
                     ret.append(e)
         
         tmp = list()
