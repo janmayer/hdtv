@@ -18,7 +18,7 @@ $(MODNAME).so: $(OBJ) rootdict-$(MODNAME).o Makefile
 	$(CPP) -fpic $(CFLAGS) -shared -o $(MODNAME).so $(OBJ) rootdict-$(MODNAME).o $(LFLAGS) 
 
 rootdict-$(MODNAME).cxx:  Makefile $(HEADERS) LinkDef.h
-	$(ROOTCINT) -f rootdict-$(MODNAME).cxx -c -I$(INCL_PATH) $(HEADERS) LinkDef.h
+	$(ROOTCINT) -f rootdict-$(MODNAME).cxx -c -noIncludePaths -inlineInputHeader -I$(INCL_PATH) $(HEADERS) LinkDef.h
 
 %.o: %.cxx $(HEADERS) MFile.h Makefile
 	$(CPP) $(CFLAGS) -fpic -c -o $@ $<
