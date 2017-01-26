@@ -279,8 +279,8 @@ def IsROOTFile(fname):
     try:
         if not os.path.isfile(fname):
             return False
-        f = open(fname, "r")
-        ident = f.read(4)
+        f = open(fname, "rb")
+        ident = f.read(4).decode()
         f.close()
         return (ident == "root")
     except (OSError, IOError):
