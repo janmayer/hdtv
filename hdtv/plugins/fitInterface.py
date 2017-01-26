@@ -45,7 +45,7 @@ class FitInterface:
         # default region width for quickfit
 
         self.opt = dict()
-        self.opt['quickfit.region'] = hdtv.options.Option(default = 20.0, parse=lambda(x): float(x))
+        self.opt['quickfit.region'] = hdtv.options.Option(default = 20.0, parse=lambda x: float(x))
         hdtv.options.RegisterOption("fit.quickfit.region", self.opt['quickfit.region']) 
 
         self.opt['display.decomp'] = hdtv.options.Option(default = False, parse = hdtv.options.ParseBool, changeCallback = lambda x: self.SetDecomposition(x)) 
