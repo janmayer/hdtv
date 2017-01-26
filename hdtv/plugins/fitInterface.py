@@ -138,16 +138,16 @@ class FitInterface:
         try:
             spec = self.spectra.dict[specID]
         except KeyError:
-            raise KeyError, "invalid spectrum ID"
+            raise KeyError("invalid spectrum ID")
         try:
             fit = spec.dict[fitID]
         except KeyError:
-            raise KeyError, "invalid fit ID"
+            raise KeyError("invalid fit ID")
         if peaks:
             fit.FitPeakFunc(spec)
         else:
             if fit.fitter.bgdeg==-1:
-                raise RuntimeError, "background degree of -1"
+                raise RuntimeError("background degree of -1")
             fit.FitBgFunc(spec)
         hdtv.ui.msg(str(fit))
         fit.Draw(self.window.viewport)

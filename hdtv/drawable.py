@@ -230,7 +230,7 @@ class DrawableManager(object):
         """
         index = [k for (k,v) in self.dict.iteritems() if v == obj]
         if len(index) == 0:
-            raise ValueError, "Object not found in this collection"
+            raise ValueError("Object not found in this collection")
         else:
             return index[0]
 
@@ -297,7 +297,7 @@ class DrawableManager(object):
         if not self.viewport is None and not self.viewport == viewport:
             # Unlike the Display object of the underlying implementation,
             # python objects can only be drawn on a single viewport
-            raise RuntimeError, "Object can only be drawn on a single viewport"
+            raise RuntimeError("Object can only be drawn on a single viewport")
         self.viewport = viewport
         self.viewport.LockUpdate()
         for ID in self.dict.iterkeys():

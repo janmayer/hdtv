@@ -52,7 +52,7 @@ class HotkeyList:
                 try:
                     curNode = curNode[k]
                     if type(curNode) != DictType:
-                        raise RuntimeError, "Refusing to overwrite non-matching hotkey"
+                        raise RuntimeError("Refusing to overwrite non-matching hotkey")
                 except KeyError:
                     curNode[k] = dict()
                     curNode = curNode[k]

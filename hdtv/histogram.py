@@ -230,7 +230,7 @@ class Histogram(Drawable):
         if not self.viewport is None and not self.viewport == viewport:
             # Unlike the DisplaySpec object of the underlying implementation,
             # Spectrum() objects can only be drawn on a single viewport
-            raise RuntimeError, "Spectrum can only be drawn on a single viewport"
+            raise RuntimeError("Spectrum can only be drawn on a single viewport")
         self.viewport = viewport
         # Lock updates
         self.viewport.LockUpdate()
@@ -349,7 +349,7 @@ class THnSparseWrapper(object):
     """
     def __init__(self, hist):
         if not (isinstance(hist, ROOT.THnSparse) and hist.GetNdimensions() == 2):
-            raise RuntimeError, "Class needs a THnSparse histogram of dimension 2"
+            raise RuntimeError("Class needs a THnSparse histogram of dimension 2")
         self.__dict__["_hist"] = hist
 
 
@@ -460,13 +460,13 @@ class RHisto2D(Histo2D):
         # "0" and the implementation can choose.
 
         if len(regionMarkers) < 1:
-            raise RuntimeError, "Need at least one gate for cut"
+            raise RuntimeError("Need at least one gate for cut")
 
         if axis == "0":
             axis = "x"
 
         if not axis in ("x", "y"):
-            raise ValueError, "Bad value for axis parameter"
+            raise ValueError("Bad value for axis parameter")
 
         if axis == "x":
             cutAxis = self.rhist.GetXaxis()
@@ -570,13 +570,13 @@ class MHisto2D(Histo2D):
         # "0" and the implementation can choose.
 
         if len(regionMarkers) < 1:
-            raise RuntimeError, "Need at least one gate for cut"
+            raise RuntimeError("Need at least one gate for cut")
 
         if axis == "0":
             axis = "x"
 
         if not axis in ("x", "y"):
-            raise ValueError, "Bad value for axis parameter"
+            raise ValueError("Bad value for axis parameter")
 
         if axis == "x":
             # FIXME: Calibrations for gated spectra asym/sym
@@ -647,7 +647,7 @@ class MHisto2D(Histo2D):
         if prx_fname or pry_fname:
             errno = ROOT.MatOp.Project(fname, prx_fname, pry_fname)
             if errno != ROOT.MatOp.ERR_SUCCESS:
-                raise RuntimeError, "Project: " + ROOT.MatOp.GetErrorString(errno)
+                raise RuntimeError("Project: " + ROOT.MatOp.GetErrorString(errno))
 
             if prx_fname:
                 hdtv.ui.info("Generated x projection: %s" % prx_fname)
@@ -662,6 +662,6 @@ class MHisto2D(Histo2D):
             else:
                 errno = ROOT.MatOp.Transpose(fname, trans_fname)
                 if errno != ROOT.MatOp.ERR_SUCCESS:
-                    raise RuntimeError, "Transpose: " + ROOT.MatOp.GetErrorString(errno)
+                    raise RuntimeError("Transpose: " + ROOT.MatOp.GetErrorString(errno))
                 hdtv.ui.info("Generated transpose: %s" % trans_fname)
 

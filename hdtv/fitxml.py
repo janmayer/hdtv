@@ -337,7 +337,7 @@ class FitXml:
             root = tree.getroot()
             if not root.tag=="hdtv" or root.get("version") is None:
                 e = "this is not a valid hdtv file"
-                raise SyntaxError, e
+                raise SyntaxError(e)
             # current version
             if root.get("version")==self.version:
                 count = self.RestoreFromXml(root, sid, refit=refit)

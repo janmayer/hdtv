@@ -203,7 +203,7 @@ class _Efficiency(object):
             fitstatus = int(fitreturn)
 
         if  fitstatus != 0:
-            #raise RuntimeError, "Fit failed"
+            #raise RuntimeError("Fit failed")
             hdtv.ui.msg("Fit failed")
 
 #         # Final normalization
@@ -257,7 +257,7 @@ class _Efficiency(object):
             value = E
 
         if not self.fCov or (len(self.fCov) != self._numPars):
-            raise ValueError, "Incorrect size of covariance matrix"
+            raise ValueError("Incorrect size of covariance matrix")
 
         res = 0.0
 
@@ -284,7 +284,7 @@ class _Efficiency(object):
             vals.append(float(line))
 
         if len(vals) != self._numPars:
-            raise RuntimeError, "Incorrect number of parameters found in file"
+            raise RuntimeError("Incorrect number of parameters found in file")
 
         self.parameter = vals
         if self._doNorm:
@@ -304,11 +304,11 @@ class _Efficiency(object):
         for line in file.lines:
             val_row = map(lambda s: float(s), line.split())
             if len(val_row) != self._numPars:
-                raise RuntimeError, "Incorrect format of parameter error file"
+                raise RuntimeError("Incorrect format of parameter error file")
             vals.append(val_row)
 
         if len(vals) != self._numPars:
-            raise RuntimeError, "Incorrect format of parameter error file"
+            raise RuntimeError("Incorrect format of parameter error file")
 
         self.fCov = vals
 
