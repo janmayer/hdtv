@@ -375,7 +375,7 @@ class EffCalIf(object):
         try:
             for i in range(0,len(Efficiency[0])):
                 energy = Efficiency[0][i].value
-                if energy <= maxEnergy:
+                if energy <= maxEnergy.value:
                     functionValue = self.spectra.dict[referenceID].effCal.value(energy)
 
                     division = Efficiency[1][i].value/functionValue
@@ -414,8 +414,7 @@ class EffCalIf(object):
 
         #the corrected efficiency is calculated
         for i in range(0,len(Efficiency[1])):
-            Efficiency[1][i].value = Efficiency[1][i].value / factor
-            Efficiency[1][i].error = Efficiency[1][i].error / factor
+            Efficiency[1][i] = Efficiency[1][i] / factor
 
         return Efficiency
 
