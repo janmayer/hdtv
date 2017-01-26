@@ -209,7 +209,7 @@ class FitMap(object):
 # plugin initialisation
 import __main__
 if not __main__.ecal:
-    import calInterface
+    from . import calInterface
     __main__.ecal = calInterface.EnergyCalIf(__main__.spectra)
 __main__.fitmap = FitMap(__main__.spectra, __main__.ecal)       
 

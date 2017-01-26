@@ -207,7 +207,7 @@ class fitTex:
 # plugin initialisation
 import __main__
 if not __main__.f:
-    import fitInterface
+    from . import fitInterface
     __main__.f = fitInterface.FitInterface(__main__.spectra)
 __main__.fittex = fitTex(__main__.spectra, __main__.f)       
 

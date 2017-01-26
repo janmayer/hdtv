@@ -25,7 +25,7 @@
 #-------------------------------------------------------------------------------
 import ROOT
 
-from peak import PeakModel
+from .peak import PeakModel
 from hdtv.errvalue import ErrValue
 from hdtv.drawable import Drawable
 
