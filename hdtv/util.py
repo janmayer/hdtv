@@ -482,6 +482,8 @@ class ID(object):
     def __lt__(self, ID):
         if (self.major != ID.major):
             return (self.major < ID.major)
+        if (self.minor is None and ID.minor is None):
+            return True
         return (self.minor < ID.minor)
     
     def __eq__(self, ID):
