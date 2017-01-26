@@ -29,7 +29,7 @@ except KeyError:
 
 if not os.access(configpath, os.W_OK):   
     try:
-        os.mkdir(configpath, 0755)
+        os.mkdir(configpath, 0o755)
     except OSError:
         print("Could not access config path", configpath, file=sys.stderr)
         print("Try setting HDTV_USER_PATH environment variable.", file=sys.stderr)
