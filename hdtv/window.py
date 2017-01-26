@@ -51,7 +51,7 @@ class HotkeyList:
             for k in key[0:-1]:
                 try:
                     curNode = curNode[k]
-                    if type(curNode) != DictType:
+                    if type(curNode) != dict:
                         raise RuntimeError("Refusing to overwrite non-matching hotkey")
                 except KeyError:
                     curNode[k] = dict()
@@ -74,7 +74,7 @@ class HotkeyList:
             self.ResetHotkeyState()
             return False
         
-        if type(node) == DictType:
+        if type(node) == dict:
             self.fCurNode = node
             return None
         else:
