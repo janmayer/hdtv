@@ -88,7 +88,7 @@ TheuerkaufPeak::TheuerkaufPeak(const TheuerkaufPeak& src)
     fHasRightTail(src.fHasRightTail),
     fHasStep(src.fHasStep),
     fFunc(src.fFunc),
-    fPeakFunc(0)   // Do not copy the fPeakFunc pointer, it will be generated when needed.
+    fPeakFunc(nullptr)   // Do not copy the fPeakFunc pointer, it will be generated when needed.
 {
   //! Copy constructor
 }

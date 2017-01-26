@@ -94,7 +94,7 @@ class DisplaySpec : public DisplayBlock {
    virtual int GetZIndex() { return Z_INDEX_SPEC; }
 
  private:
-   std::auto_ptr<TH1> fHist;
+   std::unique_ptr<TH1> fHist;
    
    int fCachedB1, fCachedB2, fCachedMaxBin;
    double fCachedMax;

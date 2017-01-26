@@ -51,9 +51,9 @@ class Fitter {
     double fMin, fMax;
     int fNumPeaks;
     int fIntBgDeg;
-    std::auto_ptr<Background> fBackground;
-    std::auto_ptr<TF1> fSumFunc;
-    std::auto_ptr<TF1> fBgFunc;
+    std::unique_ptr<Background> fBackground;
+    std::unique_ptr<TF1> fSumFunc;
+    std::unique_ptr<TF1> fBgFunc;
     double fChisquare;
     
     void SetParameter(TF1& func, Param& param, double ival=0.0);

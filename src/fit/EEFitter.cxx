@@ -42,7 +42,7 @@ EEPeak::EEPeak(const Param& pos, const Param& amp, const Param& sigma1, const Pa
     fVol(std::numeric_limits<double>::quiet_NaN()),
     fVolError(std::numeric_limits<double>::quiet_NaN()),
     fFunc(NULL),
-    fPeakFunc(0)
+    fPeakFunc(nullptr)
 { }
 
 EEPeak::EEPeak(const EEPeak& src)
@@ -55,7 +55,7 @@ EEPeak::EEPeak(const EEPeak& src)
     fVol(src.fVol),
     fVolError(src.fVolError),
     fFunc(src.fFunc),
-    fPeakFunc(0)    // Do not copy the fPeakFunc pointer, it will be generated when needed.
+    fPeakFunc(nullptr)    // Do not copy the fPeakFunc pointer, it will be generated when needed.
 { }
 
 EEPeak& EEPeak::operator=(const EEPeak& src)
