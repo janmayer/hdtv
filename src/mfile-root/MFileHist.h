@@ -46,23 +46,23 @@ class MFileHist {
     inline u_int GetNLines()   { return fInfo ? fInfo->lines : 0; }
     inline u_int GetNColumns() { return fInfo ? fInfo->columns : 0; }
     
-    double *FillBuf1D(double *buf, int level, int line);
+    double *FillBuf1D(double *buf, unsigned int level, unsigned int line);
     
     template <class histType>
-    histType *ToTH1(const char *name, const char *title, int level, int line);
+    histType *ToTH1(const char *name, const char *title, unsigned int level, unsigned int line);
     
-    TH1 *FillTH1(TH1 *hist, int level, int line);
+    TH1 *FillTH1(TH1 *hist, unsigned int level, unsigned int line);
     
-    TH1D *ToTH1D(const char *name, const char *title, int level, int line);
-	TH1I *ToTH1I(const char *name, const char *title, int level, int line);
+    TH1D *ToTH1D(const char *name, const char *title, unsigned int level, unsigned int line);
+	TH1I *ToTH1I(const char *name, const char *title, unsigned int level, unsigned int line);
 	
 	template <class histType>
-    histType *ToTH2(const char *name, const char *title, int level);
+    histType *ToTH2(const char *name, const char *title, unsigned int level);
     
-    TH2 *FillTH2(TH2 *hist, int level);
+    TH2 *FillTH2(TH2 *hist, unsigned int level);
     
-    TH2D *ToTH2D(const char *name, const char *title, int level);
-	TH2I *ToTH2I(const char *name, const char *title, int level);
+    TH2D *ToTH2D(const char *name, const char *title, unsigned int level);
+	TH2I *ToTH2I(const char *name, const char *title, unsigned int level);
 	
 	static int WriteTH1(const TH1 *hist, char *fname, char *fmt);
 	static int WriteTH2(const TH2 *hist, char *fname, char *fmt);

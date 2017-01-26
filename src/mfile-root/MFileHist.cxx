@@ -214,7 +214,7 @@ int MFileHist::Close()
 }
 
 template <class histType>
-histType *MFileHist::ToTH1(const char *name, const char *title, int level, int line)
+histType *MFileHist::ToTH1(const char *name, const char *title, unsigned int level, unsigned int line)
 {
 	histType *hist;
 
@@ -239,7 +239,7 @@ histType *MFileHist::ToTH1(const char *name, const char *title, int level, int l
 	return hist;
 }
 
-TH1 *MFileHist::FillTH1(TH1 *hist, int level, int line)
+TH1 *MFileHist::FillTH1(TH1 *hist, unsigned int level, unsigned int line)
 {
 	if(!fHist || !fInfo) {
 		fErrno = ERR_READ_NOTOPEN;
@@ -253,12 +253,12 @@ TH1 *MFileHist::FillTH1(TH1 *hist, int level, int line)
 		
 	TArrayD buf(fInfo->columns);
 
-    if(mgetdbl(fHist, buf.GetArray(), level, line, 0, fInfo->columns) != fInfo->columns) {
+    if((unsigned)mgetdbl(fHist, buf.GetArray(), level, line, 0, fInfo->columns) != fInfo->columns) {
     	fErrno = ERR_READ_GET;
     	return NULL;
     }
     
-	for(int i=0; i < fInfo->columns; i++) {
+	for(unsigned int i=0; i < fInfo->columns; i++) {
 		hist->SetBinContent(i+1, buf[i]);
 	}
 	
@@ -266,17 +266,17 @@ TH1 *MFileHist::FillTH1(TH1 *hist, int level, int line)
 	return hist;
 }
 
-TH1D *MFileHist::ToTH1D(const char *name, const char *title, int level, int line)
+TH1D *MFileHist::ToTH1D(const char *name, const char *title, unsigned int level, unsigned int line)
 {
 	return ToTH1<TH1D>(name, title, level, line);
 }
 
-TH1I *MFileHist::ToTH1I(const char *name, const char *title, int level, int line)
+TH1I *MFileHist::ToTH1I(const char *name, const char *title, unsigned int level, unsigned int line)
 {
 	return ToTH1<TH1I>(name, title, level, line);
 }
 
-double *MFileHist::FillBuf1D(double *buf, int level, int line)
+double *MFileHist::FillBuf1D(double *buf, unsigned int level, unsigned int line)
 {
 	if(!fHist || !fInfo) {
 		fErrno = ERR_READ_NOTOPEN;
@@ -288,7 +288,7 @@ double *MFileHist::FillBuf1D(double *buf, int level, int line)
 		return NULL;
 	}
 		
-	if(mgetdbl(fHist, buf, level, line, 0, fInfo->columns) != fInfo->columns) {
+	if((unsigned)mgetdbl(fHist, buf, level, line, 0, fInfo->columns) != fInfo->columns) {
 		fErrno = ERR_READ_GET;
        	return NULL;
 	}
@@ -297,9 +297,9 @@ double *MFileHist::FillBuf1D(double *buf, int level, int line)
     return buf;
 }
 
-TH2 *MFileHist::FillTH2(TH2 *hist, int level)
+TH2 *MFileHist::FillTH2(TH2 *hist, unsigned int level)
 {
-	int line, col;
+	unsigned int line, col;
 
 	if(!fHist || !fInfo) {
 		fErrno = ERR_READ_NOTOPEN;
@@ -314,7 +314,7 @@ TH2 *MFileHist::FillTH2(TH2 *hist, int level)
 	TArrayD buf(fInfo->columns);
 
 	for(line=0; line < fInfo->lines; line++) {
-	    if(mgetdbl(fHist, buf.GetArray(), level, line, 0, fInfo->columns) != fInfo->columns)
+	    if((unsigned)mgetdbl(fHist, buf.GetArray(), level, line, 0, fInfo->columns) != fInfo->columns)
 			break;
     
 		for(col=0; col < fInfo->columns; col++) {
@@ -332,7 +332,7 @@ TH2 *MFileHist::FillTH2(TH2 *hist, int level)
 }
 
 template <class histType>
-histType *MFileHist::ToTH2(const char *name, const char *title, int level)
+histType *MFileHist::ToTH2(const char *name, const char *title, unsigned int level)
 {
 	histType *hist;
 
@@ -359,12 +359,12 @@ histType *MFileHist::ToTH2(const char *name, const char *title, int level)
 	return hist;
 }
 
-TH2D *MFileHist::ToTH2D(const char *name, const char *title, int level)
+TH2D *MFileHist::ToTH2D(const char *name, const char *title, unsigned int level)
 {
 	return ToTH2<TH2D>(name, title, level);
 }
 
-TH2I *MFileHist::ToTH2I(const char *name, const char *title, int level)
+TH2I *MFileHist::ToTH2I(const char *name, const char *title, unsigned int level)
 {
 	return ToTH2<TH2I>(name, title, level);
 }

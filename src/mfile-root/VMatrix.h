@@ -114,7 +114,7 @@ class RMatrix: public VMatrix {
 //! MFile-histogram-backed VMatrix
 class MFMatrix: public VMatrix {
   public:
-    MFMatrix(MFileHist *mat, int level);
+    MFMatrix(MFileHist *mat, unsigned int level);
     virtual int FindCutBin(double x)  // convert channel to bin number
       { return (int) ceil(x - 0.5); }
 
@@ -129,7 +129,7 @@ class MFMatrix: public VMatrix {
 
   private:
     MFileHist *fMatrix;
-    int fLevel;
+    unsigned int fLevel;
     TArrayD fBuf;
 };
 

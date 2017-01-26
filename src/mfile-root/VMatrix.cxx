@@ -146,7 +146,7 @@ void RMatrix::AddLine(TArrayD& dst, int l)
   }
 }
 
-MFMatrix::MFMatrix(MFileHist *mat, int level)
+MFMatrix::MFMatrix(MFileHist *mat, unsigned int level)
  : VMatrix(),
    fMatrix(mat),
    fLevel(level),
