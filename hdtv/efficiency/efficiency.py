@@ -146,22 +146,22 @@ class _Efficiency(object):
         hasXerrors = False
         # Convert energies to array needed by ROOT
         try:
-            map(lambda x: E.append(x[0].value.value), self._fitInput)
-            map(lambda x: delta_E.append(x[0].value.error), self._fitInput)
-            map(lambda x: EN.append(0.0), self._fitInput)
+            list(map(lambda x: E.append(x[0].value.value), self._fitInput))
+            list(map(lambda x: delta_E.append(x[0].value.error), self._fitInput))
+            list(map(lambda x: EN.append(0.0), self._fitInput))
             hasXerrors = True
         except AttributeError: # energies does not seem to be ErrValue list
-            map(lambda x: E.append(x[0]), self._fitInput)
-            map(lambda x: delta_E.append(0.0), self._fitInput)
+            list(map(lambda x: E.append(x[0]), self._fitInput))
+            list(map(lambda x: delta_E.append(0.0), self._fitInput))
 
         # Convert efficiencies to array needed by ROOT
         try:
-            map(lambda x: eff.append(x[1].value.value), self._fitInput)
-            map(lambda x: delta_eff.append(x[1].value.error), self._fitInput)
-            map(lambda x: effN.append(0.0), self._fitInput)
+            list(map(lambda x: eff.append(x[1].value.value), self._fitInput))
+            list(map(lambda x: delta_eff.append(x[1].value.error), self._fitInput))
+            list(map(lambda x: effN.append(0.0), self._fitInput))
         except AttributeError: # energies does not seem to be ErrValue list
-            map(lambda x: eff.append(x[1]), self._fitInput)
-            map(lambda x: delta_eff.append(0.0), self._fitInput)
+            list(map(lambda x: eff.append(x[1]), self._fitInput))
+            list(map(lambda x: delta_eff.append(0.0), self._fitInput))
 
         #if fit has errors we first fit without errors to get good initial values
         #if hasXerrors == True:
@@ -302,7 +302,7 @@ class _Efficiency(object):
         file.read()
 
         for line in file.lines:
-            val_row = map(lambda s: float(s), line.split())
+            val_row = [float(s) for s in line.split()]
             if len(val_row) != self._numPars:
                 raise RuntimeError("Incorrect format of parameter error file")
             vals.append(val_row)
