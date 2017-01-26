@@ -112,6 +112,12 @@ class TheuerkaufPeak(Drawable):
         """    
         return cmp(self.pos.value, other.pos.value)
     
+    def __lt__(self, other):
+        """
+        compare peaks according to their position (uncalibrated)
+        """    
+        return (self.pos.value < other.pos.value)
+    
     
     def Draw(self, viewport):
         """
