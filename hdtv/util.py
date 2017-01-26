@@ -469,14 +469,27 @@ class ID(object):
             if self.minor < 0:
                 raise ValueError("Only positive minor IDs allowed")
 
-    def __cmp__(self, ID):
+#   This version is only used by python 2.x. It is OK to use cmp.
+#    def __cmp__(self, ID):
+#        if ID is None:
+#            return 1
+#        if self.major > ID.major:
+#            return 1
+#        if self.major < ID.major:
+#            return -1
+#        return cmp(self.minor, ID.minor)
+
+    def __lt__(self, ID):
+        if (self.major != ID.major):
+            return (self.major < ID.major)
+        if (self.minor is None and ID.minor is None):
+            return True
+        return (self.minor < ID.minor)
+    
+    def __eq__(self, ID):
         if ID is None:
-            return 1
-        if self.major > ID.major:
-            return 1
-        if self.major < ID.major:
-            return -1
-        return cmp(self.minor, ID.minor)
+            return (self.major is None and self.minor is None)
+        return ((self.major is ID.major) and (self.minor is ID.minor))
 
     def __hash__(self):
         # this is needed to use IDs as keys in dicts and in sets
