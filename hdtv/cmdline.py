@@ -619,7 +619,10 @@ class CommandLine(object):
                 
             # Read the command
             try:
-                s = raw_input(prompt)
+                if sys.version_info[:2] <= (2, 7):
+                    s = raw_input(prompt)
+                else:
+                    s = input(prompt)
             except EOFError:
                 # Ctrl-D exits in command mode, and switches back to command mode
                 #  from Python mode
