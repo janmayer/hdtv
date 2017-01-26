@@ -1,5 +1,9 @@
 # HDTV Change Log
 
+## 17.01
++ Port to python3
++ Try to eliminate ROOT_ICNLUDE_PATH
+
 ## 16.12
 + Fixed cutting calibrated mfile matrices
 + Fixed wide tables errvalue
