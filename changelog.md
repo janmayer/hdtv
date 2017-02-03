@@ -1,5 +1,9 @@
 # HDTV Change Log
 
+## 17.01
++ Relative efficiencies limited to energy range of absolute efficiency (@ehoemann)
++ Fix Printing (@warr)
+
 ## 16.12
 + Fixed cutting calibrated mfile matrices
 + Fixed wide tables errvalue
