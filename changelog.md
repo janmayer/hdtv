@@ -1,5 +1,9 @@
 # HDTV Change Log
 
+## 17.04
++ Port to python3
++ Try to eliminate ROOT_INCLUDE_PATH
+
 ## 17.01
 + Relative efficiencies limited to energy range of absolute efficiency (@ehoemann)
 + Fix Printing (@warr)
