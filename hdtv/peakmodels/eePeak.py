@@ -25,7 +25,7 @@
 #-------------------------------------------------------------------------------
 import ROOT
 
-from peak import PeakModel
+from .peak import PeakModel
 from hdtv.errvalue import ErrValue
 from hdtv.drawable import Drawable
 
@@ -89,7 +89,7 @@ class EEPeak(Drawable):
             return getattr(self, name)
         else:
             # DON'T FORGET THIS LINE! see http://code.activestate.com/recipes/52238/ 
-            raise AttributeError, name 
+            raise AttributeError(name)
 
     def __str__(self):
         return self.formatted_str(verbose=False)
@@ -133,7 +133,7 @@ class EEPeak(Drawable):
             else:
                 # Unlike the Display object of the underlying implementation,
                 # python objects can only be drawn on a single viewport
-                raise RuntimeError, "Peak cannot be drawn on multiple viewports"
+                raise RuntimeError("Peak cannot be drawn on multiple viewports")
         self.viewport = viewport
         if self.displayObj:
             self.displayObj.Draw(self.viewport)
@@ -223,7 +223,7 @@ class PeakModelEE(PeakModel):
         elif parname in ("amp", "eta", "gamma"):
             return value
         else:
-            raise RuntimeError, "Unexpected parameter name"
+            raise RuntimeError("Unexpected parameter name")
         
         
     def GetFitter(self, region, peaklist, cal):

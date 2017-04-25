@@ -68,7 +68,7 @@ def TabelOfNuclide(nuclide, Energies, EnergiesError, Intensities, IntensitiesErr
 		tabledata.append(tableline)
 
 	result_header = "Data of the nuclide " + str(nuclide) + " of the data source " + str(source) + "." + "\n" + "Halflife: " +str(data)
-	print 
+	print()
 	table = hdtv.util.Table(data=tabledata, keys=["Energy", "Intensity"],extra_header = result_header, sortBy=None, ignoreEmptyCols=False)
 	hdtv.ui.msg(str(table))        
 
@@ -109,13 +109,13 @@ def MatchPeaksAndEnergies(Peaks, Energies, sigma):
 		if gradient[i]>bestAccordance-sigma and gradient[i]<bestAccordance+sigma:
 			for a in accordance:
 				if a[0] == pair[i][0] or a[1] == pair[i][1]: #Warning
-					print a, pair[i]
+					print(a, pair[i])
 					hdtv.ui.warn("Some peaks/energies are used more than one time.")
 			accordance.append(pair[i])
 
 	#warning when only few pairs are found
 	if len(accordance)<4:
-		print accordance
+		print(accordance)
 		hdtv.ui.warn("Only a few (peak,energy) pairs are found.")
 
 	return(accordance)

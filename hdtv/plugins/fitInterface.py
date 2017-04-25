@@ -45,7 +45,7 @@ class FitInterface:
         # default region width for quickfit
 
         self.opt = dict()
-        self.opt['quickfit.region'] = hdtv.options.Option(default = 20.0, parse=lambda(x): float(x))
+        self.opt['quickfit.region'] = hdtv.options.Option(default = 20.0, parse=lambda x: float(x))
         hdtv.options.RegisterOption("fit.quickfit.region", self.opt['quickfit.region']) 
 
         self.opt['display.decomp'] = hdtv.options.Option(default = False, parse = hdtv.options.ParseBool, changeCallback = lambda x: self.SetDecomposition(x)) 
@@ -138,16 +138,16 @@ class FitInterface:
         try:
             spec = self.spectra.dict[specID]
         except KeyError:
-            raise KeyError, "invalid spectrum ID"
+            raise KeyError("invalid spectrum ID")
         try:
             fit = spec.dict[fitID]
         except KeyError:
-            raise KeyError, "invalid fit ID"
+            raise KeyError("invalid fit ID")
         if peaks:
             fit.FitPeakFunc(spec)
         else:
             if fit.fitter.bgdeg==-1:
-                raise RuntimeError, "background degree of -1"
+                raise RuntimeError("background degree of -1")
             fit.FitBgFunc(spec)
         hdtv.ui.msg(str(fit))
         fit.Draw(self.window.viewport)
@@ -196,7 +196,7 @@ class FitInterface:
             table = hdtv.util.Table(objects, params, sortBy=sortBy, reverseSort=reverseSort,
                                     extra_header = result_header, extra_footer = result_footer)
             hdtv.ui.msg(str(table))
-        except KeyError, e:
+        except KeyError as e:
             hdtv.ui.error("Spectrum " + str(sid) + ": No such attribute: " + str(e))
             hdtv.ui.error("Spectrum " + str(sid) + ": Valid attributes are: " + str(params))
             
@@ -284,7 +284,7 @@ class FitInterface:
         try:
             fit.fitter.SetParameter(parname, status)
             fit.Refresh()
-        except ValueError, msg:
+        except ValueError as msg:
             hdtv.ui.error("while editing active Fit: \n\t%s" % msg)
         # fit list
         if not ids:   # works for None and empty list
@@ -624,10 +624,10 @@ class TvFitInterface:
                     try:
                         hdtv.ui.msg("Executing fit %s in spectrum %s" %(fitID, specID))
                         self.fitIf.ExecuteRefit(specID=specID, fitID=fitID, peaks=doPeaks)
-                    except (KeyError, RuntimeError), e:
+                    except (KeyError, RuntimeError) as e:
                         hdtv.ui.warn(e)
                         continue
-        except Return, msg:
+        except Return as msg:
             ret = msg
         else:
             ret = None
@@ -867,7 +867,7 @@ class TvFitInterface:
         """
         Helper function for FitSetPeakModel
         """
-        return hdtv.util.GetCompleteOptions(text, hdtv.peakmodels.PeakModels.iterkeys())
+        return hdtv.util.GetCompleteOptions(text, hdtv.peakmodels.PeakModels.keys())
 
     def FitParam(self, args, options):
         """
@@ -903,7 +903,7 @@ class TvFitInterface:
         else:
             try:
                 self.fitIf.SetFitterParameter(param, " ".join(args), ids)
-            except ValueError, msg:
+            except ValueError as msg:
                 hdtv.ui.error(msg)
         
     def ParamCompleter(self, text, args=None):

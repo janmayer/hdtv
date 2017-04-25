@@ -119,7 +119,7 @@ class EVContainer:
 
 
     def __cmp__(self, y):
-        raise RuntimeError, "EVContainer instances cannot be compared except for equality"
+        raise RuntimeError("EVContainer instances cannot be compared except for equality")
 
 
 class DepErrValue:
@@ -143,17 +143,17 @@ class DepErrValue:
         if self._lazy_union:
             if sys.getrefcount(self._lazy_union) == 2 and \
               len(self._lazy_union) > len(self._depends):
-                for (x, dfdx) in self._depends.iteritems():
+                for (x, dfdx) in self._depends.items():
                     self._lazy_union[x] = self._lazy_union.get(x, 0) + dfdx
                 self._depends = self._lazy_union
                 self._lazy_union = None
             elif sys.getrefcount(self._depends) == 2:
-                for (x, dfdx) in self._lazy_union.iteritems():
+                for (x, dfdx) in self._lazy_union.items():
                     self._depends[x] = self._depends.get(x, 0) + dfdx
                 self._lazy_union = None
             else:
                 depends = dict(self._depends)
-                for (x, dfdx) in self._lazy_union.iteritems():
+                for (x, dfdx) in self._lazy_union.items():
                     depends[x] = depends.get(x, 0) + dfdx
                 self._depends = depends
                 self._lazy_union = None
@@ -182,9 +182,9 @@ class DepErrValue:
         #   \frac{\partial g}{\partial x_j} cov(x_i, x_j)
         cov = 0
 
-        for (xi, dfdxi) in self.depends.iteritems():
+        for (xi, dfdxi) in self.depends.items():
             tmp = 0
-            for(xj, cij) in xi.ev._cov.iteritems():
+            for(xj, cij) in xi.ev._cov.items():
                 tmp += y.depends.get(xj, 0) * cij
             cov += dfdxi * tmp
 
@@ -288,14 +288,14 @@ class DepErrValue:
     def __mul__(self, other):
         if isinstance(other, DepErrValue):
             depends = dict()
-            for (x, dfdx) in self.depends.iteritems():
+            for (x, dfdx) in self.depends.items():
                 depends[x] = dfdx * other.value
-            for (x, dgdx) in other.depends.iteritems():
+            for (x, dgdx) in other.depends.items():
                 depends[x] = depends.get(x, 0) + self.value * dgdx
             return DepErrValue(self.value * other.value, depends)
         else:
             depends = dict()
-            for (x, dfdx) in self.depends.iteritems():
+            for (x, dfdx) in self.depends.items():
                 depends[x] = dfdx * other
             return DepErrValue(self.value * other, depends)
 
@@ -306,9 +306,9 @@ class DepErrValue:
 
     def _div(self, f, g):
         depends = dict()
-        for (x, dfdx) in f.depends.iteritems():
+        for (x, dfdx) in f.depends.items():
             depends[x] = dfdx / g.value
-        for (x, dgdx) in g.depends.iteritems():
+        for (x, dgdx) in g.depends.items():
             depends[x] = depends.get(x, 0) - dgdx * f.value / (g.value**2)
         return DepErrValue(f.value / g.value, depends)
 
@@ -318,7 +318,7 @@ class DepErrValue:
             return self._div(self, other)
         else:
             depends = dict()
-            for (x, dfdx) in self.depends.iteritems():
+            for (x, dfdx) in self.depends.items():
                 depends[x] = dfdx / other
             return DepErrValue(self.value / other, depends)
 
@@ -328,7 +328,7 @@ class DepErrValue:
             return self._div(other, self)
         else:
             depends = dict()
-            for (x, dgdx) in self.depends.iteritems():
+            for (x, dgdx) in self.depends.items():
                 depends[x] = -dgdx * other / (self.value**2)
             return DepErrValue(other / self.value, depends)
 
@@ -345,9 +345,9 @@ class DepErrValue:
     def _pow(self, f, g):
         fpowg = f.value ** g.value
         depends = dict()
-        for (x, dfdx) in f.depends.iteritems():
+        for (x, dfdx) in f.depends.items():
             depends[x] = fpowg * g.value / f.value * dfdx
-        for (x, dgdx) in g.depends.iteritems():
+        for (x, dgdx) in g.depends.items():
             depends[x] = depends.get(x, 0) + fpowg * math.log(f.value) * dgdx
         return DepErrValue(fpowg, depends)
 
@@ -358,7 +358,7 @@ class DepErrValue:
         else:
             fpowg = self.value ** other
             depends = dict()
-            for (x, dfdx) in self.depends.iteritems():
+            for (x, dfdx) in self.depends.items():
                 depends[x] = fpowg * other / self.value * dfdx
             return DepErrValue(fpowg, depends)
 
@@ -369,7 +369,7 @@ class DepErrValue:
         else:
             fpowg = other ** self.value
             depends = dict()
-            for (x, dgdx) in self.depends.iteritems():
+            for (x, dgdx) in self.depends.items():
                 depends[x] = fpowg * math.log(other) * dgdx
             return DepErrValue(fpowg, depends)
 
@@ -512,7 +512,7 @@ class DepErrValue:
 
 def _chain(f, dfdg, g):
     depends = dict()
-    for (x, dgdx) in g.depends.iteritems():
+    for (x, dgdx) in g.depends.items():
         depends[x] = dfdg * dgdx
     return DepErrValue(f, depends)
 
@@ -605,7 +605,7 @@ class ErrValue(DepErrValue):
     def __init__(self, value, error = None):
         if isinstance(value, str):
             if error is not None:
-                raise TypeError, "value of ErrValue is of type string, but error parameter is given"
+                raise TypeError("value of ErrValue is of type string, but error parameter is given")
             (value, error) = self._fromString(value)
 
         self._has_error = True
@@ -646,7 +646,7 @@ class ErrValue(DepErrValue):
         y.SetCov() is redundant.
         """
         if not isinstance(y, ErrValue):
-            raise TypeError, "Can only set covariances between two ErrValue objects"
+            raise TypeError("Can only set covariances between two ErrValue objects")
 
         if id(y) == id(self):
             self.SetVar(cov)
@@ -668,7 +668,7 @@ class ErrValue(DepErrValue):
         """
 
         if not strvalue:
-            raise ValueError, "empty string for ErrValue()"
+            raise ValueError("empty string for ErrValue()")
 
         # TODO: Handle decimal seperator properly, depending on locale
         expr_value = r"([+\-]?[0-9]*\.?(?:[0-9]*))"
@@ -679,7 +679,7 @@ class ErrValue(DepErrValue):
 
         match = re.match(expr, strvalue)
         if match == None:
-            raise ValueError, "invalid literal for ErrValue(): %s" % strvalue
+            raise ValueError("invalid literal for ErrValue(): %s" % strvalue)
 
         # Extract value
         value = float(match.group(1))

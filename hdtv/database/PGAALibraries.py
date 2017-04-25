@@ -71,12 +71,12 @@ class PGAAlib_IKI2000(GammaLib):
         if self.opened:
             return True
 
-        datfile = open(self.csvfile, "rb")
+        datfile = open(self.csvfile, "rt")
         
         reader = csv.reader(datfile)
         
         if self._has_header:
-            reader.next()
+            next(reader)
         
         try:
             for line in reader:
@@ -91,7 +91,7 @@ class PGAAlib_IKI2000(GammaLib):
                     halflife = ErrValue(None, None)
                 gamma = PGAAGamma(Nuclides(Z, A)[0], energy, sigma = sigma, intensity = intensity, halflife = halflife, k0_comp = self.k0_comp)
                 self.append(gamma)
-        except csv.Error, e:
+        except csv.Error as e:
             hdtv.ui.error('file %s, line %d: %s' % (self.csvfile, reader.line_num, e))
         else:
             self.opened = True
@@ -122,13 +122,13 @@ class PromptGammas(GammaLib):
         if self.opened:
             return True
         
-        datfile = open(self.csvfile, "rb")
+        datfile = open(self.csvfile, "rt")
         
         reader = csv.reader(datfile)
         
         if self._has_header:
-            reader.next()
-        
+            next(reader)
+
         try:
             for line in reader:
                 A = int(line[0])
@@ -138,7 +138,7 @@ class PromptGammas(GammaLib):
                 k0 = ErrValue(line[4])
                 gamma = PGAAGamma(Nuclides(Z, A)[0], energy, sigma = sigma, k0 = k0, k0_comp = self.k0_comp)
                 self.append(gamma)
-        except csv.Error, e:
+        except csv.Error as e:
             hdtv.ui.error('file %s, line %d: %s' % (self.csvfile, reader.line_num, e))
         else:
             self.opened = True

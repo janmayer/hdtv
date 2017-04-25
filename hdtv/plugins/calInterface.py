@@ -24,6 +24,7 @@
 #
 #-------------------------------------------------------------------------------
 import os
+import sys
 import json
 
 import hdtv.efficiency
@@ -34,7 +35,7 @@ import hdtv.cal
 import hdtv.util
 import hdtv.errvalue
 from hdtv.fitxml import FitXml
-import EnergyCalibration
+from . import EnergyCalibration
 import math
 
 
@@ -110,9 +111,9 @@ class EffCalIf(object):
         """
         try:
             self.spectra.dict[spectrumID].effCal.loadPar(filename)
-        except RuntimeError, msg:
+        except RuntimeError as msg:
             hdtv.ui.error(str(msg))
-        except IOError, msg:
+        except IOError as msg:
             hdtv.ui.error(str(msg))
         except IndexError:
             hdtv.ui.error("Invalid spectrum ID %d", spectrumID)
@@ -125,9 +126,9 @@ class EffCalIf(object):
         """
         try:
             self.spectra.dict[spectrumID].effCal.loadCov(filename)
-        except RuntimeError, msg:
+        except RuntimeError as msg:
             hdtv.ui.error(str(msg))
-        except IOError, msg:
+        except IOError as msg:
             hdtv.ui.error(str(msg))
         except IndexError:
             hdtv.ui.error("Invalid spectrum ID %d", spectrumID)
@@ -140,7 +141,7 @@ class EffCalIf(object):
         """
         try:
             self.spectra.dict[spectrumID].effCal.savePar(filename)
-        except IOError, msg:
+        except IOError as msg:
             hdtv.ui.error(str(msg))
         except IndexError:
             hdtv.ui.error("Invalid spectrum ID %d", spectrumID)
@@ -153,7 +154,7 @@ class EffCalIf(object):
         """
         try:
             self.spectra.dict[spectrumID].effCal.saveCov(filename)
-        except IOError, msg:
+        except IOError as msg:
             hdtv.ui.error(str(msg))
         except IndexError:
             hdtv.ui.error("Invalid spectrum ID %d", spectrumID)
@@ -209,9 +210,9 @@ class EffCalIf(object):
         #TODO: maybe it makes more sense to write another method for this
             try:
                 fitValues.fromFile(filename, sep=" ") # TODO: separator
-                print spectrumIDs
+                print(spectrumIDs)
                 spectrumID = spectrumIDs[0]
-            except IOError, msg:
+            except IOError as msg:
                 hdtv.ui.error(str(msg))
                 return
         else:#the spectrum has to be calibrated
@@ -290,7 +291,7 @@ class EffCalIf(object):
 
         #if table option is called a table will be created
         if show_table:
-            print
+            print()
             table = hdtv.util.Table(data=tabledata, keys=["ID", "Nuclide", "Peak", "Efficiency", "Intensity", "Vol"], sortBy="ID", ignoreEmptyCols=False)
             hdtv.ui.msg(str(table))
 
@@ -311,9 +312,9 @@ class EffCalIf(object):
 
         #Peaks from the given spectrum are saved in Peak
         peaks = self.spectra.dict[hdtv.util.ID(spectrumID)].dict
-        for i in range(0,len(peaks.values())):
+        for i in range(0,len(list(peaks.values()))):
             peakID.append(i)
-            Peak.append(peaks.values()[i].ExtractParams()[0][0]['pos'].value)
+            Peak.append(list(peaks.values())[i].ExtractParams()[0][0]['pos'].value)
 
         if Peak == []:
             raise hdtv.cmdline.HDTVCommandError("You must fit at least one peak.")
@@ -338,9 +339,9 @@ class EffCalIf(object):
         #saves the right intensities for the peaks
         i = 0
         for ID in peakID:
-            Vol.append(hdtv.errvalue.ErrValue(peaks.values()[ID].ExtractParams()[0][0]['vol'].value))
-            Vol[i].SetError(peaks.values()[ID].ExtractParams()[0][0]['vol'].error)
-            Peak[i].SetError(peaks.values()[ID].ExtractParams()[0][0]['pos'].error)
+            Vol.append(hdtv.errvalue.ErrValue(list(peaks.values())[ID].ExtractParams()[0][0]['vol'].value))
+            Vol[i].SetError(list(peaks.values())[ID].ExtractParams()[0][0]['vol'].error)
+            Peak[i].SetError(list(peaks.values())[ID].ExtractParams()[0][0]['pos'].error)
             i = i+1
 
         #Calculates the efficiency and its error and saves all peaks with errors
@@ -374,7 +375,7 @@ class EffCalIf(object):
         try:
             for i in range(0,len(Efficiency[0])):
                 energy = Efficiency[0][i].value
-                if energy <= maxEnergy:
+                if energy <= maxEnergy.value:
                     functionValue = self.spectra.dict[referenceID].effCal.value(energy)
 
                     division = Efficiency[1][i].value/functionValue
@@ -413,8 +414,7 @@ class EffCalIf(object):
 
         #the corrected efficiency is calculated
         for i in range(0,len(Efficiency[1])):
-            Efficiency[1][i].value = Efficiency[1][i].value / factor
-            Efficiency[1][i].error = Efficiency[1][i].error / factor
+            Efficiency[1][i] = Efficiency[1][i] / factor
 
         return Efficiency
 
@@ -738,10 +738,10 @@ class EnergyCalIf(object):
         for p in pairs:
             fitter.AddPair(p[0], p[1])
         fitter.FitCal(degree, ignoreErrors=ignoreErrors)
-        print fitter.ResultStr()
+        print(fitter.ResultStr())
         if table:
-            print ""
-            print fitter.ResultTable()
+            print("")
+            print(fitter.ResultTable())
         if fit:
             fitter.DrawCalFit()
         if residual:
@@ -797,7 +797,7 @@ class EnergyCalIf(object):
         <specname>: <cal0> <cal1> ...
         """
         lines = list()
-        names = calDict.keys()
+        names = list(calDict.keys())
         names.sort()
         for name in names:
             cal = calDict[name]
@@ -1023,7 +1023,7 @@ class EnergyCalHDTVInterface(object):
             cal = self.EnergyCalIf.CalFromPairs(pairs, degree, options.show_table,
                                             options.draw_fit, options.draw_residual,
                                             ignoreErrors=options.ignore_errors)
-        except RuntimeError, msg:
+        except RuntimeError as msg:
             hdtv.ui.error(str(msg))
             return False
 
@@ -1079,7 +1079,7 @@ class EnergyCalHDTVInterface(object):
         for ID in spectrumID:
             try:
                 fits = self.spectra.dict[hdtv.util.ID(ID)].dict
-                for fit in fits.values():
+                for fit in list(fits.values()):
                     Peaks.append(fit.ExtractParams()[0][0]['channel'].value)
             except: #errormessage if there is no spectrum with the given ID
                 raise hdtv.cmdline.HDTVCommandError("Spectrum with ID "+str(ID)+" is not visible, no action taken")
@@ -1102,7 +1102,7 @@ class EnergyCalHDTVInterface(object):
         for spec in spectrumID:
             spectrumIDStr = spectrumIDStr+' '+str(spec)
 
-        print "Create a calibration for nuclide "+nuclideStr+" (sigma: "+str(sigma)+", spectrum"+spectrumIDStr+", database "+database+")"
+        print("Create a calibration for nuclide "+nuclideStr+" (sigma: "+str(sigma)+", spectrum"+spectrumIDStr+", database "+database+")")
 
         #calibration
         degree = 1
@@ -1110,7 +1110,7 @@ class EnergyCalHDTVInterface(object):
         for p in Match: #builds pairs
             fitter.AddPair(p[0], p[1])
         fitter.FitCal(degree, ignoreErrors=True)
-        print fitter.ResultStr()
+        print(fitter.ResultStr())
         cal = fitter.calib
         for ID in spectrumID:
             self.spectra.ApplyCalibration(ID, cal) #do the calibration
@@ -1136,7 +1136,7 @@ class EnergyCalHDTVInterface(object):
         except ValueError:
             hdtv.ui.error("Malformed calibration parameter file \'%s\'." % fname)
             return False
-        except IOError, msg:
+        except IOError as msg:
             hdtv.ui.error(str(msg))
             return False
         return True
@@ -1178,7 +1178,7 @@ class EnergyCalHDTVInterface(object):
                                            fit=options.show_fit,
                                            residual=options.show_residual,
                                            ignoreErrors=options.ignore_errors)
-        except RuntimeError, msg:
+        except RuntimeError as msg:
             hdtv.ui.error(str(msg))
             return False
         self.spectra.ApplyCalibration(sids, cal)
@@ -1204,12 +1204,15 @@ class EnergyCalHDTVInterface(object):
             overwrite = None
             while not overwrite in ["Y","y","N","n","","B","b"]:
                 question = "Do you want to replace it [y,n] or backup it [B]:"
-                overwrite = raw_input(question)
+                if sys.version_info[:2] <= (2, 7):
+                    overwrite = raw_input(question)
+                else:
+                    overwrite = input(question)
             if overwrite in ["b","B",""]:
                 os.rename(fname,"%s.back" %fname)
             elif overwrite in ["n","N"]:
                 return
-        calfile = file(fname, "w")
+        calfile = open(fname, "w")
         calfile.write(text)
 
     def CalPosListRead(self, args, options):
@@ -1221,8 +1224,8 @@ class EnergyCalHDTVInterface(object):
             return
         # update calcdict of main session
         self.spectra.caldict.update(caldict)
-        for name in caldict.iterkeys():
-            for sid in self.spectra.dict.iterkeys():
+        for name in caldict.keys():
+            for sid in self.spectra.dict.keys():
                 if self.spectra.dict[sid].name==name:
                     cal = caldict[name]
                     self.spectra.ApplyCalibration([sid], cal)
@@ -1231,8 +1234,8 @@ class EnergyCalHDTVInterface(object):
         """
         Clear list of name <-> calibration pairs
         """
-        for name in self.spectra.caldict.iterkeys():
-            for sid in self.spectra.dict.iterkeys():
+        for name in self.spectra.caldict.keys():
+            for sid in self.spectra.dict.keys():
                 if self.spectra.dict[sid].name==name:
                     self.spectra.ApplyCalibration([sid], None)
         self.spectra.caldict.clear()

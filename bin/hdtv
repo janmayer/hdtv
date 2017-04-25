@@ -3,6 +3,7 @@
 #-------------------------------------------------------------------------------
 # This is the main HDTV application.
 #-------------------------------------------------------------------------------
+from __future__ import print_function
 
 # Load required modules
 import sys
@@ -28,10 +29,10 @@ except KeyError:
 
 if not os.access(configpath, os.W_OK):   
     try:
-        os.mkdir(configpath, 0755)
+        os.mkdir(configpath, 0o755)
     except OSError:
-        print >>sys.stderr, "Could not access config path", configpath
-        print >>sys.stderr, "Try setting HDTV_USER_PATH environment variable."
+        print("Could not access config path", configpath, file=sys.stderr)
+        print("Try setting HDTV_USER_PATH environment variable.", file=sys.stderr)
         sys.exit(1)
 
 sys.path.append(configpath)
@@ -57,7 +58,7 @@ else:
 # Print Version Information
 import hdtv.version
 if options.version:
-    print("HDTV " + hdtv.version.VERSION)
+    print(("HDTV " + hdtv.version.VERSION))
     quit()
 
 # Import core modules
@@ -106,7 +107,7 @@ try:
         hdtv.cmdline.command_line.ExecCmdfile(startup_hdtv)
     else:
         hdtv.ui.debug("No startup.hdtv file")
-except IOError, msg:
+except IOError as msg:
     hdtv.ui.error("Error reading %s: %s" % (startup_hdtv, msg))
 
 # Execute batchfile given on command line
@@ -114,7 +115,7 @@ try:
     if options.batchfile is not None:
         hdtv.ui.msg("Executing \'%s\'" % options.batchfile)
         hdtv.cmdline.command_line.ExecCmdfile(options.batchfile)
-except IOError, msg:
+except IOError as msg:
     hdtv.ui.msg("Error reading %s: %s" % (options.batchfile, msg))
    
 

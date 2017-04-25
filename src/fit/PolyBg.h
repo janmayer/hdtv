@@ -77,7 +77,7 @@ class PolyBg: public Background {
     std::list<double> fBgRegions;
     int fBgDeg;
     
-    std::auto_ptr<TF1> fFunc;
+    std::unique_ptr<TF1> fFunc;
     double fChisquare;
     std::vector<std::vector<double> > fCovar;
 };

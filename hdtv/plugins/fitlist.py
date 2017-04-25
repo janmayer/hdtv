@@ -24,6 +24,7 @@
 # 
 #-------------------------------------------------------------------------------
 import os
+import sys
 import glob
 import hdtv.cmdline
 import hdtv.fitxml 
@@ -58,7 +59,7 @@ class FitlistManager(object):
     def WriteList(self, fname):
         lines = list()
         listpath = os.path.abspath(fname)
-        for (spec, xml) in self.list.iteritems():
+        for (spec, xml) in self.list.items():
             # create relativ path name
             common = os.path.commonprefix([listpath,xml])
             xml=xml.replace(common,"")
@@ -72,7 +73,7 @@ class FitlistManager(object):
     def ReadList(self, fname):
         try:
             f = file(fname, "r")
-        except IOError, msg:
+        except IOError as msg:
             hdtv.ui.error("Error opening file: %s" % msg)
             return None
         dirname = os.path.dirname(fname)
@@ -185,7 +186,10 @@ class FitlistHDTVInterface(object):
                 overwrite = None
                 while not overwrite in ["Y","y","N","n","","B","b"]:
                     question = "Do you want to replace it [y,n] or backup it [B]:"
-                    overwrite = raw_input(question)
+                    if sys.version_info[:2] <= (2, 7):
+                        overwrite = raw_input(question)
+                    else:
+                        overwrite = input(question)
                 if overwrite in ["b","B",""]:
                     os.rename(fname,"%s.back" %fname)
                 elif overwrite in ["n","N"]:

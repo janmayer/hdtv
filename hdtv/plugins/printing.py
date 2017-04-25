@@ -23,6 +23,7 @@ import hdtv.cmdline
 import hdtv.cal
 import hdtv.color
 
+import sys
 import os
 import numpy
 import scipy
@@ -233,7 +234,10 @@ class PrintInterface(object):
                 overwrite = None
                 while not overwrite in ["Y","y","N","n","","B","b"]:
                     question = "Do you want to replace it [y,n] or backup it [B]:"
-                    overwrite = raw_input(question)
+                    if sys.version_info[:2] <= (2, 7):
+                        overwrite = raw_input(question)
+                    else:
+                        overwrite = input(question)
                 if overwrite in ["b","B",""]:
                     os.rename(fname,"%s.back" %fname)
                 elif overwrite in ["n","N"]:

@@ -108,7 +108,7 @@ class Marker(Drawable):
         """
         if self.viewport and not self.viewport == viewport:
             # Marker can only be drawn to a single viewport
-            raise RuntimeError, "Marker cannot be realized on multiple viewports"
+            raise RuntimeError("Marker cannot be realized on multiple viewports")
         self.viewport = viewport
         # adjust the position values for the creation of the makers
         # on the C++ side all values must be uncalibrated
@@ -302,7 +302,7 @@ class MarkerCollection(list):
                 p2 = m.p2.pos_cal
                 diff = abs(pos-p2)
                 index[diff] = m
-        nearest = index[min(index.keys())]
+        nearest = index[min(list(index.keys()))]
         self.remove(nearest)
         self.Refresh()
         

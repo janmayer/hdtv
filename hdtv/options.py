@@ -28,8 +28,8 @@ class Option:
     A configuration variable
     """
     def __init__(self, default=None,
-                 parse=lambda(x): x,
-                 toStr=lambda(x): str(x),
+                 parse=lambda x: x,
+                 toStr=lambda x: str(x),
                  changeCallback=None):
         self.defaultValue = default
         self.value = self.defaultValue
@@ -81,8 +81,8 @@ def RegisterOption(varname, variable):
     Adds a configuration variable
     """
     global variables
-    if varname in variables.keys():
-        raise RuntimeError, "Refusing to overwrite existing configuration variable"
+    if varname in list(variables.keys()):
+        raise RuntimeError("Refusing to overwrite existing configuration variable")
     variables[varname] = variable
     
 def Set(varname, rawValue):
@@ -119,7 +119,7 @@ def Str():
     """
     global variables
     string = ""
-    for (k,v) in variables.iteritems():
+    for (k,v) in variables.items():
         string += "%s: %s\n" % (k, str(v))
     return string
 

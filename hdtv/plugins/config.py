@@ -19,38 +19,40 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
+from __future__ import print_function
+
 import hdtv.options
 import hdtv.cmdline
 import hdtv.util
 
 def ConfigVarCompleter(text, args=None):
-    return hdtv.util.GetCompleteOptions(text, hdtv.options.variables.iterkeys())
+    return hdtv.util.GetCompleteOptions(text, hdtv.options.variables.keys())
 
 def ConfigSet(args):
     try:       
         hdtv.options.Set(args[0], args[1])
     except KeyError:
-        print "%s: no such option" % args[0]
+        print("%s: no such option" % args[0])
     except ValueError:
-        print "Invalid value (%s) for option %s" % (args[1], args[0])
+        print("Invalid value (%s) for option %s" % (args[1], args[0]))
 
 def ConfigShow(args):
     if len(args) == 0:
-        print hdtv.options.Str(),
+        print(hdtv.options.Str(), end=' ')
     else:
         try:
-            print hdtv.options.Show(args[0])
+            print(hdtv.options.Show(args[0]))
         except KeyError:
-            print "%s: no such option" % args[0]
+            print("%s: no such option" % args[0])
     
 def ConfigReset(args):
     if len(args) == 0:
-        print hdtv.options.Str(),
+        print(hdtv.options.Str(), end=' ')
     else:
         try:
             hdtv.options.Reset(args[0])
         except KeyError:
-            print "%s: no such option" % args[0]
+            print("%s: no such option" % args[0])
 
 
 hdtv.cmdline.AddCommand("config set", ConfigSet, nargs=2, level=2,

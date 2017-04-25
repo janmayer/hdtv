@@ -49,9 +49,9 @@ class _Elements(list):
         tmp = list()
         
         try:
-            datfile = open(csvfile, "rb")
+            datfile = open(csvfile, "rt")
             reader = csv.reader(datfile)
-            reader.next() # Skip header
+            next(reader) # Skip header
             
             for line in reader:
                 Z = int(line[0])
@@ -63,7 +63,7 @@ class _Elements(list):
                     Mass = None
                 element = _Element(Z, Symbol, Name, Mass)
                 tmp.append(element)
-        except csv.Error, e:
+        except csv.Error as e:
             hdtv.ui.error('file %s, line %d: %s' % (csvfile, reader.line_num, e))
         finally:
             datfile.close()
@@ -168,9 +168,9 @@ class _Nuclides(object):
         
         self._storage = dict()
         try:
-            datfile = open(csvfile, "rb")
+            datfile = open(csvfile, "rt")
             reader = csv.reader(datfile)
-            reader.next() # Skip header
+            next(reader) # Skip header
             
             for line in reader:
                 Z = int(line[0].strip())
@@ -192,7 +192,7 @@ class _Nuclides(object):
                 if not Z in self._storage:
                     self._storage[Z] = dict()
                 self._storage[Z][A] = _Nuclide(element, A, abundance = abd, sigma = sigma, M = M)
-        except csv.Error, e:
+        except csv.Error as e:
             hdtv.ui.error('file %s, line %d: %s' % (csvfile, reader.line_num, e))      
         finally:
             datfile.close()
@@ -211,12 +211,12 @@ class _Nuclides(object):
             if A is not None: # Nuclide uniquely defined
                 ret.append(self._storage[Z][A])
             else:   # All nuclides with given Z
-                for n in self._storage[Z].itervalues():
+                for n in self._storage[Z].values():
                     ret.append(n)
         
         if len(ret) == 0: # Z was not given, so we have to cycle through all nuclides
-            for n in self._storage.itervalues():
-                for e in n.itervalues():
+            for n in self._storage.values():
+                for e in n.values():
                     ret.append(e)
         
         tmp = list()
@@ -336,10 +336,10 @@ class GammaLib(list):
         # convert keys to lowercase
         fields_lower = dict()
         args_lower = dict()
-        for (key, conv) in self.fParamConv.items():
+        for (key, conv) in list(self.fParamConv.items()):
             fields_lower[key.lower()] = conv
             
-        for (key, value) in args.items():
+        for (key, value) in list(args.items()):
             try:
                 conv = fields_lower[key.lower()] # if this raises a KeyError it was an invalid argument
             except KeyError:
@@ -352,7 +352,7 @@ class GammaLib(list):
         # Prepare find args
         fargs = dict()
 
-        for (key, conv) in fields_lower.items():
+        for (key, conv) in list(fields_lower.items()):
             try:
                 fargs[key] = conv(args_lower[key]) # Convert as described in fParamConv dict
             except KeyError:
@@ -368,7 +368,7 @@ class GammaLib(list):
         if len(fargs) == 0:
             return []
 
-        for (key, value) in fargs.items():
+        for (key, value) in list(fargs.items()):
             if not value is None:
                 if isinstance(value, int): 
                     results = filter(lambda x: getattr(x, key) == value, results)

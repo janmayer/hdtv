@@ -47,12 +47,12 @@ class HotkeyList:
         though (i.e. redefine x in the example above).
         """
         curNode = self.fKeyCmds
-        if type(key) == ListType:
+        if type(key) == list:
             for k in key[0:-1]:
                 try:
                     curNode = curNode[k]
-                    if type(curNode) != DictType:
-                        raise RuntimeError, "Refusing to overwrite non-matching hotkey"
+                    if type(curNode) != dict:
+                        raise RuntimeError("Refusing to overwrite non-matching hotkey")
                 except KeyError:
                     curNode[k] = dict()
                     curNode = curNode[k]
@@ -74,7 +74,7 @@ class HotkeyList:
             self.ResetHotkeyState()
             return False
         
-        if type(node) == DictType:
+        if type(node) == dict:
             self.fCurNode = node
             return None
         else:
@@ -252,7 +252,7 @@ class Window(KeyHandler):
         
         # Register configuration variables
         opt = hdtv.options.Option(default = self.viewport.GetYMinVisibleRegion(),
-                                  parse = lambda(x): float(x),
+                                  parse = lambda x: float(x),
                                   changeCallback = self.YMinVisibleRegionChanged)
 
         hdtv.options.RegisterOption("display.YMinVisibleRegion", opt)
@@ -390,7 +390,7 @@ class Window(KeyHandler):
         """
         # check the input
         if xytype not in ["X","Y"]:
-            print "invalid parameter %s to the private function _Expand" % xytype
+            print("invalid parameter %s to the private function _Expand" % xytype)
             return
         
         zoomMarkers = getattr(self,"%sZoomMarkers" %xytype)

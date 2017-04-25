@@ -172,7 +172,7 @@ class MatInterface:
         cuts = list()
         count = 0
         
-        for (ID, obj) in matrix.dict.iteritems():
+        for (ID, obj) in matrix.dict.items():
             
             this = dict()
 
@@ -223,8 +223,8 @@ class MatInterface:
         if matrix.sym:
             sym="symmetric"
         else:
-            sym="aymmetric"
-        header = "\nmatrix ID = "+matrix.ID+ " \""+matrix.name+"\" ("+sym+")\n"
+            sym="asymmetric"
+        header = "\nmatrix ID = "+str(matrix.ID)+ " \""+matrix.name+"\" ("+sym+")\n"
         footer = "\n"+str(len(matrix.ids)) + " cuts, "+str(count)+ " loaded cut spectra."
         
         table = hdtv.util.Table(cuts, params, sortBy="ID", extra_header = header, 
@@ -343,13 +343,13 @@ class TvMatInterface:
         # check if file exists
         try:
             os.stat(fname)
-        except OSError, error:
+        except OSError as error:
             hdtv.ui.error(str(error))
             raise
         
         try:
             hist = SpecReader().GetMatrix(fname, fmt)
-        except SpecReaderError, msg:
+        except SpecReaderError as msg:
             hdtv.ui.error(str(msg))
             raise
         
@@ -379,12 +379,13 @@ class TvMatInterface:
         """
         Show a overview of matrices with all cuts and cut spectra
         """
-        ids = hdtv.util.ID.ParseRange(options.matrix)
-        if ids=="NONE":
-            return
+#        ids = hdtv.util.ID.ParseIds(options.matrix, self.spectra)
+#        if ids=="NONE":
+#            return
+        ids = "ALL"
         matrices = set()
         
-        for spec in self.spectra.dict.itervalues():
+        for spec in self.spectra.dict.values():
             if hasattr(spec, "matrix") and not spec.matrix==None :
                 if ids=="ALL" or spec.matrix.ID in ids:
                     matrices.add(spec.matrix)
@@ -494,7 +495,7 @@ class TvMatInterface:
             # delete also cut spectrum
             if not cut.spec==None:
                 sid = self.spectra.Index(cut.spec)
-                print "remove spec %s" %sid
+                print("remove spec %s" %sid)
                 self.spectra.Pop(sid)
         
 # plugin initialisation

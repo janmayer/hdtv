@@ -29,16 +29,16 @@ preamble="""\makeatletter
 \ifstandalone
 
 \documentclass[12pt,oneside,a4paper]{report}
-\usepackage[ngerman]{babel}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{graphicx}
-\usepackage{a4}
-\usepackage[T1]{fontenc}
-\usepackage{ae,aecompl}
-\usepackage[utf8]{inputenc}
-\usepackage[font=small,labelfont=bf,textfont=it]{caption}
-\usepackage{longtable}
+\\usepackage[ngerman]{babel}
+\\usepackage{amsmath}
+\\usepackage{amssymb}
+\\usepackage{graphicx}
+\\usepackage{a4}
+\\usepackage[T1]{fontenc}
+\\usepackage{ae,aecompl}
+\\usepackage[utf8]{inputenc}
+\\usepackage[font=small,labelfont=bf,textfont=it]{caption}
+\\usepackage{longtable}
 
 
 \\begin{document}
@@ -93,7 +93,7 @@ class TexTable(hdtv.util.Table):
     def __str__(self):
         text = str()
         if not self.extra_header is None:
-            text += str(self.extra_header)+"{"+len(self.keys)*self.ha+"}" + os.linesep
+            text += str(self.extra_header)+"{"+len(list(self.keys))*self.ha+"}" + os.linesep
             
         lines = self.build_lines()
         
@@ -207,7 +207,7 @@ class fitTex:
 # plugin initialisation
 import __main__
 if not __main__.f:
-    import fitInterface
+    from . import fitInterface
     __main__.f = fitInterface.FitInterface(__main__.spectra)
 __main__.fittex = fitTex(__main__.spectra, __main__.f)       
 
