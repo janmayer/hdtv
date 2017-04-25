@@ -1,8 +1,8 @@
 # HDTV Change Log
 
 ## 17.01
-+ Port to python3
-+ Try to eliminate ROOT_ICNLUDE_PATH
++ Relative efficiencies limited to energy range of absolute efficiency (@ehoemann)
++ Fix Printing (@warr)
 
 ## 16.12
 + Fixed cutting calibrated mfile matrices
