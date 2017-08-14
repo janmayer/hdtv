@@ -140,4 +140,5 @@ if args.commands is not None:
 
 # Go
 hdtv.cmdline.MainLoop()
+hdtv.plugins.rootInterface.r.rootfile = None
 hdtv.cmdline.command_tree.SetDefaultLevel(1)
