@@ -3,7 +3,7 @@ PREFIX=/opt/local
  
 CPP=g++ 
 CC=gcc
-ROOTCINT=rootcint
+ROOTCLING=rootcling
 INCL_PATH=$(PREFIX)/include
 LIB_PATH=$(PREFIX)/lib
 CFLAGS=$(shell root-config --cflags) -I$(INCL_PATH) -Wall -g

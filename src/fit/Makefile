@@ -17,7 +17,7 @@ $(MODNAME).so: $(OBJ) rootdict-$(MODNAME).o Makefile
 	$(CPP) -fpic $(CFLAGS) -shared -o $(MODNAME).so $(OBJ) rootdict-$(MODNAME).o  $(LFLAGS)
 
 rootdict-$(MODNAME).cxx:  Makefile $(EXPHEADERS) LinkDef.h
-	$(ROOTCINT) -f rootdict-$(MODNAME).cxx -c $(EXPHEADERS) LinkDef.h
+	$(ROOTCLING) -f rootdict-$(MODNAME).cxx $(EXPHEADERS) LinkDef.h
 
 %.o: %.cxx $(HEADERS) Makefile
 	$(CPP) $(CFLAGS) -fpic -c $<
