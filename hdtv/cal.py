@@ -32,7 +32,7 @@ def MakeCalibration(cal):
         if cal==None:
             cal = []  # Trivial calibration, degree -1
         calarray = ROOT.TArrayD(len(cal))
-        for (i,c) in zip(range(0,len(cal)),cal):
+        for (i,c) in zip(list(range(0,len(cal))),cal):
             calarray[i] = c
         # create the calibration object
         cal = ROOT.HDTV.Calibration(calarray)
@@ -86,10 +86,10 @@ class CalibrationFitter:
         If self.pairs contains ErrValues the channel error is respected 
         """
         if degree < 0:
-            raise ValueError, "Degree cannot be negative"
+            raise ValueError("Degree cannot be negative")
 
         if len(self.pairs) < degree + 1:
-            raise RuntimeError, "You must specify at least as many channel/energy pairs as there are free parameters"
+            raise RuntimeError("You must specify at least as many channel/energy pairs as there are free parameters")
         
         self.__TF1_id = "calfitter_" + hex(id(self)) # unique function ID
 
@@ -168,13 +168,13 @@ class CalibrationFitter:
         result = self.TGraph.Fit(self.__TF1_id, fitoptions)
         if(type(result) == int):
             if result != 0:
-                raise RuntimeError, "Fit failed"
+                raise RuntimeError("Fit failed")
         elif(type(result) == ROOT.TFitResultPtr):
             if result.Get().Status() != 0:
-                raise RuntimeError, "Fit failed"
+                raise RuntimeError("Fit failed")
         else:  # Fallback, attempt to cast result to an int
             if int(result) != 0:
-                raise RuntimeError, "Fit failed"
+                raise RuntimeError("Fit failed")
         
         # Save the fit result
         self.calib = MakeCalibration([self.__TF1.GetParameter(i) for i in range(0, degree+1)])
@@ -185,7 +185,7 @@ class CalibrationFitter:
         Return string describing the result of the calibration
         """
         if self.calib == None:
-            raise RuntimeError, "No calibration available (did you call FitCal()?)"
+            raise RuntimeError("No calibration available (did you call FitCal()?)")
         
         s = "Calibration: "
         s += " ".join(["%.6e" % x for x in self.calib.GetCoeffs()])
@@ -199,7 +199,7 @@ class CalibrationFitter:
         Return a table showing the fit results
         """
         if self.calib == None:
-            raise RuntimeError, "No calibration available (did you call FitCal()?)"
+            raise RuntimeError("No calibration available (did you call FitCal()?)")
   
         header = ["Channel", "E_given", "E_fit", "Residual"]
         keys = "channel", "e_given", "e_fit", "residual"
@@ -224,7 +224,7 @@ class CalibrationFitter:
         Draw fit used for calibration
         """
         if self.calib == None:
-            raise RuntimeError, "No calibration available (did you call FitCal()?)"
+            raise RuntimeError("No calibration available (did you call FitCal()?)")
             
         canvas = ROOT.TCanvas("CalFit", "Calibration Fit")
         # Prevent canvas from being closed as soon as this function finishes
@@ -268,7 +268,7 @@ class CalibrationFitter:
         Debug: draw residual of fit used for calibration
         """
         if self.calib == None:
-            raise RuntimeError, "No calibration available (did you call FitCal()?)"
+            raise RuntimeError("No calibration available (did you call FitCal()?)")
             
         canvas = ROOT.TCanvas("CalResidual", "Calibration Residual")
         # Prevent canvas from being closed as soon as this function finishes

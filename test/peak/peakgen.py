@@ -23,7 +23,7 @@
 # Infrastructure for generation of artificial spectra
 #-------------------------------------------------------------------------------
 
-from __future__ import division
+
 import math
 import ROOT
 

@@ -18,29 +18,29 @@ def test(bgdeg):
 
     for i in range(0, bg.GetDegree()+1):
         par = ErrValue(bg.GetFunc().GetParameter(i), bg.GetFunc().GetParError(i))
-        print "bg[%d]: %10s" % (i, par.fmt())
+        print("bg[%d]: %10s" % (i, par.fmt()))
 
     int_bac = ROOT.HDTV.Fit.BgIntegral(bg, 6, 12, h.GetXaxis())
     int_sub = ROOT.HDTV.Fit.TH1BgsubIntegral(h, bg, 6, 12)
     
-    print ""
-    print "type        position           width          volume        skewness"
+    print("")
+    print("type        position           width          volume        skewness")
     for (integral, kind) in zip((int_tot, int_bac, int_sub), ("tot:", "bac:", "sub:")):
         pos = ErrValue(integral.GetMean(), integral.GetMeanError())
         width = ErrValue(integral.GetWidth(), integral.GetWidthError())
         vol = ErrValue(integral.GetIntegral(), integral.GetIntegralError())
         skew = ErrValue(integral.GetRawSkewness(), integral.GetRawSkewnessError())
         
-        print "%s %15s %15s %15s %15s" % (kind, pos.fmt(), width.fmt(), vol.fmt(), skew.fmt())
+        print("%s %15s %15s %15s %15s" % (kind, pos.fmt(), width.fmt(), vol.fmt(), skew.fmt()))
 
 reader = hdtv.specreader.SpecReader()
 h = reader.GetSpectrum("test.asc")
 
 h.Sumw2()
 
-print "bgdeg=1"
+print("bgdeg=1")
 test(1)
 
-print ""
-print "bgdeg=2"
+print("")
+print("bgdeg=2")
 test(2)

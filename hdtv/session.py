@@ -152,7 +152,7 @@ class Session(DrawableManager):
             # show fit result
             hdtv.ui.msg(str(fit))
             fit.Draw(self.window.viewport)
-        except OverflowError, msg:
+        except OverflowError as msg:
             hdtv.ui.error("Fit failed: %s" % msg)
 
     def ClearFit(self, bg_only=False):

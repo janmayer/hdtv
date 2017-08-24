@@ -33,5 +33,5 @@ for i in range(0,1000000):
     
     h.Fill(f+g-10., f-2*g-10.)
     
-print "MC result: %.6f" % h.GetCovariance()
-print "Expected: -28"
+print("MC result: %.6f" % h.GetCovariance())
+print("Expected: -28")

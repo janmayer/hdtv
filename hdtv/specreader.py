@@ -67,14 +67,14 @@ class TextSpecReader:
                     if self.__dict__[c+"col"] == None:
                         self.__dict__[c+"col"] = col
                     else:
-                        raise SpecReaderError, "Invalid format string: %s appears more than once" % c
+                        raise SpecReaderError("Invalid format string: %s appears more than once" % c)
                 elif c == "i":
                     pass
                 else:
-                    raise SpecReaderError, "Invalid character %s in format string" % c
+                    raise SpecReaderError("Invalid character %s in format string" % c)
                     
             if self.ycol == None:
-                raise SpecReaderError, "You must specify a column for y"
+                raise SpecReaderError("You must specify a column for y")
         
     def GetBinLowEdges(self, centers):
         """
@@ -150,13 +150,13 @@ class TextSpecReader:
                         self.ycol = 1
                         self.ecol = 2
                     else:
-                        raise SpecReaderError, "%s: %d: Failed to autodetect file format: found %d columns" \
-                                                % (fname, linenum, self.ncols)
+                        raise SpecReaderError("%s: %d: Failed to autodetect file format: found %d columns" \
+                                                % (fname, linenum, self.ncols))
                         
                 # Check if number of columns is consistent
                 elif len(cols) != self.ncols:
-                    raise SpecReaderError, "%s: %d: Invalid number of columns (found=%d, expected=%d)" \
-                                     % (fname, linenum, len(cols), self.ncols)
+                    raise SpecReaderError("%s: %d: Invalid number of columns (found=%d, expected=%d)" \
+                                     % (fname, linenum, len(cols), self.ncols))
                                                
                 # Parse specified columns into float values
                 linedata = []
@@ -165,8 +165,8 @@ class TextSpecReader:
                         try:
                             linedata.append(float(cols[col]))
                         except ValueError:
-                            raise SpecReaderError, "%s: %d: Failed to parse value \"%s\" into float" \
-                                              % (fname, linenum, cols[col])
+                            raise SpecReaderError("%s: %d: Failed to parse value \"%s\" into float" \
+                                              % (fname, linenum, cols[col]))
                     else:
                         linedata.append(None)
                 
@@ -220,7 +220,7 @@ class SpecReader:
             cio = ROOT.CracowIO()
             hist = cio.GetCracowSpectrum(fname, histname, histtitle)
             if not hist:
-                raise SpecReaderError, cio.GetErrorMsg()
+                raise SpecReaderError(cio.GetErrorMsg())
             return hist
         elif fmt.split(':')[0].lower() == 'col':
             # Extract subformat specifier to pass on to TextSpecReader
@@ -243,7 +243,7 @@ class SpecReader:
                 result = mhist.Open(fname, fmt)
             
             if result != ROOT.MFileHist.ERR_SUCCESS:
-                raise SpecReaderError, mhist.GetErrorMsg()
+                raise SpecReaderError(mhist.GetErrorMsg())
             
             # Get spectra out of Mfile Mat structure
             # Use the spectra given by line
@@ -252,11 +252,11 @@ class SpecReader:
             if len(fmt.split(".")) == 3:
                 line = int(fmt.split(".")[0])-1
                 level = 0
-                print "Using spectra in line " + str(line)
+                print("Using spectra in line " + str(line))
                 
             hist = mhist.ToTH1D(histname, histtitle, level, line)
             if not hist:
-                raise SpecReaderError, mhist.GetErrorMsg()
+                raise SpecReaderError(mhist.GetErrorMsg())
             return hist
         
     def GetMatrix(self, fname, fmt=None, histname=None, histtitle=None):
@@ -277,7 +277,7 @@ class SpecReader:
         # FIXME: this ignores possibly specified bin errors
         hist = mhist.ToTH2D(histname, histtitle, 0)
         if not hist:
-            raise SpecReaderError, mhist.GetErrorMsg()
+            raise SpecReaderError(mhist.GetErrorMsg())
         return hist
     
     def GetVMatrix(self, fname, fmt=None, histname=None, histtitle=None):
@@ -306,4 +306,4 @@ class SpecReader:
         hdtv.dlmgr.LoadLibrary("mfile-root")
         result = ROOT.MFileHist.WriteTH1(hist, fname, fmt)
         if result != ROOT.MFileHist.ERR_SUCCESS:
-            raise SpecReaderError, ROOT.MFileHist.GetErrorMsg(result)
+            raise SpecReaderError(ROOT.MFileHist.GetErrorMsg(result))

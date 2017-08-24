@@ -3,7 +3,7 @@
 
 import json
 import hdtv.util
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import hdtv.ui
 from hdtv.database.common import *
 
@@ -24,7 +24,7 @@ def SearchNuclide(nuclide):
 		nuclide = "Ra-226D"
 
 	try:
-		url = urllib.urlopen("http://www.nucleide.org/DDEP_WG/Nuclides/"+str(nuclide)+".lara.txt")
+		url = urllib.request.urlopen("http://www.nucleide.org/DDEP_WG/Nuclides/"+str(nuclide)+".lara.txt")
 	except:
 		print("The nuclide was not found. Check your input and your connection to the Internet.")
 

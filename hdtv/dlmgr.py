@@ -52,8 +52,8 @@ def FindLibrary(name):
 def LoadLibrary(name):
     fname = FindLibrary(name)
     if not fname:
-        raise DLImportError, "Failed to find library %s" % name
+        raise DLImportError("Failed to find library %s" % name)
 
     if ROOT.gSystem.Load(fname) < 0:
-        raise DLImportError, "Failed to load library %s" % fname
+        raise DLImportError("Failed to load library %s" % fname)
 

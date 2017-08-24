@@ -3,7 +3,7 @@
 
 # Unit tests for the ErrValue class
 
-from __future__ import division
+
 import hdtv.errvalue
 from hdtv.errvalue import ErrValue, sqrt, exp, log, sin, cos, tan, asin, acos, atan, sinh, cosh, tanh
 import math
@@ -18,8 +18,8 @@ def _Assert(cond):
     
     if not cond:
         tb = traceback.extract_stack()[-3]
-        print "FAIL: assertion %s" % tb[3]
-        print "      in file \"%s\", line %d, in %s" % (tb[0], tb[1], tb[2])
+        print("FAIL: assertion %s" % tb[3])
+        print("      in file \"%s\", line %d, in %s" % (tb[0], tb[1], tb[2]))
         tests_failed += 1
         return False
 
@@ -319,7 +319,7 @@ def TimeTest():
         
     for n in (1000, 2000, 3000, 4000):
         t = GetRuntime(lambda: LongLoop(n))
-        print "Info: %d iterations take %f seconds." % (n, t)
+        print("Info: %d iterations take %f seconds." % (n, t))
     
 def OverloadTest():
     AssertEqual(sqrt(10), math.sqrt(10))
@@ -515,8 +515,8 @@ WunderTest()
 
 # Print summary
 if tests_failed == 0:
-    print "SUCCESS: all %d tests passed" % tests_passed
+    print("SUCCESS: all %d tests passed" % tests_passed)
 else:
-    print "WARNING: %d tests failed (%d passed, %d total)" % \
-       (tests_failed, tests_passed, tests_failed+tests_passed)
+    print("WARNING: %d tests failed (%d passed, %d total)" % \
+       (tests_failed, tests_passed, tests_failed+tests_passed))
 

@@ -69,16 +69,16 @@ def cd(args):
         path = os.path.expanduser(args[0])
     try:
         os.chdir(path)
-        print path
-    except OSError, msg:
-        print msg
+        print(path)
+    except OSError as msg:
+        print(msg)
 
 
 def pwd(args):
     """
     print name of current/working directory
     """
-    print os.getcwdu()
+    print(os.getcwd())
 
 
 hdtv.cmdline.AddCommand("ls", ls, level=2, maxargs=1, dirargs=True)

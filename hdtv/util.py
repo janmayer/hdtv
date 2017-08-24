@@ -111,8 +111,8 @@ class TxtFile(object):
                 self.lines.append(line)
                 self.linos.append(number)
 
-        except IOError, msg:
-            raise IOError, "Error opening file:" + str(msg)
+        except IOError as msg:
+            raise IOError("Error opening file:" + str(msg))
         except: # Let MainLoop handle other exceptions
             raise
         finally:
@@ -131,8 +131,8 @@ class TxtFile(object):
                 line.rstrip('\r\n ')
                 line += os.linesep
                 self.fd.write(line)
-        except IOError, msg:
-            raise IOError, ("Error opening file: %s" % msg)
+        except IOError as msg:
+            raise IOError("Error opening file: %s" % msg)
         except:
             raise
         finally:
@@ -173,7 +173,7 @@ class Pairs(list):
             try:
                 self.add(pair[0], pair[1])
             except (ValueError, IndexError):
-                print "Invalid Line in", fname, ":", line
+                print("Invalid Line in", fname, ":", line)
 
     def fromLists(self, list1, list2):
         """
@@ -375,7 +375,7 @@ class Position(object):
     # pos_cal
     def _set_pos_cal(self, pos):
         if not self.fixedInCal:
-            raise TypeError, "Position is fixed in uncalibrated space"
+            raise TypeError("Position is fixed in uncalibrated space")
         self._pos_cal = pos
         self._pos_uncal = None
 
@@ -390,7 +390,7 @@ class Position(object):
     # pos_uncal
     def _set_pos_uncal(self, pos):
         if self._fixedInCal:
-            raise TypeError, "Position is fixed in calibrated space"
+            raise TypeError("Position is fixed in calibrated space")
         self._pos_uncal = pos
         self._pos_cal = None
 
@@ -461,13 +461,13 @@ class ID(object):
         else:
             self.major = int(major)
             if self.major < 0:
-                raise ValueError, "Only positive major IDs allowed"
+                raise ValueError("Only positive major IDs allowed")
         if minor is None:
             self.minor = None
         else:
             self.minor = int(minor)
             if self.minor < 0:
-                raise ValueError, "Only positive minor IDs allowed"
+                raise ValueError("Only positive minor IDs allowed")
 
     def __cmp__(self, ID):
         if ID is None:

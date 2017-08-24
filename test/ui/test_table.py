@@ -18,6 +18,6 @@ table.out()
 
 
 table2 = Table(output, attrs = ["id", "energy", "intensity", "sigma"])
-print table2
+print(table2)
 
 

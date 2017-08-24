@@ -79,7 +79,7 @@ class FitXml:
         # create xml tree
         root = ET.Element("hdtv")
         root.set("version", VERSION)
-        for fit in fits.itervalues():
+        for fit in fits.values():
             root.append(self.Fit2Xml(fit))
         self._indent(root)
         return root
@@ -171,7 +171,7 @@ class FitXml:
             # <uncal>
             uncalElement = ET.SubElement(peakElement, "uncal")
             # Parameter
-            for param in fit.fitter.fParStatus.iterkeys():
+            for param in fit.fitter.fParStatus.keys():
                 paramElement = ET.SubElement(uncalElement, param)
                 status = fit.fitter.fParStatus[param]
                 if type(status)==list:
@@ -191,7 +191,7 @@ class FitXml:
             # <cal>
             calElement = ET.SubElement(peakElement, "cal")
             # Parameter
-            for param in fit.fitter.fParStatus.iterkeys():
+            for param in fit.fitter.fParStatus.keys():
                 paramElement = ET.SubElement(calElement, param)
                 status = fit.fitter.fParStatus[param]
                 if type(status)==list:
@@ -210,7 +210,7 @@ class FitXml:
                         errorElement.text = str(param.error)
             # <extras>
             extraElement = ET.SubElement(peakElement, "extras")
-            for param in peak.extras.keys():
+            for param in list(peak.extras.keys()):
                 paramElement = ET.SubElement(extraElement, param)
                 param = peak.extras[param]
                 try:
@@ -314,8 +314,8 @@ class FitXml:
                 for paramElement in peakElement.findall("more"):
                     name = paramElement.tag
                     parameter[name] = self._readParamElement(paramElement)
-                for name in parameter.keys():
-                    print name
+                for name in list(parameter.keys()):
+                    print(name)
                     setattr(peak, name, parameter[name])
                 peaks.append(peak)
         return peaks
@@ -337,7 +337,7 @@ class FitXml:
             root = tree.getroot()
             if not root.tag=="hdtv" or root.get("version") is None:
                 e = "this is not a valid hdtv file"
-                raise SyntaxError, e
+                raise SyntaxError(e)
             # current version
             if root.get("version")==self.version:
                 count = self.RestoreFromXml(root, sid, refit=refit)
@@ -354,16 +354,16 @@ class FitXml:
                 if oldversion=="1.0":
                     hdtv.ui.msg("Restoring only fits belonging to spectrum %s" % sid)
                     hdtv.ui.msg("There may be fits belonging to other spectra in this file.")
-                    raw_input("Please press enter to continue...\n")
+                    input("Please press enter to continue...\n")
                     count = self.RestoreFromXml_v1_0(root, [sid], calibrate=False, refit=refit)
                 if oldversion.startswith("0"):
                     hdtv.ui.msg("Only the fit markers have been saved in this file.")
                     hdtv.ui.msg("All the fits therefor have to be repeated.")
                     hdtv.ui.msg("This will take some time...")
-                    raw_input("Please press enter to continue...\n")
+                    input("Please press enter to continue...\n")
                     count = self.RestoreFromXml_v0(root, True)
-        except SyntaxError, e:
-            print "Error reading \'" + fname + "\':\n\t", e
+        except SyntaxError as e:
+            print("Error reading \'" + fname + "\':\n\t", e)
         else:
             msg = "\'%s\' loaded" %(fname)
             if count ==1:
@@ -404,7 +404,7 @@ class FitXml:
                         do_fit = None
                     while not do_fit in ["Y","y","N","n","", "A", "a", "V", "v"]:
                         question = "Could not restore fit. Refit? [(Y)es/(n)o/(a)lways/ne(v)er]"
-                        do_fit = raw_input(question)
+                        do_fit = input(question)
                     if do_fit in ["Y", "y", "", "A", "a"]:
                         fit.FitPeakFunc(spec)
             # finish this fit
@@ -477,7 +477,7 @@ class FitXml:
             # load the calibration from file
             if calibrate:
                 try:
-                    calibration = map(float, specElement.get("calibration").split())
+                    calibration = list(map(float, specElement.get("calibration").split()))
                     spec.cal = calibration
                 except AttributeError:
                     # No calibration was saved
@@ -503,7 +503,7 @@ class FitXml:
                             do_fit = None
                         while not do_fit in ["Y","y","N","n","", "A", "a", "V", "v"]:
                             question = "Could not restore fit. Refit? [(Y)es/(n)o/(a)lways/ne(v)er]"
-                            do_fit = raw_input(question)
+                            do_fit = input(question)
                         if do_fit in ["Y", "y", "", "A", "a"]:
                             fit.FitPeakFunc(spec)
                 # finish this fit
@@ -614,7 +614,7 @@ class FitXml:
             peak.extras = extras
             fit.peaks.append(peak)
             # set parameter status of fitter
-            for name in statusdict.keys():
+            for name in list(statusdict.keys()):
                 # check if status is the same for all peaks
                 check = set(statusdict[name])
                 if len(check)==1:
@@ -663,7 +663,7 @@ class FitXml:
                             params[parname].append(status)
                         except KeyError:
                             params[parname]=[status]
-                for parname in params.keys():
+                for parname in list(params.keys()):
                     status = params[parname]
                     fitter.SetParameter(parname, status)
                 fit = Fit(fitter, cal=spec.cal)

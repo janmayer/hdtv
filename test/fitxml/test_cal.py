@@ -34,109 +34,109 @@ spectra = __main__.spectra
 spectra.Clear()
 
 __main__.s.LoadSpectra(testspectrum)
-print "-------------------------------------------------------------------------"
-print " Case 0: Set Marker and calibrate afterwards"
-print " Marker will be kept fixed, but the spectrum changes"
-print "-------------------------------------------------------------------------"
+print("-------------------------------------------------------------------------")
+print(" Case 0: Set Marker and calibrate afterwards")
+print(" Marker will be kept fixed, but the spectrum changes")
+print("-------------------------------------------------------------------------")
 spectra.SetMarker("region", 1450)
 spectra.SetMarker("region", 1470)
 spectra.SetMarker("peak", 1460)
 spectra.window.GoToPosition(1460)
 spectra.ApplyCalibration("0", [0,2])
 
-raw_input("Press enter to continue...")
+input("Press enter to continue...")
 
-print "-------------------------------------------------------------------------"
-print " Case 1: Set Marker in calibrated spectrum"
-print " Marker should be appear at the right position relative to spectrum"
-print "-------------------------------------------------------------------------"
+print("-------------------------------------------------------------------------")
+print(" Case 1: Set Marker in calibrated spectrum")
+print(" Marker should be appear at the right position relative to spectrum")
+print("-------------------------------------------------------------------------")
 spectra.ClearFit()
 spectra.SetMarker("region", 2900)
 spectra.SetMarker("region", 2940)
 spectra.SetMarker("peak", 2920)
 spectra.window.GoToPosition(2920)
 
-raw_input("Press enter to continue...")
+input("Press enter to continue...")
 
 
-print "-------------------------------------------------------------------------"
-print " Case 2: Fit in calibrated spectrum"
-print " Fit should be fixed relative to spectrum"
-print "-------------------------------------------------------------------------"
+print("-------------------------------------------------------------------------")
+print(" Case 2: Fit in calibrated spectrum")
+print(" Fit should be fixed relative to spectrum")
+print("-------------------------------------------------------------------------")
 spectra.ExecuteFit()
 __main__.f.PrintWorkFit()
 
-raw_input("Press enter to continue...")
+input("Press enter to continue...")
 
-print "-------------------------------------------------------------------------"
-print " Case 3: Change calibration after fit is executed"
-print " Fit should move with spectrum to new position"
-print "-------------------------------------------------------------------------"
+print("-------------------------------------------------------------------------")
+print(" Case 3: Change calibration after fit is executed")
+print(" Fit should move with spectrum to new position")
+print("-------------------------------------------------------------------------")
 spectra.ApplyCalibration("0", [0,0.5])
 spectra.window.GoToPosition(730)
 __main__.f.PrintWorkFit()
 
-raw_input("Press enter to continue...")
+input("Press enter to continue...")
 
-print "-------------------------------------------------------------------------"
-print " Case 4: Store fit"
-print " Stored fit and aktive markers should stay fixed relative to spectrum"
-print "-------------------------------------------------------------------------"
+print("-------------------------------------------------------------------------")
+print(" Case 4: Store fit")
+print(" Stored fit and aktive markers should stay fixed relative to spectrum")
+print("-------------------------------------------------------------------------")
 spectra.StoreFit()
 __main__.f.ListFits()
 
-raw_input("Press enter to continue...")
+input("Press enter to continue...")
 
-print "-------------------------------------------------------------------------"
-print " Case 5: Reactivate stored fit"
-print " Active markers should appear at the same position as the stored fit"
-print "-------------------------------------------------------------------------"
+print("-------------------------------------------------------------------------")
+print(" Case 5: Reactivate stored fit")
+print(" Active markers should appear at the same position as the stored fit")
+print("-------------------------------------------------------------------------")
 spectra.ActivateFit("0")
 
-raw_input("Press enter to continue...")
+input("Press enter to continue...")
 
-print "-------------------------------------------------------------------------"
-print " Case 6: Execute reactivated fit"
-print " New fit should be at the same position as stored fit"
-print "-------------------------------------------------------------------------"
+print("-------------------------------------------------------------------------")
+print(" Case 6: Execute reactivated fit")
+print(" New fit should be at the same position as stored fit")
+print("-------------------------------------------------------------------------")
 spectra.ExecuteFit()
 __main__.f.ListFits()
 
-raw_input("Press enter to continue...")
+input("Press enter to continue...")
 
-print "-------------------------------------------------------------------------"
-print " Case 7: Change calibration after fit is stored"
-print " Stored fit should move with spectrum to new position"
-print "-------------------------------------------------------------------------"
+print("-------------------------------------------------------------------------")
+print(" Case 7: Change calibration after fit is stored")
+print(" Stored fit should move with spectrum to new position")
+print("-------------------------------------------------------------------------")
 spectra.ActivateFit(None)
 spectra.ClearFit()
 spectra.ApplyCalibration("0", [0,2])
 spectra.window.GoToPosition(2920)
 __main__.f.ListFits()
 
-raw_input("Press enter to continue...")
+input("Press enter to continue...")
 
-print "-------------------------------------------------------------------------"
-print " Case 8: Reactivate fit after calibration has changed"
-print " Active markers should appear at the same position as fit"
-print "-------------------------------------------------------------------------"
+print("-------------------------------------------------------------------------")
+print(" Case 8: Reactivate fit after calibration has changed")
+print(" Active markers should appear at the same position as fit")
+print("-------------------------------------------------------------------------")
 spectra.ActivateFit("0")
 
-raw_input("Press enter to continue...")
+input("Press enter to continue...")
 
-print "-------------------------------------------------------------------------"
-print " Case 9: Execute reactivated fit"
-print " New fit should be at the same position as the stored fit"
-print "-------------------------------------------------------------------------"
+print("-------------------------------------------------------------------------")
+print(" Case 9: Execute reactivated fit")
+print(" New fit should be at the same position as the stored fit")
+print("-------------------------------------------------------------------------")
 spectra.ExecuteFit()
 __main__.f.ListFits()
 
-raw_input("Press enter to continue...")
+input("Press enter to continue...")
 
-print "-------------------------------------------------------------------------"
-print " Case 10: Write/read fit to/from xml"
-print " Fit should appear at the same position as before"
-print "-------------------------------------------------------------------------"
+print("-------------------------------------------------------------------------")
+print(" Case 10: Write/read fit to/from xml")
+print(" Fit should appear at the same position as before")
+print("-------------------------------------------------------------------------")
 spectra.ActivateFit(None)
 spectra.ClearFit()
 __main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
@@ -144,23 +144,23 @@ spectra.Get(0).Clear()
 __main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
 __main__.f.ListFits()
 
-raw_input("Press enter to continue...")
+input("Press enter to continue...")
 
 
-print "-------------------------------------------------------------------------"
-print " Case 11: Write/Read fit and calibrate afterwards"
-print " Fit should move with spectrum to new calibration"
-print "-------------------------------------------------------------------------"
+print("-------------------------------------------------------------------------")
+print(" Case 11: Write/Read fit and calibrate afterwards")
+print(" Fit should move with spectrum to new calibration")
+print("-------------------------------------------------------------------------")
 spectra.ApplyCalibration("0", [0,0.5])
 spectra.window.GoToPosition(730)
 __main__.f.ListFits()
 
-raw_input("Press enter to continue...")
+input("Press enter to continue...")
 
-print "-------------------------------------------------------------------------"
-print " Case 12: Write/Read fit and change calibration in between"
-print " Fit should appear at the new calibrated position"
-print "-------------------------------------------------------------------------"
+print("-------------------------------------------------------------------------")
+print(" Case 12: Write/Read fit and change calibration in between")
+print(" Fit should appear at the new calibrated position")
+print("-------------------------------------------------------------------------")
 __main__.fitxml.WriteXML(spectra.Get(0).ID,testXML)
 spectra.Get(0).Clear()
 spectra.ApplyCalibration(0, [0,2])
@@ -168,6 +168,6 @@ spectra.window.GoToPosition(2920)
 __main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
 __main__.f.ListFits()
 
-raw_input("Press enter to continue...")
+input("Press enter to continue...")
 
 

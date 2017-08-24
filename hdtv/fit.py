@@ -236,7 +236,7 @@ class Fit(Drawable):
                 if p not in params:
                     params.append(p)
             # add extra params
-            for p in peak.extras.keys():
+            for p in list(peak.extras.keys()):
                 thispeak[p] = peak.extras[p]
                 if p not in params:
                     params.append(p) 
@@ -416,7 +416,7 @@ class Fit(Drawable):
         if self.viewport and not self.viewport == viewport:
             # Unlike the Display object of the underlying implementation,
             # python objects can only be drawn on a single viewport
-            raise RuntimeError, "Object can only be drawn on a single viewport"
+            raise RuntimeError("Object can only be drawn on a single viewport")
         self.viewport = viewport
         # Lock updates
         self.viewport.LockUpdate()

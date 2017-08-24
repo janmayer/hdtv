@@ -51,7 +51,7 @@ class Database(object):
         # Set default database
 #        hdtv.options.Reset("database.db")
         
-        self.opt["fuzziness"] = hdtv.options.Option(default = 1.0, parse = lambda(x): float(x))
+        self.opt["fuzziness"] = hdtv.options.Option(default = 1.0, parse = lambda x: float(x))
         hdtv.options.RegisterOption("database.fuzziness", self.opt["fuzziness"]) # Lookup fuzziness
         
         self.opt["sort_key"] = hdtv.options.Option(default = None)
@@ -179,7 +179,7 @@ class Database(object):
         """
         List available databases
         """
-        for (name, db) in hdtv.database.databases.items():
+        for (name, db) in list(hdtv.database.databases.items()):
             hdtv.ui.msg(name + ": " + db().description)
         
     def showDBfields(self, db=None):

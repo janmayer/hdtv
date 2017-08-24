@@ -41,7 +41,7 @@ class Matrix(DrawableManager):
     def _set_color(self, color):
         # give all cuts and projections the same color
         self._color = color
-        for cut in self.dict.itervalues():
+        for cut in self.dict.values():
             cut.color = color
         if self._xproj is not None:
             self._xproj.color = color

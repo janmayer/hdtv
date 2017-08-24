@@ -3,7 +3,7 @@
 
 import json
 import hdtv.util
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import hdtv.ui
 from hdtv.database.common import *
 

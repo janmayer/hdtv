@@ -33,12 +33,12 @@ def run(args):
     Executes a python script from the hdtv command line (via execfile)
     """
     fname = os.path.expanduser(args[0])
-    print "Running script %s" %fname
+    print("Running script %s" %fname)
     try:
-        execfile(fname)
-    except IOError, msg:
-        print msg
-    print "Finished!"
+        exec(compile(open(fname).read(), fname, 'exec'))
+    except IOError as msg:
+        print(msg)
+    print("Finished!")
 
 hdtv.cmdline.AddCommand("run", run, nargs=1, fileargs=True)
 

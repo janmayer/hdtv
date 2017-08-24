@@ -37,22 +37,22 @@ newXML = os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.xml")
 __main__.s.LoadSpectra(testspectrum)
 __main__.s.ListSpectra()
 
-raw_input("Press enter to continue\n")
+input("Press enter to continue\n")
 
 for testXML in testXMLs:
     spectra.dict["0"].Clear()
-    print 'Reading fits from file %s' %testXML
+    print('Reading fits from file %s' %testXML)
     __main__.fitxml.ReadFitlist(testXML)
     __main__.f.ListFits()
-    raw_input("Press enter to continue\n")
+    input("Press enter to continue\n")
     
-print 'Saving fits to file %s' % newXML
+print('Saving fits to file %s' % newXML)
 __main__.fitxml.WriteFitlist(newXML)
-print 'Deleting all fits'
+print('Deleting all fits')
 __main__.spectra.dict["0"].Clear()
-print 'Reading fits from file %s' %newXML
+print('Reading fits from file %s' %newXML)
 __main__.fitxml.ReadFitlist(newXML)
 __main__.f.ListFits()
 
-raw_input("Press enter to continue\n")
+input("Press enter to continue\n")
     

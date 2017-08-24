@@ -35,7 +35,7 @@ def Integrate(spec, bg, region):
     if bg:
         for i in range(0, bg.GetDegree()+1):
             par = ErrValue(bg.GetFunc().GetParameter(i), bg.GetFunc().GetParError(i))
-            print "bg[%d]: %10s" % (i, par.fmt())
+            print("bg[%d]: %10s" % (i, par.fmt()))
         
         int_bac = ROOT.HDTV.Fit.BgIntegral(bg, region[0], region[1], hist.GetXaxis())
         int_sub = ROOT.HDTV.Fit.TH1BgsubIntegral(hist, bg, region[0], region[1])

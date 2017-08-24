@@ -89,7 +89,7 @@ class weakref(object):
     def __setitem__(self, key, value):
         self._ref()[key] = value
 
-    def __nonzero__(self):
+    def __bool__(self):
         if self._ref():
             return 1
         else:

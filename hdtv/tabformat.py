@@ -19,7 +19,7 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-from __future__ import division
+
 
 try:
     import curses
@@ -125,8 +125,8 @@ def tabformat(cells, **kwargs):
             rows[i].append("")
     
     # Produce the appropriate format string for output
-    fmtstr = (' ' * col_sep_width).join(map(lambda w: "%%-%ds" % w, col_widths))
+    fmtstr = (' ' * col_sep_width).join(["%%-%ds" % w for w in col_widths])
             
     # Output the table, row by row
     for i in range(0, n_rows):
-        print fmtstr % tuple(rows[i])
+        print(fmtstr % tuple(rows[i]))

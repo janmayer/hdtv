@@ -26,82 +26,82 @@ spectra.Clear()
 
 testspectrum= os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
 
-print "-------------------------------------------------------------------------"
-print "Loading 5 spectra and switch back and forth between them"
-print "-------------------------------------------------------------------------"
+print("-------------------------------------------------------------------------")
+print("Loading 5 spectra and switch back and forth between them")
+print("-------------------------------------------------------------------------")
 
 for i in range(0,5):
     __main__.s.LoadSpectra(testspectrum)
     spectra.Get(i).cal=[0,(i+1)*0.5]
 __main__.s.ListSpectra()
     
-raw_input("Press enter to continue ")
+input("Press enter to continue ")
 
-print "Show First"
+print("Show First")
 spectra.ShowFirst()
 __main__.s.ListSpectra()
 
-raw_input("Press enter to continue ")
+input("Press enter to continue ")
 
 for i in range(0,5):
-    print "Show Next (should be %d)" %((i+1)%5)
+    print("Show Next (should be %d)" %((i+1)%5))
     spectra.ShowNext()
     __main__.s.ListSpectra()
-    raw_input("Press enter to continue ")
+    input("Press enter to continue ")
     
-print "Show Last"
+print("Show Last")
 spectra.ShowLast()
 __main__.s.ListSpectra()
-raw_input("Press enter to continue ")
+input("Press enter to continue ")
     
 for i in range(0,5):
-    print "Show Prev (should be %d)" %(4-(i+1)%5)
+    print("Show Prev (should be %d)" %(4-(i+1)%5))
     spectra.ShowPrev()
     __main__.s.ListSpectra()
-    raw_input("Press enter to continue ")
+    input("Press enter to continue ")
     
-print "Show 3"
+print("Show 3")
 spectra.ShowObjects("3")
 __main__.s.ListSpectra()
-raw_input("Press enter to continue ")
+input("Press enter to continue ")
 
-print "Show 1"
+print("Show 1")
 spectra.ShowObjects("1")
 __main__.s.ListSpectra()
-raw_input("Press enter to continue ")
+input("Press enter to continue ")
 
-print "Show All"
+print("Show All")
 spectra.ShowAll()
 __main__.s.ListSpectra()
-raw_input("Press enter to continue ")
+input("Press enter to continue ")
 
-print "Activate 2"
+print("Activate 2")
 spectra.ActivateObject("2")
 __main__.s.ListSpectra()
-raw_input("Press enter to continue ")
+input("Press enter to continue ")
 
-print "Show only active"
+print("Show only active")
 spectra.ShowObjects(spectra.activeID)
 __main__.s.ListSpectra()
-raw_input("Press enter to continue ")
+input("Press enter to continue ")
 
-print "Activate 4 (which was not visible)"
+print("Activate 4 (which was not visible)")
 spectra.ActivateObject("4")
 __main__.s.ListSpectra()
-raw_input("Press enter to continue ")
+input("Press enter to continue ")
 
-print "Remove 3"
+print("Remove 3")
 spectra.Pop("3")
 __main__.s.ListSpectra()
-raw_input("Press enter to continue ")
+input("Press enter to continue ")
     
-print "Reload one spectrum"
+print("Reload one spectrum")
 __main__.s.LoadSpectra(testspectrum)
 __main__.s.ListSpectra()
-raw_input("Press enter to continue ")
+input("Press enter to continue ")
 
 for i in range(3,10):
-    print "Show Next (should be %d)" %((i+1)%5)
+    print("Show Next (should be %d)" %((i+1)%5))
     spectra.ShowNext()
     __main__.s.ListSpectra()
-    raw_input("Press enter to continue ")
+    input("Press enter to continue ")

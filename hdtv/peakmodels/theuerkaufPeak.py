@@ -20,7 +20,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 import math
 import ROOT
-from peak import PeakModel, FitValue
+from .peak import PeakModel, FitValue
 from hdtv.drawable import Drawable
 import hdtv.options
 
@@ -71,7 +71,7 @@ class TheuerkaufPeak(Drawable):
             return getattr(self, name)
         else:
             # DON'T FORGET THIS LINE! see http://code.activestate.com/recipes/52238/ 
-            raise AttributeError, name 
+            raise AttributeError(name) 
 
     def __str__(self):
         return self.formatted_str(verbose=False)
@@ -123,7 +123,7 @@ class TheuerkaufPeak(Drawable):
             else:
                 # Unlike the Display object of the underlying implementation,
                 # python objects can only be drawn on a single viewport
-                raise RuntimeError, "Peak cannot be drawn on multiple viewports"
+                raise RuntimeError("Peak cannot be drawn on multiple viewports")
         self.viewport = viewport
         if self.displayObj:
             self.displayObj.Draw(self.viewport)
@@ -238,7 +238,7 @@ class PeakModelTheuerkauf(PeakModel):
         elif parname in ("vol", "tl", "tr", "sh", "sw"):
             return value
         else:
-            raise RuntimeError, "Unexpected parameter name"
+            raise RuntimeError("Unexpected parameter name")
             
 
     def GetFitter(self, region, peaklist, cal):
