@@ -27,7 +27,7 @@ import os
 import numpy
 import scipy
 import matplotlib
-matplotlib.use("agg") # Must be before import pylab!
+matplotlib.use("agg")  # Must be before import pylab!
 import pylab
 
 import matplotlib.transforms as transforms
@@ -51,10 +51,10 @@ class PrintOut(object):
 
         # create matplotlib plot
         pylab.rc("font", size=16)
-        pylab.rc("lines",linewidth=1)
-        pylab.rc("svg",fonttype="path")
+        pylab.rc("lines", linewidth=1)
+        pylab.rc("svg", fonttype="path")
 
-        pylab.figure(figsize=(8.5,4.2))
+        pylab.figure(figsize=(8.5, 4.2))
 
         # add spectra, fits, marker etc.
         for spec in specs:
@@ -69,15 +69,14 @@ class PrintOut(object):
                     self.PrintFit(fit)
 
          # viewport limits
-        x1= self.spectra.viewport.GetXOffset()
-        x2= x1+ self.spectra.viewport.GetXVisibleRegion()
+        x1 = self.spectra.viewport.GetXOffset()
+        x2 = x1 + self.spectra.viewport.GetXVisibleRegion()
         y1 = self.spectra.viewport.GetYOffset()
-        y2= y1 + self.spectra.viewport.GetYVisibleRegion()
+        y2 = y1 + self.spectra.viewport.GetYVisibleRegion()
 
         # apply limits to plot
-        pylab.xlim(x1,x2)
-        pylab.ylim(y1,y2)
-
+        pylab.xlim(x1, x2)
+        pylab.ylim(y1, y2)
 
     def PrintHistogram(self, spec):
         """
@@ -87,17 +86,16 @@ class PrintOut(object):
         # create values for x axis
         en = numpy.arange(nbins)
         # shift in order to get values at bin center
-        en=en-0.5
+        en = en - 0.5
         # calibrate
         en = self.ApplyCalibration(en, spec.cal)
         # extract bin contents to numpy array
         data = numpy.zeros(nbins)
         for i in range(nbins):
-            data[i]=spec.hist.hist.GetBinContent(i)
-        #create spectrum plot
-        (r,g,b)= hdtv.color.GetRGB(spec.color)
-        pylab.step(en, data, color=(r,g,b), label=spec.name)
-
+            data[i] = spec.hist.hist.GetBinContent(i)
+        # create spectrum plot
+        (r, g, b) = hdtv.color.GetRGB(spec.color)
+        pylab.step(en, data, color=(r, g, b), label=spec.name)
 
     def PrintFit(self, fit):
         """
@@ -133,7 +131,7 @@ class PrintOut(object):
             # maybe energy labels for each peak
             if self.labels:
                 self.PrintLabel(p, i)
-                i = i+1
+                i = i + 1
             # maybe functions for each peak
             if fit._showDecomp:
                 peakfunc = p.displayObj
@@ -147,13 +145,12 @@ class PrintOut(object):
             color = marker._activeColor
         else:
             color = marker.color
-        (r,g,b)= hdtv.color.GetRGB(color)
+        (r, g, b) = hdtv.color.GetRGB(color)
         pos = marker.p1.pos_cal
-        pylab.axvline(pos, color=(r,g,b))
+        pylab.axvline(pos, color=(r, g, b))
         if marker.p2 is not None:
             pos = marker.p2.pos_cal
-            pylab.axvline(pos, color=(r,g,b))
-
+            pylab.axvline(pos, color=(r, g, b))
 
     def PrintLabel(self, peak, i):
         """
@@ -161,9 +158,10 @@ class PrintOut(object):
         """
         x = peak.pos_cal.value
         ax = pylab.gca()
-        trans = transforms.blended_transform_factory(ax.transData, ax.transAxes)
-        pylab.text(x,0.94-0.06*i, peak.pos_cal.fmt(),transform=trans, size="small")
-
+        trans = transforms.blended_transform_factory(
+            ax.transData, ax.transAxes)
+        pylab.text(x, 0.94 - 0.06 * i, peak.pos_cal.fmt(),
+                   transform=trans, size="small")
 
     def PrintFunc(self, func, cal, color):
         """
@@ -171,16 +169,15 @@ class PrintOut(object):
         """
         x1 = func.GetMinCh()
         x2 = func.GetMaxCh()
-        nbins = int(x2-x1)*20
-        en = numpy.linspace(x1,x2,nbins)
+        nbins = int(x2 - x1) * 20
+        en = numpy.linspace(x1, x2, nbins)
         data = numpy.zeros(nbins)
         for i in range(nbins):
-            data[i]=func.Eval(en[i])
+            data[i] = func.Eval(en[i])
         en = self.ApplyCalibration(en, cal)
-        #create function plot
-        (r,g,b)= hdtv.color.GetRGB(color)
-        pylab.plot(en, data, color=(r,g,b))
-
+        # create function plot
+        (r, g, b) = hdtv.color.GetRGB(color)
+        pylab.plot(en, data, color=(r, g, b))
 
     def ApplyCalibration(self, en, cal):
         """
@@ -201,45 +198,50 @@ class PrintInterface(object):
         # command line interface
         prog = "print"
         description = "Prints all visible items to file. The file format is specified by the filename extension."
-        description+= "Supported formats are: emf, eps, pdf, png, ps, raw, rgba, svg, svgz. "
-        description+= "If no filename is given, an interactive mode is entered and the plot can be manipulated using pylab."
-        description+= "Change to the python prompt and import the pylab module for that to work."
+        description += "Supported formats are: emf, eps, pdf, png, ps, raw, rgba, svg, svgz. "
+        description += "If no filename is given, an interactive mode is entered and the plot can be manipulated using pylab."
+        description += "Change to the python prompt and import the pylab module for that to work."
         usage = "%prog <filename>"
-        parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        parser.add_option("-F","--force",action = "store_true", default=False,
-                            help = "overwrite existing files without asking")
-        parser.add_option("-y","--ylabel",action="store", default=None,
-                            help = "add label for y-axis")
-        parser.add_option("-x","--xlabel",action="store", default=None,
-                            help = "add label for x-axis")
-        parser.add_option("-t","--title",action="store", default=None,
-                            help = "add title for plot")
-        parser.add_option("-l", "--legend",action="store_true", default=False,
-                            help = "add legend")
-        parser.add_option("-e", "--energies",action="store_true", default=False,
-                            help = "add energy labels to each fitted peak")
-        hdtv.cmdline.AddCommand(prog, self.Print,  maxargs=1, fileargs=True, parser=parser)
-
+        parser = hdtv.cmdline.HDTVOptionParser(
+            prog=prog, description=description, usage=usage)
+        parser.add_option("-F", "--force", action="store_true", default=False,
+                          help="overwrite existing files without asking")
+        parser.add_option("-y", "--ylabel", action="store", default=None,
+                          help="add label for y-axis")
+        parser.add_option("-x", "--xlabel", action="store", default=None,
+                          help="add label for x-axis")
+        parser.add_option("-t", "--title", action="store", default=None,
+                          help="add title for plot")
+        parser.add_option("-l", "--legend", action="store_true", default=False,
+                          help="add legend")
+        parser.add_option(
+            "-e",
+            "--energies",
+            action="store_true",
+            default=False,
+            help="add energy labels to each fitted peak")
+        hdtv.cmdline.AddCommand(
+            prog, self.Print, maxargs=1, fileargs=True, parser=parser)
 
     def Print(self, args, options):
         pylab.ioff()
         # process filename
-        if len(args)==0:
+        if len(args) == 0:
             fname = None
         else:
             fname = os.path.expanduser(args[0])
             if not options.force and os.path.exists(fname):
                 hdtv.ui.warn("This file already exists:")
                 overwrite = None
-                while not overwrite in ["Y","y","N","n","","B","b"]:
+                while overwrite not in ["Y", "y", "N", "n", "", "B", "b"]:
                     question = "Do you want to replace it [y,n] or backup it [B]:"
                     overwrite = input(question)
-                if overwrite in ["b","B",""]:
-                    os.rename(fname,"%s.back" %fname)
-                elif overwrite in ["n","N"]:
+                if overwrite in ["b", "B", ""]:
+                    os.rename(fname, "%s.back" % fname)
+                elif overwrite in ["n", "N"]:
                     return
 
-        p= PrintOut(self.spectra, options.energies)
+        p = PrintOut(self.spectra, options.energies)
         p.Execute()
 
         # add some decorations
@@ -264,9 +266,10 @@ class PrintInterface(object):
             # else go to interactive mode
             pylab.ion()
             # hack to open the plot window
-            pylab.text(0,0,"")
+            pylab.text(0, 0, "")
+
 
 # plugin initialisation
 import __main__
-__main__.p =PrintInterface(__main__.spectra)
+__main__.p = PrintInterface(__main__.spectra)
 hdtv.ui.debug("Loaded user interface for printing")

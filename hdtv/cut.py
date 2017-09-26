@@ -24,15 +24,16 @@ import hdtv.color
 from hdtv.weakref import weakref
 from hdtv.drawable import Drawable
 
+
 class Cut(Drawable):
     def __init__(self, color=None, cal=None):
-        self.regionMarkers = hdtv.marker.MarkerCollection("X", paired=True,
-                                            maxnum=1, color=hdtv.color.cut)
-        self.bgMarkers = hdtv.marker.MarkerCollection("X", paired=True,
-                                            color=hdtv.color.cut, connecttop=False)
+        self.regionMarkers = hdtv.marker.MarkerCollection(
+            "X", paired=True, maxnum=1, color=hdtv.color.cut)
+        self.bgMarkers = hdtv.marker.MarkerCollection(
+            "X", paired=True, color=hdtv.color.cut, connecttop=False)
         Drawable.__init__(self, color, cal)
         self.spec = None
-        self.axis = None    #<- keep this last (needed for __setattr__)
+        self.axis = None  # <- keep this last (needed for __setattr__)
 
     # delegate everything to the markers
     def __setattr__(self, name, value):
@@ -64,22 +65,22 @@ class Cut(Drawable):
     def SetMarker(self, mtype, pos):
         if mtype is "":
             if self.regionMarkers.IsFull():
-                mtype="bg"
+                mtype = "bg"
             else:
-                mtype="region"
-        markers = getattr(self, "%sMarkers" %mtype)
+                mtype = "region"
+        markers = getattr(self, "%sMarkers" % mtype)
         markers.SetMarker(pos)
 
     def RemoveMarker(self, mtype, pos):
-        markers = getattr(self, "%sMarkers" %mtype)
+        markers = getattr(self, "%sMarkers" % mtype)
         markers.RemoveNearest(pos)
 
     def ExecuteCut(self, matrix, axis):
-        if self.regionMarkers.IsPending() or len(self.regionMarkers)==0:
+        if self.regionMarkers.IsPending() or len(self.regionMarkers) == 0:
             return None
         self.matrix = matrix
         self.axis = axis
-        spec =  self.matrix.ExecuteCut(self)
+        spec = self.matrix.ExecuteCut(self)
         self.spec = weakref(spec)
         return spec
 

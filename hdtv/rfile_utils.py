@@ -30,6 +30,7 @@ import fnmatch
 # destroyed when the file containing them is closed).
 ROOT.TH1.AddDirectory(False)
 
+
 def GetRelDirectory(cur_posix_path, cur_root_dir, path):
     """
     Resolve the relative path path with respect to the current directory
@@ -79,13 +80,13 @@ def GetRelDirectory(cur_posix_path, cur_root_dir, path):
 
         # Descend down the path
         for pc in pcomp:
-            if cur_root_dir != None:
+            if cur_root_dir is not None:
                 if pc == "" or pc == ".":
                     pass
                 elif pc == "..":
                     cur_root_dir = cur_root_dir.GetMotherDir()
                     if cur_root_dir is None:
-                        if rfile != None:
+                        if rfile is not None:
                             # print "Info: closing %s" % str(rfile)
                             rfile.Close()
                 else:
@@ -121,6 +122,7 @@ def GetRelDirectory(cur_posix_path, cur_root_dir, path):
         if prev_root_dir:
             prev_root_dir.cd()
 
+
 def PathComplete(cur_posix_path, cur_root_dir, path, pattern, dirs_only=False):
     """
     Suggest completions for paths to objects inside ROOT files
@@ -136,7 +138,8 @@ def PathComplete(cur_posix_path, cur_root_dir, path, pattern, dirs_only=False):
 
     dirs_only specifies whether to suggest directories only.
     """
-    (posix_path, rfile, root_dir) = GetRelDirectory(cur_posix_path, cur_root_dir, path)
+    (posix_path, rfile, root_dir) = GetRelDirectory(
+        cur_posix_path, cur_root_dir, path)
     if(posix_path, rfile, root_dir) == (None, None, None):
         return []
 
@@ -144,10 +147,10 @@ def PathComplete(cur_posix_path, cur_root_dir, path, pattern, dirs_only=False):
     options = []
     l = len(pattern)
 
-    if root_dir != None:
+    if root_dir is not None:
         # Suggest completions from a ROOT directory
         keys = root_dir.GetListOfKeys()
-        if keys != None:
+        if keys is not None:
             for k in keys:
                 name = k.GetName()
                 if name[0:l] == pattern:
@@ -160,7 +163,7 @@ def PathComplete(cur_posix_path, cur_root_dir, path, pattern, dirs_only=False):
         for name in os.listdir(posix_path):
             if name[0:l] == pattern:
                 if os.path.isdir(os.path.join(posix_path, name)) or \
-                IsROOTFile(os.path.join(posix_path, name)):
+                        IsROOTFile(os.path.join(posix_path, name)):
                     options.append(name + "/")
 
     if rfile:
@@ -168,6 +171,7 @@ def PathComplete(cur_posix_path, cur_root_dir, path, pattern, dirs_only=False):
         rfile.Close()
 
     return options
+
 
 def Get(cur_posix_path, cur_root_dir, pattern):
     """
@@ -202,10 +206,12 @@ def Get(cur_posix_path, cur_root_dir, pattern):
 
     return objs
 
+
 def RecursivePathMatch(cur_path, pcomp):
     if pcomp[0] in (".", ".."):
         if len(pcomp) > 1:
-            return RecursivePathMatch(os.path.join(cur_path, pcomp[0]), pcomp[1:])
+            return RecursivePathMatch(
+                os.path.join(cur_path, pcomp[0]), pcomp[1:])
         else:
             return []
 
@@ -215,11 +221,13 @@ def RecursivePathMatch(cur_path, pcomp):
             full_name = os.path.join(cur_path, name)
             if os.path.isfile(full_name) and IsROOTFile(full_name):
                 rfile = ROOT.TFile(full_name)
-                matched_objects += RecursiveROOTMatch(cur_path, rfile, pcomp[1:])
+                matched_objects += RecursiveROOTMatch(
+                    cur_path, rfile, pcomp[1:])
                 rfile.Close()
             elif os.path.isdir(full_name):
                 matched_objects += RecursivePathMatch(full_name, pcomp[1:])
     return matched_objects
+
 
 def RecursiveROOTMatch(rfile_path, rfile_dir, pcomp):
     """
@@ -238,7 +246,7 @@ def RecursiveROOTMatch(rfile_path, rfile_dir, pcomp):
             return []
         else:
             mother_dir = rfile_dir.GetMotherDir()
-            if mother_dir != None:
+            if mother_dir is not None:
                 return RecursiveROOTMatch(rfile_path, mother_dir, pcomp[1:])
             else:
                 return RecursivePathMatch(rfile_path, pcomp[1:])
@@ -254,9 +262,11 @@ def RecursiveROOTMatch(rfile_path, rfile_dir, pcomp):
                 if len(pcomp) == 1:
                     matched_objects.append(k.ReadObj())
                 elif k.GetClassName() == "TDirectoryFile":
-                    matched_objects += RecursiveROOTMatch(rfile_path, k.ReadObj(), pcomp[1:])
+                    matched_objects += RecursiveROOTMatch(
+                        rfile_path, k.ReadObj(), pcomp[1:])
 
     return matched_objects
+
 
 def IsROOTFile(fname):
     """

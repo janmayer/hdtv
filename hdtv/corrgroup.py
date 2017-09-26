@@ -3,22 +3,26 @@
 
 import math
 
+
 class Detector(object):
     """
     Class describing a single detector. Theta and phi are angles
     (FIXME), name is an arbitrary Python object used to identify
     the detector.
     """
+
     def __init__(self, name, theta, phi):
         self.fName = name
         self.fTheta = theta
         self.fPhi = phi
+
 
 class CorrelationGroup(object):
     """
     Class describing a correlation group, i.e. a number of detector
     pairs with the same value of the correlation function.
     """
+
     def __init__(self, theta1, theta2, phi, detpairs):
         self.fTheta1 = theta1
         self.fTheta2 = theta2
@@ -42,11 +46,13 @@ class CorrelationGroup(object):
         """
         return self.fDetectorPairs
 
+
 class CorrelationGroups(object):
     """
     Class for determining all correlation groups that arise from a
     given arrangement of detectors.
     """
+
     def __init__(self):
         self.fGroups = None
         self.fDetectors = list()
@@ -131,10 +137,11 @@ class CorrelationGroups(object):
                     phi = self.fDetectors[i].fPhi - self.fDetectors[j].fPhi
                     key = self.NormKey(t1, t2, phi)
 
-                    if not key in list(corgroups.keys()):
+                    if key not in list(corgroups.keys()):
                         corgroups[key] = []
-                    corgroups[key].append([self.fDetectors[i], self.fDetectors[j]])
+                    corgroups[key].append(
+                        [self.fDetectors[i], self.fDetectors[j]])
 
         self.fGroups = list()
-        for (k,v) in corgroups.items():
+        for (k, v) in corgroups.items():
             self.fGroups.append(CorrelationGroup(k[0], k[1], k[2], v))

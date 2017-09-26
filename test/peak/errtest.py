@@ -20,9 +20,9 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 # Program to test handling of spectra with explicit errors in hdtv
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 
 # Spectra that are directly recorded usually have errors \sqrt{n} for each bin,
 # where n is the number of counts in the bin. However, after scaling, this is
@@ -57,7 +57,8 @@ h3.Scale(0.1)
 # Dump histograms to text files
 peakgen.write_hist(h1, "unscaled.txt", include_x=True, include_err=True)
 peakgen.write_hist(h2, "scaled_no_error.txt", include_x=True, include_err=True)
-peakgen.write_hist(h3, "scaled_with_error.txt", include_x=True, include_err=True)
+peakgen.write_hist(h3, "scaled_with_error.txt",
+                   include_x=True, include_err=True)
 
 # Write ROOT file (histogram have been added automatically)
 rfile.Write()

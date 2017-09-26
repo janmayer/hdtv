@@ -19,9 +19,9 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 # TextInterface functions
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 
 import hdtv.options
 import hdtv.ui
@@ -30,16 +30,19 @@ import pydoc
 import sys
 import signal
 
+
 class TextInterface(hdtv.ui.SimpleUI):
 
-    def __init__(self, height = 25, width = 80):
+    def __init__(self, height=25, width=80):
         hdtv.ui.debug("Loaded TextInterface")
 
         super(TextInterface, self).__init__()
         # Set options
         self.opt = dict()
-        self.opt["ui.pager.cmd"] = hdtv.options.Option(default = "less") # default pager
-        self.opt["ui.pager.args"] = hdtv.options.Option(default = "-F -X") # default pager cmd line options
+        self.opt["ui.pager.cmd"] = hdtv.options.Option(
+            default="less")  # default pager
+        self.opt["ui.pager.args"] = hdtv.options.Option(
+            default="-F -X")  # default pager cmd line options
 
         for (key, opt) in list(self.opt.items()):
             hdtv.options.RegisterOption(key, opt)
@@ -52,7 +55,8 @@ class TextInterface(hdtv.ui.SimpleUI):
 
 # TODO: this does not work(?)
 #    def __del__(self):
-#        signal.signal(signal.SIGWINCH, signal.SIG_IGN) # Restore default signal handler
+# signal.signal(signal.SIGWINCH, signal.SIG_IGN) # Restore default signal
+# handler
 
     def page(self, text):
         """
@@ -64,7 +68,7 @@ class TextInterface(hdtv.ui.SimpleUI):
 
         ret = pydoc.tempfilepager(text, str(cmd) + " " + str(args))
 
-    def msg(self, text, newline = True):
+    def msg(self, text, newline=True):
         """
         Message output
         """
@@ -82,10 +86,13 @@ class TextInterface(hdtv.ui.SimpleUI):
     def _updateTerminalSize(self, signal, frame):
         def ioctl_GWINSZ(fd):
             try:
-                import fcntl, termios, struct, os
+                import fcntl
+                import termios
+                import struct
+                import os
                 cr = struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ,
-            '1234'))
-            except:
+                                                     '1234'))
+            except BaseException:
                 return None
             return cr
         cr = ioctl_GWINSZ(0) or ioctl_GWINSZ(1) or ioctl_GWINSZ(2)
@@ -94,12 +101,12 @@ class TextInterface(hdtv.ui.SimpleUI):
                 fd = os.open(os.ctermid(), os.O_RDONLY)
                 cr = ioctl_GWINSZ(fd)
                 os.close(fd)
-            except:
+            except BaseException:
                 pass
         if not cr:
             try:
                 cr = (env['LINES'], env['COLUMNS'])
-            except:
+            except BaseException:
                 cr = (self._fallback_canvasheight, self._fallback_canvaswidth)
 
         self.canvasheight = cr[0]

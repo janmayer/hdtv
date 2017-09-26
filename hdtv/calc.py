@@ -21,6 +21,7 @@
 
 import math
 
+
 def Median(values):
     """
     Calculate Median of a list
@@ -34,11 +35,13 @@ def Median(values):
         return (values[(n - 1) / 2] + values[n / 2]) * 0.5
     return values[n / 2]
 
+
 def stdDeviation(values):
     ssum = .0
     for val in values:
         ssum += (val.value - wMean(values))**2
-    return math.sqrt(1./len(values) * ssum)
+    return math.sqrt(1. / len(values) * ssum)
+
 
 def wMean(values):
     """
@@ -47,22 +50,25 @@ def wMean(values):
     wsum = .0
     weights = .0
     for val in values:
-        weights += 1/val.rel_error
-        wsum += (val.value * 1./val.rel_error)
+        weights += 1 / val.rel_error
+        wsum += (val.value * 1. / val.rel_error)
     return wsum / weights
+
 
 def gcd(a, b):
     """
     Calculate greatest common denomiator of two integers
     """
     while b != 0:
-        (a, b) = (b, a%b)
+        (a, b) = (b, a % b)
     return a
+
 
 class Linear:
     """
     A linear relationship, i.e. y = p1 * x + p0
     """
+
     def __init__(self, p0=0., p1=0.):
         self.p0 = p0
         self.p1 = p1

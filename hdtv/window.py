@@ -30,8 +30,10 @@ from hdtv.marker import MarkerCollection
 import hdtv.dlmgr
 hdtv.dlmgr.LoadLibrary("display")
 
+
 class HotkeyList(object):
     "Class to handle multi-key hotkeys."
+
     def __init__(self):
         self.fKeyCmds = dict()
         self.fCurNode = self.fKeyCmds
@@ -47,12 +49,13 @@ class HotkeyList(object):
         though (i.e. redefine x in the example above).
         """
         curNode = self.fKeyCmds
-        if type(key) == list:
+        if isinstance(key, list):
             for k in key[0:-1]:
                 try:
                     curNode = curNode[k]
-                    if type(curNode) != dict:
-                        raise RuntimeError("Refusing to overwrite non-matching hotkey")
+                    if not isinstance(curNode, dict):
+                        raise RuntimeError(
+                            "Refusing to overwrite non-matching hotkey")
                 except KeyError:
                     curNode[k] = dict()
                     curNode = curNode[k]
@@ -74,14 +77,13 @@ class HotkeyList(object):
             self.ResetHotkeyState()
             return False
 
-        if type(node) == dict:
+        if isinstance(node, dict):
             self.fCurNode = node
             return None
         else:
             node()
             self.ResetHotkeyState()
             return True
-
 
     def ResetHotkeyState(self):
         """
@@ -95,6 +97,7 @@ class KeyHandler(HotkeyList):
     Hotkey handler, adding support for a status line (that can be (ab)used as
     a text entry)
     """
+
     def __init__(self):
         HotkeyList.__init__(self)
 
@@ -110,7 +113,6 @@ class KeyHandler(HotkeyList):
 
         # Parent class must provide self.viewer and self.viewport!
 
-
     def EnterEditMode(self, prompt, handler):
         """
         Enter edit mode (mode where the status line is used as a text entry)
@@ -120,7 +122,6 @@ class KeyHandler(HotkeyList):
         self.fEditPrompt = prompt
         self.fEditHandler = handler
         self.viewport.SetStatusText(self.fEditPrompt)
-
 
     def EditKeyHandler(self):
         """
@@ -145,7 +146,6 @@ class KeyHandler(HotkeyList):
             return False
 
         return True
-
 
     def KeyHandler(self):
         """
@@ -185,7 +185,8 @@ class KeyHandler(HotkeyList):
                 self.viewport.SetStatusText("Command: %s" % self.keyString)
             elif handled == False:
                 self.keyString += keyStr
-                self.viewport.SetStatusText("Invalid hotkey %s" % self.keyString)
+                self.viewport.SetStatusText(
+                    "Invalid hotkey %s" % self.keyString)
                 self.keyString = ""
             else:
                 if not self.fEditMode:
@@ -195,13 +196,13 @@ class KeyHandler(HotkeyList):
         return handled
 
 
-
 class Window(KeyHandler):
     """
     Base class of a window object
 
     This class provides basic key handling for zooming and scrolling.
     """
+
     def __init__(self):
         KeyHandler.__init__(self)
 
@@ -211,19 +212,21 @@ class Window(KeyHandler):
 
         # Handle closing of the main window (with an application exit)
         disp = ROOT.TPyDispatcher(hdtv.cmdline.AsyncExit)
-        self.viewer.Connect("CloseWindow()", "TPyDispatcher", disp, "Dispatch()")
+        self.viewer.Connect(
+            "CloseWindow()", "TPyDispatcher", disp, "Dispatch()")
         self._dispatchers.append(disp)
 
         self.XZoomMarkers = MarkerCollection("X", paired=True, maxnum=1,
-                                                  color=hdtv.color.zoom)
+                                             color=hdtv.color.zoom)
         self.XZoomMarkers.Draw(self.viewport)
         self.YZoomMarkers = MarkerCollection("Y", paired=True, maxnum=1,
-                                                  color=hdtv.color.zoom)
+                                             color=hdtv.color.zoom)
         self.YZoomMarkers.Draw(self.viewport)
 
         # Key Handling
         disp = ROOT.TPyDispatcher(self.KeyHandler)
-        self.viewer.Connect("KeyPressed()", "TPyDispatcher", disp, "Dispatch()")
+        self.viewer.Connect(
+            "KeyPressed()", "TPyDispatcher", disp, "Dispatch()")
         self._dispatchers.append(disp)
 
         self.keyString = ""
@@ -235,54 +238,67 @@ class Window(KeyHandler):
         # x directions
         self.AddHotkey(ROOT.kKey_Space, self.SetXZoomMarker)
         self.AddHotkey(ROOT.kKey_x, self.ExpandX)
-        self.AddHotkey(ROOT.kKey_Right, lambda: self.viewport.ShiftXOffset(0.1))
-        self.AddHotkey(ROOT.kKey_Left, lambda: self.viewport.ShiftXOffset(-0.1))
-        self.AddHotkey(ROOT.kKey_Greater, lambda: self.viewport.ShiftXOffset(0.1))
-        self.AddHotkey(ROOT.kKey_Less, lambda: self.viewport.ShiftXOffset(-0.1))
+        self.AddHotkey(ROOT.kKey_Right,
+                       lambda: self.viewport.ShiftXOffset(0.1))
+        self.AddHotkey(
+            ROOT.kKey_Left, lambda: self.viewport.ShiftXOffset(-0.1))
+        self.AddHotkey(ROOT.kKey_Greater,
+                       lambda: self.viewport.ShiftXOffset(0.1))
+        self.AddHotkey(
+            ROOT.kKey_Less, lambda: self.viewport.ShiftXOffset(-0.1))
         self.AddHotkey(ROOT.kKey_Return, lambda: self.viewport.Update(True))
         self.AddHotkey(ROOT.kKey_Enter, lambda: self.viewport.Update(True))
-        self.AddHotkey(ROOT.kKey_Bar,lambda: self.viewport.SetXCenter(self.viewport.GetCursorX()))
-        self.AddHotkey(ROOT.kKey_1, lambda: self.viewport.XZoomAroundCursor(2.0))
-        self.AddHotkey(ROOT.kKey_0, lambda: self.viewport.XZoomAroundCursor(0.5))
+        self.AddHotkey(ROOT.kKey_Bar, lambda: self.viewport.SetXCenter(
+            self.viewport.GetCursorX()))
+        self.AddHotkey(
+            ROOT.kKey_1, lambda: self.viewport.XZoomAroundCursor(2.0))
+        self.AddHotkey(
+            ROOT.kKey_0, lambda: self.viewport.XZoomAroundCursor(0.5))
         # y direction
         self.AddHotkey(ROOT.kKey_h, self.SetYZoomMarker)
         self.AddHotkey(ROOT.kKey_y, self.ExpandY)
         self.AddHotkey(ROOT.kKey_Up, lambda: self.viewport.ShiftYOffset(0.1))
-        self.AddHotkey(ROOT.kKey_Down, lambda: self.viewport.ShiftYOffset(-0.1))
-        self.AddHotkey(ROOT.kKey_Z, lambda: self.viewport.YZoomAroundCursor(2.0))
-        self.AddHotkey(ROOT.kKey_X, lambda: self.viewport.YZoomAroundCursor(0.5))
+        self.AddHotkey(
+            ROOT.kKey_Down, lambda: self.viewport.ShiftYOffset(-0.1))
+        self.AddHotkey(
+            ROOT.kKey_Z, lambda: self.viewport.YZoomAroundCursor(2.0))
+        self.AddHotkey(
+            ROOT.kKey_X, lambda: self.viewport.YZoomAroundCursor(0.5))
         # expand in all directions
         self.AddHotkey(ROOT.kKey_e, self.Expand)
 
-        self.AddHotkey(ROOT.kKey_i, lambda: self.EnterEditMode(prompt="Position: ",
-                                                            handler=self.GoToPosition))
-
+        self.AddHotkey(
+            ROOT.kKey_i,
+            lambda: self.EnterEditMode(
+                prompt="Position: ",
+                handler=self.GoToPosition))
 
         # Register configuration variables
-        opt = hdtv.options.Option(default = self.viewport.GetYMinVisibleRegion(),
-                                  parse = lambda x: float(x),
-                                  changeCallback = self.YMinVisibleRegionChanged)
+        opt = hdtv.options.Option(default=self.viewport.GetYMinVisibleRegion(),
+                                  parse=lambda x: float(x),
+                                  changeCallback=self.YMinVisibleRegionChanged)
 
         hdtv.options.RegisterOption("display.YMinVisibleRegion", opt)
 
         prog = "window view center"
         description = "center window to position"
-        usage="%prog <pos>"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
-        parser.add_option("-w", "--width", type="float", help="width of window", default=100.)
-        hdtv.cmdline.AddCommand(prog, self.GoToPosition, nargs=1,parser=parser)
-
+        usage = "%prog <pos>"
+        parser = hdtv.cmdline.HDTVOptionParser(
+            prog=prog, description=description, usage=usage)
+        parser.add_option("-w", "--width", type="float",
+                          help="width of window", default=100.)
+        hdtv.cmdline.AddCommand(prog, self.GoToPosition,
+                                nargs=1, parser=parser)
 
         prog = "window view region"
         description = "show region in window"
-        usage="%prog <start> <end>"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
-        hdtv.cmdline.AddCommand(prog, self.ViewRegion, nargs=2,parser=parser)
-
+        usage = "%prog <start> <end>"
+        parser = hdtv.cmdline.HDTVOptionParser(
+            prog=prog, description=description, usage=usage)
+        hdtv.cmdline.AddCommand(prog, self.ViewRegion, nargs=2, parser=parser)
 
     def YMinVisibleRegionChanged(self, opt):
         self.viewport.SetYMinVisibleRegion(opt.Get())
-
 
     def ViewRegion(self, args, options):
         """
@@ -300,13 +316,12 @@ class Window(KeyHandler):
         self.viewport.SetXVisibleRegion(width)
         self.viewport.SetXCenter(center)
 
-
     def GoToPosition(self, arg, options=None):
         """
         Move viewport to be centered around a position
         """
         try:
-            width=options.width
+            width = options.width
         except AttributeError:
             width = 100.
         try:
@@ -329,7 +344,7 @@ class Window(KeyHandler):
             try:
                 if obj.xdimensions is not None:
                     xdimensions += obj.xdimensions
-            except:
+            except BaseException:
                 # ignore objects without xdimensions
                 pass
         # calulate
@@ -337,7 +352,7 @@ class Window(KeyHandler):
             view_width = max(xdimensions) - min(xdimensions)
             view_width *= 1.2
             if view_width < 50.:
-                view_width = 50. # TODO: make this configurable
+                view_width = 50.  # TODO: make this configurable
             view_center = (max(xdimensions) + min(xdimensions)) / 2.
             # change viewport
             self.viewport.SetXVisibleRegion(view_width)
@@ -349,9 +364,9 @@ class Window(KeyHandler):
         """
         try:
             xdim = obj.xdimensions
-        except:
+        except BaseException:
             xdim = None
-        if xdim is None: # Object has no dimensions
+        if xdim is None:  # Object has no dimensions
             return True
         # get viewport limits
         viewport_start = self.viewport.GetXOffset()
@@ -364,13 +379,12 @@ class Window(KeyHandler):
                 return False
         # check if a part of the object is visible
         if part:
-            if (xdim[0] < viewport_start) and (xdim[1]<viewport_start):
+            if (xdim[0] < viewport_start) and (xdim[1] < viewport_start):
                 return False
-            elif (xdim[0]>viewport_end) and (xdim[1]>viewport_end):
+            elif (xdim[0] > viewport_end) and (xdim[1] > viewport_end):
                 return False
             else:
                 return True
-
 
     def ExpandX(self):
         """
@@ -397,29 +411,31 @@ class Window(KeyHandler):
         or the full spectrum if not zoom markers are set.
         """
         # check the input
-        if xytype not in ["X","Y"]:
-            print("invalid parameter %s to the private function _Expand" % xytype)
+        if xytype not in ["X", "Y"]:
+            print(
+                "invalid parameter %s to the private function _Expand" %
+                xytype)
             return
 
-        zoomMarkers = getattr(self,"%sZoomMarkers" %xytype)
+        zoomMarkers = getattr(self, "%sZoomMarkers" % xytype)
         if len(zoomMarkers) == 1:
             zm = zoomMarkers[0]
             p1 = zm.p1.pos_cal
-            if zm.p2==None:
+            if zm.p2 is None:
                 p2 = 0.0
             else:
                 p2 = zm.p2.pos_cal
             setOffset = getattr(self.viewport, "Set%sOffset" % xytype)
             setOffset(min(p1, p2))
-            setVisibleRegion = getattr(self.viewport, "Set%sVisibleRegion" % xytype)
+            setVisibleRegion = getattr(
+                self.viewport, "Set%sVisibleRegion" % xytype)
             setVisibleRegion(abs(p2 - p1))
-            getattr(self,"%sZoomMarkers" %xytype).pop()
+            getattr(self, "%sZoomMarkers" % xytype).pop()
         else:
             if xytype == "X":
                 self.viewport.ShowAll()
             elif xytype == "Y":
                 self.viewport.YAutoScaleOnce()
-
 
     def SetXZoomMarker(self, pos=None):
         """
@@ -428,7 +444,6 @@ class Window(KeyHandler):
         if pos is None:
             pos = self.viewport.GetCursorX()
         self.XZoomMarkers.SetMarker(pos)
-
 
     def SetYZoomMarker(self, pos=None):
         """

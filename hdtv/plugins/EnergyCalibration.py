@@ -19,10 +19,10 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 # Function for energy calibration
 #
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 
 from __future__ import print_function
 
@@ -42,11 +42,13 @@ def SearchNuclide(nuclide, database):
     else:
         try:
             data = IAEALibraries.SearchNuclide(nuclide)
-        except:
+        except BaseException:
             data = DDEPLibraries.SearchNuclide(nuclide)
     return data
 
-def TabelOfNuclide(nuclide, Energies, EnergiesError, Intensities, IntensitiesError, Halflive, HalfliveError, source):
+
+def TabelOfNuclide(nuclide, Energies, EnergiesError, Intensities,
+                   IntensitiesError, Halflive, HalfliveError, source):
     """
     Creates a table of the given data.
     """
@@ -61,67 +63,84 @@ def TabelOfNuclide(nuclide, Energies, EnergiesError, Intensities, IntensitiesErr
         Data[1].append(hdtv.errvalue.ErrValue(Intensities[j]))
         Data[1][j].SetError(IntensitiesError[j])
 
-        #for table option values are saved
+        # for table option values are saved
         tableline = dict()
         tableline["Energy"] = Data[0][j]
         tableline["Intensity"] = Data[1][j]
         tabledata.append(tableline)
 
-    result_header = "Data of the nuclide " + str(nuclide) + " of the data source " + str(source) + "." + "\n" + "Halflife: " +str(data)
+    result_header = "Data of the nuclide " + \
+        str(nuclide) + " of the data source " + \
+        str(source) + "." + "\n" + "Halflife: " + str(data)
     print()
-    table = hdtv.util.Table(data=tabledata, keys=["Energy", "Intensity"],extra_header = result_header, sortBy=None, ignoreEmptyCols=False)
+    table = hdtv.util.Table(
+        data=tabledata,
+        keys=[
+            "Energy",
+            "Intensity"],
+        extra_header=result_header,
+        sortBy=None,
+        ignoreEmptyCols=False)
     hdtv.ui.msg(str(table))
+
 
 def MatchPeaksAndEnergies(peaks, energies, sigma):
     """
     Combines Peaks with the right energies from the table (with searchEnergie).
     """
-    gradient = [] #list of all gradients energy/PeakPosition
-    pair = [] #list of all possible pairs energy, Peak
+    gradient = []  # list of all gradients energy/PeakPosition
+    pair = []  # list of all possible pairs energy, Peak
     accordanceCount = []
 
-    #error message if there are no given peaks
+    # error message if there are no given peaks
     if peaks == []:
         raise hdtv.cmdline.HDTVCommandError("You must fit at least one peak.")
 
-    #saves all pairs and gradients in lists
+    # saves all pairs and gradients in lists
     for peak in peaks:
         for energy in energies:
-            gradient.append(1.0*energy/peak)
+            gradient.append(1.0 * energy / peak)
             pair.append([peak, energy])
             accordanceCount.append(0)
 
     NumberHighestAccordance = 0
-    bestAccordance = 0 #gradient with best accordance to the others
+    bestAccordance = 0  # gradient with best accordance to the others
 
-    #compare all gradients with each other to find the most frequently one (within sigma)
+    # compare all gradients with each other to find the most frequently one
+    # (within sigma)
     for i in range(0, len(gradient)):
         for j in range(0, len(gradient)):
-            if gradient[j]>gradient[i]-sigma and gradient[j]<gradient[i]+sigma:
+            if gradient[j] > gradient[i] - \
+                    sigma and gradient[j] < gradient[i] + sigma:
                 accordanceCount[i] = accordanceCount[i] + 1
                 if accordanceCount[i] > NumberHighestAccordance:
                     NumberHighestAccordance = accordanceCount[i]
                     bestAccordance = gradient[i]
 
-    accordance = [] #all pairs with the right gradient will be saved in this list
+    accordance = []  # all pairs with the right gradient will be saved in this list
 
     for i in range(0, len(gradient)):
-        if gradient[i]>bestAccordance-sigma and gradient[i]<bestAccordance+sigma:
+        if gradient[i] > bestAccordance - \
+                sigma and gradient[i] < bestAccordance + sigma:
             for a in accordance:
-                if a[0] == pair[i][0] or a[1] == pair[i][1]: #Warning
+                if a[0] == pair[i][0] or a[1] == pair[i][1]:  # Warning
                     print(a, pair[i])
-                    hdtv.ui.warn("Some peaks/energies are used more than one time.")
+                    hdtv.ui.warn(
+                        "Some peaks/energies are used more than one time.")
             accordance.append(pair[i])
 
-    #warning when only few pairs are found
-    if len(accordance)<4:
+    # warning when only few pairs are found
+    if len(accordance) < 4:
         print(accordance)
         hdtv.ui.warn("Only a few (peak,energy) pairs are found.")
 
     return(accordance)
 
-def MatchPeaksAndIntensities(Peaks, peakID, Energies, Intensities, IntensitiesError, sigma=0.5): #Peak is the Energy of the fitted Peak, Vol its volume
-#and Intensity and Energy the data from the chart
+
+# Peak is the Energy of the fitted Peak, Vol its volume
+def MatchPeaksAndIntensities(
+        Peaks, peakID, Energies, Intensities, IntensitiesError, sigma=0.5):
+    # and Intensity and Energy the data from the chart
     """
     Combines peaks with the right intensities from the table (with searchEnergie).
     """
@@ -130,7 +149,7 @@ def MatchPeaksAndIntensities(Peaks, peakID, Energies, Intensities, IntensitiesEr
     count = 0
     for i in range(0, len(Energies)):
         for j in range(0, len(Peaks)):
-            if abs(Energies[i]-Peaks[j]) <= sigma:
+            if abs(Energies[i] - Peaks[j]) <= sigma:
                 Match[0].append(Peaks[j])
                 Match[1].append(hdtv.errvalue.ErrValue(Intensities[i]))
                 Match[1][count].SetError(IntensitiesError[i])

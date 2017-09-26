@@ -23,11 +23,13 @@ import ROOT
 import hdtv.peakmodels
 from hdtv.util import Pairs
 
+
 class Fitter(object):
     """
     PeakModel independent part of the Interface to the C++ Fitter
     The parts that depend on a special peak model can be found in peak.py.
     """
+
     def __init__(self, peakModel, bgdeg):
         self.SetPeakModel(peakModel)
         self.bgdeg = bgdeg
@@ -38,7 +40,7 @@ class Fitter(object):
     def params(self):
         params = ["background"]
         for param in self.peakModel.OrderedParamKeys():
-            if len(self.peakModel.fValidParStatus[param])>1:
+            if len(self.peakModel.fValidParStatus[param]) > 1:
                 params.append(param)
         return params
 
@@ -58,7 +60,8 @@ class Fitter(object):
         # do the background fit
         self.bgFitter.Fit(spec.hist.hist)
 
-    def RestoreBackground(self,backgrounds=Pairs(), coeffs=list(), chisquare=0.0):
+    def RestoreBackground(self, backgrounds=Pairs(),
+                          coeffs=list(), chisquare=0.0):
         """
         Create Background Fitter object and
         restore the background polynom from coeffs
@@ -90,7 +93,8 @@ class Fitter(object):
             # internal background
             self.peakFitter.Fit(spec.hist.hist, self.bgdeg)
 
-    def RestorePeaks(self, cal=None, region=Pairs(), peaks=list(), chisquare=0.0, coeffs=list()):
+    def RestorePeaks(self, cal=None, region=Pairs(),
+                     peaks=list(), chisquare=0.0, coeffs=list()):
         """
         Create the Peak Fitter object and
         restore all peaks
@@ -110,9 +114,9 @@ class Fitter(object):
                 values[i] = coeffs[i].value
                 errors[i] = coeffs[i].error
             self.peakFitter.Restore(values, errors, chisquare)
-        if not len(peaks)==self.peakFitter.GetNumPeaks():
+        if not len(peaks) == self.peakFitter.GetNumPeaks():
             raise RuntimeError("Number of peaks does not match")
-        for i in range(0,len(peaks)):
+        for i in range(0, len(peaks)):
             cpeak = self.peakFitter.GetPeak(i)
             peak = peaks[i]
             self.peakModel.RestoreParams(peak, cpeak)
@@ -123,7 +127,7 @@ class Fitter(object):
         Model can be either a string, in which case it is used as a key into
         the gPeakModels dictionary, or a PeakModel object.
         """
-        if type(model) == str:
+        if isinstance(model, str):
             model = hdtv.peakmodels.PeakModels[model]
         self.peakModel = model()
         self.peakFitter = None
@@ -132,11 +136,11 @@ class Fitter(object):
         """
         Sets the parameter status for fitting.
         """
-        if parname=="background":
+        if parname == "background":
             try:
                 deg = int(status)
             except ValueError:
-                try: # HACK! 'background degree <degree>' should still be possible
+                try:  # HACK! 'background degree <degree>' should still be possible
                     deg = int(status.split()[1])
                 except (ValueError, IndexError):
                     msg = "Failed to parse status specifier `%s'" % status
@@ -145,7 +149,6 @@ class Fitter(object):
         else:
             # all other parnames are treated in the peakmodel
             self.peakModel.SetParameter(parname, status)
-
 
     def __copy__(self):
         """

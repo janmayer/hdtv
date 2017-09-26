@@ -26,8 +26,10 @@ import hdtv.dlmgr
 import array
 import os
 
+
 class SpecReaderError(Exception):
     pass
+
 
 class TextSpecReader(object):
     """
@@ -53,6 +55,7 @@ class TextSpecReader(object):
     cmts=None switches comment processing off. Comments extend to the end of the
     line. If unspecified, cmt defaults to ("#", "!", "//").
     """
+
     def __init__(self, fmt=None, cmts=("#", "!", "//")):
         self.xcol = self.ycol = self.ecol = None
         self.ncols = None
@@ -66,14 +69,16 @@ class TextSpecReader(object):
                 c = fmt[col]
 
                 if c in ("x", "y", "e"):
-                    if self.__dict__[c+"col"] is None:
-                        self.__dict__[c+"col"] = col
+                    if self.__dict__[c + "col"] is None:
+                        self.__dict__[c + "col"] = col
                     else:
-                        raise SpecReaderError("Invalid format string: %s appears more than once" % c)
+                        raise SpecReaderError(
+                            "Invalid format string: %s appears more than once" % c)
                 elif c == "i":
                     pass
                 else:
-                    raise SpecReaderError("Invalid character %s in format string" % c)
+                    raise SpecReaderError(
+                        "Invalid character %s in format string" % c)
 
             if self.ycol is None:
                 raise SpecReaderError("You must specify a column for y")
@@ -91,12 +96,12 @@ class TextSpecReader(object):
         # n+1 unknowns), so that there is a somewhat arbitrary choice being
         # made.
         xbins = array.array('d')
-        w = (centers[1]-centers[0])/2.
-        xbins.append(centers[0]-w)
+        w = (centers[1] - centers[0]) / 2.
+        xbins.append(centers[0] - w)
         for i in range(1, len(centers)):
-            w = (centers[i]-centers[i-1]-w)
-            xbins.append(centers[i]-w)
-        xbins.append(centers[-1]+w)
+            w = (centers[i] - centers[i - 1] - w)
+            xbins.append(centers[i] - w)
+        xbins.append(centers[-1] + w)
 
         return xbins
 
@@ -152,23 +157,26 @@ class TextSpecReader(object):
                         self.ycol = 1
                         self.ecol = 2
                     else:
-                        raise SpecReaderError("%s: %d: Failed to autodetect file format: found %d columns" \
-                                                % (fname, linenum, self.ncols))
+                        raise SpecReaderError(
+                            "%s: %d: Failed to autodetect file format: found %d columns" %
+                            (fname, linenum, self.ncols))
 
                 # Check if number of columns is consistent
                 elif len(cols) != self.ncols:
-                    raise SpecReaderError("%s: %d: Invalid number of columns (found=%d, expected=%d)" \
-                                     % (fname, linenum, len(cols), self.ncols))
+                    raise SpecReaderError(
+                        "%s: %d: Invalid number of columns (found=%d, expected=%d)" %
+                        (fname, linenum, len(cols), self.ncols))
 
                 # Parse specified columns into float values
                 linedata = []
                 for col in (self.xcol, self.ycol, self.ecol):
-                    if col != None:
+                    if col is not None:
                         try:
                             linedata.append(float(cols[col]))
                         except ValueError:
-                            raise SpecReaderError("%s: %d: Failed to parse value \"%s\" into float" \
-                                              % (fname, linenum, cols[col]))
+                            raise SpecReaderError(
+                                "%s: %d: Failed to parse value \"%s\" into float" %
+                                (fname, linenum, cols[col]))
                     else:
                         linedata.append(None)
 
@@ -181,22 +189,23 @@ class TextSpecReader(object):
 
         nbins = len(data)
 
-        if self.xcol != None:
+        if self.xcol is not None:
             # Sort by increasing x value
             data.sort(key=lambda a: a[0])
 
             xbins = self.GetBinLowEdges([d[0] for d in data])
             hist = ROOT.TH1D(histname, histtitle, nbins, xbins)
         else:
-            hist = ROOT.TH1D(histname, histtitle, nbins, -0.5, nbins-0.5)
+            hist = ROOT.TH1D(histname, histtitle, nbins, -0.5, nbins - 0.5)
 
         # Fill ROOT histogram object
         for b in range(0, nbins):
-            hist.SetBinContent(b+1, data[b][1])
-            if(self.ecol != None):
-                hist.SetBinError(b+1, data[b][2])
+            hist.SetBinContent(b + 1, data[b][1])
+            if(self.ecol is not None):
+                hist.SetBinError(b + 1, data[b][2])
 
         return hist
+
 
 class SpecReader(object):
     def __init__(self):
@@ -228,7 +237,7 @@ class SpecReader(object):
             # Extract subformat specifier to pass on to TextSpecReader
             pos = fmt.find(':')
             if pos > 0:
-                subfmt = fmt[pos+1:]
+                subfmt = fmt[pos + 1:]
             else:
                 subfmt = None
 
@@ -252,7 +261,7 @@ class SpecReader(object):
             level = 0
             line = 0
             if len(fmt.split(".")) == 3:
-                line = int(fmt.split(".")[0])-1
+                line = int(fmt.split(".")[0]) - 1
                 level = 0
                 print("Using spectra in line " + str(line))
 
@@ -270,7 +279,7 @@ class SpecReader(object):
         hdtv.dlmgr.LoadLibrary("mfile-root")
         mhist = ROOT.MFileHist()
 
-        ### FIXME: error handling
+        # FIXME: error handling
         if not fmt or fmt.lower() == "mfile":
             mhist.Open(fname)
         else:
@@ -295,7 +304,7 @@ class SpecReader(object):
         hdtv.dlmgr.LoadLibrary("mfile-root")
         mhist = ROOT.MFileHist()
 
-        ### FIXME: error handling
+        # FIXME: error handling
         if not fmt or fmt.lower() == "mfile":
             mhist.Open(fname)
         else:

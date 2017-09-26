@@ -35,6 +35,7 @@ from hdtv.fit import Fit
 from hdtv.cut import Cut
 from hdtv.integral import Integrate
 
+
 class Session(DrawableManager):
     """
     Main session of hdtv
@@ -43,11 +44,12 @@ class Session(DrawableManager):
     spectra in most contexts. But this also keeps track of the basic fit interface
     and of a list of calibrations.
     """
+
     def __init__(self):
         self.window = Window()
         DrawableManager.__init__(self, viewport=self.window.viewport)
         # TODO: make peakModel and bgdeg configurable
-        self.workFit = Fit(Fitter(peakModel = "theuerkauf", bgdeg = 1))
+        self.workFit = Fit(Fitter(peakModel="theuerkauf", bgdeg=1))
         self.workFit.active = True
         self.workFit.Draw(self.window.viewport)
         self.workCut = Cut()
@@ -62,7 +64,7 @@ class Session(DrawableManager):
         Apply calibration cal to spectra with ids
         """
         if isinstance(specIDs, (str, int, float)):
-            specIDs=hdtv.util.ID.ParseIds(str(specIDs), self)
+            specIDs = hdtv.util.ID.ParseIds(str(specIDs), self)
         for ID in specIDs:
             try:
                 spec = self.dict[ID]
@@ -70,10 +72,13 @@ class Session(DrawableManager):
                 hdtv.ui.warn("There is no spectrum with id: %s" % ID)
             else:
                 if cal is None:
-                    hdtv.ui.msg("Unsetting calibration of spectrum with id %s" % ID)
-                    try:  self.caldict.pop(spec.name)
-                    except KeyError: pass
-                    spec.cal= None
+                    hdtv.ui.msg(
+                        "Unsetting calibration of spectrum with id %s" % ID)
+                    try:
+                        self.caldict.pop(spec.name)
+                    except KeyError:
+                        pass
+                    spec.cal = None
                 else:
                     hdtv.ui.msg("Calibrated spectrum with id %s" % ID)
                     cal = hdtv.cal.MakeCalibration(cal)
@@ -106,7 +111,7 @@ class Session(DrawableManager):
             pos = self.viewport.GetCursorX()
         if mtype in ["bg", "peak", "region"]:
             self.workFit.ChangeMarker(mtype, pos, action="remove")
-        elif mtype in ["cutregion","cutbg"]:
+        elif mtype in ["cutregion", "cutbg"]:
             mtype = mtype[3:]
             self.workCut.RemoveMarker(mtype, pos)
 
@@ -122,7 +127,8 @@ class Session(DrawableManager):
             hdtv.ui.error("Region not set.")
             return
 
-        region = [fit.regionMarkers[0].p1.pos_uncal, fit.regionMarkers[0].p2.pos_uncal]
+        region = [fit.regionMarkers[0].p1.pos_uncal,
+                  fit.regionMarkers[0].p2.pos_uncal]
         bg = fit.fitter.bgFitter
 
         hdtv.integral.Integrate(spec, bg, region)
@@ -141,8 +147,9 @@ class Session(DrawableManager):
         fit = self.workFit
         try:
             if not peaks and len(fit.bgMarkers) > 0:
-                if fit.fitter.bgdeg==-1:
-                    hdtv.ui.error("Background degree of -1 contradicts background fit.")
+                if fit.fitter.bgdeg == -1:
+                    hdtv.ui.error(
+                        "Background degree of -1 contradicts background fit.")
                     return
                 # pure background fit
                 fit.FitBgFunc(spec)
@@ -183,8 +190,8 @@ class Session(DrawableManager):
         Note: that a call to Store will overwrite the active fit with workFit
         """
         # for interactive use of this function
-        if isinstance(ID, (str,int,float)):
-            ID=hdtv.util.ID.ParseIds(ID, self)[0]
+        if isinstance(ID, (str, int, float)):
+            ID = hdtv.util.ID.ParseIds(ID, self)[0]
         if sid is None:
             sid = self.activeID
         if sid is None:
@@ -206,8 +213,8 @@ class Session(DrawableManager):
         The markers are kept in workFit, for possible re-use.
         """
         # for interactive use of this function
-        if isinstance(ID, (str,int,float)):
-            ID=hdtv.util.ID.ParseIds(ID, self)[0]
+        if isinstance(ID, (str, int, float)):
+            ID = hdtv.util.ID.ParseIds(ID, self)[0]
         spec = self.workFit.spec
         if spec is None:
             hdtv.ui.warn("No fit available to store")
@@ -245,8 +252,8 @@ class Session(DrawableManager):
 
     def ActivateCut(self, ID):
         # for interactive use of this function
-        if isinstance(ID, (str,int,float)):
-            ID=hdtv.util.ID.ParseIds(ID, self)[0]
+        if isinstance(ID, (str, int, float)):
+            ID = hdtv.util.ID.ParseIds(ID, self)[0]
         spec = self.GetActiveObject()
         if spec is None:
             hdtv.ui.error("There is no active spectrum")
@@ -262,8 +269,8 @@ class Session(DrawableManager):
 
     def StoreCut(self, ID=None):
         # for interactive use of this function
-        if isinstance(ID, (str,int,float)):
-            ID=hdtv.util.ID.ParseIds(ID, self)[0]
+        if isinstance(ID, (str, int, float)):
+            ID = hdtv.util.ID.ParseIds(ID, self)[0]
         spec = self.GetActiveObject()
         if spec is None:
             hdtv.ui.error("There is no active spectrum")
@@ -279,7 +286,7 @@ class Session(DrawableManager):
             spec = self.Pop(self.Index(self.workCut.spec))
             # give it a new color
             spec.color = hdtv.color.ColorForID(ID.major)
-            self.Insert(spec, ID = hdtv.util.ID(mat.ID.major, ID.major))
+            self.Insert(spec, ID=hdtv.util.ID(mat.ID.major, ID.major))
         hdtv.ui.msg("Storing workCut with ID %s" % ID)
         self.workCut = copy.copy(self.workCut)
         self.workCut.active = True
@@ -291,8 +298,8 @@ class Session(DrawableManager):
         Activate Object and reset workFit when activating another spectrum
         """
         # for interactive use of this function
-        if isinstance(ID, (str,int,float)):
-            ID=hdtv.util.ID.ParseIds(ID, self)[0]
+        if isinstance(ID, (str, int, float)):
+            ID = hdtv.util.ID.ParseIds(ID, self)[0]
         if ID is not self.activeID:
             # reset workFit
             self.workFit.spec = None
@@ -302,18 +309,16 @@ class Session(DrawableManager):
                 spec.ActivateObject(None)
         DrawableManager.ActivateObject(self, ID)
 
-
     def Pop(self, ID):
         """
         Pop spectrum with ID and activate prevID if ID was activeID
         """
         # for interactive use of this function
-        if isinstance(ID, (str,int,float)):
-            ID=hdtv.util.ID.ParseIds(ID, self)[0]
+        if isinstance(ID, (str, int, float)):
+            ID = hdtv.util.ID.ParseIds(ID, self)[0]
         if self.activeID is ID:
             self.ActivateObject(self.prevID)
         return DrawableManager.Pop(self, ID)
-
 
     def ShowObjects(self, ids, clear=True):
         """
@@ -321,7 +326,7 @@ class Session(DrawableManager):
         """
         ids = DrawableManager.ShowObjects(self, ids, clear)
         if self.activeID not in self.visible:
-            if len(self.visible)>0:
+            if len(self.visible) > 0:
                 self.ActivateObject(max(self.visible))
             else:
                 self.ActivateObject(None)
@@ -333,7 +338,7 @@ class Session(DrawableManager):
         """
         ids = DrawableManager.HideObjects(self, ids)
         if self.activeID not in self.visible:
-            if len(self.visible)>0:
+            if len(self.visible) > 0:
                 self.ActivateObject(max(self.visible))
             else:
                 self.ActivateObject(None)
@@ -343,7 +348,7 @@ class Session(DrawableManager):
         """
         Clear everything
         """
-        self.workFit = Fit(Fitter(peakModel = "theuerkauf", bgdeg = 1))
+        self.workFit = Fit(Fitter(peakModel="theuerkauf", bgdeg=1))
         self.workFit.active = True
         self.workFit.Draw(self.window.viewport)
         self.caldict = dict()

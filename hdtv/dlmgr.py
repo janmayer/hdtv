@@ -19,19 +19,22 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 # HDTV dynamic (C++) library manager
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 
 import os
 import stat
 import ROOT
 import hdtv
 
+
 class DLImportError(Exception):
     pass
 
+
 path = [hdtv.clibpath]
+
 
 def FindLibrary(name):
     """
@@ -48,6 +51,7 @@ def FindLibrary(name):
             # Ignore the file if stat failes
             pass
     return None
+
 
 def LoadLibrary(name):
     fname = FindLibrary(name)

@@ -36,6 +36,7 @@ except ImportError:
     def get_term_width():
         return 80
 
+
 def tabformat(cells, **kwargs):
     """
     Prints a number of cells in a layout similar to that used
@@ -85,24 +86,25 @@ def tabformat(cells, **kwargs):
     else:
         # Calculate an upper bound for the number of columns. Note that the space
         # between two columns takes some width as well.
-        n_cols = (tabwidth - max_cell_width) // (min_cell_width + col_sep_width) + 1
+        n_cols = (tabwidth - max_cell_width) // (min_cell_width +
+                                                 col_sep_width) + 1
 
         # Calculate the corresponding number of rows as
         # n_rows = ceil(n_cells / n_cols), for integers
-        n_rows = (n_cells-1) // n_cols + 1
+        n_rows = (n_cells - 1) // n_cols + 1
 
         while True:
             # Calculate the minimal number of columns for the given number of rows
             # n_cols = ceil(n_cells / n_rows), for integers
-            n_cols = (n_cells-1) // n_rows + 1
+            n_cols = (n_cells - 1) // n_rows + 1
 
             # Try with n_cols columns, and calculate the table width.
             tbl_width = 0
 
             for i in range(0, n_cols):
-                tbl_width += max(cell_widths[i*n_rows : (i+1)*n_rows])
+                tbl_width += max(cell_widths[i * n_rows: (i + 1) * n_rows])
             # If the table is small enough, end the loop...
-            if tbl_width + (n_cols-1)*col_sep_width <= tabwidth:
+            if tbl_width + (n_cols - 1) * col_sep_width <= tabwidth:
                 break
             # ...otherwise, increase the number of rows by one and try again
             n_rows += 1
@@ -111,11 +113,11 @@ def tabformat(cells, **kwargs):
     # Calculate the individual column widths
     col_widths = []
     for i in range(0, n_cols):
-        col_widths.append(max(cell_widths[i*n_rows : (i+1)*n_rows]))
+        col_widths.append(max(cell_widths[i * n_rows: (i + 1) * n_rows]))
 
     # Distribute cells over rows, aloowing the table to be printed
     # row-by-row (note that successive cells go *below* each other)
-    rows = [[] for i in range(0,n_rows)]
+    rows = [[] for i in range(0, n_rows)]
     for i in range(0, n_cells):
         rows[i % n_rows].append(cells[i])
 

@@ -19,9 +19,9 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 # HDTV command line
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 
 from __future__ import print_function
 
@@ -41,11 +41,14 @@ import readline
 import ROOT
 import __main__
 
+
 class HDTVCommandError(Exception):
     pass
 
+
 class HDTVCommandAbort(Exception):
     pass
+
 
 class HDTVOptionParser(optparse.OptionParser):
     def _process_args(self, largs, rargs, values):
@@ -54,11 +57,11 @@ class HDTVOptionParser(optparse.OptionParser):
         # them as options while typecast to numeric is unaffected
         for i in range(len(rargs)):
             if rargs[i][:1] == "-":
-                 try:
-                     if float(rargs[i]):
-                         rargs[i] = " " + rargs[i]
-                 except ValueError:
-                     pass
+                try:
+                    if float(rargs[i]):
+                        rargs[i] = " " + rargs[i]
+                except ValueError:
+                    pass
 
         return optparse.OptionParser._process_args(self, largs, rargs, values)
 
@@ -70,6 +73,7 @@ class HDTVOptionParser(optparse.OptionParser):
             raise HDTVCommandAbort(msg)
         else:
             raise HDTVCommandError(msg)
+
 
 class HDTVCommandTreeNode(object):
     def __init__(self, parent, title, level):
@@ -141,10 +145,12 @@ class HDTVCommandTreeNode(object):
         """
         del self.childs[self.childs.index(child)]
 
+
 class HDTVCommandTree(HDTVCommandTreeNode):
     """
     The HDTVCommandTree structure contains all commands understood by HDTV.
     """
+
     def __init__(self):
         self.childs = []
         self.parent = None
@@ -196,7 +202,8 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         # does and we are not allowed to overwrite it, raise an error
         if not overwrite:
             if path[-1] in [n.title for n in node.childs]:
-                raise RuntimeError("Refusing to overwrite already existing command")
+                raise RuntimeError(
+                    "Refusing to overwrite already existing command")
 
         # Create the last node
         node = HDTVCommandTreeNode(node, path[-1], level)
@@ -282,7 +289,8 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             if parser:
                 print(parser.get_usage())
             elif "usage" in node.options:
-                usage = node.options["usage"].replace("%prog", node.FullTitle())
+                usage = node.options["usage"].replace(
+                    "%prog", node.FullTitle())
                 print("usage: " + usage)
             return
 
@@ -297,7 +305,8 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             if parser:
                 print(parser.get_usage())
             elif "usage" in node.options:
-                usage = node.options["usage"].replace("%prog", node.FullTitle())
+                usage = node.options["usage"].replace(
+                    "%prog", node.FullTitle())
                 print("usage: " + usage)
 
     def RemoveCommand(self, title):
@@ -308,7 +317,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         if len(args) != 0 or not node.command:
             raise RuntimeError("No valid command node specified")
 
-        while not node.HasChildren() and node.parent != None:
+        while not node.HasChildren() and node.parent is not None:
             node.parent.RemoveChild(node)
             node = node.parent
 
@@ -365,8 +374,8 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 
         # if buf != "" and not buf[-1].isspace():
         if buf != "" and (not buf[-1].isspace() or path[-1][-1].isspace()):
-                last_path = path[-1]
-                path = path[0:-1]
+            last_path = path[-1]
+            path = path[0:-1]
 
         # Find node specified by path. Since we stripped the incomplete part
         # from path above, it now needs to be unambiguous. If is isn't, we
@@ -407,22 +416,24 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                 (filepath, text) = os.path.split(last_path)
                 #filepath = os.path.split(last_path)[0]
 
-
             # Note that the readline library splits at either space ' ' or
             # slash '/', so text, the last part of the command line, would
             # be an (incomplete) filename, always without a directory.
 
-            options = self.GetFileCompleteOptions(filepath or ".", text, dirs_only)
+            options = self.GetFileCompleteOptions(
+                filepath or ".", text, dirs_only)
         else:
             options = []
 
         return options
+
 
 class CommandLine(object):
     """
     Class implementing the HDTV command line, including switching between
     command and Python mode.
     """
+
     def __init__(self, command_tree, python_completer=None):
         self.fCommandTree = command_tree
         self.fPythonCompleter = python_completer or (lambda: None)
@@ -520,7 +531,7 @@ class CommandLine(object):
 
             while True:
                 opt = self.fPythonCompleter(text, state)
-                if opt != None:
+                if opt is not None:
                     opts.append(opt)
                 else:
                     break
@@ -529,11 +540,11 @@ class CommandLine(object):
             return opts
         elif cmd_type == "CMDFILE":
             filepath = os.path.split(cmd)[0]
-            return self.fCommandTree.GetFileCompleteOptions(filepath or ".", text)
+            return self.fCommandTree.GetFileCompleteOptions(
+                filepath or ".", text)
         else:
             # No completion support for shell commands
             return []
-
 
     def Complete(self, text, state):
         """
@@ -567,18 +578,19 @@ class CommandLine(object):
         for line in file.lines:
             print("file>", line)
             self.DoLine(line)
-            if self.fPyMore: # TODO: HACK: How should I teach this micky mouse language that a python statement (e.g. "for ...:") has ended???
+            # TODO: HACK: How should I teach this micky mouse language that a
+            # python statement (e.g. "for ...:") has ended???
+            if self.fPyMore:
                 self.fPyMore = self._py_console.push("")
 
     def ExecShell(self, cmd):
         subprocess.call(cmd, shell=True)
 
-
     def DoLine(self, line):
         """
         Deal with one line of input
         """
-         # In Python mode, all commands need to be Python commands ...
+        # In Python mode, all commands need to be Python commands ...
         if self.fPyMode or self.fPyMore:
             cmd_type = "PYTHON"
             cmd = line
@@ -655,7 +667,7 @@ class CommandLine(object):
 
             # Execute the command
             try:
-               self.DoLine(s)
+                self.DoLine(s)
 
             except KeyboardInterrupt:
                 print("Aborted")
@@ -666,41 +678,52 @@ class CommandLine(object):
             except Exception:
                 print("Unhandled exception:")
                 traceback.print_exc()
+
+
 def RegisterInteractive(name, ref):
     global command_line
     command_line.RegisterInteractive(name, ref)
+
 
 def SetInteractiveDict(d):
     global command_line
     command_line.fInteractiveLocals = d
 
+
 def AddCommand(title, command, **opt):
     global command_tree
     command_tree.AddCommand(title, command, **opt)
+
 
 def ExecCommand(cmdline):
     global command_tree
     command_tree.ExecCommand(cmdline)
 
+
 def RemoveCommand(title):
     global command_tree
     command_tree.RemoveCommand(title)
+
 
 def ReadReadlineInit(filename):
     global command_line
     command_line.ReadReadlineInit(filename)
 
+
 def SetReadlineHistory(filename):
     global command_line
     command_line.SetReadlineHistory(filename)
+
 
 def AsyncExit():
     global command_line
     command_line.AsyncExit()
 
+
 def MainLoop():
     global command_line
     command_line.MainLoop()
+
 
 # Module-global variables initialization
 global command_tree, command_line

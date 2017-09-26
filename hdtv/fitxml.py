@@ -41,21 +41,24 @@ from hdtv.peakmodels import FitValue, PeakModels
 # Do not remove old ReadFunctions!
 #
 # There is a script in the test directory, to test reading and writing for
-# some test cases, please make sure that your changes do not break those test cases
-VERSION="1.3"
+# some test cases, please make sure that your changes do not break those
+# test cases
+VERSION = "1.3"
+
 
 class FitXml(object):
     """
     Class to save and read fit lists to and from xml file
     """
-    def __init__(self, spectra):
-      self.spectra = spectra
-      self.version = VERSION
-      # Please point the following functions to the appropriate functions
-      self.RestoreFromXml = self.RestoreFromXml_v1_3
-      self.Xml2Fit = self.Xml2Fit_v1
 
-#### creating of xml ###########################################################
+    def __init__(self, spectra):
+        self.spectra = spectra
+        self.version = VERSION
+        # Please point the following functions to the appropriate functions
+        self.RestoreFromXml = self.RestoreFromXml_v1_3
+        self.Xml2Fit = self.Xml2Fit_v1
+
+#### creating of xml #####################################################
     def WriteFitlist(self, fname, sid=None):
         """
         Write Fitlist to file
@@ -65,9 +68,9 @@ class FitXml(object):
         try:
             fits = self.spectra.dict[sid].dict
         except KeyError:
-            hdtv.ui.error("No spectrum with id %s loaded.") %sid
+            hdtv.ui.error("No spectrum with id %s loaded.") % sid
             return
-        if len(fits)==0:
+        if len(fits) == 0:
             hdtv.ui.warn("Empty fitlist, no action taken.")
             return
         root = self.CreateXml(fits)
@@ -98,11 +101,11 @@ class FitXml(object):
         fitElement.set("chi", str(fit.chi))
         # <spectrum>
         spec = fit.spec
-        specElement = ET.SubElement(fitElement,"spectrum")
+        specElement = ET.SubElement(fitElement, "spectrum")
         specElement.set("name", str(spec.name))
         polynom = str()
         for p in spec.cal.GetCoeffs():
-            polynom += " %f "%p
+            polynom += " %f " % p
         specElement.set("calibration", polynom.strip())
         # <bgMarker>
         for marker in fit.bgMarkers:
@@ -154,12 +157,12 @@ class FitXml(object):
             uncalElement = ET.SubElement(positionElement, "uncal")
             uncalElement.text = str(marker.p1.pos_uncal)
         # <background>
-        bgElement = ET.SubElement(fitElement,"background")
-        deg = len(fit.bgCoeffs)-1
+        bgElement = ET.SubElement(fitElement, "background")
+        deg = len(fit.bgCoeffs) - 1
         bgElement.set("deg", str(deg))
         bgElement.set("chisquare", str(fit.bgChi))
         # <coeff>
-        for i in range(0,deg+1):
+        for i in range(0, deg + 1):
             coeffElement = ET.SubElement(bgElement, "coeff")
             coeffElement.set("deg", str(i))
             # <value>
@@ -177,18 +180,18 @@ class FitXml(object):
             for param in fit.fitter.fParStatus.keys():
                 paramElement = ET.SubElement(uncalElement, param)
                 status = fit.fitter.fParStatus[param]
-                if type(status)==list:
+                if isinstance(status, list):
                     index = fit.peaks.index(peak)
                     status = status[index]
                 paramElement.set("status", str(status))
                 param = getattr(peak, param)
-                if not param is None:
+                if param is not None:
                     # <value>
-                    if not param.value is None:
+                    if param.value is not None:
                         valueElement = ET.SubElement(paramElement, "value")
                         valueElement.text = str(param.value)
                     # <error>
-                    if not param.error is None:
+                    if param.error is not None:
                         errorElement = ET.SubElement(paramElement, "error")
                         errorElement.text = str(param.error)
             # <cal>
@@ -197,18 +200,18 @@ class FitXml(object):
             for param in fit.fitter.fParStatus.keys():
                 paramElement = ET.SubElement(calElement, param)
                 status = fit.fitter.fParStatus[param]
-                if type(status)==list:
+                if isinstance(status, list):
                     index = fit.peaks.index(peak)
                     status = status[index]
                 paramElement.set("status", str(status))
-                param = getattr(peak, "%s_cal" %param)
-                if not param is None:
+                param = getattr(peak, "%s_cal" % param)
+                if param is not None:
                     # <value>
-                    if not param.value is None:
+                    if param.value is not None:
                         valueElement = ET.SubElement(paramElement, "value")
                         valueElement.text = str(param.value)
                     # <error>
-                    if not param.error is None:
+                    if param.error is not None:
                         errorElement = ET.SubElement(paramElement, "error")
                         errorElement.text = str(param.error)
             # <extras>
@@ -217,13 +220,13 @@ class FitXml(object):
                 paramElement = ET.SubElement(extraElement, param)
                 param = peak.extras[param]
                 try:
-                    if not param.value is None:
+                    if param.value is not None:
                         valueElement = ET.SubElement(paramElement, "value")
                         valueElement.text = str(param.value)
-                    if not param.error is None:
+                    if param.error is not None:
                         errorElement = ET.SubElement(paramElement, "error")
                         errorElement.text = str(param.error)
-                except:
+                except BaseException:
                     paramElement.text = str(param)
         return fitElement
 
@@ -233,21 +236,21 @@ class FitXml(object):
 
         Source: http://effbot.org/zone/element-lib.htm#prettyprint
         """
-        i = "\n" + level*"  "
+        i = "\n" + level * "  "
         if len(elem):
             if not elem.text or not elem.text.strip():
                 elem.text = i + "  "
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
             for elem in elem:
-                self._indent(elem, level+1)
+                self._indent(elem, level + 1)
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
         else:
             if level and (not elem.tail or not elem.tail.strip()):
                 elem.tail = i
 
-##### Reading of xml ###########################################################
+##### Reading of xml #####################################################
 
     def _getPosFromElement(self, markerElement, fit=None):
         """
@@ -323,7 +326,6 @@ class FitXml(object):
                 peaks.append(peak)
         return peaks
 
-
     def ReadFitlist(self, fname, sid=None, refit=False):
         """
         Reads fitlist from xml files
@@ -331,36 +333,44 @@ class FitXml(object):
         self.spectra.viewport.LockUpdate()
         if sid is None:
             sid = self.spectra.activeID
-        if not sid in self.spectra.ids:
-            hdtv.ui.error("No spectrum with id %s loaded.") %sid
+        if sid not in self.spectra.ids:
+            hdtv.ui.error("No spectrum with id %s loaded.") % sid
             return
         count = 0
         try:
             tree = ET.parse(fname)
             root = tree.getroot()
-            if not root.tag=="hdtv" or root.get("version") is None:
+            if not root.tag == "hdtv" or root.get("version") is None:
                 e = "this is not a valid hdtv file"
                 raise SyntaxError(e)
             # current version
-            if root.get("version")==self.version:
+            if root.get("version") == self.version:
                 count = self.RestoreFromXml(root, sid, refit=refit)
             else:
                 # old versions
                 oldversion = root.get("version")
-                hdtv.ui.warn("The XML version of this file (%s) is outdated." %oldversion)
-                if oldversion=="1.2":
-                    hdtv.ui.msg("But this version should be fully compatible with the new version.")
+                hdtv.ui.warn(
+                    "The XML version of this file (%s) is outdated." %
+                    oldversion)
+                if oldversion == "1.2":
+                    hdtv.ui.msg(
+                        "But this version should be fully compatible with the new version.")
                     count = self.RestoreFromXml_v1_2(root, sid, refit=refit)
-                if oldversion=="1.1":
-                    hdtv.ui.msg("But this version should be fully compatible with the new version.")
+                if oldversion == "1.1":
+                    hdtv.ui.msg(
+                        "But this version should be fully compatible with the new version.")
                     count = self.RestoreFromXml_v1_1(root, sid, refit=refit)
-                if oldversion=="1.0":
-                    hdtv.ui.msg("Restoring only fits belonging to spectrum %s" % sid)
-                    hdtv.ui.msg("There may be fits belonging to other spectra in this file.")
+                if oldversion == "1.0":
+                    hdtv.ui.msg(
+                        "Restoring only fits belonging to spectrum %s" % sid)
+                    hdtv.ui.msg(
+                        "There may be fits belonging to other spectra in this file.")
                     input("Please press enter to continue...\n")
-                    count = self.RestoreFromXml_v1_0(root, [sid], calibrate=False, refit=refit)
+                    count = self.RestoreFromXml_v1_0(
+                        root, [sid], calibrate=False, refit=refit)
                 if oldversion.startswith("0"):
-                    hdtv.ui.msg("Only the fit markers have been saved in this file.")
+                    hdtv.ui.msg(
+                        "Only the fit markers have been saved in this file.")
                     hdtv.ui.msg("All the fits therefor have to be repeated.")
                     hdtv.ui.msg("This will take some time...")
                     input("Please press enter to continue...\n")
@@ -368,11 +378,11 @@ class FitXml(object):
         except SyntaxError as e:
             print("Error reading \'" + fname + "\':\n\t", e)
         else:
-            msg = "\'%s\' loaded" %(fname)
-            if count ==1:
-                msg+= ": 1 fit restored."
+            msg = "\'%s\' loaded" % (fname)
+            if count == 1:
+                msg += ": 1 fit restored."
             else:
-                msg+= ": %d fits restored" %count
+                msg += ": %d fits restored" % count
             hdtv.ui.msg(msg)
         finally:
             self.spectra.viewport.UnlockUpdate()
@@ -402,10 +412,11 @@ class FitXml(object):
             if not success or refit:
                 if refit:
                     do_fit = "a"
-                if do_fit not in ["V", "v"]: # Ne(v)er
-                    if do_fit not in ["A", "a"]: # (A)lways
+                if do_fit not in ["V", "v"]:  # Ne(v)er
+                    if do_fit not in ["A", "a"]:  # (A)lways
                         do_fit = None
-                    while not do_fit in ["Y","y","N","n","", "A", "a", "V", "v"]:
+                    while do_fit not in ["Y", "y", "N",
+                                         "n", "", "A", "a", "V", "v"]:
                         question = "Could not restore fit. Refit? [(Y)es/(n)o/(a)lways/ne(v)er]"
                         do_fit = input(question)
                     if do_fit in ["Y", "y", "", "A", "a"]:
@@ -417,7 +428,7 @@ class FitXml(object):
         for fit in fits:
             ID = spec.Insert(fit)
             count += 1
-            if not sid in self.spectra.visible:
+            if sid not in self.spectra.visible:
                 fit.Hide()
         return count
 
@@ -443,7 +454,8 @@ class FitXml(object):
         """
         return self.RestoreFromXml_v1_2(root, sid, refit)
 
-    def RestoreFromXml_v1_0(self, root, sids=None, calibrate=False, refit=False):
+    def RestoreFromXml_v1_0(self, root, sids=None,
+                            calibrate=False, refit=False):
         """
         Restores fits from xml file (version = 1.0)
 
@@ -474,23 +486,25 @@ class FitXml(object):
             try:
                 specElement = index[spec.name]
             except KeyError:
-            #    msg ="No informations for spectrum %s (id=%d) in file" %(spec, sid)
-            #    hdtv.ui.warn(msg)
+                #    msg ="No informations for spectrum %s (id=%d) in file" %(spec, sid)
+                #    hdtv.ui.warn(msg)
                 continue
             # load the calibration from file
             if calibrate:
                 try:
-                    calibration = list(map(float, specElement.get("calibration").split()))
+                    calibration = list(
+                        map(float, specElement.get("calibration").split()))
                     spec.cal = calibration
                 except AttributeError:
                     # No calibration was saved
-                    msg ="Could not read calibration for spectrum %s (id=%d)" % (spec,sid)
+                    msg = "Could not read calibration for spectrum %s (id=%d)" % (
+                        spec, sid)
                     hdtv.ui.warn(msg)
             # <fits>
             fits = list()
             for fitElement in specElement.findall("fit"):
                 (fit, success) = self.Xml2Fit_v1(fitElement, spec.cal)
-                count = count+1
+                count = count + 1
                 # restore fit
                 if success and not refit:
                     try:
@@ -501,17 +515,18 @@ class FitXml(object):
                 if not success or refit:
                     if refit:
                         do_fit = "a"
-                    if do_fit not in ["V", "v"]: # Ne(v)er
-                        if do_fit not in ["A", "a"]: # (A)lways
+                    if do_fit not in ["V", "v"]:  # Ne(v)er
+                        if do_fit not in ["A", "a"]:  # (A)lways
                             do_fit = None
-                        while not do_fit in ["Y","y","N","n","", "A", "a", "V", "v"]:
+                        while do_fit not in ["Y", "y", "N",
+                                             "n", "", "A", "a", "V", "v"]:
                             question = "Could not restore fit. Refit? [(Y)es/(n)o/(a)lways/ne(v)er]"
                             do_fit = input(question)
                         if do_fit in ["Y", "y", "", "A", "a"]:
                             fit.FitPeakFunc(spec)
                 # finish this fit
                 ID = spec.Insert(fit)
-                if not sid in self.spectra.visible:
+                if sid not in self.spectra.visible:
                     fit.Hide()
         return count
 
@@ -536,19 +551,19 @@ class FitXml(object):
             begin = self._getPosFromElement(beginElement, fit)
             fit.ChangeMarker("bg", begin, "set")
             # Read end marker
-            endElement = bgElement.find("end");
+            endElement = bgElement.find("end")
             end = self._getPosFromElement(endElement, fit)
-            fit.ChangeMarker("bg",end, "set")
+            fit.ChangeMarker("bg", end, "set")
         # <regionMarker>
         for regionElement in fitElement.findall("regionMarker"):
             # Read begin marker
             beginElement = regionElement.find("begin")
             begin = self._getPosFromElement(beginElement, fit)
-            fit.ChangeMarker("region",begin,"set")
+            fit.ChangeMarker("region", begin, "set")
             # Read end marker
-            endElement = regionElement.find("end");
+            endElement = regionElement.find("end")
             end = self._getPosFromElement(endElement, fit)
-            fit.ChangeMarker("region",end, "set")
+            fit.ChangeMarker("region", end, "set")
             # <peakMarker>
         for peakElement in fitElement.findall("peakMarker"):
             # Read position marker
@@ -576,7 +591,7 @@ class FitXml(object):
             coeffs.sort()
             fit.bgCoeffs = [c[1] for c in coeffs]
         # <peak>
-        statusdict=dict()
+        statusdict = dict()
         for peakElement in fitElement.findall("peak"):
             # <uncal>
             uncalElement = peakElement.find("uncal")
@@ -590,14 +605,14 @@ class FitXml(object):
                 try:
                     statusdict[name].append(status)
                 except KeyError:
-                    statusdict[name]=[status]
+                    statusdict[name] = [status]
             # <extras>
             extraElement = peakElement.find("extras")
             extras = dict()
             if extraElement is not None:
                 for paramElement in extraElement:
                     name = paramElement.tag
-                    if len(paramElement) ==1:
+                    if len(paramElement) == 1:
                         extras[name] = paramElement.text
                     else:
                         # <value>
@@ -611,7 +626,8 @@ class FitXml(object):
             try:
                 peak = fit.fitter.peakModel.Peak(cal=calibration, **parameter)
             except TypeError:
-                hdtv.ui.error("Error reading peak with parameters: %s" % str(parameter))
+                hdtv.ui.error(
+                    "Error reading peak with parameters: %s" % str(parameter))
                 success = False
                 continue
             peak.extras = extras
@@ -620,14 +636,14 @@ class FitXml(object):
             for name in list(statusdict.keys()):
                 # check if status is the same for all peaks
                 check = set(statusdict[name])
-                if len(check)==1:
+                if len(check) == 1:
                     status = statusdict[name][0]
                 else:
                     status = statusdict[name]
                 fitter.SetParameter(name, status)
         return (fit, success)
 
-##### version 0.* ##############################################################
+##### version 0.* ########################################################
 
     def RestoreFromXml_v0(self, root, do_fit=False):
         """
@@ -646,13 +662,15 @@ class FitXml(object):
             # find this spectrum from Element in the real world
             spec = None
             for sid in spectra.ids:
-                if spectra.dict[sid].name==name:
+                if spectra.dict[sid].name == name:
                     spec = spectra.dict[sid]
-            # maybe the spectrum that is referred to in XML is currently not loaded
-            if spec is None: continue
+            # maybe the spectrum that is referred to in XML is currently not
+            # loaded
+            if spec is None:
+                continue
             # <fit>
             for fitElement in specElement:
-                count = count+1
+                count = count + 1
                 peakModel = fitElement.get("peakModel")
                 bgdeg = int(fitElement.get("bgDegree"))
                 fitter = Fitter(peakModel, bgdeg)
@@ -665,7 +683,7 @@ class FitXml(object):
                         try:
                             params[parname].append(status)
                         except KeyError:
-                            params[parname]=[status]
+                            params[parname] = [status]
                 for parname in list(params.keys()):
                     status = params[parname]
                     fitter.SetParameter(parname, status)
@@ -673,28 +691,28 @@ class FitXml(object):
                 # <background>
                 for bgElement in fitElement.findall("background"):
                     # Read begin/p1 marker
-                    beginElement = bgElement.find("begin");
-                    if beginElement is None: # Maybe old Element (ver 0.1)
+                    beginElement = bgElement.find("begin")
+                    if beginElement is None:  # Maybe old Element (ver 0.1)
                         beginElement = bgElement.find("p1")
                     begin = float(beginElement.find("uncal").text)
                     fit.ChangeMarker("bg", fit.cal.Ch2E(begin), "set")
                     # Read end/p2 marker
-                    endElement = bgElement.find("end");
-                    if endElement is None: # Maybe old Element (ver 0.1)
+                    endElement = bgElement.find("end")
+                    if endElement is None:  # Maybe old Element (ver 0.1)
                         endElement = bgElement.find("p2")
                     end = float(endElement.find("uncal").text)
-                    fit.ChangeMarker("bg",fit.cal.Ch2E(end), "set")
+                    fit.ChangeMarker("bg", fit.cal.Ch2E(end), "set")
                 # <region>
                 for regionElement in fitElement.findall("region"):
                     # Read begin/p1 marker
-                    beginElement = regionElement.find("begin");
-                    if beginElement is None: # Maybe old Element (ver 0.1)
+                    beginElement = regionElement.find("begin")
+                    if beginElement is None:  # Maybe old Element (ver 0.1)
                         beginElement = regionElement.find("p1")
                     begin = float(beginElement.find("uncal").text)
-                    fit.ChangeMarker("region",fit.cal.Ch2E(begin),"set")
+                    fit.ChangeMarker("region", fit.cal.Ch2E(begin), "set")
                     # Read end/p2 marker
-                    endElement = regionElement.find("end");
-                    if endElement is None: # Maybe old Element (ver 0.1)
+                    endElement = regionElement.find("end")
+                    if endElement is None:  # Maybe old Element (ver 0.1)
                         endElement = regionElement.find("p2")
                     end = float(endElement.find("uncal").text)
                     fit.ChangeMarker("region", fit.cal.Ch2E(end), "set")
@@ -705,7 +723,7 @@ class FitXml(object):
                     if posElement is None:
                         posElement = peakElement.find("p1")
                     pos = float(posElement.find("uncal").text)
-                    fit.ChangeMarker("peak",fit.cal.Ch2E(pos), "set")
+                    fit.ChangeMarker("peak", fit.cal.Ch2E(pos), "set")
                 if do_fit:
                     fit.FitPeakFunc(spec)
                 spec.Insert(fit)

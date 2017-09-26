@@ -5,6 +5,7 @@ import hdtv.ui
 import csv
 import os
 
+
 class _Element(object):
     """
     Store info about elements
@@ -12,12 +13,14 @@ class _Element(object):
 
     __slots__ = ("ID", "z", "symbol", "name", "m")
 
-    def __init__(self, Z, Symbol, Name = None, M = None):
+    def __init__(self, Z, Symbol, Name=None, M=None):
 
         self.z = Z
         self.symbol = Symbol    # Symbol of element (e.g. H)
         self.name = Name        # Full name of element (e.g. Hydrogen)
-        self.m = M              # Atomic weight, This is normalizes over nuclides of element and abundancies
+        # Atomic weight, This is normalizes over nuclides of element and
+        # abundancies
+        self.m = M
         self.ID = self.symbol
 
     def _get_Z(self):
@@ -37,12 +40,13 @@ class _Element(object):
         text += "atomic Mass:   " + str(self.m) + " u \n"
         return text
 
+
 class _Elements(list):
     """
     Read and hold complete elements list
     """
 
-    def __init__(self, csvfile = os.path.join(hdtv.datadir, "elements.dat")):
+    def __init__(self, csvfile=os.path.join(hdtv.datadir, "elements.dat")):
 
         super(_Elements, self).__init__()
 
@@ -51,7 +55,7 @@ class _Elements(list):
         try:
             datfile = open(csvfile, "rt", encoding="utf8")
             reader = csv.reader(datfile)
-            next(reader) # Skip header
+            next(reader)  # Skip header
 
             for line in reader:
                 Z = int(line[0])
@@ -64,19 +68,20 @@ class _Elements(list):
                 element = _Element(Z, Symbol, Name, Mass)
                 tmp.append(element)
         except csv.Error as e:
-            hdtv.ui.error('file %s, line %d: %s' % (csvfile, reader.line_num, e))
+            hdtv.ui.error('file %s, line %d: %s' %
+                          (csvfile, reader.line_num, e))
         finally:
             datfile.close()
 
         # Now store elements finally
-        maxZ = max(tmp, key = lambda x: x.z) # Get highest Z
+        maxZ = max(tmp, key=lambda x: x.z)  # Get highest Z
         for i in range(maxZ.z):
             self.append(None)
 
         for e in tmp:
             self[e.z] = e
 
-    def __call__(self, Z = None, symbol = None, name = None):
+    def __call__(self, Z=None, symbol=None, name=None):
 
         if symbol:
             for z in self:
@@ -85,7 +90,7 @@ class _Elements(list):
                         return z
                 except AttributeError:
                     pass
-            raise ValueError # If we reach this point there is no element with this symbol
+            raise ValueError  # If we reach this point there is no element with this symbol
         if name:
             for z in self:
                 try:
@@ -93,7 +98,7 @@ class _Elements(list):
                         return z
                 except AttributeError:
                     pass
-            raise ValueError # If we reach this point there is no element with this name
+            raise ValueError  # If we reach this point there is no element with this name
 
         if Z:
             return self[Z]
@@ -119,21 +124,25 @@ class _Elements(list):
         return super(_Elements, self).__getitem__(index)
 
 
-
 class _Nuclide(_Element):
 
     __slots__ = ("ID", "element", "a", "m", "sigma", "abundance")
 
-    def __init__(self, element, A, abundance = None, sigma = None, M = None):
+    def __init__(self, element, A, abundance=None, sigma=None, M=None):
 
         self.element = element
-        super(_Nuclide, self).__init__(element.z, element.symbol, element.name, M = None) # M is different for nuclides and elements
+        super(
+            _Nuclide,
+            self).__init__(
+            element.z,
+            element.symbol,
+            element.name,
+            M=None)  # M is different for nuclides and elements
         self.a = A
         self.m = M
         self.sigma = sigma
         self.abundance = abundance
         self.ID = str(self.a) + "-" + str(self.symbol)
-
 
     def _get_symbol(self):
         return self.element.symbol
@@ -141,7 +150,7 @@ class _Nuclide(_Element):
     def _set_symbol(self, symbol):
         self.element.symbol = symbol
 
-    symbol = property(_get_symbol, _set_symbol)#    def _Z(self):
+    symbol = property(_get_symbol, _set_symbol)  # def _Z(self):
 
     def __str__(self):
         text = str()
@@ -164,13 +173,13 @@ class _Nuclide(_Element):
 
 class _Nuclides(object):
 
-    def __init__(self, csvfile = os.path.join(hdtv.datadir, "nuclides.dat")):
+    def __init__(self, csvfile=os.path.join(hdtv.datadir, "nuclides.dat")):
 
         self._storage = dict()
         try:
             datfile = open(csvfile, "rt", encoding="utf8")
             reader = csv.reader(datfile)
-            next(reader) # Skip header
+            next(reader)  # Skip header
 
             for line in reader:
                 Z = int(line[0].strip())
@@ -189,15 +198,17 @@ class _Nuclides(object):
                 else:
                     sigma = ErrValue(None, None)
 
-                if not Z in self._storage:
+                if Z not in self._storage:
                     self._storage[Z] = dict()
-                self._storage[Z][A] = _Nuclide(element, A, abundance = abd, sigma = sigma, M = M)
+                self._storage[Z][A] = _Nuclide(
+                    element, A, abundance=abd, sigma=sigma, M=M)
         except csv.Error as e:
-            hdtv.ui.error('file %s, line %d: %s' % (csvfile, reader.line_num, e))
+            hdtv.ui.error('file %s, line %d: %s' %
+                          (csvfile, reader.line_num, e))
         finally:
             datfile.close()
 
-    def __call__(self, Z = None, A = None, symbol = None, name = None):
+    def __call__(self, Z=None, A=None, symbol=None, name=None):
         '''
         Return a list of nuclides with given properties (Z, A, symbol, name)
 
@@ -207,14 +218,14 @@ class _Nuclides(object):
 
         ret = list()
 
-        if Z is not None: # Z is given, so it is faster if we start with nuclides of this Z
-            if A is not None: # Nuclide uniquely defined
+        if Z is not None:  # Z is given, so it is faster if we start with nuclides of this Z
+            if A is not None:  # Nuclide uniquely defined
                 ret.append(self._storage[Z][A])
             else:   # All nuclides with given Z
                 for n in self._storage[Z].values():
                     ret.append(n)
 
-        if len(ret) == 0: # Z was not given, so we have to cycle through all nuclides
+        if len(ret) == 0:  # Z was not given, so we have to cycle through all nuclides
             for n in self._storage.values():
                 for e in n.values():
                     ret.append(e)
@@ -229,7 +240,6 @@ class _Nuclides(object):
 
             ret = tmp
             tmp = list()
-
 
         # Select by symbol
         if symbol is not None:
@@ -267,9 +277,9 @@ class Gamma(object):
         text = str()
         text += "ID:        " + str(self.ID) + "\n"
         text += "Energy:    " + str(self.energy) + " keV\n"
-        if not self.sigma is None:
+        if self.sigma is not None:
             text += "Sigma:     " + str(self.sigma) + " b\n"
-        if not self.intensity is None:
+        if self.intensity is not None:
             text += "Intensity: " + str(self.intensity * 100.0) + " %\n"
         return text
 
@@ -289,7 +299,7 @@ class Gamma(object):
     symbol = property(_symbol)
 
     def __eq__(self, other):
-        if self.energy == other.energy and not other.ID is None:
+        if self.energy == other.energy and other.ID is not None:
             if self.ID == other.ID:
                 return self.energy == other.energy
             else:
@@ -298,7 +308,7 @@ class Gamma(object):
             return self.energy == other.energy
 
     def __ne__(self, other):
-        if self.energy == other.energy and not other.ID is None:
+        if self.energy == other.energy and other.ID is not None:
             if self.ID == other.ID:
                 return self.energy != other.energy
             else:
@@ -307,7 +317,7 @@ class Gamma(object):
             return self.energy != other.energy
 
     def __gt__(self, other):
-        if self.energy == other.energy and not other.ID is None:
+        if self.energy == other.energy and other.ID is not None:
             if self.ID == other.ID:
                 return self.energy < other.energy
             else:
@@ -316,7 +326,7 @@ class Gamma(object):
             return self.energy < other.energy
 
     def __lt__(self, other):
-        if self.energy == other.energy and not other.ID is None:
+        if self.energy == other.energy and other.ID is not None:
             if self.ID == other.ID:
                 return self.energy > other.energy
             else:
@@ -325,7 +335,7 @@ class Gamma(object):
             return self.energy > other.energy
 
     def __ge__(self, other):
-        if self.energy == other.energy and not other.ID is None:
+        if self.energy == other.energy and other.ID is not None:
             if self.ID == other.ID:
                 return self.energy >= other.energy
             else:
@@ -334,7 +344,7 @@ class Gamma(object):
             return self.energy >= other.energy
 
     def __le__(self, other):
-        if self.energy == other.energy and not other.ID is None:
+        if self.energy == other.energy and other.ID is not None:
             if self.ID == other.ID:
                 return self.energy <= other.energy
             else:
@@ -353,12 +363,12 @@ class GammaLib(list):
 
     __slots__ = ("nuclide", "energy", "sigma", "intensity", "E_fuzziness")
 
-    def __init__(self, fuzziness = 1.0):
+    def __init__(self, fuzziness=1.0):
         list.__init__(self)
         self.fuzziness = fuzziness  # Fuzzyness for energy identification
         self.opened = False
 
-    def find(self, fuzziness = None, sort_key=None, sort_reverse=False, **args):
+    def find(self, fuzziness=None, sort_key=None, sort_reverse=False, **args):
         """
         Find in gamma lib
 
@@ -384,7 +394,8 @@ class GammaLib(list):
 
         for (key, value) in list(args.items()):
             try:
-                conv = fields_lower[key.lower()] # if this raises a KeyError it was an invalid argument
+                # if this raises a KeyError it was an invalid argument
+                conv = fields_lower[key.lower()]
             except KeyError:
                 hdtv.ui.error("Invalid key " + str(key))
                 raise KeyError
@@ -397,10 +408,10 @@ class GammaLib(list):
 
         for (key, conv) in list(fields_lower.items()):
             try:
-                fargs[key] = conv(args_lower[key]) # Convert as described in fParamConv dict
+                # Convert as described in fParamConv dict
+                fargs[key] = conv(args_lower[key])
             except KeyError:
                 pass
-
 
         # Do the search
         results = self[:]
@@ -412,21 +423,25 @@ class GammaLib(list):
             return []
 
         for (key, value) in list(fargs.items()):
-            if not value is None:
+            if value is not None:
                 if isinstance(value, int):
                     results = [x for x in results if getattr(x, key) == value]
-                elif isinstance(value, str): # Do lowercase comparison for strings
+                elif isinstance(value, str):  # Do lowercase comparison for strings
                     value_l = value.lower()
-                    results = [x for x in results if getattr(x, key).lower() == value_l]
-                else: # Do fuzzy compare
-                    results = [x for x in results if (abs(getattr(x, key) - value) <= fuzziness)]
+                    results = [x for x in results if getattr(
+                        x, key).lower() == value_l]
+                else:  # Do fuzzy compare
+                    results = [x for x in results if (
+                        abs(getattr(x, key) - value) <= fuzziness)]
 
         # Sort
         try:
-            if not sort_key is None:
-                results.sort(key = lambda x: getattr(x, sort_key), reverse = sort_reverse)
+            if sort_key is not None:
+                results.sort(key=lambda x: getattr(
+                    x, sort_key), reverse=sort_reverse)
         except AttributeError:
-            hdtv.ui.warn("Could not sort by \'" + str(sort_key) + "\': No such key")
+            hdtv.ui.warn("Could not sort by \'" +
+                         str(sort_key) + "\': No such key")
             raise AttributeError
 
         return results

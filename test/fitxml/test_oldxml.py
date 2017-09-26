@@ -28,11 +28,11 @@ import __main__
 spectra = __main__.spectra
 spectra.Clear()
 
-testspectrum= os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
+testspectrum = os.path.join(
+    __main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
 
-fnames=os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg_v*.xml")
-testXMLs = glob.glob(fnames)
-testXMLs.sort()
+fnames = os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg_v*.xml")
+testXMLs = sorted(glob.glob(fnames))
 
 newXML = os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.xml")
 
@@ -43,18 +43,17 @@ input("Press enter to continue\n")
 
 for testXML in testXMLs:
     spectra.dict["0"].Clear()
-    print('Reading fits from file %s' %testXML)
+    print('Reading fits from file %s' % testXML)
     __main__.fitxml.ReadFitlist(testXML)
     __main__.f.ListFits()
     input("Press enter to continue\n")
-    
+
 print('Saving fits to file %s' % newXML)
 __main__.fitxml.WriteFitlist(newXML)
 print('Deleting all fits')
 __main__.spectra.dict["0"].Clear()
-print('Reading fits from file %s' %newXML)
+print('Reading fits from file %s' % newXML)
 __main__.fitxml.ReadFitlist(newXML)
 __main__.f.ListFits()
 
 input("Press enter to continue\n")
-    

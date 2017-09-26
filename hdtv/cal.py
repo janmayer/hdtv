@@ -32,7 +32,7 @@ def MakeCalibration(cal):
         if cal is None:
             cal = []  # Trivial calibration, degree -1
         calarray = ROOT.TArrayD(len(cal))
-        for (i, c) in zip(list(range(0,len(cal))),cal):
+        for (i, c) in zip(list(range(0, len(cal))), cal):
             calarray[i] = c
         # create the calibration object
         cal = ROOT.HDTV.Calibration(calarray)
@@ -48,6 +48,7 @@ def GetCoeffs(cal):
         polynom.append(p)
     return polynom
 
+
 def PrintCal(cal):
     """
     Get the calibration as string
@@ -55,7 +56,7 @@ def PrintCal(cal):
     polynom = GetCoeffs(cal)
     line = str()
     for p in polynom:
-        line += str(p)+"   "
+        line += str(p) + "   "
     return line
 
 
@@ -63,6 +64,7 @@ class CalibrationFitter:
     """
     Fit a calibration polynom to a list of channel/energy pairs.
     """
+
     def __init__(self):
         self.Reset()
 
@@ -89,9 +91,10 @@ class CalibrationFitter:
             raise ValueError("Degree cannot be negative")
 
         if len(self.pairs) < degree + 1:
-            raise RuntimeError("You must specify at least as many channel/energy pairs as there are free parameters")
+            raise RuntimeError(
+                "You must specify at least as many channel/energy pairs as there are free parameters")
 
-        self.__TF1_id = "calfitter_" + hex(id(self)) # unique function ID
+        self.__TF1_id = "calfitter_" + hex(id(self))  # unique function ID
 
         # Create ROOT function
         if degree == 0:
@@ -102,20 +105,20 @@ class CalibrationFitter:
             self.__TF1 = ROOT.TF1(self.__TF1_id, "pol%d" % degree, 0, 0)
 
         # Prepare data for fitter
-        channels     = array('d')
+        channels = array('d')
         channels_err = array('d')
-        energies     = array('d')
+        energies = array('d')
         energies_err = array('d')
         allHaveError = True
         anyHasError = False
         anyHasXError = False
 
-        for (ch,e) in self.pairs:
+        for (ch, e) in self.pairs:
             hasError = False
 
             # Store channels
-            try: # try to read from ErrValue
-                channel     = float(ch.value)
+            try:  # try to read from ErrValue
+                channel = float(ch.value)
                 channel_err = float(ch.error)
                 channels.append(channel)
                 channels_err.append(channel_err)
@@ -128,8 +131,8 @@ class CalibrationFitter:
             anyHasXError = hasError or anyHasXError
 
             # Store energies
-            try: # try to read from ErrValue
-                energy     = float(e.value)
+            try:  # try to read from ErrValue
+                energy = float(e.value)
                 energy_err = float(e.error)
                 energies.append(energy)
                 energies_err.append(energy_err)
@@ -143,16 +146,18 @@ class CalibrationFitter:
             anyHasError = anyHasError or hasError
 
         self.__TF1.SetRange(0, max(energies) * 1.1)
-        self.TGraph = ROOT.TGraphErrors(len(energies), channels, energies, channels_err, energies_err)
+        self.TGraph = ROOT.TGraphErrors(
+            len(energies), channels, energies, channels_err, energies_err)
 
-        fitoptions = "0" # Do not plot
-        fitoptions += "Q" # Quiet
-        fitoptions += "S" # Return TFitResult for new ROOT versions
+        fitoptions = "0"  # Do not plot
+        fitoptions += "Q"  # Quiet
+        fitoptions += "S"  # Return TFitResult for new ROOT versions
 
         if not ignoreErrors and not allHaveError:
             ignoreErrors = True
             if anyHasError:
-                hdtv.ui.warn("Some values specified without error, ignoring all errors in fit")
+                hdtv.ui.warn(
+                    "Some values specified without error, ignoring all errors in fit")
 
         if ignoreErrors:
             fitoptions += "W"
@@ -162,14 +167,15 @@ class CalibrationFitter:
                 # We must use the iterative fitter (minuit) to take x errors
                 # into account.
                 fitoptions += "F"
-                hdtv.ui.info("switching to non-linear fitter (minuit) for x error weighting")
+                hdtv.ui.info(
+                    "switching to non-linear fitter (minuit) for x error weighting")
 
         # Do the fit
         result = self.TGraph.Fit(self.__TF1_id, fitoptions)
-        if(type(result) == int):
+        if(isinstance(result, int)):
             if result != 0:
                 raise RuntimeError("Fit failed")
-        elif(type(result) == ROOT.TFitResultPtr):
+        elif(isinstance(result, ROOT.TFitResultPtr)):
             if result.Get().Status() != 0:
                 raise RuntimeError("Fit failed")
         else:  # Fallback, attempt to cast result to an int
@@ -177,7 +183,8 @@ class CalibrationFitter:
                 raise RuntimeError("Fit failed")
 
         # Save the fit result
-        self.calib = MakeCalibration([self.__TF1.GetParameter(i) for i in range(0, degree+1)])
+        self.calib = MakeCalibration(
+            [self.__TF1.GetParameter(i) for i in range(0, degree + 1)])
         self.chi2 = self.__TF1.GetChisquare()
 
     def ResultStr(self):
@@ -185,7 +192,8 @@ class CalibrationFitter:
         Return string describing the result of the calibration
         """
         if self.calib is None:
-            raise RuntimeError("No calibration available (did you call FitCal()?)")
+            raise RuntimeError(
+                "No calibration available (did you call FitCal()?)")
 
         s = "Calibration: "
         s += " ".join(["%.6e" % x for x in self.calib.GetCoeffs()])
@@ -199,7 +207,8 @@ class CalibrationFitter:
         Return a table showing the fit results
         """
         if self.calib is None:
-            raise RuntimeError("No calibration available (did you call FitCal()?)")
+            raise RuntimeError(
+                "No calibration available (did you call FitCal()?)")
 
         header = ["Channel", "E_given", "E_fit", "Residual"]
         keys = "channel", "e_given", "e_fit", "residual"
@@ -217,14 +226,16 @@ class CalibrationFitter:
             tableline["residual"] = "%10.2f" % residual.value
             tabledata.append(tableline)
 
-        return hdtv.util.Table(tabledata, keys, header = header, sortBy="channel")
+        return hdtv.util.Table(
+            tabledata, keys, header=header, sortBy="channel")
 
     def DrawCalFit(self):
         """
         Draw fit used for calibration
         """
         if self.calib is None:
-            raise RuntimeError("No calibration available (did you call FitCal()?)")
+            raise RuntimeError(
+                "No calibration available (did you call FitCal()?)")
 
         canvas = ROOT.TCanvas("CalFit", "Calibration Fit")
         # Prevent canvas from being closed as soon as this function finishes
@@ -236,19 +247,19 @@ class CalibrationFitter:
         ROOT.SetOwnership(graph, False)
 
         i = 0
-        for (ch,e) in self.pairs:
+        for (ch, e) in self.pairs:
             min_ch = min(min_ch, ch.value)
             max_ch = max(max_ch, ch.value)
 
             try:
                 graph.SetPoint(i, ch.value, e.value)
-            except:
+            except BaseException:
                 graph.SetPoint(i, ch.value, e)
             graph.SetPointError(i, ch.error, 0)
             i += 1
 
         coeffs = self.calib.GetCoeffs()
-        func = ROOT.TF1("CalFitFunc", "pol%d" % (len(coeffs)-1),
+        func = ROOT.TF1("CalFitFunc", "pol%d" % (len(coeffs) - 1),
                         min_ch, max_ch)
         ROOT.SetOwnership(func, False)
         for i in range(0, len(coeffs)):
@@ -268,7 +279,8 @@ class CalibrationFitter:
         Debug: draw residual of fit used for calibration
         """
         if self.calib is None:
-            raise RuntimeError("No calibration available (did you call FitCal()?)")
+            raise RuntimeError(
+                "No calibration available (did you call FitCal()?)")
 
         canvas = ROOT.TCanvas("CalResidual", "Calibration Residual")
         # Prevent canvas from being closed as soon as this function finishes
@@ -280,13 +292,13 @@ class CalibrationFitter:
         ROOT.SetOwnership(graph, False)
 
         i = 0
-        for (ch,e) in self.pairs:
+        for (ch, e) in self.pairs:
             min_ch = min(min_ch, ch.value)
             max_ch = max(max_ch, ch.value)
             try:
                 # energie may be ErrValue
                 e = e.value
-            except:
+            except BaseException:
                 pass
 
             graph.SetPoint(i, ch.value, e - self.calib.Ch2E(ch.value))

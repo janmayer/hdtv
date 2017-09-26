@@ -25,8 +25,11 @@ import hdtv.options
 import hdtv.cmdline
 import hdtv.util
 
+
 def ConfigVarCompleter(text, args=None):
-    return hdtv.util.GetCompleteOptions(text, iter(hdtv.options.variables.keys()))
+    return hdtv.util.GetCompleteOptions(
+        text, iter(hdtv.options.variables.keys()))
+
 
 def ConfigSet(args):
     try:
@@ -36,6 +39,7 @@ def ConfigSet(args):
     except ValueError:
         print("Invalid value (%s) for option %s" % (args[1], args[0]))
 
+
 def ConfigShow(args):
     if len(args) == 0:
         print(hdtv.options.Str(), end=' ')
@@ -44,6 +48,7 @@ def ConfigShow(args):
             print(hdtv.options.Show(args[0]))
         except KeyError:
             print("%s: no such option" % args[0])
+
 
 def ConfigReset(args):
     if len(args) == 0:

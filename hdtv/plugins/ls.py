@@ -19,10 +19,10 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 # Plugin implementing some useful hdtv commands for navigation the file system
 # this includes a ls-like command, by special request from R. Schulze :)
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 
 from __future__ import print_function
 
@@ -31,6 +31,7 @@ import hdtv.cmdline
 import os
 import stat
 import glob
+
 
 def ls(args):
     """
@@ -65,7 +66,7 @@ def cd(args):
     """
     if len(args) == 0:
         path = os.path.expanduser("~")
-    elif args[0]=="-":
+    elif args[0] == "-":
         path = os.environ["OLDPWD"]
     else:
         path = os.path.expanduser(args[0])

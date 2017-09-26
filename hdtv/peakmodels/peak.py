@@ -19,19 +19,21 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 # For each model implemented on the C++ side, we have a corresponding Python
 # class to handle fitter setup and data transfer to the Python side
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 import ROOT
 import hdtv.errvalue
 
 hdtv.dlmgr.LoadLibrary("display")
 
+
 class FitValue(hdtv.errvalue.ErrValue):
     """
     Error Value combined with status of parameter
     """
+
     def __init__(self, value, error, free):
         hdtv.errvalue.ErrValue.__init__(self, value, error)
         self.free = free
@@ -50,6 +52,7 @@ class PeakModel(object):
     its parameters (and whether to include them at all, i.e. for tails). After
     everything has been configured, the peak model produces a C++ fitter object.
     """
+
     def __init__(self):
         self.fGlobalParams = dict()
 
@@ -72,7 +75,7 @@ class PeakModel(object):
             status = self.fParStatus[name]
 
             # Short format for multiple values...
-            if type(status) == list:
+            if isinstance(status, list):
                 statstr += "%s: " % name
                 sep = ""
                 for stat in status:
@@ -95,7 +98,7 @@ class PeakModel(object):
                 elif status == "none":
                     statstr += "%s: none (disabled)\n" % name
                 elif status == "calculated":
-                    statstr += "%s: calculated from fit result\n" %name
+                    statstr += "%s: calculated from fit result\n" % name
                 else:
                     statstr += "%s: fixed at %.3f\n" % (name, status)
 
@@ -108,8 +111,9 @@ class PeakModel(object):
         error message if the check fails.
         """
         for (parname, status) in self.fParStatus.items():
-            if type(status) == list and len(status) < minlen:
-                raise ValueError("Not enough values for status of %s" % parname)
+            if isinstance(status, list) and len(status) < minlen:
+                raise ValueError(
+                    "Not enough values for status of %s" % parname)
 
     def ParseParamStatus(self, parname, status):
         """
@@ -132,17 +136,19 @@ class PeakModel(object):
             stat = "none"
         elif "hold"[0:len(status)] == status:
             stat = "hold"
-        elif "calculated"[0:len(status)]==status:
+        elif "calculated"[0:len(status)] == status:
             stat = "calculated"
 
-        # If status was a keyword, see if this setting is legal for the parameter
-        if not stat is None:
-            if not stat in self.fValidParStatus[parname]:
-                msg = "Status %s not allowed for parameter %s in peak model %s" % (stat, parname, self.name)
+        # If status was a keyword, see if this setting is legal for the
+        # parameter
+        if stat is not None:
+            if stat not in self.fValidParStatus[parname]:
+                msg = "Status %s not allowed for parameter %s in peak model %s" % (
+                    stat, parname, self.name)
                 raise ValueError(msg)
             return stat
 
-        #If status was not a keyword, try to parse it as a float. If that
+        # If status was not a keyword, try to parse it as a float. If that
         # fails, we are out of options.
         try:
             val = float(status)
@@ -151,11 +157,11 @@ class PeakModel(object):
             raise ValueError(msg)
 
         # Check if a numeric value is legal for the parameter
-        if not float in self.fValidParStatus[parname]:
-            msg = "Invalid status %s for parameter %s in peak model %s" % (status, parname, self.name)
+        if float not in self.fValidParStatus[parname]:
+            msg = "Invalid status %s for parameter %s in peak model %s" % (
+                status, parname, self.name)
             raise ValueError(msg)
         return val
-
 
     def SetParameter(self, parname, status):
         """
@@ -167,14 +173,16 @@ class PeakModel(object):
         """
         parname = parname.strip().lower()
 
-        if not parname in list(self.fValidParStatus.keys()):
-            raise ValueError("Invalid parameter name %s for peak model %s" % (parname, self.name))
+        if parname not in list(self.fValidParStatus.keys()):
+            raise ValueError(
+                "Invalid parameter name %s for peak model %s" %
+                (parname, self.name))
 
-        if type(status) == type(status[0]): # Single string
+        if isinstance(status, type(status[0])):  # Single string
             self.fParStatus[parname] = self.ParseParamStatus(parname, status)
-        else: # list of stati
-            self.fParStatus[parname] = [self.ParseParamStatus(parname, s) for s in status]
-
+        else:  # list of stati
+            self.fParStatus[parname] = [
+                self.ParseParamStatus(parname, s) for s in status]
 
     def GetParam(self, name, peak_id, pos_uncal, cal, ival=None):
         """
@@ -182,13 +190,13 @@ class PeakModel(object):
         """
         # See if the parameter status has been specified for each peak
         # individually, or for all peaks at once
-        if type(self.fParStatus[name]) == list:
+        if isinstance(self.fParStatus[name], list):
             parStatus = self.fParStatus[name][peak_id]
         else:
             parStatus = self.fParStatus[name]
         # Switch according to parameter status
         if parStatus == "equal":
-            if not name in self.fGlobalParams:
+            if name not in self.fGlobalParams:
                 if ival is None:
                     self.fGlobalParams[name] = self.fFitter.AllocParam()
                 else:
@@ -206,7 +214,8 @@ class PeakModel(object):
                 return ROOT.HDTV.Fit.Param.Fixed(ival)
         elif parStatus == "none":
             return ROOT.HDTV.Fit.Param.Empty()
-        elif type(parStatus) == float:
-            return ROOT.HDTV.Fit.Param.Fixed(self.Uncal(name, parStatus, pos_uncal, cal))
+        elif isinstance(parStatus, float):
+            return ROOT.HDTV.Fit.Param.Fixed(
+                self.Uncal(name, parStatus, pos_uncal, cal))
         else:
             raise RuntimeError("Invalid parameter status")

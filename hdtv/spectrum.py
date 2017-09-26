@@ -23,16 +23,18 @@ import ROOT
 
 from hdtv.drawable import DrawableManager
 
+
 class Spectrum(DrawableManager):
     def __init__(self, histogram):
-        self.__dict__["hist"] = histogram   # Create histogram attribute avoiding __setattr__ method
+        # Create histogram attribute avoiding __setattr__ method
+        self.__dict__["hist"] = histogram
         DrawableManager.__init__(self)
 
     # delegate everything to the underlying histogram
     def __setattr__(self, name, value):
         if self.hist is not None:
             self.hist.__setattr__(name, value)
-        if hasattr(self, name): # Update attribute of this class, if existent
+        if hasattr(self, name):  # Update attribute of this class, if existent
             DrawableManager.__setattr__(self, name, value)
 
     def __getattr__(self, name):

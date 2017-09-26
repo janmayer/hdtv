@@ -26,21 +26,22 @@ import colorsys
 
 
 # some default colors
-default= ROOT.kRed
+default = ROOT.kRed
 zoom = ROOT.kWhite
 region = ROOT.kBlue - 4
-peak   = ROOT.kViolet - 4
-bg    = ROOT.kGreen -4
-cut   = ROOT.kYellow - 4
+peak = ROOT.kViolet - 4
+bg = ROOT.kGreen - 4
+cut = ROOT.kYellow - 4
 
 activeSatur = 1.0
 nonactiveSatur = 0.5
+
 
 def ColorForID(ID, active=False):
     try:
         ID = ID.split(".")
         ID = int(ID[0])
-    except:
+    except BaseException:
         pass
     if active:
         satur = activeSatur
@@ -48,8 +49,8 @@ def ColorForID(ID, active=False):
         satur = nonactiveSatur
     hue = HueForID(ID)
     value = 1.0
-    (r,g,b) = colorsys.hsv_to_rgb(hue, satur, value)
-    return ROOT.TColor.GetColor(r,g,b)
+    (r, g, b) = colorsys.hsv_to_rgb(hue, satur, value)
+    return ROOT.TColor.GetColor(r, g, b)
 
 
 def HueForID(ID):
@@ -62,12 +63,12 @@ def HueForID(ID):
     is currently active.
     """
     # Special case
-    if ID==0:
+    if ID == 0:
         hue = 0.0
     else:
         p = math.floor(math.log(float(ID)) / math.log(2))
         q = ID - 2**p
-        hue = 2**(-p-1) + q*2**(-p)
+        hue = 2**(-p - 1) + q * 2**(-p)
     return hue
 
 
@@ -95,21 +96,22 @@ def Highlight(color, active=True):
         satur = activeSatur
     else:
         satur = nonactiveSatur
-    (r,g,b) = colorsys.hsv_to_rgb(hue/360, satur, value)
-    return ROOT.TColor.GetColor(r,g,b)
+    (r, g, b) = colorsys.hsv_to_rgb(hue / 360, satur, value)
+    return ROOT.TColor.GetColor(r, g, b)
+
 
 def GetRGB(color):
     color = ROOT.gROOT.GetColor(color)
     if not color:
         # FIXME
         raise RuntimeError
-    r= ROOT.TColor.GetRed(color)
-    g= ROOT.TColor.GetGreen(color)
-    b= ROOT.TColor.GetBlue(color)
-    return (r,g,b)
+    r = ROOT.TColor.GetRed(color)
+    g = ROOT.TColor.GetGreen(color)
+    b = ROOT.TColor.GetBlue(color)
+    return (r, g, b)
 
 # obsolete, use colorsys instead
-#def HSV2RGB(hue, satur, value):
+# def HSV2RGB(hue, satur, value):
 #    """
 #     Static method to compute RGB from HSV.
 #     - The hue value runs from 0 to 360.

@@ -37,7 +37,9 @@ class Marker(Drawable):
     possible to have markers that consist of a single marker, then the second
     position is None.
     """
-    def __init__(self, xytype, p1, color=hdtv.color.zoom, cal=None, connecttop=False):
+
+    def __init__(self, xytype, p1, color=hdtv.color.zoom,
+                 cal=None, connecttop=False):
         self._activeColor = color
         self._cal = cal
         self._dashed = False
@@ -50,15 +52,17 @@ class Marker(Drawable):
 
     # p1 and p2 properties
     def _set_p(self, pos, p):
-        if isinstance(pos, (float,int)):
+        if isinstance(pos, (float, int)):
             pos = hdtv.util.Position(pos, self.fixedInCal, self.cal)
-        setattr(self, "_%s" %p, pos)
+        setattr(self, "_%s" % p, pos)
 
     def _get_p(self, p):
-        return getattr(self,"_%s" %p)
+        return getattr(self, "_%s" % p)
 
-    p1 = property(lambda self:self._get_p("p1"), lambda self,pos: self._set_p(pos, "p1"))
-    p2 = property(lambda self:self._get_p("p2"), lambda self,pos: self._set_p(pos, "p2"))
+    p1 = property(lambda self: self._get_p("p1"),
+                  lambda self, pos: self._set_p(pos, "p1"))
+    p2 = property(lambda self: self._get_p("p2"),
+                  lambda self, pos: self._set_p(pos, "p2"))
 
     # color property
     def _set_color(self, color):
@@ -75,7 +79,7 @@ class Marker(Drawable):
 
     color = property(_get_color, _set_color)
 
-    #cal property
+    # cal property
     def _set_cal(self, cal):
         self.p1.cal = cal
         if self.p2 is not None:
@@ -108,7 +112,8 @@ class Marker(Drawable):
         """
         if self.viewport and not self.viewport == viewport:
             # Marker can only be drawn to a single viewport
-            raise RuntimeError("Marker cannot be realized on multiple viewports")
+            raise RuntimeError(
+                "Marker cannot be realized on multiple viewports")
         self.viewport = viewport
         # adjust the position values for the creation of the makers
         # on the C++ side all values must be uncalibrated
@@ -132,13 +137,12 @@ class Marker(Drawable):
         if self.ID is not None:
             self.displayObj.SetID(str(self.ID))
         self.displayObj.SetDash(self.dashed, self.dashed)
-        if self.xytype=="X":
+        if self.xytype == "X":
             # these properties make only sense on the X axis
             self.displayObj.SetConnectTop(self.connecttop)
             if self.cal:
                 self.displayObj.SetCal(self.cal)
         self.displayObj.Draw(self.viewport)
-
 
     def Refresh(self):
         if not self.displayObj:
@@ -155,10 +159,10 @@ class Marker(Drawable):
             self.displayObj.SetPos(p1, p2)
 
     def __str__(self):
-        if not self.p2 is None:
-            return '%s marker at %s and %s' %(self.xytype, self.p1, self.p2)
+        if self.p2 is not None:
+            return '%s marker at %s and %s' % (self.xytype, self.p1, self.p2)
         else:
-            return '%s marker at %s' %(self.xytype, self.p1)
+            return '%s marker at %s' % (self.xytype, self.p1)
 
     def FixInCal(self):
         self.fixedInCal = True
@@ -177,7 +181,9 @@ class MarkerCollection(list):
     """
     A collection of identical markers
     """
-    def __init__(self, xytype, paired=False, maxnum=None, color=None, cal=None, connecttop=True):
+
+    def __init__(self, xytype, paired=False, maxnum=None,
+                 color=None, cal=None, connecttop=True):
         list.__init__(self)
         self.viewport = None
         self.xytype = xytype
@@ -191,7 +197,7 @@ class MarkerCollection(list):
         # color = passiveColor can be changed
         self.color = hdtv.color.Highlight(color, active=False)
         self.active = True     # By default markers are active when newly created
-        self.fixedInCal = True # By default markers are fixed in calibrated space
+        self.fixedInCal = True  # By default markers are fixed in calibrated space
 
     # delegate everything to the markers
     def __setattr__(self, name, value):
@@ -242,7 +248,8 @@ class MarkerCollection(list):
             pending.p2 = pos
             pending.Refresh()
         else:
-            m = Marker(self.xytype, pos, self.activeColor, self.cal, self.connecttop)
+            m = Marker(self.xytype, pos, self.activeColor,
+                       self.cal, self.connecttop)
             m.color = self.color
             m.ID = self.ID
             m.active = self.active
@@ -261,7 +268,6 @@ class MarkerCollection(list):
             return False
         return len(self) == self.maxnum
 
-
     def IsPending(self):
         """
         Checks if there is a single marker waiting to form a pair.
@@ -271,18 +277,16 @@ class MarkerCollection(list):
             return False
         return (len(self) > 0 and self[-1].p2 is None)
 
-
     def Clear(self):
         """
         Remove all markers from this collection
         """
-        if self.viewport != None:
+        if self.viewport is not None:
             self.viewport.LockUpdate()
         while self:
             self.pop()
-        if self.viewport != None:
+        if self.viewport is not None:
             self.viewport.UnlockUpdate()
-
 
     def RemoveNearest(self, pos):
         """
@@ -290,17 +294,17 @@ class MarkerCollection(list):
         If one of the members of a marker pair is nearest to pos,
         both are removed
         """
-        if len(self)==0:
+        if len(self) == 0:
             hdtv.ui.warn("No marker available, no action taken")
             return
         index = dict()
         for m in self:
             p1 = m.p1.pos_cal
-            diff = abs(pos-p1)
+            diff = abs(pos - p1)
             index[diff] = m
-            if self.paired and not m.p2 is None:
+            if self.paired and m.p2 is not None:
                 p2 = m.p2.pos_cal
-                diff = abs(pos-p2)
+                diff = abs(pos - p2)
                 index[diff] = m
         nearest = index[min(index.keys())]
         self.remove(nearest)

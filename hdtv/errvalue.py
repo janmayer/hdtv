@@ -104,38 +104,36 @@ import copy
 import traceback
 import hdtv.ui
 
+
 class EVContainer(object):
     # Helper class allowing to use ErrValues as keys in dictionaries
     def __init__(self, ev):
         self.ev = ev
 
-
     def __hash__(self):
         return id(self.ev)
-
 
     def __eq__(self, y):
         return id(self.ev) == id(y.ev)
 
-
     def __ne__(self, y):
         return not (id(self.ev) == id(y.ev))
 
-
     def __lt__(self, y):
-        raise RuntimeError("EVContainer instances cannot be compared except for equality")
-
+        raise RuntimeError(
+            "EVContainer instances cannot be compared except for equality")
 
     def __gt__(self, y):
-        raise RuntimeError("EVContainer instances cannot be compared except for equality")
-
+        raise RuntimeError(
+            "EVContainer instances cannot be compared except for equality")
 
     def __le__(self, y):
-        raise RuntimeError("EVContainer instances cannot be compared except for equality")
-
+        raise RuntimeError(
+            "EVContainer instances cannot be compared except for equality")
 
     def __ge__(self, y):
-        raise RuntimeError("EVContainer instances cannot be compared except for equality")
+        raise RuntimeError(
+            "EVContainer instances cannot be compared except for equality")
 
 
 class DepErrValue(object):
@@ -147,7 +145,6 @@ class DepErrValue(object):
         self._depends = depends
         self._lazy_union = None
 
-
     @property
     def depends(self):
         # Returns a dictionary with the ErrValue instances this value is
@@ -158,7 +155,7 @@ class DepErrValue(object):
         # might expect.
         if self._lazy_union:
             if sys.getrefcount(self._lazy_union) == 2 and \
-              len(self._lazy_union) > len(self._depends):
+                    len(self._lazy_union) > len(self._depends):
                 for (x, dfdx) in self._depends.items():
                     self._lazy_union[x] = self._lazy_union.get(x, 0) + dfdx
                 self._depends = self._lazy_union
@@ -176,18 +173,15 @@ class DepErrValue(object):
 
         return self._depends
 
-
     @property
     def value(self):
         # the value of this variable
         return self._value
 
-
     @property
     def var(self):
         # the variance of this variable
         return self.cov(self)
-
 
     def cov(self, y):
         """
@@ -206,12 +200,10 @@ class DepErrValue(object):
 
         return cov
 
-
     @property
     def error(self):
         # the error of this variable
         return math.sqrt(self.var)
-
 
     @property
     def rel_error(self):
@@ -221,7 +213,6 @@ class DepErrValue(object):
         except ZeroDivisionError:
             return None
 
-
     @property
     def rel_error_percent(self):
         # the relative error (error / value) of this variable, in percent
@@ -229,7 +220,6 @@ class DepErrValue(object):
             return abs(self.error / self.value) * 100
         except ZeroDivisionError:
             return None
-
 
     def equal(self, y, f=1):
         """
@@ -243,16 +233,15 @@ class DepErrValue(object):
         """
         return (abs((self - y).value) <= f * (self - y).error)
 
-
     def __float__(self):
         tb = traceback.extract_stack()[-2]
         hdtv.ui.warn("__float__() called on an ErrValue instance.\n"
                      "    This may mask a serious programming error!\n"
-                     "    (Use x.value to avoid this warning.)\n"
-                   + "    (called from file \"%s\", line %d, in %s)" % (tb[0], tb[1], tb[2]))
+                     "    (Use x.value to avoid this warning.)\n" +
+                     "    (called from file \"%s\", line %d, in %s)" %
+                     (tb[0], tb[1], tb[2]))
 
         return self.value
-
 
     def __eq__(self, other):
         try:
@@ -260,45 +249,38 @@ class DepErrValue(object):
         except AttributeError:
             return (self.value == float(other))
 
-
     def __ne__(self, other):
         try:
             return not (self.value == other.value)
         except AttributeError:
             return not (self.value == float(other))
 
-
     def __lt__(self, other):
         try:
-            return  (self.value < other.value)
+            return (self.value < other.value)
         except AttributeError:
-            return  (self.value < float(other))
-
+            return (self.value < float(other))
 
     def __gt__(self, other):
         try:
-            return  (self.value > other.value)
+            return (self.value > other.value)
         except AttributeError:
-            return  (self.value > float(other))
-
+            return (self.value > float(other))
 
     def __le__(self, other):
         try:
-            return  (self.value <= other.value)
+            return (self.value <= other.value)
         except AttributeError:
-            return  (self.value <= float(other))
-
+            return (self.value <= float(other))
 
     def __ge__(self, other):
         try:
-            return  (self.value >= other.value)
+            return (self.value >= other.value)
         except AttributeError:
-            return  (self.value >= float(other))
-
+            return (self.value >= float(other))
 
     def __str__(self):
         return self.fmt()
-
 
     def __abs__(self):
         if self.value < 0:
@@ -306,14 +288,11 @@ class DepErrValue(object):
         else:
             return self
 
-
     def __pos__(self):
         return self
 
-
     def __neg__(self):
         return (-1) * self
-
 
     def __add__(self, other):
         if isinstance(other, DepErrValue):
@@ -323,18 +302,14 @@ class DepErrValue(object):
         else:
             return DepErrValue(self.value + other, self.depends)
 
-
     def __radd__(self, other):
         return self.__add__(other)
-
 
     def __sub__(self, other):
         return self + (-1) * other
 
-
     def __rsub__(self, other):
         return other + (-1) * self
-
 
     def __mul__(self, other):
         if isinstance(other, DepErrValue):
@@ -350,10 +325,8 @@ class DepErrValue(object):
                 depends[x] = dfdx * other
             return DepErrValue(self.value * other, depends)
 
-
     def __rmul__(self, other):
         return self.__mul__(other)
-
 
     def _div(self, f, g):
         depends = dict()
@@ -362,7 +335,6 @@ class DepErrValue(object):
         for (x, dgdx) in g.depends.items():
             depends[x] = depends.get(x, 0) - dgdx * f.value / (g.value**2)
         return DepErrValue(f.value / g.value, depends)
-
 
     def __truediv__(self, other):
         if isinstance(other, DepErrValue):
@@ -373,7 +345,6 @@ class DepErrValue(object):
                 depends[x] = dfdx / other
             return DepErrValue(self.value / other, depends)
 
-
     def __rtruediv__(self, other):
         if isinstance(other, DepErrValue):
             return self._div(other, self)
@@ -383,15 +354,12 @@ class DepErrValue(object):
                 depends[x] = -dgdx * other / (self.value**2)
             return DepErrValue(other / self.value, depends)
 
-
     # We always use new-style (true) division (in the sense of PEP 238)
     def __div__(self, other):
         return self.__truediv__(other)
 
-
     def __rdiv__(self, other):
         return self.__rtruediv__(other)
-
 
     def _pow(self, f, g):
         fpowg = f.value ** g.value
@@ -401,7 +369,6 @@ class DepErrValue(object):
         for (x, dgdx) in g.depends.items():
             depends[x] = depends.get(x, 0) + fpowg * math.log(f.value) * dgdx
         return DepErrValue(fpowg, depends)
-
 
     def __pow__(self, other):
         if isinstance(other, DepErrValue):
@@ -413,7 +380,6 @@ class DepErrValue(object):
                 depends[x] = fpowg * other / self.value * dfdx
             return DepErrValue(fpowg, depends)
 
-
     def __rpow__(self, other):
         if isinstance(other, DepErrValue):
             return self._pow(other, self)
@@ -423,7 +389,6 @@ class DepErrValue(object):
             for (x, dgdx) in self.depends.items():
                 depends[x] = fpowg * math.log(other) * dgdx
             return DepErrValue(fpowg, depends)
-
 
     ### Functions for string output ###
     def fmt(self):
@@ -484,18 +449,18 @@ class DepErrValue(object):
         elif prec != prec:
             prec = 3
 
-        return "%s%.*f(%.0f)%s" % (sgn, int(prec), value, error * 10 ** prec, suffix)
-
+        return "%s%.*f(%.0f)%s" % (sgn, int(prec),
+                                   value, error * 10 ** prec, suffix)
 
     def fmt_full(self):
         """
         Print ErrValue with absolute and relative error
         """
-        string = str(self.fmt()) + " [" + "%.*f" % (2, self.rel_error_percent) + "%]"
+        string = str(self.fmt()) + \
+            " [" + "%.*f" % (2, self.rel_error_percent) + "%]"
         return string
 
-
-    def fmt_no_error(self, prec = 6):
+    def fmt_no_error(self, prec=6):
 
         if self.value is None:
             return str(self.value)
@@ -525,7 +490,7 @@ class DepErrValue(object):
 
         return "%s%.*f%s" % (sgn, prec, value, suffix)
 
-    def fmt_long(self, prec = 6, separator = " ± "):
+    def fmt_long(self, prec=6, separator=" ± "):
         if self.value is None:
             return str(self.value)
 
@@ -540,7 +505,6 @@ class DepErrValue(object):
             sgn = ""
             value = self.value
         error = self.error
-
 
         # Check whether to switch to scientific notation
         # Catch the case where value is zero
@@ -558,8 +522,10 @@ class DepErrValue(object):
             # Use normal notation
             suffix = ""
 
-        return "%s%.*f%s%s%.*f%s" % (sgn, prec, value, suffix, separator, prec, error, suffix)
+        return "%s%.*f%s%s%.*f%s" % (sgn, prec, value,
+                                     suffix, separator, prec, error, suffix)
     ###
+
 
 def _chain(f, dfdg, g):
     depends = dict()
@@ -570,7 +536,7 @@ def _chain(f, dfdg, g):
 
 def sqrt(x):
     if isinstance(x, DepErrValue):
-        return _chain(math.sqrt(x.value), 1/(2*math.sqrt(x.value)), x)
+        return _chain(math.sqrt(x.value), 1 / (2 * math.sqrt(x.value)), x)
     else:
         return math.sqrt(x)
 
@@ -584,7 +550,7 @@ def exp(x):
 
 def log(x):
     if isinstance(x, DepErrValue):
-        return _chain(math.log(x.value), 1/x.value, x)
+        return _chain(math.log(x.value), 1 / x.value, x)
     else:
         return math.log(x)
 
@@ -605,28 +571,28 @@ def cos(x):
 
 def tan(x):
     if isinstance(x, DepErrValue):
-        return _chain(math.tan(x.value), 1/(math.cos(x.value)**2), x)
+        return _chain(math.tan(x.value), 1 / (math.cos(x.value)**2), x)
     else:
         return math.tan(x)
 
 
 def asin(x):
     if isinstance(x, DepErrValue):
-        return _chain(math.asin(x.value), 1/math.sqrt(1-x.value**2), x)
+        return _chain(math.asin(x.value), 1 / math.sqrt(1 - x.value**2), x)
     else:
         return math.asin(x)
 
 
 def acos(x):
     if isinstance(x, DepErrValue):
-        return _chain(math.acos(x.value), -1/math.sqrt(1-x.value**2), x)
+        return _chain(math.acos(x.value), -1 / math.sqrt(1 - x.value**2), x)
     else:
         return math.acos(x)
 
 
 def atan(x):
     if isinstance(x, DepErrValue):
-        return _chain(math.atan(x.value), 1/(1+x.value**2), x)
+        return _chain(math.atan(x.value), 1 / (1 + x.value**2), x)
     else:
         return math.atan(x)
 
@@ -647,16 +613,17 @@ def cosh(x):
 
 def tanh(x):
     if isinstance(x, DepErrValue):
-        return _chain(math.tanh(x.value), 1/(math.cosh(x.value)**2), x)
+        return _chain(math.tanh(x.value), 1 / (math.cosh(x.value)**2), x)
     else:
         return math.tanh(x)
 
 
 class ErrValue(DepErrValue):
-    def __init__(self, value, error = None):
+    def __init__(self, value, error=None):
         if isinstance(value, str):
             if error is not None:
-                raise TypeError("value of ErrValue is of type string, but error parameter is given")
+                raise TypeError(
+                    "value of ErrValue is of type string, but error parameter is given")
             (value, error) = self._fromString(value)
 
         self._has_error = True
@@ -664,9 +631,8 @@ class ErrValue(DepErrValue):
             error = 0.
             self._has_error = False
 
-        self._cov = { EVContainer(self): error**2 }
-        DepErrValue.__init__(self, value, { EVContainer(self): 1 })
-
+        self._cov = {EVContainer(self): error**2}
+        DepErrValue.__init__(self, value, {EVContainer(self): 1})
 
     @property
     def has_error(self):
@@ -675,20 +641,17 @@ class ErrValue(DepErrValue):
         # this flag is not passed on.
         return self._has_error
 
-
     def SetError(self, error):
         """
         Sets the error of this variable.
         """
         self.SetVar(error**2)
 
-
     def SetVar(self, var):
         """
         Sets the variance (error squared) of this variable.
         """
         self._cov[EVContainer(self)] = var
-
 
     def SetCov(self, y, cov):
         """
@@ -697,7 +660,8 @@ class ErrValue(DepErrValue):
         y.SetCov() is redundant.
         """
         if not isinstance(y, ErrValue):
-            raise TypeError("Can only set covariances between two ErrValue objects")
+            raise TypeError(
+                "Can only set covariances between two ErrValue objects")
 
         if id(y) == id(self):
             self.SetVar(cov)
@@ -707,7 +671,6 @@ class ErrValue(DepErrValue):
             # code above more complicated.
             self._cov[EVContainer(y)] = cov
             y._cov[EVContainer(self)] = cov
-
 
     ### Functions for string input ###
     @classmethod
@@ -724,9 +687,10 @@ class ErrValue(DepErrValue):
         # TODO: Handle decimal seperator properly, depending on locale
         expr_value = r"([+\-]?[0-9]*\.?(?:[0-9]*))"
         expr_error = r"\(\s*([0-9]+)\s*\)"
-        expr_exp   = r"[eE]([+\-]?[0-9]+)"
+        expr_exp = r"[eE]([+\-]?[0-9]+)"
 
-        expr = "^\s*" + expr_value + "\s*(" + expr_error + ")?\s*(" + expr_exp + ")?\s*$"
+        expr = "^\s*" + expr_value + \
+            "\s*(" + expr_error + ")?\s*(" + expr_exp + ")?\s*$"
 
         match = re.match(expr, strvalue)
         if match is None:
@@ -736,7 +700,7 @@ class ErrValue(DepErrValue):
         value = float(match.group(1))
 
         # Extract error
-        if match.group(2) != None:
+        if match.group(2) is not None:
             error = int(match.group(3))
             dec_split = match.group(1).split(".")
             if len(dec_split) > 1:
@@ -745,7 +709,7 @@ class ErrValue(DepErrValue):
             error = None
 
         # Extract exponent
-        if match.group(4) != None:
+        if match.group(4) is not None:
             exp = int(match.group(5))
             value *= pow(10, exp)
             if error is not None:

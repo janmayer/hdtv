@@ -19,9 +19,9 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 # Plugin for executing a python script from the command line
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 
 from __future__ import print_function
 
@@ -35,12 +35,13 @@ def run(args):
     Executes a python script from the hdtv command line (via execfile)
     """
     fname = os.path.expanduser(args[0])
-    print("Running script %s" %fname)
+    print("Running script %s" % fname)
     try:
         exec(compile(open(fname).read(), fname, 'exec'))
     except IOError as msg:
         print(msg)
     print("Finished!")
+
 
 hdtv.cmdline.AddCommand("run", run, nargs=1, fileargs=True)
 

@@ -25,6 +25,7 @@ import ROOT
 import hdtv.ui
 from hdtv.errvalue import ErrValue
 
+
 def Integrate(spec, bg, region):
     hist = spec.hist.hist
 
@@ -35,21 +36,27 @@ def Integrate(spec, bg, region):
     int_sub = None
 
     if bg:
-        for i in range(0, bg.GetDegree()+1):
-            par = ErrValue(bg.GetFunc().GetParameter(i), bg.GetFunc().GetParError(i))
+        for i in range(0, bg.GetDegree() + 1):
+            par = ErrValue(bg.GetFunc().GetParameter(i),
+                           bg.GetFunc().GetParError(i))
             print("bg[%d]: %10s" % (i, par.fmt()))
 
-        int_bac = ROOT.HDTV.Fit.BgIntegral(bg, region[0], region[1], hist.GetXaxis())
-        int_sub = ROOT.HDTV.Fit.TH1BgsubIntegral(hist, bg, region[0], region[1])
+        int_bac = ROOT.HDTV.Fit.BgIntegral(
+            bg, region[0], region[1], hist.GetXaxis())
+        int_sub = ROOT.HDTV.Fit.TH1BgsubIntegral(
+            hist, bg, region[0], region[1])
 
     hdtv.ui.msg("")
-    hdtv.ui.msg("type        position           width          volume        skewness")
-    for (integral, kind) in zip((int_tot, int_bac, int_sub), ("tot:", "bac:", "sub:")):
+    hdtv.ui.msg(
+        "type        position           width          volume        skewness")
+    for (integral, kind) in zip(
+            (int_tot, int_bac, int_sub), ("tot:", "bac:", "sub:")):
         if integral:
             pos = ErrValue(integral.GetMean(), integral.GetMeanError())
             width = ErrValue(integral.GetWidth(), integral.GetWidthError())
             vol = ErrValue(integral.GetIntegral(), integral.GetIntegralError())
-            skew = ErrValue(integral.GetRawSkewness(), integral.GetRawSkewnessError())
+            skew = ErrValue(integral.GetRawSkewness(),
+                            integral.GetRawSkewnessError())
 
             msg = "%s %15s %15s %15s %15s" % \
                 (kind, pos.fmt(), width.fmt(), vol.fmt(), skew.fmt())
@@ -58,21 +65,31 @@ def Integrate(spec, bg, region):
     if spec.cal:
         hdtv.ui.msg("")
         hdtv.ui.msg("type  position (cal)     width (cal)")
-        for (integral, kind) in zip((int_tot, int_bac, int_sub), ("tot:", "bac:", "sub:")):
+        for (integral, kind) in zip(
+                (int_tot, int_bac, int_sub), ("tot:", "bac:", "sub:")):
             if integral:
                 pos_uncal = integral.GetMean()
                 pos_err_uncal = integral.GetMeanError()
                 pos_cal = spec.cal.Ch2E(pos_uncal)
                 pos_err_cal = abs(spec.cal.dEdCh(pos_uncal) * pos_err_uncal)
 
-                hwhm_uncal = integral.GetWidth()/2
+                hwhm_uncal = integral.GetWidth() / 2
                 width_err_uncal = integral.GetWidthError()
-                width_cal = spec.cal.Ch2E(pos_uncal + hwhm_uncal) - spec.cal.Ch2E(pos_uncal - hwhm_uncal)
+                width_cal = spec.cal.Ch2E(
+                    pos_uncal + hwhm_uncal) - spec.cal.Ch2E(pos_uncal - hwhm_uncal)
                 # This is only an approximation, valid as d(width_cal)/d(pos_uncal) \approx 0
                 #  (which is true for Ch2E \approx linear)
-                width_err_cal = abs( (spec.cal.dEdCh(pos_uncal + hwhm_uncal) / 2. +
-                                      spec.cal.dEdCh(pos_uncal - hwhm_uncal) / 2.   ) * width_err_uncal)
+                width_err_cal = abs(
+                    (spec.cal.dEdCh(
+                        pos_uncal +
+                        hwhm_uncal) /
+                        2. +
+                        spec.cal.dEdCh(
+                        pos_uncal -
+                        hwhm_uncal) /
+                        2.) *
+                    width_err_uncal)
                 msg = "%s %15s %15s" % \
-                    (kind, ErrValue(pos_cal, pos_err_cal).fmt(), \
+                    (kind, ErrValue(pos_cal, pos_err_cal).fmt(),
                      ErrValue(width_cal, width_err_cal).fmt())
                 hdtv.ui.msg(msg)

@@ -26,17 +26,18 @@ import __main__
 spectra = __main__.spectra
 spectra.Clear()
 
-testspectrum= os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
+testspectrum = os.path.join(
+    __main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
 
 print("-------------------------------------------------------------------------")
 print("Loading 5 spectra and switch back and forth between them")
 print("-------------------------------------------------------------------------")
 
-for i in range(0,5):
+for i in range(0, 5):
     __main__.s.LoadSpectra(testspectrum)
-    spectra.Get(i).cal=[0,(i+1)*0.5]
+    spectra.Get(i).cal = [0, (i + 1) * 0.5]
 __main__.s.ListSpectra()
-    
+
 input("Press enter to continue ")
 
 print("Show First")
@@ -45,23 +46,23 @@ __main__.s.ListSpectra()
 
 input("Press enter to continue ")
 
-for i in range(0,5):
-    print("Show Next (should be %d)" %((i+1)%5))
+for i in range(0, 5):
+    print("Show Next (should be %d)" % ((i + 1) % 5))
     spectra.ShowNext()
     __main__.s.ListSpectra()
     input("Press enter to continue ")
-    
+
 print("Show Last")
 spectra.ShowLast()
 __main__.s.ListSpectra()
 input("Press enter to continue ")
-    
-for i in range(0,5):
-    print("Show Prev (should be %d)" %(4-(i+1)%5))
+
+for i in range(0, 5):
+    print("Show Prev (should be %d)" % (4 - (i + 1) % 5))
     spectra.ShowPrev()
     __main__.s.ListSpectra()
     input("Press enter to continue ")
-    
+
 print("Show 3")
 spectra.ShowObjects("3")
 __main__.s.ListSpectra()
@@ -96,14 +97,14 @@ print("Remove 3")
 spectra.Pop("3")
 __main__.s.ListSpectra()
 input("Press enter to continue ")
-    
+
 print("Reload one spectrum")
 __main__.s.LoadSpectra(testspectrum)
 __main__.s.ListSpectra()
 input("Press enter to continue ")
 
-for i in range(3,10):
-    print("Show Next (should be %d)" %((i+1)%5))
+for i in range(3, 10):
+    print("Show Next (should be %d)" % ((i + 1) % 5))
     spectra.ShowNext()
     __main__.s.ListSpectra()
     input("Press enter to continue ")

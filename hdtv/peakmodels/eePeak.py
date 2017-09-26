@@ -19,10 +19,10 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 # Peak Model for electron-electron scattering
 # Implementation requested by Oleksiy Burda <burda@ikp.tu-darmstadt.de>
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 import ROOT
 
 from .peak import PeakModel
@@ -34,7 +34,9 @@ class EEPeak(Drawable):
     """
     Peak object for the ee fitter
     """
-    def __init__(self, pos, amp, sigma1, sigma2, eta, gamma, vol, color=None, cal=None):
+
+    def __init__(self, pos, amp, sigma1, sigma2, eta,
+                 gamma, vol, color=None, cal=None):
         Drawable.__init__(self, color, cal)
         self.pos = pos
         self.amp = amp
@@ -51,7 +53,7 @@ class EEPeak(Drawable):
         """
         calculate calibrated values on the fly for pos, sigma1 and sigma2
         """
-        if name=="pos_cal":
+        if name == "pos_cal":
             if self.cal is None:
                 return self.pos
             pos_uncal = self.pos.value
@@ -60,40 +62,44 @@ class EEPeak(Drawable):
             pos_err_cal = abs(self.cal.dEdCh(pos_uncal) * pos_err_uncal)
             # FitValue is not supported because of missing code in C++
             return ErrValue(pos_cal, pos_err_cal)
-        elif name=="sigma1_cal":
+        elif name == "sigma1_cal":
             if self.cal is None:
                 return self.sigma1
             pos_uncal = self.pos.value
             sigma1_uncal = self.sigma1.value
             sigma1_err_uncal = self.sigma1.error
-            sigma1_cal = self.cal.Ch2E(pos_uncal) - self.cal.Ch2E(pos_uncal - sigma1_uncal)
+            sigma1_cal = self.cal.Ch2E(
+                pos_uncal) - self.cal.Ch2E(pos_uncal - sigma1_uncal)
             # This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
             #  (which is true for Ch2E \approx linear)
-            sigma1_err_cal = abs( self.cal.dEdCh(pos_uncal - sigma1_uncal) * sigma1_err_uncal)
+            sigma1_err_cal = abs(self.cal.dEdCh(
+                pos_uncal - sigma1_uncal) * sigma1_err_uncal)
             # FitValue is not supported because of missing code in C++
             return ErrValue(sigma1_cal, sigma1_err_cal)
-        elif name=="sigma2_cal":
+        elif name == "sigma2_cal":
             if self.cal is None:
                 return self.sigma2
             pos_uncal = self.pos.value
             sigma2_uncal = self.sigma2.value
             sigma2_err_uncal = self.sigma2.error
-            sigma2_cal = self.cal.Ch2E(pos_uncal) - self.cal.Ch2E(pos_uncal - sigma2_uncal)
+            sigma2_cal = self.cal.Ch2E(
+                pos_uncal) - self.cal.Ch2E(pos_uncal - sigma2_uncal)
             # This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
             #  (which is true for Ch2E \approx linear)
-            sigma2_err_cal = abs( self.cal.dEdCh(pos_uncal - sigma2_uncal) * sigma2_err_uncal)
+            sigma2_err_cal = abs(self.cal.dEdCh(
+                pos_uncal - sigma2_uncal) * sigma2_err_uncal)
             # FitValue is not supported because of missing code in C++
             return ErrValue(sigma2_cal, sigma2_err_cal)
-        elif name in ["amp_cal","eta_cal","gamma_cal","vol_cal"]:
+        elif name in ["amp_cal", "eta_cal", "gamma_cal", "vol_cal"]:
             name = name[0:name.rfind("_cal")]
             return getattr(self, name)
         else:
-            # DON'T FORGET THIS LINE! see http://code.activestate.com/recipes/52238/
+            # DON'T FORGET THIS LINE! see
+            # http://code.activestate.com/recipes/52238/
             raise AttributeError(name)
 
     def __str__(self):
         return self.formatted_str(verbose=False)
-
 
     def formatted_str(self, verbose=False):
         """
@@ -110,33 +116,26 @@ class EEPeak(Drawable):
             text += "Gamma:       " + self.gamma.fmt() + "\n"
             text += "Volume:      " + self.vol.fmt() + "\n"
         else:
-            text += "Peak@ %s \n" %self.pos_cal.fmt()
+            text += "Peak@ %s \n" % self.pos_cal.fmt()
         return text
-
 
     def __eq__(self, other):
         return self.pos.value == other.pos.value
 
-
     def __ne__(self, other):
         return self.pos.value != other.pos.value
-
 
     def __gt__(self, other):
         return self.pos.value > other.pos.value
 
-
     def __lt__(self, other):
         return self.pos.value < other.pos.value
-
 
     def __ge__(self, other):
         return self.pos.value >= other.pos.value
 
-
     def __le__(self, other):
         return self.pos.value <= other.pos.value
-
 
     def Draw(self, viewport):
         """
@@ -150,7 +149,8 @@ class EEPeak(Drawable):
             else:
                 # Unlike the Display object of the underlying implementation,
                 # python objects can only be drawn on a single viewport
-                raise RuntimeError("Peak cannot be drawn on multiple viewports")
+                raise RuntimeError(
+                    "Peak cannot be drawn on multiple viewports")
         self.viewport = viewport
         if self.displayObj:
             self.displayObj.Draw(self.viewport)
@@ -160,24 +160,31 @@ class PeakModelEE(PeakModel):
     """
     Peak model for electron-electron scattering
     """
+
     def __init__(self):
         PeakModel.__init__(self)
-        self.fOrderedParamKeys = ["pos", "amp", "sigma1", "sigma2", "eta", "gamma", "vol"]
-        self.fParStatus = { "pos": None, "amp": None, "sigma1": None, "sigma2": None,
-                            "eta": None, "gamma": None, "vol":None }
+        self.fOrderedParamKeys = ["pos", "amp",
+                                  "sigma1", "sigma2", "eta", "gamma", "vol"]
+        self.fParStatus = {
+            "pos": None,
+            "amp": None,
+            "sigma1": None,
+            "sigma2": None,
+            "eta": None,
+            "gamma": None,
+            "vol": None}
         # Note that volume is not a true fit parameter, but calculated from
         # the other parameters after the fit
-        self.fValidParStatus = { "pos":    [ float, "free", "hold" ],
-                                 "amp":    [ float, "free", "hold" ],
-                                 "sigma1": [ float, "free", "equal" ],
-                                 "sigma2": [ float, "free", "equal" ],
-                                 "eta":    [ float, "free", "equal" ],
-                                 "gamma":  [ float, "free", "equal" ],
-                                 "vol":    ["calculated"] }
+        self.fValidParStatus = {"pos": [float, "free", "hold"],
+                                "amp": [float, "free", "hold"],
+                                "sigma1": [float, "free", "equal"],
+                                "sigma2": [float, "free", "equal"],
+                                "eta": [float, "free", "equal"],
+                                "gamma": [float, "free", "equal"],
+                                "vol": ["calculated"]}
         self.ResetParamStatus()
         self.name = "ee"
         self.Peak = EEPeak
-
 
     def CopyPeak(self, cpeak, color=None, cal=None):
         """
@@ -203,12 +210,12 @@ class PeakModelEE(PeakModel):
         Restore the params of a C++ peak object using a python peak object
         """
         cpeak.RestorePos(peak.pos.value, peak.pos.error)
-        cpeak.RestoreAmp(peak.amp.value,peak.amp.error)
-        cpeak.RestoreSigma1(peak.sigma1.value,peak.sigma1.error)
-        cpeak.RestoreSigma2(peak.sigma2.value,peak.sigma2.error)
-        cpeak.RestoreEta(peak.eta.value,peak.eta.error)
-        cpeak.RestoreGamma(peak.gamma.value,peak.gamma.error)
-        cpeak.RestoreVol(peak.vol.value,peak.vol.error)
+        cpeak.RestoreAmp(peak.amp.value, peak.amp.error)
+        cpeak.RestoreSigma1(peak.sigma1.value, peak.sigma1.error)
+        cpeak.RestoreSigma2(peak.sigma2.value, peak.sigma2.error)
+        cpeak.RestoreEta(peak.eta.value, peak.eta.error)
+        cpeak.RestoreGamma(peak.gamma.value, peak.gamma.error)
+        cpeak.RestoreVol(peak.vol.value, peak.vol.error)
 
     def ResetParamStatus(self):
         """
@@ -242,13 +249,12 @@ class PeakModelEE(PeakModel):
         else:
             raise RuntimeError("Unexpected parameter name")
 
-
     def GetFitter(self, region, peaklist, cal):
         """
         Creates a C++ Fitter object, which can then do the real work
         """
 
-        self.fFitter = ROOT.HDTV.Fit.EEFitter(region[0],region[1])
+        self.fFitter = ROOT.HDTV.Fit.EEFitter(region[0], region[1])
 
         self.ResetGlobalParams()
 

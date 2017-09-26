@@ -3,7 +3,8 @@
 
 import json
 import hdtv.util
-import urllib.request, urllib.error
+import urllib.request
+import urllib.error
 import hdtv.ui
 from hdtv.database.common import *
 
@@ -12,7 +13,7 @@ def SearchNuclide(nuclide):
     """
     Opens table of nuclides with peak energies, gives back the peak energies of the nuclide and its intensities.
     """
-    Energies = [] #the energies of the right nuclide will be saved in this list
+    Energies = []  # the energies of the right nuclide will be saved in this list
     EnergiesError = []
     Intensities = []
     IntensitiesError = []
@@ -24,7 +25,7 @@ def SearchNuclide(nuclide):
         nuclide = "Ra-226D"
 
     try:
-        with urllib.request.urlopen("http://www.nucleide.org/DDEP_WG/Nuclides/"+str(nuclide)+".lara.txt") as resource:
+        with urllib.request.urlopen("http://www.nucleide.org/DDEP_WG/Nuclides/" + str(nuclide) + ".lara.txt") as resource:
             data = resource.read().decode("utf-8")
     except urllib.error.HTTPError as e:
         hdtv.ui.error("Error looking up nuclide: {}".format(e.msg))
@@ -39,22 +40,24 @@ def SearchNuclide(nuclide):
 
         if str(sep[0]) == "Reference":
             source = str(sep[1])
-            source = source.replace(source[-1],"")
-            source = source.replace(source[-1],"")
+            source = source.replace(source[-1], "")
+            source = source.replace(source[-1], "")
 
         try:
             if str(sep[4]) == "g":
                 Energies.append(float(sep[0]))
                 try:
                     EnergiesError.append(float(sep[1]))
-                except:
+                except BaseException:
                     EnergiesError.append(0)
-                Intensities.append(float(sep[2])/100)#because it is given in %
+                # because it is given in %
+                Intensities.append(float(sep[2]) / 100)
                 try:
-                    IntensitiesError.append(float(sep[3])/100)#because it is given in %
-                except:
+                    IntensitiesError.append(
+                        float(sep[3]) / 100)  # because it is given in %
+                except BaseException:
                     IntensitiesError.append(0)
-        except:
+        except BaseException:
             pass
 
     return Energies, EnergiesError, Intensities, IntensitiesError, Halflive, HalfliveError, source

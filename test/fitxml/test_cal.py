@@ -18,9 +18,9 @@
 # You should have received a copy of the GNU General Public License
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
-################################################################################
+##########################################################################
 # This script tests the interplay of fitting and restoring fits with calibration
-################################################################################
+##########################################################################
 
 from __future__ import print_function
 
@@ -30,7 +30,8 @@ import xml.etree.cElementTree as ET
 
 import __main__
 
-testspectrum= os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
+testspectrum = os.path.join(
+    __main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
 testXML = os.path.join(__main__.hdtvpath, "test", "fitxml", "fit.xml")
 
 spectra = __main__.spectra
@@ -45,7 +46,7 @@ spectra.SetMarker("region", 1450)
 spectra.SetMarker("region", 1470)
 spectra.SetMarker("peak", 1460)
 spectra.window.GoToPosition(1460)
-spectra.ApplyCalibration("0", [0,2])
+spectra.ApplyCalibration("0", [0, 2])
 
 input("Press enter to continue...")
 
@@ -75,7 +76,7 @@ print("-------------------------------------------------------------------------
 print(" Case 3: Change calibration after fit is executed")
 print(" Fit should move with spectrum to new position")
 print("-------------------------------------------------------------------------")
-spectra.ApplyCalibration("0", [0,0.5])
+spectra.ApplyCalibration("0", [0, 0.5])
 spectra.window.GoToPosition(730)
 __main__.f.PrintWorkFit()
 
@@ -113,7 +114,7 @@ print(" Stored fit should move with spectrum to new position")
 print("-------------------------------------------------------------------------")
 spectra.ActivateFit(None)
 spectra.ClearFit()
-spectra.ApplyCalibration("0", [0,2])
+spectra.ApplyCalibration("0", [0, 2])
 spectra.window.GoToPosition(2920)
 __main__.f.ListFits()
 
@@ -154,7 +155,7 @@ print("-------------------------------------------------------------------------
 print(" Case 11: Write/Read fit and calibrate afterwards")
 print(" Fit should move with spectrum to new calibration")
 print("-------------------------------------------------------------------------")
-spectra.ApplyCalibration("0", [0,0.5])
+spectra.ApplyCalibration("0", [0, 0.5])
 spectra.window.GoToPosition(730)
 __main__.f.ListFits()
 
@@ -164,13 +165,11 @@ print("-------------------------------------------------------------------------
 print(" Case 12: Write/Read fit and change calibration in between")
 print(" Fit should appear at the new calibrated position")
 print("-------------------------------------------------------------------------")
-__main__.fitxml.WriteXML(spectra.Get(0).ID,testXML)
+__main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
 spectra.Get(0).Clear()
-spectra.ApplyCalibration(0, [0,2])
+spectra.ApplyCalibration(0, [0, 2])
 spectra.window.GoToPosition(2920)
 __main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
 __main__.f.ListFits()
 
 input("Press enter to continue...")
-
-

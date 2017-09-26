@@ -19,14 +19,16 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 # Infrastructure for configuration variables
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
+
 
 class Option(object):
     """
     A configuration variable
     """
+
     def __init__(self, default=None,
                  parse=lambda x: x,
                  toStr=lambda x: str(x),
@@ -82,8 +84,10 @@ def RegisterOption(varname, variable):
     """
     global variables
     if varname in list(variables.keys()):
-        raise RuntimeError("Refusing to overwrite existing configuration variable")
+        raise RuntimeError(
+            "Refusing to overwrite existing configuration variable")
     variables[varname] = variable
+
 
 def Set(varname, rawValue):
     """
@@ -92,12 +96,14 @@ def Set(varname, rawValue):
     global variables
     variables[varname].ParseAndSet(rawValue)
 
+
 def Get(varname):
     """
     Gets the value of the variable varname. Raises a KeyError if it does not exist.
     """
     global variables
     return variables[varname].Get()
+
 
 def Reset(varname):
     """
@@ -106,6 +112,7 @@ def Reset(varname):
     global variables
     return variables[varname].Reset()
 
+
 def Show(varname):
     """
     Shows the value of the variable varname
@@ -113,15 +120,17 @@ def Show(varname):
     global variables
     return "%s: %s" % (varname, str(variables[varname]))
 
+
 def Str():
     """
     Returns all options as a string
     """
     global variables
     string = ""
-    for (k,v) in variables.items():
+    for (k, v) in variables.items():
         string += "%s: %s\n" % (k, str(v))
     return string
+
 
 def ParseBool(x):
     """
@@ -133,5 +142,6 @@ def ParseBool(x):
         return False
     else:
         raise ValueError
+
 
 variables = dict()

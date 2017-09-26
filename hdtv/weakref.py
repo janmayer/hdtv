@@ -22,7 +22,7 @@
 #
 # -----------------------------------------------------------------------------
 
-__all__ = [ 'weakref' ]
+__all__ = ['weakref']
 
 # python imports
 from _weakref import ref
@@ -31,6 +31,7 @@ from _weakref import ref
 class NoneProxy(object):
     def __call__(self):
         return None
+
 
 class weakref(object):
     """
@@ -58,7 +59,7 @@ class weakref(object):
 
     def __init__(self, object):
         if object is not None:
-            if type(object) == weakref:
+            if isinstance(object, weakref):
                 self._ref = object._ref
             else:
                 self._ref = ref(object)
@@ -96,32 +97,32 @@ class weakref(object):
             return 0
 
     def __eq__(self, other):
-        if type(other) == weakref:
+        if isinstance(other, weakref):
             other = other._ref()
         return self._ref() == other
 
     def __ne__(self, other):
-        if type(other) == weakref:
+        if isinstance(other, weakref):
             other = other._ref()
         return self._ref() != other
 
     def __gt__(self, other):
-        if type(other) == weakref:
+        if isinstance(other, weakref):
             other = other._ref()
         return self._ref() > other
 
     def __lt__(self, other):
-        if type(other) == weakref:
+        if isinstance(other, weakref):
             other = other._ref()
         return self._ref() < other
 
     def __ge__(self, other):
-        if type(other) == weakref:
+        if isinstance(other, weakref):
             other = other._ref()
         return self._ref() >= other
 
     def __le__(self, other):
-        if type(other) == weakref:
+        if isinstance(other, weakref):
             other = other._ref()
         return self._ref() <= other
 

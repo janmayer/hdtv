@@ -30,6 +30,7 @@ from hdtv.weakref import weakref
 
 import copy
 
+
 class Fit(Drawable):
     """
     Fit object
@@ -50,11 +51,11 @@ class Fit(Drawable):
 
     def __init__(self, fitter, color=None, cal=None):
         self.regionMarkers = MarkerCollection("X", paired=True, maxnum=1,
-                                             color=hdtv.color.region, cal=cal)
+                                              color=hdtv.color.region, cal=cal)
         self.peakMarkers = MarkerCollection("X", paired=False, maxnum=None,
-                                             color=hdtv.color.peak, cal=cal)
+                                            color=hdtv.color.peak, cal=cal)
         self.bgMarkers = MarkerCollection("X", paired=True, maxnum=None,
-                                             color=hdtv.color.bg, cal=cal)
+                                          color=hdtv.color.bg, cal=cal)
         self.fitter = fitter
         self.peaks = []
         self.chi = None
@@ -100,7 +101,7 @@ class Fit(Drawable):
     def _get_cal(self):
         return self._cal
 
-    cal = property(_get_cal,_set_cal)
+    cal = property(_get_cal, _set_cal)
 
     # color property
     def _set_color(self, color):
@@ -175,10 +176,11 @@ class Fit(Drawable):
         show fit results in a nice table
         """
         (objects, params) = self.ExtractParams()
-        header = "WorkFit on spectrum: " + str(self.spec.ID) + " (" + self.spec.name + ")"
+        header = "WorkFit on spectrum: " + \
+            str(self.spec.ID) + " (" + self.spec.name + ")"
         footer = "\n" + str(len(objects)) + " peaks in WorkFit"
         table = Table(objects, list(params), sortBy="id",
-                      extra_header = header, extra_footer = footer)
+                      extra_header=header, extra_footer=footer)
         return str(table)
 
     def formatted_str(self, verbose=True):
@@ -187,16 +189,16 @@ class Fit(Drawable):
 
         TODO: Since we do not use this any longer, we may as well remove it.
         """
-        i=0
+        i = 0
         text = str()
         for peak in self.peaks:
-            text += ("\nPeak %d:" %i).ljust(10)
+            text += ("\nPeak %d:" % i).ljust(10)
             peakstr = peak.formatted_str(verbose).strip()
             peakstr = peakstr.split("\n")
-            peakstr =("\n".ljust(10)).join(peakstr)
+            peakstr = ("\n".ljust(10)).join(peakstr)
             text += peakstr
-            i+=1
-        text += "\n\n chi^2 of fit: %d" %self.chi
+            i += 1
+        text += "\n\n chi^2 of fit: %d" % self.chi
         return text
 
     def ExtractParams(self):
@@ -212,11 +214,12 @@ class Fit(Drawable):
         # Get peaks
         for peak in self.peaks:
             thispeak = dict()
-            thispeak["chi"] = "%d" %self.chi
+            thispeak["chi"] = "%d" % self.chi
             if self.ID is None:
                 thispeak["id"] = hdtv.util.ID(None, self.peaks.index(peak))
             else:
-                thispeak["id"] = hdtv.util.ID(self.ID.major, self.peaks.index(peak))
+                thispeak["id"] = hdtv.util.ID(
+                    self.ID.major, self.peaks.index(peak))
             thispeak["stat"] = str()
             if self.active:
                 thispeak["stat"] += "A"
@@ -242,7 +245,7 @@ class Fit(Drawable):
                     params.append(p)
             # Calculate normalized volume if efficiency calibration is present
             # FIXME: does this belong here?
-            #if self.spec.effCal is not None:
+            # if self.spec.effCal is not None:
             #    volume = thispeak["vol"]
             #    energy = thispeak["pos"]
             #    norm_volume = volume / self.spec.effCal(energy)
@@ -253,7 +256,6 @@ class Fit(Drawable):
             peaklist.append(thispeak)
         return (peaklist, params)
 
-
     def ChangeMarker(self, mtype, pos, action):
         """
         Set a new marker or remove a marker.
@@ -262,7 +264,7 @@ class Fit(Drawable):
         mtype  : "bg", "region", "peak"
         """
         self.spec = None
-        markers = getattr(self, "%sMarkers" %mtype)
+        markers = getattr(self, "%sMarkers" % mtype)
         if action is "set":
             markers.SetMarker(pos)
         if action is "remove":
@@ -282,7 +284,6 @@ class Fit(Drawable):
         for m in [self.bgMarkers, self.regionMarkers, self.peakMarkers]:
             m.FixInUncal()
 
-
     def FitBgFunc(self, spec):
         """
         Do the background fit and extract the function for display
@@ -291,22 +292,22 @@ class Fit(Drawable):
         self.spec = spec
         self.Erase()
         # fit background
-        if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
+        if len(self.bgMarkers) > 0 and not self.bgMarkers.IsPending():
             backgrounds = Pairs()
             for m in self.bgMarkers:
                 backgrounds.add(m.p1.pos_uncal, m.p2.pos_uncal)
             self.fitter.FitBackground(spec=self.spec, backgrounds=backgrounds)
             func = self.fitter.bgFitter.GetFunc()
-            self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
+            self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(
+                func, hdtv.color.bg)
             self.dispBgFunc.SetCal(self.cal)
             self.bgChi = self.fitter.bgFitter.GetChisquare()
             self.bgCoeffs = []
             deg = self.fitter.bgFitter.GetDegree()
-            for i in range(0, deg+1):
+            for i in range(0, deg + 1):
                 value = self.fitter.bgFitter.GetCoeff(i)
                 error = self.fitter.bgFitter.GetCoeffError(i)
                 self.bgCoeffs.append(ErrValue(value, error))
-
 
     def FitPeakFunc(self, spec):
         """
@@ -320,51 +321,54 @@ class Fit(Drawable):
         self.spec = spec
         self.Erase()
         # fit background
-        if self.fitter.bgdeg!=-1 and len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
+        if self.fitter.bgdeg != - \
+                1 and len(self.bgMarkers) > 0 and not self.bgMarkers.IsPending():
             backgrounds = Pairs()
             for m in self.bgMarkers:
                 backgrounds.add(m.p1.pos_uncal, m.p2.pos_uncal)
             self.fitter.FitBackground(spec=self.spec, backgrounds=backgrounds)
         # fit peaks
-        if len(self.peakMarkers)>0 and self.regionMarkers.IsFull():
-            region = [self.regionMarkers[0].p1.pos_uncal, self.regionMarkers[0].p2.pos_uncal]
+        if len(self.peakMarkers) > 0 and self.regionMarkers.IsFull():
+            region = sorted([self.regionMarkers[0].p1.pos_uncal,
+                             self.regionMarkers[0].p2.pos_uncal])
             # remove peak marker that are outside of region
-            region.sort()
             for m in self.peakMarkers[:]:
                 # we need to loop over a copy here,
                 # otherwise we get out of sync after deleting items
-                if m.p1.pos_uncal<region[0] or m.p1.pos_uncal>region[1]:
+                if m.p1.pos_uncal < region[0] or m.p1.pos_uncal > region[1]:
                     self.peakMarkers.remove(m)
-            peaks = [m.p1.pos_uncal for m in self.peakMarkers]
-            peaks.sort()
+            peaks = sorted([m.p1.pos_uncal for m in self.peakMarkers])
             self.fitter.FitPeaks(spec=self.spec, region=region, peaklist=peaks)
             # get background function
             self.bgCoeffs = []
             deg = self.fitter.bgdeg
             if not self.fitter.bgFitter:
-                 for i in range(deg+1):
-                    value=self.fitter.peakFitter.GetIntBgCoeff(i)
-                    error=self.fitter.peakFitter.GetIntBgCoeffError(i)
+                for i in range(deg + 1):
+                    value = self.fitter.peakFitter.GetIntBgCoeff(i)
+                    error = self.fitter.peakFitter.GetIntBgCoeffError(i)
                     self.bgCoeffs.append(ErrValue(value, error))
             else:
                 # external background
                 self.bgChi = self.fitter.bgFitter.GetChisquare()
-                for i in range(deg+1):
+                for i in range(deg + 1):
                     value = self.fitter.bgFitter.GetCoeff(i)
                     error = self.fitter.bgFitter.GetCoeffError(i)
                     self.bgCoeffs.append(ErrValue(value, error))
             func = self.fitter.peakFitter.GetBgFunc()
-            self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
+            self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(
+                func, hdtv.color.bg)
             self.dispBgFunc.SetCal(self.cal)
             # get peak function
             func = self.fitter.peakFitter.GetSumFunc()
-            self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.region)
+            self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(
+                func, hdtv.color.region)
             self.dispPeakFunc.SetCal(self.cal)
             self.chi = self.fitter.peakFitter.GetChisquare()
             # create peak list
             for i in range(0, self.fitter.peakFitter.GetNumPeaks()):
                 cpeak = self.fitter.peakFitter.GetPeak(i)
-                peak = self.fitter.peakModel.CopyPeak(cpeak, hdtv.color.peak, self.cal)
+                peak = self.fitter.peakModel.CopyPeak(
+                    cpeak, hdtv.color.peak, self.cal)
                 self.peaks.append(peak)
             # in some rare cases it can happen that peaks change position
             # while doing the fit, thus we have to sort here
@@ -384,13 +388,16 @@ class Fit(Drawable):
         self.cal = spec.cal
         self.color = spec.color
         self.FixMarkerInUncal()
-        if len(self.bgMarkers)>0 and not self.bgMarkers.IsPending():
+        if len(self.bgMarkers) > 0 and not self.bgMarkers.IsPending():
             backgrounds = Pairs()
             for m in self.bgMarkers:
                 backgrounds.add(m.p1.pos_uncal, m.p2.pos_uncal)
-            self.fitter.RestoreBackground(backgrounds=backgrounds, coeffs=self.bgCoeffs, chisquare=self.bgChi)
-        region = [self.regionMarkers[0].p1.pos_uncal, self.regionMarkers[0].p2.pos_uncal]
-        region.sort()
+            self.fitter.RestoreBackground(
+                backgrounds=backgrounds,
+                coeffs=self.bgCoeffs,
+                chisquare=self.bgChi)
+        region = sorted([self.regionMarkers[0].p1.pos_uncal,
+                         self.regionMarkers[0].p2.pos_uncal])
         self.fitter.RestorePeaks(cal=self.cal, region=region, peaks=self.peaks,
                                  chisquare=self.chi, coeffs=self.bgCoeffs)
         # get background function
@@ -406,7 +413,8 @@ class Fit(Drawable):
         for i in range(0, self.fitter.peakFitter.GetNumPeaks()):
             cpeak = self.fitter.peakFitter.GetPeak(i)
             func = cpeak.GetPeakFunc()
-            self.peaks[i].displayObj = ROOT.HDTV.Display.DisplayFunc(func, self.color)
+            self.peaks[i].displayObj = ROOT.HDTV.Display.DisplayFunc(
+                func, self.color)
             self.peaks[i].displayObj.SetCal(self.cal)
 
     def Draw(self, viewport):
@@ -482,7 +490,7 @@ class Fit(Drawable):
             # remove peak fit
             self.dispPeakFunc = None
             self.peaks = []
-            self.chi=None
+            self.chi = None
 
     def ShowAsWorkFit(self):
         if not self.viewport:
@@ -509,7 +517,6 @@ class Fit(Drawable):
                 peak.Hide()
         self.viewport.UnlockUpdate()
 
-
     def ShowAsPending(self):
         if not self.viewport:
             return
@@ -534,7 +541,6 @@ class Fit(Drawable):
             else:
                 peak.Hide()
         self.viewport.UnlockUpdate()
-
 
     def ShowAsPassive(self):
         if not self.viewport:
@@ -564,7 +570,6 @@ class Fit(Drawable):
                 peak.Hide()
         self.viewport.UnlockUpdate()
 
-
     def Show(self):
         if not self.viewport:
             return
@@ -575,7 +580,6 @@ class Fit(Drawable):
                 self.ShowAsPending()
         else:
             self.ShowAsPassive()
-
 
     def Hide(self):
         if not self.viewport:
@@ -630,7 +634,6 @@ class Fit(Drawable):
     def __le__(self, other):
         return self.xdimensions <= other.xdimensions
 
-
     @property
     def xdimensions(self):
         """
@@ -651,7 +654,7 @@ class Fit(Drawable):
             markers.append(b.p1.pos_cal)
             markers.append(b.p2.pos_cal)
         # calulate region limits
-        if len(markers) == 0: # No markers
+        if len(markers) == 0:  # No markers
             return None
         else:
             x_start = min(markers)
@@ -662,7 +665,7 @@ class Fit(Drawable):
         """
         Sets whether to display a decomposition of the fit
         """
-        self._showDecomp =  stat
+        self._showDecomp = stat
         if stat:
             for peak in self.peaks:
                 peak.Show()

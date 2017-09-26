@@ -28,13 +28,13 @@ rand = ROOT.TRandom2()
 
 h = ROOT.TH2I("test", "test", 300, -60, 40, 300, -60., 100.)
 
-for i in range(0,1000000):
+for i in range(0, 1000000):
     x = rand.Gaus(0., 1.)
     y = rand.Gaus(0., 2.)
-    f = 3*x+2*y+5.
-    g = x-3*y-10.
-    
-    h.Fill(f+g-10., f-2*g-10.)
-    
+    f = 3 * x + 2 * y + 5.
+    g = x - 3 * y - 10.
+
+    h.Fill(f + g - 10., f - 2 * g - 10.)
+
 print("MC result: %.6f" % h.GetCovariance())
 print("Expected: -28")

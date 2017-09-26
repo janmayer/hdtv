@@ -19,11 +19,11 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-################################################################################
+##########################################################################
 # This script contains some test cases for the writing and reading of fits to XML
-# If this test work fine, one also needs to test, how thing behave after changing  
+# If this test work fine, one also needs to test, how thing behave after changing
 # the calibration back and forth (see test_cal.py for that).
-################################################################################
+##########################################################################
 
 from __future__ import print_function
 
@@ -33,7 +33,8 @@ import __main__
 spectra = __main__.spectra
 spectra.Clear()
 
-testspectrum= os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
+testspectrum = os.path.join(
+    __main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
 testXML = os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.xml")
 
 
@@ -63,7 +64,7 @@ print('Saving fits to file %s' % testXML)
 __main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
 print('Deleting all fits')
 spectra.Get(0).Clear()
-print('Reading fits from file %s' %testXML)
+print('Reading fits from file %s' % testXML)
 __main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
 __main__.f.ListFits()
 
@@ -94,7 +95,7 @@ print('Saving fits to file %s' % testXML)
 __main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
 print('Deleting all fits')
 spectra.Get(0).Clear()
-print('Reading fits from file %s' %testXML)
+print('Reading fits from file %s' % testXML)
 __main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
 __main__.f.ListFits()
 
@@ -126,7 +127,7 @@ print('Saving fits to file %s' % testXML)
 __main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
 print('Deleting all fits')
 spectra.Get(0).Clear()
-print('Reading fits from file %s' %testXML)
+print('Reading fits from file %s' % testXML)
 __main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
 __main__.f.ListFits()
 
@@ -160,7 +161,7 @@ print('Saving fits to file %s' % testXML)
 __main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
 print('Deleting all fits')
 spectra.Get(0).Clear()
-print('Reading fits from file %s' %testXML)
+print('Reading fits from file %s' % testXML)
 __main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
 __main__.f.ListFits()
 
@@ -195,7 +196,7 @@ print('Saving fits to file %s' % testXML)
 __main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
 print('Deleting all fits')
 spectra.Get(0).Clear()
-print('Reading fits from file %s' %testXML)
+print('Reading fits from file %s' % testXML)
 __main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
 __main__.f.ListFits()
 
@@ -225,14 +226,8 @@ print('Saving fits to file %s' % testXML)
 __main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
 print('Deleting all fits')
 spectra.Get(0).Clear()
-print('Reading fits from file %s' %testXML)
+print('Reading fits from file %s' % testXML)
 __main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
 __main__.f.ListFits()
 
 input("Press enter to continue")
-
-
-
-
-
-
