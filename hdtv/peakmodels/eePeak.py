@@ -56,39 +56,36 @@ class EEPeak(Drawable):
         if name == "pos_cal":
             if self.cal is None:
                 return self.pos
-            pos_uncal = self.pos.value
-            pos_err_uncal = self.pos.error
+            pos_uncal = self.pos.nominal_value
+            pos_err_uncal = self.pos.std_dev
             pos_cal = self.cal.Ch2E(pos_uncal)
             pos_err_cal = abs(self.cal.dEdCh(pos_uncal) * pos_err_uncal)
-            # FitValue is not supported because of missing code in C++
             return ErrValue(pos_cal, pos_err_cal)
         elif name == "sigma1_cal":
             if self.cal is None:
                 return self.sigma1
-            pos_uncal = self.pos.value
-            sigma1_uncal = self.sigma1.value
-            sigma1_err_uncal = self.sigma1.error
+            pos_uncal = self.pos.nominal_value
+            sigma1_uncal = self.sigma1.nominal_value
+            sigma1_err_uncal = self.sigma1.std_dev
             sigma1_cal = self.cal.Ch2E(
                 pos_uncal) - self.cal.Ch2E(pos_uncal - sigma1_uncal)
             # This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
             #  (which is true for Ch2E \approx linear)
             sigma1_err_cal = abs(self.cal.dEdCh(
                 pos_uncal - sigma1_uncal) * sigma1_err_uncal)
-            # FitValue is not supported because of missing code in C++
             return ErrValue(sigma1_cal, sigma1_err_cal)
         elif name == "sigma2_cal":
             if self.cal is None:
                 return self.sigma2
-            pos_uncal = self.pos.value
-            sigma2_uncal = self.sigma2.value
-            sigma2_err_uncal = self.sigma2.error
+            pos_uncal = self.pos.nominal_value
+            sigma2_uncal = self.sigma2.nominal_value
+            sigma2_err_uncal = self.sigma2.std_dev
             sigma2_cal = self.cal.Ch2E(
                 pos_uncal) - self.cal.Ch2E(pos_uncal - sigma2_uncal)
             # This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
             #  (which is true for Ch2E \approx linear)
             sigma2_err_cal = abs(self.cal.dEdCh(
                 pos_uncal - sigma2_uncal) * sigma2_err_uncal)
-            # FitValue is not supported because of missing code in C++
             return ErrValue(sigma2_cal, sigma2_err_cal)
         elif name in ["amp_cal", "eta_cal", "gamma_cal", "vol_cal"]:
             name = name[0:name.rfind("_cal")]
@@ -120,22 +117,22 @@ class EEPeak(Drawable):
         return text
 
     def __eq__(self, other):
-        return self.pos.value == other.pos.value
+        return self.pos.nominal_value == other.pos.nominal_value
 
     def __ne__(self, other):
-        return self.pos.value != other.pos.value
+        return self.pos.nominal_value != other.pos.nominal_value
 
     def __gt__(self, other):
-        return self.pos.value > other.pos.value
+        return self.pos.nominal_value > other.pos.nominal_value
 
     def __lt__(self, other):
-        return self.pos.value < other.pos.value
+        return self.pos.nominal_value < other.pos.nominal_value
 
     def __ge__(self, other):
-        return self.pos.value >= other.pos.value
+        return self.pos.nominal_value >= other.pos.nominal_value
 
     def __le__(self, other):
-        return self.pos.value <= other.pos.value
+        return self.pos.nominal_value <= other.pos.nominal_value
 
     def Draw(self, viewport):
         """
@@ -190,7 +187,6 @@ class PeakModelEE(PeakModel):
         """
         Copies peak data from a C++ peak class to a Python class
         """
-        # create ErrValues (the use of FitValues is not implemented in C++)
         pos = ErrValue(cpeak.GetPos(), cpeak.GetPosError())
         amp = ErrValue(cpeak.GetAmp(), cpeak.GetAmpError())
         sigma1 = ErrValue(cpeak.GetSigma1(), cpeak.GetSigma1Error())
@@ -209,13 +205,13 @@ class PeakModelEE(PeakModel):
         """
         Restore the params of a C++ peak object using a python peak object
         """
-        cpeak.RestorePos(peak.pos.value, peak.pos.error)
-        cpeak.RestoreAmp(peak.amp.value, peak.amp.error)
-        cpeak.RestoreSigma1(peak.sigma1.value, peak.sigma1.error)
-        cpeak.RestoreSigma2(peak.sigma2.value, peak.sigma2.error)
-        cpeak.RestoreEta(peak.eta.value, peak.eta.error)
-        cpeak.RestoreGamma(peak.gamma.value, peak.gamma.error)
-        cpeak.RestoreVol(peak.vol.value, peak.vol.error)
+        cpeak.RestorePos(peak.pos.nominal_value, peak.pos.std_dev)
+        cpeak.RestoreAmp(peak.amp.nominal_value, peak.amp.std_dev)
+        cpeak.RestoreSigma1(peak.sigma1.nominal_value, peak.sigma1.std_dev)
+        cpeak.RestoreSigma2(peak.sigma2.nominal_value, peak.sigma2.std_dev)
+        cpeak.RestoreEta(peak.eta.nominal_value, peak.eta.std_dev)
+        cpeak.RestoreGamma(peak.gamma.nominal_value, peak.gamma.std_dev)
+        cpeak.RestoreVol(peak.vol.nominal_value, peak.vol.std_dev)
 
     def ResetParamStatus(self):
         """

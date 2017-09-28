@@ -192,8 +192,8 @@ class Pairs(list):
                 "Lists for Pairs.fromLists() are of different length")
             return False
 
-        for i in range(0, len(list1)):
-            self.add(list1[i], list2[i])
+        for item1, item2 in zip(list1, list2):
+            self.add(item1, item2)
 
 
 opt = hdtv.options.Option(default="classic")
@@ -283,9 +283,9 @@ class Table(object):
         lines = list()
         for d in self.data:
             line = list()
-            for i in range(0, len(self.keys)):
+            for i, key in enumerate(self.keys):
                 try:
-                    value = d[self.keys[i]]
+                    value = d[key]
                     # deal with ErrValues
                     try:
                         if value.value is None:

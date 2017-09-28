@@ -62,7 +62,7 @@ class _Elements(list):
                 Symbol = line[1].strip()
                 Name = line[2].strip()
                 try:
-                    Mass = ErrValue(line[3].strip())
+                    Mass = ErrValue(line[3].strip()) # from string
                 except ValueError:
                     Mass = None
                 element = _Element(Z, Symbol, Name, Mass)
@@ -186,17 +186,17 @@ class _Nuclides(object):
                 element = Elements(Z)
                 A = int(line[1].strip())
                 if line[2].strip():
-                    abd = ErrValue(line[2].strip()) / 100.0
+                    abd = ErrValue(line[2].strip()) / 100.0 # from string
                 else:
-                    abd = ErrValue(None, None)
+                    abd = None
                 if line[3].strip():
-                    M = ErrValue(line[3].strip())
+                    M = ErrValue(line[3].strip()) # from string
                 else:
-                    M = ErrValue(None, None)
+                    M = None
                 if line[4].strip():
-                    sigma = ErrValue(line[4].strip())
+                    sigma = ErrValue(line[4].strip()) # from string
                 else:
-                    sigma = ErrValue(None, None)
+                    sigma = None
 
                 if Z not in self._storage:
                     self._storage[Z] = dict()
@@ -427,12 +427,11 @@ class GammaLib(list):
                 if isinstance(value, int):
                     results = [x for x in results if getattr(x, key) == value]
                 elif isinstance(value, str):  # Do lowercase comparison for strings
-                    value_l = value.lower()
-                    results = [x for x in results if getattr(
-                        x, key).lower() == value_l]
+                    results = [x for x in results
+                            if getattr(x, key).lower() == value.lower()]
                 else:  # Do fuzzy compare
-                    results = [x for x in results if (
-                        abs(getattr(x, key) - value) <= fuzziness)]
+                    results = [x for x in results
+                            if (abs(getattr(x, key) - value) <= fuzziness)]
 
         # Sort
         try:

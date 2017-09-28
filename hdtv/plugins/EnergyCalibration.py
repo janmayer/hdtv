@@ -54,14 +54,12 @@ def TabelOfNuclide(nuclide, Energies, EnergiesError, Intensities,
     """
     tabledata = list()
     Data = [[], []]
-    data = hdtv.errvalue.ErrValue(Halflive)
-    data.SetError(HalfliveError)
+    data = hdtv.errvalue.ErrValue(Halflive, HalfliveError)
 
     for j in range(0, len(Energies)):
-        Data[0].append(hdtv.errvalue.ErrValue(Energies[j]))
-        Data[0][j].SetError(EnergiesError[j])
-        Data[1].append(hdtv.errvalue.ErrValue(Intensities[j]))
-        Data[1][j].SetError(IntensitiesError[j])
+        Data[0].append(hdtv.errvalue.ErrValue(Energies[j], EnergiesError[j]))
+        Data[1].append(hdtv.errvalue.ErrValue(
+            Intensities[j], IntensitiesError[j]))
 
         # for table option values are saved
         tableline = dict()
@@ -139,20 +137,18 @@ def MatchPeaksAndEnergies(peaks, energies, sigma):
 
 # Peak is the Energy of the fitted Peak, Vol its volume
 def MatchPeaksAndIntensities(
-        Peaks, peakID, Energies, Intensities, IntensitiesError, sigma=0.5):
+        peaks, peak_ids, energies, intensities, intensities_error, sigma=0.5):
     # and Intensity and Energy the data from the chart
     """
     Combines peaks with the right intensities from the table (with searchEnergie).
     """
-    Match = [[], [], []]
-
-    count = 0
-    for i in range(0, len(Energies)):
-        for j in range(0, len(Peaks)):
-            if abs(Energies[i] - Peaks[j]) <= sigma:
-                Match[0].append(Peaks[j])
-                Match[1].append(hdtv.errvalue.ErrValue(Intensities[i]))
-                Match[1][count].SetError(IntensitiesError[i])
-                Match[2].append(peakID[j])
-                count = count + 1
-    return Match
+    return zip([
+        [
+            [
+                peak,
+                hdtv.errvalue.ErrValue(intensity, intensity_error),
+                peak_id,
+            ] for peak, peak_id in zip(peaks, peak_ids)
+            if abs(energy - peak) <= sigma
+        ] for energy, intensity, intensity_error in zip(
+            energies, intensities, intensities_error)])

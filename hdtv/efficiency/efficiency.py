@@ -23,10 +23,10 @@ from __future__ import print_function
 
 from hdtv.util import TxtFile, Pairs
 from hdtv.errvalue import ErrValue
+from math import sqrt
 from ROOT import TF1, TF2, TGraphErrors, TVirtualFitter
 import hdtv.ui
 
-import math
 import array
 import string
 import os
@@ -49,7 +49,7 @@ class _Efficiency(object):
         self.TF1.FixParameter(0, self.norm)  # Normalization
         self.TF1.SetRange(0, 10000)  # Default range for efficiency function
 
-        self._fitInput = Pairs(ErrValue)
+        self._fitInput = Pairs(lambda x: ErrValue(x, 0))
 
 #         if self.parameter: # Parameters were given
 #             map(lambda i: self.TF1.SetParameter(i + 1, self.parameter[i]), range(1, len(pars))) # Set initial parameters
@@ -100,21 +100,21 @@ class _Efficiency(object):
         for i in range(len(self._fitInput)):
             p = self._fitInput[i]
             try:
-                e_value = p[0].value
-                e_error = p[0].error
+                e_nominal_value = p[0].nominal_value
+                e_std_dev = p[0].std_dev
             except AttributeError:
-                e_value = float(p[0])
-                e_error = 0.
+                e_nominal_value = float(p[0])
+                e_std_dev = 0.
 
             try:
-                eff_value = p[1].value
-                eff_error = p[1].error
+                eff_nominal_value = p[1].nominal_value
+                eff_std_dev = p[1].std_dev
             except AttributeError:
-                eff_value = float(p[1])
-                eff_error = 0.
+                eff_nominal_value = float(p[1])
+                eff_std_dev = 0.
 
-            self.TGraph.SetPoint(i, e_value, eff_value)
-            self.TGraph.SetPointError(i, e_error, eff_error)
+            self.TGraph.SetPoint(i, e_nominal_value, eff_nominal_value)
+            self.TGraph.SetPointError(i, e_std_dev, eff_std_dev)
 
     def _get_fitInput(self):
         return self._fitInput
@@ -146,9 +146,9 @@ class _Efficiency(object):
         hasXerrors = False
         # Convert energies to array needed by ROOT
         try:
-            list(map(lambda x: E.append(x[0].value.value), self._fitInput))
+            list(map(lambda x: E.append(x[0].value.nominal_value), self._fitInput))
             list(map(lambda x: delta_E.append(
-                x[0].value.error), self._fitInput))
+                x[0].value.std_dev), self._fitInput))
             list(map(lambda x: EN.append(0.0), self._fitInput))
             hasXerrors = True
         except AttributeError:  # energies does not seem to be ErrValue list
@@ -157,9 +157,9 @@ class _Efficiency(object):
 
         # Convert efficiencies to array needed by ROOT
         try:
-            list(map(lambda x: eff.append(x[1].value.value), self._fitInput))
+            list(map(lambda x: eff.append(x[1].value.nominal_value), self._fitInput))
             list(map(lambda x: delta_eff.append(
-                x[1].value.error), self._fitInput))
+                x[1].value.std_dev), self._fitInput))
             list(map(lambda x: effN.append(0.0), self._fitInput))
         except AttributeError:  # energies does not seem to be ErrValue list
             list(map(lambda x: eff.append(x[1]), self._fitInput))
@@ -243,7 +243,7 @@ class _Efficiency(object):
 
     def value(self, E):
         try:
-            value = E.value
+            value = E.nominal_value
         except AttributeError:
             value = E
 
@@ -257,7 +257,7 @@ class _Efficiency(object):
 
         """
         try:
-            value = E.value
+            value = E.nominal_value
         except AttributeError:
             value = E
 
@@ -275,7 +275,7 @@ class _Efficiency(object):
 
             res += (self._dEff_dP[i](value, self.parameter) * tmp)
 
-        return math.sqrt(res)
+        return sqrt(res)
 
     def loadPar(self, parfile):
         """

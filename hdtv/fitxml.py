@@ -31,7 +31,7 @@ from hdtv.util import Position
 from hdtv.errvalue import ErrValue
 from hdtv.fitter import Fitter
 from hdtv.fit import Fit
-from hdtv.peakmodels import FitValue, PeakModels
+from hdtv.peakmodels import PeakModels
 
 # Increase the version number if you changed something related to the xml output.
 # If your change affect the reading, you should increase the major number
@@ -167,10 +167,10 @@ class FitXml(object):
             coeffElement.set("deg", str(i))
             # <value>
             valueElement = ET.SubElement(coeffElement, "value")
-            valueElement.text = str(fit.bgCoeffs[i].value)
+            valueElement.text = str(fit.bgCoeffs[i].nominal_value)
             # <error>
             errorElement = ET.SubElement(coeffElement, "error")
-            errorElement.text = str(fit.bgCoeffs[i].error)
+            errorElement.text = str(fit.bgCoeffs[i].std_dev)
         # <peak>
         for peak in fit.peaks:
             peakElement = ET.SubElement(fitElement, "peak")
@@ -187,13 +187,13 @@ class FitXml(object):
                 param = getattr(peak, param)
                 if param is not None:
                     # <value>
-                    if param.value is not None:
+                    if param.nominal_value is not None:
                         valueElement = ET.SubElement(paramElement, "value")
-                        valueElement.text = str(param.value)
+                        valueElement.text = str(param.nominal_value)
                     # <error>
-                    if param.error is not None:
+                    if param.std_dev is not None:
                         errorElement = ET.SubElement(paramElement, "error")
-                        errorElement.text = str(param.error)
+                        errorElement.text = str(param.std_dev)
             # <cal>
             calElement = ET.SubElement(peakElement, "cal")
             # Parameter
@@ -207,25 +207,25 @@ class FitXml(object):
                 param = getattr(peak, "%s_cal" % param)
                 if param is not None:
                     # <value>
-                    if param.value is not None:
+                    if param.nominal_value is not None:
                         valueElement = ET.SubElement(paramElement, "value")
-                        valueElement.text = str(param.value)
+                        valueElement.text = str(param.nominal_value)
                     # <error>
-                    if param.error is not None:
+                    if param.std_dev is not None:
                         errorElement = ET.SubElement(paramElement, "error")
-                        errorElement.text = str(param.error)
+                        errorElement.text = str(param.std_dev)
             # <extras>
             extraElement = ET.SubElement(peakElement, "extras")
             for param in list(peak.extras.keys()):
                 paramElement = ET.SubElement(extraElement, param)
                 param = peak.extras[param]
                 try:
-                    if param.value is not None:
+                    if param.nominal_value is not None:
                         valueElement = ET.SubElement(paramElement, "value")
-                        valueElement.text = str(param.value)
-                    if param.error is not None:
+                        valueElement.text = str(param.nominal_value)
+                    if param.std_dev is not None:
                         errorElement = ET.SubElement(paramElement, "error")
-                        errorElement.text = str(param.error)
+                        errorElement.text = str(param.std_dev)
                 except BaseException:
                     paramElement.text = str(param)
         return fitElement
@@ -267,7 +267,7 @@ class FitXml(object):
 
     def _readParamElement(self, paramElement):
         """
-        Reads parameter info from a xml element and creates a FitValue object
+        Reads parameter info from a xml element and creates an ErrValue object
         """
         # status
         status = paramElement.get("status", "free")
@@ -287,7 +287,7 @@ class FitXml(object):
         # <error>
         errorElement = paramElement.find("error")
         error = float(errorElement.text)
-        return FitValue(value, error, free)
+        return ErrValue(value, error, free)
 
     # FIXME: remove!
     def ReadPeaks(self, root):

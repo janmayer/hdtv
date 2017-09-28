@@ -220,7 +220,7 @@ class EffCalIf(object):
                     spectrumID)
                 return
 
-        fitValues = hdtv.util.Pairs(hdtv.errvalue.ErrValue)
+        fitValues = hdtv.util.Pairs(lambda x: hdtv.errvalue.ErrValue(x, 0))
         tabledata = list()
 
         if filename is not None:  # at the moment you can only fit from one file
@@ -248,15 +248,14 @@ class EffCalIf(object):
                 spectrumID, nuclide, coefficient, source, sigma)
 
             # for table option values are saved
-            for i in range(0, len(Efficiency[0])):
-                tableline = dict()
-                tableline["Peak"] = Efficiency[0][i]
-                tableline["Efficiency"] = Efficiency[1][i]
-                tableline["ID"] = spectrumID
-                tableline["Nuclide"] = nuclide
-                tableline["Intensity"] = Efficiency[2][i]
-                tableline["Vol"] = Efficiency[3][i]
-                tabledata.append(tableline)
+            for peak, efficiency, intensity, volume in zip(*Efficiency):
+                tabledata.append({
+                    "Peak": peak,
+                    "Efficiency": efficiency,
+                    "ID": spectrumID,
+                    "Nuclide": nuclide,
+                    "Intensity": intensity,
+                    "Vol": volume})
 
             fitValues.fromLists(Efficiency[0], Efficiency[1])
             # except: #TODO: errormessage
@@ -287,21 +286,21 @@ class EffCalIf(object):
                             spectrumIDs[j], nuclides[j], coefficients[j], source, sigma)
 
                     # all new efficiencies are added to the first ones
-                    for i in range(len(NewEff[0])):
-                        Efficiency[0].append(NewEff[0][i])
-                        Efficiency[1].append(NewEff[1][i])
+                    for peak, efficiency, intensity, volume in zip(NewEff):
+                        Efficiency[0].append(peak)
+                        Efficiency[1].append(efficiency)
 
                         # for table option values are saved
-                        tableline = dict()
-                        tableline["Peak"] = NewEff[0][i]
-                        tableline["Efficiency"] = NewEff[1][i]
-                        tableline["ID"] = spectrumIDs[j]
-                        tableline["Nuclide"] = nuclides[j]
-                        tableline["Intensity"] = NewEff[2][i]
-                        tableline["Vol"] = NewEff[3][i]
-                        tabledata.append(tableline)
+                        tabledata.append({
+                            "Peak": peak,
+                            "Efficiency": efficiency,
+                            "ID": spectrumIDs[j],
+                            "Nuclide": nuclides[j],
+                            "Intensity": intensity,
+                            "Vol": volume})
 
-                fitValues = hdtv.util.Pairs(hdtv.errvalue.ErrValue)
+                        fitValues = hdtv.util.Pairs(
+                            lambda x: hdtv.errvalue.ErrValue(x, 0))
                 fitValues.fromLists(Efficiency[0], Efficiency[1])
         # Call function to do the fit
         if self.fit:
@@ -357,10 +356,9 @@ class EffCalIf(object):
 
         # Peaks from the given spectrum are saved in Peak
         peaks = self.spectra.dict[hdtv.util.ID(spectrumID)].dict
-        for i in range(0, len(list(peaks.values()))):
+        for i, peak in enumerate(list(peaks.values())):
             peakID.append(i)
-            Peak.append(list(peaks.values())[
-                        i].ExtractParams()[0][0]['pos'].value)
+            Peak.append(peak.ExtractParams()[0][0]['pos'].nominal_value)
 
         if Peak == []:
             raise hdtv.cmdline.HDTVCommandError(
@@ -377,7 +375,7 @@ class EffCalIf(object):
         # It matches the Peaks and the given energies
         Match = EnergyCalibration.MatchPeaksAndIntensities(
             Peak, peakID, Energy, Intensity, IntensityError, sigma)
-        Peak = [hdtv.errvalue.ErrValue(peak) for peak in Match[0]]
+        Peak = [hdtv.errvalue.ErrValue(peak, 0) for peak in Match[0]]
         Intensity = Match[1]
         peakID = Match[2]
 
@@ -386,40 +384,32 @@ class EffCalIf(object):
                 "There is no match between the fitted peaks and the energies of the nuclide.")
 
         # saves the right intensities for the peaks
-        i = 0
-        for ID in peakID:
-            Vol.append(hdtv.errvalue.ErrValue(list(peaks.values())
-                                              [ID].ExtractParams()[0][0]['vol'].value))
-            Vol[i].SetError(list(peaks.values())[
-                            ID].ExtractParams()[0][0]['vol'].error)
-            Peak[i].SetError(list(peaks.values())[
-                             ID].ExtractParams()[0][0]['pos'].error)
-            i = i + 1
+        for i, ID in enumerate(peakID):
+            Vol.append(hdtv.errvalue.ErrValue(
+                list(peaks.values())[ID].ExtractParams()[0][0]['vol'].nominal_value,
+                list(peaks.values())[ID].ExtractParams()[0][0]['vol'].std_dev))
 
-        # Calculates the efficiency and its error and saves all peaks with
-        # errors
-        for i in range(0, len(peakID)):
+            # Calculates the efficiency and its error and saves all peaks with
+            # errors
             Efficiency.append(hdtv.errvalue.ErrValue(
-                Vol[i].value / (coefficient * Intensity[i].value)))
-            PeakFinal.append(hdtv.errvalue.ErrValue(Peak[i].value))
-            # TODO: error of the coefficient is not included
-            Efficiency[i].SetError(math.sqrt((1 /
-                                              (coefficient *
-                                               Intensity[i].value) *
-                                              Vol[i].error)**2 +
-                                             (Vol[i].value /
-                                              (coefficient *
-                                                 Intensity[i].value**2) *
-                                              Intensity[i].error)**2))
-            PeakFinal[i].SetError(Peak[i].error)
+                Vol[i].nominal_value / (coefficient * Intensity[i].nominal_value),
+                # TODO: error of the coefficient is not included
+                math.sqrt(
+                    (1 / (coefficient * Intensity[i].nominal_value) * Vol[i].std_dev)**2
+                    + (Vol[i].nominal_value / (coefficient * Intensity[i].nominal_value**2) *
+                       Intensity[i].std_dev)**2)))
+            PeakFinal.append(
+                hdtv.errvalue.ErrValue(
+                    Peak[i].nominal_value,
+                    list(peaks.values())[ID].ExtractParams()[0][0]['pos'].std_dev))
 
         return(PeakFinal, Efficiency, Intensity, Vol)
 
     def EffCorrection(self, referenceID, maxEnergy, spectrumID,
                       fitValues, nuclide, source, sigma):
         """
-        If there is one spectrum given without coefficient, you have to correct it by calculation the missing factor
-        that it fits to the other one.
+        If there is one spectrum given without coefficient, you have to correct
+        it by calculation the missing factor that it fits to the other one.
         """
 
         # fit the efficiency of the reference spectrum
@@ -436,15 +426,15 @@ class EffCalIf(object):
         # TODO: maybe a iterative function works better
         try:
             for i in range(0, len(Efficiency[0])):
-                energy = Efficiency[0][i].value
+                energy = Efficiency[0][i].nominal_value
                 if energy <= maxEnergy:
                     functionValue = self.spectra.dict[referenceID].effCal.value(
                         energy)
 
-                    division = Efficiency[1][i].value / functionValue
+                    division = Efficiency[1][i].nominal_value / functionValue
                     amountDivisionError = amountDivisionError + \
-                        division * (Efficiency[1][i].error)**(-2)
-                    amountError = amountError + (Efficiency[1][i].error)**(-2)
+                        division * (Efficiency[1][i].std_dev)**(-2)
+                    amountError = amountError + (Efficiency[1][i].std_dev)**(-2)
 
         except BaseException:
             division = 0.0
@@ -452,12 +442,12 @@ class EffCalIf(object):
             amountError = 0.0
 
             for i in range(0, len(Efficiency[0])):
-                energy = Efficiency[0][i].value
+                energy = Efficiency[0][i].nominal_value
                 if energy <= maxEnergy:
                     functionValue = self.spectra.dict[referenceID].effCal.value(
                         energy)
 
-                    division = Efficiency[1][i].value / functionValue
+                    division = Efficiency[1][i].nominal_value / functionValue
                     amountDivisionError = amountDivisionError + division
                     amountError = amountError + 1
 
@@ -467,11 +457,11 @@ class EffCalIf(object):
             amountError = 0.0
 
             for i in range(0, len(Efficiency[0])):
-                energy = Efficiency[0][i].value
-                functionValue = self.spectra.dict[referenceID].effCal.value(
+                energy = Efficiency[0][i].nominal_value
+                functionValue = self.spectra.dict[referenceID].effCal.nominal_value(
                     energy)
 
-                division = Efficiency[1][i].value / functionValue
+                division = Efficiency[1][i].nominal_value / functionValue
                 amountDivisionError = amountDivisionError + division
                 amountError = amountError + 1
 
@@ -479,9 +469,10 @@ class EffCalIf(object):
         factor = amountDivisionError / amountError
 
         # the corrected efficiency is calculated
+        # Efficiency[1] = list(map(lambda x: x / factor, Efficiency[1]))
         for i in range(0, len(Efficiency[1])):
-            Efficiency[1][i].value = Efficiency[1][i].value / factor
-            Efficiency[1][i].error = Efficiency[1][i].error / factor
+            Efficiency[1][i].nominal_value = Efficiency[1][i].nominal_value / factor
+            Efficiency[1][i].std_dev = Efficiency[1][i].std_dev / factor
 
         return Efficiency
 
@@ -906,7 +897,7 @@ class EnergyCalIf(object):
                 hdtv.ui.warn("Ignoring invalid peak id %s" % fid)
                 continue
             peak.extras["pos_lit"] = p[1]
-            valid_pairs.add(hdtv.errvalue.ErrValue(peak.pos.value), p[1])
+            valid_pairs.add(hdtv.errvalue.ErrValue(peak.pos.nominal_value), p[1])
         return self.CalFromPairs(valid_pairs, degree, table, fit, residual,
                                  ignoreErrors=ignoreErrors)
 
@@ -1309,7 +1300,7 @@ class EnergyCalHDTVInterface(object):
             try:
                 fits = self.spectra.dict[hdtv.util.ID(ID)].dict
                 for fit in list(fits.values()):
-                    Peaks.append(fit.ExtractParams()[0][0]['channel'].value)
+                    Peaks.append(fit.ExtractParams()[0][0]['channel'].nominal_value)
             except BaseException:  # errormessage if there is no spectrum with the given ID
                 raise hdtv.cmdline.HDTVCommandError(
                     "Spectrum with ID " + str(ID) + " is not visible, no action taken")

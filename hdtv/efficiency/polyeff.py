@@ -21,9 +21,10 @@
 
 from . efficiency import _Efficiency
 from ROOT import TF1, TF2
-from hdtv.errvalue import ErrValue, log, exp
+from hdtv.errvalue import ErrValue
+from hdtv.errvalue import log, exp
+from math import pow
 from hdtv.util import Pairs
-import math
 
 
 class PolyEff(_Efficiency):
@@ -58,7 +59,7 @@ class PolyEff(_Efficiency):
         # http://code.activestate.com/recipes/502271/
         # for this strange constructor
         def dEff_dP(i):
-            return lambda logE, fPars: self.norm * math.pow(logE, i)
+            return lambda logE, fPars: self.norm * pow(logE, i)
 
         for i in range(0, degree + 1):
             self._dEff_dP[i] = dEff_dP(i)

@@ -305,9 +305,9 @@ class Fit(Drawable):
             self.bgCoeffs = []
             deg = self.fitter.bgFitter.GetDegree()
             for i in range(0, deg + 1):
-                value = self.fitter.bgFitter.GetCoeff(i)
-                error = self.fitter.bgFitter.GetCoeffError(i)
-                self.bgCoeffs.append(ErrValue(value, error))
+                self.bgCoeffs.append(ErrValue(
+                    self.fitter.bgFitter.GetCoeff(i),
+                    self.fitter.bgFitter.GetCoeffError(i)))
 
     def FitPeakFunc(self, spec):
         """
@@ -344,16 +344,16 @@ class Fit(Drawable):
             deg = self.fitter.bgdeg
             if not self.fitter.bgFitter:
                 for i in range(deg + 1):
-                    value = self.fitter.peakFitter.GetIntBgCoeff(i)
-                    error = self.fitter.peakFitter.GetIntBgCoeffError(i)
-                    self.bgCoeffs.append(ErrValue(value, error))
+                    self.bgCoeffs.append(ErrValue(
+                        self.fitter.peakFitter.GetIntBgCoeff(i),
+                        self.fitter.peakFitter.GetIntBgCoeffError(i)))
             else:
                 # external background
                 self.bgChi = self.fitter.bgFitter.GetChisquare()
                 for i in range(deg + 1):
-                    value = self.fitter.bgFitter.GetCoeff(i)
-                    error = self.fitter.bgFitter.GetCoeffError(i)
-                    self.bgCoeffs.append(ErrValue(value, error))
+                    self.bgCoeffs.append(ErrValue(
+                        self.fitter.bgFitter.GetCoeff(i),
+                        self.fitter.bgFitter.GetCoeffError(i)))
             func = self.fitter.peakFitter.GetBgFunc()
             self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(
                 func, hdtv.color.bg)
@@ -376,7 +376,7 @@ class Fit(Drawable):
             # update peak markers
             for (marker, peak) in zip(self.peakMarkers, self.peaks):
                 # Marker is fixed in uncalibrated space
-                marker.p1.pos_uncal = peak.pos.value
+                marker.p1.pos_uncal = peak.pos.nominal_value
 
         # Call post hooks
         for func in Fit.FitPeakPostHooks:

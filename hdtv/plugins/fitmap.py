@@ -34,7 +34,7 @@ class FitMap(object):
         self.ecal = ecal
 
         prog = "fit position assign"
-        description = "assign energy valuey as nominal position for peak"
+        description = "assign energy value as nominal position for peak"
         usage = "%prog pid en [pid en ...] "
         parser = hdtv.cmdline.HDTVOptionParser(
             prog=prog, description=description, usage=usage)
@@ -114,7 +114,7 @@ class FitMap(object):
             return "USAGE"
         else:
             for i in range(0, len(args), 2):
-                en = ErrValue(args[i + 1])
+                en = ErrValue(args[i + 1], 0)
                 try:
                     ids = hdtv.util.ID.ParseIds(
                         args[i], spec, only_existent=False)
@@ -180,7 +180,7 @@ class FitMap(object):
         f.read()
         energies = list()
         for line in f.lines:
-            energies.append(ErrValue(line.split(",")[0]))
+            energies.append(ErrValue(line.split(",")[0])) # from string
         if self.spectra.activeID is None:
             hdtv.ui.warn("No active spectrum, no action taken.")
             return False

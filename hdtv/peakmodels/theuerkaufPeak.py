@@ -21,7 +21,8 @@
 import math
 from functools import total_ordering
 import ROOT
-from .peak import PeakModel, FitValue
+from .peak import PeakModel
+from hdtv.errvalue import ErrValue
 from hdtv.drawable import Drawable
 import hdtv.options
 
@@ -53,17 +54,17 @@ class TheuerkaufPeak(Drawable):
         if name == "pos_cal":
             if self.cal is None:
                 return self.pos
-            pos_uncal = self.pos.value
-            pos_err_uncal = self.pos.error
+            pos_uncal = self.pos.nominal_value
+            pos_err_uncal = self.pos.std_dev
             pos_cal = self.cal.Ch2E(pos_uncal)
             pos_err_cal = abs(self.cal.dEdCh(pos_uncal) * pos_err_uncal)
-            return FitValue(pos_cal, pos_err_cal, self.pos.free)
+            return ErrValue(pos_cal, pos_err_cal, self.pos.free)
         elif name == "width_cal":
             if self.cal is None:
                 return self.width
-            pos_uncal = self.pos.value
-            hwhm_uncal = self.width.value / 2
-            width_err_uncal = self.width.error
+            pos_uncal = self.pos.nominal_value
+            hwhm_uncal = self.width.nominal_value / 2
+            width_err_uncal = self.width.std_dev
             width_cal = self.cal.Ch2E(
                 pos_uncal + hwhm_uncal) - self.cal.Ch2E(pos_uncal - hwhm_uncal)
             # This is only an approximation, valid as d(width_cal)/d(pos_uncal) \approx 0
@@ -78,7 +79,7 @@ class TheuerkaufPeak(Drawable):
                     hwhm_uncal) /
                     2.) *
                 width_err_uncal)
-            return FitValue(width_cal, width_err_cal, self.width.free)
+            return ErrValue(width_cal, width_err_cal, self.width.free)
         elif name in ["vol_cal", "tl_cal", "tr_cal", "sh_cal", "sw_cal"]:
             name = name[0:name.rfind("_cal")]
             return getattr(self, name)
@@ -139,7 +140,7 @@ class TheuerkaufPeak(Drawable):
                 other.sw))
 
     def __lt__(self, other):
-        return (self.pos.value < other.pos.value)
+        return (self.pos.nominal_value < other.pos.nominal_value)
 
     def Draw(self, viewport):
         """
@@ -191,25 +192,25 @@ class PeakModelTheuerkauf(PeakModel):
         # width==fwhm (internally the C++ fitter uses sigma)
         width_uncal = cpeak.GetSigma() * 2. * math.sqrt(2. * math.log(2.))
         width_err_uncal = cpeak.GetSigmaError() * 2. * math.sqrt(2. * math.log(2.))
-        # create FitValues objets from this
-        pos = FitValue(pos_uncal, pos_err_uncal, cpeak.PosIsFree())
-        vol = FitValue(cpeak.GetVol(), cpeak.GetVolError(), cpeak.VolIsFree())
-        width = FitValue(width_uncal, width_err_uncal, cpeak.SigmaIsFree())
+        # create ErrValues objets from this
+        pos = ErrValue(pos_uncal, pos_err_uncal, cpeak.PosIsFree())
+        vol = ErrValue(cpeak.GetVol(), cpeak.GetVolError(), cpeak.VolIsFree())
+        width = ErrValue(width_uncal, width_err_uncal, cpeak.SigmaIsFree())
         # optional parameters
         if cpeak.HasLeftTail():
-            tl = FitValue(cpeak.GetLeftTail(), cpeak.GetLeftTailError(),
+            tl = ErrValue(cpeak.GetLeftTail(), cpeak.GetLeftTailError(),
                           cpeak.LeftTailIsFree())
         else:
             tl = None
         if cpeak.HasRightTail():
-            tr = FitValue(cpeak.GetRightTail(), cpeak.GetRightTailError(),
+            tr = ErrValue(cpeak.GetRightTail(), cpeak.GetRightTailError(),
                           cpeak.RightTailIsFree())
         else:
             tr = None
         if cpeak.HasStep():
-            sh = FitValue(cpeak.GetStepHeight(), cpeak.GetStepHeightError(),
+            sh = ErrValue(cpeak.GetStepHeight(), cpeak.GetStepHeightError(),
                           cpeak.StepHeightIsFree())
-            sw = FitValue(cpeak.GetStepWidth(), cpeak.GetStepWidthError(),
+            sw = ErrValue(cpeak.GetStepWidth(), cpeak.GetStepWidthError(),
                           cpeak.StepWidthIsFree())
         else:
             sh = sw = None
@@ -224,19 +225,19 @@ class PeakModelTheuerkauf(PeakModel):
         """
         Restore the params of a C++ peak object using a python peak object
         """
-        cpeak.RestorePos(peak.pos.value, peak.pos.error)
-        cpeak.RestoreVol(peak.vol.value, peak.vol.error)
+        cpeak.RestorePos(peak.pos.nominal_value, peak.pos.std_dev)
+        cpeak.RestoreVol(peak.vol.nominal_value, peak.vol.std_dev)
         # internally the C++ fitter uses sigma
-        sigma = peak.width.value / (2. * math.sqrt(2. * math.log(2.)))
-        sigma_err = peak.width.error / (2. * math.sqrt(2. * math.log(2.)))
+        sigma = peak.width.nominal_value / (2. * math.sqrt(2. * math.log(2.)))
+        sigma_err = peak.width.std_dev / (2. * math.sqrt(2. * math.log(2.)))
         cpeak.RestoreSigma(sigma, sigma_err)
         if peak.tl:
-            cpeak.RestoreLeftTail(peak.tl.value, peak.tl.error)
+            cpeak.RestoreLeftTail(peak.tl.nominal_value, peak.tl.std_dev)
         if peak.tr:
-            cpeak.RestoreRightTail(peak.tr.value, peak.tr.error)
+            cpeak.RestoreRightTail(peak.tr.nominal_value, peak.tr.std_dev)
         if peak.sh:
-            cpeak.RestoreStepHeight(peak.sh.value, peak.sh.error)
-            cpeak.RestoreStepWidth(peak.sw.value, peak.sw.error)
+            cpeak.RestoreStepHeight(peak.sh.nominal_value, peak.sh.std_dev)
+            cpeak.RestoreStepWidth(peak.sw.nominal_value, peak.sw.std_dev)
 
     def ResetParamStatus(self):
         """
@@ -250,7 +251,7 @@ class PeakModelTheuerkauf(PeakModel):
         self.fParStatus["sh"] = "none"
         self.fParStatus["sw"] = "hold"
 
-    def Uncal(self, parname, value, pos_uncal, cal):
+    def Uncal(self, parname, nominal_value, pos_uncal, cal):
         """
         Convert a value from calibrated (spectrum) to uncalibrated (fitter) units
         This is needed, when a value is hold to a specific calibrated value.

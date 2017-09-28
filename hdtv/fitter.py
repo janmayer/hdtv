@@ -74,9 +74,9 @@ class Fitter(object):
         # restore the fitter
         valueArray = ROOT.TArrayD(len(coeffs))
         errorArray = ROOT.TArrayD(len(coeffs))
-        for i in range(0, len(coeffs)):
-            valueArray[i] = coeffs[i].value
-            errorArray[i] = coeffs[i].error
+        for i, coeff in enumerate(coeffs):
+            valueArray[i] = coeff.nominal_value
+            errorArray[i] = coeff.std_dev
         self.bgFitter.Restore(valueArray, errorArray, chisquare)
 
     def FitPeaks(self, spec, region=Pairs(), peaklist=list()):
@@ -100,7 +100,7 @@ class Fitter(object):
         restore all peaks
         """
         # create the fitter
-        peaklist = [p.pos.value for p in peaks]
+        peaklist = [p.pos.nominal_value for p in peaks]
         self.peakFitter = self.peakModel.GetFitter(region, peaklist, cal)
         # restore first the fitter and afterwards the peaks
         if self.bgFitter:
@@ -111,15 +111,13 @@ class Fitter(object):
             values = ROOT.TArrayD(self.bgdeg + 1)
             errors = ROOT.TArrayD(self.bgdeg + 1)
             for i in range(0, self.bgdeg + 1):
-                values[i] = coeffs[i].value
-                errors[i] = coeffs[i].error
+                values[i] = coeffs[i].nominal_value
+                errors[i] = coeffs[i].std_dev
             self.peakFitter.Restore(values, errors, chisquare)
         if not len(peaks) == self.peakFitter.GetNumPeaks():
             raise RuntimeError("Number of peaks does not match")
-        for i in range(0, len(peaks)):
-            cpeak = self.peakFitter.GetPeak(i)
-            peak = peaks[i]
-            self.peakModel.RestoreParams(peak, cpeak)
+        for i, peak in enumerate(peaks):
+            self.peakModel.RestoreParams(peak, self.peakFitter.GetPeak(i))
 
     def SetPeakModel(self, model):
         """

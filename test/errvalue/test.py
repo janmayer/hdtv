@@ -54,36 +54,36 @@ def SimpleTest():
     x = ErrValue(2, .1)
     y = ErrValue(10, .3)
 
-    AssertEqual(x.value, 2)
-    AssertEqual(x.error, .1)
+    AssertEqual(x.nominal_value, 2)
+    AssertEqual(x.std_dev, .1)
     AssertEqual(x.rel_error, .1 / 2)
     AssertEqual(x.rel_error_percent, .1 / 2 * 100)
 
     z = x + y
-    AssertEqual(z.value, 12)
-    AssertEqual(z.error, math.sqrt(.1**2 + .3**2))
+    AssertEqual(z.nominal_value, 12)
+    AssertEqual(z.std_dev, math.sqrt(.1**2 + .3**2))
 
     z = (x + x + y - y) / 2
-    AssertEqual(z.value, 2)
-    AssertEqual(z.error, .1)
+    AssertEqual(z.nominal_value, 2)
+    AssertEqual(z.std_dev, .1)
 
     z = (1 * x + 2 * x - x * 2 + x * 3) / 4
-    AssertEqual(z.value, 2)
-    AssertEqual(z.error, .1)
+    AssertEqual(z.nominal_value, 2)
+    AssertEqual(z.std_dev, .1)
 
     z = 1 / (1 / x + 1 / y) - (x * y) / (x + y) + x / 1000
-    AssertEqual(z.value, .002)
-    AssertEqual(z.error, .0001)
+    AssertEqual(z.nominal_value, .002)
+    AssertEqual(z.std_dev, .0001)
 
     z = x**y / x**(y - 1) - y**x / y**(x + 1) + y**(-1)
-    AssertEqual(z.value, 2)
-    AssertEqual(z.error, .1)
+    AssertEqual(z.nominal_value, 2)
+    AssertEqual(z.std_dev, .1)
 
     z = 0
     for i in range(0, 10):
         z += ErrValue(i, i / 10)
-    AssertEqual(z.value, 45)
-    AssertEqual(z.error, math.sqrt(2.85))
+    AssertEqual(z.nominal_value, 45)
+    AssertEqual(z.std_dev, math.sqrt(2.85))
 
 
 def CompareTest():
@@ -100,43 +100,43 @@ def CompareTest():
 
 def ParseTest():
     x = ErrValue("0123")
-    AssertEqual(x.value, 123)
-    AssertEqual(x.error, 0)
+    AssertEqual(x.nominal_value, 123)
+    AssertEqual(x.std_dev, 0)
     AssertEqual_Bool(x.has_error, False)
 
     x = ErrValue("1.234(0010)e5")
-    AssertEqual(x.value, 1.234e5)
-    AssertEqual(x.error, 0.01e5)
+    AssertEqual(x.nominal_value, 1.234e5)
+    AssertEqual(x.std_dev, 0.01e5)
     AssertEqual_Bool(x.has_error, True)
 
     x = ErrValue("1.234(1000)e5")
-    AssertEqual(x.value, 1.234e5)
-    AssertEqual(x.error, 1e5)
+    AssertEqual(x.nominal_value, 1.234e5)
+    AssertEqual(x.std_dev, 1e5)
     AssertEqual_Bool(x.has_error, True)
 
     x = ErrValue("1.234(2)e5")
-    AssertEqual(x.value, 1.234e5)
-    AssertEqual(x.error, 0.002e5)
+    AssertEqual(x.nominal_value, 1.234e5)
+    AssertEqual(x.std_dev, 0.002e5)
     AssertEqual_Bool(x.has_error, True)
 
     x = ErrValue("1234(2)e5")
-    AssertEqual(x.value, 1234e5)
-    AssertEqual(x.error, 2e5)
+    AssertEqual(x.nominal_value, 1234e5)
+    AssertEqual(x.std_dev, 2e5)
     AssertEqual_Bool(x.has_error, True)
 
     x = ErrValue("     2.345	( 11 )   e-6")
-    AssertEqual(x.value, 2.345e-6)
-    AssertEqual(x.error, 0.011e-6)
+    AssertEqual(x.nominal_value, 2.345e-6)
+    AssertEqual(x.std_dev, 0.011e-6)
     AssertEqual_Bool(x.has_error, True)
 
     x = ErrValue(" 3.1415 e+8   ")
-    AssertEqual(x.value, 3.1415e8)
-    AssertEqual(x.error, 0)
+    AssertEqual(x.nominal_value, 3.1415e8)
+    AssertEqual(x.std_dev, 0)
     AssertEqual_Bool(x.has_error, False)
 
     x = ErrValue(" 3.1415E-8   ")
-    AssertEqual(x.value, 3.1415e-8)
-    AssertEqual(x.error, 0)
+    AssertEqual(x.nominal_value, 3.1415e-8)
+    AssertEqual(x.std_dev, 0)
     AssertEqual_Bool(x.has_error, False)
 
     had_exception = False
@@ -179,37 +179,37 @@ def ParseTest():
 
     x = ErrValue(23)
     y = ErrValue(str(x))
-    AssertEqual(x.value, y.value)
-    AssertEqual(x.error, y.error)
+    AssertEqual(x.nominal_value, y.nominal_value)
+    AssertEqual(x.std_dev, y.std_dev)
 
     x = ErrValue(23e15)
     y = ErrValue(str(x))
-    AssertEqual(x.value, y.value)
-    AssertEqual(x.error, y.error)
+    AssertEqual(x.nominal_value, y.nominal_value)
+    AssertEqual(x.std_dev, y.std_dev)
 
     x = ErrValue(23e15, 4e10)
     y = ErrValue(str(x))
-    AssertEqual(x.value, y.value)
-    AssertEqual(x.error, y.error)
+    AssertEqual(x.nominal_value, y.nominal_value)
+    AssertEqual(x.std_dev, y.std_dev)
 
     x = ErrValue(23e-2, 4e-7)
     y = ErrValue(str(x))
-    AssertEqual(x.value, y.value)
-    AssertEqual(x.error, y.error)
+    AssertEqual(x.nominal_value, y.nominal_value)
+    AssertEqual(x.std_dev, y.std_dev)
 
     x = ErrValue(23e-15, 4e-18)
     y = ErrValue(str(x))
-    AssertEqual(x.value, y.value)
-    AssertEqual(x.error, y.error)
+    AssertEqual(x.nominal_value, y.nominal_value)
+    AssertEqual(x.std_dev, y.std_dev)
 
 
 def EqTest():
     a = ErrValue(1, .1)
     b = ErrValue(1, .1)
-    AssertEqual((a + b).error, .1 * math.sqrt(2))
-    AssertEqual((2 * a).error, .2)
+    AssertEqual((a + b).std_dev, .1 * math.sqrt(2))
+    AssertEqual((2 * a).std_dev, .2)
     c = a
-    AssertEqual((a + c).error, .2)
+    AssertEqual((a + c).std_dev, .2)
 
     x = ErrValue(1, .1)
     y = ErrValue(1.14, .1)
@@ -227,8 +227,8 @@ def CovTest():
 
     z = x + y
 
-    AssertEqual(z.value, 2)
-    AssertEqual(z.error, .1 * math.sqrt(2))
+    AssertEqual(z.nominal_value, 2)
+    AssertEqual(z.std_dev, .1 * math.sqrt(2))
 
     x = ErrValue(2, 1)
     y = ErrValue(3, 2)
@@ -274,10 +274,10 @@ def ImmutableTest():
     y = x
     x += ErrValue(1, .1)
 
-    AssertEqual(y.value, 2)
-    AssertEqual(y.error, .1)
-    AssertEqual(x.value, 3)
-    AssertEqual(x.error, .1 * math.sqrt(2))
+    AssertEqual(y.nominal_value, 2)
+    AssertEqual(y.std_dev, .1)
+    AssertEqual(x.nominal_value, 3)
+    AssertEqual(x.std_dev, .1 * math.sqrt(2))
 
 
 def PropTest():
@@ -300,13 +300,13 @@ def PropTest():
     AssertEqual(y.cov(z), .2)
 
     x.SetError(.5)
-    AssertEqual(z.error, .5)
+    AssertEqual(z.std_dev, .5)
 
-    AssertEqual(w.value, 3)
-    AssertEqual(w.error, math.sqrt(.25 + .4 + .04))
+    AssertEqual(w.nominal_value, 3)
+    AssertEqual(w.std_dev, math.sqrt(.25 + .4 + .04))
 
     y.SetCov(x, .3)
-    AssertEqual(w.error, math.sqrt(.25 + .6 + .04))
+    AssertEqual(w.std_dev, math.sqrt(.25 + .6 + .04))
 
 
 def GetRuntime(func):
@@ -325,10 +325,10 @@ def TimeTest():
         for i in range(0, n):
             s += ErrValue(i, math.sqrt(i)) * ErrValue(.1, 0)
 
-        AssertEqual(b.value, 0)
-        AssertEqual(b.error, 0)
+        AssertEqual(b.nominal_value, 0)
+        AssertEqual(b.std_dev, 0)
         s2 = sum(range(0, n))
-        AssertEqual(s.value, s2 / 10)
+        AssertEqual(s.nominal_value, s2 / 10)
         AssertEqual(s.var, s2 / 100)
 
     for n in (1000, 2000, 3000, 4000):
@@ -360,40 +360,40 @@ def SpecFuncTest():
     x.SetCov(y, 1)
 
     z = sqrt(x)**2 + sqrt(y) * sqrt(y) - y
-    AssertEqual(z.value, 2)
-    AssertEqual(z.error, .1)
+    AssertEqual(z.nominal_value, 2)
+    AssertEqual(z.std_dev, .1)
 
     z = exp(log(x)) + exp(log(y) - log(y))
-    AssertEqual(z.value, 3)
-    AssertEqual(z.error, .1)
+    AssertEqual(z.nominal_value, 3)
+    AssertEqual(z.std_dev, .1)
 
     z = sinh(x) + cosh(x) - exp(x) + 5
-    AssertEqual(z.value, 5)
-    AssertEqual(z.error, 0)
+    AssertEqual(z.nominal_value, 5)
+    AssertEqual(z.std_dev, 0)
 
     z = tanh(x) + tanh(y) - sinh(y) / cosh(y)
     w = .5 * log((1 + z) / (1 - z))  # Inverse tanh
-    AssertEqual(w.value, 2)
-    AssertEqual(w.error, .1)
+    AssertEqual(w.nominal_value, 2)
+    AssertEqual(w.std_dev, .1)
 
     x = ErrValue(.5, .1)
     y = ErrValue(.2, .03)
 
     z = asin(sin(x)) + acos(cos(y))
-    AssertEqual(z.value, .5 + .2)
-    AssertEqual(z.error, math.sqrt(.1**2 + .03**2))
+    AssertEqual(z.nominal_value, .5 + .2)
+    AssertEqual(z.std_dev, math.sqrt(.1**2 + .03**2))
 
     z = asin(sin(x)) + sin(x) / cos(x) - tan(x) + sin(y) / cos(y) - tan(y)
-    AssertEqual(z.value, .5)
-    AssertEqual(z.error, .1)
+    AssertEqual(z.nominal_value, .5)
+    AssertEqual(z.std_dev, .1)
 
     z = atan(sin(y) / cos(y))
-    AssertEqual(z.value, .2)
-    AssertEqual(z.error, .03)
+    AssertEqual(z.nominal_value, .2)
+    AssertEqual(z.std_dev, .03)
 
     z = sin(x)**2 + cos(x)**2
-    AssertEqual(z.value, 1)
-    AssertEqual(z.error, 0)
+    AssertEqual(z.nominal_value, 1)
+    AssertEqual(z.std_dev, 0)
 
 
 def WiedenhoeverTest():
@@ -428,7 +428,7 @@ def WiedenhoeverAuto(E, fVal, fCov):
     eff = fPars[0] * pow((E - fPars[2] + fPars[3] *
                           hdtv.errvalue.exp(-fPars[4] * E)), -fPars[1])
 
-    return (eff.value, eff.error)
+    return (eff.nominal_value, eff.std_dev)
 
 
 def WiedenhoeverManual(E, fPars, fCov):
@@ -495,7 +495,7 @@ def WunderAuto(E, fVal, fCov):
 
     eff = (fPars[0] * E + fPars[1] / E) * exp(fPars[2] * E + fPars[3] / E)
 
-    return (eff.value, eff.error)
+    return (eff.nominal_value, eff.std_dev)
 
 
 def WunderManual(E, fPars, fCov):

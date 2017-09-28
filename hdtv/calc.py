@@ -50,8 +50,8 @@ def wMean(values):
     wsum = .0
     weights = .0
     for val in values:
-        weights += 1 / val.rel_error
-        wsum += (val.value * 1. / val.rel_error)
+        weights += 1 / (val.std_dev / val.nominal_value)
+        wsum += (val.value * 1. / (val.std_dev / val.nominal_value))
     return wsum / weights
 
 
