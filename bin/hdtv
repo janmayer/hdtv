@@ -10,25 +10,18 @@ from __future__ import print_function
 import sys
 import os
 
-from optparse import OptionParser
+import argparse
 
 # Command line arguments
-parser = OptionParser()
-parser.add_option("-b", "--batch", dest="batchfile",
-                  help="Open and execute hdtv batchfile")
-parser.add_option(
-    "-v",
-    "--version",
-    action="store_true",
-    dest="version",
-    default=False,
-    help="Show HDTV Version")
+parser = argparse.ArgumentParser()
+parser.add_argument("-b", "--batch", dest="batchfile",
+        help="Open and execute hdtv batchfile")
 
-(options, args) = parser.parse_args()
 # Reset command line arguments so that ROOT does not stumble about them
+hdtv_args = sys.argv[1:]
 sys.argv = [sys.argv[0]]
 
-# Get ~/.hdtv directory
+# Get ~/.config/hdtv directory
 try:
     configpath = os.environ["HDTV_USER_PATH"]
 except KeyError:
@@ -66,12 +59,10 @@ else:
         root_incl_path = hdtv_incl_path
     os.environ['ROOT_INCLUDE_PATH'] = root_incl_path
 
-
-# Print Version Information
 import hdtv.version
-if options.version:
-    print("HDTV " + hdtv.version.VERSION)
-    quit()
+parser.add_argument("-v", "--version", action="version", help="Show HDTV Version",
+        version="HDTV {}".format(hdtv.version.VERSION))
+options = parser.parse_args(hdtv_args)
 
 # Import core modules
 import hdtv.cmdline
@@ -125,7 +116,6 @@ except IOError as msg:
 # Execute batchfile given on command line
 try:
     if options.batchfile is not None:
-        hdtv.ui.msg("Executing \'%s\'" % options.batchfile)
         hdtv.cmdline.command_line.ExecCmdfile(options.batchfile)
 except IOError as msg:
     hdtv.ui.msg("Error reading %s: %s" % (options.batchfile, msg))
