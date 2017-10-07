@@ -33,6 +33,11 @@ try:
     configpath = os.environ["HDTV_USER_PATH"]
 except KeyError:
     configpath = os.path.expanduser("~/.hdtv")
+    if not os.path.isdir(configpath):
+        try:
+            configpath = os.path.join(os.environ["XDG_DATA_HOME"], "hdtv")
+        except KeyError:
+            configpath = os.path.join(os.environ["HOME"], ".config", "hdtv")
 
 if not os.access(configpath, os.W_OK):
     try:
