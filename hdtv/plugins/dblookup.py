@@ -33,33 +33,33 @@ import re
 import hdtv.fit
 
 class Database(object):
-    
+
     def __init__(self):
         hdtv.ui.debug("Loaded Database Lookup plugin")
-        
+
         self.opt = dict()
         self.database = None
-        
+
         # Register configuration variables for fit peakfind
         self.opt["db"] = hdtv.options.Option(default = "PGAAlib_IKI2000", changeCallback = lambda x: self.Set(x)) # default database
-        hdtv.options.RegisterOption("database.db", self.opt["db"])    
+        hdtv.options.RegisterOption("database.db", self.opt["db"])
 
         # Automatically lookup fitted peaks in database
         self.opt["auto_lookup"] = hdtv.options.Option(default = False, parse = hdtv.options.ParseBool, changeCallback = lambda x: self.SetAutoLookup(x))
         hdtv.options.RegisterOption("database.auto_lookup", self.opt["auto_lookup"])
-        
+
         # Set default database
 #        hdtv.options.Reset("database.db")
-        
+
         self.opt["fuzziness"] = hdtv.options.Option(default = 1.0, parse = lambda x: float(x))
         hdtv.options.RegisterOption("database.fuzziness", self.opt["fuzziness"]) # Lookup fuzziness
-        
+
         self.opt["sort_key"] = hdtv.options.Option(default = None)
         hdtv.options.RegisterOption("database.sort_key", self.opt["sort_key"])
-        
+
         self.opt["sort_reverse"] = hdtv.options.Option(default = False, parse = hdtv.options.ParseBool)
         hdtv.options.RegisterOption("database.sort_reverse", self.opt["sort_reverse"])
-        
+
         # TODO: proper help
         prog = "db lookup"
         description = "Lookup database entry"
@@ -71,31 +71,31 @@ class Database(object):
                         help = "Sort by key")
         parser.add_option("-r", "--sort-reverse", action = "store_true", default = None,
                            help = "Reverse sorting")
- 
+
         hdtv.cmdline.AddCommand(prog, self.Lookup, parser = parser, minargs = 1, fileargs = False)
-        
+
         prog = "db list"
         description = "Show available databases"
         usage = "%prog"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         hdtv.cmdline.AddCommand(prog, self.List, parser = parser, nargs = 0, fileargs = False)
-        
+
         prog = "db set"
         description = "Set database"
         usage = "%prog <db>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         hdtv.cmdline.AddCommand(prog, lambda args, opts: hdtv.options.Set("database.db", args[0]), parser = parser, nargs = 1, fileargs = False)
-        
+
         prog = "db info"
         description = "Show info about database"
         usage = "%prog <db>"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
-        hdtv.cmdline.AddCommand(prog, self.Info, parser = parser, fileargs = False)        
+        hdtv.cmdline.AddCommand(prog, self.Info, parser = parser, fileargs = False)
 
-    
+
     def FitPeakPostHook(self, fitclass):
         """
-        Hook for hdtv.fit.Fit.FitPeakFunc function to automatically list matching 
+        Hook for hdtv.fit.Fit.FitPeakFunc function to automatically list matching
         database entries
         """
         for p in fitclass.peaks:
@@ -118,9 +118,9 @@ class Database(object):
                 hdtv.ui.msg("Autolookup deactivated")
 
     def Set(self, dbname = None, open = False):
-        """ 
+        """
         Set database Callback
-        
+
         open: If true automatically opens and reads database
         """
         if dbname is None:
@@ -144,26 +144,26 @@ class Database(object):
             return False
 
     def Info(self, args, options):
-        """ 
+        """
         Print info about database(s)
         """
         hdtv.ui.newline() # Newline
         if len(args) == 0:
             args = [hdtv.options.Get("database.db")]
-        
+
         for dbs in args:
             try:
                 db = hdtv.database.databases[dbs.lower()]()
                 hdtv.ui.msg("Database: " + db.name)
                 hdtv.ui.msg("Description: " + db.description)
                 self.showDBfields(db)
-                
+
             except KeyError:
                 hdtv.ui.error("No such database: " + db.name)
                 return False
-        
+
             hdtv.ui.newline() # Newline
-    
+
     def assureOpen(self):
         """
         assure that the database has been opened
@@ -173,7 +173,7 @@ class Database(object):
                 self.database.open()
         except AttributeError:
             self.Set(open = True)
-            
+
     def List(self, args, options):
 
         """
@@ -181,31 +181,31 @@ class Database(object):
         """
         for (name, db) in list(hdtv.database.databases.items()):
             hdtv.ui.msg(name + ": " + db().description)
-        
+
     def showDBfields(self, db=None):
         """
-        Show fields of database db. If db==None show field of current database
-        """        
-        
+        Show fields of database db. If db is None show field of current database
+        """
+
         text = "Valid fields: "
         if db is None:
             db = self.database
         for key in db.fOrderedParamKeys[:-1]:
             text += "\'" + str(key) + "\', "
-        
+
         text += "\'" + str(db.fOrderedParamKeys[-1]) + "\'"
         hdtv.ui.msg(text)
-        
+
     def Lookup(self, args, options):
         """
         Lookup entry in database
-        
+
         args should be something like "<fieldname>=value"
         if <fieldname> is omitted it is assumed to be energy
         """
 
         self.assureOpen()
-        
+
         try:
             lookupargs = dict()
 
@@ -213,7 +213,7 @@ class Database(object):
             vargs = list()
             for v in self.database.fOrderedParamKeys:
                 vargs.append(v.lower())
-            
+
             # parse arguments
             for a in args:
                 m = re.match(r"(.*)=(.*)", a)
@@ -234,32 +234,32 @@ class Database(object):
                 lookupargs['sort_key'] = hdtv.options.Get("database.sort_key")
             else:
                 lookupargs['sort_key'] = options.sort_key
-                
+
             if options is None or options.sort_reverse is None:
-                lookupargs['sort_reverse'] = hdtv.options.Get("database.sort_reverse") 
+                lookupargs['sort_reverse'] = hdtv.options.Get("database.sort_reverse")
             else:
                 lookupargs['sort_reverse'] = options.sort_reverse
-             
+
             if options is None or options.fuzziness is None:
                 fuzziness = hdtv.options.Get("database.fuzziness")
             else:
                 fuzziness = options.fuzziness
-                
+
             try:
                 results = self.database.find(fuzziness, **lookupargs)
             except AttributeError:
                 return False
-            
+
             if len(results) > 0:
                 table = hdtv.util.Table(results, header = self.database.fOrderedHeader,
                                       keys = self.database.fOrderedParamKeys)
                 hdtv.ui.msg(str(table))
-                
-            hdtv.ui.msg("Found " + str(len(results)) + " results") 
 
-        except ValueError:           
+            hdtv.ui.msg("Found " + str(len(results)) + " results")
+
+        except ValueError:
             return "USAGE"
-        
+
 # plugin initialisation
 import __main__
 __main__.database = Database()

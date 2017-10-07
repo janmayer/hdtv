@@ -22,6 +22,9 @@
 #-------------------------------------------------------------------------------
 # HDTV command line
 #-------------------------------------------------------------------------------
+
+from __future__ import print_function
+
 import os
 import sys
 import signal
@@ -32,7 +35,6 @@ import subprocess
 import pwd
 import optparse
 import shlex
-import string
 import hdtv.util
 
 import readline
@@ -41,14 +43,14 @@ import __main__
 
 class HDTVCommandError(Exception):
     pass
-    
+
 class HDTVCommandAbort(Exception):
     pass
-    
+
 class HDTVOptionParser(optparse.OptionParser):
     def _process_args(self, largs, rargs, values):
         # to avoid negative numbers being processed as options
-        # we add a whitespace in front, the parser no longer processes 
+        # we add a whitespace in front, the parser no longer processes
         # them as options while typecast to numeric is unaffected
         for i in range(len(rargs)):
             if rargs[i][:1] == "-":
@@ -62,13 +64,13 @@ class HDTVOptionParser(optparse.OptionParser):
 
     def error(self, msg):
         raise HDTVCommandError(msg)
-        
+
     def exit(self, status=0, msg=None):
         if status == 0:
             raise HDTVCommandAbort(msg)
         else:
             raise HDTVCommandError(msg)
-    
+
 class HDTVCommandTreeNode(object):
     def __init__(self, parent, title, level):
         self.parent = parent
@@ -92,7 +94,7 @@ class HDTVCommandTreeNode(object):
 
         titles.reverse()
         return " ".join(titles)
-        
+
     def FindChild(self, title, use_levels=True):
         """
         Find the nodes child whose title begins with title.    The use_levels
@@ -113,7 +115,7 @@ class HDTVCommandTreeNode(object):
                 else:
                     return None
         return node
-            
+
     def PrimaryChild(self):
         """
         Returns the child with the lowest level, if unambiguous,
@@ -126,13 +128,13 @@ class HDTVCommandTreeNode(object):
             elif child.level == node.level:
                 return None
         return node
-        
+
     def HasChildren(self):
         """
         Checks if the node has child nodes
         """
         return (len(self.childs) != 0)
-        
+
     def RemoveChild(self, child):
         """
         Deletes the child node child
@@ -149,7 +151,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         self.command = None
         self.options = None
         self.default_level = 1
-    
+
     def SplitCmdline(self, s):
         """
         Split a string, handling escaped whitespace.
@@ -161,19 +163,19 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         lex.quotes = "\""
         lex.commenters = ""
         return list(lex)
-    
+
     def SetDefaultLevel(self, level):
         self.default_level = level
-        
+
     def AddCommand(self, title, command, overwrite=False, level=None, **opt):
         """
         Adds a command, specified by title, to the command tree.
         """
-        if level == None:
+        if level is None:
             level = self.default_level
-        
+
         path = title.split()
-        
+
         node = self
         # Move down the command tree until the level just above the new node,
         #  creating nodes on the way if necessary
@@ -189,18 +191,18 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                 if not next:
                     next = HDTVCommandTreeNode(node, elem, level)
                 node = next
-                
+
         # Check to see if the node we are trying to add already exists; if it
         # does and we are not allowed to overwrite it, raise an error
         if not overwrite:
             if path[-1] in [n.title for n in node.childs]:
                 raise RuntimeError("Refusing to overwrite already existing command")
-        
+
         # Create the last node
         node = HDTVCommandTreeNode(node, path[-1], level)
         node.command = command
         node.options = opt
-        
+
     def FindNode(self, path, use_levels=True):
         """
         Finds the command node given by path, which should be a list
@@ -215,15 +217,15 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         while path:
             elem = path.pop(0)
             next = node.FindChild(elem, use_levels)
-            if next == None:  # more than one node found
+            if next is None:  # more than one node found
                 raise HDTVCommandError("Command is ambiguous")
             elif next == 0:   # no nodes found
                 path.insert(0, elem)
                 break
             node = next
-        
+
         return (node, path)
-        
+
     def CheckNumParams(self, cmdnode, n):
         """
         Checks if the command given by cmdnode will take n parameters.
@@ -235,13 +237,13 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         if "maxargs" in cmdnode.options and n > cmdnode.options["maxargs"]:
             return False
         return True
-        
+
     def ExecCommand(self, cmdline):
         if cmdline.strip() == "":
             return
-        
-        # Strip comments 
-        cmdline = cmdline.split("#")[0] 
+
+        # Strip comments
+        cmdline = cmdline.split("#")[0]
         if cmdline == "":
             return
 #        path = cmdline.split()
@@ -257,13 +259,13 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 
         if not node or not node.command:
             raise HDTVCommandError("Command not recognized")
-            
+
         # Check if node has a parser option set
         if "parser" in node.options:
             parser = node.options["parser"]
         else:
             parser = None
-            
+
         # Try to parse the commands arguments
         try:
             if parser:
@@ -283,13 +285,13 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                 usage = node.options["usage"].replace("%prog", node.FullTitle())
                 print("usage: " + usage)
             return
-            
+
         # Execute the command
         if parser:
             result = node.command(args, options)
         else:
             result = node.command(args)
-            
+
         # Print usage if requested
         if result == "USAGE":
             if parser:
@@ -297,7 +299,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             elif "usage" in node.options:
                 usage = node.options["usage"].replace("%prog", node.FullTitle())
                 print("usage: " + usage)
-        
+
     def RemoveCommand(self, title):
         """
         Removes the command node specified by the string title.
@@ -305,18 +307,18 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         (node, args) = self.FindNode(title.split(), False)
         if len(args) != 0 or not node.command:
             raise RuntimeError("No valid command node specified")
-            
+
         while not node.HasChildren() and node.parent != None:
             node.parent.RemoveChild(node)
             node = node.parent
-        
+
     def GetFileCompleteOptions(self, directory, text, dirs_only=False):
         """
         Returns a list of all filenames in directory <directory> beginning
         with <text>. If dirs_only=True, only (sub)directories are considered.
         """
         directory = os.path.expanduser(directory)
-        
+
         try:
             files = os.listdir(directory)
         except OSError:
@@ -326,7 +328,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 
         if l:
             for f in files:
-                if string.find(f," ") > -1:
+                if f.find(" ") > -1:
                     files.remove(f)
 
         options = []
@@ -337,7 +339,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                 elif not dirs_only:
                     options.append(f + " ")
         return options
-        
+
     def GetCompleteOptions(self, text):
         """
         Get all possible completions. text is the last part of the current
@@ -348,7 +350,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         # Get the entire buffer from the readline library (we need the context)
         # and split it at spaces.
         buf = readline.get_line_buffer()
-        
+
         try:
             path = self.SplitCmdline(buf)
         except ValueError:
@@ -360,12 +362,12 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         # of the node above are potential completion candidates, if their
         # names begin with the last part of the path.
         last_path = ""
-        
+
         # if buf != "" and not buf[-1].isspace():
         if buf != "" and (not buf[-1].isspace() or path[-1][-1].isspace()):
                 last_path = path[-1]
                 path = path[0:-1]
-        
+
         # Find node specified by path. Since we stripped the incomplete part
         # from path above, it now needs to be unambiguous. If is isn't, we
         # cannot suggest any completions.
@@ -374,11 +376,11 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         except RuntimeError:
             # Command is ambiguous
             return []
-            
+
         options = []
-        
+
         # If the node found has children, and no parts of the part had to
-        # be interpreted as arguments, we suggest suitable child nodes...        
+        # be interpreted as arguments, we suggest suitable child nodes...
         if not args and node.childs:
             l = len(text)
             for child in node.childs:
@@ -395,7 +397,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                 dirs_only = True
             else:
                 dirs_only = False
-             
+
             # If the last part of path was incomplete (i.e. did not end
             # in a space), but contains a slash '/', the part before that
             # slash should be taken a a directory from where to suggest
@@ -404,8 +406,8 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             if last_path:
                 (filepath, text) = os.path.split(last_path)
                 #filepath = os.path.split(last_path)[0]
-                
-            
+
+
             # Note that the readline library splits at either space ' ' or
             # slash '/', so text, the last part of the command line, would
             # be an (incomplete) filename, always without a directory.
@@ -413,9 +415,9 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             options = self.GetFileCompleteOptions(filepath or ".", text, dirs_only)
         else:
             options = []
-        
+
         return options
-            
+
 class CommandLine(object):
     """
     Class implementing the HDTV command line, including switching between
@@ -424,46 +426,46 @@ class CommandLine(object):
     def __init__(self, command_tree, python_completer=None):
         self.fCommandTree = command_tree
         self.fPythonCompleter = python_completer or (lambda: None)
-        
+
         self.fReadlineHistory = None
         self.fReadlineExitHandler = False
-        
+
         self._py_console = code.InteractiveConsole(__main__.__dict__)
 
         self.fPyMode = False
         self.fPyMore = False
-        
+
     def ReadReadlineInit(self, filename):
         if os.path.isfile(filename):
             readline.read_init_file(filename)
-        
+
     def SetReadlineHistory(self, filename):
         self.fReadlineHistory = filename
-        
+
         readline.clear_history()
         if os.path.isfile(self.fReadlineHistory):
             readline.read_history_file(self.fReadlineHistory)
-            
+
         if not self.fReadlineExitHandler:
             atexit.register(self.WriteReadlineHistory)
             self.fReadlineExitHandler = True
-            
+
     def WriteReadlineHistory(self):
         try:
             readline.write_history_file(self.fReadlineHistory)
         except IOError:
             hdtv.ui.error("Could not write \'" + self.fReadlineHistory + "\'")
             sys.exit(1)
-            
+
     def RegisterInteractive(self, name, ref):
         __main__.__dict__[name] = ref
-        
+
     def Unescape(self, s):
         "Recognize special command prefixes"
         s = s.lstrip()
         if len(s) == 0:
             return (None, None)
-            
+
         if s[0] == ':':
             return ("PYTHON", s[1:])
         elif s[0] == "%":
@@ -472,42 +474,42 @@ class CommandLine(object):
             return ("CMDFILE", s[1:])
         else:
             return ("HDTV", s)
-        
+
     def EnterPython(self, args=None):
         self.fPyMode = True
-    
+
     def ExitPython(self):
         print("")
         self.fPyMode = False
-        
+
     def EnterShell(self, args=None):
         "Execute a subshell"
-        
+
         if "SHELL" in os.environ:
             shell = os.environ["SHELL"]
         else:
             shell = pwd.getpwuid(os.getuid()).pw_shell
-        
+
         subprocess.call(shell)
-        
+
     def Exit(self, args=None):
         self.fKeepRunning = False
-        
+
     def AsyncExit(self):
         "Asynchronous exit; to be called from another thread"
         self.fKeepRunning = False
         os.kill(os.getpid(), signal.SIGINT)
-        
+
     def EOFHandler(self):
         print("")
         self.Exit()
-        
+
     def GetCompleteOptions(self, text):
         if self.fPyMode or self.fPyMore:
             cmd_type = "PYTHON"
         else:
             (cmd_type, cmd) = self.Unescape(readline.get_line_buffer())
-            
+
         if cmd_type == "HDTV":
             return self.fCommandTree.GetCompleteOptions(text)
         elif cmd_type == "PYTHON":
@@ -515,7 +517,7 @@ class CommandLine(object):
             #  Python completer
             opts = list()
             state = 0
-            
+
             while True:
                 opt = self.fPythonCompleter(text, state)
                 if opt != None:
@@ -523,7 +525,7 @@ class CommandLine(object):
                 else:
                     break
                 state += 1
-                    
+
             return opts
         elif cmd_type == "CMDFILE":
             filepath = os.path.split(cmd)[0]
@@ -531,10 +533,10 @@ class CommandLine(object):
         else:
             # No completion support for shell commands
             return []
-    
-            
+
+
     def Complete(self, text, state):
-    	"""
+        """
         Suggest completions for the current command line, whose last token
         is text. This function is intended to be called from the readline
         library *only*.
@@ -556,7 +558,7 @@ class CommandLine(object):
         Execute a command file with hdtv commands (aka batch file)
         """
         hdtv.ui.msg("Execute file: " + fname)
-        
+
         try:
             file = hdtv.util.TxtFile(fname)
             file.read()
@@ -567,11 +569,11 @@ class CommandLine(object):
             self.DoLine(line)
             if self.fPyMore: # TODO: HACK: How should I teach this micky mouse language that a python statement (e.g. "for ...:") has ended???
                 self.fPyMore = self._py_console.push("")
-    
+
     def ExecShell(self, cmd):
         subprocess.call(cmd, shell=True)
-    
-    
+
+
     def DoLine(self, line):
         """
         Deal with one line of input
@@ -583,7 +585,7 @@ class CommandLine(object):
         # ... otherwise, the prefix decides.
         else:
             (cmd_type, cmd) = self.Unescape(line)
-            
+
         # Execute as appropriate type
         if cmd_type == "HDTV":
             self.fCommandTree.ExecCommand(cmd)
@@ -602,7 +604,7 @@ class CommandLine(object):
 
         self.fPyMode = False
         self.fPyMore = False
-            
+
         readline.set_completer(self.Complete)
         readline.set_completer_delims(" \t" + os.sep)
         readline.parse_and_bind("tab: complete")
@@ -615,7 +617,7 @@ class CommandLine(object):
                 prompt = "py  > "
             else:
                 prompt = "hdtv> "
-                
+
             # Read the command
             try:
                 s = input(prompt)
@@ -634,10 +636,10 @@ class CommandLine(object):
                 if not self.fKeepRunning:
                     print("")
                     break
-                
+
                 # If we get here, we assume the KeyboardInterrupt is due to the user
                 #  hitting Ctrl-C.
-                
+
                 # Ctrl-C can be used to abort the entry of a (multi-line) command.
                 #  If no command is being entered, we assume the user wants to exit
                 #  and explain how to do that correctly.
@@ -650,11 +652,11 @@ class CommandLine(object):
                 else:
                     print("\nKeyboardInterrupt: Use \'Ctrl-D\' to exit")
                 continue
-            
+
             # Execute the command
             try:
                self.DoLine(s)
-                    
+
             except KeyboardInterrupt:
                 print("Aborted")
             except HDTVCommandError as msg:
@@ -667,7 +669,7 @@ class CommandLine(object):
 def RegisterInteractive(name, ref):
     global command_line
     command_line.RegisterInteractive(name, ref)
-    
+
 def SetInteractiveDict(d):
     global command_line
     command_line.fInteractiveLocals = d
@@ -675,27 +677,27 @@ def SetInteractiveDict(d):
 def AddCommand(title, command, **opt):
     global command_tree
     command_tree.AddCommand(title, command, **opt)
-    
+
 def ExecCommand(cmdline):
     global command_tree
     command_tree.ExecCommand(cmdline)
-    
+
 def RemoveCommand(title):
     global command_tree
     command_tree.RemoveCommand(title)
-    
+
 def ReadReadlineInit(filename):
     global command_line
     command_line.ReadReadlineInit(filename)
-    
+
 def SetReadlineHistory(filename):
     global command_line
     command_line.SetReadlineHistory(filename)
-    
+
 def AsyncExit():
     global command_line
     command_line.AsyncExit()
-    
+
 def MainLoop():
     global command_line
     command_line.MainLoop()

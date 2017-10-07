@@ -29,25 +29,16 @@ def Median(values):
     n = len(values)
     if not n:
         return None
-    
-    if n % 2 == 0: 
+
+    if n % 2 == 0:
         return (values[(n - 1) / 2] + values[n / 2]) * 0.5
-    else:
-        return values[n / 2]
-    
+    return values[n / 2]
+
 def stdDeviation(values):
-    
-    n = len(values)
-    mean = wMean(values)
-    
     ssum = .0
     for val in values:
-        s = (val.value - mean)**2
-        ssum +=s
-        
-    stdDev = math.sqrt(1./n * ssum)
-
-    return stdDev
+        ssum += (val.value - wMean(values))**2
+    return math.sqrt(1./len(values) * ssum)
 
 def wMean(values):
     """
@@ -55,14 +46,10 @@ def wMean(values):
     """
     wsum = .0
     weights = .0
-    
     for val in values:
         weights += 1/val.rel_error
         wsum += (val.value * 1./val.rel_error)
-        
-    mean = wsum / weights
-    
-    return mean   
+    return wsum / weights
 
 def gcd(a, b):
     """
@@ -76,23 +63,23 @@ class Linear:
     """
     A linear relationship, i.e. y = p1 * x + p0
     """
-    def __init__(self, p0 = 0., p1 = 0.):
+    def __init__(self, p0=0., p1=0.):
         self.p0 = p0
         self.p1 = p1
-        
+
     def Y(self, x):
         """
         Get y corresponding to a certain x
         """
         return self.p1 * x + self.p0
-        
+
     def X(self, y):
         """
         Get x corresponding to a certain y
         May raise a ZeroDivisionError
         """
         return (y - self.p0) / self.p1
-        
+
     @classmethod
     def FromXYPairs(cls, a, b):
         """
@@ -102,7 +89,7 @@ class Linear:
         l.p1 = (b[1] - a[1]) / (b[0] - a[0])
         l.p0 = a[1] - l.p1 * a[0]
         return l
-        
+
     @classmethod
     def FromPointAndSlope(cls, point, p1):
         """
@@ -112,4 +99,3 @@ class Linear:
         l.p1 = p1
         l.p0 = point[1] - l.p1 * point[0]
         return l
-

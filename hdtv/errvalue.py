@@ -95,7 +95,7 @@
 # DepErrValue instance is depedant on wraps the ErrValue instances in an
 # EVContainer, which provides the correct equality test.
 
-
+from __future__ import division
 
 import math
 import sys
@@ -104,7 +104,7 @@ import copy
 import traceback
 import hdtv.ui
 
-class EVContainer:
+class EVContainer(object):
     # Helper class allowing to use ErrValues as keys in dictionaries
     def __init__(self, ev):
         self.ev = ev
@@ -118,11 +118,27 @@ class EVContainer:
         return id(self.ev) == id(y.ev)
 
 
-    def __cmp__(self, y):
+    def __ne__(self, y):
+        return not (id(self.ev) == id(y.ev))
+
+
+    def __lt__(self, y):
         raise RuntimeError("EVContainer instances cannot be compared except for equality")
 
 
-class DepErrValue:
+    def __gt__(self, y):
+        raise RuntimeError("EVContainer instances cannot be compared except for equality")
+
+
+    def __le__(self, y):
+        raise RuntimeError("EVContainer instances cannot be compared except for equality")
+
+
+    def __ge__(self, y):
+        raise RuntimeError("EVContainer instances cannot be compared except for equality")
+
+
+class DepErrValue(object):
     def __init__(self, value, depends):
         self._value = value
         # NOTE: both self._depends and self._lazy_union should be considered
@@ -238,11 +254,46 @@ class DepErrValue:
         return self.value
 
 
-    def __cmp__(self, y):
+    def __eq__(self, other):
         try:
-            return cmp(self.value, y.value)
+            return (self.value == other.value)
         except AttributeError:
-            return cmp(self.value, float(y))
+            return (self.value == float(other))
+
+
+    def __ne__(self, other):
+        try:
+            return not (self.value == other.value)
+        except AttributeError:
+            return not (self.value == float(other))
+
+
+    def __lt__(self, other):
+        try:
+            return  (self.value < other.value)
+        except AttributeError:
+            return  (self.value < float(other))
+
+
+    def __gt__(self, other):
+        try:
+            return  (self.value > other.value)
+        except AttributeError:
+            return  (self.value > float(other))
+
+
+    def __le__(self, other):
+        try:
+            return  (self.value <= other.value)
+        except AttributeError:
+            return  (self.value <= float(other))
+
+
+    def __ge__(self, other):
+        try:
+            return  (self.value >= other.value)
+        except AttributeError:
+            return  (self.value >= float(other))
 
 
     def __str__(self):
@@ -609,7 +660,7 @@ class ErrValue(DepErrValue):
             (value, error) = self._fromString(value)
 
         self._has_error = True
-        if error == None:
+        if error is None:
             error = 0.
             self._has_error = False
 
@@ -678,7 +729,7 @@ class ErrValue(DepErrValue):
         expr = "^\s*" + expr_value + "\s*(" + expr_error + ")?\s*(" + expr_exp + ")?\s*$"
 
         match = re.match(expr, strvalue)
-        if match == None:
+        if match is None:
             raise ValueError("invalid literal for ErrValue(): %s" % strvalue)
 
         # Extract value
@@ -701,4 +752,3 @@ class ErrValue(DepErrValue):
                 error *= pow(10, exp)
 
         return (value, error)
-

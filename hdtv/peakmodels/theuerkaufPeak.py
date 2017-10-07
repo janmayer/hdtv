@@ -19,11 +19,13 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 import math
+from functools import total_ordering
 import ROOT
 from .peak import PeakModel, FitValue
 from hdtv.drawable import Drawable
 import hdtv.options
 
+@total_ordering
 class TheuerkaufPeak(Drawable):
     """
     Peak object for the Theuerkauf (classic TV) fitter
@@ -34,14 +36,14 @@ class TheuerkaufPeak(Drawable):
         self.pos = pos
         self.vol = vol
         # width==fwhm (internally the C++ fitter uses sigma)
-        self.width = width    
+        self.width = width
         self.tl = tl
         self.tr = tr
         self.sh = sh
         self.sw = sw
         # dictionary for storing additional user supplied values
         self.extras = dict()
-        
+
     def __getattr__(self, name):
         """
         calculate calibrated values on the fly for pos and width
@@ -63,19 +65,19 @@ class TheuerkaufPeak(Drawable):
             width_cal = self.cal.Ch2E(pos_uncal + hwhm_uncal) - self.cal.Ch2E(pos_uncal - hwhm_uncal)
             # This is only an approximation, valid as d(width_cal)/d(pos_uncal) \approx 0
             #  (which is true for Ch2E \approx linear)
-            width_err_cal = abs( (self.cal.dEdCh(pos_uncal + hwhm_uncal) / 2. + 
+            width_err_cal = abs( (self.cal.dEdCh(pos_uncal + hwhm_uncal) / 2. +
                                   self.cal.dEdCh(pos_uncal - hwhm_uncal) / 2.   ) * width_err_uncal)
             return FitValue(width_cal, width_err_cal, self.width.free)
         elif name in ["vol_cal","tl_cal","tr_cal","sh_cal","sw_cal"]:
             name = name[0:name.rfind("_cal")]
             return getattr(self, name)
         else:
-            # DON'T FORGET THIS LINE! see http://code.activestate.com/recipes/52238/ 
-            raise AttributeError(name) 
+            # DON'T FORGET THIS LINE! see http://code.activestate.com/recipes/52238/
+            raise AttributeError(name)
 
     def __str__(self):
         return self.formatted_str(verbose=False)
-        
+
     def formatted_str(self, verbose=False):
         """
         print the properties of this peak in a nicely formatted way
@@ -86,8 +88,6 @@ class TheuerkaufPeak(Drawable):
             text += "Channel:     " + self.pos.fmt() + "\n"
             text += "Volume:      " + self.vol.fmt() + "\n"
             text += "FWHM:        " + self.width_cal.fmt() + "\n"
-            # Note: do not use == or != when testing for None
-            # those operators use cmp, which is not guaranteed to handle None
             if not self.tl is None:
                 text += "Left Tail:   " + self.tl.fmt() + "\n"
             else:
@@ -104,15 +104,18 @@ class TheuerkaufPeak(Drawable):
         else:
             text += "Peak@ %s \n" %self.pos_cal.fmt()
         return text
-        
 
-    def __cmp__(self, other):
-        """
-        compare peaks according to their position (uncalibrated)
-        """    
-        return cmp(self.pos.value, other.pos.value)
-    
-    
+    def __eq__(self, other):
+        return ((self.pos, self.vol, self.width, self.tl, self.tr, self.sh, self.sw) ==
+                (other.pos, other.vol, other.width, other.tl, other.tr, other.sh, other.sw))
+
+    def __ne__(self, other):
+        return not ((self.pos, self.vol, self.width, self.tl, self.tr, self.sh, self.sw) ==
+                    (other.pos, other.vol, other.width, other.tl, other.tr, other.sh, other.sw))
+
+    def __lt__(self, other):
+        return (self.pos.value < other.pos.value)
+
     def Draw(self, viewport):
         """
         Draw the function of this peak
@@ -130,7 +133,7 @@ class TheuerkaufPeak(Drawable):
 
 
 class PeakModelTheuerkauf(PeakModel):
-    """ 
+    """
     Theuerkauf peak model - "classical" model used by tv
     """
     def __init__(self):
@@ -145,16 +148,16 @@ class PeakModelTheuerkauf(PeakModel):
                                  "tr":    [ float, "free", "equal", "none" ],
                                  "sh":    [ float, "free", "equal", "none" ],
                                  "sw":    [ float, "free", "equal", "hold" ] }
-                                 
+
         self.ResetParamStatus()
         self.Peak = TheuerkaufPeak
         self.name = "theuerkauf"
-        
+
 
     def CopyPeak(self, cpeak, color=None, cal=None):
         """
         create a python peak object from C++ peak object
-        """ 
+        """
         # get values from C++ object (uncalibrated)
         pos_uncal = cpeak.GetPos()
         pos_err_uncal = cpeak.GetPosError()
@@ -167,7 +170,7 @@ class PeakModelTheuerkauf(PeakModel):
         width = FitValue(width_uncal, width_err_uncal, cpeak.SigmaIsFree())
         # optional parameters
         if cpeak.HasLeftTail():
-            tl = FitValue(cpeak.GetLeftTail(), cpeak.GetLeftTailError(), 
+            tl = FitValue(cpeak.GetLeftTail(), cpeak.GetLeftTailError(),
                           cpeak.LeftTailIsFree())
         else:
             tl = None
@@ -189,7 +192,7 @@ class PeakModelTheuerkauf(PeakModel):
         peak.displayObj = ROOT.HDTV.Display.DisplayFunc(func, color)
         peak.displayObj.SetCal(cal)
         return peak
-        
+
     def RestoreParams(self, peak, cpeak):
         """
         Restore the params of a C++ peak object using a python peak object
@@ -207,7 +210,7 @@ class PeakModelTheuerkauf(PeakModel):
         if peak.sh:
             cpeak.RestoreStepHeight(peak.sh.value, peak.sh.error)
             cpeak.RestoreStepWidth(peak.sw.value, peak.sw.error)
-            
+
 
     def ResetParamStatus(self):
         """
@@ -239,7 +242,7 @@ class PeakModelTheuerkauf(PeakModel):
             return value
         else:
             raise RuntimeError("Unexpected parameter name")
-            
+
 
     def GetFitter(self, region, peaklist, cal):
         """
@@ -254,11 +257,11 @@ class PeakModelTheuerkauf(PeakModel):
         # Check if enough values are provided in case of per-peak parameters
         #  (the function raises a RuntimeError if the check fails)
         self.CheckParStatusLen(len(peaklist))
-                
+
         # Copy peaks to the fitter
         for pid in range(0, len(peaklist)):
             pos_uncal = peaklist[pid]
-            
+
             pos = self.GetParam("pos", pid, pos_uncal, cal, pos_uncal)
             vol = self.GetParam("vol", pid, pos_uncal, cal)
             sigma = self.GetParam("width", pid, pos_uncal, cal)
@@ -266,7 +269,7 @@ class PeakModelTheuerkauf(PeakModel):
             tr = self.GetParam("tr", pid, pos_uncal, cal)
             sh = self.GetParam("sh", pid, pos_uncal, cal)
             sw = self.GetParam("sw", pid, pos_uncal, cal)
-            
+
             cpeak = ROOT.HDTV.Fit.TheuerkaufPeak(pos, vol, sigma, tl, tr, sh, sw)
             self.fFitter.AddPeak(cpeak)
 

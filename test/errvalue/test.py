@@ -3,6 +3,7 @@
 
 # Unit tests for the ErrValue class
 
+from __future__ import print_function, division
 
 import hdtv.errvalue
 from hdtv.errvalue import ErrValue, sqrt, exp, log, sin, cos, tan, asin, acos, atan, sinh, cosh, tanh

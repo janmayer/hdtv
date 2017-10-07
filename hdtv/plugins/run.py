@@ -23,6 +23,8 @@
 # Plugin for executing a python script from the command line
 #-------------------------------------------------------------------------------
 
+from __future__ import print_function
+
 import os
 import sys
 import hdtv.cmdline

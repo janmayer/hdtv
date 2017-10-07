@@ -46,7 +46,7 @@ class EEPeak(Drawable):
         self.vol = vol
         # dictionary for storing additional user supplied values
         self.extras = dict()
-        
+
     def __getattr__(self, name):
         """
         calculate calibrated values on the fly for pos, sigma1 and sigma2
@@ -88,8 +88,8 @@ class EEPeak(Drawable):
             name = name[0:name.rfind("_cal")]
             return getattr(self, name)
         else:
-            # DON'T FORGET THIS LINE! see http://code.activestate.com/recipes/52238/ 
-            raise AttributeError(name) 
+            # DON'T FORGET THIS LINE! see http://code.activestate.com/recipes/52238/
+            raise AttributeError(name)
 
     def __str__(self):
         return self.formatted_str(verbose=False)
@@ -112,15 +112,32 @@ class EEPeak(Drawable):
         else:
             text += "Peak@ %s \n" %self.pos_cal.fmt()
         return text
-    
-    
-    def __cmp__(self, other):
-        """
-        compare peaks according to their position (uncalibrated)
-        """
-        return cmp(self.pos.value, other.pos.value)
-        
-        
+
+
+    def __eq__(self, other):
+        return self.pos.value == other.pos.value
+
+
+    def __ne__(self, other):
+        return self.pos.value != other.pos.value
+
+
+    def __gt__(self, other):
+        return self.pos.value > other.pos.value
+
+
+    def __lt__(self, other):
+        return self.pos.value < other.pos.value
+
+
+    def __ge__(self, other):
+        return self.pos.value >= other.pos.value
+
+
+    def __le__(self, other):
+        return self.pos.value <= other.pos.value
+
+
     def Draw(self, viewport):
         """
         Draw the function of this peak
@@ -160,8 +177,8 @@ class PeakModelEE(PeakModel):
         self.ResetParamStatus()
         self.name = "ee"
         self.Peak = EEPeak
-        
-        
+
+
     def CopyPeak(self, cpeak, color=None, cal=None):
         """
         Copies peak data from a C++ peak class to a Python class
@@ -180,7 +197,7 @@ class PeakModelEE(PeakModel):
         peak.displayObj = ROOT.HDTV.Display.DisplayFunc(func, color)
         peak.displayObj.SetCal(cal)
         return peak
-        
+
     def RestoreParams(self, peak, cpeak):
         """
         Restore the params of a C++ peak object using a python peak object
@@ -192,7 +209,7 @@ class PeakModelEE(PeakModel):
         cpeak.RestoreEta(peak.eta.value,peak.eta.error)
         cpeak.RestoreGamma(peak.gamma.value,peak.gamma.error)
         cpeak.RestoreVol(peak.vol.value,peak.vol.error)
-    
+
     def ResetParamStatus(self):
         """
         Reset parameter status to defaults
@@ -204,10 +221,10 @@ class PeakModelEE(PeakModel):
         self.fParStatus["eta"] = "equal"
         self.fParStatus["gamma"] = "equal"
         self.fParStatus["vol"] = "calculated"
-    
+
     def Uncal(self, parname, value, pos_uncal, cal):
         """
-        Convert a value from calibrated to uncalibrated units 
+        Convert a value from calibrated to uncalibrated units
         This is needed, when a value is hold to a specific calibrated value.
         """
         if parname == "pos":
@@ -224,8 +241,8 @@ class PeakModelEE(PeakModel):
             return value
         else:
             raise RuntimeError("Unexpected parameter name")
-        
-        
+
+
     def GetFitter(self, region, peaklist, cal):
         """
         Creates a C++ Fitter object, which can then do the real work
@@ -234,14 +251,14 @@ class PeakModelEE(PeakModel):
         self.fFitter = ROOT.HDTV.Fit.EEFitter(region[0],region[1])
 
         self.ResetGlobalParams()
-        
+
         # Check if enough values are provided in case of per-peak parameters
         #  (the function raises a RuntimeError if the check fails)
         self.CheckParStatusLen(len(peaklist))
-        
+
         for pid in range(0, len(peaklist)):
             pos_uncal = peaklist[pid]
-            
+
             pos = self.GetParam("pos", pid, pos_uncal, cal, pos_uncal)
             amp = self.GetParam("amp", pid, pos_uncal, cal)
             sigma1 = self.GetParam("sigma1", pid, pos_uncal, cal)
@@ -251,7 +268,5 @@ class PeakModelEE(PeakModel):
 
             peak = ROOT.HDTV.Fit.EEPeak(pos, amp, sigma1, sigma2, eta, gamma)
             self.fFitter.AddPeak(peak)
-            
+
         return self.fFitter
-
-

@@ -4,6 +4,8 @@
 # This is the main HDTV application.
 #-------------------------------------------------------------------------------
 
+from __future__ import print_function
+
 # Load required modules
 import sys
 import os
@@ -28,22 +30,22 @@ except KeyError:
 
 if not os.access(configpath, os.W_OK):   
     try:
-        os.mkdir(configpath, 0755)
+        os.mkdir(configpath, 0o755)
     except OSError:
-        print >>sys.stderr, "Could not access config path", configpath
-        print >>sys.stderr, "Try setting HDTV_USER_PATH environment variable."
+        print("Could not access config path " + configpath, file=sys.stderr)
+        print("Try setting HDTV_USER_PATH environment variable.", file=sys.stderr)
         sys.exit(1)
 
 sys.path.append(configpath)
 sys.path.append(configpath + "/plugins")
 
 # Check if we are inside the hdtv source directory
-hdtvpath=sys.path[0].split(os.sep)
+hdtvpath = sys.path[0].split(os.sep)
 hdtvpath = os.sep.join(hdtvpath[:-1])
 if os.path.exists(hdtvpath+os.sep+'hdtv'):
     sys.path.insert(1,hdtvpath)
 else:
-    # If not, HDTV is nost likely installed/split into the different system dirs
+    # If not, HDTV is most likely installed/split into the different system dirs
     # Add HDTV include path to ROOT_INCLUDE_PATH
     hdtv_incl_path = sys.exec_prefix + '/share/hdtv/include'
     root_incl_path = os.environ.get('ROOT_INCLUDE_PATH', '')
@@ -106,7 +108,7 @@ try:
         hdtv.cmdline.command_line.ExecCmdfile(startup_hdtv)
     else:
         hdtv.ui.debug("No startup.hdtv file")
-except IOError, msg:
+except IOError as msg:
     hdtv.ui.error("Error reading %s: %s" % (startup_hdtv, msg))
 
 # Execute batchfile given on command line
@@ -114,7 +116,7 @@ try:
     if options.batchfile is not None:
         hdtv.ui.msg("Executing \'%s\'" % options.batchfile)
         hdtv.cmdline.command_line.ExecCmdfile(options.batchfile)
-except IOError, msg:
+except IOError as msg:
     hdtv.ui.msg("Error reading %s: %s" % (options.batchfile, msg))
    
 

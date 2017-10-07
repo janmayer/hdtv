@@ -23,7 +23,7 @@
 # Infrastructure for configuration variables
 #-------------------------------------------------------------------------------
 
-class Option:
+class Option(object):
     """
     A configuration variable
     """
@@ -36,13 +36,13 @@ class Option:
         self.Parse = parse
         self.ToStr = toStr
         self.ChangeCallback = changeCallback
-    
+
     def __bool__(self):
         """
         How to convert option to 'bool'
         """
         return bool(self.value)
-    
+
     def Set(self, value):
         """
         Set the variable to the specified value
@@ -50,25 +50,25 @@ class Option:
         self.value = value
         if self.ChangeCallback:
             self.ChangeCallback(self)
-            
+
     def ParseAndSet(self, rawValue):
         """
         Parses rawValue and sets the variable to the result
         """
         self.Set(self.Parse(rawValue))
-            
+
     def Get(self):
         """
         Return the value of the variable
         """
         return self.value
-        
+
     def Reset(self):
         """
         Reset the variable to its default value
         """
         self.Set(self.defaultValue)
-        
+
     def __str__(self):
         """
         Returns the value as a string
@@ -84,14 +84,14 @@ def RegisterOption(varname, variable):
     if varname in list(variables.keys()):
         raise RuntimeError("Refusing to overwrite existing configuration variable")
     variables[varname] = variable
-    
+
 def Set(varname, rawValue):
     """
     Sets the variable specified by varname. Raises a KeyError if it does not exist.
     """
     global variables
     variables[varname].ParseAndSet(rawValue)
-    
+
 def Get(varname):
     """
     Gets the value of the variable varname. Raises a KeyError if it does not exist.
@@ -105,7 +105,7 @@ def Reset(varname):
     """
     global variables
     return variables[varname].Reset()
-        
+
 def Show(varname):
     """
     Shows the value of the variable varname
@@ -134,5 +134,4 @@ def ParseBool(x):
     else:
         raise ValueError
 
-    
 variables = dict()

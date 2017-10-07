@@ -33,7 +33,7 @@ class Fitter(object):
         self.bgdeg = bgdeg
         self.peakFitter = None
         self.bgFitter = None
-    
+
     @property
     def params(self):
         params = ["background"]
@@ -41,7 +41,7 @@ class Fitter(object):
             if len(self.peakModel.fValidParStatus[param])>1:
                 params.append(param)
         return params
-    
+
     def __getattr__(self, name):
         # Look in peakModell for unknown attributes
         return getattr(self.peakModel, name)
@@ -60,7 +60,7 @@ class Fitter(object):
 
     def RestoreBackground(self,backgrounds=Pairs(), coeffs=list(), chisquare=0.0):
         """
-        Create Background Fitter object and 
+        Create Background Fitter object and
         restore the background polynom from coeffs
         """
         # create fitter
@@ -71,7 +71,7 @@ class Fitter(object):
         # restore the fitter
         valueArray = ROOT.TArrayD(len(coeffs))
         errorArray = ROOT.TArrayD(len(coeffs))
-        for i in range(0, len(coeffs)): 
+        for i in range(0, len(coeffs)):
             valueArray[i] = coeffs[i].value
             errorArray[i] = coeffs[i].error
         self.bgFitter.Restore(valueArray, errorArray, chisquare)
@@ -89,12 +89,12 @@ class Fitter(object):
         else:
             # internal background
             self.peakFitter.Fit(spec.hist.hist, self.bgdeg)
-        
+
     def RestorePeaks(self, cal=None, region=Pairs(), peaks=list(), chisquare=0.0, coeffs=list()):
         """
-        Create the Peak Fitter object and 
+        Create the Peak Fitter object and
         restore all peaks
-        """      
+        """
         # create the fitter
         peaklist = [p.pos.value for p in peaks]
         self.peakFitter = self.peakModel.GetFitter(region, peaklist, cal)
@@ -119,15 +119,15 @@ class Fitter(object):
 
     def SetPeakModel(self, model):
         """
-        Sets the peak model to be used for fitting. 
-        Model can be either a string, in which case it is used as a key into 
+        Sets the peak model to be used for fitting.
+        Model can be either a string, in which case it is used as a key into
         the gPeakModels dictionary, or a PeakModel object.
         """
         if type(model) == str:
             model = hdtv.peakmodels.PeakModels[model]
         self.peakModel = model()
         self.peakFitter = None
-        
+
     def SetParameter(self, parname, status):
         """
         Sets the parameter status for fitting.
@@ -145,19 +145,14 @@ class Fitter(object):
         else:
             # all other parnames are treated in the peakmodel
             self.peakModel.SetParameter(parname, status)
-        
+
 
     def __copy__(self):
         """
         Create a copy of this fitter
-        This also copies the status of the corresponding peakModel, 
+        This also copies the status of the corresponding peakModel,
         and hence the status of the fit parameters.
         """
         new = Fitter(self.peakModel.name, self.bgdeg)
         new.peakModel.fParStatus = self.peakModel.fParStatus.copy()
         return new
-    
-    
-
-
-

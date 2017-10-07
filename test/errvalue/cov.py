@@ -19,6 +19,9 @@
 #    cov(a, b) = var(f) + (1-2)*cov(f,g) - 2*var(g) = -28
 #
 # This result is then compared to a Monte Carlo simulation.
+
+from __future__ import print_function
+
 import ROOT
 
 rand = ROOT.TRandom2()

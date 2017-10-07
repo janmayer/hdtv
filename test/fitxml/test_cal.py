@@ -21,6 +21,9 @@
 ################################################################################
 # This script tests the interplay of fitting and restoring fits with calibration
 ################################################################################
+
+from __future__ import print_function
+
 import os
 import hdtv.fitxml
 import xml.etree.cElementTree as ET

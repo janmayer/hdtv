@@ -19,11 +19,11 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-
+from __future__ import print_function, division
 
 try:
     import curses
-    
+
     def get_term_width():
         # We call curses.setupterm() every time, as the terminal width
         # may have changed
@@ -50,22 +50,22 @@ def tabformat(cells, **kwargs):
         col_sep_width = kwargs['colsepwidth']
     else:
         col_sep_width = 2
-        
+
     if 'tabwidth' in kwargs:
         tabwidth = kwargs['tabwidth']
     else:
         tabwidth = get_term_width()
-    
+
     # If there are no cells, there is nothing to do...
     n_cells = len(cells)
     if n_cells == 0:
         return
-        
+
     # Gather some statistics about the cells
     cell_widths = [len(cell) for cell in cells]
     min_cell_width = min(cell_widths)
     max_cell_width = max(cell_widths)
-    
+
     # We use a rather simple-minded algorithm here: we know that at least one
     # column is as wide as the widest cell, while each column is at least as
     # wide as the smallest cell. This allows us to obtain an upper bound for
@@ -86,19 +86,19 @@ def tabformat(cells, **kwargs):
         # Calculate an upper bound for the number of columns. Note that the space
         # between two columns takes some width as well.
         n_cols = (tabwidth - max_cell_width) // (min_cell_width + col_sep_width) + 1
-        
+
         # Calculate the corresponding number of rows as
         # n_rows = ceil(n_cells / n_cols), for integers
         n_rows = (n_cells-1) // n_cols + 1
-        
+
         while True:
             # Calculate the minimal number of columns for the given number of rows
             # n_cols = ceil(n_cells / n_rows), for integers
             n_cols = (n_cells-1) // n_rows + 1
-            
+
             # Try with n_cols columns, and calculate the table width.
             tbl_width = 0
-                        
+
             for i in range(0, n_cols):
                 tbl_width += max(cell_widths[i*n_rows : (i+1)*n_rows])
             # If the table is small enough, end the loop...
@@ -106,7 +106,7 @@ def tabformat(cells, **kwargs):
                 break
             # ...otherwise, increase the number of rows by one and try again
             n_rows += 1
-    
+
     # Now produce the actual output
     # Calculate the individual column widths
     col_widths = []
@@ -118,15 +118,15 @@ def tabformat(cells, **kwargs):
     rows = [[] for i in range(0,n_rows)]
     for i in range(0, n_cells):
         rows[i % n_rows].append(cells[i])
-        
+
     # Fill up rows with empty cells
     for i in range(0, n_rows):
         if len(rows[i]) < n_cols:
             rows[i].append("")
-    
+
     # Produce the appropriate format string for output
     fmtstr = (' ' * col_sep_width).join(["%%-%ds" % w for w in col_widths])
-            
+
     # Output the table, row by row
     for i in range(0, n_rows):
         print(fmtstr % tuple(rows[i]))

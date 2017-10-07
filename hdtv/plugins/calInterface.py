@@ -23,6 +23,9 @@
 # Functions for efficiency, energy calibration
 #
 #-------------------------------------------------------------------------------
+
+from __future__ import print_function
+
 import os
 import json
 
@@ -216,7 +219,7 @@ class EffCalIf(object):
                 return
         else:#the spectrum has to be calibrated
             #try:
-            if coefficients[0] == None:
+            if coefficients[0] is None:
                 coefficients[0] = 1
                 #raise hdtv.cmdline.HDTVCommandError("You have to give a coefficient for the first spectrum.")
 
@@ -228,7 +231,7 @@ class EffCalIf(object):
             Efficiency = self.CalculateEff(spectrumID, nuclide, coefficient, source, sigma)
 
             #for table option values are saved
-            for i in range(0,len(Efficiency[0])):
+            for i in range(0, len(Efficiency[0])):
                 tableline = dict()
                 tableline["Peak"] = Efficiency[0][i]
                 tableline["Efficiency"] = Efficiency[1][i]
@@ -245,9 +248,9 @@ class EffCalIf(object):
             maxEnergy = Efficiency[0][len(Efficiency[0])-1] #in the region [0;maxEnergy] the relative efficiency will be corrected to the fit
 
             if len(spectrumIDs) > 1:
-                for j in range(1,len(spectrumIDs)):
+                for j in range(1, len(spectrumIDs)):
                     #if the observed spectrum has no coefficient it has to be corrected
-                    if coefficients[j] == None:
+                    if coefficients[j] is None:
                         NewEff = self.EffCorrection(spectrumIDs[0], maxEnergy, spectrumIDs[j], fitValues, nuclides[j], source, sigma)
                     #if it has its own coefficient only the efficiency has to be calculated
                     else:
@@ -311,7 +314,7 @@ class EffCalIf(object):
 
         #Peaks from the given spectrum are saved in Peak
         peaks = self.spectra.dict[hdtv.util.ID(spectrumID)].dict
-        for i in range(0,len(list(peaks.values()))):
+        for i in range(0, len(list(peaks.values()))):
             peakID.append(i)
             Peak.append(list(peaks.values())[i].ExtractParams()[0][0]['pos'].value)
 
@@ -344,7 +347,7 @@ class EffCalIf(object):
             i = i+1
 
         #Calculates the efficiency and its error and saves all peaks with errors
-        for i in range(0,len(peakID)):
+        for i in range(0, len(peakID)):
             Efficiency.append(hdtv.errvalue.ErrValue(Vol[i].value/(coefficient*Intensity[i].value)))
             PeakFinal.append(hdtv.errvalue.ErrValue(Peak[i].value))
             #TODO: error of the coefficient is not included
@@ -372,7 +375,7 @@ class EffCalIf(object):
         #calculates the factor of the nuclide
         #TODO: maybe a iterative function works better
         try:
-            for i in range(0,len(Efficiency[0])):
+            for i in range(0, len(Efficiency[0])):
                 energy = Efficiency[0][i].value
                 if energy <= maxEnergy:
                     functionValue = self.spectra.dict[referenceID].effCal.value(energy)
@@ -386,7 +389,7 @@ class EffCalIf(object):
             amountDivisionError = 0.0
             amountError = 0.0
 
-            for i in range(0,len(Efficiency[0])):
+            for i in range(0, len(Efficiency[0])):
                 energy = Efficiency[0][i].value
                 if energy <= maxEnergy:
                     functionValue = self.spectra.dict[referenceID].effCal.value(energy)
@@ -400,19 +403,19 @@ class EffCalIf(object):
             amountDivisionError = 0.0
             amountError = 0.0
 
-            for i in range(0,len(Efficiency[0])):
+            for i in range(0, len(Efficiency[0])):
                 energy = Efficiency[0][i].value
                 functionValue = self.spectra.dict[referenceID].effCal.value(energy)
 
                 division = Efficiency[1][i].value/functionValue
                 amountDivisionError = amountDivisionError + division
-                amountError = amountError + 1            
+                amountError = amountError + 1
 
         #the mean value of the divisions is calculated
         factor = amountDivisionError / amountError
 
         #the corrected efficiency is calculated
-        for i in range(0,len(Efficiency[1])):
+        for i in range(0, len(Efficiency[1])):
             Efficiency[1][i].value = Efficiency[1][i].value / factor
             Efficiency[1][i].error = Efficiency[1][i].error / factor
 
@@ -652,7 +655,7 @@ class EffCalHDTVInterface(object):
         except:
             pass
 
-        if options.file == None:
+        if options.file is None:
             for argument in args:
                 try:
                     argument = argument.split(',')
@@ -952,8 +955,11 @@ class EnergyCalHDTVInterface(object):
         nuclide = str(args[0])
 
         Data = EnergyCalibration.SearchNuclide(nuclide, options.database)
-
-        EnergyCalibration.TabelOfNuclide(nuclide, Data[0], Data[1], Data[2], Data[3], Data[4], Data[5], Data[6])
+        try:
+            EnergyCalibration.TabelOfNuclide(nuclide, Data[0], Data[1], Data[2], Data[3], Data[4], Data[5], Data[6])
+        except TypeError:
+            hdtv.ui.debug("Table of nuclide energies is empty")
+            return
 
     def CalPosSet(self, args, options):
         """
@@ -1058,10 +1064,10 @@ class EnergyCalHDTVInterface(object):
         if optionSpectrum == True:
             # TODO: Use build in -s parsing
             if len(spectrumIDList)>1:
-                for i in range(1,len(spectrumIDList)-1,2): #check if string is like '1,2,3 ...'
+                for i in range(1, len(spectrumIDList)-1,2): #check if string is like '1,2,3 ...'
                     if spectrumIDList[i] != ',':
                         raise hdtv.cmdline.HDTVCommandError("Invalid spectrumID, it has to look like '0,1'")
-            for i in range(0,len(spectrumIDList),2): #makes a list of all spectrum IDs
+            for i in range(0, len(spectrumIDList),2): #makes a list of all spectrum IDs
                 try:
                     spectrumID.append(int(spectrumIDList[i])) #check if spectrumIDs are integers and save them
                 except:
@@ -1150,7 +1156,7 @@ class EnergyCalHDTVInterface(object):
         Syntax: id.number
         If no number is given, the first peak in the fit is used.
         """
-        if self.spectra.activeID == None:
+        if self.spectra.activeID is None:
             hdtv.ui.warn("No active spectrum, no action taken.")
             return False
         spec = self.spectra.GetActiveObject()
@@ -1209,8 +1215,8 @@ class EnergyCalHDTVInterface(object):
                 os.rename(fname,"%s.back" %fname)
             elif overwrite in ["n","N"]:
                 return
-        calfile = file(fname, "w")
-        calfile.write(text)
+        with open(fname, "w") as calfile:
+            calfile.write(text)
 
     def CalPosListRead(self, args, options):
         """
@@ -1241,4 +1247,3 @@ class EnergyCalHDTVInterface(object):
 import __main__
 __main__.eff = EffCalIf(__main__.spectra)
 __main__.ecal = EnergyCalIf(__main__.spectra)
-

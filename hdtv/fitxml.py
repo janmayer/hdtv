@@ -18,6 +18,9 @@
 # You should have received a copy of the GNU General Public License
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+
+from __future__ import print_function
+
 import os
 import glob
 import xml.etree.cElementTree as ET
@@ -31,17 +34,17 @@ from hdtv.fit import Fit
 from hdtv.peakmodels import FitValue, PeakModels
 
 # Increase the version number if you changed something related to the xml output.
-# If your change affect the reading, you should increase the major number 
+# If your change affect the reading, you should increase the major number
 # and supply an appropriate new ReadFitlist function for the new xml version.
 # If it is just a small change or bug fix, change the minor number.
 #
 # Do not remove old ReadFunctions!
 #
-# There is a script in the test directory, to test reading and writing for 
+# There is a script in the test directory, to test reading and writing for
 # some test cases, please make sure that your changes do not break those test cases
 VERSION="1.3"
 
-class FitXml:
+class FitXml(object):
     """
     Class to save and read fit lists to and from xml file
     """
@@ -51,7 +54,7 @@ class FitXml:
       # Please point the following functions to the appropriate functions
       self.RestoreFromXml = self.RestoreFromXml_v1_3
       self.Xml2Fit = self.Xml2Fit_v1
-      
+
 #### creating of xml ###########################################################
     def WriteFitlist(self, fname, sid=None):
         """
@@ -71,7 +74,7 @@ class FitXml:
         # save to file
         tree = ET.ElementTree(root)
         tree.write(fname)
-            
+
     def CreateXml(self, fits):
         """
         Creates a xml tree for fits
@@ -83,7 +86,7 @@ class FitXml:
             root.append(self.Fit2Xml(fit))
         self._indent(root)
         return root
-            
+
     def Fit2Xml(self, fit):
         """
         Creates xml element for a fit
@@ -149,7 +152,7 @@ class FitXml:
             calElement.text = str(marker.p1.pos_cal)
             # <uncal>
             uncalElement = ET.SubElement(positionElement, "uncal")
-            uncalElement.text = str(marker.p1.pos_uncal) 
+            uncalElement.text = str(marker.p1.pos_uncal)
         # <background>
         bgElement = ET.SubElement(fitElement,"background")
         deg = len(fit.bgCoeffs)-1
@@ -179,7 +182,7 @@ class FitXml:
                     status = status[index]
                 paramElement.set("status", str(status))
                 param = getattr(peak, param)
-                if not param is None: 
+                if not param is None:
                     # <value>
                     if not param.value is None:
                         valueElement = ET.SubElement(paramElement, "value")
@@ -199,7 +202,7 @@ class FitXml:
                     status = status[index]
                 paramElement.set("status", str(status))
                 param = getattr(peak, "%s_cal" %param)
-                if not param is None: 
+                if not param is None:
                     # <value>
                     if not param.value is None:
                         valueElement = ET.SubElement(paramElement, "value")
@@ -223,10 +226,10 @@ class FitXml:
                 except:
                     paramElement.text = str(param)
         return fitElement
-        
+
     def _indent(self, elem, level=0):
         """
-        This function formats the xml in-place for prettyprinting 
+        This function formats the xml in-place for prettyprinting
 
         Source: http://effbot.org/zone/element-lib.htm#prettyprint
         """
@@ -243,9 +246,9 @@ class FitXml:
         else:
             if level and (not elem.tail or not elem.tail.strip()):
                 elem.tail = i
-        
+
 ##### Reading of xml ###########################################################
-    
+
     def _getPosFromElement(self, markerElement, fit=None):
         """
         Read position in energy domain from XML element.
@@ -258,7 +261,7 @@ class FitXml:
             cal = float(markerElement.find("cal").text)
             pos = Position(cal, fixedInCal=True, cal=fit.cal)
         return pos
-    
+
     def _readParamElement(self, paramElement):
         """
         Reads parameter info from a xml element and creates a FitValue object
@@ -267,7 +270,7 @@ class FitXml:
         status = paramElement.get("status", "free")
         if status == "none":
             return None
-        
+
         if status in ["free", "equal", "calculated"]:
             free = True
         else:
@@ -282,15 +285,15 @@ class FitXml:
         errorElement = paramElement.find("error")
         error = float(errorElement.text)
         return FitValue(value, error, free)
-        
+
     # FIXME: remove!
     def ReadPeaks(self, root):
         """
         Creates a list of peaks from xml data.
         This function reads only the peak data and ignores everything else,
-        the peak objects are independent of a specific fit or spectrum and 
-        have a fixed calibration. 
-        Note: This is for standalone use, it is not possible to restore fits 
+        the peak objects are independent of a specific fit or spectrum and
+        have a fixed calibration.
+        Note: This is for standalone use, it is not possible to restore fits
         with this list.
         """
         peaks = list()
@@ -378,7 +381,7 @@ class FitXml:
     def RestoreFromXml_v1_3(self, root, sid, refit=False):
         """
         Restores fits from xml file (version = 1.3)
-        
+
         Changes to version 1.2:
         Now it is possible to store additional user supplied parameter for
         each peak. No big change!
@@ -417,33 +420,33 @@ class FitXml:
             if not sid in self.spectra.visible:
                 fit.Hide()
         return count
-        
+
     def RestoreFromXml_v1_2(self, root, sid, refit=False):
         """
         Restores fits from xml file (version = 1.2)
-        
+
         Changes to version 1.1:
         Calibrated AND Uncalibrated marker positions are saved in version 1.2,
         where as in version 1.1 only one of both has been saved. No big change!
         """
         return self.RestoreFromXml_v1_3(root, sid, refit)
-        
+
     def RestoreFromXml_v1_1(self, root, sid, refit=False):
         """
         Restores fits from xml file (version = 1.1)
-        
+
         Changes compared to version 1.0:
         In this version a file contains only fits belonging to one spectra
-        this changes the xml hierachy a little, the fit elements are now direct 
-        childs of the root element. The spectrum element is still there, but now 
+        this changes the xml hierachy a little, the fit elements are now direct
+        childs of the root element. The spectrum element is still there, but now
         a child of each fit element and not longer used in hdtv for anything
         """
         return self.RestoreFromXml_v1_2(root, sid, refit)
-        
+
     def RestoreFromXml_v1_0(self, root, sids=None, calibrate=False, refit=False):
         """
-        Restores fits from xml file (version = 1.0) 
-    
+        Restores fits from xml file (version = 1.0)
+
         This version is able to restore the fits from the XML.
         Changes compared to version 0.1:
             * changed some node namings:
@@ -530,7 +533,7 @@ class FitXml:
         for bgElement in fitElement.findall("bgMarker"):
             # Read begin marker
             beginElement = bgElement.find("begin")
-            begin = self._getPosFromElement(beginElement, fit)   
+            begin = self._getPosFromElement(beginElement, fit)
             fit.ChangeMarker("bg", begin, "set")
             # Read end marker
             endElement = bgElement.find("end");
@@ -561,7 +564,7 @@ class FitXml:
                 pass
             coeffs = list()
             for coeffElement in bgElement.findall("coeff"):
-                deg = int(coeffElement.get("deg")) 
+                deg = int(coeffElement.get("deg"))
                 # <value>
                 valueElement = coeffElement.find("value")
                 value = float(valueElement.text)
@@ -628,10 +631,10 @@ class FitXml:
 
     def RestoreFromXml_v0(self, root, do_fit=False):
         """
-        Reads fits from xml file (version = 0.*) 
-    
-        Note: For performance reasons this does not reconstruct the fit results. 
-        It only sets the markers and restores the status of the fitter. The user 
+        Reads fits from xml file (version = 0.*)
+
+        Note: For performance reasons this does not reconstruct the fit results.
+        It only sets the markers and restores the status of the fitter. The user
         must repeat the fit, if he/she wants to see the results again.
         (This should be improved in later versions.)
         """
@@ -671,13 +674,13 @@ class FitXml:
                 for bgElement in fitElement.findall("background"):
                     # Read begin/p1 marker
                     beginElement = bgElement.find("begin");
-                    if beginElement == None: # Maybe old Element (ver 0.1)
+                    if beginElement is None: # Maybe old Element (ver 0.1)
                         beginElement = bgElement.find("p1")
                     begin = float(beginElement.find("uncal").text)
                     fit.ChangeMarker("bg", fit.cal.Ch2E(begin), "set")
                     # Read end/p2 marker
                     endElement = bgElement.find("end");
-                    if endElement == None: # Maybe old Element (ver 0.1)
+                    if endElement is None: # Maybe old Element (ver 0.1)
                         endElement = bgElement.find("p2")
                     end = float(endElement.find("uncal").text)
                     fit.ChangeMarker("bg",fit.cal.Ch2E(end), "set")
@@ -685,13 +688,13 @@ class FitXml:
                 for regionElement in fitElement.findall("region"):
                     # Read begin/p1 marker
                     beginElement = regionElement.find("begin");
-                    if beginElement == None: # Maybe old Element (ver 0.1)
+                    if beginElement is None: # Maybe old Element (ver 0.1)
                         beginElement = regionElement.find("p1")
                     begin = float(beginElement.find("uncal").text)
                     fit.ChangeMarker("region",fit.cal.Ch2E(begin),"set")
                     # Read end/p2 marker
                     endElement = regionElement.find("end");
-                    if endElement == None: # Maybe old Element (ver 0.1)
+                    if endElement is None: # Maybe old Element (ver 0.1)
                         endElement = regionElement.find("p2")
                     end = float(endElement.find("uncal").text)
                     fit.ChangeMarker("region", fit.cal.Ch2E(end), "set")
@@ -699,13 +702,11 @@ class FitXml:
                 for peakElement in fitElement.findall("peak"):
                     # Read position/p1 marker
                     posElement = peakElement.find("position")
-                    if posElement == None:
-                        posElement = peakElement.find("p1") 
+                    if posElement is None:
+                        posElement = peakElement.find("p1")
                     pos = float(posElement.find("uncal").text)
                     fit.ChangeMarker("peak",fit.cal.Ch2E(pos), "set")
                 if do_fit:
                     fit.FitPeakFunc(spec)
                 spec.Insert(fit)
             return count
-
-

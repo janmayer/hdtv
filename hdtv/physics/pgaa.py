@@ -23,9 +23,7 @@
 # PGAA specific functions
 
 def Mass(volume, eff, k0, nflux = 1, absorption = 1):
-    '''
+    """
     Calculate "mass" from peak volume, efficiency and k0 value
-    '''
-    m = volume / (eff * k0) / (nflux * absorption)
-    
-    return m 
+    """
+    return volume / (eff * k0) / (nflux * absorption)

@@ -24,6 +24,8 @@
 # this includes a ls-like command, by special request from R. Schulze :)
 #-------------------------------------------------------------------------------
 
+from __future__ import print_function
+
 import hdtv.tabformat
 import hdtv.cmdline
 import os
@@ -38,7 +40,7 @@ def ls(args):
         pattern = os.path.expanduser(args[0])
     else:
         pattern = "*"
-    
+
     dirlist = []
     for fname in glob.glob(pattern):
         # For broken symlinks, os.stat may fail.
@@ -52,7 +54,7 @@ def ls(args):
                 dirlist.append(fname)
         except OSError:
             dirlist.append(fname)
-    
+
     dirlist.sort()
     hdtv.tabformat.tabformat(dirlist)
 
@@ -83,6 +85,6 @@ def pwd(args):
 
 hdtv.cmdline.AddCommand("ls", ls, level=2, maxargs=1, dirargs=True)
 hdtv.cmdline.AddCommand("cd", cd, level=2, maxargs=1, dirargs=True)
-hdtv.cmdline.AddCommand("pwd", pwd, level=2, nargs=0) 
+hdtv.cmdline.AddCommand("pwd", pwd, level=2, nargs=0)
 
 hdtv.ui.debug("Loaded ls plugin")

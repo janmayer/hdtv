@@ -24,7 +24,7 @@ def SearchNuclide(nuclide):
     source = "IAEA"
 
     #compares the name of every nuclide with the given one and saves the energies in the list
-    for tableOfEnergiesData in json.loads(tableOfEnergiesStr): 
+    for tableOfEnergiesData in json.loads(tableOfEnergiesStr):
         if tableOfEnergiesData['nuclide'] == nuclide:
             Halflive = float(tableOfEnergiesData['halflife'])
             HalfliveError = float(tableOfEnergiesData['halflife_uncertainty'])
@@ -39,4 +39,3 @@ def SearchNuclide(nuclide):
     if Energies == []:
         errorText = "There is no nuclide called "+nuclide+" in the table."
         raise hdtv.cmdline.HDTVCommandError(errorText)
-        

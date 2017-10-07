@@ -31,21 +31,21 @@ import sys
 import signal
 
 class TextInterface(hdtv.ui.SimpleUI):
-    
+
     def __init__(self, height = 25, width = 80):
         hdtv.ui.debug("Loaded TextInterface")
-        
+
         super(TextInterface, self).__init__()
         # Set options
         self.opt = dict()
         self.opt["ui.pager.cmd"] = hdtv.options.Option(default = "less") # default pager
         self.opt["ui.pager.args"] = hdtv.options.Option(default = "-F -X") # default pager cmd line options
-        
+
         for (key, opt) in list(self.opt.items()):
-            hdtv.options.RegisterOption(key, opt) 
+            hdtv.options.RegisterOption(key, opt)
 
         self._fallback_canvasheight = height
-        self._fallback_canvaswidth = width       
+        self._fallback_canvaswidth = width
         self._updateTerminalSize(None, None)
 
         signal.signal(signal.SIGWINCH, self._updateTerminalSize)
@@ -53,22 +53,22 @@ class TextInterface(hdtv.ui.SimpleUI):
 # TODO: this does not work(?)
 #    def __del__(self):
 #        signal.signal(signal.SIGWINCH, signal.SIG_IGN) # Restore default signal handler
-        
+
     def page(self, text):
         """
         Print text by pages
         """
-        
+
         cmd = hdtv.options.Get("ui.pager.cmd")
         args = hdtv.options.Get("ui.pager.args")
-          
+
         ret = pydoc.tempfilepager(text, str(cmd) + " " + str(args))
 
     def msg(self, text, newline = True):
         """
         Message output
         """
-        lines = len(text.splitlines())        
+        lines = len(text.splitlines())
 
         if lines > self.canvasheight:
             self.page(text)
@@ -77,7 +77,7 @@ class TextInterface(hdtv.ui.SimpleUI):
 
         if newline:
             self.stdout.write(self.linesep)
- 
+
     # TODO: Make this work under windows
     def _updateTerminalSize(self, signal, frame):
         def ioctl_GWINSZ(fd):
@@ -109,5 +109,3 @@ class TextInterface(hdtv.ui.SimpleUI):
 
 # initialization
 hdtv.ui.ui = TextInterface()
-
-    

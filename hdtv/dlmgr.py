@@ -48,7 +48,7 @@ def FindLibrary(name):
             # Ignore the file if stat failes
             pass
     return None
-    
+
 def LoadLibrary(name):
     fname = FindLibrary(name)
     if not fname:
@@ -56,4 +56,3 @@ def LoadLibrary(name):
 
     if ROOT.gSystem.Load(fname) < 0:
         raise DLImportError("Failed to load library %s" % fname)
-

@@ -25,7 +25,7 @@ import ROOT
 import colorsys
 
 
-# some default colors 
+# some default colors
 default= ROOT.kRed
 zoom = ROOT.kWhite
 region = ROOT.kBlue - 4
@@ -54,11 +54,11 @@ def ColorForID(ID, active=False):
 
 def HueForID(ID):
     """
-    Returns the hue corresponding to a certain spectrum ID. The idea is to 
-    maximize the hue difference between the spectra shown, without knowing 
-    beforehand how many spectra there will be and without being able to change 
-    the color afterwards (that would confuse the user). The saturation and value 
-    of the color can be set arbitrarily, for example to indicate which spectrum 
+    Returns the hue corresponding to a certain spectrum ID. The idea is to
+    maximize the hue difference between the spectra shown, without knowing
+    beforehand how many spectra there will be and without being able to change
+    the color afterwards (that would confuse the user). The saturation and value
+    of the color can be set arbitrarily, for example to indicate which spectrum
     is currently active.
     """
     # Special case
@@ -80,10 +80,10 @@ def Highlight(color, active=True):
        color (no white).
      - Brightness value also ranges from 0 to 1, where 0 is black.
     """
-    if color==None:
+    if color is None:
         color = default
     # you can not highlight white and black
-    if color==10 or color==0: 
+    if color == 10 or color == 0:
         return color
     color = ROOT.gROOT.GetColor(color)
     if not color:
@@ -164,5 +164,3 @@ def GetRGB(color):
 #        b = q
 
 #    return (r,g,b)
-#    
-#    

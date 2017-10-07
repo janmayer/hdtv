@@ -34,7 +34,7 @@ from hdtv.spectrum import Spectrum
 from hdtv.histogram import FileHistogram
 from hdtv.specreader import SpecReaderError
 
-class SpecInterface:
+class SpecInterface(object):
     """
     User interface to work with 1-d spectra
     """
@@ -147,7 +147,7 @@ class SpecInterface:
                     if spec.name in list(self.spectra.caldict.keys()):
                         spec.cal = self.spectra.caldict[spec.name]
                     loaded.append(sid)
-                    if fmt == None:
+                    if fmt is None:
                         hdtv.ui.msg("Loaded %s into %s" % (fname, sid))
                     else:
                         hdtv.ui.msg("Loaded %s'%s into %s" % (fname, fmt, sid))
@@ -213,7 +213,7 @@ class SpecInterface:
         hdtv.ui.msg("Copied spectrum " + str(ID) + " to " + str(sid))
 
 
-class TvSpecInterface:
+class TvSpecInterface(object):
     """
     TV style commands for the spectrum interface.
     """

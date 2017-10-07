@@ -21,120 +21,119 @@
 
 #-------------------------------------------------------------------------------
 # Function for energy calibration
-# 
+#
 #-------------------------------------------------------------------------------
+
+from __future__ import print_function
 
 import json
 import hdtv.util
-from hdtv.database import IAEALibraries
-from hdtv.database import DDEPLibraries
+from hdtv.database import IAEALibraries, DDEPLibraries
 
 
-def SearchNuclide(nuclide, database): 
-	"""
-	Searches for information about the nuclide in different databases.
-	"""
-	if database == "IAEA":
-		Data = IAEALibraries.SearchNuclide(nuclide)
-	elif database == "DDEP":
-		Data = DDEPLibraries.SearchNuclide(nuclide)
-	else:
-		try:
-			Data = IAEALibraries.SearchNuclide(nuclide)
-		except:
-			Data = DDEPLibraries.SearchNuclide(nuclide)
-
-	return Data
+def SearchNuclide(nuclide, database):
+    """
+    Searches for information about the nuclide in different databases.
+    """
+    if database == "IAEA":
+        data = IAEALibraries.SearchNuclide(nuclide)
+    elif database == "DDEP":
+        data = DDEPLibraries.SearchNuclide(nuclide)
+    else:
+        try:
+            data = IAEALibraries.SearchNuclide(nuclide)
+        except:
+            data = DDEPLibraries.SearchNuclide(nuclide)
+    return data
 
 def TabelOfNuclide(nuclide, Energies, EnergiesError, Intensities, IntensitiesError, Halflive, HalfliveError, source):
-	"""
-	Creates a table of the given data.
-	"""
-	tabledata = list() 
-	Data = [[],[]]
-	data = hdtv.errvalue.ErrValue(Halflive)
-	data.SetError(HalfliveError)
+    """
+    Creates a table of the given data.
+    """
+    tabledata = list()
+    Data = [[], []]
+    data = hdtv.errvalue.ErrValue(Halflive)
+    data.SetError(HalfliveError)
 
-	for j in range(0,len(Energies)):
-		Data[0].append(hdtv.errvalue.ErrValue(Energies[j]))
-		Data[0][j].SetError(EnergiesError[j])
-		Data[1].append(hdtv.errvalue.ErrValue(Intensities[j]))
-		Data[1][j].SetError(IntensitiesError[j])
+    for j in range(0, len(Energies)):
+        Data[0].append(hdtv.errvalue.ErrValue(Energies[j]))
+        Data[0][j].SetError(EnergiesError[j])
+        Data[1].append(hdtv.errvalue.ErrValue(Intensities[j]))
+        Data[1][j].SetError(IntensitiesError[j])
 
         #for table option values are saved
-		tableline = dict()
-		tableline["Energy"] = Data[0][j]
-		tableline["Intensity"] = Data[1][j]
-		tabledata.append(tableline)
+        tableline = dict()
+        tableline["Energy"] = Data[0][j]
+        tableline["Intensity"] = Data[1][j]
+        tabledata.append(tableline)
 
-	result_header = "Data of the nuclide " + str(nuclide) + " of the data source " + str(source) + "." + "\n" + "Halflife: " +str(data)
-	print() 
-	table = hdtv.util.Table(data=tabledata, keys=["Energy", "Intensity"],extra_header = result_header, sortBy=None, ignoreEmptyCols=False)
-	hdtv.ui.msg(str(table))        
+    result_header = "Data of the nuclide " + str(nuclide) + " of the data source " + str(source) + "." + "\n" + "Halflife: " +str(data)
+    print()
+    table = hdtv.util.Table(data=tabledata, keys=["Energy", "Intensity"],extra_header = result_header, sortBy=None, ignoreEmptyCols=False)
+    hdtv.ui.msg(str(table))
 
-def MatchPeaksAndEnergies(Peaks, Energies, sigma): 
-	"""
-	Combines Peaks with the right Energies from the table (with searchEnergie). 
-	"""
-	gradient = [] #list of all gradients Energy/PeakPosition
-	pair = [] #list of all possible pairs Energy, Peak
-	accordanceCount = [] 
+def MatchPeaksAndEnergies(peaks, energies, sigma):
+    """
+    Combines Peaks with the right energies from the table (with searchEnergie).
+    """
+    gradient = [] #list of all gradients energy/PeakPosition
+    pair = [] #list of all possible pairs energy, Peak
+    accordanceCount = []
 
-	#error message if there are no given peaks
-	if Peaks == []:
-		raise hdtv.cmdline.HDTVCommandError("You must fit at least one peak.")
+    #error message if there are no given peaks
+    if peaks == []:
+        raise hdtv.cmdline.HDTVCommandError("You must fit at least one peak.")
 
-	#saves all pairs and gradients in lists
-	for i in range(0,len(Peaks)):
-		for j in range(0,len(Energies)):
-			gradient.append(1.0*Energies[j]/Peaks[i]) 
-			pair.append([Peaks[i],Energies[j]])
-			accordanceCount.append(0)
+    #saves all pairs and gradients in lists
+    for peak in peaks:
+        for energy in energies:
+            gradient.append(1.0*energy/peak)
+            pair.append([peak, energy])
+            accordanceCount.append(0)
 
-	NumberHighestAccordance = 0 
-	bestAccordance = 0 #gradient with best accordance to the others
+    NumberHighestAccordance = 0
+    bestAccordance = 0 #gradient with best accordance to the others
 
-	#compare all gradients with each other to find the most frequently one (within sigma)
-	for i in range(0,len(gradient)): 
-		for j in range(0,len(gradient)): 
-			if gradient[j]>gradient[i]-sigma and gradient[j]<gradient[i]+sigma:
-				accordanceCount[i] = accordanceCount[i] + 1 
-				if accordanceCount[i] > NumberHighestAccordance:
-					NumberHighestAccordance = accordanceCount[i]
-					bestAccordance = gradient[i]
+    #compare all gradients with each other to find the most frequently one (within sigma)
+    for i in range(0, len(gradient)):
+        for j in range(0, len(gradient)):
+            if gradient[j]>gradient[i]-sigma and gradient[j]<gradient[i]+sigma:
+                accordanceCount[i] = accordanceCount[i] + 1
+                if accordanceCount[i] > NumberHighestAccordance:
+                    NumberHighestAccordance = accordanceCount[i]
+                    bestAccordance = gradient[i]
 
-	accordance = [] #all pairs with the right gradient will be saved in this list
+    accordance = [] #all pairs with the right gradient will be saved in this list
 
-	for i in range(0,len(gradient)):
-		if gradient[i]>bestAccordance-sigma and gradient[i]<bestAccordance+sigma:
-			for a in accordance:
-				if a[0] == pair[i][0] or a[1] == pair[i][1]: #Warning
-					print(a, pair[i])
-					hdtv.ui.warn("Some peaks/energies are used more than one time.")
-			accordance.append(pair[i])
+    for i in range(0, len(gradient)):
+        if gradient[i]>bestAccordance-sigma and gradient[i]<bestAccordance+sigma:
+            for a in accordance:
+                if a[0] == pair[i][0] or a[1] == pair[i][1]: #Warning
+                    print(a, pair[i])
+                    hdtv.ui.warn("Some peaks/energies are used more than one time.")
+            accordance.append(pair[i])
 
-	#warning when only few pairs are found
-	if len(accordance)<4:
-		print(accordance)
-		hdtv.ui.warn("Only a few (peak,energy) pairs are found.")
+    #warning when only few pairs are found
+    if len(accordance)<4:
+        print(accordance)
+        hdtv.ui.warn("Only a few (peak,energy) pairs are found.")
 
-	return(accordance)
+    return(accordance)
 
-def MatchPeaksAndIntensities(Peaks, peakID, Energies, Intensities, IntensitiesError, sigma=0.5): #Peak is the Energy of the fitted Peak, Vol its volume 
+def MatchPeaksAndIntensities(Peaks, peakID, Energies, Intensities, IntensitiesError, sigma=0.5): #Peak is the Energy of the fitted Peak, Vol its volume
 #and Intensity and Energy the data from the chart
-	"""
-	Combines peaks with the right intensities from the table (with searchEnergie). 
-	"""
-	Match = [[],[],[]]
+    """
+    Combines peaks with the right intensities from the table (with searchEnergie).
+    """
+    Match = [[], [], []]
 
-	count = 0
-	for i in range(0,len(Energies)):
-		for j in range(0,len(Peaks)):
-			if abs(Energies[i]-Peaks[j]) <= sigma:
-				Match[0].append(Peaks[j])
-				Match[1].append(hdtv.errvalue.ErrValue(Intensities[i]))
-				Match[1][count].SetError(IntensitiesError[i])
-				Match[2].append(peakID[j])
-				count = count + 1
-
-	return Match
+    count = 0
+    for i in range(0, len(Energies)):
+        for j in range(0, len(Peaks)):
+            if abs(Energies[i]-Peaks[j]) <= sigma:
+                Match[0].append(Peaks[j])
+                Match[1].append(hdtv.errvalue.ErrValue(Intensities[i]))
+                Match[1][count].SetError(IntensitiesError[i])
+                Match[2].append(peakID[j])
+                count = count + 1
+    return Match

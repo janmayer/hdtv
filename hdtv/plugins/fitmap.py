@@ -28,10 +28,10 @@ from hdtv.errvalue import ErrValue
 class FitMap(object):
     def __init__(self, spectra, ecal):
         hdtv.ui.debug("Loaded plugin for setting nominal positions to peaks")
-        
+
         self.spectra = spectra
         self.ecal = ecal
-        
+
         prog = "fit position assign"
         description = "assign energy valuey as nominal position for peak"
         usage = "%prog pid en [pid en ...] "
@@ -71,15 +71,15 @@ class FitMap(object):
     def FitPosAssign(self, args, options):
         """
         Assign a nominal value for the positon of peaks
-        
+
         Peaks are specified by their id and the peak number within the fit.
         Syntax: id.number
         If no number is given, the first peak in the fit is used.
         """
-        if self.spectra.activeID == None:
+        if self.spectra.activeID is None:
             hdtv.ui.warn("No active spectrum, no action taken.")
             return False
-        spec = self.spectra.GetActiveObject() 
+        spec = self.spectra.GetActiveObject()
         if len(args) % 2 != 0:
             hdtv.ui.error("Number of arguments must be even")
             return "USAGE"
@@ -97,17 +97,17 @@ class FitMap(object):
                     continue
                 except (KeyError,IndexError):
                     hdtv.ui.warn("no peak with id %s" %args[i])
-                
+
 
     def FitPosErase(self, args, options):
         """
         Erase nominal values for the position of peaks
-        
+
         Peaks are specified by their id and the peak number within the fit.
         Syntax: id.number
         If no number is given, the all peaks in that fit are used.
         """
-        if self.spectra.activeID == None:
+        if self.spectra.activeID is None:
             hdtv.ui.warn("No active spectrum, no action taken.")
             return False
         spec = self.spectra.GetActiveObject()
@@ -139,19 +139,19 @@ class FitMap(object):
                 # ignore peaks where "pos_lit" is unset
                 continue
 
-                  
+
     def FitPosMap(self, args, options):
         """
         Read a list of energies from file and map to the fitted peaks.
-        
+
         The spectrum must be roughly calibrated for this to work.
-        """ 
+        """
         f = hdtv.util.TxtFile(args[0])
         f.read()
         energies = list()
         for line in f.lines:
             energies.append(ErrValue(line.split(",")[0]))
-        if self.spectra.activeID == None:
+        if self.spectra.activeID is None:
             hdtv.ui.warn("No active spectrum, no action taken.")
             return False
         spec = self.spectra.GetActiveObject()
@@ -175,12 +175,12 @@ class FitMap(object):
                     count +=1
         # give a feetback to the user
         hdtv.ui.msg("Mapped %s energies to peaks" %count)
-    
+
     def CalPosRecalibrate(self, args, options):
-        if self.spectra.activeID == None:
+        if self.spectra.activeID is None:
             hdtv.ui.warn("No active spectrum, no action taken.")
             return False
-        spec = self.spectra.GetActiveObject() 
+        spec = self.spectra.GetActiveObject()
         # parsing of command line
         sids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
         if len(sids)==0:
@@ -196,8 +196,8 @@ class FitMap(object):
                 except:
                     continue
         try:
-            cal = self.ecal.CalFromPairs(pairs, degree, table=options.show_table, 
-                                                    fit=options.show_fit, 
+            cal = self.ecal.CalFromPairs(pairs, degree, table=options.show_table,
+                                                    fit=options.show_fit,
                                                     residual=options.show_residual,
                                                     ignoreErrors=options.ignore_errors)
         except RuntimeError as msg:
@@ -211,5 +211,4 @@ import __main__
 if not __main__.ecal:
     from . import calInterface
     __main__.ecal = calInterface.EnergyCalIf(__main__.spectra)
-__main__.fitmap = FitMap(__main__.spectra, __main__.ecal)       
-
+__main__.fitmap = FitMap(__main__.spectra, __main__.ecal)

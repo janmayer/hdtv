@@ -434,7 +434,7 @@ class RHisto2D(Histo2D):
 
     @property
     def xproj(self):
-        if self._prx == None:
+        if self._prx is None:
             name = self.rhist.GetName() + "_prx"
             self._prx = self.rhist.ProjectionX(name, 0, -1, "e")
             # do not store the Histogram object here because of garbage collection
@@ -444,7 +444,7 @@ class RHisto2D(Histo2D):
 
     @property
     def yproj(self):
-        if self._pry == None:
+        if self._pry is None:
             name = self.rhist.GetName() + "_pry"
             self._pry = self.rhist.ProjectionY(name, 0, -1, "e")
             # do not store the Histogram object here because of garbage collection
@@ -664,4 +664,3 @@ class MHisto2D(Histo2D):
                 if errno != ROOT.MatOp.ERR_SUCCESS:
                     raise RuntimeError("Transpose: " + ROOT.MatOp.GetErrorString(errno))
                 hdtv.ui.info("Generated transpose: %s" % trans_fname)
-

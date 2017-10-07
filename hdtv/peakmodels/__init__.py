@@ -6,6 +6,3 @@ from .peak import FitValue
 PeakModels = dict()
 PeakModels["theuerkauf"]=PeakModelTheuerkauf
 PeakModels["ee"]=PeakModelEE
-
-
-

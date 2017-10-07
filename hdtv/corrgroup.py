@@ -3,7 +3,7 @@
 
 import math
 
-class Detector:
+class Detector(object):
     """
     Class describing a single detector. Theta and phi are angles
     (FIXME), name is an arbitrary Python object used to identify
@@ -13,8 +13,8 @@ class Detector:
         self.fName = name
         self.fTheta = theta
         self.fPhi = phi
-        
-class CorrelationGroup:
+
+class CorrelationGroup(object):
     """
     Class describing a correlation group, i.e. a number of detector
     pairs with the same value of the correlation function.
@@ -24,7 +24,7 @@ class CorrelationGroup:
         self.fTheta2 = theta2
         self.fPhi = phi
         self.fDetectorPairs = detpairs
-        
+
     def IsSymmetric(self):
         """
         Tests whether the correlation group is symmetric, i.e.
@@ -34,15 +34,15 @@ class CorrelationGroup:
         # We simply test if the correlation group *should* be
         # symmetric, not if it actually is.
         return (self.fTheta1 == self.fTheta2)
-        
+
     def GetPairs(self):
         """
         Returns a list of lists of Detector objects describing all
         detector pairs in the correlation group.
         """
         return self.fDetectorPairs
-        
-class CorrelationGroups:
+
+class CorrelationGroups(object):
     """
     Class for determining all correlation groups that arise from a
     given arrangement of detectors.
@@ -50,14 +50,14 @@ class CorrelationGroups:
     def __init__(self):
         self.fGroups = None
         self.fDetectors = list()
-        
+
     def AddDetector(self, num, theta, phi):
         """
         Add a detector. Note that fCorrelGroups will not reflect the
         change until CalcGroups has been called.
         """
         self.fDetectors.append(Detector(num, theta, phi))
-        
+
     # The algorithm is based on the following two observations:
     # 1.) In the angular function, only the cosine of the angles matters (*),
     #      allowing us to shift all angles into the region [0., 180.] degrees
@@ -74,7 +74,7 @@ class CorrelationGroups:
     # Literature reference: L. Peter Ekström and Anders Nordlund,
     # Gamma-gamma correlations with detector arrays,
     # NIM A313 (1992) 421-428
-    
+
     def NormAngle(self, x):
         "Internal use only."
         # Calculate an angle x_prime in the range [0, 180] such
@@ -82,9 +82,9 @@ class CorrelationGroups:
         x = x % 360.
         if x > 180.:
             x = 360. - x
-            
+
         return x
-        
+
     def NormKey(self, theta1, theta2, phi):
         "Internal use only."
         # Calculate the normalized form, as defined above, of an
@@ -92,7 +92,7 @@ class CorrelationGroups:
         theta1 = self.NormAngle(theta1)
         theta2 = self.NormAngle(theta2)
         phi = self.NormAngle(phi)
-        
+
         if theta1 > 90.:
             if theta2 > 90.:
                 theta1 = 180. - theta1
@@ -107,22 +107,22 @@ class CorrelationGroups:
                 flipPhi = True
             else:
                 flipPhi = False
-                
+
         if theta1 == 90. or theta2 == 90.:
             flipPhi = (phi > 90.)
-            
+
         if flipPhi:
             phi = 180. - phi
-    
+
         return (theta1, theta2, phi)
-            
+
     def CalcGroups(self):
         """
         Update fCorrelGroups to contain a list of all correlation
         groups possible with the current set of detectors.
         """
         corgroups = dict()
-        
+
         for i in range(0, len(self.fDetectors)):
             for j in range(0, len(self.fDetectors)):
                 if i != j:
@@ -130,11 +130,11 @@ class CorrelationGroups:
                     t2 = self.fDetectors[j].fTheta
                     phi = self.fDetectors[i].fPhi - self.fDetectors[j].fPhi
                     key = self.NormKey(t1, t2, phi)
-        
+
                     if not key in list(corgroups.keys()):
                         corgroups[key] = []
                     corgroups[key].append([self.fDetectors[i], self.fDetectors[j]])
-                    
+
         self.fGroups = list()
         for (k,v) in corgroups.items():
             self.fGroups.append(CorrelationGroup(k[0], k[1], k[2], v))

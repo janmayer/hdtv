@@ -19,6 +19,8 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
+from __future__ import print_function
+
 import math
 import re
 import os
@@ -469,14 +471,37 @@ class ID(object):
             if self.minor < 0:
                 raise ValueError("Only positive minor IDs allowed")
 
-    def __cmp__(self, ID):
-        if ID is None:
-            return 1
-        if self.major > ID.major:
-            return 1
-        if self.major < ID.major:
-            return -1
-        return cmp(self.minor, ID.minor)
+    def __eq__(self, other):
+        if other is None:
+            return False
+        return ((self.major, self.minor) == (other.major, other.minor))
+
+    def __ne__(self, other):
+        if other is None:
+            return True
+        return not ((self.major, self.minor) == (other.major, other.minor))
+
+    def __gt__(self, other):
+        try:
+            if (self.major == other.major):
+                return self.minor > other.minor
+            return self.major > other.major
+        except TypeError:
+            return True
+
+    def __lt__(self, other):
+        try:
+            if (self.major == other.major):
+                return self.minor < other.minor
+            return self.major < other.major
+        except TypeError:
+            return False
+
+    def __ge__(self, other):
+        return (self.__gt__(other) or self.__eq__(other))
+
+    def __le__(self, other):
+        return (self.__lt__(other) or self.__eq__(other))
 
     def __hash__(self):
         # this is needed to use IDs as keys in dicts and in sets
@@ -613,5 +638,3 @@ class ID(object):
             valid_ids=ids
 
         return valid_ids
-
-

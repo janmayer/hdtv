@@ -47,26 +47,26 @@ class Matrix(DrawableManager):
             self._xproj.color = color
         if self._yproj is not None:
             self._yproj.color = color
-            
+
     def _get_color(self):
         return self._color
-        
+
     color = property(_get_color, _set_color)
-    
+
     # name
     @property
     def name(self):
         return self.histo2D.name
-        
+
     # projections
     @property
     def xproj(self):
         return self.project(axis="x")
-            
+
     @property
     def yproj(self):
         return self.project(axis="y")
-        
+
     def project(self, axis):
         """
         Return Projection along a given axis
@@ -84,10 +84,10 @@ class Matrix(DrawableManager):
             return proj
         else:
             return getattr(self, "_%sproj" %axis)
-            
-        
+
+
     def ExecuteCut(self, cut):
-        cutHisto = self.histo2D.ExecuteCut(cut.regionMarkers, 
+        cutHisto = self.histo2D.ExecuteCut(cut.regionMarkers,
                                            cut.bgMarkers, cut.axis)
         if cut.axis == "x":
             axis = "y"
@@ -117,14 +117,14 @@ class Matrix(DrawableManager):
 
     def ActivateObject(self, ID):
         if ID is not None and ID not in self.ids:
-            raise KeyError 
+            raise KeyError
         # housekeeping for old active cut
         if self.activeID is not None:
             cut = self.GetActiveObject()
             cut.active = False
         # change active ID
-        self.activeID = ID 
-        self._iteratorID = self.activeID 
+        self.activeID = ID
+        self._iteratorID = self.activeID
         # housekeeping for new active cut
         if self.activeID is not None:
             cut = self.GetActiveObject()
@@ -134,6 +134,3 @@ class Matrix(DrawableManager):
         for ID in self.visible:
             if self.dict[ID].axis==axis:
                 self.dict[ID].Show()
-    
-
-

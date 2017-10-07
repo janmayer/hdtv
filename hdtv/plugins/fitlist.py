@@ -21,12 +21,12 @@
 
 #-------------------------------------------------------------------------------
 # Write and Read Fitlist saved in xml format
-# 
+#
 #-------------------------------------------------------------------------------
 import os
 import glob
 import hdtv.cmdline
-import hdtv.fitxml 
+import hdtv.fitxml
 import hdtv.ui
 import hdtv.util
 
@@ -34,20 +34,20 @@ import hdtv.util
 class FitlistManager(object):
     def __init__(self, spectra):
         hdtv.ui.debug("Loaded fitlist plugin")
-        
+
         self.spectra = spectra
         self.xml = hdtv.fitxml.FitXml(spectra)
         self.list = dict()
-        
+
         self.tv = FitlistHDTVInterface(self)
-        
+
     def WriteXML(self, sid, fname=None):
         name = self.spectra.dict[sid].name
         # remember absolut pathname for later use
         fname = os.path.abspath(fname)
         self.list[name] = fname
         self.xml.WriteFitlist(fname, sid)
-        
+
     def ReadXML(self, sid, fname, refit=False):
         spec = self.spectra.dict[sid]
         # remember absolut pathname for later use
@@ -65,45 +65,43 @@ class FitlistManager(object):
             xml=xml.strip("/")
             lines.append(spec + ": "+xml)
         text = "\n".join(lines)
-        f = file(fname, "w")
-        f.write(text)
-        f.close()
-        
+        with open(fname, "w") as f:
+            f.write(text)
+
     def ReadList(self, fname):
         try:
-            f = file(fname, "r")
+            with open(fname, "r") as f:
+                dirname = os.path.dirname(fname)
+                linenum = 0
+                for l in f:
+                    linenum += 1
+                    # Remove comments and whitespace; ignore empty lines
+                    l = l.split('#', 1)[0].strip()
+                    if l == "":
+                        continue
+                    try:
+                        (k, v) = l.split(':', 1)
+                        name = k.strip()
+                        xmlfile = v.strip()
+                        # create valid path from relative pathnames
+                        xmlfile = os.path.join(dirname, xmlfile)
+                        if not os.path.exists(xmlfile):
+                            hdtv.ui.warn("No such file %s" %xmlfile)
+                            continue
+                        sid = None
+                        for ID in self.spectra.ids:
+                            if self.spectra.dict[ID].name == name:
+                                sid = ID
+                                break
+                        if sid is not None:
+                            self.ReadXML(sid, xmlfile)
+                        else:
+                            hdtv.ui.warn("Spectrum %s is not loaded. " % name)
+                    except ValueError:
+                        hdtv.ui.warn("Could not parse line %d of file %s: ignored." % (linenum, fname))
         except IOError as msg:
             hdtv.ui.error("Error opening file: %s" % msg)
             return None
-        dirname = os.path.dirname(fname)
-        linenum = 0
-        for l in f:
-            linenum += 1
-            # Remove comments and whitespace; ignore empty lines
-            l = l.split('#', 1)[0].strip()
-            if l == "":
-                continue
-            try:
-                (k, v) = l.split(':', 1)
-                name = k.strip()
-                xmlfile = v.strip()
-                # create valid path from relative pathnames
-                xmlfile = os.path.join(dirname, xmlfile)
-                if not os.path.exists(xmlfile):
-                    hdtv.ui.warn("No such file %s" %xmlfile)
-                    continue
-                sid = None
-                for ID in self.spectra.ids:
-                    if self.spectra.dict[ID].name == name:
-                        sid = ID
-                        break
-                if sid is not None:
-                    self.ReadXML(sid, xmlfile)
-                else:
-                    hdtv.ui.warn("Spectrum %s is not loaded. " % name)
-            except ValueError:
-                hdtv.ui.warn("Could not parse line %d of file %s: ignored." % (linenum, fname))
-        f.close()
 
 
 class FitlistHDTVInterface(object):
@@ -136,7 +134,7 @@ class FitlistHDTVInterface(object):
         usage = "%prog filename"
         parser = hdtv.cmdline.HDTVOptionParser(prog = prog, description = description, usage = usage)
         hdtv.cmdline.AddCommand(prog, self.FitGetlists, nargs=1, fileargs=True, parser=parser)
-        
+
         prog = "fit savelists"
         description = "saves a list of spectrum names and corresponding fitlist files to file"
         usage = "%prog filename"
@@ -144,7 +142,7 @@ class FitlistHDTVInterface(object):
         parser.add_option("-F","--force",action = "store_true", default=False,
                         help = "overwrite existing files without asking")
         hdtv.cmdline.AddCommand(prog, self.FitSavelists, nargs=1, fileargs=True, parser=parser)
-        
+
 
     def FitWrite(self, args, options):
         """
@@ -164,7 +162,7 @@ class FitlistHDTVInterface(object):
 #            return
         for sid in sids:
 #            sid = sids[0]
-            # get filename 
+            # get filename
             if len(args)==0:
                 name = self.spectra.dict[sid].name
                 try:
@@ -189,26 +187,26 @@ class FitlistHDTVInterface(object):
                 if overwrite in ["b","B",""]:
                     os.rename(fname,"%s.back" %fname)
                 elif overwrite in ["n","N"]:
-                    return 
+                    return
             # do the work
             self.FitlistIf.WriteXML(sid, fname)
 
     def FitRead(self, args, options):
         """
-        reading a fitlist from xml 
+        reading a fitlist from xml
         """
         fnames = dict() # Filenames for each spectrum ID
         sids = hdtv.util.ID.ParseIds(options.spectrum, __main__.spectra)
         if len(sids)==0:
             hdtv.ui.error("There is no active spectrum")
             return
-        
+
         # Build list of files to load for each spectrum
         for sid in sids:
             fnames[sid] = list() # Filenames for this spectrum ID
             for fname_raw in args:
                 try:
-                    fname = fname_raw % sid     # Try to replace format placeholder (e.g. %s) with spectrum ID 
+                    fname = fname_raw % sid     # Try to replace format placeholder (e.g. %s) with spectrum ID
                 except TypeError: # No placeholder found
                     fname = fname_raw
 
@@ -217,10 +215,10 @@ class FitlistHDTVInterface(object):
                 if len(more)==0:
                     hdtv.ui.warn("No such file %s" %fname)
                 fnames[sid].extend(more)
-        
+
         # Load files
         for sid in sids:
-            for fname in fnames[sid]:    
+            for fname in fnames[sid]:
                 hdtv.ui.msg("Reading fitlist %s to spectrum %s" %(fname, sid))
                 self.FitlistIf.ReadXML(sid, fname, refit=options.refit)
 
@@ -235,10 +233,10 @@ class FitlistHDTVInterface(object):
             if overwrite in ["b","B",""]:
                 os.rename(fname,"%s.back" %fname)
             elif overwrite in ["n","N"]:
-                return 
+                return
         # do the work
         self.FitlistIf.WriteList(fname)
-    
+
     def FitGetlists(self, args, options):
         fname = args[0]
         fname = os.path.expanduser(args[0])
@@ -250,7 +248,6 @@ class FitlistHDTVInterface(object):
             hdtv.ui.error("No such file %s" %fname)
             return
         self.FitlistIf.ReadList(fname)
-        
+
 import __main__
 __main__.fitxml = FitlistManager(__main__.spectra)
-

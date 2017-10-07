@@ -35,7 +35,7 @@ class FitValue(hdtv.errvalue.ErrValue):
     def __init__(self, value, error, free):
         hdtv.errvalue.ErrValue.__init__(self, value, error)
         self.free = free
-        
+
     def fmt(self):
         if self.free:
             return hdtv.errvalue.ErrValue.fmt(self)
@@ -44,7 +44,7 @@ class FitValue(hdtv.errvalue.ErrValue):
 
 
 # Base class for all peak models
-class PeakModel:
+class PeakModel(object):
     """
     A peak model is a function used to fit peaks. The user can choose how to fit
     its parameters (and whether to include them at all, i.e. for tails). After
@@ -55,19 +55,19 @@ class PeakModel:
 
     def ResetGlobalParams(self):
         self.fGlobalParams.clear()
-        
+
     def OrderedParamKeys(self):
         """
         Return the names of all peak parameters in the preferred ordering
         """
         return self.fOrderedParamKeys
-        
+
     def OptionsStr(self):
         """
         Returns a string describing the currently set parameters of the model
         """
         statstr = ""
-        
+
         for name in self.OrderedParamKeys():
             status = self.fParStatus[name]
 
@@ -98,9 +98,9 @@ class PeakModel:
                     statstr += "%s: calculated from fit result\n" %name
                 else:
                     statstr += "%s: fixed at %.3f\n" % (name, status)
-                    
+
         return statstr
-        
+
     def CheckParStatusLen(self, minlen):
         """
         Checks if each parameter status provided on a peak-by-peak basis
@@ -110,7 +110,7 @@ class PeakModel:
         for (parname, status) in self.fParStatus.items():
             if type(status) == list and len(status) < minlen:
                 raise ValueError("Not enough values for status of %s" % parname)
-        
+
     def ParseParamStatus(self, parname, status):
         """
         Parse a parameter status specification string
@@ -118,7 +118,7 @@ class PeakModel:
         """
         # Case-insensitive matching
         status = status.strip().lower()
-    
+
         # Check to see if status corresponds, possibly abbreviated,
         #  to a number of special keywords
         stat = None
@@ -134,14 +134,14 @@ class PeakModel:
             stat = "hold"
         elif "calculated"[0:len(status)]==status:
             stat = "calculated"
-    
-        # If status was a keyword, see if this setting is legal for the parameter 
+
+        # If status was a keyword, see if this setting is legal for the parameter
         if not stat is None:
             if not stat in self.fValidParStatus[parname]:
                 msg = "Status %s not allowed for parameter %s in peak model %s" % (stat, parname, self.name)
                 raise ValueError(msg)
             return stat
-            
+
         #If status was not a keyword, try to parse it as a float. If that
         # fails, we are out of options.
         try:
@@ -149,33 +149,32 @@ class PeakModel:
         except ValueError:
             msg = "Failed to parse status specifier `%s'" % status
             raise ValueError(msg)
-                
+
         # Check if a numeric value is legal for the parameter
         if not float in self.fValidParStatus[parname]:
             msg = "Invalid status %s for parameter %s in peak model %s" % (status, parname, self.name)
             raise ValueError(msg)
         return val
-        
-        
+
+
     def SetParameter(self, parname, status):
         """
         Set status for a certain parameter. Status is a string describing the
         desired status. Raises ValueError in case of invalid input.
-        
+
         status may be single string which will be taken for all peaks, or
         list, where each item will be assigned to corresponing peak
         """
         parname = parname.strip().lower()
-        
+
         if not parname in list(self.fValidParStatus.keys()):
             raise ValueError("Invalid parameter name %s for peak model %s" % (parname, self.name))
-        
+
         if type(status) == type(status[0]): # Single string
             self.fParStatus[parname] = self.ParseParamStatus(parname, status)
         else: # list of stati
             self.fParStatus[parname] = [self.ParseParamStatus(parname, s) for s in status]
 
-        
 
     def GetParam(self, name, peak_id, pos_uncal, cal, ival=None):
         """
@@ -190,27 +189,24 @@ class PeakModel:
         # Switch according to parameter status
         if parStatus == "equal":
             if not name in self.fGlobalParams:
-                if ival == None:
+                if ival is None:
                     self.fGlobalParams[name] = self.fFitter.AllocParam()
                 else:
                     self.fGlobalParams[name] = self.fFitter.AllocParam(ival)
             return self.fGlobalParams[name]
         elif parStatus == "free":
-            if ival == None:
+            if ival is None:
                 return self.fFitter.AllocParam()
             else:
                 return self.fFitter.AllocParam(ival)
         elif parStatus == "hold":
-            if ival == None:
+            if ival is None:
                 return ROOT.HDTV.Fit.Param.Fixed()
             else:
                 return ROOT.HDTV.Fit.Param.Fixed(ival)
         elif parStatus == "none":
-            return ROOT.HDTV.Fit.Param.None()
+            return ROOT.HDTV.Fit.Param.Empty()
         elif type(parStatus) == float:
             return ROOT.HDTV.Fit.Param.Fixed(self.Uncal(name, parStatus, pos_uncal, cal))
         else:
             raise RuntimeError("Invalid parameter status")
-
-
-

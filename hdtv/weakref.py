@@ -95,10 +95,35 @@ class weakref(object):
         else:
             return 0
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         if type(other) == weakref:
             other = other._ref()
-        return cmp(self._ref(), other)
+        return self._ref() == other
+
+    def __ne__(self, other):
+        if type(other) == weakref:
+            other = other._ref()
+        return self._ref() != other
+
+    def __gt__(self, other):
+        if type(other) == weakref:
+            other = other._ref()
+        return self._ref() > other
+
+    def __lt__(self, other):
+        if type(other) == weakref:
+            other = other._ref()
+        return self._ref() < other
+
+    def __ge__(self, other):
+        if type(other) == weakref:
+            other = other._ref()
+        return self._ref() >= other
+
+    def __le__(self, other):
+        if type(other) == weakref:
+            other = other._ref()
+        return self._ref() <= other
 
     def __str__(self):
         return "<weakref proxy; %s>" % str(self._ref())

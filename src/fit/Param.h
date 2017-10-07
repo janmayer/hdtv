@@ -35,7 +35,7 @@ class Param {
     static inline Param Fixed()  { return Param(-1, 0.0, false, false, true); }
     static inline Param Free(int id) { return Param(id, 0.0, true, false, true); }
     static inline Param Free(int id, double ival) { return Param(id, ival, true, true, true); }
-    static inline Param None() { return Param(-1, 0.0, false, false, false); }
+    static inline Param Empty() { return Param(-1, 0.0, false, false, false); }
     inline Param() { }
     
     inline bool IsFree() const { return fFree; }

@@ -33,7 +33,7 @@ class Cut(Drawable):
         Drawable.__init__(self, color, cal)
         self.spec = None
         self.axis = None    #<- keep this last (needed for __setattr__)
-        
+
     # delegate everything to the markers
     def __setattr__(self, name, value):
         if name == "cal":
@@ -42,7 +42,7 @@ class Cut(Drawable):
             self.regionMarkers.__setattr__(name, value)
             self.bgMarkers.__setattr__(name, value)
         Drawable.__setattr__(self, name, value)
-    
+
     # color property
     def _set_color(self, color):
         # we only need the passive color for fits
@@ -55,10 +55,10 @@ class Cut(Drawable):
             self.spec.color = color
         if self.viewport:
             self.viewport.UnlockUpdate()
-            
+
     def _get_color(self):
         return self._passiveColor
-        
+
     color = property(_get_color, _set_color)
 
     def SetMarker(self, mtype, pos):
@@ -69,11 +69,11 @@ class Cut(Drawable):
                 mtype="region"
         markers = getattr(self, "%sMarkers" %mtype)
         markers.SetMarker(pos)
-        
+
     def RemoveMarker(self, mtype, pos):
         markers = getattr(self, "%sMarkers" %mtype)
         markers.RemoveNearest(pos)
-    
+
     def ExecuteCut(self, matrix, axis):
         if self.regionMarkers.IsPending() or len(self.regionMarkers)==0:
             return None
@@ -82,7 +82,7 @@ class Cut(Drawable):
         spec =  self.matrix.ExecuteCut(self)
         self.spec = weakref(spec)
         return spec
-    
+
     def __copy__(self):
         """
         copies marker of this cut
@@ -97,14 +97,14 @@ class Cut(Drawable):
             if marker.p2:
                 new.bgMarkers.SetMarker(marker.p2.pos_cal)
         return new
-    
+
     def Draw(self, viewport):
         if not viewport:
             return
         self.viewport = viewport
         self.regionMarkers.Draw(viewport)
         self.bgMarkers.Draw(viewport)
-    
+
     def Hide(self):
         if not self.viewport:
             return
@@ -112,19 +112,16 @@ class Cut(Drawable):
         self.regionMarkers.Hide()
         self.bgMarkers.Hide()
         self.viewport.UnlockUpdate()
-        
+
     def Show(self):
         if not self.viewport:
-            return 
+            return
         self.viewport.LockUpdate()
         self.regionMarkers.Show()
         self.bgMarkers.Show()
         self.viewport.UnlockUpdate()
-        
+
     def Refresh(self):
         # FIXME
         if self.matrix:
             self.matrix.ExecuteCut(self, self.axis)
-        
-        
-    

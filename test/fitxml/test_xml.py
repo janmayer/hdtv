@@ -24,6 +24,9 @@
 # If this test work fine, one also needs to test, how thing behave after changing  
 # the calibration back and forth (see test_cal.py for that).
 ################################################################################
+
+from __future__ import print_function
+
 import os
 import __main__
 
