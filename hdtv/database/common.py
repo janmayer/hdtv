@@ -53,7 +53,10 @@ class _Elements(list):
         tmp = list()
 
         try:
-            datfile = open(csvfile, "rt", encoding="utf8")
+            try:
+                datfile = open(csvfile, 'r', encoding='utf-8')
+            except TypeError:
+                datfile = open(csvfile, 'rb')
             reader = csv.reader(datfile)
             next(reader)  # Skip header
 
@@ -163,7 +166,7 @@ class _Nuclide(_Element):
         except TypeError:   # Unstable nuclide -> no abundance
             abundance = "---"
         text += "Abundance:     " + abundance + " \n"
-        if self.sigma.value is None:
+        if self.sigma.nominal_value is None:
             sigma = "???"
         else:
             sigma = str(self.sigma) + " b"
@@ -177,7 +180,10 @@ class _Nuclides(object):
 
         self._storage = dict()
         try:
-            datfile = open(csvfile, "rt", encoding="utf8")
+            try:
+                datfile = open(csvfile, 'r', encoding='utf-8')
+            except TypeError:
+                datfile = open(csvfile, 'rb')
             reader = csv.reader(datfile)
             next(reader)  # Skip header
 
@@ -267,7 +273,7 @@ class Gamma(object):
     __slots__ = ("ID", "nuclide", "energy", "sigma", "intensity")
 
     def __init__(self, nuclide, energy, sigma, intensity):
-        self.ID = str(nuclide.ID) + "@" + str(energy.value.__int__())
+        self.ID = str(nuclide.ID) + "@" + str(energy.nominal_value.__int__())
         self.nuclide = nuclide
         self.energy = energy
         self.sigma = sigma

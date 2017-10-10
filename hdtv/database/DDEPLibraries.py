@@ -3,8 +3,11 @@
 
 import json
 import hdtv.util
-import urllib.request
-import urllib.error
+try:
+    import urllib.request
+    import urllib.error
+except ImportError:
+    import urllib
 import hdtv.ui
 from hdtv.database.common import *
 
@@ -27,8 +30,13 @@ def SearchNuclide(nuclide):
     try:
         with urllib.request.urlopen("http://www.nucleide.org/DDEP_WG/Nuclides/" + str(nuclide) + ".lara.txt") as resource:
             data = resource.read().decode("utf-8")
+    except NameError:
+        resource = urllib.urlopen("http://www.nucleide.org/DDEP_WG/Nuclides/"+str(nuclide)+".lara.txt")
+        data = resource.read().decode("utf-8")
+        resource.close()
     except urllib.error.HTTPError as e:
-        hdtv.ui.error("Error looking up nuclide: {}".format(e.msg))
+        hdtv.ui.error("Error looking up nuclide {}: {}".format(
+            nuclide, e.msg))
         return
 
     for line in data.split("\r\n"):

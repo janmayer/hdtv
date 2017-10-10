@@ -110,7 +110,10 @@ class PGAAlib_IKI2000(GammaLib):
         if self.opened:
             return True
 
-        datfile = open(self.csvfile, "rb")
+        try:
+            datfile = open(self.csvfile, 'r', encoding='utf-8')
+        except TypeError:
+            datfile = open(self.csvfile, 'rb')
 
         reader = csv.reader(datfile)
 
@@ -182,7 +185,10 @@ class PromptGammas(GammaLib):
         if self.opened:
             return True
 
-        datfile = open(self.csvfile, "rb")
+        try:
+            datfile = open(self.csvfile, 'r', encoding='utf-8')
+        except TypeError:
+            datfile = open(self.csvfile, 'rb')
 
         reader = csv.reader(datfile)
 
