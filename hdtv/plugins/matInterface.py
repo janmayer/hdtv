@@ -244,25 +244,31 @@ class TvMatInterface(object):
         description = "load a matrix, i.e. the projections"
         description += "if the matrix is symmetric it only loads one projection"
         description += "if it is asymmetric both projections will be loaded."
-        usage = "%prog [OPTIONS] asym|sym filename"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
-        parser.add_option("-s", "--spectrum", action="store", default=None,
-                          help="base id for loaded projections")
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument("-s", "--spectrum", action="store", default=None,
+            help="base id for loaded projections")
+        parser.add_argument(
+            "matrix_type",
+            metavar='matrix-type',
+            help="{asym,sym}")
+        parser.add_argument(
+            'filename',
+            metavar='matrix-file',
+            help="file with matrix to load")
         hdtv.cmdline.AddCommand(prog, self.MatrixGet, level=0,
-                                nargs=2, fileargs=True, parser=parser)
+                                fileargs=True, parser=parser)
 
         # FIXME
         prog = "matrix list"
         description = "list all loaded matrices and the belonging cuts and cut spectra."
-        usage = "%prog"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
         # TODO: sort for gates
-        # parser.add_option("-k", "--key-sort", action = "store", default = hdtv.options.Get("fit.list.sort_key"),
-        #                help = "sort by key")
-        # parser.add_option("-r", "--reverse-sort", action = "store_true", default = False,
-        #                help = "reverse the sort")
-        parser.add_option("-m", "--matrix", action="store", default="all",
-                          help="select matrix to work on")
+        # parser.add_argument("-k", "--key-sort", action = "store", default = hdtv.options.Get("fit.list.sort_key"),
+        #     help = "sort by key")
+        # parser.add_argument("-r", "--reverse-sort", action = "store_true", default = False,
+        #     help = "reverse the sort")
+        parser.add_argument("-m", "--matrix", action="store", default="all",
+              help="select matrix to work on")
         hdtv.cmdline.AddCommand(prog, self.MatrixList, parser=parser)
 
         # FIXME
@@ -271,10 +277,18 @@ class TvMatInterface(object):
 
         prog = "matrix view"
         description = "show 2D view of the matrix"
-        usage = "%prog filename'fmt"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
-        hdtv.cmdline.AddCommand(prog, self.MatrixView, level=0, nargs=1,
-                                fileargs=True, parser=parser)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
+            'filename',
+            metavar='matrix-file',
+            help="file with matrix to load")
+        parser.add_argument(
+            'format',
+            nargs='?',
+            default=None,
+            help="format of matrix")
+        hdtv.cmdline.AddCommand(prog, self.MatrixView, level=0,
+            fileargs=True, parser=parser)
 
         # FIXME
         prog = "matrix delete"
@@ -283,47 +297,59 @@ class TvMatInterface(object):
         prog = "cut marker"
         description = "set/delete a marker for cutting"
         description += "(possible types are background, region, peak)"
-        usage = "%prog type action position"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
-        hdtv.cmdline.AddCommand(prog, self.CutMarkerChange, nargs=3,
-                                parser=parser, completer=self.MarkerCompleter)
+            prog=prog, description=description)
+        parser.add_argument(
+            'type',
+            help="{background,region}")
+        parser.add_argument(
+            'action',
+            help="{delete,set}")
+        parser.add_argument(
+            'position',
+            type=float,
+            help="position of marker")
+        hdtv.cmdline.AddCommand(prog, self.CutMarkerChange,
+            parser=parser, completer=self.MarkerCompleter)
 
         # FIXME: this should accept --cut to reload cut spectra for a cut
         prog = "cut execute"
         description = "execute cut"
-        usage = "%prog"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
+            prog=prog, description=description)
         hdtv.cmdline.AddCommand(prog, self.CutExecute,
-                                level=0, nargs=0, parser=parser)
+            level=0, parser=parser)
 
         prog = "cut clear"
         description = "clear cut marker and remove last cut if it was not stored"
-        usage = "%prog"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
-        hdtv.cmdline.AddCommand(prog, self.CutClear, nargs=0, parser=parser)
+            prog=prog, description=description)
+        hdtv.cmdline.AddCommand(prog, self.CutClear, parser=parser)
 
         prog = "cut store"
         description = "deactivates last cut (overwrite protection)"
-        usage = "%prog"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
-        hdtv.cmdline.AddCommand(prog, self.CutStore, nargs=0, parser=parser)
+            prog=prog, description=description)
+        hdtv.cmdline.AddCommand(prog, self.CutStore, parser=parser)
 
         prog = "cut activate"
-        description = "re-activates a cut from the cutlist"
-        usage = "%prog ID"
+        description = "reactivates a cut from the cutlist"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
-        hdtv.cmdline.AddCommand(prog, self.CutActivate, nargs=1, parser=parser)
+            prog=prog, description=description)
+        parser.add_argument(
+            'cutid',
+            nargs='+',
+            help="id of cut")
+        hdtv.cmdline.AddCommand(prog, self.CutActivate, parser=parser)
 
         prog = "cut delete"
         description = "delete a cut (marker and spectrum)"
-        usage = "%prog <IDs>"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
+            prog=prog, description=description)
+        parser.add_argument(
+            'cutid',
+            nargs='+',
+            help="id of cut")
         hdtv.cmdline.AddCommand(prog, self.CutDelete, minargs=1, parser=parser)
 
         # FIXME
@@ -337,27 +363,13 @@ class TvMatInterface(object):
         # List of MTViewers (2d matrix views)
         self.matviews = []
 
-    def MatrixView(self, args, options):
+    def MatrixView(self, args):
         """
         Load a matrix from file, then display it in 2d
         """
-        # split off format if specified (fname'fmt)
-        p = args[0].rsplit("'", 1)
-        if len(p) == 1 or not p[1]:
-            (fname, fmt) = (p[0], None)
-        else:
-            (fname, fmt) = p
-
-        # check if file exists
         try:
-            os.stat(fname)
-        except OSError as error:
-            hdtv.ui.error(str(error))
-            raise
-
-        try:
-            hist = SpecReader().GetMatrix(fname, fmt)
-        except SpecReaderError as msg:
+            hist = SpecReader().GetMatrix(args.filename, args.format)
+        except (OSError, SpecReaderError) as msg:
             hdtv.ui.error(str(msg))
             raise
 
@@ -365,29 +377,29 @@ class TvMatInterface(object):
         viewer = ROOT.HDTV.Display.MTViewer(400, 400, hist, title)
         self.matviews.append(viewer)
 
-    def MatrixGet(self, args, options):
+    def MatrixGet(self, args):
         """
         Load a matrix from file
         """
-        if options.spectrum is not None:
-            ID = options.spectrum
+        if args.spectrum is not None:
+            ID = args.spectrum
         else:
             ID = None
-        if args[0] == "sym":
+        if args.matrix_type == "sym":
             sym = True
-        elif args[0] == "asym":
+        elif args.matrix_type == "asym":
             sym = False
         else:
             # FIXME: is there really no way to test that automatically????
             hdtv.ui.error("Please specify if matrix is of type asym or sym")
             return "USAGE"
-        self.matIf.LoadMatrix(args[1], sym, ID=ID)
+        self.matIf.LoadMatrix(args.filename, sym, ID=ID)
 
-    def MatrixList(self, args, options):
+    def MatrixList(self, args):
         """
         Show a overview of matrices with all cuts and cut spectra
         """
-        ids = hdtv.util.ID.ParseRange(options.matrix)
+        ids = hdtv.util.ID.ParseRange(args.matrix)
         if ids == "NONE":
             return
         matrices = set()
@@ -402,28 +414,19 @@ class TvMatInterface(object):
             result += self.matIf.ListMatrix(mat)
         hdtv.ui.msg(result)
 
-    def CutMarkerChange(self, args, options):
+    def CutMarkerChange(self, args):
         """
         Set or delete a marker from command line
         """
-        # first argument is marker type name
-        mtype = args[0]
         # complete markertype if needed
-        mtype = self.MarkerCompleter(mtype)
+        mtype = self.MarkerCompleter(args.type)
         if len(mtype) == 0:
-            hdtv.ui.error("Markertype %s is not valid" % args[0])
+            hdtv.ui.error("Marker type %s is not valid" % args.type)
             return
-        # second argument is action
-        action = args[1]
-        action = self.MarkerCompleter(action, args=args[0:1])
+        action = self.MarkerCompleter(args.action, args=[args.action,])
         if len(action) == 0:
-            hdtv.ui.error("Invalid action: %s" % args[1])
-        # parse position
-        try:
-            pos = float(args[2])
-        except ValueError:
-            hdtv.ui.error("Invalid position argument")
-            return
+            hdtv.ui.error("Invalid action: %s" % args.action)
+        
         mtype = mtype[0].strip()
         # replace "background" with "cutbg" which is internally used
         if mtype == "background":
@@ -433,9 +436,9 @@ class TvMatInterface(object):
             mtype = "cutregion"
         action = action[0].strip()
         if action == "set":
-            self.spectra.SetMarker(mtype, pos)
+            self.spectra.SetMarker(mtype, args.position)
         if action == "delete":
-            self.spectra.RemoveMarker(mtype, pos)
+            self.spectra.RemoveMarker(mtype, args.position)
 
     def MarkerCompleter(self, text, args=[]):
         """
@@ -448,16 +451,16 @@ class TvMatInterface(object):
             actions = ["set", "delete"]
             return hdtv.util.GetCompleteOptions(text, actions)
 
-    def CutExecute(self, args, options):
+    def CutExecute(self, args):
         return self.spectra.ExecuteCut()
 
-    def CutClear(self, args, options):
+    def CutClear(self, args):
         return self.spectra.ClearCut()
 
-    def CutStore(self, args, options):
+    def CutStore(self, args):
         return self.spectra.StoreCut()
 
-    def CutActivate(self, args, options):
+    def CutActivate(self, args):
         """
         Activate a cut
 
@@ -471,7 +474,7 @@ class TvMatInterface(object):
             hdtv.ui.warn("Active spectrum does not belong to a matrix")
             return
         try:
-            ids = hdtv.util.ID.ParseIds(args, spec.matrix)
+            ids = hdtv.util.ID.ParseIds(args.cutid, spec.matrix)
         except ValueError:
             return "USAGE"
         if len(ids) == 1:
@@ -483,7 +486,7 @@ class TvMatInterface(object):
         else:
             hdtv.ui.error("Can only activate one cut")
 
-    def CutDelete(self, args, options):
+    def CutDelete(self, args):
         """
         Delete a cut and its cut spectrum
         """
@@ -495,7 +498,7 @@ class TvMatInterface(object):
             hdtv.ui.warn("Active spectrum does not belong to a matrix")
             return
         try:
-            ids = hdtv.util.ID.ParseIds(args, spec.matrix)
+            ids = hdtv.util.ID.ParseIds(args.cutid, spec.matrix)
         except ValueError:
             return "USAGE"
         for ID in ids:

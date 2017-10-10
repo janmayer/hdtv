@@ -235,160 +235,234 @@ class TvSpecInterface(object):
 
         # spectrum commands
         prog = "spectrum get"
-        usage = "%prog [OPTIONS] <pattern> [<pattern> ...]"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
-        parser.add_option("-s", "--spectrum", action="store", default=None,
-                          help="id for loaded spectrum")
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument("-s", "--spectrum", action="store", default=None,
+            help="id for loaded spectrum")
+        parser.add_argument(
+            "pattern",
+            nargs='+')
         hdtv.cmdline.AddCommand(prog, self.SpectrumGet, level=0,
-                                minargs=1, fileargs=True, parser=parser)
+            fileargs=True, parser=parser)
         # the spectrum get command is registered with level=0,
         # this allows "spectrum get" to be abbreviated as "spectrum", register
         # all other commands starting with spectrum with default or higher
         # priority
 
         prog = "spectrum list"
-        usage = "%prog [OPTIONS]"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
-        parser.add_option(
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
             "-v",
             "--visible",
             action="store_true",
             default=False,
             help="list only visible (and active) spectra")
-        hdtv.cmdline.AddCommand(prog, self.SpectrumList,
-                                nargs=0, parser=parser)
+        hdtv.cmdline.AddCommand(prog, self.SpectrumList, parser=parser)
 
         prog = "spectrum delete"
-        usage = "%prog <ids>"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
+            "specid",
+            nargs='*',
+            help='id of spectrum to delete')
         hdtv.cmdline.AddCommand(
-            prog, self.SpectrumDelete, minargs=0, parser=parser)
+            prog, self.SpectrumDelete, parser=parser)
 
         prog = "spectrum activate"
-        usage = "%prog <id>"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
+            "specid",
+            nargs='*',
+            help='id of spectrum to activate')
         hdtv.cmdline.AddCommand(
-            prog, self.SpectrumActivate, nargs=1, parser=parser)
+            prog, self.SpectrumActivate, parser=parser)
 
         prog = "spectrum show"
-        usage = "%prog <ids>|all|none|..."
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
-        hdtv.cmdline.AddCommand(prog, self.SpectrumShow,
-                                minargs=0, parser=parser)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
+            "specid",
+            nargs='*',
+            help='id (or all, shown) of spectrum to update')
+        hdtv.cmdline.AddCommand(prog, self.SpectrumShow, parser=parser)
 
         prog = "spectrum hide"
-        usage = "%prog <ids>|all|none|..."
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
+            "specid",
+            nargs='*',
+            help='id (or all, shown) of spectrum to update')
         hdtv.cmdline.AddCommand(prog, self.SpectrumHide,
-                                minargs=0, level=2, parser=parser)
+                                level=2, parser=parser)
 
         prog = "spectrum info"
-        usage = "%prog [ids]"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
-        hdtv.cmdline.AddCommand(prog, self.SpectrumInfo,
-                                minargs=0, parser=parser)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
+            "specid",
+            nargs='*',
+            help='id of spectrum to update')
+        hdtv.cmdline.AddCommand(prog, self.SpectrumInfo, parser=parser)
 
         prog = "spectrum update"
-        usage = "%prog <ids>|all|shown"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
-        hdtv.cmdline.AddCommand(
-            prog, self.SpectrumUpdate, minargs=0, parser=parser)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
+            "specid",
+            nargs='*',
+            help='id (or all, shown) of spectrum to update')
+        hdtv.cmdline.AddCommand(prog, self.SpectrumUpdate, parser=parser)
 
         prog = "spectrum write"
-        usage = "%prog <filename>'<format> [id]"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
-        hdtv.cmdline.AddCommand(prog, self.SpectrumWrite,
-                                minargs=1, maxargs=2, parser=parser)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
+            'filename',
+            metavar='matrix-file',
+            help="file with matrix to load")
+        parser.add_argument(
+            'format',
+            help="format of matrix")
+        parser.add_argument(
+            "specid",
+            nargs='?',
+            default=None,
+            help='id of spectrum to update')
+        hdtv.cmdline.AddCommand(prog, self.SpectrumWrite, parser=parser)
 
         prog = "spectrum normalize"
-        usage = "%prog [ids] <norm>"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
+            "specid",
+            nargs='*',
+            default=None,
+            help='id of spectrum to normalize')
+        parser.add_argument(
+            "norm",
+            type=float,
+            help='norm of spectrum')
         hdtv.cmdline.AddCommand(
-            prog, self.SpectrumNormalization, minargs=1, parser=parser)
+            prog, self.SpectrumNormalization, parser=parser)
 
         prog = "spectrum rebin"
-        usage = "%prog [OPTIONS] [ids]|all|... <ngroup>"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
+            "specid",
+            nargs='*',
+            default=None,
+            help='id of spectrum to rebin')
+        parser.add_argument(
+            "ngroup",
+            type=int,
+            help='group n bins for rebinning')
         hdtv.cmdline.AddCommand(
             prog,
             self.SpectrumRebin,
             level=2,
-            minargs=1,
             fileargs=False,
             parser=parser)
 
         prog = "spectrum calbin"
-        usage = "%prog [OPTIONS] [ids]|all|..."
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
+            "specid",
+            nargs='*',
+            default=None,
+            help='id of spectrum to rebin')
         hdtv.cmdline.AddCommand(
             prog,
             self.SpectrumCalbin,
             level=2,
-            minargs=1,
             fileargs=False,
             parser=parser)
 
         prog = "spectrum add"
-        usage = "%prog [OPTIONS] <target-id> <ids>|all"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
-        parser.add_option(
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
             "-n",
             "--normalize",
             action="store_true",
             help="normalize <target-id> by dividing through number of added spectra afterwards")
+        parser.add_argument(
+            "targetid",
+            metavar="target-id",
+            help='where to place the resulting spectrum')
+        parser.add_argument(
+            "specid",
+            nargs='*',
+            help='ids of spectra to add up')
         hdtv.cmdline.AddCommand(
             prog,
             self.SpectrumAdd,
             level=2,
-            minargs=1,
             fileargs=False,
             parser=parser)
 
         prog = "spectrum substract"
-        usage = "%prog [OPTIONS] <target-id> <ids>|all"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
-        hdtv.cmdline.AddCommand(prog, self.SpectrumSub, level=2, minargs=1,
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
+            "targetid",
+            metavar="target-id",
+            help='where to place the resulting spectrum')
+        parser.add_argument(
+            "specid",
+            nargs='*',
+            help='ids of spectra to subtract')
+        hdtv.cmdline.AddCommand(prog, self.SpectrumSub, level=2,
                                 fileargs=False, parser=parser)
 
         prog = "spectrum multiply"
-        usage = "%prog [OPTIONS] [ids]|all|... <factor>"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
+            "specid",
+            nargs='*',
+            default=None,
+            help='id of spectrum to multiply')
+        parser.add_argument(
+            "multiply",
+            type=float,
+            help='multiplication factor')
         hdtv.cmdline.AddCommand(
             prog,
             self.SpectrumMultiply,
             level=2,
-            minargs=1,
             fileargs=False,
             parser=parser)
 
         prog = "spectrum copy"
-        usage = "%prog <ids>"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
-        parser.add_option("-s", "--spectrum", action="store",
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
+            "specid",
+            nargs='*',
+            default=None,
+            help='id of spectrum to copy')
+        parser.add_argument("-s", "--spectrum", action="store",
                           default=None, help="Target spectrum id")
         hdtv.cmdline.AddCommand(prog, self.SpectrumCopy, level=2,
                                 fileargs=False, parser=parser)
 
         prog = "spectrum name"
-        usage = "%prog [id] <name>"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
+            "specid",
+            nargs='?',
+            default=None,
+            help='id of spectrum to name')
+        parser.add_argument(
+            "name",
+            help='name of spectrum')
         hdtv.cmdline.AddCommand(prog, self.SpectrumName, level=2,
                                 fileargs=False, parser=parser)
 
-    def SpectrumList(self, args, options):
+    def SpectrumList(self, args):
         """
         Print a list of spectra
         """
-        self.specIf.ListSpectra(visible=options.visible)
+        self.specIf.ListSpectra(visible=args.visible)
 
-    def SpectrumGet(self, args, options):
+    def SpectrumGet(self, args):
         """
         Load Spectra from files
         """
-        if options.spectrum is not None:
+        if args.spectrum is not None:
             try:
                 ids = hdtv.util.ID.ParseIds(
-                    options.spectrum, self.spectra, only_existent=False)
+                    args.spectrum, self.spectra, only_existent=False)
                 if len(ids) > 1:
                     hdtv.ui.error("More than one ID given")
                     return
@@ -398,14 +472,14 @@ class TvSpecInterface(object):
                 return
         else:
             ID = None
-        self.specIf.LoadSpectra(patterns=args, ID=ID)
+        self.specIf.LoadSpectra(patterns=args.pattern, ID=ID)
 
-    def SpectrumDelete(self, args, options):
+    def SpectrumDelete(self, args):
         """
         Deletes spectra
         """
         try:
-            ids = hdtv.util.ID.ParseIds(args, self.spectra)
+            ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
         except ValueError:
             return "USAGE"
 
@@ -415,12 +489,12 @@ class TvSpecInterface(object):
         for ID in ids:
             self.spectra.Pop(ID)
 
-    def SpectrumActivate(self, args, options):
+    def SpectrumActivate(self, args):
         """
         Activate one spectrum
         """
         try:
-            ids = hdtv.util.ID.ParseIds(args, self.spectra)
+            ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
         except ValueError:
             return "USAGE"
 
@@ -431,14 +505,12 @@ class TvSpecInterface(object):
         else:
             self.spectra.ActivateObject(min(ids))
 
-    def SpectrumCopy(self, args, options):
+    def SpectrumCopy(self, args):
         """
         Copy spectra
         """
-        hdtv.ui.debug("SpectrumCopy: args= " + str(args) +
-                      " options= " + str(options), level=6)
         try:
-            ids = hdtv.util.ID.ParseIds(args, self.spectra)
+            ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
 
             if len(ids) == 0:
                 hdtv.ui.warn("Nothing to do")
@@ -446,9 +518,9 @@ class TvSpecInterface(object):
         except ValueError:
             return "USAGE"
         targetids = list()
-        if options.spectrum is not None:
+        if args.spectrum is not None:
             targetids = hdtv.util.ID.ParseIds(
-                options.spectrum, self.spectra, only_existent=False)
+                args.spectrum, self.spectra, only_existent=False)
         if len(targetids) == 0:
             targetids = [None for i in range(0, len(ids))]
         elif len(targetids) == 1:  # Only start ID is given
@@ -466,13 +538,14 @@ class TvSpecInterface(object):
             except KeyError:
                 hdtv.ui.error("No such spectrum: " + str(ids[i]))
 
-    def SpectrumAdd(self, args, options):
+    def SpectrumAdd(self, args):
         """
         Add spectra (spec1 + spec2, ...)
         """
         try:
+            # FIXME: Properly separate targetid, specid
             ids = hdtv.util.ID.ParseIds(
-                args, self.spectra, only_existent=False)
+                [args.targetid] + args.specid, self.spectra, only_existent=False)
         except ValueError:
             return "USAGE"
 
@@ -495,18 +568,19 @@ class TvSpecInterface(object):
                 hdtv.ui.error("Could not add " + str(i))
         self.spectra.dict[addTo].name = "sum"
 
-        if options.normalize:
+        if args.normalize:
             norm_fac = len(ids)
             hdtv.ui.msg("Normalizing spectrum %s by 1/%d" % (addTo, norm_fac))
             self.spectra.dict[addTo].Multiply(1. / norm_fac)
 
-    def SpectrumSub(self, args, options):
+    def SpectrumSub(self, args):
         """
         Substract spectra (spec1 - spec2, ...)
         """
         try:
+            # FIXME: Properly separate targetid, specid
             ids = hdtv.util.ID.ParseIds(
-                args, self.spectra, only_existent=False)
+                [args.targetid] + args.specid, self.spectra, only_existent=False)
         except ValueError:
             return "USAGE"
 
@@ -526,14 +600,12 @@ class TvSpecInterface(object):
                 hdtv.ui.error("Could not substract " + str(i))
         self.spectra.dict[subFrom].name = "difference"
 
-    def SpectrumMultiply(self, args, options):
+    def SpectrumMultiply(self, args):
         """
         Multiply spectrum
         """
         try:
-            factor = float(eval(args[-1]))
-
-            if len(args) == 1:
+            if args.specid is None:
                 if self.spectra.activeID is not None:
                     msg = "Using active spectrum %s for multiplication" % self.spectra.activeID
                     hdtv.ui.msg(msg)
@@ -542,7 +614,7 @@ class TvSpecInterface(object):
                     hdtv.ui.msg("No active spectrum")
                     ids = list()
             else:
-                ids = hdtv.util.ID.ParseIds(args[:-1], self.spectra)
+                ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
 
         except (IndexError, ValueError):
             return "USAGE"
@@ -553,20 +625,18 @@ class TvSpecInterface(object):
 
         for i in ids:
             if i in list(self.spectra.dict.keys()):
-                hdtv.ui.msg("Multiplying " + str(i) + " with " + str(factor))
-                self.spectra.dict[i].Multiply(factor)
+                hdtv.ui.msg("Multiplying " + str(i) + " with " + str(args.factor))
+                self.spectra.dict[i].Multiply(args.factor)
             else:
                 hdtv.ui.error("Cannot multiply spectrum " +
                               str(i) + " (Does not exist)")
 
-    def SpectrumRebin(self, args, options):
+    def SpectrumRebin(self, args):
         """
         Rebin spectrum
         """
         try:
-            ngroup = int(args[-1])
-
-            if len(args) == 1:
+            if args.specid is None:
                 if self.spectra.activeID is not None:
                     msg = "Using active spectrum %s for rebinning" % self.spectra.activeID
                     hdtv.ui.msg(msg)
@@ -575,7 +645,7 @@ class TvSpecInterface(object):
                     hdtv.ui.msg("No active spectrum")
                     ids = list()
             else:
-                ids = hdtv.util.ID.ParseIds(args[:-1], self.spectra)
+                ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
 
         except (IndexError, ValueError):
             return "USAGE"
@@ -587,18 +657,18 @@ class TvSpecInterface(object):
         for i in ids:
             if i in list(self.spectra.dict.keys()):
                 hdtv.ui.msg("Rebinning " + str(i) + " with " +
-                            str(ngroup) + " bins per new bin")
-                self.spectra.dict[i].Rebin(ngroup)
+                            str(args.ngroup) + " bins per new bin")
+                self.spectra.dict[i].Rebin(args.ngroup)
             else:
                 hdtv.ui.error("Cannot rebin spectrum " +
                               str(i) + " (Does not exist)")
 
-    def SpectrumCalbin(self, args, options):
+    def SpectrumCalbin(self, args):
         """
         Rebin spectrum
         """
         try:
-            if len(args) == 0:
+            if args.specid is None:
                 if self.spectra.activeID is not None:
                     msg = "Using active spectrum %s for rebinning" % self.spectra.activeID
                     hdtv.ui.msg(msg)
@@ -607,7 +677,7 @@ class TvSpecInterface(object):
                     hdtv.ui.msg("No active spectrum")
                     ids = list()
             else:
-                ids = hdtv.util.ID.ParseIds(args, self.spectra)
+                ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
 
         except (IndexError, ValueError):
             return "USAGE"
@@ -637,30 +707,32 @@ class TvSpecInterface(object):
 
         self.spectra.HideObjects(ids)
 
-    def SpectrumShow(self, args, options):
+    def SpectrumShow(self, args):
         """
         Shows spectra
 
         When inverse == True SpectrumShow behaves like SpectrumHide
         """
-        if len(args) == 0:
+        if len(args.specid) == 0:
             ids = list(self.spectra.dict.keys())
         else:
             try:
-                ids = hdtv.util.ID.ParseIds(args, self.spectra)
+                ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
             except ValueError:
                 return "USAGE"
 
         self.spectra.ShowObjects(ids)
 
-    def SpectrumInfo(self, args, options):
+    def SpectrumInfo(self, args):
         """
         Print info on spectrum objects
         """
-        if len(args) == 0:
-            args = ["active"]
+        if len(args.specid) == 0:
+            specids = ["active"]
+        else:
+            specids = args.specid
         try:
-            ids = hdtv.util.ID.ParseIds(args, self.spectra)
+            ids = hdtv.util.ID.ParseIds(specids, self.spectra)
         except ValueError:
             return "USAGE"
         s = str()
@@ -675,14 +747,16 @@ class TvSpecInterface(object):
             s += "\n"
         hdtv.ui.msg(s, newline=False)
 
-    def SpectrumUpdate(self, args, options):
+    def SpectrumUpdate(self, args):
         """
         Refresh spectra
         """
-        if len(args) == 0:
-            args = ["active"]
+        if len(args.specid) == 0:
+            specids = ["active"]
+        else:
+            specids = args.specid
         try:
-            ids = hdtv.util.ID.ParseIds(args, self.spectra)
+            ids = hdtv.util.ID.ParseIds(specids, self.spectra)
         except ValueError:
             return "USAGE"
         if len(ids) == 0:
@@ -690,43 +764,40 @@ class TvSpecInterface(object):
             return
         self.spectra.RefreshObjects(ids)
 
-    def SpectrumWrite(self, args, options):
+    def SpectrumWrite(self, args):
         """
         Write Spectrum to File
         """
         # TODO: should accept somthing like "spec write all"
         try:
-            (fname, fmt) = args[0].rsplit("'", 1)
-            if len(args) == 1:
+            filename = args.filename
+            fmt = args.format
+            if args.specid is None:
                 ID = self.spectra.activeID
-            elif len(args) == 2:
-                ids = hdtv.util.ID.ParseIds(args[1], self.spectra)
+            else:
+                ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
                 if len(ids) != 1:
                     hdtv.ui.error("There is just one index possible here.")
                     raise ValueError
                 ID = ids[0]
-            else:
-                hdtv.ui.error("There is just one index possible here.")
-                raise ValueError
             try:
-                self.spectra.dict[ID].WriteSpectrum(fname, fmt)
+                self.spectra.dict[ID].WriteSpectrum(filename, fmt)
                 hdtv.ui.msg("Wrote spectrum with id %s to file %s" %
-                            (ID, fname))
+                            (ID, filename))
             except KeyError:
                 hdtv.ui.warn("There is no spectrum with id: %s" % ID)
         except ValueError:
             return "USAGE"
 
-    def SpectrumName(self, args, options):
+    def SpectrumName(self, args):
         """
         Give spectrum a name
         """
-        if len(args) == 1:
+        if args.specid is None:
             ID = self.spectra.activeID
-            name = args[0]
         else:
             try:
-                ids = hdtv.util.ID.ParseIds(args[0], self.spectra)
+                ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
             except ValueError:
                 return "USAGE"
 
@@ -738,32 +809,30 @@ class TvSpecInterface(object):
                 return
 
             ID = ids[0]
-            name = args[1]
 
         spec = self.spectra.dict[ID]
-        spec.name = name
+        spec.name = args.name
         if spec.cal and not spec.cal.IsTrivial():
             self.spectra.caldict[name] = spec.cal
-        hdtv.ui.msg("Renamed spectrum %s to \'%s\'" % (ID, name))
+        hdtv.ui.msg("Renamed spectrum %s to \'%s\'" % (ID, args.name))
 
-    def SpectrumNormalization(self, args, options):
+    def SpectrumNormalization(self, args):
         "Set normalization for spectrum"
         try:
-            if len(args) == 1:
+            if args.specid is None:
                 ids = [self.spectra.activeID]
             else:
-                ids = hdtv.util.ID.ParseIds(args[:-1], self.spectra)
+                ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
                 if len(ids) == 0:
                     hdtv.ui.warn("Nothing to do")
                     return
 
-            norm = float(args[-1])
         except ValueError:
             return "USAGE"
 
         for ID in ids:
             try:
-                self.spectra.dict[ID].norm = norm
+                self.spectra.dict[ID].norm = args.norm
             except KeyError:
                 hdtv.ui.error("There is no spectrum with id: %s" % ID)
 

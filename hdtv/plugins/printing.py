@@ -201,57 +201,62 @@ class PrintInterface(object):
         description += "Supported formats are: emf, eps, pdf, png, ps, raw, rgba, svg, svgz. "
         description += "If no filename is given, an interactive mode is entered and the plot can be manipulated using pylab."
         description += "Change to the python prompt and import the pylab module for that to work."
-        usage = "%prog <filename>"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
-        parser.add_option("-F", "--force", action="store_true", default=False,
+            prog=prog, description=description)
+        parser.add_argument("-F", "--force", action="store_true", default=False,
                           help="overwrite existing files without asking")
-        parser.add_option("-y", "--ylabel", action="store", default=None,
+        parser.add_argument("-y", "--ylabel", action="store", default=None,
                           help="add label for y-axis")
-        parser.add_option("-x", "--xlabel", action="store", default=None,
+        parser.add_argument("-x", "--xlabel", action="store", default=None,
                           help="add label for x-axis")
-        parser.add_option("-t", "--title", action="store", default=None,
+        parser.add_argument("-t", "--title", action="store", default=None,
                           help="add title for plot")
-        parser.add_option("-l", "--legend", action="store_true", default=False,
+        parser.add_argument("-l", "--legend", action="store_true", default=False,
                           help="add legend")
-        parser.add_option(
+        parser.add_argument(
             "-e",
             "--energies",
             action="store_true",
             default=False,
             help="add energy labels to each fitted peak")
+        parser.add_argument(
+            "filename",
+            metavar="output-file",
+            nargs='?',
+            default=None,
+            help="file to print to")
         hdtv.cmdline.AddCommand(
-            prog, self.Print, maxargs=1, fileargs=True, parser=parser)
+            prog, self.Print, fileargs=True, parser=parser)
 
-    def Print(self, args, options):
+    def Print(self, args):
         pylab.ioff()
         # process filename
-        if len(args) == 0:
-            fname = None
-        else:
-            fname = os.path.expanduser(args[0])
-            if not options.force and os.path.exists(fname):
+        try:
+            fname = os.path.expanduser(args.filename)
+            if not args.force and os.path.exists(fname):
                 hdtv.ui.warn("This file already exists:")
                 overwrite = None
                 while overwrite not in ["Y", "y", "N", "n", "", "B", "b"]:
                     question = "Do you want to replace it [y,n] or backup it [B]:"
                     overwrite = input(question)
                 if overwrite in ["b", "B", ""]:
-                    os.rename(fname, "%s.back" % fname)
+                    os.rename(fname, "%s.bak" % fname)
                 elif overwrite in ["n", "N"]:
                     return
+        except TypeError:
+            fname = None
 
-        p = PrintOut(self.spectra, options.energies)
+        p = PrintOut(self.spectra, args.energies)
         p.Execute()
 
         # add some decorations
-        if options.title:
-            pylab.title(options.title)
-        if options.ylabel:
-            pylab.ylabel(options.ylabel)
-        if options.xlabel:
-            pylab.xlabel(options.xlabel)
-        if options.legend:
+        if args.title:
+            pylab.title(args.title)
+        if args.ylabel:
+            pylab.ylabel(args.ylabel)
+        if args.xlabel:
+            pylab.xlabel(args.xlabel)
+        if args.legend:
             legend = pylab.legend(prop=dict(size="x-small"))
             legend.draw_frame(False)
 

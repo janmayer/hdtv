@@ -145,41 +145,43 @@ class fitTex:
 
         prog = "fit tex"
         description = "create a table in latex format"
-        usage = "%prog outfile"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
-        parser.add_option("-c", "--columns", action="store", default=None,
-                          help="values to include as columns of the table")
-        parser.add_option("-H", "--header", action="store", default=None,
-                          help="header of columns")
-        parser.add_option("-k", "--key-sort", action="store", default=None,
-                          help="sort by key")
-        parser.add_option(
+            prog=prog, description=description)
+        parser.add_argument("-c", "--columns", action="store", default=None,
+            help="values to include as columns of the table")
+        parser.add_argument("-H", "--header", action="store", default=None,
+            help="header of columns")
+        parser.add_argument("-k", "--key-sort", action="store", default=None,
+            help="sort by key")
+        parser.add_argument(
             "-r",
             "--reverse-sort",
             action="store_true",
             default=False,
             help="reverse the sort")
-        parser.add_option(
+        parser.add_argument(
             "-a",
             "--alignment",
             action="store",
             default="c",
             help="horizontal alignment (c=center, l=left or r=right)")
-        parser.add_option("-f", "--fit", action="store", default="all",
-                          help="specify fits to include in table")
-        parser.add_option("-s", "--spectrum", action="store", default="active",
-                          help="specify spectra")
-        hdtv.cmdline.AddCommand(prog, self.WriteTex, nargs=1, parser=parser)
+        parser.add_argument("-f", "--fit", action="store", default="all",
+            help="specify fits to include in table")
+        parser.add_argument("-s", "--spectrum", action="store",
+            default="active", help="specify spectra")
+        parser.add_argument(
+            "filename",
+            metavar="output-file",
+            help="file to write to")
+        hdtv.cmdline.AddCommand(prog, self.WriteTex, parser=parser)
 
-    def WriteTex(self, args, options):
-        filename = args[0]
-        filename = os.path.expanduser(filename)
+    def WriteTex(self, args):
+        filename = os.path.expanduser(args.filename)
 
         # get list of fits
         fits = list()
         try:
-            sids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
+            sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
         except ValueError:
             return "USAGE"
         if len(sids) == 0:
@@ -188,33 +190,33 @@ class fitTex:
         for sid in sids:
             spec = self.spectra.dict[sid]
             try:
-                ids = hdtv.util.ID.ParseIds(options.fit, spec)
+                ids = hdtv.util.ID.ParseIds(args.fit, spec)
             except ValueError:
                 return "USAGE"
             fits.extend([spec.dict[ID] for ID in ids])
         (peaklist, params) = self.f.ExtractFits(fits)
 
         # keys
-        if options.columns is not None:
-            keys = options.columns.split(",")
+        if args.columns is not None:
+            keys = args.columns.split(",")
         else:
             keys = params
 
         # header
-        if options.header is not None:
-            header = options.header.split(",")
+        if args.header is not None:
+            header = args.header.split(",")
         else:
             header = None
 
         # sort key
-        if options.key_sort:
-            sortBy = options.key_sort.lower()
+        if args.key_sort:
+            sortBy = args.key_sort.lower()
         else:
             sortBy = keys[0]
 
         # alignment
-        if options.alignment.lower() in ["c", "l", "r"]:
-            ha = options.alignment.lower()
+        if args.alignment.lower() in ["c", "l", "r"]:
+            ha = args.alignment.lower()
         else:
             msg = "Invalid specifier for horizontal alignment. "
             msg += "Valid values are c,l,r. "
@@ -223,7 +225,7 @@ class fitTex:
 
         # do the work
         table = TexTable(peaklist, keys, header, sortBy,
-                         options.reverse_sort, ha)
+                         args.reverse_sort, ha)
         with open(filename, "w") as out:
             out.write(str(table))
 

@@ -213,7 +213,7 @@ __main__.peakfinder = PeakFinder(__main__.spectra)
 # wrapper function
 
 
-def PeakSearch(args, options):
+def PeakSearch(args):
     try:
         if __main__.spectra.activeID not in __main__.spectra.visible:
             hdtv.ui.warn("Active spectrum is not visible, no action taken")
@@ -223,27 +223,9 @@ def PeakSearch(args, options):
         return False
 
     sid = __main__.spectra.activeID
-
-    try:
-        sigma = float(options.sigma)
-        threshold = float(options.threshold)
-    except ValueError:
-        hdtv.ui.error("Invalid sigma/threshold")
-        return False
-
-    start = None
-    end = None
-    try:
-        if len(args) > 0:
-            start = float(args[0])
-        if len(args) == 2:
-            end = float(args[1])
-    except ValueError:
-        hdtv.ui.error("Invalid start/end arguments")
-        return False
-
-    __main__.peakfinder(sid, sigma, threshold, start, end,
-                        options.autofit, options.reject)
+    
+    __main__.peakfinder(sid, args.sigma, args.threshold,
+        args.start, args.end, args.autofit, args.reject)
 
 
 # Register configuration variables for "fit peakfind"
@@ -257,28 +239,41 @@ hdtv.options.RegisterOption("fit.peakfind.auto_fit", opt)
 # Register command "fit peakfind"
 prog = "fit peakfind"
 description = "Search for peaks in active spectrum in given range"
-usage = "%prog <start> <end>"
 parser = hdtv.cmdline.HDTVOptionParser(
-    prog=prog, description=description, usage=usage)
-parser.add_option(
+    prog=prog, description=description)
+parser.add_argument(
     "-S",
     "--sigma",
+    type=float,
     action="store",
     default=hdtv.options.Get("fit.peakfind.sigma"),
     help="FWHM of peaks")
-parser.add_option(
+parser.add_argument(
     "-T",
     "--threshold",
+    type=float,
     action="store",
     default=hdtv.options.Get("fit.peakfind.threshold"),
     help="Threshold of peaks to accept in fraction of the amplitude of highest peak (0. < threshold < 1.)")
-parser.add_option(
+parser.add_argument(
     "-a",
     "--autofit",
     action="store_true",
     default=hdtv.options.Get("fit.peakfind.auto_fit"),
     help="automatically fit found peaks")
-parser.add_option("-r", "--reject", action="store_true", default=False,
-                  help="reject fits with unreasonable values")
+parser.add_argument("-r", "--reject", action="store_true", default=False,
+    help="reject fits with unreasonable values")
+parser.add_argument(
+    "start",
+    nargs='?',
+    type=float,
+    default=None,
+    help="start of range")
+parser.add_argument(
+    "end",
+    nargs='?',
+    type=float,
+    default=None,
+    help="end of range")
 hdtv.cmdline.AddCommand(prog, PeakSearch, level=4,
-                        parser=parser, minargs=0, fileargs=False)
+                        parser=parser, fileargs=False)

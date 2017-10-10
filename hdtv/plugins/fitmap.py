@@ -19,6 +19,7 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 import os
+import argparse
 
 import hdtv.cmdline
 import hdtv.ui
@@ -35,69 +36,77 @@ class FitMap(object):
 
         prog = "fit position assign"
         description = "assign energy value as nominal position for peak"
-        usage = "%prog pid en [pid en ...] "
+        usage = "%(prog)s peakid energy [peakid energy ...] "
         parser = hdtv.cmdline.HDTVOptionParser(
             prog=prog, description=description, usage=usage)
-        hdtv.cmdline.AddCommand(prog, self.FitPosAssign,
-                                minargs=2, parser=parser)
+        parser.add_argument(
+            "args",
+            metavar="peakid energy",
+            type=float,
+            help="peak energy pairs",
+            nargs=argparse.REMAINDER)
+        hdtv.cmdline.AddCommand(prog, self.FitPosAssign, parser=parser)
 
         prog = "fit position erase"
         description = "erase nominal position for peaks"
-        usage = "%prog pids"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
+            prog=prog, description=description)
+        parser.add_argument(
+            "peakid",
+            nargs='+',
+            help='peak id')
         hdtv.cmdline.AddCommand(prog, self.FitPosErase,
-                                minargs=1, parser=parser)
+                                parser=parser)
 
         prog = "fit position map"
         description = "read nominal position from file"
-        usage = "%prog filename"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
+            prog=prog, description=description)
+        parser.add_argument(
+            "filename")
         hdtv.cmdline.AddCommand(prog, self.FitPosMap,
-                                nargs=1, fileargs=True, parser=parser)
+                                fileargs=True, parser=parser)
 
         prog = "calibration position recalibrate"
         description = "use stored nominal positions of peaks to recalibrate the spectrum"
-        usage = "%prog"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
-        parser.add_option("-s", "--spectrum", action="store", default="active",
-                          help="spectrum ids to apply calibration to")
-        parser.add_option(
+            prog=prog, description=description) 
+        parser.add_argument("-s", "--spectrum", action="store", default="active",
+            help="spectrum ids to apply calibration to")
+        parser.add_argument(
             "-d",
             "--degree",
             action="store",
             default="1",
-            help="degree of calibration polynomial fitted [default: %default]")
-        parser.add_option(
+            help="degree of calibration polynomial fitted [default: %(default)s]")
+        parser.add_argument(
             "-f",
             "--show-fit",
             action="store_true",
             default=False,
             help="show fit used to obtain calibration")
-        parser.add_option(
+        parser.add_argument(
             "-r",
             "--show-residual",
             action="store_true",
             default=False,
             help="show residual of calibration fit")
-        parser.add_option(
+        parser.add_argument(
             "-t",
             "--show-table",
             action="store_true",
             default=False,
             help="print table of energies given and energies obtained from fit")
-        parser.add_option(
+        parser.add_argument(
             "-i",
             "--ignore-errors",
             action="store_true",
             default=False,
             help="set all weights to 1 in fit (ignore error bars even if given)")
         hdtv.cmdline.AddCommand(
-            prog, self.CalPosRecalibrate, nargs=0, parser=parser)
+            prog, self.CalPosRecalibrate, parser=parser)
 
-    def FitPosAssign(self, args, options):
+    def FitPosAssign(self, args):
         """
         Assign a nominal value for the positon of peaks
 
@@ -109,15 +118,15 @@ class FitMap(object):
             hdtv.ui.warn("No active spectrum, no action taken.")
             return False
         spec = self.spectra.GetActiveObject()
-        if len(args) % 2 != 0:
+        if len(args.args) % 2 != 0:
             hdtv.ui.error("Number of arguments must be even")
             return "USAGE"
         else:
-            for i in range(0, len(args), 2):
-                en = ErrValue(args[i + 1], 0)
+            for i in range(0, len(args.args), 2):
+                en = ErrValue(args.args[i + 1], 0)
                 try:
                     ids = hdtv.util.ID.ParseIds(
-                        args[i], spec, only_existent=False)
+                        args.args[i], spec, only_existent=False)
                     pid = ids[0].minor
                     if pid is None:
                         pid = 0
@@ -127,9 +136,9 @@ class FitMap(object):
                 except ValueError:
                     continue
                 except (KeyError, IndexError):
-                    hdtv.ui.warn("no peak with id %s" % args[i])
+                    hdtv.ui.warn("no peak with id %s" % args.args[i])
 
-    def FitPosErase(self, args, options):
+    def FitPosErase(self, args):
         """
         Erase nominal values for the position of peaks
 
@@ -143,7 +152,7 @@ class FitMap(object):
         spec = self.spectra.GetActiveObject()
         # use set, to prevent duplicates
         pids = set()
-        fids = hdtv.util.ID.ParseIds(args, spec, only_existent=False)
+        fids = hdtv.util.ID.ParseIds(args.peakid, spec, only_existent=False)
         for i in fids:
             if i.minor is not None:
                 pids.add(i)
@@ -170,13 +179,13 @@ class FitMap(object):
                 # ignore peaks where "pos_lit" is unset
                 continue
 
-    def FitPosMap(self, args, options):
+    def FitPosMap(self, args):
         """
         Read a list of energies from file and map to the fitted peaks.
 
         The spectrum must be roughly calibrated for this to work.
         """
-        f = hdtv.util.TxtFile(args[0])
+        f = hdtv.util.TxtFile(args.filename)
         f.read()
         energies = list()
         for line in f.lines:
@@ -207,16 +216,16 @@ class FitMap(object):
         # give a feetback to the user
         hdtv.ui.msg("Mapped %s energies to peaks" % count)
 
-    def CalPosRecalibrate(self, args, options):
+    def CalPosRecalibrate(self, args):
         if self.spectra.activeID is None:
             hdtv.ui.warn("No active spectrum, no action taken.")
             return False
         spec = self.spectra.GetActiveObject()
         # parsing of command line
-        sids = hdtv.util.ID.ParseIds(options.spectrum, self.spectra)
+        sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
         if len(sids) == 0:
             sids = [self.spectra.activeID]
-        degree = int(options.degree)
+        degree = int(args.degree)
         pairs = hdtv.util.Pairs()
         for ID in spec.ids:
             fit = spec.dict[ID]
@@ -230,10 +239,10 @@ class FitMap(object):
             cal = self.ecal.CalFromPairs(
                 pairs,
                 degree,
-                table=options.show_table,
-                fit=options.show_fit,
-                residual=options.show_residual,
-                ignoreErrors=options.ignore_errors)
+                table=args.show_table,
+                fit=args.show_fit,
+                residual=args.show_residual,
+                ignoreErrors=args.ignore_errors)
         except RuntimeError as msg:
             hdtv.ui.error(str(msg))
             return False

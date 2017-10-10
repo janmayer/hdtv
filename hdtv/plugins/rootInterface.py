@@ -60,43 +60,41 @@ class RootFileInterface(object):
                                 completer=self.RootCd_Completer)
 
         prog = "root get"
-        usage = "%prog [OPTIONS] <pattern>"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
-        parser.add_option(
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        parser.add_argument(
             "-r",
             "--replace",
             action="store_true",
             default=False,
             help="replace existing histogram list")
-        parser.add_option(
+        parser.add_argument(
             "-c",
             "--load-cal",
             action="store_true",
             default=False,
             help="load calibration from calibration dictionary")
-        parser.add_option(
+        parser.add_argument(
             "-v",
             "--invisible",
             action="store_true",
             default=False,
             help="do not make histograms visible, only add to display list")
+        parser.add_argument("pattern", nargs='+')
         hdtv.cmdline.AddCommand(
             "root get",
             self.RootGet,
-            minargs=1,
             completer=self.RootGet_Completer,
             parser=parser)
 
         # FIXME: make use of matrix ID possible for already loaded matrix
         prog = "root matrix view"
         description = "show a 2D view of the matrix"
-        usage = "root matrix view <matname>"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
+            prog=prog, description=description)
+        parser.add_argument("matname", nargs='+')
         hdtv.cmdline.AddCommand(
             prog,
             self.RootMatrixView,
-            minargs=1,
             completer=self.RootGet_Completer,
             parser=parser)
 
@@ -104,38 +102,47 @@ class RootFileInterface(object):
         description = "load a matrix, i.e. the projections, from a ROOT file"
         description += "if the matrix is symmetric it only loads one projection"
         description += "if it is asymmetric both projections will be loaded."
-        usage = "%prog [OPTIONS] asym|sym filename"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
-        parser.add_option("-s", "--spectrum", action="store", default=None,
+            prog=prog, description=description)
+        parser.add_argument("-s", "--spectrum", action="store", default=None,
                           help="base id for loaded projections")
+        parser.add_argument(
+            "matrix_type",
+            metavar='matrix-type',
+            help="{asym,sym}")
+        parser.add_argument(
+            'filename',
+            metavar='matrix-file',
+            help="file with matrix to load")
         hdtv.cmdline.AddCommand(prog, self.RootMatrixGet,
                                 completer=self.RootGet_Completer,
-                                nargs=2, parser=parser)
+                                parser=parser)
 
         prog = "root cut view"
         description = "load a cut (TCutG) from a ROOT file and display it"
         description += "overlaid on the current matrix view"
-        usage = "%prog <path>"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
-        parser.add_option(
+            prog=prog, description=description)
+        parser.add_argument(
             "-i",
             "--invert-axes",
             action="store_true",
             default=False,
             help="Exchange coordinate axes of cut (x <-> y)")
+        parser.add_argument(
+            "path",
+            nargs='+',
+            help="path of root cut")
         hdtv.cmdline.AddCommand(prog, self.RootCutView,
                                 completer=self.RootGet_Completer,
-                                nargs=1, parser=parser)
+                                parser=parser)
 
         prog = "root cut delete"
         description = "delete all cuts currently shown"
-        usage = "%prog"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
+            prog=prog, description=description)
         hdtv.cmdline.AddCommand(
-            prog, self.RootCutDelete, nargs=0, parser=parser)
+            prog, self.RootCutDelete, parser=parser)
 
         hdtv.cmdline.RegisterInteractive("gRootFile", self.rootfile)
 
@@ -307,19 +314,19 @@ class RootFileInterface(object):
 
         return hist
 
-    def RootCutView(self, args, options):
+    def RootCutView(self, args):
         """
         Load a ROOT cut (TCutG) from a ROOT file and display it.
         """
         if len(self.matviews) == 0:
             hdtv.ui.error("Cannot display cut: no matrix view open")
             return False
-        for path in args:
+        for path in args.path:
             cut = self.GetCut(path)
             if cut:
-                self.matviews[-1].AddCut(cut, options.invert_axes)
+                self.matviews[-1].AddCut(cut, args.invert_axes)
 
-    def RootCutDelete(self, args, options):
+    def RootCutDelete(self, args):
         """
         Delete all cuts shown in the current matrix view.
         """
@@ -328,36 +335,36 @@ class RootFileInterface(object):
             return False
         self.matviews[-1].DeleteAllCuts()
 
-    def RootMatrixView(self, args, options):
+    def RootMatrixView(self, args):
         """
         Load a 2D histogram (``matrix'') from a ROOT file and display it.
         """
-        for path in args:
+        for path in args.matname:
             hist = self.GetTH2(path)
             if hist:
                 title = hist.GetTitle()
                 viewer = ROOT.HDTV.Display.MTViewer(400, 400, hist, title)
                 self.matviews.append(viewer)
 
-    def RootMatrixGet(self, args, options):
+    def RootMatrixGet(self, args):
         """
         Load a 2D histogram (``matrix'') from a ROOT file in projection mode.
         """
         # FIXME: Copy and paste from matInterface.py -> unify?
-        if options.spectrum is not None:
-            ID = options.spectrum
+        if args.spectrum is not None:
+            ID = args.spectrum
         else:
             ID = None
 
-        if args[0] == "sym":
+        if args.matrix_type == "sym":
             sym = True
-        elif args[0] == "asym":
+        elif args.matrix_type == "asym":
             sym = False
         else:
             # FIXME: is there really no way to test that automatically????
             hdtv.ui.error("Please specify if matrix is of type asym or sym")
             return "USAGE"
-        rhist = self.GetTH2(args[1])
+        rhist = self.GetTH2(args.filename)
         if rhist is None:
             hdtv.ui.error("Failed to open 2D histogram")
             return False
@@ -382,7 +389,7 @@ class RootFileInterface(object):
             proj = matrix.yproj
             self.spectra.Insert(proj, ID=hdtv.util.ID(ID.major, 1))
 
-    def RootGet(self, args, options):
+    def RootGet(self, args):
         """
         Load spectra from Rootfile
         """
@@ -392,10 +399,10 @@ class RootFileInterface(object):
             cur_root_dir = None
 
         objs = []
-        for pat in args:
+        for pat in args.pattern:
             objs += hdtv.rfile_utils.Get(".", cur_root_dir, pat)
 
-        if options.replace:
+        if args.replace:
             self.spectra.Clear()
 
         loaded = list()
@@ -407,7 +414,7 @@ class RootFileInterface(object):
                     sid = self.spectra.Insert(spec)
                     spec.color = hdtv.color.ColorForID(sid.major)
                     loaded.append(sid)
-                    if options.load_cal:
+                    if args.load_cal:
                         if spec.name in self.spectra.caldict:
                             spec.cal = self.caldict[spec.name]
                         else:
@@ -417,7 +424,7 @@ class RootFileInterface(object):
                     hdtv.ui.warn("%s is not a 1D histogram object" %
                                  obj.GetName())
             hdtv.ui.msg("%d spectra loaded" % len(loaded))
-            if options.invisible:
+            if args.invisible:
                 self.spectra.HideObjects(loaded)
             elif len(loaded) > 0:
                 # activate last loaded spectrum

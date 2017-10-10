@@ -282,55 +282,49 @@ class Window(KeyHandler):
 
         prog = "window view center"
         description = "center window to position"
-        usage = "%prog <pos>"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
-        parser.add_option("-w", "--width", type="float",
-                          help="width of window", default=100.)
-        hdtv.cmdline.AddCommand(prog, self.GoToPosition,
-                                nargs=1, parser=parser)
+            prog=prog, description=description)
+        parser.add_argument("-w", "--width", type=float,
+                            help="width of window", default=100.)
+        parser.add_argument("position", type=float)
+        hdtv.cmdline.AddCommand(prog, self.GoToPosition, parser=parser)
 
         prog = "window view region"
         description = "show region in window"
-        usage = "%prog <start> <end>"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
-        hdtv.cmdline.AddCommand(prog, self.ViewRegion, nargs=2, parser=parser)
+            prog=prog, description=description)
+        parser.add_argument(
+            "start",
+            type=float)
+        parser.add_argument(
+            "end",
+            type=float)
+        hdtv.cmdline.AddCommand(prog, self.ViewRegion, parser=parser)
 
     def YMinVisibleRegionChanged(self, opt):
         self.viewport.SetYMinVisibleRegion(opt.Get())
 
-    def ViewRegion(self, args, options):
+    def ViewRegion(self, args):
         """
         Zoom and move viewport to show a region
         """
-        if len(args) != 2:
-            return "USAGE"
-        try:
-            start = float(args[0])
-            end = float(args[1])
-        except ValueError:
-            return "USAGE"
-        width = abs(end - start)
-        center = start + width / 2.
+        width = abs(args.end - args.start)
+        center = args.start + width / 2.
         self.viewport.SetXVisibleRegion(width)
         self.viewport.SetXCenter(center)
 
-    def GoToPosition(self, arg, options=None):
+    def GoToPosition(self, args):
         """
         Move viewport to be centered around a position
         """
         try:
-            width = options.width
+            width = args.width
         except AttributeError:
             width = 100.
         try:
-            center = float(arg)
+            center = float(args)
         except TypeError:
-            center = float(arg[0])
-        except ValueError:
-            self.viewport.SetStatusText("Invalid position: %s" % arg)
-            return
+            center = float(args.position)
         self.viewport.SetXVisibleRegion(width)
         self.viewport.SetXCenter(center)
 

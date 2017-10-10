@@ -34,7 +34,7 @@ import code
 import atexit
 import subprocess
 import pwd
-import optparse
+import argparse
 import shlex
 import builtins
 import readline
@@ -55,29 +55,29 @@ class HDTVCommandAbort(Exception):
     pass
 
 
-class HDTVOptionParser(optparse.OptionParser):
-    def _process_args(self, largs, rargs, values):
-        # to avoid negative numbers being processed as options
-        # we add a whitespace in front, the parser no longer processes
-        # them as options while typecast to numeric is unaffected
-        for i in range(len(rargs)):
-            if rargs[i][:1] == "-":
-                try:
-                    if float(rargs[i]):
-                        rargs[i] = " " + rargs[i]
-                except ValueError:
-                    pass
+class HDTVOptionParser(argparse.ArgumentParser):
+#    def _process_args(self, largs, rargs, values):
+#        # to avoid negative numbers being processed as options
+#        # we add a whitespace in front, the parser no longer processes
+#        # them as options while typecast to numeric is unaffected
+#        for i in range(len(rargs)):
+#            if rargs[i][:1] == "-":
+#                try:
+#                    if float(rargs[i]):
+#                        rargs[i] = " " + rargs[i]
+#                except ValueError:
+#                    pass
+#
+#        return optparse.OptionParser._process_args(self, largs, rargs, values)
 
-        return optparse.OptionParser._process_args(self, largs, rargs, values)
+    def error(self, message):
+        raise HDTVCommandError(message)
 
-    def error(self, msg):
-        raise HDTVCommandError(msg)
-
-    def exit(self, status=0, msg=None):
+    def exit(self, status=0, message=None):
         if status == 0:
-            raise HDTVCommandAbort(msg)
+            raise HDTVCommandAbort(message)
         else:
-            raise HDTVCommandError(msg)
+            raise HDTVCommandError(message)
 
 
 class HDTVCommandTreeNode(object):
@@ -238,27 +238,12 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 
         return (node, path)
 
-    def CheckNumParams(self, cmdnode, n):
-        """
-        Checks if the command given by cmdnode will take n parameters.
-        """
-        if "nargs" in cmdnode.options and n != cmdnode.options["nargs"]:
-            return False
-        if "minargs" in cmdnode.options and n < cmdnode.options["minargs"]:
-            return False
-        if "maxargs" in cmdnode.options and n > cmdnode.options["maxargs"]:
-            return False
-        return True
-
     def ExecCommand(self, cmdline):
+        # Strip comments
+        cmdline = cmdline.split("#")[0]
         if cmdline.strip() == "":
             return
 
-        # Strip comments
-        cmdline = cmdline.split("#")[0]
-        if cmdline == "":
-            return
-#        path = cmdline.split()
         try:
             path = self.SplitCmdline(cmdline)
         except ValueError:
@@ -272,18 +257,15 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         if not node or not node.command:
             raise HDTVCommandError("Command not recognized")
 
-        # Check if node has a parser option set
-        if "parser" in node.options:
+        try:
             parser = node.options["parser"]
-        else:
+        except KeyError:
             parser = None
 
         # Try to parse the commands arguments
         try:
             if parser:
-                (options, args) = parser.parse_args(args)
-            if not self.CheckNumParams(node, len(args)):
-                raise HDTVCommandError("Wrong number of arguments to command")
+                args = parser.parse_args(args)
         except HDTVCommandAbort as msg:
             if msg:
                 hdtv.ui.error(str(msg))
@@ -292,27 +274,15 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             if msg:
                 hdtv.ui.error(str(msg))
             if parser:
-                print(parser.get_usage())
-            elif "usage" in node.options:
-                usage = node.options["usage"].replace(
-                    "%prog", node.FullTitle())
-                print("usage: " + usage)
+                parser.print_usage()
             return
 
         # Execute the command
-        if parser:
-            result = node.command(args, options)
-        else:
-            result = node.command(args)
+        result = node.command(args)
 
         # Print usage if requested
-        if result == "USAGE":
-            if parser:
-                print(parser.get_usage())
-            elif "usage" in node.options:
-                usage = node.options["usage"].replace(
-                    "%prog", node.FullTitle())
-                print("usage: " + usage)
+        if result == "USAGE" and parser:
+            parser.print_usage()
 
     def RemoveCommand(self, title):
         """
@@ -759,7 +729,7 @@ command_tree = HDTVCommandTree()
 command_line = CommandLine(command_tree, readline.get_completer())
 RegisterInteractive("gCmd", command_tree)
 
-AddCommand("python", command_line.EnterPython, nargs=0)
-AddCommand("shell", command_line.EnterShell, nargs=0, level=2)
-AddCommand("exit", command_line.Exit, nargs=0)
-AddCommand("quit", command_line.Exit, nargs=0)
+AddCommand("python", command_line.EnterPython)
+AddCommand("shell", command_line.EnterShell, level=2)
+AddCommand("exit", command_line.Exit)
+AddCommand("quit", command_line.Exit)
