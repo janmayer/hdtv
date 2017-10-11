@@ -28,6 +28,7 @@ from __future__ import print_function
 import os
 import sys
 import signal
+import platform
 import traceback
 import code
 import atexit
@@ -35,9 +36,13 @@ import subprocess
 import pwd
 import optparse
 import shlex
-import hdtv.util
-
+import builtins
 import readline
+import _sitebuiltins
+
+import hdtv.util
+from hdtv.color import tcolors
+
 import ROOT
 import __main__
 
@@ -281,11 +286,11 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                 raise HDTVCommandError("Wrong number of arguments to command")
         except HDTVCommandAbort as msg:
             if msg:
-                print(msg)
+                hdtv.ui.error(str(msg))
             return
         except HDTVCommandError as msg:
             if msg:
-                print(msg)
+                hdtv.ui.error(str(msg))
             if parser:
                 print(parser.get_usage())
             elif "usage" in node.options:
@@ -428,6 +433,11 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         return options
 
 
+class PyModeQuitter(_sitebuiltins.Quitter):
+    def __repr__(self):
+        return 'Use %s() to exit hdtv or %s to exit python and return to hdtv' % (self.name, self.eof)
+
+
 class CommandLine(object):
     """
     Class implementing the HDTV command line, including switching between
@@ -445,6 +455,14 @@ class CommandLine(object):
 
         self.fPyMode = False
         self.fPyMore = False
+
+        if os.sep == '\\':
+            eof = 'Ctrl-Z plus Return'
+        else:
+            eof = 'Ctrl-D (i.e. EOF)'
+
+        builtins.quit = PyModeQuitter('quit', eof)
+        builtins.exit = PyModeQuitter('exit', eof)
 
     def ReadReadlineInit(self, filename):
         if os.path.isfile(filename):
@@ -487,6 +505,13 @@ class CommandLine(object):
             return ("HDTV", s)
 
     def EnterPython(self, args=None):
+        if os.sep == '\\':
+            eof = 'Ctrl-Z plus Return'
+        else:
+            eof = 'Ctrl-D (i.e. EOF)'
+        hdtv.ui.msg(
+            "Python {}. Return to hdtv with {}.".format(
+                platform.python_version(), eof))
         self.fPyMode = True
 
     def ExitPython(self):
@@ -576,7 +601,7 @@ class CommandLine(object):
         except IOError as msg:
             hdtv.ui.error("%s" % msg)
         for line in file.lines:
-            print("file>", line)
+            print(self.get_prompt('file'))
             self.DoLine(line)
             # TODO: HACK: How should I teach this micky mouse language that a
             # python statement (e.g. "for ...:") has ended???
@@ -624,15 +649,15 @@ class CommandLine(object):
             # Read a command from the user
             # Choose correct prompt for current mode
             if self.fPyMore:
-                prompt = "... > "
+                prompt = self.get_prompt('... ')
             elif self.fPyMode:
-                prompt = "py  > "
+                prompt = self.get_prompt('py', sep='>>>')
             else:
-                prompt = "hdtv> "
+                prompt = self.get_prompt('hdtv')
 
             # Read the command
             try:
-                s = input(prompt)
+                s = builtins.input(prompt)
             except EOFError:
                 # Ctrl-D exits in command mode, and switches back to command mode
                 #  from Python mode
@@ -670,14 +695,17 @@ class CommandLine(object):
                 self.DoLine(s)
 
             except KeyboardInterrupt:
-                print("Aborted")
+                hdtv.ui.warn("Aborted")
             except HDTVCommandError as msg:
-                print("Error: %s" % msg)
+                hdtv.ui.error("%s" % msg)
             except SystemExit:
                 self.Exit()
             except Exception:
-                print("Unhandled exception:")
+                hdtv.ui.error("Unhandled exception:")
                 traceback.print_exc()
+
+    def get_prompt(self, prompt, sep='>'):
+        return tcolors.PROMPT + prompt + sep + " " + tcolors.ENDPROMPT
 
 
 def RegisterInteractive(name, ref):

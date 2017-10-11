@@ -166,3 +166,17 @@ def GetRGB(color):
 #        b = q
 
 #    return (r,g,b)
+
+class tcolors(object):
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    ENDC = '\033[0m'
+    # \001 and \002 (RL_PROMPT_START_IGNORE and RL_PROMPT_END_IGNORE) are
+    # necessary for correct length calculations by readline
+    PROMPT = '\001\033[0m\002'
+    ENDPROMPT = '\001\033[0m\002'

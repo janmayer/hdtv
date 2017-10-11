@@ -25,6 +25,7 @@
 
 import sys
 import os
+from hdtv.color import tcolors
 
 DEBUG_LEVEL = 0
 
@@ -64,8 +65,7 @@ class SimpleUI(object):
         """
         Print warning message
         """
-        text = "WARNING: " + text
-        self.stderr.write(text)
+        self.stderr.write(tcolors.WARNING + "WARNING: " + text + tcolors.ENDC)
 
         if newline:
             self.stderr.write(self.linesep)
@@ -74,8 +74,7 @@ class SimpleUI(object):
         """
         Print error message
         """
-        text = "ERROR: " + text
-        self.stderr.write(text)
+        self.stderr.write(tcolors.FAIL + "ERROR: " + text + tcolors.ENDC)
 
         if newline:
             self.stderr.write(self.linesep)
@@ -84,9 +83,7 @@ class SimpleUI(object):
         """
         Debugging output. The higher the level, the more specific is the debug message.
         """
-
-        text = "DEBUG: " + text
-        self.debugout.write(text)
+        self.debugout.write("DEBUG: " + text)
 
         if newline:
             self.debugout.write(self.linesep)
