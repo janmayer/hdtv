@@ -48,11 +48,17 @@ import __main__
 
 
 class HDTVCommandError(Exception):
-    pass
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return self.value
 
 
 class HDTVCommandAbort(Exception):
-    pass
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return self.value
 
 
 class HDTVOptionParser(argparse.ArgumentParser):
@@ -74,7 +80,7 @@ class HDTVOptionParser(argparse.ArgumentParser):
         raise HDTVCommandError(message)
 
     def exit(self, status=0, message=None):
-        if status == 0:
+        if status == 0 and message:
             raise HDTVCommandAbort(message)
         else:
             raise HDTVCommandError(message)
@@ -267,14 +273,12 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             if parser:
                 args = parser.parse_args(args)
         except HDTVCommandAbort as msg:
-            if msg:
-                hdtv.ui.error(str(msg))
+            if msg.value:
+                hdtv.ui.error(msg.value)
             return
         except HDTVCommandError as msg:
-            if msg:
-                hdtv.ui.error(str(msg))
-            if parser:
-                parser.print_usage()
+            if msg.value:
+                hdtv.ui.error(msg.value)
             return
 
         # Execute the command
@@ -667,7 +671,7 @@ class CommandLine(object):
             except KeyboardInterrupt:
                 hdtv.ui.warn("Aborted")
             except HDTVCommandError as msg:
-                hdtv.ui.error("%s" % msg)
+                hdtv.ui.error("%s" % str(msg))
             except SystemExit:
                 self.Exit()
             except Exception:

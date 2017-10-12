@@ -1154,7 +1154,6 @@ class EnergyCalHDTVInterface(object):
         parser.add_argument(
             "args",
             metavar="idN energyN",
-            type=float,
             help="peak id-energy pair used for calibration",
             nargs=argparse.REMAINDER)
         hdtv.cmdline.AddCommand(
@@ -1421,7 +1420,7 @@ class EnergyCalHDTVInterface(object):
                 for peak_id, energy in zip(*[iter(args.args)]*2):
                     ID = hdtv.util.ID.ParseIds(
                         peak_id, spec, only_existent=False)[0]
-                    value = hdtv.errvalue.ErrValue(energy)
+                    value = hdtv.errvalue.ErrValue(float(energy), 0)
                     pairs.add(ID, value)
             sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
             if len(sids) == 0:
