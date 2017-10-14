@@ -23,12 +23,16 @@ from __future__ import print_function, division
 
 try:
     import curses
+    import io
 
     def get_term_width():
         # We call curses.setupterm() every time, as the terminal width
         # may have changed
-        curses.setupterm()
-        return curses.tigetnum("cols")
+        try:
+            curses.setupterm()
+            return curses.tigetnum("cols")
+        except io.UnsupportedOperation:
+            return 80
 
 except ImportError:
     # On platforms where we cannot load the curses library, we assume a

@@ -128,9 +128,9 @@ class PGAAlib_IKI2000(GammaLib):
                 sigma = ErrValue(float(line[4]), float(line[5]))
                 intensity = ErrValue(float(line[6]), None) / 100.0
                 try:
-                    halflife = ErrValue(float(line[7]), None)
+                    halflife = ErrValue(float(line[7]), 0.)
                 except ValueError:
-                    halflife = ErrValue(None, None)
+                    halflife = None
                 gamma = PGAAGamma(
                     Nuclides(
                         Z,
@@ -199,9 +199,9 @@ class PromptGammas(GammaLib):
             for line in reader:
                 A = int(line[0])
                 Z = int(line[1])
-                energy = ErrValue(line[2])
-                sigma = ErrValue(line[3])
-                k0 = ErrValue(line[4])
+                energy = ErrValue(line[2]) # from string
+                sigma = ErrValue(line[3]) # from string
+                k0 = ErrValue(line[4]) # from string
                 gamma = PGAAGamma(
                     Nuclides(
                         Z,

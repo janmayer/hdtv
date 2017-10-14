@@ -612,6 +612,8 @@ def tanh(x):
 
 class ErrValue(DepErrValue):
     def __init__(self, nominal_value, std_dev=None, tag=None):
+        if nominal_value is None:
+            raise TypeError("must be float, not NoneType")
         if isinstance(nominal_value, str):
             if std_dev is not None:
                 raise TypeError(

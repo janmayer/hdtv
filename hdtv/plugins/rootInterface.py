@@ -171,13 +171,17 @@ class RootFileInterface(object):
             ROOT.gDirectory.ls(args[0])
 
     def RootCd(self, args):
+        try:
+            target = args[0]
+        except IndexError:
+            target = ""
         if self.rootfile:
             cur_root_dir = ROOT.gDirectory
         else:
             cur_root_dir = None
 
         (posix_path, rfile, root_dir) = hdtv.rfile_utils.GetRelDirectory(
-            os.getcwd(), cur_root_dir, args[0])
+            os.getcwd(), cur_root_dir, target)
         if (posix_path, rfile, root_dir) == (None, None, None):
             print("Error: invalid path specified.")
             return

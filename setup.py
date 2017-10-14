@@ -4,7 +4,7 @@ import os
 import glob
 import subprocess
 
-from distutils.core import setup, Extension
+from distutils.core import setup
 
 sys_includes = []
 print('Building C++ library display.so ...')
@@ -34,4 +34,4 @@ setup(name='hdtv',
       package_data={'hdtv': ['share/*', 'clib/*.pcm', 'clib/*.so']},
       ext_package='hdtv/clib',
       data_files=[('share/hdtv/include', sys_includes)]
-      )
+)

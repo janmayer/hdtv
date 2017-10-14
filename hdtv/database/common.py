@@ -434,10 +434,10 @@ class GammaLib(list):
                     results = [x for x in results if getattr(x, key) == value]
                 elif isinstance(value, str):  # Do lowercase comparison for strings
                     results = [x for x in results
-                            if getattr(x, key).lower() == value.lower()]
+                        if getattr(x, key).lower() == value.lower()]
                 else:  # Do fuzzy compare
                     results = [x for x in results
-                            if (abs(getattr(x, key) - value) <= fuzziness)]
+                        if (abs(getattr(x, key) - value) <= fuzziness)]
 
         # Sort
         try:

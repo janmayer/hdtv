@@ -5,6 +5,9 @@ build
 *.so
 *.o
 
+# pytest cache
+.cache
+
 # ROOT generated filed
 rootdict-*.h
 rootdict-*.cxx
