@@ -10,6 +10,14 @@ from helpers.utils import redirect_stdout
 import hdtv.cmdline
 import hdtv.plugins.ls
 
+@pytest.yield_fixture(autouse=True)
+def prepare(request):
+    #original_wd = os.path.abspath(os.path.join(__file__, os.pardir))
+    original_wd = os.getcwd()
+    os.chdir(original_wd)
+    yield
+    os.chdir(original_wd)
+
 def test_cmd_pwd():
     f = io.StringIO()
     with redirect_stdout(f):

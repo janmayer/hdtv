@@ -313,16 +313,15 @@ class TvSpecInterface(object):
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
         parser.add_argument(
             'filename',
-            metavar='matrix-file',
-            help="file with matrix to load")
+            help="filename of output file")
         parser.add_argument(
             'format',
-            help="format of matrix")
+            help="format of spectrum file")
         parser.add_argument(
             "specid",
             nargs='?',
             default=None,
-            help='id of spectrum to update')
+            help='id of spectrum to write')
         hdtv.cmdline.AddCommand(prog, self.SpectrumWrite, parser=parser)
 
         prog = "spectrum normalize"
@@ -393,7 +392,7 @@ class TvSpecInterface(object):
             fileargs=False,
             parser=parser)
 
-        prog = "spectrum substract"
+        prog = "spectrum subtract"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
         parser.add_argument(
             "targetid",
@@ -414,7 +413,7 @@ class TvSpecInterface(object):
             default=None,
             help='id of spectrum to multiply')
         parser.add_argument(
-            "multiply",
+            "factor",
             type=float,
             help='multiplication factor')
         hdtv.cmdline.AddCommand(
@@ -521,17 +520,18 @@ class TvSpecInterface(object):
         if args.spectrum is not None:
             targetids = hdtv.util.ID.ParseIds(
                 args.spectrum, self.spectra, only_existent=False)
+            targetids.sort()
         if len(targetids) == 0:
             targetids = [None for i in range(0, len(ids))]
         elif len(targetids) == 1:  # Only start ID is given
             startID = targetids[0]
             targetids = [hdtv.util.ID(i) for i in range(
                 startID.major, startID.major + len(ids))]
+            targetids.sort()
         elif len(targetids) != len(ids):
             hdtv.ui.error(
                 "Number of target ids does not match number of ids to copy")
             return
-        targetids.sort()
         for i in range(0, len(ids)):
             try:
                 self.specIf.CopySpectrum(ids[i], copyTo=targetids[i])
@@ -575,7 +575,7 @@ class TvSpecInterface(object):
 
     def SpectrumSub(self, args):
         """
-        Substract spectra (spec1 - spec2, ...)
+        Subtract spectra (spec1 - spec2, ...)
         """
         try:
             # FIXME: Properly separate targetid, specid
@@ -594,10 +594,10 @@ class TvSpecInterface(object):
 
         for i in ids[1:]:
             try:
-                hdtv.ui.msg("Substracting " + str(i) + " from " + str(subFrom))
+                hdtv.ui.msg("Subtracting " + str(i) + " from " + str(subFrom))
                 self.spectra.dict[subFrom].Minus(self.spectra.dict[i])
             except KeyError:
-                hdtv.ui.error("Could not substract " + str(i))
+                hdtv.ui.error("Could not subtract " + str(i))
         self.spectra.dict[subFrom].name = "difference"
 
     def SpectrumMultiply(self, args):
@@ -693,15 +693,15 @@ class TvSpecInterface(object):
                 hdtv.ui.error("Cannot rebin spectrum " +
                               str(i) + " (Does not exist)")
 
-    def SpectrumHide(self, args, options):
+    def SpectrumHide(self, args):
         """
         Hides spectra
         """
-        if len(args) == 0:
+        if len(args.specid) == 0:
             ids = list(self.spectra.dict.keys())
         else:
             try:
-                ids = hdtv.util.ID.ParseIds(args, self.spectra)
+                ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
             except ValueError:
                 return "USAGE"
 

@@ -174,7 +174,7 @@ class FitlistHDTVInterface(object):
         hdtv.cmdline.AddCommand(prog, self.FitSavelists,
                                 fileargs=True, parser=parser)
 
-    def FitWrite(self, args, options):
+    def FitWrite(self, args):
         """
         Saving a fitlist as xml
         """
@@ -272,7 +272,7 @@ class FitlistHDTVInterface(object):
         # do the work
         self.FitlistIf.WriteList(fname)
 
-    def FitGetlists(self, args, options):
+    def FitGetlists(self, args):
         fname = glob.glob(os.path.expanduser(args.filename))
         if len(fname) > 1:
             return "USAGE"
