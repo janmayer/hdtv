@@ -471,7 +471,7 @@ class CommandLine(object):
         "Recognize special command prefixes"
         s = s.lstrip()
         if len(s) == 0:
-            return (None, None)
+            return ("HDTV", s)
 
         if s[0] == ':':
             return ("PYTHON", s[1:])
