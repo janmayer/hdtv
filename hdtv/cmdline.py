@@ -48,11 +48,13 @@ import __main__
 
 
 class HDTVCommandError(Exception):
-    def __init__(self, value):
+    def __init__(self, value=""):
         self.value = value
     def __str__(self):
         return self.value
 
+class HDTVCommandUsageError(HDTVCommandError):
+    pass
 
 class HDTVCommandAbort(Exception):
     def __init__(self, value):
@@ -247,48 +249,48 @@ class HDTVCommandTree(HDTVCommandTreeNode):
     def ExecCommand(self, cmdline):
         # Strip comments
         cmdline = hdtv.util.remove_comments(cmdline)
-        if cmdline.strip() == "":
-            return
-
-        try:
-            path = self.SplitCmdline(cmdline)
-        except ValueError:
-            print("Inappropriate use of quotation characters.")
-            return []
-
-        (node, args) = self.FindNode(path)
-        while node and not node.command:
-            node = node.PrimaryChild()
-
-        if not node or not node.command:
-            raise HDTVCommandError("Command not recognized")
-
-        try:
-            parser = node.options["parser"]
-        except KeyError:
+        for command in hdtv.util.split_line(cmdline):
             parser = None
+            try:
+                if command.strip() == "":
+                    continue
+                try:
+                    path = self.SplitCmdline(command)
+                except ValueError:
+                    print("Inappropriate use of quotation characters.")
+                    continue
 
-        # Try to parse the commands arguments
-        try:
-            if parser:
-                args = parser.parse_args(args)
-        except HDTVCommandAbort as msg:
-            if msg.value:
-                hdtv.ui.error(msg.value)
-            return
-        except HDTVCommandError as msg:
-            if msg.value:
-                hdtv.ui.error(msg.value)
+                (node, args) = self.FindNode(path)
+                while node and not node.command:
+                    node = node.PrimaryChild()
+
+                if not node or not node.command:
+                    raise HDTVCommandError("Command not recognized")
+
+                try:
+                    parser = node.options["parser"]
+                except KeyError:
+                    parser = None
+
+                # Parse the commands arguments
+                if parser:
+                    args = parser.parse_args(args)
+
+                # Execute the command
+                result = node.command(args)
+
+                # Print usage if requested
+                if result == "USAGE":
+                    raise HDTVCommandUsageError()
+            except HDTVCommandAbort as msg:
+                if msg.value:
+                    hdtv.ui.error(msg.value)
+            except HDTVCommandError as msg:
+                if msg.value:
+                    hdtv.ui.error(msg.value)
                 if parser:
                     parser.print_usage()
-            return
-
-        # Execute the command
-        result = node.command(args)
-
-        # Print usage if requested
-        if result == "USAGE" and parser:
-            parser.print_usage()
+        return
 
     def RemoveCommand(self, title):
         """

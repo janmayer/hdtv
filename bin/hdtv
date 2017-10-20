@@ -12,11 +12,6 @@ import glob
 
 import argparse
 
-# Command line arguments
-parser = argparse.ArgumentParser()
-parser.add_argument("-b", "--batch", dest="batchfile",
-        help="Open and execute hdtv batchfile")
-
 # Reset command line arguments so that ROOT does not stumble about them
 hdtv_args = sys.argv[1:]
 sys.argv = [sys.argv[0]]
@@ -60,9 +55,15 @@ else:
     os.environ['ROOT_INCLUDE_PATH'] = root_incl_path
 
 import hdtv.version
+# Command line arguments
+parser = argparse.ArgumentParser()
+parser.add_argument("-b", "--batch", dest="batchfile",
+    help="Open and execute hdtv batchfile")
+parser.add_argument("-e", "--execute",
+    help="Execute hdtv command(s)")
 parser.add_argument("-v", "--version", action="version", help="Show HDTV Version",
         version="HDTV {}".format(hdtv.version.VERSION))
-options = parser.parse_args(hdtv_args)
+args = parser.parse_args(hdtv_args)
 
 # Import core modules
 import hdtv.cmdline
@@ -116,10 +117,13 @@ for startup_hdtv in startup_d_hdtv:
 
 # Execute batchfile given on command line
 try:
-    if options.batchfile is not None:
-        hdtv.cmdline.command_line.ExecCmdfile(options.batchfile)
+    if args.batchfile is not None:
+        hdtv.cmdline.command_line.ExecCmdfile(args.batchfile)
 except IOError as msg:
-    hdtv.ui.msg("Error reading %s: %s" % (options.batchfile, msg))
+    hdtv.ui.msg("Error reading %s: %s" % (args.batchfile, msg))
+
+if args.execute is not None:
+    hdtv.cmdline.command_line.DoLine(args.execute)
 
 
 # Go

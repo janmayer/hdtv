@@ -662,8 +662,10 @@ class ID(object):
 
         return valid_ids
 
-
 def remove_comments(string):
+    """
+    Removes '#' comments at the end of a line
+    """
     pattern = r"(\".*?\"|\'.*?\')|(#[^\r\n]*$)"
     regex = re.compile(pattern, re.MULTILINE|re.DOTALL)
     def _replacer(match):
@@ -672,6 +674,13 @@ def remove_comments(string):
         else:
             return match.group(1)
     return regex.sub(_replacer, string)
+
+def split_line(line):
+    """
+    Splits multiple commands in a single line separated by ';'
+    """
+    split_pattern = re.compile(r'''((?:[^;"']|"[^"]*"|'[^']*')+)''')
+    return split_pattern.split(line)[1::2]
 
 def get_prompt(prompt, sep='>', inputable=True):
     if inputable:
