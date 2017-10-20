@@ -21,6 +21,7 @@
 import os
 import hdtv.ui
 import hdtv.util
+import hdtv.cmdline
 
 preamble = """\makeatletter
 \@ifundefined{standalonetrue}{\\newif\ifstandalone}{\let\ifbackup=\ifstandalone}
@@ -180,19 +181,13 @@ class fitTex:
 
         # get list of fits
         fits = list()
-        try:
-            sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
-        except ValueError:
-            return "USAGE"
+        sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
         if len(sids) == 0:
             hdtv.ui.warn("No spectra chosen or active")
             return
         for sid in sids:
             spec = self.spectra.dict[sid]
-            try:
-                ids = hdtv.util.ID.ParseIds(args.fit, spec)
-            except ValueError:
-                return "USAGE"
+            ids = hdtv.util.ID.ParseIds(args.fit, spec)
             fits.extend([spec.dict[ID] for ID in ids])
         (peaklist, params) = self.f.ExtractFits(fits)
 

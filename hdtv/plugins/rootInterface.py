@@ -323,8 +323,7 @@ class RootFileInterface(object):
         Load a ROOT cut (TCutG) from a ROOT file and display it.
         """
         if len(self.matviews) == 0:
-            hdtv.ui.error("Cannot display cut: no matrix view open")
-            return False
+            raise hdtv.cmdline.HDTVCommandError("Cannot display cut: no matrix view open")
         for path in args.path:
             cut = self.GetCut(path)
             if cut:
@@ -335,8 +334,7 @@ class RootFileInterface(object):
         Delete all cuts shown in the current matrix view.
         """
         if len(self.matviews) == 0:
-            hdtv.ui.error("No matrix view open")
-            return False
+            raise hdtv.cmdline.HDTVCommandError("No matrix view open")
         self.matviews[-1].DeleteAllCuts()
 
     def RootMatrixView(self, args):
@@ -366,12 +364,10 @@ class RootFileInterface(object):
             sym = False
         else:
             # FIXME: is there really no way to test that automatically????
-            hdtv.ui.error("Please specify if matrix is of type asym or sym")
-            return "USAGE"
+            raise hdtv.cmdline.HDTVCommandError("Please specify if matrix is of type asym or sym")
         rhist = self.GetTH2(args.filename)
         if rhist is None:
-            hdtv.ui.error("Failed to open 2D histogram")
-            return False
+            raise hdtv.cmdline.HDTVCommandError("Failed to open 2D histogram")
 
         if isinstance(rhist, ROOT.TH2):
             hist = RHisto2D(rhist)

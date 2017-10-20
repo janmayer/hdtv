@@ -68,8 +68,7 @@ class FitXml(object):
         try:
             fits = self.spectra.dict[sid].dict
         except KeyError:
-            hdtv.ui.error("No spectrum with id %s loaded.") % sid
-            return
+            raise hdtv.cmdline.HDTVCommandError("No spectrum with id %s loaded." % sid)
         if len(fits) == 0:
             hdtv.ui.warn("Empty fitlist, no action taken.")
             return
@@ -334,8 +333,7 @@ class FitXml(object):
         if sid is None:
             sid = self.spectra.activeID
         if sid not in self.spectra.ids:
-            hdtv.ui.error("No spectrum with id %s loaded.") % sid
-            return
+            raise hdtv.cmdline.HDTVCommandError("No spectrum with id %s loaded." % sid)
         count = 0
         try:
             tree = ET.parse(fname)

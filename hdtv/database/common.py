@@ -399,12 +399,7 @@ class GammaLib(list):
             fields_lower[key.lower()] = conv
 
         for (key, value) in list(args.items()):
-            try:
-                # if this raises a KeyError it was an invalid argument
-                conv = fields_lower[key.lower()]
-            except KeyError:
-                hdtv.ui.error("Invalid key " + str(key))
-                raise KeyError
+            conv = fields_lower[key.lower()]
             if value is None:
                 continue
             args_lower[key.lower()] = conv(value)

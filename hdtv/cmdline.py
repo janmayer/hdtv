@@ -53,9 +53,6 @@ class HDTVCommandError(Exception):
     def __str__(self):
         return self.value
 
-class HDTVCommandUsageError(HDTVCommandError):
-    pass
-
 class HDTVCommandAbort(Exception):
     def __init__(self, value):
         self.value = value
@@ -280,8 +277,6 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                 result = node.command(args)
 
                 # Print usage if requested
-                if result == "USAGE":
-                    raise HDTVCommandUsageError()
             except HDTVCommandAbort as msg:
                 if msg.value:
                     hdtv.ui.error(msg.value)

@@ -245,9 +245,10 @@ def test_cmd_spectrum_activate_multi(specfile, numspecs):
         hdtv.cmdline.command_line.DoLine("spectrum activate all")
     if numspecs > 1:
         assert "Can only activate one spectrum" in ferr.getvalue()
+        assert "usage" in f.getvalue()
     else:
         assert "" == ferr.getvalue().strip()
-    assert "" == f.getvalue().strip()
+        assert "" == f.getvalue().strip()
 
 @pytest.mark.parametrize("specfile", [
     "test/share/example_Co60.tv"])

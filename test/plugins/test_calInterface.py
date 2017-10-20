@@ -99,7 +99,7 @@ def test_cmd_cal_pos_enter_underdefined(specfile):
     ferr = io.StringIO()
     with redirect_stdout(f, ferr):
         command_line.DoLine("calibration position enter -d 2 1543 1173.228(3) 1747 1332.492(4)")
-    assert f.getvalue().strip() == ""
+    assert "usage" in f.getvalue().strip()
     assert "You must specify at least" in ferr.getvalue()
 
 @pytest.mark.parametrize("specfile", [

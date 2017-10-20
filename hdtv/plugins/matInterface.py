@@ -30,6 +30,7 @@ import os
 
 import hdtv.ui
 import hdtv.util
+import hdtv.cmdline
 from hdtv.specreader import SpecReader, SpecReaderError
 
 from hdtv.matrix import Matrix
@@ -124,11 +125,9 @@ class MatInterface(object):
         # FIXME
         spec = self.spectra.GetActiveObject()
         if spec is None:
-            hdtv.ui.error("There is no active spectrum")
-            return
+            raise hdtv.cmdline.HDTVCommandError("There is no active spectrum")
         if not hasattr(spec, "matrix") or spec.matrix is None:
-            hdtv.ui.error("Active spectrum does not belong to a matrix")
-            return
+            raise hdtv.cmdline.HDTVCommandError("Active spectrum does not belong to a matrix")
         mat = spec.matrix
         # for a cut, switch to projection
         if spec in mat.specs:
@@ -367,11 +366,7 @@ class TvMatInterface(object):
         """
         Load a matrix from file, then display it in 2d
         """
-        try:
-            hist = SpecReader().GetMatrix(args.filename, args.format)
-        except (OSError, SpecReaderError) as msg:
-            hdtv.ui.error(str(msg))
-            raise
+        hist = SpecReader().GetMatrix(args.filename, args.format)
 
         title = hist.GetTitle()
         viewer = ROOT.HDTV.Display.MTViewer(400, 400, hist, title)
@@ -391,8 +386,7 @@ class TvMatInterface(object):
             sym = False
         else:
             # FIXME: is there really no way to test that automatically????
-            hdtv.ui.error("Please specify if matrix is of type asym or sym")
-            return "USAGE"
+            raise HDTVCommandError("Please specify if matrix is of type asym or sym")
         self.matIf.LoadMatrix(args.filename, sym, ID=ID)
 
     def MatrixList(self, args):
@@ -421,11 +415,10 @@ class TvMatInterface(object):
         # complete markertype if needed
         mtype = self.MarkerCompleter(args.type)
         if len(mtype) == 0:
-            hdtv.ui.error("Marker type %s is not valid" % args.type)
-            return
+            raise hdtv.cmdline.HDTVCommandError("Marker type %s is not valid" % args.type)
         action = self.MarkerCompleter(args.action, args=[args.action,])
         if len(action) == 0:
-            hdtv.ui.error("Invalid action: %s" % args.action)
+            raise hdtv.cmdline.HDTVCommandError("Invalid action: %s" % args.action)
         
         mtype = mtype[0].strip()
         # replace "background" with "cutbg" which is internally used
@@ -473,10 +466,7 @@ class TvMatInterface(object):
         if not hasattr(spec, "matrix") or spec.matrix is None:
             hdtv.ui.warn("Active spectrum does not belong to a matrix")
             return
-        try:
-            ids = hdtv.util.ID.ParseIds(args.cutid, spec.matrix)
-        except ValueError:
-            return "USAGE"
+        ids = hdtv.util.ID.ParseIds(args.cutid, spec.matrix)
         if len(ids) == 1:
             hdtv.ui.msg("Activating cut %s" % ids[0])
             self.spectra.ActivateCut(ids[0])
@@ -484,7 +474,7 @@ class TvMatInterface(object):
             hdtv.ui.msg("Deactivating cut")
             self.spectra.ActivateCut(None)
         else:
-            hdtv.ui.error("Can only activate one cut")
+            raise hdtv.cmdline.HDTVCommandError("Can only activate one cut")
 
     def CutDelete(self, args):
         """
@@ -497,10 +487,7 @@ class TvMatInterface(object):
         if not hasattr(spec, "matrix") or spec.matrix is None:
             hdtv.ui.warn("Active spectrum does not belong to a matrix")
             return
-        try:
-            ids = hdtv.util.ID.ParseIds(args.cutid, spec.matrix)
-        except ValueError:
-            return "USAGE"
+        ids = hdtv.util.ID.ParseIds(args.cutid, spec.matrix)
         for ID in ids:
             cut = spec.matrix.Pop(ID)
             # delete also cut spectrum

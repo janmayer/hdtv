@@ -118,8 +118,7 @@ class FitMap(object):
             return False
         spec = self.spectra.GetActiveObject()
         if len(args.args) % 2 != 0:
-            hdtv.ui.error("Number of arguments must be even")
-            return "USAGE"
+            raise hdtv.cmdline.HDTVCommandError("Number of arguments must be even")
         else:
             for i in range(0, len(args.args), 2):
                 en = ErrValue(args.args[i + 1]) # from string
@@ -237,17 +236,13 @@ class FitMap(object):
                     pairs.add(peak.pos, enlit)
                 except BaseException:
                     continue
-        try:
-            cal = self.ecal.CalFromPairs(
-                pairs,
-                degree,
-                table=args.show_table,
-                fit=args.show_fit,
-                residual=args.show_residual,
-                ignore_errors=args.ignore_errors)
-        except RuntimeError as msg:
-            hdtv.ui.error(str(msg))
-            return False
+        cal = self.ecal.CalFromPairs(
+            pairs,
+            degree,
+            table=args.show_table,
+            fit=args.show_fit,
+            residual=args.show_residual,
+            ignore_errors=args.ignore_errors)
         self.spectra.ApplyCalibration(sids, cal)
         return True
 

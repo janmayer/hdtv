@@ -165,8 +165,7 @@ class Database(object):
                 hdtv.ui.msg("\"" + self.database.description + "\" loaded\n")
                 return True
         except KeyError:
-            hdtv.ui.error("No such database: " + dbname)
-            return False
+            raise hdtv.cmdline.HDTVCommandError("No such database: " + dbname)
 
     def Info(self, args):
         """
@@ -184,8 +183,7 @@ class Database(object):
                 self.showDBfields(db)
 
             except KeyError:
-                hdtv.ui.error("No such database: " + db.name)
-                return False
+                raise hdtv.cmdline.HDTVCommandError("No such database: " + db.name)
 
             hdtv.ui.newline()  # Newline
 
@@ -230,62 +228,55 @@ class Database(object):
 
         self.assureOpen()
 
-        try:
-            lookupargs = dict()
+        lookupargs = dict()
 
-            # Valid arguments
-            vargs = list()
-            for v in self.database.fOrderedParamKeys:
-                vargs.append(v.lower())
+        # Valid arguments
+        vargs = list()
+        for v in self.database.fOrderedParamKeys:
+            vargs.append(v.lower())
 
-            # parse arguments
-            for a in args.specs:
-                m = re.match(r"(.*)=(.*)", a)
-                if m is not None:
-                    if m.group(1).lower() in vargs:
-                        lookupargs[m.group(1)] = m.group(2)
-                    else:
-                        self.showDBfields()
-                        return False
+        # parse arguments
+        for a in args.specs:
+            m = re.match(r"(.*)=(.*)", a)
+            if m is not None:
+                if m.group(1).lower() in vargs:
+                    lookupargs[m.group(1)] = m.group(2)
                 else:
-                    try:  # default
-                        lookupargs['energy'] = float(a)
-                        continue
-                    except ValueError:
-                        return "USAGE"
-
-            if defaults or args.sort_key is None:
-                lookupargs['sort_key'] = hdtv.options.Get("database.sort_key")
+                    self.showDBfields()
+                    return False
             else:
-                lookupargs['sort_key'] = args.sort_key
+                lookupargs['energy'] = float(a)
+                continue
 
-            if defaults or args.sort_reverse is None:
-                lookupargs['sort_reverse'] = hdtv.options.Get(
-                    "database.sort_reverse")
-            else:
-                lookupargs['sort_reverse'] = args.sort_reverse
+        if defaults or args.sort_key is None:
+            lookupargs['sort_key'] = hdtv.options.Get("database.sort_key")
+        else:
+            lookupargs['sort_key'] = args.sort_key
 
-            if defaults or args.fuzziness is None:
-                fuzziness = hdtv.options.Get("database.fuzziness")
-            else:
-                fuzziness = args.fuzziness
+        if defaults or args.sort_reverse is None:
+            lookupargs['sort_reverse'] = hdtv.options.Get(
+                "database.sort_reverse")
+        else:
+            lookupargs['sort_reverse'] = args.sort_reverse
 
-            try:
-                results = self.database.find(fuzziness, **lookupargs)
-            except AttributeError:
-                return False
+        if defaults or args.fuzziness is None:
+            fuzziness = hdtv.options.Get("database.fuzziness")
+        else:
+            fuzziness = args.fuzziness
 
-            if len(results) > 0:
-                table = hdtv.util.Table(
-                    results,
-                    header=self.database.fOrderedHeader,
-                    keys=self.database.fOrderedParamKeys)
-                hdtv.ui.msg(str(table))
+        try:
+            results = self.database.find(fuzziness, **lookupargs)
+        except AttributeError:
+            return False
 
-            hdtv.ui.msg("Found " + str(len(results)) + " results")
+        if len(results) > 0:
+            table = hdtv.util.Table(
+                results,
+                header=self.database.fOrderedHeader,
+                keys=self.database.fOrderedParamKeys)
+            hdtv.ui.msg(str(table))
 
-        except ValueError:
-            return "USAGE"
+        hdtv.ui.msg("Found " + str(len(results)) + " results")
 
 
 # plugin initialisation

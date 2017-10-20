@@ -70,39 +70,35 @@ class FitlistManager(object):
             f.write(text)
 
     def ReadList(self, fname):
-        try:
-            with open(fname, "r") as f:
-                dirname = os.path.dirname(fname)
-                for linenum, l in enumerate(f):
-                    # Remove comments and whitespace; ignore empty lines
-                    l = l.split('#', 1)[0].strip()
-                    if l == "":
+        with open(fname, "r") as f:
+            dirname = os.path.dirname(fname)
+            for linenum, l in enumerate(f):
+                # Remove comments and whitespace; ignore empty lines
+                l = l.split('#', 1)[0].strip()
+                if l == "":
+                    continue
+                try:
+                    (k, v) = l.split(':', 1)
+                    name = k.strip()
+                    xmlfile = v.strip()
+                    # create valid path from relative pathnames
+                    xmlfile = os.path.join(dirname, xmlfile)
+                    if not os.path.exists(xmlfile):
+                        hdtv.ui.warn("No such file %s" % xmlfile)
                         continue
-                    try:
-                        (k, v) = l.split(':', 1)
-                        name = k.strip()
-                        xmlfile = v.strip()
-                        # create valid path from relative pathnames
-                        xmlfile = os.path.join(dirname, xmlfile)
-                        if not os.path.exists(xmlfile):
-                            hdtv.ui.warn("No such file %s" % xmlfile)
-                            continue
-                        sid = None
-                        for ID in self.spectra.ids:
-                            if self.spectra.dict[ID].name == name:
-                                sid = ID
-                                break
-                        if sid is not None:
-                            self.ReadXML(sid, xmlfile)
-                        else:
-                            hdtv.ui.warn("Spectrum %s is not loaded. " % name)
-                    except ValueError:
-                        hdtv.ui.warn(
-                            "Could not parse line %d of file %s: ignored." %
-                            (linenum + 1, fname))
-        except IOError as msg:
-            hdtv.ui.error("Error opening file: %s" % msg)
-            return None
+                    sid = None
+                    for ID in self.spectra.ids:
+                        if self.spectra.dict[ID].name == name:
+                            sid = ID
+                            break
+                    if sid is not None:
+                        self.ReadXML(sid, xmlfile)
+                    else:
+                        hdtv.ui.warn("Spectrum %s is not loaded. " % name)
+                except ValueError:
+                    hdtv.ui.warn(
+                        "Could not parse line %d of file %s: ignored." %
+                        (linenum + 1, fname))
 
 
 class FitlistHDTVInterface(object):
@@ -182,14 +178,12 @@ class FitlistHDTVInterface(object):
         # get spectrum
         sids = hdtv.util.ID.ParseIds(args.spectrum, __main__.spectra)
         if len(sids) == 0:
-            hdtv.ui.error("There is no active spectrum")
-            return
+            raise hdtv.cmdline.HDTVCommandError("There is no active spectrum")
         if len(sids) > 1:
             # TODO: Check if placeholder character is present in filename and
             # warn if not
             pass
-#            hdtv.ui.error("Can only save fitlist of one spectrum")
-#            return
+#            raise hdtv.cmdline.HDTVCommandError("Can only save fitlist of one spectrum")
         for sid in sids:
             #            sid = sids[0]
             # get filename
@@ -230,8 +224,7 @@ class FitlistHDTVInterface(object):
         fnames = dict()  # Filenames for each spectrum ID
         sids = hdtv.util.ID.ParseIds(args.spectrum, __main__.spectra)
         if len(sids) == 0:
-            hdtv.ui.error("There is no active spectrum")
-            return
+            raise hdtv.cmdline.HDTVCommandError("There is no active spectrum")
 
         # Build list of files to load for each spectrum
         for sid in sids:
@@ -274,11 +267,10 @@ class FitlistHDTVInterface(object):
     def FitGetlists(self, args):
         fname = glob.glob(os.path.expanduser(args.filename))
         if len(fname) > 1:
-            return "USAGE"
+            raise hdtv.cmdline.HDTVCommandError("More than 1 files match the pattern")
         fname = fname[0]
         if not os.path.exists(fname):
-            hdtv.ui.error("No such file %s" % fname)
-            return
+            raise hdtv.cmdline.HDTVCommandError("No such file %s" % fname)
         self.FitlistIf.ReadList(fname)
 
 

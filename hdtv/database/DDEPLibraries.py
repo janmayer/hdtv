@@ -35,9 +35,8 @@ def SearchNuclide(nuclide):
         data = resource.read().decode("utf-8")
         resource.close()
     except urllib.error.HTTPError as e:
-        hdtv.ui.error("Error looking up nuclide {}: {}".format(
+        raise hdtv.cmdline.HDTVCommandError("Error looking up nuclide {}: {}".format(
             nuclide, e.msg))
-        return
 
     for line in data.split("\r\n"):
         sep = line.split(" ; ")
