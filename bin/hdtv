@@ -6,9 +6,9 @@
 
 from __future__ import print_function
 
-# Load required modules
 import sys
 import os
+import glob
 
 import argparse
 
@@ -102,16 +102,17 @@ try:
 except ImportError:
     hdtv.ui.debug("No startup.py file")
 
-# Execute startup.hdtv for user configuration in "hdtv" language
-try:
-    startup_hdtv = configpath + os.sep + "startup.hdtv"
-    if os.path.exists(startup_hdtv):
-        hdtv.ui.msg("Reading startup.hdtv")
-        hdtv.cmdline.command_line.ExecCmdfile(startup_hdtv)
-    else:
-        hdtv.ui.debug("No startup.hdtv file")
-except IOError as msg:
-    hdtv.ui.error("Error reading %s: %s" % (startup_hdtv, msg))
+# Execute startup.hdtv and startup.hdtv.d/*.hdtv
+# for user configuration in "hdtv" language
+startup_d_hdtv = [configpath + os.sep + "startup.hdtv"] + glob.glob(
+    configpath + os.sep + "startup.hdtv.d" + os.sep + "*.hdtv")
+
+for startup_hdtv in startup_d_hdtv:
+    try:
+        if os.path.exists(startup_hdtv):
+            hdtv.cmdline.command_line.ExecCmdfile(startup_hdtv)
+    except IOError as msg:
+        hdtv.ui.error("Error reading %s: %s" % (startup_hdtv, msg))
 
 # Execute batchfile given on command line
 try:
