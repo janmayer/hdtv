@@ -285,9 +285,12 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             except HDTVCommandAbort as msg:
                 if msg.value:
                     hdtv.ui.error(msg.value)
-            except HDTVCommandError as msg:
-                if msg.value:
-                    hdtv.ui.error(msg.value)
+            except (HDTVCommandError, BaseException) as msg:
+                try:
+                    if msg.value:
+                        hdtv.ui.error(msg.value)
+                except AttributeError:
+                    hdtv.ui.error(str(msg))
                 if parser:
                     parser.print_usage()
         return

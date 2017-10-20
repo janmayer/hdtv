@@ -1056,7 +1056,6 @@ class EnergyCalHDTVInterface(object):
         parser.add_argument(
             "args",
             metavar="channelN energyN",
-            type=float,
             help="channel-energy pairs used for fit",
             nargs=argparse.REMAINDER)
         hdtv.cmdline.AddCommand(
@@ -1247,7 +1246,7 @@ class EnergyCalHDTVInterface(object):
         Copy calibration from one spectrum to others
         """
         self.EnergyCalIf.CopyCal(
-            hdtv.util.ID.ParseIds(args.sourceid, self.spectra),
+            hdtv.util.ID.ParseIds(args.sourceid, self.spectra)[0],
             hdtv.util.ID.ParseIds(args.destids, self.spectra))
 
     def CalPosEnter(self, args):
