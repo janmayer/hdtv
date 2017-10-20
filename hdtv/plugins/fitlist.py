@@ -29,6 +29,7 @@ import hdtv.cmdline
 import hdtv.fitxml
 import hdtv.ui
 import hdtv.util
+from builtins import input
 
 
 class FitlistManager(object):
@@ -72,9 +73,7 @@ class FitlistManager(object):
         try:
             with open(fname, "r") as f:
                 dirname = os.path.dirname(fname)
-                linenum = 0
-                for l in f:
-                    linenum += 1
+                for linenum, l in enumerate(f):
                     # Remove comments and whitespace; ignore empty lines
                     l = l.split('#', 1)[0].strip()
                     if l == "":
@@ -100,7 +99,7 @@ class FitlistManager(object):
                     except ValueError:
                         hdtv.ui.warn(
                             "Could not parse line %d of file %s: ignored." %
-                            (linenum, fname))
+                            (linenum + 1, fname))
         except IOError as msg:
             hdtv.ui.error("Error opening file: %s" % msg)
             return None
@@ -266,7 +265,7 @@ class FitlistHDTVInterface(object):
                 question = "Do you want to replace it [y,n] or backup it [B]:"
                 overwrite = input(question)
             if overwrite in ["b", "B", ""]:
-                os.rename(fname, "%s.back" % fname)
+                os.rename(fname, "%s.bak" % fname)
             elif overwrite in ["n", "N"]:
                 return
         # do the work

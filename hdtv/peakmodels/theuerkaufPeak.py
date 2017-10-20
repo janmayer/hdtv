@@ -58,7 +58,7 @@ class TheuerkaufPeak(Drawable):
             pos_err_uncal = self.pos.std_dev
             pos_cal = self.cal.Ch2E(pos_uncal)
             pos_err_cal = abs(self.cal.dEdCh(pos_uncal) * pos_err_uncal)
-            return ErrValue(pos_cal, pos_err_cal, self.pos.free)
+            return ErrValue(pos_cal, pos_err_cal, self.pos.tag)
         elif name == "width_cal":
             if self.cal is None:
                 return self.width
@@ -79,7 +79,7 @@ class TheuerkaufPeak(Drawable):
                     hwhm_uncal) /
                     2.) *
                 width_err_uncal)
-            return ErrValue(width_cal, width_err_cal, self.width.free)
+            return ErrValue(width_cal, width_err_cal, self.width.tag)
         elif name in ["vol_cal", "tl_cal", "tr_cal", "sh_cal", "sw_cal"]:
             name = name[0:name.rfind("_cal")]
             return getattr(self, name)

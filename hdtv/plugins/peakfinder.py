@@ -84,7 +84,7 @@ class PeakFinder(object):
         text = "Search Peaks in region "
         text += str(start_E) + "--" + str(end_E)
         text += " (sigma=" + str(sigma_E)
-        text += " threshold=" + str(threshold * 100) + " %)"
+        text += " threshold=" + str(threshold * 100) + "%)"
         hdtv.ui.msg(text)
 
         # Invoke ROOT's peak finder
@@ -161,15 +161,15 @@ class PeakFinder(object):
         text = str()
         for peak in fit.peaks:
             reason = None
-            if peak.vol.value <= 0.0:
+            if peak.vol.nominal_value <= 0.0:
                 bad = True
                 reason = "vol = %s" % peak.vol
-            elif not fit.regionMarkers[0].p1.pos_cal < peak.pos_cal.value < fit.regionMarkers[0].p2.pos_cal:
+            elif not fit.regionMarkers[0].p1.pos_cal < peak.pos_cal.nominal_value < fit.regionMarkers[0].p2.pos_cal:
                 bad = True
                 reason = "peak position outside of region"
             # TODO: check for NaNs in errors
             elif fit.fitter.peakModel.name == "theuerkauf":
-                if peak.width.value <= 0.0 or peak.width.value > 5 * self.sigma_E:
+                if peak.width.nominal_value <= 0.0 or peak.width.nominal_value > 5 * self.sigma_E:
                     bad = True
                     reason = "width = %s" % peak.width
             elif fit.fitter.peakModel.name == "ee":
@@ -242,14 +242,14 @@ description = "Search for peaks in active spectrum in given range"
 parser = hdtv.cmdline.HDTVOptionParser(
     prog=prog, description=description)
 parser.add_argument(
-    "-S",
+    "-s",
     "--sigma",
     type=float,
     action="store",
     default=hdtv.options.Get("fit.peakfind.sigma"),
     help="FWHM of peaks")
 parser.add_argument(
-    "-T",
+    "-t",
     "--threshold",
     type=float,
     action="store",

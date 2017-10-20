@@ -18,10 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
-import hdtv.ui
-import hdtv.cmdline
-import hdtv.cal
-import hdtv.color
 
 import os
 import numpy
@@ -29,8 +25,14 @@ import scipy
 import matplotlib
 matplotlib.use("agg")  # Must be before import pylab!
 import pylab
+from builtins import input
 
 import matplotlib.transforms as transforms
+
+import hdtv.ui
+import hdtv.cmdline
+import hdtv.cal
+import hdtv.color
 
 
 # TODO: add cut marker

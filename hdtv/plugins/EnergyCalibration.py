@@ -142,7 +142,7 @@ def MatchPeaksAndIntensities(
     """
     Combines peaks with the right intensities from the table (with searchEnergie).
     """
-    return zip([
+    return list(zip([
         [
             [
                 peak,
@@ -151,4 +151,4 @@ def MatchPeaksAndIntensities(
             ] for peak, peak_id in zip(peaks, peak_ids)
             if abs(energy - peak) <= sigma
         ] for energy, intensity, intensity_error in zip(
-            energies, intensities, intensities_error)])
+            energies, intensities, intensities_error)]))

@@ -42,7 +42,6 @@ class FitMap(object):
         parser.add_argument(
             "args",
             metavar="peakid energy",
-            type=float,
             help="peak energy pairs",
             nargs=argparse.REMAINDER)
         hdtv.cmdline.AddCommand(prog, self.FitPosAssign, parser=parser)
@@ -123,7 +122,7 @@ class FitMap(object):
             return "USAGE"
         else:
             for i in range(0, len(args.args), 2):
-                en = ErrValue(args.args[i + 1], 0)
+                en = ErrValue(args.args[i + 1]) # from string
                 try:
                     ids = hdtv.util.ID.ParseIds(
                         args.args[i], spec, only_existent=False)
@@ -193,6 +192,9 @@ class FitMap(object):
         if self.spectra.activeID is None:
             hdtv.ui.warn("No active spectrum, no action taken.")
             return False
+        if len(energies) == 0:
+            hdtv.ui.warn("No energies found in file {}.".format(args.filename))
+            return False
         spec = self.spectra.GetActiveObject()
         count = 0
         for fit in spec.dict.values():
@@ -242,7 +244,7 @@ class FitMap(object):
                 table=args.show_table,
                 fit=args.show_fit,
                 residual=args.show_residual,
-                ignoreErrors=args.ignore_errors)
+                ignore_errors=args.ignore_errors)
         except RuntimeError as msg:
             hdtv.ui.error(str(msg))
             return False
@@ -252,7 +254,7 @@ class FitMap(object):
 
 # plugin initialisation
 import __main__
-if not __main__.ecal:
+if not hasattr(__main__, 'ecal'):
     from . import calInterface
     __main__.ecal = calInterface.EnergyCalIf(__main__.spectra)
 __main__.fitmap = FitMap(__main__.spectra, __main__.ecal)

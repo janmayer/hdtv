@@ -30,6 +30,7 @@ import os
 import json
 import argparse
 import math
+from builtins import input
 
 import hdtv.efficiency
 import hdtv.cmdline
@@ -376,7 +377,7 @@ class EffCalIf(object):
         # It matches the Peaks and the given energies
         Match = EnergyCalibration.MatchPeaksAndIntensities(
             Peak, peakID, Energy, Intensity, IntensityError, sigma)
-        Peak = [hdtv.errvalue.ErrValue(peak, 0) for peak in Match[0]]
+        Peak = [hdtv.errvalue.ErrValue(peak, 0) for peak in list(Match[0])]
         Intensity = Match[1]
         peakID = Match[2]
 
@@ -1420,7 +1421,7 @@ class EnergyCalHDTVInterface(object):
                 for peak_id, energy in zip(*[iter(args.args)]*2):
                     ID = hdtv.util.ID.ParseIds(
                         peak_id, spec, only_existent=False)[0]
-                    value = hdtv.errvalue.ErrValue(float(energy), 0)
+                    value = hdtv.errvalue.ErrValue(energy) # from string
                     pairs.add(ID, value)
             sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
             if len(sids) == 0:
@@ -1489,7 +1490,7 @@ class EnergyCalHDTVInterface(object):
         """
         Clear list of name <-> calibration pairs
         """
-        for name in self.spectra.caldict.keys():
+        for name in list(self.spectra.caldict.keys()):
             for sid in self.spectra.dict.keys():
                 if self.spectra.dict[sid].name == name:
                     self.spectra.ApplyCalibration([sid], None)
