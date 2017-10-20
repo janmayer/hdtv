@@ -175,8 +175,9 @@ class tcolors(object):
     FAIL = '\033[91m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+    PROMPT = '\033[0m'
     ENDC = '\033[0m'
     # \001 and \002 (RL_PROMPT_START_IGNORE and RL_PROMPT_END_IGNORE) are
     # necessary for correct length calculations by readline
-    PROMPT = '\001\033[0m\002'
-    ENDPROMPT = '\001\033[0m\002'
+    RL_PROMPT_START_IGNORE = '\001'
+    RL_PROMPT_END_IGNORE = '\002'

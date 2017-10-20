@@ -29,7 +29,7 @@ import traceback
 import hdtv.options
 import hdtv.errvalue
 import hdtv.ui
-
+from hdtv.color import tcolors
 
 def Indent(s, indent=" "):
     """
@@ -107,10 +107,10 @@ class TxtFile(object):
                         line = prev_line + " " + line
                     prev_line = ""
                 if verbose:
-                    hdtv.ui.msg("file> " + str(line))
+                    hdtv.ui.msg(get_prompt('file', inputable=False) + str(line))
 
                 # Strip comments
-                line = line.split("#")[0]
+                line = remove_comments(line)
                 if line.strip() == "":
                     continue
                 self.lines.append(line)
@@ -118,8 +118,8 @@ class TxtFile(object):
 
         except IOError as msg:
             raise IOError("Error opening file:" + str(msg))
-        except BaseException:  # Let MainLoop handle other exceptions
-            raise
+        #except BaseException:  # Let MainLoop handle other exceptions
+        #    raise
         finally:
             if self.fd is not None:
                 self.fd.close()
@@ -661,3 +661,23 @@ class ID(object):
             valid_ids = ids
 
         return valid_ids
+
+
+def remove_comments(string):
+    pattern = r"(\".*?\"|\'.*?\')|(#[^\r\n]*$)"
+    regex = re.compile(pattern, re.MULTILINE|re.DOTALL)
+    def _replacer(match):
+        if match.group(2) is not None:
+            return ""
+        else:
+            return match.group(1)
+    return regex.sub(_replacer, string)
+
+def get_prompt(prompt, sep='>', inputable=True):
+    if inputable:
+        return (tcolors.RL_PROMPT_START_IGNORE + tcolors.PROMPT +
+            tcolors.RL_PROMPT_END_IGNORE + prompt + sep + " " +
+            tcolors.RL_PROMPT_START_IGNORE  + tcolors.ENDC +
+            tcolors.RL_PROMPT_END_IGNORE)
+    else:
+        return tcolors.PROMPT + prompt + sep + " " + tcolors.ENDC

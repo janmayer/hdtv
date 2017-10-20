@@ -246,7 +246,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 
     def ExecCommand(self, cmdline):
         # Strip comments
-        cmdline = cmdline.split("#")[0]
+        cmdline = hdtv.util.remove_comments(cmdline)
         if cmdline.strip() == "":
             return
 
@@ -575,7 +575,7 @@ class CommandLine(object):
         except IOError as msg:
             hdtv.ui.error("%s" % msg)
         for line in file.lines:
-            print(self.get_prompt('file'))
+            print(hdtv.util.get_prompt('file', inputable=False))
             self.DoLine(line)
             # TODO: HACK: How should I teach this micky mouse language that a
             # python statement (e.g. "for ...:") has ended???
@@ -623,11 +623,11 @@ class CommandLine(object):
             # Read a command from the user
             # Choose correct prompt for current mode
             if self.fPyMore:
-                prompt = self.get_prompt('... ')
+                prompt = hdtv.util.get_prompt('... ')
             elif self.fPyMode:
-                prompt = self.get_prompt('py', sep='>>>')
+                prompt = hdtv.util.get_prompt('py', sep='>>>')
             else:
-                prompt = self.get_prompt('hdtv')
+                prompt = hdtv.util.get_prompt('hdtv')
 
             # Read the command
             try:
@@ -678,8 +678,6 @@ class CommandLine(object):
                 hdtv.ui.error("Unhandled exception:")
                 traceback.print_exc()
 
-    def get_prompt(self, prompt, sep='>'):
-        return tcolors.PROMPT + prompt + sep + " " + tcolors.ENDPROMPT
 
 
 def RegisterInteractive(name, ref):
