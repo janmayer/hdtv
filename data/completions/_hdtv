@@ -1,0 +1,7 @@
+#compdef hdtv
+
+_arguments \
+    '--batch=[Open and execute HDTV batchfile]:batchfile:_files'\
+    '--execute=[Execute HDTV command(s)]:commands'\
+    '--help[Show help message and exit]'\
+    '--version[Show HDTV Version]'

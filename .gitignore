@@ -16,3 +16,6 @@ rootdict-*.pcm
 # Other
 hdtv_history
 .history
+
+# man pages
+doc/guide/*.[1-8]

@@ -58,9 +58,9 @@ import hdtv.version
 # Command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--batch", dest="batchfile",
-    help="Open and execute hdtv batchfile")
-parser.add_argument("-e", "--execute",
-    help="Execute hdtv command(s)")
+    help="Open and execute HDTV batchfile")
+parser.add_argument("-e", "--execute", dest="commands",
+    help="Execute HDTV command(s)")
 parser.add_argument("-v", "--version", action="version", help="Show HDTV Version",
         version="HDTV {}".format(hdtv.version.VERSION))
 args = parser.parse_args(hdtv_args)
@@ -122,8 +122,8 @@ try:
 except IOError as msg:
     hdtv.ui.msg("Error reading %s: %s" % (args.batchfile, msg))
 
-if args.execute is not None:
-    hdtv.cmdline.command_line.DoLine(args.execute)
+if args.commands is not None:
+    hdtv.cmdline.command_line.DoLine(args.commands)
 
 
 # Go
