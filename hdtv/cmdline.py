@@ -340,6 +340,10 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         # Get the entire buffer from the readline library (we need the context)
         # and split it at spaces.
         buf = readline.get_line_buffer()
+        try:
+            buf = hdtv.util.split_line(buf)[-1]
+        except BaseException:
+            pass
 
         try:
             path = self.SplitCmdline(buf)
