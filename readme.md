@@ -46,6 +46,8 @@ together using PyROOT.
 ## Documentation
 For more information, including an overview of the available key
 bindings, refer to the [documentation](doc/guide/hdtv.rst).
+A [tutorial](doc/guide/hdtv-tutorial.rst) giving an introduction
+to HDTV and its basic features is also available.
 
 
 ## HDTV development team

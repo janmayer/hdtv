@@ -304,5 +304,5 @@ Ralf Schulze (r.schulze@ikp.uni-koeln.de)
 SEE ALSO
 ========
 
-| ``root``\(1), ``python``\(1)
+| ``hdtv-tutorial``\(1), ``root``\(1), ``python``\(1)
 
