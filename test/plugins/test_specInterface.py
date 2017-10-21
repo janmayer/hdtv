@@ -70,8 +70,7 @@ def test_cmd_spectrum_get_slot(specfile, slot):
 
 @pytest.mark.parametrize("specfile, num", [
     ("test/share/example_Co60.tv", 4),
-    ("test/share/example_Co60.tv", 40),
-    ("test/share/example_Co60.tv", 400)])
+    ("test/share/example_Co60.tv", 40)])
 def test_cmd_spectrum_get_repeated(specfile, num):
     assert len(s.spectra.dict) == 0
     query = " ".join([specfile]*num)
@@ -276,6 +275,8 @@ def test_cmd_spectrum_name(specfile, name):
     ferr = io.StringIO()
     with redirect_stdout(f, ferr):
         hdtv.cmdline.command_line.DoLine("spectrum name {}".format(name))
+    print(ferr.getvalue())
+    print(f.getvalue())
     assert ferr.getvalue().strip() == ""
     assert "Renamed spectrum 0 to '{}'".format(name) in f.getvalue()
 

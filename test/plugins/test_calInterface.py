@@ -2,6 +2,8 @@ import io
 import re
 import os
 import sys
+import tempfile
+import filecmp
 
 import pytest
 
@@ -149,6 +151,46 @@ def test_cmd_cal_pos_list(specfile):
     assert ferr.getvalue().strip() == ""
     assert "example_Co60.tv: 1.0   2.0" in f.getvalue()
 
+@pytest.mark.parametrize("specfile, callistfile", [
+    ("test/share/example_Co60.tv", "test/share/callist.cal")])
+def test_cmd_cal_pos_list_read(specfile, callistfile):
+    s.tv.specIf.LoadSpectra(specfile, None)
+    f = io.StringIO()
+    ferr = io.StringIO()
+    with redirect_stdout(f, ferr):
+        command_line.DoLine("cal position list read {}".format(callistfile))
+    assert ferr.getvalue().strip() == ""
+    assert "Calibrated spectrum with id 0" in f.getvalue()
+
+@pytest.mark.parametrize("specfile, callistfile", [
+    ("test/share/example_Co60.tv", "test/share/callist.cal")])
+def test_cmd_cal_pos_list_clear(specfile, callistfile):
+    s.tv.specIf.LoadSpectra(specfile, None)
+    command_line.DoLine("cal position list read {}".format(callistfile))
+    f = io.StringIO()
+    ferr = io.StringIO()
+    with redirect_stdout(f, ferr):
+        command_line.DoLine("cal position list clear")
+    assert ferr.getvalue().strip() == ""
+    assert "Unsetting calibration of spectrum with id 0" in f.getvalue()
+
+@pytest.mark.parametrize("specfile, callistfile", [
+    ("test/share/example_Co60.tv", "test/share/callist.cal")])
+def test_cmd_cal_pos_list_write(specfile, callistfile):
+    s.tv.specIf.LoadSpectra(specfile, None)
+    command_line.DoLine("cal position list read {}".format(callistfile))
+    try:
+        outfile = tempfile.mkstemp(".cal", "hdtv_cplwtest_")[1]
+        f = io.StringIO()
+        ferr = io.StringIO()
+        with redirect_stdout(f, ferr):
+            command_line.DoLine("cal position list write -F {}".format(outfile))
+        assert ferr.getvalue().strip() == ""
+        assert f.getvalue().strip() == ""
+        assert filecmp.cmp(callistfile, outfile)
+    finally:
+        os.remove(outfile)
+
 @pytest.mark.parametrize("specfile", [
     "test/share/example_Co60.tv"])
 def test_cmd_cal_pos_recalibrate(specfile):
@@ -174,6 +216,17 @@ def test_cmd_cal_pos_read(specfile, calfile):
     assert ferr.getvalue().strip() == ""
     assert "Calibrated spectrum with id 0" in f.getvalue()
 
+@pytest.mark.parametrize("nuclide", [
+    "Co-60", "Cs-137"])
+def test_cmd_nuclide(nuclide):
+    f = io.StringIO()
+    ferr = io.StringIO()
+    with redirect_stdout(f, ferr):
+        command_line.DoLine("nuclide {}".format(nuclide))
+    assert ferr.getvalue().strip() == ""
+    assert "Data of the nuclide" in f.getvalue()
+    assert "Energy" in f.getvalue()
+    assert "Intensity" in f.getvalue()
 
 # TODO: No tests for:
 # calibration position nuclide

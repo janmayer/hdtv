@@ -208,10 +208,10 @@ class FitlistHDTVInterface(object):
                 hdtv.ui.warn("This file already exists:")
                 overwrite = None
                 while overwrite not in ["Y", "y", "N", "n", "", "B", "b"]:
-                    question = "Do you want to replace it [y,n] or backup it [B]:"
+                    question = "Do you want to replace it [y,n] or backup it [B]: "
                     overwrite = input(question)
                 if overwrite in ["b", "B", ""]:
-                    os.rename(fname, "%s.back" % fname)
+                    os.rename(fname, "%s.bak" % fname)
                 elif overwrite in ["n", "N"]:
                     return
             # do the work
@@ -255,7 +255,7 @@ class FitlistHDTVInterface(object):
             hdtv.ui.warn("This file already exists:")
             overwrite = None
             while overwrite not in ["Y", "y", "N", "n", "", "B", "b"]:
-                question = "Do you want to replace it [y,n] or backup it [B]:"
+                question = "Do you want to replace it [y,n] or backup it [B]: "
                 overwrite = input(question)
             if overwrite in ["b", "B", ""]:
                 os.rename(fname, "%s.bak" % fname)

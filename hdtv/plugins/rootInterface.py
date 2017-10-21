@@ -186,6 +186,7 @@ class RootFileInterface(object):
             print("Error: invalid path specified.")
             return
 
+        os.environ["OLDPWD"] = os.getcwd()
         os.chdir(posix_path)
 
         # If root_dir is None, we moved outside the ROOT file and are now in

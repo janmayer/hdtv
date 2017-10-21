@@ -71,6 +71,7 @@ def cd(args):
     else:
         path = os.path.expanduser(args[0])
     try:
+        os.environ["OLDPWD"] = os.getcwd()
         os.chdir(path)
         print(path)
     except OSError as msg:
