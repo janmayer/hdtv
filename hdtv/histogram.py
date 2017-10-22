@@ -310,7 +310,7 @@ class FileHistogram(Histogram):
     @property
     def info(self):
         # get the info property of the baseclass
-        s = Histogram.info.fget(self)
+        s = super(FileHistogram, self).info
         s += "Filename: %s\n" % self.filename
         if self.fmt:
             s += "File format: %s\n" % self.fmt
@@ -347,7 +347,7 @@ class CutHistogram(Histogram):
 
     @property
     def info(self):
-        s = Histogram.info.fget(self)
+        s = super(CutHistogram, self).info
         s += "cut "
         s += "on %s axis gate: " % self.axis
         for i in range(len(self.gates)):

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import io
 import re
 
@@ -38,7 +36,7 @@ def test_cmd_config_show():
     assert ferr.getvalue().strip() == ""
 
 @pytest.mark.parametrize("variable, value", [
-    ("table", "classic"),
+    ("table", "modern"),
     ("database.db", "PGAAlib_IKI2000"),
     ("database.auto_lookup", "False"),
     ("database.fuzziness", "1.0"),
@@ -85,7 +83,7 @@ def test_cmd_config_reset(variable, value, default):
     ("False", False),
     ("fAlSe", False)])
 def test_parse_bool(bool_str, bool_val):
-    assert hdtv.options.ParseBool(bool_str) == bool_val
+    assert hdtv.options.parse_bool(bool_str) == bool_val
 
 def test_register_option():
     opt = hdtv.options.Option(default="default")

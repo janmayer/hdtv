@@ -169,15 +169,20 @@ def GetRGB(color):
 
 class tcolors(object):
     HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
+    DEBUG = '\033[94m'
     OKGREEN = '\033[92m'
     WARNING = '\033[93m'
     FAIL = '\033[91m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+    SUBTLE = '\033[38;5;239m'
     PROMPT = '\033[0m'
     ENDC = '\033[0m'
     # \001 and \002 (RL_PROMPT_START_IGNORE and RL_PROMPT_END_IGNORE) are
     # necessary for correct length calculations by readline
     RL_PROMPT_START_IGNORE = '\001'
     RL_PROMPT_END_IGNORE = '\002'
+
+    @staticmethod
+    def bold(text):
+        return tcolors.BOLD + text + tcolors.ENDC

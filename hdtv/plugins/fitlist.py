@@ -121,7 +121,7 @@ class FitlistHDTVInterface(object):
         parser.add_argument(
             "filename",
             default=None,
-            help='''may contain %s, %d, %02d (or other python
+            help='''may contain %%s, %%d, %%02d (or other python
             format specifier) as placeholder for spectrum id''')
         hdtv.cmdline.AddCommand(prog, self.FitWrite,
                                 fileargs=True, parser=parser)
@@ -141,7 +141,7 @@ class FitlistHDTVInterface(object):
         parser.add_argument(
             "filename",
             nargs='+',
-            help='''may contain %s, %d, %02d (or other python
+            help='''may contain %%s, %%d, %%02d (or other python
             format specifier) as placeholder for spectrum id''')
         hdtv.cmdline.AddCommand(
             prog, self.FitRead, fileargs=True, parser=parser)

@@ -23,12 +23,13 @@
 # Gamma database integration for HDTV
 #-------------------------------------------------------------------------
 
+import re
 
 import hdtv.cmdline
 import hdtv.options
 import hdtv.database
 import hdtv.ui
-import re
+from hdtv.color import tcolors
 
 import hdtv.fit
 
@@ -44,13 +45,15 @@ class Database(object):
         # Register configuration variables for fit peakfind
         self.opt["db"] = hdtv.options.Option(
             default="PGAAlib_IKI2000",
+            parse=hdtv.options.parse_choices(
+                list(hdtv.database.databases.keys())),
             changeCallback=lambda x: self.Set(x))  # default database
         hdtv.options.RegisterOption("database.db", self.opt["db"])
 
         # Automatically lookup fitted peaks in database
         self.opt["auto_lookup"] = hdtv.options.Option(
             default=False,
-            parse=hdtv.options.ParseBool,
+            parse=hdtv.options.parse_bool,
             changeCallback=lambda x: self.SetAutoLookup(x))
         hdtv.options.RegisterOption(
             "database.auto_lookup", self.opt["auto_lookup"])
@@ -67,7 +70,7 @@ class Database(object):
         hdtv.options.RegisterOption("database.sort_key", self.opt["sort_key"])
 
         self.opt["sort_reverse"] = hdtv.options.Option(
-            default=False, parse=hdtv.options.ParseBool)
+            default=False, parse=hdtv.options.parse_bool)
         hdtv.options.RegisterOption(
             "database.sort_reverse", self.opt["sort_reverse"])
 
@@ -158,11 +161,10 @@ class Database(object):
         try:
             db = hdtv.database.databases[dbname.lower()]
             if self.database != db:
-                hdtv.ui.msg("open database " + dbname)
                 self.database = db()
                 if open:
                     self.database.open()
-                hdtv.ui.msg("\"" + self.database.description + "\" loaded\n")
+                hdtv.ui.msg("\"" + self.database.description + "\" loaded")
                 return True
         except KeyError:
             raise hdtv.cmdline.HDTVCommandError("No such database: " + dbname)
@@ -171,21 +173,20 @@ class Database(object):
         """
         Print info about database(s)
         """
-        hdtv.ui.newline()  # Newline
         if not args.database:
             args.database = [hdtv.options.Get("database.db")]
 
         for dbs in args.database:
             db = hdtv.database.databases[dbs.lower()]()
             try:
-                hdtv.ui.msg("Database: " + db.name)
-                hdtv.ui.msg("Description: " + db.description)
+                hdtv.ui.msg(
+                    tcolors.bold("Database") + ": " + db.name)
+                hdtv.ui.msg(
+                    tcolors.bold("Description") + ": " + db.description)
                 self.showDBfields(db)
 
             except KeyError:
                 raise hdtv.cmdline.HDTVCommandError("No such database: " + db.name)
-
-            hdtv.ui.newline()  # Newline
 
     def assureOpen(self):
         """
@@ -202,14 +203,14 @@ class Database(object):
         List available databases
         """
         for (name, db) in list(hdtv.database.databases.items()):
-            hdtv.ui.msg(name + ": " + db().description)
+            hdtv.ui.msg(tcolors.bold(name) + ": " + db().description)
 
     def showDBfields(self, db=None):
         """
         Show fields of database db. If db is None show field of current database
         """
 
-        text = "Valid fields: "
+        text = tcolors.bold("Valid fields") + ": "
         if db is None:
             db = self.database
         for key in db.fOrderedParamKeys[:-1]:

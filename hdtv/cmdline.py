@@ -54,7 +54,7 @@ class HDTVCommandError(Exception):
         return self.value
 
 class HDTVCommandAbort(Exception):
-    def __init__(self, value):
+    def __init__(self, value=""):
         self.value = value
     def __str__(self):
         return self.value
@@ -79,7 +79,7 @@ class HDTVOptionParser(argparse.ArgumentParser):
         raise HDTVCommandError(message)
 
     def exit(self, status=0, message=None):
-        if status == 0 and message:
+        if status == 0:
             raise HDTVCommandAbort(message)
         else:
             raise HDTVCommandError(message)
@@ -275,8 +275,6 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 
                 # Execute the command
                 result = node.command(args)
-
-                # Print usage if requested
             except HDTVCommandAbort as msg:
                 if msg.value:
                     hdtv.ui.error(msg.value)
@@ -288,6 +286,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                     hdtv.ui.error(str(msg))
                 if parser:
                     parser.print_usage()
+                hdtv.ui.debug(traceback.format_exc())
         return
 
     def RemoveCommand(self, title):
@@ -619,8 +618,8 @@ class CommandLine(object):
     def MainLoop(self):
         self.fKeepRunning = True
 
-        self.fPyMode = False
-        self.fPyMore = False
+        #self.fPyMode = False
+        #self.fPyMore = False
 
         readline.set_completer(self.Complete)
         readline.set_completer_delims(" \t" + os.sep)

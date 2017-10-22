@@ -251,7 +251,7 @@ class PeakModelTheuerkauf(PeakModel):
         self.fParStatus["sh"] = "none"
         self.fParStatus["sw"] = "hold"
 
-    def Uncal(self, parname, nominal_value, pos_uncal, cal):
+    def Uncal(self, parname, value, pos_uncal, cal):
         """
         Convert a value from calibrated (spectrum) to uncalibrated (fitter) units
         This is needed, when a value is hold to a specific calibrated value.

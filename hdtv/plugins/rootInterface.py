@@ -308,12 +308,9 @@ class RootFileInterface(object):
         hist = self.GetObj(path)
 
         if hist is None or not (
-            isinstance(
-                hist,
-                ROOT.TH2) or (
-                isinstance(
-                hist,
-                ROOT.THnSparse) and hist.GetNdimensions() == 2)):
+            isinstance(hist, ROOT.TH2) or (
+                isinstance(hist, ROOT.THnSparse) and
+                hist.GetNdimensions() == 2)):
             print("Error: %s is not a 2d histogram" % path)
             return None
 

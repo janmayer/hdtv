@@ -26,6 +26,8 @@ s = __main__.s
 
 @pytest.yield_fixture(autouse=True)
 def prepare():
+    hdtv.options.Set("table", "classic")
+    hdtv.options.Set("uncertainties", "short")
     for (ID, _) in dict(s.spectra.dict).items():
         s.spectra.Pop(ID)
 

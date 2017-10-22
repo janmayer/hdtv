@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import io
 import re
 import sys
@@ -14,6 +12,8 @@ import hdtv.plugins.dblookup
 
 @pytest.yield_fixture(autouse=True)
 def prepare():
+    hdtv.options.Set("table", "classic")
+    hdtv.options.Set("uncertainties", "short")
     hdtv.options.Set("database.db", "pgaalib_iki2000")
     yield
 
@@ -23,8 +23,8 @@ def test_cmd_db_info():
     with redirect_stdout(f, ferr):
         hdtv.cmdline.command_line.DoLine("db info")
     out = f.getvalue()
-    assert "Database:" in out
-    assert "Valid fields:" in out
+    assert "Database" in out
+    assert "Valid fields" in out
     assert ferr.getvalue().strip() == ""
 
 def test_cmd_db_list():
@@ -32,8 +32,8 @@ def test_cmd_db_list():
     ferr = io.StringIO()
     with redirect_stdout(f, ferr):
         hdtv.cmdline.command_line.DoLine("db list")
-    assert "promptgammas:" in f.getvalue()
-    assert "pgaalib_iki2000:" in f.getvalue()
+    assert "promptgammas" in f.getvalue()
+    assert "pgaalib_iki2000" in f.getvalue()
     assert ferr.getvalue().strip() == ""
 
 def test_cmd_db_lookup_base():
@@ -96,7 +96,6 @@ def test_cmd_db_set(db):
     f = io.StringIO()
     with redirect_stdout(f):
         hdtv.cmdline.command_line.DoLine("db set {}".format(db))
-    assert "open database {}".format(db) in f.getvalue()
     assert "loaded" in f.getvalue()
     assert hdtv.options.Get("database.db") == db
 

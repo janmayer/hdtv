@@ -35,7 +35,7 @@ class Option(object):
                  changeCallback=None):
         self.defaultValue = default
         self.value = self.defaultValue
-        self.Parse = parse
+        self.parse = parse
         self.ToStr = toStr
         self.ChangeCallback = changeCallback
 
@@ -57,7 +57,7 @@ class Option(object):
         """
         Parses rawValue and sets the variable to the result
         """
-        self.Set(self.Parse(rawValue))
+        self.Set(self.parse(rawValue))
 
     def Get(self):
         """
@@ -132,7 +132,7 @@ def Str():
     return string
 
 
-def ParseBool(x):
+def parse_bool(x):
     """
     Parse boolean options
     """
@@ -141,7 +141,16 @@ def ParseBool(x):
     elif x.lower() == "false":
         return False
     else:
-        raise ValueError
+        raise ValueError("Valid options: True, False.")
+
+def parse_choices(choices):
+    def _parse_choices(x):
+        if x in choices:
+            return x
+        else:
+            raise ValueError("Valid options: " + ", ".join(choices) + ".")
+    return _parse_choices
+
 
 
 variables = dict()

@@ -386,13 +386,14 @@ class TvMatInterface(object):
             sym = False
         else:
             # FIXME: is there really no way to test that automatically????
-            raise HDTVCommandError("Please specify if matrix is of type asym or sym")
+            raise hdtv.cmdline.HDTVCommandError("Please specify if matrix is of type asym or sym")
         self.matIf.LoadMatrix(args.filename, sym, ID=ID)
 
     def MatrixList(self, args):
         """
         Show a overview of matrices with all cuts and cut spectra
         """
+        # FIXME: Function does not exist. Use ParseIds instead?
         ids = hdtv.util.ID.ParseRange(args.matrix)
         if ids == "NONE":
             return

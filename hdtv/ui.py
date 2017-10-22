@@ -45,10 +45,9 @@ class SimpleUI(object):
         self.linesep = os.linesep
 
     def msg(self, text, newline=True):
-
         self.stdout.write(text)
 
-        if newline:
+        if newline and len(text) > 0 and text[-1] != self.linesep:
             self.stdout.write(self.linesep)
 
     def info(self, text, newline=True):
@@ -83,7 +82,7 @@ class SimpleUI(object):
         """
         Debugging output. The higher the level, the more specific is the debug message.
         """
-        self.debugout.write("DEBUG: " + text)
+        self.debugout.write(tcolors.DEBUG + "DEBUG: " + text + tcolors.ENDC)
 
         if newline:
             self.debugout.write(self.linesep)

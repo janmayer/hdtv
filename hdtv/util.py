@@ -42,32 +42,6 @@ def GetCompleteOptions(begin, options):
     l = len(begin)
     return [o + " " for o in options if o[0:l] == begin]
 
-# FIXME: remove
-# def GetCompleteOptions(text, keys):
-#    options = []
-#    l = len(text)
-#    for k in keys:
-#        if k[0:l] == text:
-#            options.append(k)
-#    return options
-
-
-## FIXME: remove
-# def compareID(a,b):
-#    try:fa = float(a)
-#    except ValueError: fa=a
-#    try: fb = float(b)
-#    except ValueError: fb=b
-#    return cmp(fa,fb)
-#
-## FIXME: remove
-# class ErrValue(hdtv.errvalue.ErrValue):
-#    def __init__(self, *args):
-#        tb = traceback.extract_stack()[-2]
-#        hdtv.ui.warn("ErrValue class has been moved to file errvalue.py!\n"
-#                     + "    (called from file \"%s\", line %d, in %s)" % (tb[0], tb[1], tb[2]))
-#        hdtv.errvalue.ErrValue.__init__(self, *args)
-
 
 class TxtFile(object):
     """
@@ -196,9 +170,15 @@ class Pairs(list):
             self.add(item1, item2)
 
 
-opt = hdtv.options.Option(default="classic")
-hdtv.options.RegisterOption("table", opt)
+opt_table = hdtv.options.Option(
+    default="modern",
+    parse=hdtv.options.parse_choices(["classic", "simple", "grid", "modern"]))
+hdtv.options.RegisterOption("table", opt_table)
 
+opt_uncertainties = hdtv.options.Option(
+    default="short",
+    parse=hdtv.options.parse_choices(["short", "long"]))
+hdtv.options.RegisterOption("uncertainties", opt_uncertainties)
 
 class Table(object):
     """
@@ -229,12 +209,27 @@ class Table(object):
             self.col_sep_char = "|"
             self.empty_field = "-"
             self.header_sep_char = "-"
+            self.header_sep_char_sorted = "~"
             self.crossing_char = "+"
-        else:
+        elif style == "simple":
             self.col_sep_char = "\t"
             self.empty_field = ""
             self.header_sep_char = ""
+            self.header_sep_char_sorted = ""
             self.crossing_char = ""
+        elif style == "grid":
+            self.col_sep_char =   '│'  
+            self.empty_field = ''
+            self.header_sep_char =   '─'  
+            self.header_sep_char_sorted =   '╌'  
+            self.crossing_char =   '┼'  
+        else: # default style 'modern'
+            self.col_sep_char = ''
+            self.empty_field = ''
+            self.header_sep_char =   '─'  
+            self.header_sep_char_sorted =   '━'  
+            self.crossing_char = ''
+
 
         self._width = 0  # Width of table
         self._col_width = list()  # width of columns
@@ -295,7 +290,7 @@ class Table(object):
                     if value is None:
                         value = ""
                     else:
-                        if self.style == "classic":
+                        if hdtv.options.Get("uncertainties") == "short":
                             value = str(value)
                         else:
                             try:
@@ -330,9 +325,8 @@ class Table(object):
         headerline = str()
         for col in range(0, len(self.header)):
             if not self._ignore_col[col]:
-                headerline += str(" " +
-                                  self.header[col] +
-                                  " ").center(self._col_width[col])
+                headerline += tcolors.bold(str(" " + self.header[col] +
+                                  " ").center(self._col_width[col]))
             if not self._ignore_col[col + 1]:
                 headerline += self.col_sep_char
         return headerline
@@ -343,7 +337,10 @@ class Table(object):
         for i in range(0, len(self._col_width)):
             if not self._ignore_col[i]:
                 for j in range(0, self._col_width[i]):
-                    header_sep_line += self.header_sep_char
+                    if self.header[i] == self.sortBy:
+                        header_sep_line += self.header_sep_char_sorted
+                    else:
+                        header_sep_line += self.header_sep_char
                 if not self._ignore_col[i + 1]:
                     header_sep_line += self.crossing_char
         return header_sep_line

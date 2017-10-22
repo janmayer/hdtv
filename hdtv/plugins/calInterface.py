@@ -91,9 +91,9 @@ class EffCalIf(object):
             #    self.spectra.dict[spectrumID].effCal = hdtv.efficiency.OrthogonalEff(pars=parameter)
             #    self.fit = True
             else:
-                raise hdtv.cmdline.HDTVCommandError("No such efficiency function %s", name)
+                raise hdtv.cmdline.HDTVCommandError("No such efficiency function %s" % name)
         except IndexError:
-            raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d", spectrumID)
+            raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d" % spectrumID)
 
     def SetPar(self, spectrumID, parameter):
         """
@@ -102,9 +102,9 @@ class EffCalIf(object):
         try:
             self.spectra.dict[spectrumID].effCal.parameter = parameter
         except IndexError:
-            raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d", spectrumID)
+            raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d" % spectrumID)
         except AttributeError:
-            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set", spectrumID)
+            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set" % spectrumID)
 
     def Assign(self, todo):
         """
@@ -119,9 +119,9 @@ class EffCalIf(object):
         try:
             self.spectra.dict[spectrumID].effCal.loadPar(filename)
         except IndexError:
-            raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d", spectrumID)
+            raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d" % spectrumID)
         except AttributeError:
-            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set", spectrumID)
+            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set" % spectrumID)
 
     def ReadCov(self, spectrumID, filename):
         """
@@ -130,9 +130,9 @@ class EffCalIf(object):
         try:
             self.spectra.dict[spectrumID].effCal.loadCov(filename)
         except IndexError:
-            raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d", spectrumID)
+            raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d" % spectrumID)
         except AttributeError:
-            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set", spectrumID)
+            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set" % spectrumID)
 
     def WritePar(self, spectrumID, filename):
         """
@@ -141,9 +141,9 @@ class EffCalIf(object):
         try:
             self.spectra.dict[spectrumID].effCal.savePar(filename)
         except IndexError:
-            raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d", spectrumID)
+            raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d" % spectrumID)
         except AttributeError:
-            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set", spectrumID)
+            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set" % spectrumID)
 
     def WriteCov(self, spectrumID, filename):
         """
@@ -152,9 +152,9 @@ class EffCalIf(object):
         try:
             self.spectra.dict[spectrumID].effCal.saveCov(filename)
         except IndexError:
-            raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d", spectrumID)
+            raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d" % spectrumID)
         except AttributeError:
-            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set", spectrumID)
+            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set" % spectrumID)
 
     def List(self, ids=None):
         """
@@ -194,7 +194,7 @@ class EffCalIf(object):
         try:
             self.spectra.dict[spectrumID].effCal.TF1.Draw()
         except AttributeError:
-            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set", spectrumID)
+            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set" % spectrumID)
 
     def Fit(self, spectrumIDs, filename, nuclides, coefficients, sigma,
             show_graph=False, fit_panel=False, show_table=False, source=None):
@@ -469,7 +469,10 @@ class EffCalHDTVInterface(object):
 
         self.opt = dict()
 
-        self.opt["eff_fun"] = hdtv.options.Option(default="wunder")
+        self.opt["eff_fun"] = hdtv.options.Option(
+            default="wunder",
+            parse=hdtv.options.parse_choices(
+                ['wunder', 'wiedenhoever', 'poly', 'exp', 'pow'])) # +orthogonal
         hdtv.options.RegisterOption(
             "calibration.efficiency.function", self.opt["eff_fun"])
 
@@ -1270,7 +1273,8 @@ class EnergyCalHDTVInterface(object):
                     raise hdtv.cmdline.HDTVCommandError(
                         "Invalid specrtumID, it has to look like '0,1'")
         else:
-            if not __main__.spectra.activeID in __main__.spectra.visible:  # check if active spectrum is visible
+            # check if active spectrum is visible
+            if not __main__.spectra.activeID in __main__.spectra.visible:
                 raise hdtv.cmdline.HDTVCommandError(
                     "Active spectrum is not visible, no action taken")
             # when no option is called the active spectrum is used

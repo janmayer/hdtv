@@ -54,7 +54,7 @@ class FitInterface(object):
 
         self.opt['display.decomp'] = hdtv.options.Option(
             default=False,
-            parse=hdtv.options.ParseBool,
+            parse=hdtv.options.parse_bool,
             changeCallback=lambda x: self.SetDecomposition(x))
         hdtv.options.RegisterOption(
             "fit.display.decomp", self.opt['display.decomp'])
@@ -212,7 +212,7 @@ class FitInterface(object):
                 reverseSort=reverseSort,
                 extra_header=result_header,
                 extra_footer=result_footer)
-            hdtv.ui.msg(str(table))
+            hdtv.ui.msg(str(table), newline=False)
         except KeyError as e:
             raise hdtv.cmdline.HDTVCommandError(
                 "Spectrum " + str(sid) + ": No such attribute: " + str(e) + '\n'
@@ -853,7 +853,7 @@ class TvFitInterface(object):
             spec = self.spectra.GetActiveObject()
             activeFit = spec.GetActiveObject()
             if activeFit is not None:
-                fit.append(activeFit)
+                fits.append(activeFit)
         else:
             for sid in sids:
                 spec = self.spectra.dict[sid]

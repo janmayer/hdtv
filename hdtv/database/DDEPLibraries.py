@@ -27,11 +27,12 @@ def SearchNuclide(nuclide):
     if nuclide == "Ra-226":
         nuclide = "Ra-226D"
 
-    try:
+    try: # Python3+
         with urllib.request.urlopen("http://www.nucleide.org/DDEP_WG/Nuclides/" + str(nuclide) + ".lara.txt") as resource:
             data = resource.read().decode("utf-8")
-    except NameError:
-        resource = urllib.urlopen("http://www.nucleide.org/DDEP_WG/Nuclides/"+str(nuclide)+".lara.txt")
+    except NameError: # Python2
+        resource = urllib.urlopen(
+            "http://www.nucleide.org/DDEP_WG/Nuclides/"+str(nuclide)+".lara.txt")
         data = resource.read().decode("utf-8")
         resource.close()
     except urllib.error.HTTPError as e:

@@ -233,7 +233,7 @@ opt = hdtv.options.Option(default=2.5)
 hdtv.options.RegisterOption("fit.peakfind.sigma", opt)
 opt = hdtv.options.Option(default=0.05)
 hdtv.options.RegisterOption("fit.peakfind.threshold", opt)
-opt = hdtv.options.Option(default=False, parse=hdtv.options.ParseBool)
+opt = hdtv.options.Option(default=False, parse=hdtv.options.parse_bool)
 hdtv.options.RegisterOption("fit.peakfind.auto_fit", opt)
 
 # Register command "fit peakfind"

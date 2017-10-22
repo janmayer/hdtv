@@ -35,9 +35,9 @@ def ConfigSet(args):
     try:
         hdtv.options.Set(args.variable, args.value)
     except KeyError:
-        print("%s: no such option" % args.variable)
-    except ValueError:
-        print("Invalid value (%s) for option %s" % (args.value, args.variable))
+        raise hdtv.cmdline.HDTVCommandAbort("%s: no such option" % args.variable)
+    except ValueError as err:
+        raise hdtv.cmdline.HDTVCommandAbort("Invalid value (%s) for option %s. %s" % (args.value, args.variable, err))
 
 
 def ConfigShow(args):
@@ -73,7 +73,7 @@ description = "Show the configuration or a single configuration variable"
 parser = hdtv.cmdline.HDTVOptionParser(
     prog=prog, description=description)
 parser.add_argument("variable", nargs='?', default=None)
-hdtv.cmdline.AddCommand(prog, ConfigShow, level=2, parser=parser,
+hdtv.cmdline.AddCommand(prog, ConfigShow, level=1, parser=parser,
     completer=ConfigVarCompleter)
 
 prog = "config reset"
@@ -81,7 +81,7 @@ description = "Reset a single configuration variable"
 parser = hdtv.cmdline.HDTVOptionParser(
     prog=prog, description=description)
 parser.add_argument("variable", nargs='?', default=None)
-hdtv.cmdline.AddCommand("config reset", ConfigReset, level=2, parser=parser,
+hdtv.cmdline.AddCommand(prog, ConfigReset, level=2, parser=parser,
     completer=ConfigVarCompleter)
 
 hdtv.ui.debug("Loaded user interface for configuration variables")

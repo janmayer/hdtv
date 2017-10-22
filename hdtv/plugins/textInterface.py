@@ -66,7 +66,7 @@ class TextInterface(hdtv.ui.SimpleUI):
         cmd = hdtv.options.Get("ui.pager.cmd")
         args = hdtv.options.Get("ui.pager.args")
 
-        ret = pydoc.tempfilepager(text, str(cmd) + " " + str(args))
+        pydoc.tempfilepager(text, str(cmd) + " " + str(args))
 
     def msg(self, text, newline=True):
         """
@@ -84,6 +84,7 @@ class TextInterface(hdtv.ui.SimpleUI):
 
     # TODO: Make this work under windows
     def _updateTerminalSize(self, signal, frame):
+        env = os.environ
         def ioctl_GWINSZ(fd):
             try:
                 import fcntl
@@ -104,14 +105,9 @@ class TextInterface(hdtv.ui.SimpleUI):
             except BaseException:
                 pass
         if not cr:
-            try:
-                cr = (env['LINES'], env['COLUMNS'])
-            except BaseException:
-                cr = (self._fallback_canvasheight, self._fallback_canvaswidth)
-
+            cr = (env.get('LINES', 25), env.get('COLUMNS', 80))
         self.canvasheight = cr[0]
         self.canvaswidth = cr[1]
-
 
 
 # initialization

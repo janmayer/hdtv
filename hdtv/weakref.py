@@ -1,4 +1,4 @@
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 #
 # This file contains a wrapper for weakref that the weak reference can
 # be used the same way the real object would be used.

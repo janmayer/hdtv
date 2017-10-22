@@ -21,6 +21,7 @@
 
 # main session of hdtv
 import copy
+import signal
 
 import hdtv.cal
 import hdtv.dlmgr
@@ -157,7 +158,7 @@ class Session(DrawableManager):
                 # full fit
                 fit.FitPeakFunc(spec)
             # show fit result
-            hdtv.ui.msg(str(fit))
+            hdtv.ui.msg(str(fit), newline=False)
             fit.Draw(self.window.viewport)
         except OverflowError as msg:
             hdtv.ui.error("Fit failed: %s" % msg)

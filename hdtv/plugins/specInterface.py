@@ -198,7 +198,7 @@ class SpecInterface(object):
             spectra.append(thisspec)
 
         table = hdtv.util.Table(spectra, params, sortBy="ID")
-        hdtv.ui.msg(str(table))
+        hdtv.ui.msg(str(table), newline=False)
 
     def CopySpectrum(self, ID, copyTo=None):
         """
@@ -704,7 +704,6 @@ class TvSpecInterface(object):
                 continue
             s += "Spectrum %s:\n" % ID
             s += hdtv.util.Indent(spec.info, "  ")
-            s += "\n"
         hdtv.ui.msg(s, newline=False)
 
     def SpectrumUpdate(self, args):
