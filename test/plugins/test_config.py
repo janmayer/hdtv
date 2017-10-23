@@ -50,7 +50,7 @@ def test_cmd_config_show_variable(variable, value):
     out = f.getvalue().strip().split("\n")
     assert len(out) == 1
     res_variable, res_value = re.search('(.*): (.*)', out[0]).groups()
-    assert res_variable == variable
+    assert variable in res_variable
     assert res_value == value
     assert ferr.getvalue().strip() == ""
 

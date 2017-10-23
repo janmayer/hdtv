@@ -23,6 +23,7 @@
 # Infrastructure for configuration variables
 #-------------------------------------------------------------------------
 
+from hdtv.color import tcolors
 
 class Option(object):
     """
@@ -107,7 +108,7 @@ def Get(varname):
 
 def Reset(varname):
     """
-    Resets the value of the variable varname to default. Raises a KeyError if it does not exist.
+    Resets value of variable varname to default. Raises KeyError if it does not exist.
     """
     global variables
     return variables[varname].Reset()
@@ -118,7 +119,7 @@ def Show(varname):
     Shows the value of the variable varname
     """
     global variables
-    return "%s: %s" % (varname, str(variables[varname]))
+    return "%s: %s" % (tcolors.bold(varname), str(variables[varname]))
 
 
 def Str():
@@ -128,7 +129,7 @@ def Str():
     global variables
     string = ""
     for (k, v) in variables.items():
-        string += "%s: %s\n" % (k, str(v))
+        string += "%s: %s\n" % (tcolors.bold(k), str(v))
     return string
 
 

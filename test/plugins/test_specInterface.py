@@ -78,11 +78,11 @@ def test_cmd_spectrum_get_repeated(specfile, num):
     assert len(s.spectra.dict) == num
 
 @pytest.mark.parametrize("pattern", [
-    "test/share/example_Co60.*"])
+    "test/share/example_Co[0-9][0-9].tv"])
 def test_cmd_spectrum_get_pattern(pattern):
     assert len(s.spectra.dict) == 0
     hdtv.cmdline.command_line.DoLine("spectrum get {}".format(pattern))
-    assert len(s.spectra.dict) == 2
+    assert len(s.spectra.dict) == 1
 
 @pytest.mark.parametrize("specfiles", [
     ["test/share/example_Co60.tv", "test/share/example_Co60.cal"]])
@@ -473,7 +473,8 @@ def test_cmd_spectrum_update(oldfile, newfile):
         assert len(s.spectra.dict) == 1
     finally:
         os.remove(testfile)
- 
+
+@pytest.mark.skip(reason="Implement in test_cal...")
 def test_cmd_spectrum_calbin():
     raise NotImplementedError()
 

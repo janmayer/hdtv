@@ -36,9 +36,13 @@ import subprocess
 import pwd
 import argparse
 import shlex
-import builtins
 import readline
 import _sitebuiltins
+
+try:
+    import builtins
+except ImportError:
+    builtins = __builtins__
 
 import hdtv.util
 from hdtv.color import tcolors

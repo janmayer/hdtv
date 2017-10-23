@@ -633,6 +633,7 @@ class EffCalHDTVInterface(object):
         parser.add_argument(
             "spectrum",
             metavar="spectrum-ids",
+            nargs='*',
             help="Spectrum IDs to list",
             default="active")
         hdtv.cmdline.AddCommand(

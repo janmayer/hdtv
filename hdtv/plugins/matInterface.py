@@ -295,7 +295,6 @@ class TvMatInterface(object):
 
         prog = "cut marker"
         description = "set/delete a marker for cutting"
-        description += "(possible types are background, region, peak)"
         parser = hdtv.cmdline.HDTVOptionParser(
             prog=prog, description=description)
         parser.add_argument(
@@ -394,6 +393,7 @@ class TvMatInterface(object):
         Show a overview of matrices with all cuts and cut spectra
         """
         # FIXME: Function does not exist. Use ParseIds instead?
+        #ids = hdtv.util.ID.ParseIds(args.matrix, self.spectra)
         ids = hdtv.util.ID.ParseRange(args.matrix)
         if ids == "NONE":
             return

@@ -228,5 +228,133 @@ def test_cmd_nuclide(nuclide):
     assert "Energy" in f.getvalue()
     assert "Intensity" in f.getvalue()
 
-# TODO: No tests for:
-# calibration position nuclide
+@pytest.mark.parametrize("specfile", [
+    "test/share/example_Co60.tv"])
+@pytest.mark.parametrize("parameters, function", [
+    ("0.1,0.2,0.3,0.4,0.5", "pow"),
+    ("0.1,0.2,0.3,0.4,0.5", "exp"),
+    ("0.1,0.2,0.3,0.4,0.5", "poly"),
+    ("0.1,0.2,0.3,0.4,0.5", "wiedenhoever"),
+    ("0.1,0.2,0.3,0.4,0.5", "wunder")])
+def test_cmd_cal_eff_set(specfile, parameters,function):
+    s.tv.specIf.LoadSpectra(specfile, None)
+    f = io.StringIO()
+    ferr = io.StringIO()
+    with redirect_stdout(f, ferr):
+        command_line.DoLine(
+            "calibration efficiency set -p {} {}".format(parameters, function))
+    assert ferr.getvalue().strip() == ""
+    assert f.getvalue().strip() == ""
+
+@pytest.mark.parametrize("specfile", [
+    "test/share/example_Co60.tv"])
+@pytest.mark.parametrize("args", [
+    "", "0", "all", "0 1", "0,1"])
+def test_cmd_cal_eff_list(specfile, args):
+    for _ in range(3):
+        s.tv.specIf.LoadSpectra(specfile, None)
+    f = io.StringIO()
+    ferr = io.StringIO()
+    with redirect_stdout(f, ferr):
+        command_line.DoLine(
+            "calibration efficiency list {}".format(args))
+    assert ferr.getvalue().strip() == ""
+    assert "Parameter" in f.getvalue()
+
+@pytest.mark.parametrize("specfile, parfile, efffunction", [(
+    "test/share/example_Co60.tv",
+    "test/share/example_Co60.par",
+    "wunder")])
+def test_cmd_cal_eff_read_par(specfile, parfile, efffunction):
+    s.tv.specIf.LoadSpectra(specfile, None)
+    command_line.DoLine(
+        "calibration efficiency set {}".format(efffunction))
+    f = io.StringIO()
+    ferr = io.StringIO()
+    with redirect_stdout(f, ferr):
+        command_line.DoLine(
+            "calibration efficiency read parameter {}".format(parfile))
+    assert ferr.getvalue().strip() == ""
+    assert f.getvalue().strip() == ""
+
+@pytest.mark.parametrize("specfile, parfile, covfile, efffunction", [(
+    "test/share/example_Co60.tv",
+    "test/share/example_Co60.par",
+    "test/share/example_Co60.cov",
+    "wunder")])
+def test_cmd_cal_eff_read_cov(specfile, parfile, covfile, efffunction):
+    s.tv.specIf.LoadSpectra(specfile, None)
+    command_line.DoLine(
+        "calibration efficiency set {}".format(efffunction))
+    command_line.DoLine(
+        "calibration efficiency read parameter {}".format(parfile))
+    f = io.StringIO()
+    ferr = io.StringIO()
+    with redirect_stdout(f, ferr):
+        command_line.DoLine(
+            "calibration efficiency read covariance {}".format(covfile))
+    assert ferr.getvalue().strip() == ""
+    assert f.getvalue().strip() == ""
+
+@pytest.mark.parametrize("specfile, parfile, covfile, efffunction", [(
+    "test/share/example_Co60.tv",
+    "test/share/example_Co60.par",
+    "test/share/example_Co60.cov",
+    "wunder")])
+def test_cmd_cal_eff_write_par(specfile, parfile, covfile, efffunction):
+    s.tv.specIf.LoadSpectra(specfile, None)
+    command_line.DoLine(
+        "calibration efficiency set {}".format(efffunction))
+    command_line.DoLine(
+        "calibration efficiency read parameter {}".format(parfile))
+    command_line.DoLine(
+        "calibration efficiency read covariance {}".format(covfile))
+    try:
+        outfile = tempfile.mkstemp(".par", "hdtv_cewptest_")[1]
+        f = io.StringIO()
+        ferr = io.StringIO()
+        with redirect_stdout(f, ferr):
+            command_line.DoLine("cal efficiency write parameter {}".format(outfile))
+        assert ferr.getvalue().strip() == ""
+        assert f.getvalue().strip() == ""
+        assert filecmp.cmp(parfile, outfile)
+    finally:
+        pass
+        #os.remove(outfile)
+
+@pytest.mark.parametrize("specfile, parfile, covfile, efffunction", [(
+    "test/share/example_Co60.tv",
+    "test/share/example_Co60.par",
+    "test/share/example_Co60.cov",
+    "wunder")])
+def test_cmd_cal_eff_write_cov(specfile, parfile, covfile, efffunction):
+    s.tv.specIf.LoadSpectra(specfile, None)
+    command_line.DoLine(
+        "calibration efficiency set {}".format(efffunction))
+    command_line.DoLine(
+        "calibration efficiency read parameter {}".format(parfile))
+    command_line.DoLine(
+        "calibration efficiency read covariance {}".format(covfile))
+    try:
+        outfile = tempfile.mkstemp(".cov", "hdtv_cewctest_")[1]
+        f = io.StringIO()
+        ferr = io.StringIO()
+        with redirect_stdout(f, ferr):
+            command_line.DoLine("cal efficiency write covariance {}".format(outfile))
+        assert ferr.getvalue().strip() == ""
+        assert f.getvalue().strip() == ""
+        assert filecmp.cmp(covfile, outfile)
+    finally:
+        os.remove(outfile)
+
+@pytest.mark.skip(reason="Sample spectrum not sufficient for test?")
+def test_cmd_cal_pos_nuclide():
+    raise NotImplementedError
+
+@pytest.mark.skip(reason="Sample spectrum not sufficient for test?")
+def test_cmd_cal_eff_fit():
+    raise NotImplementedError
+
+@pytest.mark.skip(reason="Hard to test")
+def test_cmd_cal_eff_plot():
+    raise NotImplementedError
