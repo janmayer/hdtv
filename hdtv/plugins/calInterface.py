@@ -30,7 +30,6 @@ import os
 import json
 import argparse
 import math
-from builtins import input
 
 import hdtv.efficiency
 import hdtv.cmdline
@@ -1406,7 +1405,7 @@ class EnergyCalHDTVInterface(object):
             overwrite = None
             while overwrite not in ["Y", "y", "N", "n", "", "B", "b"]:
                 question = "Do you want to replace it [y,n] or backup it [B]: "
-                overwrite = input(question)
+                overwrite = hdtv.cmdline.get_input(question)
             if overwrite in ["b", "B", ""]:
                 os.rename(fname, "%s.bak" % fname)
             elif overwrite in ["n", "N"]:

@@ -37,12 +37,12 @@ import pwd
 import argparse
 import shlex
 import readline
-import _sitebuiltins
+#import _sitebuiltins
 
 try:
     import builtins
 except ImportError:
-    builtins = __builtins__
+    import __builtin__ as builtins
 
 import hdtv.util
 from hdtv.color import tcolors
@@ -416,9 +416,22 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         return options
 
 
-class PyModeQuitter(_sitebuiltins.Quitter):
+# _sitebuiltins not available in python2
+#class PyModeQuitter(_sitebuiltins.Quitter):
+class PyModeQuitter(object):
+    def __init__(self, name, eof):
+        self.name = name
+        self.eof = eof
     def __repr__(self):
         return 'Use %s() to exit hdtv or %s to exit python and return to hdtv' % (self.name, self.eof)
+    def __call__(self, code=None):
+        # Shells like IDLE catch the SystemExit, but listen when their
+        # stdin wrapper is closed.
+        try:
+            sys.stdin.close()
+        except:
+            pass
+        raise SystemExit(code)
 
 
 class CommandLine(object):
@@ -640,7 +653,7 @@ class CommandLine(object):
 
             # Read the command
             try:
-                s = builtins.input(prompt)
+                s = get_input(prompt)
             except EOFError:
                 # Ctrl-D exits in command mode, and switches back to command mode
                 #  from Python mode
@@ -744,3 +757,9 @@ AddCommand("python", command_line.EnterPython)
 AddCommand("shell", command_line.EnterShell, level=2)
 AddCommand("exit", command_line.Exit)
 AddCommand("quit", command_line.Exit)
+
+try: # Python2
+    get_input = raw_input
+except NameError: # Python3+
+    get_input = input
+

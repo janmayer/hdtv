@@ -29,7 +29,6 @@ import hdtv.cmdline
 import hdtv.fitxml
 import hdtv.ui
 import hdtv.util
-from builtins import input
 
 
 class FitlistManager(object):
@@ -209,7 +208,7 @@ class FitlistHDTVInterface(object):
                 overwrite = None
                 while overwrite not in ["Y", "y", "N", "n", "", "B", "b"]:
                     question = "Do you want to replace it [y,n] or backup it [B]: "
-                    overwrite = input(question)
+                    overwrite = hdtv.cmdline.get_input(question)
                 if overwrite in ["b", "B", ""]:
                     os.rename(fname, "%s.bak" % fname)
                 elif overwrite in ["n", "N"]:
@@ -256,7 +255,7 @@ class FitlistHDTVInterface(object):
             overwrite = None
             while overwrite not in ["Y", "y", "N", "n", "", "B", "b"]:
                 question = "Do you want to replace it [y,n] or backup it [B]: "
-                overwrite = input(question)
+                overwrite = hdtv.cmdline.get_input(question)
             if overwrite in ["b", "B", ""]:
                 os.rename(fname, "%s.bak" % fname)
             elif overwrite in ["n", "N"]:
