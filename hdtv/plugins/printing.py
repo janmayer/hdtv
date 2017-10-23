@@ -231,21 +231,6 @@ class PrintInterface(object):
 
     def Print(self, args):
         pylab.ioff()
-        # process filename
-        try:
-            fname = os.path.expanduser(args.filename)
-            if not args.force and os.path.exists(fname):
-                hdtv.ui.warn("This file already exists:")
-                overwrite = None
-                while overwrite not in ["Y", "y", "N", "n", "", "B", "b"]:
-                    question = "Do you want to replace it [y,n] or backup it [B]: "
-                    overwrite = hdtv.cmdline.get_input(question)
-                if overwrite in ["b", "B", ""]:
-                    os.rename(fname, "%s.bak" % fname)
-                elif overwrite in ["n", "N"]:
-                    return
-        except TypeError:
-            fname = None
 
         p = PrintOut(self.spectra, args.energies)
         p.Execute()
@@ -257,17 +242,17 @@ class PrintInterface(object):
             pylab.ylabel(args.ylabel)
         if args.xlabel:
             pylab.xlabel(args.xlabel)
-        if args.legend:
+        if args.legend and len(self.spectra) > 0:
             legend = pylab.legend(prop=dict(size="x-small"))
             legend.draw_frame(False)
 
         # save finished plot to file
-        if fname:
+        if args.filename:
+            fname = hdtv.util.user_save_file(args.filename, args.force)
+            if not fname:
+                return
             pylab.ioff()
-            try:
-                pylab.savefig(fname, bbox_inches="tight")
-            except ValueError as msg:
-                hdtv.ui.error(str(msg))
+            pylab.savefig(fname, bbox_inches="tight")
         else:
             # else go to interactive mode
             pylab.ion()

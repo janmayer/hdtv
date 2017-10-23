@@ -1399,17 +1399,9 @@ class EnergyCalHDTVInterface(object):
         Write calibration list to file
         """
         text = self.EnergyCalIf.CreateCalList(self.spectra.caldict)
-        fname = args.filename
-        if not args.force and os.path.exists(fname):
-            hdtv.ui.warn("This file already exists:")
-            overwrite = None
-            while overwrite not in ["Y", "y", "N", "n", "", "B", "b"]:
-                question = "Do you want to replace it [y,n] or backup it [B]: "
-                overwrite = hdtv.cmdline.get_input(question)
-            if overwrite in ["b", "B", ""]:
-                os.rename(fname, "%s.bak" % fname)
-            elif overwrite in ["n", "N"]:
-                return
+        fname = hdtv.util.user_save_file(args.filename, args.force)
+        if not fname:
+            return
         with open(fname, "w") as calfile:
             calfile.write(text)
 

@@ -687,3 +687,41 @@ def get_prompt(prompt, sep='>', inputable=True):
             tcolors.RL_PROMPT_END_IGNORE)
     else:
         return tcolors.PROMPT + prompt + sep + " " + tcolors.ENDC
+
+def user_save_file(filename, force=False):
+    """
+    Make sure filename is not in use. Offer to backup existing file
+    unless force is True.
+    Returns filename if successful or False if aborted.
+    """
+    filename = os.path.expanduser(filename)
+    if not force and os.path.exists(filename):
+        hdtv.ui.warn('This file already exists:')
+        overwrite = None
+        while overwrite not in ['Y', 'y', 'N', 'n', 'B', 'b', '']:
+            question = "Replace [y/n] or backup [B] file? "
+            overwrite = hdtv.cmdline.get_input(question)
+        if overwrite in ['b', 'B', '']:
+            backup_file(filename)
+        elif overwrite in ['n', 'N']:
+            return False
+    return filename
+
+def backup_file(filename, bak_ext='bak'):
+    """
+    Safely backup a file, using a new filename
+    """
+    backup_name_stem = backup_name = filename + '.' + bak_ext
+    for i in count():
+        if not os.path.isfile(backup_name):
+            break
+        backup_name = backup_name_stem + '.' + i
+    os.rename(filename, backup_name)
+
+def count(index=0):
+    """
+    Count to infinity
+    """
+    while True:
+        yield index
+        index += 1

@@ -203,18 +203,9 @@ class FitlistHDTVInterface(object):
                     # overwrite spectra without asking...
                     pass
             hdtv.ui.msg("Saving fits of spectrum %d to %s" % (sid, fname))
-            if not args.force and os.path.exists(fname):
-                hdtv.ui.warn("This file already exists:")
-                overwrite = None
-                while overwrite not in ["Y", "y", "N", "n", "", "B", "b"]:
-                    question = "Do you want to replace it [y,n] or backup it [B]: "
-                    overwrite = hdtv.cmdline.get_input(question)
-                if overwrite in ["b", "B", ""]:
-                    os.rename(fname, "%s.bak" % fname)
-                elif overwrite in ["n", "N"]:
-                    return
-            # do the work
-            self.FitlistIf.WriteXML(sid, fname)
+        
+            if hdtv.util.user_save_file(fname, args.force):
+                self.FitlistIf.WriteXML(sid, fname)
 
     def FitRead(self, args):
         """
@@ -249,19 +240,8 @@ class FitlistHDTVInterface(object):
                 self.FitlistIf.ReadXML(sid, fname, refit=args.refit)
 
     def FitSavelists(self, args):
-        fname = os.path.expanduser(args.filename)
-        if not args.force and os.path.exists(fname):
-            hdtv.ui.warn("This file already exists:")
-            overwrite = None
-            while overwrite not in ["Y", "y", "N", "n", "", "B", "b"]:
-                question = "Do you want to replace it [y,n] or backup it [B]: "
-                overwrite = hdtv.cmdline.get_input(question)
-            if overwrite in ["b", "B", ""]:
-                os.rename(fname, "%s.bak" % fname)
-            elif overwrite in ["n", "N"]:
-                return
-        # do the work
-        self.FitlistIf.WriteList(fname)
+        if hdtv.util.user_save_file(args.filename, args.force):
+            self.FitlistIf.WriteList(args.filename)
 
     def FitGetlists(self, args):
         fname = glob.glob(os.path.expanduser(args.filename))
