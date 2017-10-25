@@ -280,7 +280,7 @@ $HOME/.config/hdtv/hdtv_history
 $HOME/.config/hdtv/plugins/
    Put plugins here.
 
-The config directory defaults to ``$XDG_CONFIG_CONFIG/hdtv``, which
+The config directory defaults to ``$XDG_CONFIG_HOME/hdtv``, which
 corresponds to ``$HOME/.config/hdtv`` by default. If the legacy directory
 ``$HOME/.hdtv`` exists, it is used instead. The config directory can be
 changed using the ``$HDTV_USER_PATH`` environment variable.

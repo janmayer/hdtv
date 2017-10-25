@@ -24,6 +24,7 @@
 #-------------------------------------------------------------------------
 
 from hdtv.color import tcolors
+from collections import OrderedDict
 
 class Option(object):
     """
@@ -114,6 +115,15 @@ def Reset(varname):
     return variables[varname].Reset()
 
 
+def ResetAll():
+    """
+    Resets value of all variables to default.
+    """
+    global variables
+    for (k, v) in variables.items():
+        variables[k].Reset()
+
+
 def Show(varname):
     """
     Shows the value of the variable varname
@@ -128,7 +138,8 @@ def Str():
     """
     global variables
     string = ""
-    for (k, v) in variables.items():
+    ordered_options = OrderedDict(sorted(variables.items()))
+    for (k, v) in ordered_options.items():
         string += "%s: %s\n" % (tcolors.bold(k), str(v))
     return string
 

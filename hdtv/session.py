@@ -23,6 +23,8 @@
 import copy
 import signal
 
+import ROOT
+
 import hdtv.cal
 import hdtv.dlmgr
 hdtv.dlmgr.LoadLibrary("display")
@@ -48,7 +50,7 @@ class Session(DrawableManager):
 
     def __init__(self):
         self.window = Window()
-        DrawableManager.__init__(self, viewport=self.window.viewport)
+        super(Session, self).__init__(viewport=self.window.viewport)
         # TODO: make peakModel and bgdeg configurable
         self.workFit = Fit(Fitter(peakModel="theuerkauf", bgdeg=1))
         self.workFit.active = True
@@ -308,7 +310,7 @@ class Session(DrawableManager):
             spec = self.GetActiveObject()
             if spec is not None:
                 spec.ActivateObject(None)
-        DrawableManager.ActivateObject(self, ID)
+        super(Session, self).ActivateObject(ID)
 
     def Pop(self, ID):
         """
@@ -319,13 +321,13 @@ class Session(DrawableManager):
             ID = hdtv.util.ID.ParseIds(ID, self)[0]
         if self.activeID is ID:
             self.ActivateObject(self.prevID)
-        return DrawableManager.Pop(self, ID)
+        return super(Session, self).Pop(ID)
 
     def ShowObjects(self, ids, clear=True):
         """
         Show spectra and make sure one of the visible objects is active
         """
-        ids = DrawableManager.ShowObjects(self, ids, clear)
+        ids = super(Session, self).ShowObjects(ids, clear)
         if self.activeID not in self.visible:
             if len(self.visible) > 0:
                 self.ActivateObject(max(self.visible))
@@ -337,7 +339,7 @@ class Session(DrawableManager):
         """
         Hide spectra and make sure one of the visible objects is active
         """
-        ids = DrawableManager.HideObjects(self, ids)
+        ids = super(Session, self).HideObjects(ids)
         if self.activeID not in self.visible:
             if len(self.visible) > 0:
                 self.ActivateObject(max(self.visible))
@@ -353,4 +355,4 @@ class Session(DrawableManager):
         self.workFit.active = True
         self.workFit.Draw(self.window.viewport)
         self.caldict = dict()
-        return DrawableManager.Clear(self)
+        return super(Session, self).Clear()

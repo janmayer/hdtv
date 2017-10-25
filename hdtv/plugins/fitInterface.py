@@ -497,8 +497,9 @@ class TvFitInterface(object):
             prog=prog, description=description)
         parser.add_argument(
             "fitids",
-            default=None,
-            help="id(s) of fit(s) to reactivate")
+            default=[],
+            nargs='?',
+            help="id(s) of fit(s) to reactivate. All other fits are deactivated.")
         hdtv.cmdline.AddCommand(prog, self.FitActivate, parser=parser)
 
         prog = "fit delete"

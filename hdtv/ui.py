@@ -25,9 +25,9 @@
 
 import sys
 import os
-from hdtv.color import tcolors
 
-DEBUG_LEVEL = 0
+import hdtv.options
+from hdtv.color import tcolors
 
 
 class SimpleUI(object):
@@ -112,7 +112,7 @@ def error(text, newline=True):
 
 
 def debug(text, level=1, newline=True):
-    if level > DEBUG_LEVEL:
+    if level > hdtv.options.Get('debuglevel'):
         return
     else:
         ui.debug(text, level=level, newline=newline)
@@ -120,3 +120,9 @@ def debug(text, level=1, newline=True):
 
 def newline():
     ui.newline()
+
+
+opt = hdtv.options.Option(
+    default=0,
+    parse=lambda x: int(x))
+hdtv.options.RegisterOption('debuglevel', opt)

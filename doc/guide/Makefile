@@ -8,3 +8,5 @@ all: $(MANPAGES)
 
 clean:
 	$(RM) $(MANPAGES)
+
+.PHONY: all clean
