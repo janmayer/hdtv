@@ -130,11 +130,21 @@ class Session(DrawableManager):
             hdtv.ui.error("Region not set.")
             return
 
+        if len(fit.bgMarkers) > 0:
+            if fit.fitter.bgdeg == -1:
+                hdtv.ui.error(
+                    "Background degree of -1 contradicts background fit.")
+                return
+            # pure background fit
+            fit.FitBgFunc(spec)
+
         region = [fit.regionMarkers[0].p1.pos_uncal,
                   fit.regionMarkers[0].p2.pos_uncal]
         bg = fit.fitter.bgFitter
 
-        hdtv.integral.Integrate(spec, bg, region)
+        fit.integral = hdtv.integral.Integrate(spec, bg, region)
+        fit.Draw(self.window.viewport)
+        hdtv.ui.msg(fit.print_integral())
 
     # Functions to handle workFit
     def ExecuteFit(self, peaks=True):
@@ -147,6 +157,7 @@ class Session(DrawableManager):
         if spec is None:
             hdtv.ui.error("There is no active spectrum.")
             return
+        
         fit = self.workFit
         try:
             if not peaks and len(fit.bgMarkers) > 0:
@@ -156,6 +167,11 @@ class Session(DrawableManager):
                     return
                 # pure background fit
                 fit.FitBgFunc(spec)
+            if fit.regionMarkers.IsFull():
+                region = [fit.regionMarkers[0].p1.pos_uncal,
+                          fit.regionMarkers[0].p2.pos_uncal]
+                self.integral = hdtv.integral.Integrate(
+                    spec, fit.fitter.bgFitter, region)
             if peaks:
                 # full fit
                 fit.FitPeakFunc(spec)

@@ -43,7 +43,7 @@ from hdtv.peakmodels import PeakModels
 # There is a script in the test directory, to test reading and writing for
 # some test cases, please make sure that your changes do not break those
 # test cases
-VERSION = "1.3"
+VERSION = "1.4"
 
 
 class FitXml(object):
@@ -55,7 +55,7 @@ class FitXml(object):
         self.spectra = spectra
         self.version = VERSION
         # Please point the following functions to the appropriate functions
-        self.RestoreFromXml = self.RestoreFromXml_v1_3
+        self.RestoreFromXml = self.RestoreFromXml_v1_4
         self.Xml2Fit = self.Xml2Fit_v1
 
 #### creating of xml #####################################################
@@ -69,9 +69,6 @@ class FitXml(object):
             fits = self.spectra.dict[sid].dict
         except KeyError:
             raise hdtv.cmdline.HDTVCommandError("No spectrum with id %s loaded." % sid)
-        if len(fits) == 0:
-            hdtv.ui.warn("Empty fitlist, no action taken.")
-            return
         root = self.CreateXml(fits)
         # save to file
         tree = ET.ElementTree(root)
@@ -227,6 +224,23 @@ class FitXml(object):
                         errorElement.text = str(param.std_dev)
                 except BaseException:
                     paramElement.text = str(param)
+        # FIXME: Not guaranteed to exist, fix in Key_F Fit/fit execute?
+        for integral_type, integral in fit.integral.items():
+            if integral is None:
+                continue
+            integralElement = ET.SubElement(fitElement, "integral")
+            integralElement.set("integraltype", integral_type)
+            for cal_type, cal_integral in integral.items():
+                calElement = ET.SubElement(integralElement, cal_type)
+                for name, param in cal_integral.items():
+                    if not name in ['id', 'stat', 'type']:
+                        paramElement = ET.SubElement(calElement, name)
+                        if param.nominal_value is not None:
+                            valueElement = ET.SubElement(paramElement, "value")
+                            valueElement.text = str(param.nominal_value)
+                        if param.std_dev is not None:
+                            errorElement = ET.SubElement(paramElement, "error")
+                            errorElement.text = str(param.std_dev)
         return fitElement
 
     def _indent(self, elem, level=0):
@@ -286,44 +300,7 @@ class FitXml(object):
         # <error>
         errorElement = paramElement.find("error")
         error = float(errorElement.text)
-        return ErrValue(value, error, free)
-
-    # FIXME: remove!
-    def ReadPeaks(self, root):
-        """
-        Creates a list of peaks from xml data.
-        This function reads only the peak data and ignores everything else,
-        the peak objects are independent of a specific fit or spectrum and
-        have a fixed calibration.
-        Note: This is for standalone use, it is not possible to restore fits
-        with this list.
-        """
-        peaks = list()
-        for fitElement in root.findall("fit"):
-            peakmodel = PeakModels(fitElement.get("peakModel"))
-            for peakElement in fitElement.findall("peak"):
-                # <uncal>
-                uncalElement = peakElement.find("uncal")
-                parameter = dict()
-                for paramElement in uncalElement:
-                    name = paramElement.tag
-                    parameter[name] = self._readParamElement(paramElement)
-                peak = peakmodel(cal=None, **parameter)
-                # additional parameter
-                parameter = dict()
-                # <cal>
-                for paramElement in peakElement.findall("cal"):
-                    name = paramElement.tag
-                    parameter[name] = self._readParamElement(paramElement)
-                # <more>
-                for paramElement in peakElement.findall("more"):
-                    name = paramElement.tag
-                    parameter[name] = self._readParamElement(paramElement)
-                for name in list(parameter.keys()):
-                    print(name)
-                    setattr(peak, name, parameter[name])
-                peaks.append(peak)
-        return peaks
+        return ErrValue(value, error, tag=free)
 
     def ReadFitlist(self, fname, sid=None, refit=False):
         """
@@ -350,6 +327,10 @@ class FitXml(object):
                 hdtv.ui.warn(
                     "The XML version of this file (%s) is outdated." %
                     oldversion)
+                if oldversion == "1.3":
+                    hdtv.ui.msg(
+                        "But this version should be fully compatible with the new version.")
+                    count = self.RestoreFromXml_v1_3(root, sid, refit=refit)
                 if oldversion == "1.2":
                     hdtv.ui.msg(
                         "But this version should be fully compatible with the new version.")
@@ -386,13 +367,13 @@ class FitXml(object):
             self.spectra.viewport.UnlockUpdate()
 
 #### version 1* ###############################################################
-    def RestoreFromXml_v1_3(self, root, sid, refit=False):
+    def RestoreFromXml_v1_4(self, root, sid, refit=False):
         """
-        Restores fits from xml file (version = 1.3)
+        Restores fits from xml file (version = 1.4)
 
-        Changes to version 1.2:
-        Now it is possible to store additional user supplied parameter for
-        each peak. No big change!
+        Changes to version 1.3:
+        Information about the integral over the fit region (and bg, if
+        available) are supplied. No big change!
         """
         spec = self.spectra.dict[sid]
         count = 0
@@ -404,7 +385,9 @@ class FitXml(object):
             if success and not refit:
                 try:
                     fit.Restore(spec=spec)
-                except (TypeError, IndexError):
+                except (TypeError, IndexError) as err:
+                    hdtv.ui.debug("An exception occurred while restoring the peaks")
+                    hdtv.ui.debug(err)
                     success = False
             # deal with failure
             if not success or refit:
@@ -430,6 +413,16 @@ class FitXml(object):
                 fit.Hide()
         return count
 
+    def RestoreFromXml_v1_3(self, root, sid, refit=False):
+        """
+        Restores fits from xml file (version = 1.3)
+
+        Changes to version 1.2:
+        Now it is possible to store additional user supplied parameter for
+        each peak. No big change!
+        """
+        return self.RestoreFromXml_v1_4(root, sid, refit)
+    
     def RestoreFromXml_v1_2(self, root, sid, refit=False):
         """
         Restores fits from xml file (version = 1.2)
@@ -639,6 +632,29 @@ class FitXml(object):
                 else:
                     status = statusdict[name]
                 fitter.SetParameter(name, status)
+        integrals = dict()
+        # FIXME
+        for integral in fitElement.findall('integral'):
+            integral_type = integral.get("integraltype")
+            integrals[integral_type] = dict()
+            for calElement in integral:
+                cal_type = calElement.tag
+                integrals[integral_type][cal_type] = dict()
+                for paramElement in calElement:
+                    # <value>
+                    valueElement = paramElement.find("value")
+                    value = float(valueElement.text)
+                    # <error>
+                    errorElement = paramElement.find("error")
+                    error = float(errorElement.text)
+                    coeff = ErrValue(value, error)
+                    integrals[integral_type][cal_type][paramElement.tag] = coeff
+        else:
+            integrals = None
+        for integral_type in ['sub', 'bg']:
+            if integrals and not integral_type in integrals:
+                integrals[integral_type] = None
+        fit.integral = integrals
         return (fit, success)
 
 ##### version 0.* ########################################################

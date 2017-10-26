@@ -528,6 +528,8 @@ class ID(object):
         return hash(self.major) ^ hash(self.minor)
 
     def __str__(self):
+        if self.major is None and self.minor is None:
+            return "-"
         if self.major is None:
             return "." + str(self.minor)
         if self.minor is None:

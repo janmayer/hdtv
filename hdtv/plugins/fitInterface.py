@@ -161,6 +161,44 @@ class FitInterface(object):
             fit.FitBgFunc(spec)
         hdtv.ui.msg(str(fit))
         fit.Draw(self.window.viewport)
+    
+    def ExecuteReintegrate(self, specID, fitID):
+        """
+        Re-Execute Fit on store fits
+        """
+        try:
+            spec = self.spectra.dict[specID]
+        except KeyError:
+            raise KeyError("invalid spectrum ID")
+        try:
+            fit = spec.dict[fitID]
+        except KeyError:
+            raise KeyError("invalid fit ID")
+#        if peaks:
+#            fit.FitPeakFunc(spec)
+#        else:
+#            if fit.fitter.bgdeg == -1:
+#                raise RuntimeError("background degree of -1")
+#            fit.FitBgFunc(spec)
+        if not fit.regionMarkers.IsFull():
+            hdtv.ui.error("Region not set.")
+            return
+
+        if len(fit.bgMarkers) > 0:
+            if fit.fitter.bgdeg == -1:
+                hdtv.ui.error(
+                    "Background degree of -1 contradicts background fit.")
+                return
+            # pure background fit
+            fit.FitBgFunc(spec)
+
+        region = [fit.regionMarkers[0].p1.pos_uncal,
+                  fit.regionMarkers[0].p2.pos_uncal]
+        bg = fit.fitter.bgFitter
+
+        fit.integral = hdtv.integral.Integrate(spec, bg, region)
+        hdtv.ui.msg(fit.print_integral())
+        fit.Draw(self.window.viewport)
 
     def QuickFit(self, pos=None):
         """
@@ -217,6 +255,44 @@ class FitInterface(object):
             raise hdtv.cmdline.HDTVCommandError(
                 "Spectrum " + str(sid) + ": No such attribute: " + str(e) + '\n'
                 "Spectrum " + str(sid) + ": Valid attributes are: " + str(params))
+    
+    def ListIntegrals(self, sid=None, ids=None, sortBy=None, reverseSort=False,
+            integral_type='auto'):
+        """
+        List integrals of fit regions as nice table
+        """
+        if sid is None:
+            sid = self.spectra.activeID
+        spec = self.spectra.dict[sid]
+        # if there are not fits for this spectrum, there is not much to do
+        if not spec.ids:
+            hdtv.ui.newline()
+            hdtv.ui.msg("Spectrum " + str(sid) +
+                        " (" + spec.name + "): No fits")
+            hdtv.ui.newline()
+            return
+        # create result header
+        result_header = "Integrals of fit regions in Spectrum " + \
+            str(sid) + " (" + spec.name + ")" + "\n"
+        if ids is None:
+            ids = spec.ids
+        fits = [spec.dict[ID] for ID in ids]
+        count_fits = len(fits)
+        (objects, params) = self.ExtractIntegrals(fits, integral_type)
+        
+        # create the table
+        try:
+            table = hdtv.util.Table(
+                objects,
+                params,
+                sortBy=sortBy,
+                reverseSort=reverseSort,
+                extra_header=result_header)
+            hdtv.ui.msg(str(table), newline=False)
+        except KeyError as e:
+            raise hdtv.cmdline.HDTVCommandError(
+                "Spectrum " + str(sid) + ": No such attribute: " + str(e) + '\n'
+                "Spectrum " + str(sid) + ": Valid attributes are: " + str(params))
 
     def PrintWorkFit(self):
         """
@@ -225,6 +301,15 @@ class FitInterface(object):
         fit = self.spectra.workFit
         if fit.spec is not None:
             hdtv.ui.msg(str(fit))
+    
+    def PrintWorkFitIntegral(self):
+        """
+        Print integral of workFit range as nice table
+        """
+        # TODO
+        fit = self.spectra.workFit
+        if fit.spec is not None:
+            hdtv.ui.msg(fit.print_integral())
 
     def ExtractFits(self, fits):
         """
@@ -250,6 +335,29 @@ class FitInterface(object):
             # add peaks to the list
             fitlist.extend(peaklist)
         return (fitlist, params)
+
+    def ExtractIntegrals(self, fits, integral_type='auto'):
+        """
+        Helper function for use with ListFits and PrintWorkFit functions.
+
+        Return values:
+            integrallist : a list of dicts for each integral in the fits
+            params       : a ordered list of valid parameter names
+        """
+        integrallist = list()
+        params = list()
+        # loop through fits
+        for fit in fits:
+            (integrals, integralparams) = fit.ExtractIntegralParams(integral_type)
+
+            # update list of valid params
+            for p in integralparams:
+                # do not use set operations here to keep order of params
+                if p not in params:
+                    params.append(p)
+            # add peaks to the list
+            integrallist.extend(integrals)
+        return (integrallist, params)
 
     def ShowFitterStatus(self, ids=None):
         """
@@ -437,17 +545,41 @@ class TvFitInterface(object):
         parser.add_argument(
             "-q", "--quick", action="store", default=None, type=float,
             help="set position for doing a quick fit")
-        parser.add_argument("-S", "--store", action="store_true", default=False,
-                          help="store peak after fit")
+        parser.add_argument(
+            "-S",
+            "--store",
+            action="store_true",
+            default=False,
+            help="store peak after fit")
         parser.add_argument(
             "fitids",
             default=None,
             help='id(s) of the fit(s) to (re)fit')
-        hdtv.cmdline.AddCommand(prog, self.FitExecute, level=0, parser=parser)
+        hdtv.cmdline.AddCommand(
+            prog, self.FitExecute, level=0, parser=parser)
         # the "fit execute" command is registered with level=0,
         # this allows "fit execute" to be abbreviated as "fit",
         # register all other commands starting with fit with default or higher
         # priority
+
+        prog = "fit integral execute"
+        description = "integrate over the fit region"
+        parser = hdtv.cmdline.HDTVOptionParser(
+            prog=prog, description=description)
+        parser.add_argument("-s", "--spectrum", action="store", default="active",
+            help="Spectra to work on")
+        parser.add_argument(
+            "-S",
+            "--store",
+            action="store_true",
+            default=False,
+            help="store peak after fit")
+        parser.add_argument(
+            "fitids",
+            nargs='*',
+            default=None,
+            help='id(s) of the fit(s) to (re)fit')
+        hdtv.cmdline.AddCommand(prog, self.FitIntegralExecute, parser=parser)
 
         prog = "fit marker"
         description = "set/delete a marker"
@@ -614,6 +746,45 @@ class TvFitInterface(object):
 #           help="id(s) of fit(s) to list",
 #           nargs='?')
         hdtv.cmdline.AddCommand(prog, self.FitList, parser=parser)
+        
+        prog = "fit integral list"
+        description = "list integrals of fit ranges"
+        parser = hdtv.cmdline.HDTVOptionParser(
+            prog=prog, description=description)
+        parser.add_argument(
+            "-v",
+            "--visible",
+            action="store_true",
+            default=False,
+            help="only list visible fit")
+        parser.add_argument(
+            "-k",
+            "--key-sort",
+            action="store",
+            default=hdtv.options.Get("fit.list.sort_key"),
+            help="sort by key")
+        parser.add_argument(
+            "-r",
+            "--reverse-sort",
+            action="store_true",
+            default=False,
+            help="reverse the sort")
+        parser.add_argument(
+            "-i",
+            "--integral-type",
+            default='auto',
+            help="Type of integral {auto,tot,bg,sub,all}. [Default=auto]")
+        parser.add_argument("-s", "--spectrum", action="store", default="active",
+            help="select spectra to work on")
+        parser.add_argument("-f", "--fit", action="store", default="all",
+            help="specify which fits to list")
+        # FIXME: Why use a different syntax here? --fit vs fitids
+#       parser.add_argument(
+#           "fitids",
+#           default=None,
+#           help="id(s) of fit(s) to list",
+#           nargs='?')
+        hdtv.cmdline.AddCommand(prog, self.FitIntegralList, parser=parser)
 
         prog = "fit parameter"
         description = "show status of fit parameter, reset or set parameter"
@@ -721,6 +892,45 @@ class TvFitInterface(object):
                                 (fitID, specID))
                     self.fitIf.ExecuteRefit(
                         specID=specID, fitID=fitID, peaks=doPeaks)
+                    self.fitIf.ExecuteReintegrate(
+                        specID=specID, fitID=fitID)
+                except (KeyError, RuntimeError) as e:
+                    hdtv.ui.warn(e)
+                    continue
+
+        if oldActiveID is not None:  # Reactivate spectrum that was active in the beginning
+            self.spectra.ActivateObject(ID=oldActiveID)
+        return None
+    
+    def FitIntegralExecute(self, args):
+        """
+        Execute integral over fit region
+        """
+        specIDs = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
+        if len(specIDs) == 0:
+            hdtv.ui.warn("No spectrum to work on")
+            return
+
+        # Store active spec ID before activation of other spectra
+        oldActiveID = self.spectra.activeID
+
+        for specID in specIDs:
+            self.spectra.ActivateObject(ID=specID)
+            fitIDs = hdtv.util.ID.ParseIds(
+                args.fitids, self.spectra.dict[specID])
+            if len(fitIDs) == 0:
+                self.spectra.ExecuteIntegral()
+
+                if args.store is True:   # Needed when args.quick is set for multiple spectra, else fits will be lost
+                    self.spectra.StoreFit()  # Store current fit
+
+            for fitID in fitIDs:
+                try:
+                    hdtv.ui.msg(
+                        "Executing integral for region of fit %s in spectrum %s" %
+                                (fitID, specID))
+                    self.fitIf.ExecuteReintegrate(
+                        specID=specID, fitID=fitID)
                 except (KeyError, RuntimeError) as e:
                     hdtv.ui.warn(e)
                     continue
@@ -889,6 +1099,30 @@ class TvFitInterface(object):
             self.fitIf.ListFits(sid, ids, sortBy=key_sort,
                                 reverseSort=args.reverse_sort)
 
+    def FitIntegralList(self, args):
+        """
+        Show a nice table with the results of fits
+
+        By default the result of the work fit is shown.
+        """
+        self.fitIf.PrintWorkFitIntegral()
+        sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
+        if not sids:
+            hdtv.ui.warn("No spectra chosen or active")
+            return
+        # parse sort_key
+        key_sort = args.key_sort.lower()
+        for sid in sids:
+            spec = self.spectra.dict[sid]
+            ids = hdtv.util.ID.ParseIds(args.fit, spec)
+            if args.visible:
+                ids = [ID for ID in spec.visible]
+            if not ids:
+                continue
+            self.fitIf.ListIntegrals(sid, ids, sortBy=key_sort,
+                                     reverseSort=args.reverse_sort,
+                                     integral_type=args.integral_type)
+
     def FitSetPeakModel(self, args):
         """
         Defines peak model to use for fitting
@@ -899,7 +1133,7 @@ class TvFitInterface(object):
         # check for unambiguity
         if len(models) > 1:
             raise hdtv.cmdline.HDTVCommandError("Peak model name '%s' is ambiguous" % name)
-        if len(models) == 0:
+        if not models:
             raise hdtv.cmdline.HDTVCommandError("Invalid peak model '%s'" % name)
         else:
             name = models[0].strip()

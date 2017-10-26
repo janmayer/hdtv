@@ -119,6 +119,7 @@ class FitlistHDTVInterface(object):
             help="overwrite existing files without asking")
         parser.add_argument(
             "filename",
+            nargs='?',
             default=None,
             help='''may contain %%s, %%d, %%02d (or other python
             format specifier) as placeholder for spectrum id''')
