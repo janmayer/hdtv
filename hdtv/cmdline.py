@@ -278,7 +278,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                     args = parser.parse_args(args)
 
                 # Execute the command
-                result = node.command(args)
+                node.command(args)
             except HDTVCommandAbort as msg:
                 if msg.value:
                     hdtv.ui.error(msg.value)
@@ -465,21 +465,27 @@ class CommandLine(object):
             readline.read_init_file(filename)
 
     def SetReadlineHistory(self, filename):
-        self.fReadlineHistory = filename
+        try:
+            self.fReadlineHistory = filename
 
-        readline.clear_history()
-        if os.path.isfile(self.fReadlineHistory):
+            readline.clear_history()
             readline.read_history_file(self.fReadlineHistory)
 
-        if not self.fReadlineExitHandler:
-            atexit.register(self.WriteReadlineHistory)
-            self.fReadlineExitHandler = True
+            if not self.fReadlineExitHandler:
+                atexit.register(self.WriteReadlineHistory)
+                self.fReadlineExitHandler = True
+        except PermissionError:
+            hdtv.ui.error("Could not read history file \'" + filename +
+                "\', history will be discarded.")
+        except FileNotFoundError:
+            hdtv.ui.error("Could not find history file \'" + filename +
+                "\', history will be discarded.")
 
     def WriteReadlineHistory(self):
         try:
             readline.write_history_file(self.fReadlineHistory)
-        except IOError:
-            hdtv.ui.error("Could not write \'" + self.fReadlineHistory + "\'")
+        except (IOError, PermissionError, FileNotFoundError):
+            hdtv.ui.error("Could not write history file \'" + self.fReadlineHistory + "\', history was discarded.")
             sys.exit(1)
 
     def RegisterInteractive(self, name, ref):

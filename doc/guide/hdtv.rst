@@ -271,19 +271,19 @@ $HOME/.config/hdtv/startup.py
 $HOME/.config/hdtv/startup.hdtv, $HOME/.config/hdtv/startup.hdtv.d/\*.hdtv
     Files containing HDTV commands that get executed during startup.
 
-$HOME/.config/hdtv/inputrc
-    HDTV specific customizations of the Readline command line interface. 
-
-$HOME/.config/hdtv/hdtv_history
-    History of commands executed in HDTV.
-
 $HOME/.config/hdtv/plugins/
    Put plugins here.
 
-The config directory defaults to ``$XDG_CONFIG_HOME/hdtv``, which
-corresponds to ``$HOME/.config/hdtv`` by default. If the legacy directory
-``$HOME/.hdtv`` exists, it is used instead. The config directory can be
-changed using the ``$HDTV_USER_PATH`` environment variable.
+$HOME/.config/hdtv/inputrc
+    HDTV specific customizations of the Readline command line interface. 
+
+$HOME/.local/share/hdtv/hdtv_history
+    History of commands executed in HDTV.
+
+HDTV supports the XDG Base Directory Specification, with the default paths
+listed above. If the legacy directory ``$HOME/.hdtv`` exists, it is used
+instead. It is also possible to manually set the directory using the
+``$HDTV_USER_PATH`` environment variable.
 
 BUGS
 ====

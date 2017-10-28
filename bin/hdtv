@@ -17,23 +17,37 @@ hdtv_args = sys.argv[1:]
 sys.argv = [sys.argv[0]]
 
 # Get ~/.config/hdtv directory
+datapath = None
 try:
     configpath = os.environ["HDTV_USER_PATH"]
 except KeyError:
     configpath = os.path.expanduser("~/.hdtv")
     if not os.path.isdir(configpath):
         try:
-            configpath = os.path.join(os.environ["XDG_DATA_HOME"], "hdtv")
+            configpath = os.path.join(os.environ["XDG_CONFIG_HOME"], "hdtv")
         except KeyError:
             configpath = os.path.join(os.environ["HOME"], ".config", "hdtv")
-
-if not os.access(configpath, os.W_OK):
+        try:
+            datapath = os.path.join(os.environ["XDG_DATA_HOME"], "hdtv")
+        except KeyError:
+            datapath = os.path.join(os.environ["HOME"], ".local", "share", "hdtv")
+if not datapath:
+    datapath = configpath
+for path in [datapath, configpath]:
     try:
-        os.mkdir(configpath, 0o755)
+        os.makedirs(path)
     except OSError:
-        print("Could not access config path " + configpath, file=sys.stderr)
-        print("Try setting HDTV_USER_PATH environment variable.", file=sys.stderr)
-        sys.exit(1)
+        pass
+    except PermissionError:
+        print("Could not create " + path + ".", file=sys.stderr)
+
+if not os.access(datapath, os.W_OK) and os.access(configpath, os.W_OK):
+    print("Could not access data path " + datapath +
+          ", falling back to " + configpath, file=sys.stderr)
+    datapath = configpath
+
+if not os.access(configpath, os.R_OK):
+    print("Could not access config path " + configpath, file=sys.stderr)
 
 sys.path.append(configpath)
 sys.path.append(configpath + "/plugins")
@@ -72,7 +86,7 @@ import hdtv.ui
 
 
 hdtv.cmdline.ReadReadlineInit(configpath + "/inputrc")
-hdtv.cmdline.SetReadlineHistory(configpath + "/hdtv_history")
+hdtv.cmdline.SetReadlineHistory(datapath + "/hdtv_history")
 hdtv.cmdline.SetInteractiveDict(locals())
 spectra = hdtv.session.Session()
 
