@@ -19,215 +19,152 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-##########################################################################
-# This script contains some test cases for the writing and reading of fits to XML
-# If this test work fine, one also needs to test, how thing behave after changing
-# the calibration back and forth (see test_cal.py for that).
-##########################################################################
+"""
+This script contains some test cases for the writing and reading of fits to XML
+if this test work fine, one also needs to test, how thing behave after changing
+the calibration back and forth (see test_cal.py for that).
+"""
 
 from __future__ import print_function
 
 import os
+
+import pytest
+
+from helpers.utils import setup_io, redirect_stdout
+from helpers.fixtures import temp_file
+
 import __main__
 
+import hdtv.session
+try:
+    __main__.spectra = hdtv.session.Session()
+except RuntimeError:
+    pass
 spectra = __main__.spectra
-spectra.Clear()
+
+import hdtv.plugins.specInterface
+import hdtv.plugins.fitInterface
+import hdtv.plugins.fitlist
+import hdtv.fitxml
 
 testspectrum = os.path.join(
-    __main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
-testXML = os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.xml")
+    os.path.curdir, "test", "share", "osiris_bg.spc")
 
 
-__main__.s.LoadSpectra(testspectrum)
-__main__.s.ListSpectra()
-
-print("-------------------------------------------------------------------------")
-print("case 0: all parameter free, just one peak, no background, theuerkauf model")
-print("-------------------------------------------------------------------------")
-__main__.f.SetPeakModel("theuerkauf")
-__main__.f.ResetFitterParameters()
-spectra.SetMarker("region", 1450)
-spectra.SetMarker("region", 1470)
-spectra.SetMarker("peak", 1460)
-spectra.ExecuteFit()
-spectra.window.GoToPosition(1460)
-__main__.f.PrintWorkFit()
-
-input("Press enter to continue")
-
-spectra.StoreFit()
-spectra.ClearFit()
-__main__.f.ListFits()
-input("Press enter to continue")
-
-print('Saving fits to file %s' % testXML)
-__main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
-print('Deleting all fits')
-spectra.Get(0).Clear()
-print('Reading fits from file %s' % testXML)
-__main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
-__main__.f.ListFits()
-
-input("Press enter to continue")
-
-print("-------------------------------------------------------------------------")
-print("case 1: all parameter free, just one peak, background")
-print("-------------------------------------------------------------------------")
-spectra.SetMarker("region", 500)
-spectra.SetMarker("region", 520)
-spectra.SetMarker("peak", 511)
-spectra.SetMarker("bg", 480)
-spectra.SetMarker("bg", 490)
-spectra.SetMarker("bg", 530)
-spectra.SetMarker("bg", 540)
-spectra.ExecuteFit()
-spectra.window.GoToPosition(511)
-__main__.f.PrintWorkFit()
-
-input("Press enter to continue")
-
-spectra.StoreFit()
-spectra.ClearFit()
-__main__.f.ListFits()
-input("Press enter to continue")
-
-print('Saving fits to file %s' % testXML)
-__main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
-print('Deleting all fits')
-spectra.Get(0).Clear()
-print('Reading fits from file %s' % testXML)
-__main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
-__main__.f.ListFits()
-
-input("Press enter to continue")
-
-print("-------------------------------------------------------------------------")
-print("case 2: all parameter free, more than one peak")
-print("-------------------------------------------------------------------------")
-spectra.SetMarker("region", 1395)
-spectra.SetMarker("region", 1415)
-spectra.SetMarker("peak", 1400)
-spectra.SetMarker("peak", 1410)
-spectra.SetMarker("bg", 1350)
-spectra.SetMarker("bg", 1355)
-spectra.SetMarker("bg", 1420)
-spectra.SetMarker("bg", 1425)
-spectra.ExecuteFit()
-spectra.window.GoToPosition(1405)
-__main__.f.PrintWorkFit()
-
-input("Press enter to continue")
-
-spectra.StoreFit()
-spectra.ClearFit()
-__main__.f.ListFits()
-input("Press enter to continue")
-
-print('Saving fits to file %s' % testXML)
-__main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
-print('Deleting all fits')
-spectra.Get(0).Clear()
-print('Reading fits from file %s' % testXML)
-__main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
-__main__.f.ListFits()
-
-input("Press enter to continue")
-
-print("-------------------------------------------------------------------------")
-print("case 3: one parameter status!=free, but equal for all peaks")
-print("-------------------------------------------------------------------------")
-spectra.SetMarker("region", 960)
-spectra.SetMarker("region", 975)
-spectra.SetMarker("peak", 965)
-spectra.SetMarker("peak", 970)
-spectra.SetMarker("bg", 950)
-spectra.SetMarker("bg", 955)
-spectra.SetMarker("bg", 980)
-spectra.SetMarker("bg", 985)
-__main__.f.SetFitterParameter("pos", "hold")
-spectra.ExecuteFit()
-spectra.window.GoToPosition(970)
-
-__main__.f.PrintWorkFit()
-
-input("Press enter to continue")
-
-spectra.StoreFit()
-spectra.ClearFit()
-__main__.f.ListFits()
-input("Press enter to continue")
-
-print('Saving fits to file %s' % testXML)
-__main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
-print('Deleting all fits')
-spectra.Get(0).Clear()
-print('Reading fits from file %s' % testXML)
-__main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
-__main__.f.ListFits()
-
-input("Press enter to continue")
+@pytest.fixture(autouse=True)
+def prepare(): 
+    __main__.f.ResetFitterParameters()
+    hdtv.options.Set("table", "classic")
+    hdtv.options.Set("uncertainties", "short")
+    __main__.s.LoadSpectra(testspectrum)
+    yield
+    spectra.Clear()
 
 
-print("-------------------------------------------------------------------------")
-print("case 4: different parameter status for each peak")
-print("-------------------------------------------------------------------------")
-spectra.SetMarker("region", 1750)
-spectra.SetMarker("region", 1780)
-spectra.SetMarker("peak", 1765)
-spectra.SetMarker("peak", 1770)
-spectra.SetMarker("bg", 1700)
-spectra.SetMarker("bg", 1710)
-spectra.SetMarker("bg", 1800)
-spectra.SetMarker("bg", 1810)
-__main__.f.SetFitterParameter("pos", "hold,free")
-spectra.ExecuteFit()
-spectra.window.GoToPosition(1770)
+def list_fit():
+    f, ferr = setup_io(2)
+    with redirect_stdout(f, ferr):
+        __main__.f.ListFits()
+        __main__.f.ListIntegrals()
+    assert ferr.getvalue().strip() == ''
+    return f.getvalue().strip()
 
-__main__.f.PrintWorkFit()
+def fit_write_and_save(filename):
+    spectra.ExecuteFit()
+    spectra.StoreFit()
+    spectra.ClearFit()
 
-input("Press enter to continue")
+    out_original = list_fit()
 
-spectra.StoreFit()
-spectra.ClearFit()
-__main__.f.ListFits()
-input("Press enter to continue")
+    print('Saving fits to file %s' % filename)
+    __main__.fitxml.WriteXML(spectra.Get("0").ID, filename)
+    print('Deleting all fits')
+    spectra.Get("0").Clear()
+    print('Reading fits from file %s' % filename)
+    __main__.fitxml.ReadXML(spectra.Get("0").ID, filename)
 
-print('Saving fits to file %s' % testXML)
-__main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
-print('Deleting all fits')
-spectra.Get(0).Clear()
-print('Reading fits from file %s' % testXML)
-__main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
-__main__.f.ListFits()
-
-input("Press enter to continue")
+    assert out_original == list_fit()
 
 
-print("-------------------------------------------------------------------------")
-print("case 5: ee peak (just proof of concept, not a thorough test)")
-print("-------------------------------------------------------------------------")
-__main__.f.SetPeakModel("ee")
-spectra.SetMarker("region", 1115)
-spectra.SetMarker("region", 1125)
-spectra.SetMarker("peak", 1120)
-spectra.ExecuteFit()
-spectra.window.GoToPosition(1120)
+def test_fitxml_all_free_no_bg(temp_file):
+    """
+    all parameter free, just one peak, no background, theuerkauf model
+    """
+    __main__.f.SetPeakModel("theuerkauf")
+    spectra.SetMarker("region", 1450)
+    spectra.SetMarker("region", 1470)
+    spectra.SetMarker("peak", 1460)
+    fit_write_and_save(temp_file)
 
-__main__.f.PrintWorkFit()
 
-input("Press enter to continue")
+def test_fitxml_all_free_bg(temp_file):
+    """
+    all parameter free, just one peak, background
+    """
+    spectra.SetMarker("region", 500)
+    spectra.SetMarker("region", 520)
+    spectra.SetMarker("peak", 511)
+    spectra.SetMarker("bg", 480)
+    spectra.SetMarker("bg", 490)
+    spectra.SetMarker("bg", 530)
+    spectra.SetMarker("bg", 540)
+    fit_write_and_save(temp_file)
 
-spectra.StoreFit()
-spectra.ClearFit()
-__main__.f.ListFits()
-input("Press enter to continue")
 
-print('Saving fits to file %s' % testXML)
-__main__.fitxml.WriteXML(spectra.Get(0).ID, testXML)
-print('Deleting all fits')
-spectra.Get(0).Clear()
-print('Reading fits from file %s' % testXML)
-__main__.fitxml.ReadXML(spectra.Get(0).ID, testXML)
-__main__.f.ListFits()
+def test_fitxml_all_free_multi_peak(temp_file):
+    """
+    all parameter free, more than one peak
+    """
+    spectra.SetMarker("region", 1395)
+    spectra.SetMarker("region", 1415)
+    spectra.SetMarker("peak", 1400)
+    spectra.SetMarker("peak", 1410)
+    spectra.SetMarker("bg", 1350)
+    spectra.SetMarker("bg", 1355)
+    spectra.SetMarker("bg", 1420)
+    spectra.SetMarker("bg", 1425)
+    fit_write_and_save(temp_file)
 
-input("Press enter to continue")
+
+def test_fitxml_parameter_hold(temp_file):
+    """
+    one parameter status!=free, but equal for all peaks
+    """
+    spectra.SetMarker("region", 960)
+    spectra.SetMarker("region", 975)
+    spectra.SetMarker("peak", 965)
+    spectra.SetMarker("peak", 970)
+    spectra.SetMarker("bg", 950)
+    spectra.SetMarker("bg", 955)
+    spectra.SetMarker("bg", 980)
+    spectra.SetMarker("bg", 985)
+    __main__.f.SetFitterParameter("pos", "hold")
+    fit_write_and_save(temp_file)
+
+
+def test_fitxml_parameter_multi(temp_file):
+    """
+    different parameter status for each peak
+    """
+    spectra.SetMarker("region", 1750)
+    spectra.SetMarker("region", 1780)
+    spectra.SetMarker("peak", 1765)
+    spectra.SetMarker("peak", 1770)
+    spectra.SetMarker("bg", 1700)
+    spectra.SetMarker("bg", 1710)
+    spectra.SetMarker("bg", 1800)
+    spectra.SetMarker("bg", 1810)
+    __main__.f.SetFitterParameter("pos", "hold,free")
+    fit_write_and_save(temp_file)
+
+
+def test_fitxml_eepeak(temp_file):
+    """
+    ee peak (just proof of concept, not a thorough test)
+    """
+    __main__.f.SetPeakModel("ee")
+    spectra.SetMarker("region", 1115)
+    spectra.SetMarker("region", 1125)
+    spectra.SetMarker("peak", 1120)
+    fit_write_and_save(temp_file)

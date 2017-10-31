@@ -19,92 +19,172 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-from __future__ import print_function
+import os
+
+import pytest
+
+from helpers.utils import setup_io, redirect_stdout, isclose
 
 import __main__
 
+import hdtv.session
+try:
+    __main__.spectra = hdtv.session.Session()
+except RuntimeError:
+    pass
 spectra = __main__.spectra
-spectra.Clear()
+
+import hdtv.plugins.specInterface
+import hdtv.plugins.fitInterface
+import hdtv.plugins.fitlist
 
 testspectrum = os.path.join(
-    __main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
+    os.path.curdir, "test", "share", "osiris_bg.spc")
 
-print("-------------------------------------------------------------------------")
-print("Loading 5 spectra and switch back and forth between them")
-print("-------------------------------------------------------------------------")
-
-for i in range(0, 5):
+@pytest.fixture(autouse=True)
+def prepare(): 
+    __main__.f.ResetFitterParameters()
+    hdtv.options.Set("table", "classic")
+    hdtv.options.Set("uncertainties", "short")
     __main__.s.LoadSpectra(testspectrum)
-    spectra.Get(i).cal = [0, (i + 1) * 0.5]
-__main__.s.ListSpectra()
+    for i in range(5):
+        __main__.s.LoadSpectra(testspectrum)
+        spectra.Get(str(i)).cal = [0, (i + 1) * 0.5]
+    yield
+    spectra.Clear()
 
-input("Press enter to continue ")
 
-print("Show First")
-spectra.ShowFirst()
-__main__.s.ListSpectra()
+def get_list(no_err=True):
+    f, ferr = setup_io(2)
+    with redirect_stdout(f, ferr):
+        __main__.s.ListSpectra()
+    if no_err:
+        assert ferr.getvalue().strip() == ''
+        return f.getvalue()
+    else:
+        return f.getvalue(), ferr.getvalue()
 
-input("Press enter to continue ")
 
-for i in range(0, 5):
-    print("Show Next (should be %d)" % ((i + 1) % 5))
-    spectra.ShowNext()
-    __main__.s.ListSpectra()
-    input("Press enter to continue ")
+def test_spectra_loaded():
+    res = get_list()
+    for i in range(5):
+        assert str(i) + " |    V | osiris_bg.spc |    0" in res
+    assert "5 |   AV | osiris_bg.spc |    0" in res
 
-print("Show Last")
-spectra.ShowLast()
-__main__.s.ListSpectra()
-input("Press enter to continue ")
+def test_spectra_show_first():
+    spectra.ShowFirst()
+    res = get_list()
+    assert "0 |   AV | osiris_bg.spc |    0" in res
+    for i in range(1, 6):
+        assert str(i) + " |      | osiris_bg.spc |    0" in res
 
-for i in range(0, 5):
-    print("Show Prev (should be %d)" % (4 - (i + 1) % 5))
-    spectra.ShowPrev()
-    __main__.s.ListSpectra()
-    input("Press enter to continue ")
+def test_spectra_show_next():
+    spectra.ShowFirst()
+    for i in range(1, 6):
+        spectra.ShowNext()
+        res = get_list()
+        for j in range(6):
+            if j == i:
+                assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+            else:
+                assert str(j) + ' |      | osiris_bg.spc |    0' in res
 
-print("Show 3")
-spectra.ShowObjects("3")
-__main__.s.ListSpectra()
-input("Press enter to continue ")
+def test_spectra_show_last():
+    spectra.ShowLast()
+    res = get_list()
+    for j in range(6):
+        if j == 5:
+            assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+        else:
+            assert str(j) + ' |      | osiris_bg.spc |    0' in res
 
-print("Show 1")
-spectra.ShowObjects("1")
-__main__.s.ListSpectra()
-input("Press enter to continue ")
+def test_spectra_show_prev():
+    spectra.ShowLast()
+    for i in range(4, 0, -1):
+        spectra.ShowPrev()
+        res = get_list()
+        for j in range(6):
+            if j == i:
+                assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+            else:
+                assert str(j) + ' |      | osiris_bg.spc |    0' in res
 
-print("Show All")
-spectra.ShowAll()
-__main__.s.ListSpectra()
-input("Press enter to continue ")
+def test_spectra_show_number():
+    for i in range(6):
+        spectra.ShowObjects(
+            hdtv.util.ID.ParseIds(str(i), __main__.spectra))
+        res = get_list()
+        for j in range(6):
+            if j == i:
+                assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+            else:
+                assert str(j) + ' |      | osiris_bg.spc |    0' in res
 
-print("Activate 2")
-spectra.ActivateObject("2")
-__main__.s.ListSpectra()
-input("Press enter to continue ")
+def test_spectra_show_all():
+    spectra.ShowLast()
+    spectra.ShowAll()
+    res = get_list()
+    for j in range(6):
+        if j == 5:
+            assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+        else:
+            assert str(j) + ' |    V | osiris_bg.spc |    0' in res
 
-print("Show only active")
-spectra.ShowObjects(spectra.activeID)
-__main__.s.ListSpectra()
-input("Press enter to continue ")
+def test_spectra_activate_number():
+    spectra.ShowAll()
+    for i in range(6):
+        spectra.ActivateObject(str(i))
+        res = get_list()
+        for j in range(6):
+            if j == i:
+                assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+            else:
+                assert str(j) + ' |    V | osiris_bg.spc |    0' in res
 
-print("Activate 4 (which was not visible)")
-spectra.ActivateObject("4")
-__main__.s.ListSpectra()
-input("Press enter to continue ")
+def test_spectra_show_active():
+    spectra.ShowAll()
+    spectra.ActivateObject(str(5))
+    spectra.ShowObjects(spectra.activeID)
+    res = get_list()
+    for j in range(6):
+        if j == 5:
+            assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+        else:
+            assert str(j) + ' |      | osiris_bg.spc |    0' in res
 
-print("Remove 3")
-spectra.Pop("3")
-__main__.s.ListSpectra()
-input("Press enter to continue ")
+def test_spectra_activate_hidden():
+    spectra.ShowAll()
+    spectra.ActivateObject(str(5))
+    spectra.ShowObjects(spectra.activeID)
+    spectra.ActivateObject("4")
+    res = get_list()
+    for j in range(6):
+        if j == 5:
+            assert str(j) + ' |    V | osiris_bg.spc |    0' in res
+        elif j == 4:
+            assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+        else:
+            assert str(j) + ' |      | osiris_bg.spc |    0' in res
 
-print("Reload one spectrum")
-__main__.s.LoadSpectra(testspectrum)
-__main__.s.ListSpectra()
-input("Press enter to continue ")
+def test_spectra_remove_one():
+    spectra.Pop("3")
+    res = get_list()
+    assert not '3 | ' in res
 
-for i in range(3, 10):
-    print("Show Next (should be %d)" % ((i + 1) % 5))
-    spectra.ShowNext()
-    __main__.s.ListSpectra()
-    input("Press enter to continue ")
+def test_spectra_reload_one():
+    spectra.Pop("3")
+    __main__.s.LoadSpectra(testspectrum)
+    res = get_list()
+    assert '3 |   AV' in res
+
+def test_spectra_show_next_overflow():
+    spectra.ShowObjects(
+        hdtv.util.ID.ParseIds(str(3), __main__.spectra))
+    for i in range(3, 10):
+        spectra.ShowNext()
+        res = get_list()
+        for j in range(6):
+            if j == (i + 1) % 6:
+                assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+            else:
+                assert str(j) + ' |      | osiris_bg.spc |    0' in res

@@ -1,10 +1,27 @@
 # -*- coding: utf-8 -*-
 
-import io
+# HDTV - A ROOT-based spectrum analysis software
+#  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+#
+# This file is part of HDTV.
+#
+# HDTV is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# HDTV is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with HDTV; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 import pytest
 
-from helpers.utils import redirect_stdout
+from helpers.utils import redirect_stdout, hdtvcmd
 
 import hdtv.cmdline
 import hdtv.options
@@ -78,6 +95,8 @@ cmdlist = [
     "fit getlists",
     "fit hide",
     "fit hide decomposition",
+    "fit integral list",
+    "fit integral execute",
     "fit list",
     "fit marker",
     "fit parameter",
@@ -127,19 +146,13 @@ cmdlist = [
 
 @pytest.mark.parametrize("command", cmdlist)
 def test_cmd_help(command):
-    f = io.StringIO()
-    ferr = io.StringIO()
-    with redirect_stdout(f, ferr):
-        hdtv.cmdline.command_line.DoLine("{} --help".format(command))
-    assert ferr.getvalue().strip() == ""
-    assert "usage" in f.getvalue()
-    assert "--help" in f.getvalue()
+    f, ferr = hdtvcmd("{} --help".format(command))
+    assert ferr == ""
+    assert "usage" in f
+    assert "--help" in f
 
 @pytest.mark.parametrize("command", cmdlist)
 def test_cmd_unrecognized_arg(command):
-    f = io.StringIO()
-    ferr = io.StringIO()
-    with redirect_stdout(f, ferr):
-        hdtv.cmdline.command_line.DoLine("{} --invalidarg".format(command))
-    assert "ERROR" in ferr.getvalue().strip()
-    assert "usage" in f.getvalue()
+    f, ferr = hdtvcmd("{} --invalidarg".format(command))
+    assert "ERROR" in ferr
+    assert "usage" in f

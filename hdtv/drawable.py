@@ -272,6 +272,7 @@ class DrawableManager(object):
         """
         self.activeID = None
         self._iterator = self.activeID
+        self.visible.clear()
         self.dict.clear()
 
     def GetFreeID(self):

@@ -22,32 +22,48 @@
 from __future__ import print_function
 
 import os
-import glob
+
+import pytest
+
 import __main__
 
+import hdtv.session
+try:
+    __main__.spectra = hdtv.session.Session()
+except RuntimeError:
+    pass
 spectra = __main__.spectra
-spectra.Clear()
+
+import hdtv.plugins.specInterface
+import hdtv.plugins.fitInterface
+import hdtv.plugins.fitlist
+import hdtv.fitxml
 
 testspectrum = os.path.join(
-    __main__.hdtvpath, "test", "fitxml", "osiris_bg.spc")
+    os.path.curdir, "test", "share", "osiris_bg.spc")
 
-fnames = os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg_v*.xml")
-testXMLs = sorted(glob.glob(fnames))
+test_versions = ['0.1', '1.0', '1.1', '1.3', '1.4']
+test_XMLs = [
+    os.path.join(os.path.curdir, 'test', 'share', 'osiris_bg_v' + ver + '.xml')
+    for ver in test_versions]
 
-newXML = os.path.join(__main__.hdtvpath, "test", "fitxml", "osiris_bg.xml")
+@pytest.fixture(autouse=True)
+def prepare(): 
+    __main__.f.ResetFitterParameters()
+    hdtv.options.Set("table", "classic")
+    hdtv.options.Set("uncertainties", "short")
+    __main__.s.LoadSpectra(testspectrum)
+    yield
+    spectra.Clear()
 
-__main__.s.LoadSpectra(testspectrum)
-__main__.s.ListSpectra()
 
-input("Press enter to continue\n")
-
-for testXML in testXMLs:
-    spectra.dict["0"].Clear()
-    print('Reading fits from file %s' % testXML)
-    __main__.fitxml.ReadFitlist(testXML)
+@pytest.mark.parametrize("xmlfile", [
+    *test_XMLs])
+def test_old_xml(xmlfile):
+    __main__.fitxml.ReadXML(spectra.Get("0").ID, xmlfile, refit=True, interactive=False)
     __main__.f.ListFits()
-    input("Press enter to continue\n")
 
+"""
 print('Saving fits to file %s' % newXML)
 __main__.fitxml.WriteFitlist(newXML)
 print('Deleting all fits')
@@ -55,5 +71,4 @@ __main__.spectra.dict["0"].Clear()
 print('Reading fits from file %s' % newXML)
 __main__.fitxml.ReadFitlist(newXML)
 __main__.f.ListFits()
-
-input("Press enter to continue\n")
+"""

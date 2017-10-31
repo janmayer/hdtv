@@ -48,12 +48,12 @@ class FitlistManager(object):
         self.list[name] = fname
         self.xml.WriteFitlist(fname, sid)
 
-    def ReadXML(self, sid, fname, refit=False):
+    def ReadXML(self, sid, fname, refit=False, interactive=True):
         spec = self.spectra.dict[sid]
         # remember absolut pathname for later use
         fname = os.path.abspath(fname)
         self.list[spec.name] = fname
-        self.xml.ReadFitlist(fname, sid, refit)
+        self.xml.ReadFitlist(fname, sid, refit, interactive)
 
     def WriteList(self, fname):
         lines = list()

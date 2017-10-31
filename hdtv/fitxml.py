@@ -39,10 +39,7 @@ from hdtv.peakmodels import PeakModels
 # If it is just a small change or bug fix, change the minor number.
 #
 # Do not remove old ReadFunctions!
-#
-# There is a script in the test directory, to test reading and writing for
-# some test cases, please make sure that your changes do not break those
-# test cases
+
 VERSION = "1.4"
 
 
@@ -224,7 +221,6 @@ class FitXml(object):
                         errorElement.text = str(param.std_dev)
                 except BaseException:
                     paramElement.text = str(param)
-        # FIXME: Not guaranteed to exist, fix in Key_F Fit/fit execute?
         for integral_type, integral in fit.integral.items():
             if integral is None:
                 continue
@@ -302,7 +298,7 @@ class FitXml(object):
         error = float(errorElement.text)
         return ErrValue(value, error, tag=free)
 
-    def ReadFitlist(self, fname, sid=None, refit=False):
+    def ReadFitlist(self, fname, sid=None, refit=False, interactive=True):
         """
         Reads fitlist from xml files
         """
@@ -344,7 +340,8 @@ class FitXml(object):
                         "Restoring only fits belonging to spectrum %s" % sid)
                     hdtv.ui.msg(
                         "There may be fits belonging to other spectra in this file.")
-                    input("Please press enter to continue...\n")
+                    if interactive:
+                        input("Please press enter to continue...\n")
                     count = self.RestoreFromXml_v1_0(
                         root, [sid], calibrate=False, refit=refit)
                 if oldversion.startswith("0"):
@@ -352,7 +349,8 @@ class FitXml(object):
                         "Only the fit markers have been saved in this file.")
                     hdtv.ui.msg("All the fits therefor have to be repeated.")
                     hdtv.ui.msg("This will take some time...")
-                    input("Please press enter to continue...\n")
+                    if interactive:
+                        input("Please press enter to continue...\n")
                     count = self.RestoreFromXml_v0(root, True)
         except SyntaxError as e:
             print("Error reading \'" + fname + "\':\n\t", e)
@@ -633,7 +631,6 @@ class FitXml(object):
                     status = statusdict[name]
                 fitter.SetParameter(name, status)
         integrals = dict()
-        # FIXME
         for integral in fitElement.findall('integral'):
             integral_type = integral.get("integraltype")
             integrals[integral_type] = dict()
@@ -649,7 +646,7 @@ class FitXml(object):
                     error = float(errorElement.text)
                     coeff = ErrValue(value, error)
                     integrals[integral_type][cal_type][paramElement.tag] = coeff
-        else:
+        if not integrals:
             integrals = None
         for integral_type in ['sub', 'bg']:
             if integrals and not integral_type in integrals:

@@ -19,8 +19,21 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-import sys
+import tempfile
 import os
+
 import pytest
 
-sys.path.insert(0, os.sep.join(sys.path[0].split(os.sep)[:-1]))
+
+@pytest.fixture(scope='function')
+def temp_file(request):
+    """
+    pytest fixture that provides a temporary file for writing
+    """
+    filename = tempfile.mkstemp(prefix="hdtv_")[1]
+    os.remove(filename)
+    yield filename
+    try:
+        os.remove(filename)
+    except FileNotFoundError:
+        pass

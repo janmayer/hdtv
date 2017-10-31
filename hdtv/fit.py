@@ -210,7 +210,7 @@ class Fit(Drawable):
             peakstr = ("\n".ljust(10)).join(peakstr)
             text += peakstr
             i += 1
-        text += "\n\n chi^2 of fit: %d" % self.chi
+        text += "\n\n chi² of fit: %d" % self.chi
         return text
 
     def ExtractParams(self):
@@ -279,11 +279,11 @@ class Fit(Drawable):
         integrallist = list()
         params = ["id", "stat", "type"]
         
-        if not self.integral:
-            region = [self.regionMarkers[0].p1.pos_uncal,
-                      self.regionMarkers[0].p2.pos_uncal]
-            self.integral = hdtv.integral.Integrate(
-                self.spec, self.fitter.bgFitter, region)
+        #if not self.integral:
+        #    region = [self.regionMarkers[0].p1.pos_uncal,
+        #              self.regionMarkers[0].p2.pos_uncal]
+        #    self.integral = hdtv.integral.Integrate(
+        #        self.spec, self.fitter.bgFitter, region)
         integrals = self.integral
 
         if integral_type == 'all':
@@ -299,7 +299,8 @@ class Fit(Drawable):
         for int_type, integral in integrals.items():
             if not integral or not int_type in integral_types:
                 continue
-            int_res = integral["uncal"]
+            int_res = dict(integral["uncal"])
+
             int_res["type"] = int_type
 
             if self.ID is None:
@@ -320,9 +321,10 @@ class Fit(Drawable):
             if self.spec.cal:
                 # rename pos to channel in uncal
                 int_res['channel'] = int_res.pop('pos')
-                if not "cal" in integral:
-                    integral["cal"] = hdtv.integral.calibrate_integral(
-                        integral, self.spec.cal)['cal']
+                integral.pop('cal', None)
+                # Make sure that calibration is up to date
+                integral["cal"] = hdtv.integral.calibrate_integral(
+                    integral, self.spec.cal)['cal']
                 for key, value in integral["cal"].items():
                     if key == 'vol':
                         continue

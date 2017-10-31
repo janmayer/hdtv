@@ -1,15 +1,33 @@
 # -*- coding: utf-8 -*-
 
-import io
+# HDTV - A ROOT-based spectrum analysis software
+#  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+#
+# This file is part of HDTV.
+#
+# HDTV is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# HDTV is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with HDTV; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+
 import re
 import os
 import sys
 
 import pytest
 
-from helpers.utils import redirect_stdout
+from helpers.utils import redirect_stdout, hdtvcmd
 
-from hdtv.cmdline import command_line
+import hdtv.cmdline
 import hdtv.options
 import hdtv.session
 
@@ -25,94 +43,76 @@ import hdtv.plugins.fitInterface
 import hdtv.plugins.peakfinder
 
 s = __main__.s
+spectra = __main__.spectra
 
-@pytest.yield_fixture(autouse=True)
-def prepare():
+@pytest.fixture(autouse=True)
+def prepare(): 
+    __main__.f.ResetFitterParameters()
     hdtv.options.Set("table", "classic")
     hdtv.options.Set("uncertainties", "short")
-    for (ID, _) in dict(s.spectra.dict).items():
-        s.spectra.Pop(ID)
+    spectra.Clear()
+    yield
+    spectra.Clear()
+    __main__.f.ResetFitterParameters()
+
 
 @pytest.mark.parametrize("specfile", [
     "test/share/example_Co60.tv"])
 def test_cmd_fit_various(specfile):
-    command_line.DoLine("fit function peak activate theuerkauf")
-    s.tv.specIf.LoadSpectra(specfile, None)
+    hdtvcmd("fit function peak activate theuerkauf")
+    __main__.s.LoadSpectra(specfile)
     assert len(s.spectra.dict) == 1
-    f = io.StringIO()
-    ferr = io.StringIO()
-    with redirect_stdout(f, ferr):
-        setup_fit()
-    assert f.getvalue().strip() == ""
-    assert ferr.getvalue().strip() == ""
-    f = io.StringIO()
-    ferr = io.StringIO()
-    with redirect_stdout(f, ferr):
-        command_line.DoLine("fit execute 0")
-    assert "WorkFit on spectrum: 0" in f.getvalue()
-    assert "WARNING: Non-existent id 0" in ferr.getvalue()
-    assert ".0 |" in f.getvalue()
-    assert ".1 |" in f.getvalue()
-    assert "2 peaks in WorkFit" in f.getvalue()
-    f = io.StringIO()
-    ferr = io.StringIO()
-    with redirect_stdout(f, ferr):
-        command_line.DoLine("fit store")
-    assert f.getvalue().strip() == "Storing workFit with ID 0"
-    assert ferr.getvalue().strip() == ""
-    f = io.StringIO()
-    ferr = io.StringIO()
-    with redirect_stdout(f, ferr):
-        command_line.DoLine("fit clear")
-        command_line.DoLine("fit list")
-    assert ferr.getvalue().strip() == ""
-    assert "Fits in Spectrum 0" in f.getvalue().strip()
-    f = io.StringIO()
-    ferr = io.StringIO()
-    with redirect_stdout(f, ferr):
-        command_line.DoLine("fit hide 0")
-        command_line.DoLine("fit show 0")
-        command_line.DoLine("fit show decomposition 0")
-        command_line.DoLine("fit hide decomposition 0")
-    assert ferr.getvalue().strip() == ""
-    assert f.getvalue().strip() == ""
-    f = io.StringIO()
-    ferr = io.StringIO()
-    with redirect_stdout(f, ferr):
-        command_line.DoLine("fit activate 0")
-    assert "Activating fit 0" in f.getvalue().strip()
-    assert ferr.getvalue().strip() == ""
-    f = io.StringIO()
-    ferr = io.StringIO()
-    with redirect_stdout(f, ferr):
-        command_line.DoLine("fit delete 0")
-        command_line.DoLine("fit function peak activate ee")
-    assert ferr.getvalue().strip() == ""
-    assert f.getvalue().strip() == ""
+    f, ferr = setup_fit()
+    assert f == ""
+    assert ferr == ""
+    f, ferr = hdtvcmd("fit execute 0")
+    assert "WorkFit on spectrum: 0" in f
+    assert "WARNING: Non-existent id 0" in ferr
+    assert ".0 |" in f
+    assert ".1 |" in f
+    assert "2 peaks in WorkFit" in f
+    f, ferr = hdtvcmd("fit store")
+    assert f == "Storing workFit with ID 0"
+    assert ferr == ""
+    f, ferr = hdtvcmd("fit clear", "fit list")
+    assert ferr == ""
+    assert "Fits in Spectrum 0" in f
+    f, ferr = hdtvcmd(
+        "fit hide 0",
+        "fit show 0",
+        "fit show decomposition 0",
+        "fit hide decomposition 0")
+    assert ferr == ""
+    assert f == ""
+    f, ferr = hdtvcmd("fit activate 0")
+    assert "Activating fit 0" in f
+    assert ferr == ""
+    f, ferr = hdtvcmd("fit delete 0",
+                      "fit function peak activate ee")
+    assert ferr == ""
+    assert f == ""
 
 @pytest.mark.parametrize("specfile", [
     "test/share/example_Co60.tv"])
 def test_cmd_fit_peakfind(specfile):
-    s.tv.specIf.LoadSpectra(specfile, None)
+    __main__.s.LoadSpectra(specfile)
     assert len(s.spectra.dict) == 1
-    f = io.StringIO()
-    ferr = io.StringIO()
-    with redirect_stdout(f, ferr):
-        command_line.DoLine("fit peakfind -a -t 0.005")
-    assert "Search Peaks in region" in f.getvalue()
-    assert "Found 8 peaks" in f.getvalue()
-    assert ferr.getvalue().strip() == ""
+    f, ferr = hdtvcmd("fit peakfind -a -t 0.005")
+    assert "Search Peaks in region" in f
+    assert "Found 8 peaks" in f
+    assert ferr == ""
 
 def setup_fit():
-    command_line.DoLine("fit parameter background set 2")
-    command_line.DoLine("fit marker peak set 1543")
-    command_line.DoLine("fit marker peak set 1747")
-    command_line.DoLine("fit marker background set 1400")
-    command_line.DoLine("fit marker background set 1520")
-    command_line.DoLine("fit marker background set 1760")
-    command_line.DoLine("fit marker background set 1860")
-    command_line.DoLine("fit marker region set 1520")
-    command_line.DoLine("fit marker region set 1760")
+    return hdtvcmd(
+        "fit parameter background set 2",
+        "fit marker peak set 1543",
+        "fit marker peak set 1747",
+        "fit marker background set 1400",
+        "fit marker background set 1520",
+        "fit marker background set 1760",
+        "fit marker background set 1860",
+        "fit marker region set 1520",
+        "fit marker region set 1760")
 
 
 # More tests are still needed for:

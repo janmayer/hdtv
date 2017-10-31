@@ -1,11 +1,29 @@
 # -*- coding: utf-8 -*-
 
-import io
+# HDTV - A ROOT-based spectrum analysis software
+#  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+#
+# This file is part of HDTV.
+#
+# HDTV is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# HDTV is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with HDTV; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+
 import os
 
 import pytest
 
-from helpers.utils import redirect_stdout
+from helpers.utils import redirect_stdout, hdtvcmd
 
 import hdtv.cmdline
 import hdtv.plugins.ls
@@ -19,10 +37,8 @@ def prepare(request):
     os.chdir(original_wd)
 
 def test_cmd_pwd():
-    f = io.StringIO()
-    with redirect_stdout(f):
-        hdtv.cmdline.command_line.DoLine("pwd")
-    assert f.getvalue().strip() == os.getcwd()
+    f, ferr = hdtvcmd("pwd")
+    assert f == os.getcwd()
 
 @pytest.mark.parametrize("start, cd, target", [
     ('/', '/tmp', '/tmp'),
@@ -32,13 +48,13 @@ def test_cmd_pwd():
     ('/tmp', '', os.path.expanduser("~"))])
 def test_cmd_cd(start, cd, target):
     os.chdir(start)
-    hdtv.cmdline.command_line.DoLine('cd ' + cd)
+    hdtvcmd('cd ' + cd)
     assert os.getcwd() == target
 
 def test_cmd_cd_minus():
-    hdtv.cmdline.command_line.DoLine('cd /')
-    hdtv.cmdline.command_line.DoLine('cd /tmp')
-    hdtv.cmdline.command_line.DoLine('cd -')
+    hdtvcmd('cd /')
+    hdtvcmd('cd /tmp')
+    hdtvcmd('cd -')
     assert os.getcwd() == '/'
 
 @pytest.mark.parametrize("cd, output", [
@@ -46,14 +62,10 @@ def test_cmd_cd_minus():
     ('~', os.path.expanduser("~")),
     ('/', '/')])
 def test_cmd_cd_output(cd, output):
-    f = io.StringIO()
-    with redirect_stdout(f):
-        hdtv.cmdline.command_line.DoLine('cd ' + cd)
-    assert f.getvalue().strip() == output
+    f, ferr = hdtvcmd('cd ' + cd)
+    assert f == output
 
 def test_cmd_ls():
     os.chdir(os.path.abspath(os.sep))
-    f = io.StringIO()
-    with redirect_stdout(f):
-        hdtv.cmdline.command_line.DoLine("ls")
-    assert 'tmp' in f.getvalue()
+    f, ferr = hdtvcmd("ls")
+    assert 'tmp' in f

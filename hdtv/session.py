@@ -167,11 +167,6 @@ class Session(DrawableManager):
                     return
                 # pure background fit
                 fit.FitBgFunc(spec)
-            if fit.regionMarkers.IsFull():
-                region = [fit.regionMarkers[0].p1.pos_uncal,
-                          fit.regionMarkers[0].p2.pos_uncal]
-                self.integral = hdtv.integral.Integrate(
-                    spec, fit.fitter.bgFitter, region)
             if peaks:
                 # full fit
                 fit.FitPeakFunc(spec)
@@ -180,6 +175,11 @@ class Session(DrawableManager):
             fit.Draw(self.window.viewport)
         except OverflowError as msg:
             hdtv.ui.error("Fit failed: %s" % msg)
+        if fit.regionMarkers.IsFull():
+            region = [fit.regionMarkers[0].p1.pos_uncal,
+                      fit.regionMarkers[0].p2.pos_uncal]
+            fit.integral = hdtv.integral.Integrate(
+                spec, fit.fitter.bgFitter, region)
 
     def ClearFit(self, bg_only=False):
         """

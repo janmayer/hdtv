@@ -338,7 +338,7 @@ class FitInterface(object):
 
     def ExtractIntegrals(self, fits, integral_type='auto'):
         """
-        Helper function for use with ListFits and PrintWorkFit functions.
+        Helper function for functions ListIntegrals, PrintWorkFitIntegral.
 
         Return values:
             integrallist : a list of dicts for each integral in the fits
