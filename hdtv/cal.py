@@ -18,10 +18,13 @@
 # You should have received a copy of the GNU General Public License
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
-import ROOT
-import hdtv.util
+
 import os
 from array import array
+
+import ROOT
+import hdtv.util
+from hdtv.color import tcolors
 
 
 def MakeCalibration(cal):
@@ -195,10 +198,10 @@ class CalibrationFitter:
             raise RuntimeError(
                 "No calibration available (did you call FitCal()?)")
 
-        s = "Calibration: "
+        s = tcolors.bold("Calibration") + ": "
         s += " ".join(["%.6e" % x for x in self.calib.GetCoeffs()])
         s += "\n"
-        s += "Chi^2: %.4f" % self.chi2
+        s += tcolors.bold("Chi²") + ": %.4f" % self.chi2
 
         return s
 

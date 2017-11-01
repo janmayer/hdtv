@@ -223,15 +223,22 @@ def PeakSearch(args):
         return False
 
     sid = __main__.spectra.activeID
-    
+
+    if args.sigma is None:
+        args.sigma = hdtv.options.Get("fit.peakfind.sigma")
+    if args.threshold is None:
+        args.threshold = hdtv.options.Get("fit.peakfind.threshold")
+    if args.autofit is None:
+        args.autofit = hdtv.options.Get("fit.peakfind.auto_fit")
+
     __main__.peakfinder(sid, args.sigma, args.threshold,
         args.start, args.end, args.autofit, args.reject)
 
 
 # Register configuration variables for "fit peakfind"
-opt = hdtv.options.Option(default=2.5)
+opt = hdtv.options.Option(default=2.5, parse=lambda x: float(x))
 hdtv.options.RegisterOption("fit.peakfind.sigma", opt)
-opt = hdtv.options.Option(default=0.05)
+opt = hdtv.options.Option(default=0.05, parse=lambda x: float(x))
 hdtv.options.RegisterOption("fit.peakfind.threshold", opt)
 opt = hdtv.options.Option(default=False, parse=hdtv.options.parse_bool)
 hdtv.options.RegisterOption("fit.peakfind.auto_fit", opt)
@@ -246,20 +253,20 @@ parser.add_argument(
     "--sigma",
     type=float,
     action="store",
-    default=hdtv.options.Get("fit.peakfind.sigma"),
+    default=None,
     help="FWHM of peaks")
 parser.add_argument(
     "-t",
     "--threshold",
     type=float,
     action="store",
-    default=hdtv.options.Get("fit.peakfind.threshold"),
+    default=None,
     help="Threshold of peaks to accept in fraction of the amplitude of highest peak (0. < threshold < 1.)")
 parser.add_argument(
     "-a",
     "--autofit",
     action="store_true",
-    default=hdtv.options.Get("fit.peakfind.auto_fit"),
+    default=None,
     help="automatically fit found peaks")
 parser.add_argument("-r", "--reject", action="store_true", default=False,
     help="reject fits with unreasonable values")

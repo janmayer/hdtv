@@ -727,7 +727,7 @@ class TvFitInterface(object):
             "-k",
             "--key-sort",
             action="store",
-            default=hdtv.options.Get("fit.list.sort_key"),
+            default=None,
             help="sort by key")
         parser.add_argument(
             "-r",
@@ -1088,6 +1088,8 @@ class TvFitInterface(object):
             hdtv.ui.warn("No spectra chosen or active")
             return
         # parse sort_key
+        if args.key_sort is None:
+            args.key_sort = hdtv.options.Get("fit.list.sort_key")
         key_sort = args.key_sort.lower()
         for sid in sids:
             spec = self.spectra.dict[sid]
