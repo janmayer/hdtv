@@ -613,13 +613,13 @@ class TvFitInterface(object):
         hdtv.cmdline.AddCommand(prog, self.FitClear, parser=parser)
 
         prog = "fit store"
-        description = "store the active work fit to fitlist"
+        description = "Store the current workFit"
         parser = hdtv.cmdline.HDTVOptionParser(
             prog=prog, description=description)
         parser.add_argument(
-            "fitids",
+            "fitid",
             default=None,
-            help="id(s) of fit(s) to store",
+            help="fitid to use for storage",
             nargs='?')
         hdtv.cmdline.AddCommand(prog, self.FitStore, parser=parser)
 
@@ -950,7 +950,7 @@ class TvFitInterface(object):
         Store work fit
         """
         try:
-            self.spectra.StoreFit(args.fitids)
+            self.spectra.StoreFit(args.fitid)
         except IndexError:
             return
 

@@ -231,10 +231,14 @@ class Session(DrawableManager):
         If no ID is given, the next free ID is used.
         The markers are kept in workFit, for possible re-use.
         """
+        spec = self.workFit.spec
         # for interactive use of this function
         if isinstance(ID, (str, int, float)):
-            ID = hdtv.util.ID.ParseIds(ID, self)[0]
-        spec = self.workFit.spec
+            ids = hdtv.util.ID.ParseIds(
+                ID, self.dict[self.activeID], only_existent=False)
+            if len(ids) > 1:
+                raise hdtv.cmdline.HDTVCommandError("More than one ID given")
+            ID = ids[0]
         if spec is None:
             hdtv.ui.warn("No fit available to store")
             return
