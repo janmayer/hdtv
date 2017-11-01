@@ -22,6 +22,7 @@ import ROOT
 import hdtv.color
 import hdtv.cal
 import hdtv.integral
+import hdtv.ui
 
 from hdtv.drawable import Drawable
 from hdtv.marker import MarkerCollection
@@ -364,6 +365,18 @@ class Fit(Drawable):
         for m in [self.bgMarkers, self.regionMarkers, self.peakMarkers]:
             m.FixInUncal()
 
+    def _get_background_pairs(self):
+        if self.bgMarkers.IsPending():
+            hdtv.ui.warn("Not all background regions are closed.")
+        backgrounds = Pairs()
+        for m in self.bgMarkers:
+            try:
+                backgrounds.add(m.p1.pos_uncal, m.p2.pos_uncal)
+            except AttributeError:
+                pos = m.p1.pos_cal if m.p1.pos_cal else m.p2.pos_cal
+                hdtv.ui.warn("Background region at {:.2f} without second marker was ignored".format(pos))
+        return backgrounds
+
     def FitBgFunc(self, spec):
         """
         Do the background fit and extract the function for display
@@ -371,11 +384,10 @@ class Fit(Drawable):
         """
         self.spec = spec
         self.Erase()
+        hdtv.ui.debug("Fitting background")
         # fit background
-        if len(self.bgMarkers) > 0 and not self.bgMarkers.IsPending():
-            backgrounds = Pairs()
-            for m in self.bgMarkers:
-                backgrounds.add(m.p1.pos_uncal, m.p2.pos_uncal)
+        if len(self.bgMarkers) > 0:
+            backgrounds = self._get_background_pairs()
             self.fitter.FitBackground(spec=self.spec, backgrounds=backgrounds)
             func = self.fitter.bgFitter.GetFunc()
             self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(
@@ -401,11 +413,8 @@ class Fit(Drawable):
         self.spec = spec
         self.Erase()
         # fit background
-        if self.fitter.bgdeg != - \
-                1 and len(self.bgMarkers) > 0 and not self.bgMarkers.IsPending():
-            backgrounds = Pairs()
-            for m in self.bgMarkers:
-                backgrounds.add(m.p1.pos_uncal, m.p2.pos_uncal)
+        if self.fitter.bgdeg != -1 and len(self.bgMarkers) > 0:
+            backgrounds = self._get_background_pairs()
             self.fitter.FitBackground(spec=self.spec, backgrounds=backgrounds)
         # fit peaks
         if len(self.peakMarkers) > 0 and self.regionMarkers.IsFull():

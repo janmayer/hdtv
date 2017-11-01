@@ -153,6 +153,7 @@ class Session(DrawableManager):
 
         If peaks=False, just an background fit is done, else a peak fit is done.
         """
+        hdtv.ui.debug("Executing the fit")
         spec = self.GetActiveObject()
         if spec is None:
             hdtv.ui.error("There is no active spectrum.")
