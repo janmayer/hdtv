@@ -204,7 +204,7 @@ class FitMap(object):
                 except BaseException:
                     pass
                 # start with a rather coarse search
-                tol = 5
+                tol = 7
                 enlit = [e for e in energies if e.equal(peak.pos_cal, f=tol)]
                 # and then refine it, if necessary
                 while len(enlit) > 1 and tol > 0:

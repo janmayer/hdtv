@@ -28,7 +28,7 @@ from test.helpers.utils import redirect_stdout, hdtvcmd
 import hdtv.cmdline
 import hdtv.plugins.ls
 
-@pytest.yield_fixture(autouse=True)
+@pytest.fixture(autouse=True)
 def prepare(request):
     #original_wd = os.path.abspath(os.path.join(__file__, os.pardir))
     original_wd = os.getcwd()

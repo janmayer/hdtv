@@ -48,130 +48,105 @@ import hdtv.plugins.peakfinder
 import hdtv.plugins.fitmap
 
 s = __main__.s
+spectra = __main__.spectra
 
-@pytest.yield_fixture(autouse=True)
-def prepare():
-    for (ID, _) in dict(s.spectra.dict).items():
-        s.spectra.Pop(ID)
+testspectrumfile = "osiris_bg.spc"
+testspectrum = os.path.join(
+    os.path.curdir, "test", "share", testspectrumfile)
 
-@pytest.mark.parametrize("specfile", [
-    "test/share/example_Co60.tv"])
-def test_cmd_cal_pos_set(specfile):
-    s.tv.specIf.LoadSpectra(specfile, None)
+@pytest.fixture(autouse=True)
+def prepare(): 
+    __main__.f.ResetFitterParameters()
+    hdtv.options.Set("table", "classic")
+    hdtv.options.Set("uncertainties", "short")
+    for _ in range(3):
+        __main__.s.LoadSpectra(testspectrum)
+    spectra.ActivateObject("0")
+    yield
+    spectra.Clear()
+
+def test_cmd_cal_pos_set():
     f, ferr = hdtvcmd("calibration position set 1 2")
     assert ferr == ""
     assert "Calibrated spectrum with id 0" in f
 
-@pytest.mark.parametrize("specfile", [
-    "test/share/example_Co60.tv"])
-def test_cmd_cal_pos_set_3(specfile):
-    s.tv.specIf.LoadSpectra(specfile, None)
+
+def test_cmd_cal_pos_set_3():
     f, ferr = hdtvcmd("calibration position set 1 2 0.0001")
     assert ferr == ""
     assert "Calibrated spectrum with id 0" in f
 
-@pytest.mark.parametrize("specfile", [
-    "test/share/example_Co60.tv"])
-def test_cmd_cal_pos_unset(specfile):
-    s.tv.specIf.LoadSpectra(specfile, None)
+def test_cmd_cal_pos_unset():
     hdtvcmd("calibration position set 1 2")
     f, ferr = hdtvcmd("calibration position unset")
     assert ferr == ""
     assert "Unsetting calibration of spectrum with id 0" in f
 
-@pytest.mark.parametrize("specfile", [
-    "test/share/example_Co60.tv"])
-def test_cmd_cal_pos_copy(specfile):
-    for _ in range(2):
-        s.tv.specIf.LoadSpectra(specfile, None)
+def test_cmd_cal_pos_copy():
     hdtvcmd("calibration position set 1 2 -s 0")
     f, ferr = hdtvcmd("calibration position copy 0 1")
     assert ferr == ""
     assert "Calibrated spectrum with id 1" in f
 
-@pytest.mark.parametrize("specfile", [
-    "test/share/example_Co60.tv"])
-def test_cmd_cal_pos_enter(specfile):
-    s.tv.specIf.LoadSpectra(specfile, None)
+def test_cmd_cal_pos_enter():
     f, ferr = hdtvcmd("calibration position enter 1543 1173.228(3) 1747 1332.492(4)")
     assert ferr == ""
     assert "Calibrated spectrum with id 0" in f
     assert "Chi" in f
 
-@pytest.mark.parametrize("specfile", [
-    "test/share/example_Co60.tv"])
-def test_cmd_cal_pos_enter_underdefined(specfile):
-    s.tv.specIf.LoadSpectra(specfile, None)
+def test_cmd_cal_pos_enter_underdefined():
     f, ferr = hdtvcmd("calibration position enter -d 2 1543 1173.228(3) 1747 1332.492(4)")
     assert "usage" in f
     assert "You must specify at least" in ferr
 
-@pytest.mark.parametrize("specfile", [
-    "test/share/example_Co60.tv"])
-def test_cmd_cal_pos_enter_deg2(specfile):
-    s.tv.specIf.LoadSpectra(specfile, None)
+def test_cmd_cal_pos_enter_deg2():
     f, ferr = hdtvcmd(
             "calibration position enter -d 2 1543 1173.228(3) 1747 1332.492(4) 3428 2614.5")
     assert ferr == ""
     assert "Calibrated spectrum with id 0" in f
 
-@pytest.mark.parametrize("specfile", [
-    "test/share/example_Co60.tv"])
-def test_cmd_cal_pos_enter_table(specfile):
-    s.tv.specIf.LoadSpectra(specfile, None)
+def test_cmd_cal_pos_enter_table():
     f, ferr = hdtvcmd("calibration position enter -t 1543 1173.228(3) 1747 1332.492(4)")
     assert ferr == ""
     assert "Residual" in f
 
-@pytest.mark.parametrize("specfile", [
-    "test/share/example_Co60.tv"])
-def test_cmd_cal_pos_assign(specfile):
-    s.tv.specIf.LoadSpectra(specfile, None)
+def test_cmd_cal_pos_assign():
     hdtvcmd("fit peakfind -a -t 0.005")
     f, ferr = hdtvcmd("cal position assign 3.0 1173.228(3) 5.0 1332.492(4)")
     assert ferr == ""
     assert "Calibrated spectrum with id 0" in f
 
-@pytest.mark.parametrize("specfile", [
-    "test/share/example_Co60.tv"])
-def test_cmd_cal_pos_list(specfile):
-    s.tv.specIf.LoadSpectra(specfile, None)
+def test_cmd_cal_pos_list():
     hdtvcmd("cal pos set 1 2")
     f, ferr = hdtvcmd("cal position list")
     assert ferr == ""
-    assert "example_Co60.tv: 1.0   2.0" in f
+    assert testspectrumfile + ": 1.0   2.0" in f
 
-@pytest.mark.parametrize("specfile, callistfile", [
-    ("test/share/example_Co60.tv", "test/share/callist.cal")])
-def test_cmd_cal_pos_list_read(specfile, callistfile):
-    s.tv.specIf.LoadSpectra(specfile, None)
+@pytest.mark.parametrize("callistfile", [
+    "test/share/callist.cal"])
+def test_cmd_cal_pos_list_read(callistfile):
     f, ferr = hdtvcmd("cal position list read {}".format(callistfile))
     assert ferr == ""
     assert "Calibrated spectrum with id 0" in f
 
-@pytest.mark.parametrize("specfile, callistfile", [
-    ("test/share/example_Co60.tv", "test/share/callist.cal")])
-def test_cmd_cal_pos_list_clear(specfile, callistfile):
-    s.tv.specIf.LoadSpectra(specfile, None)
+@pytest.mark.parametrize("callistfile", [
+    "test/share/callist.cal"])
+def test_cmd_cal_pos_list_clear(callistfile):
     hdtvcmd("cal position list read {}".format(callistfile))
     f, ferr = hdtvcmd("cal position list clear")
     assert ferr == ""
     assert "Unsetting calibration of spectrum with id 0" in f
 
-@pytest.mark.parametrize("specfile, callistfile", [
-    ("test/share/example_Co60.tv", "test/share/callist.cal")])
-def test_cmd_cal_pos_list_write(specfile, callistfile, temp_file):
-    s.tv.specIf.LoadSpectra(specfile, None)
+@pytest.mark.parametrize("callistfile", [
+    "test/share/callist.cal"])
+def test_cmd_cal_pos_list_write(callistfile, temp_file):
     hdtvcmd("cal position list read {}".format(callistfile))
     f, ferr = hdtvcmd("cal position list write -F {}".format(temp_file))
     assert ferr == ""
     assert f == ""
     assert filecmp.cmp(callistfile, temp_file)
 
-@pytest.mark.parametrize("specfile", [
-    "test/share/example_Co60.tv"])
-def test_cmd_cal_pos_recalibrate(specfile):
-    s.tv.specIf.LoadSpectra(specfile, None)
+def test_cmd_cal_pos_recalibrate():
     hdtvcmd("fit peakfind -a -t 0.005")
     hdtvcmd("fit position assign 3.0 1173.228(3) 5.0 1332.492(4)")
     f, ferr = hdtvcmd("calibration position recalibrate")
@@ -179,10 +154,9 @@ def test_cmd_cal_pos_recalibrate(specfile):
     assert "Calibrated spectrum with id 0" in f
     assert "Chi" in f
 
-@pytest.mark.parametrize("specfile, calfile", [
-    ("test/share/example_Co60.tv", "test/share/example_Co60.cal")])
-def test_cmd_cal_pos_read(specfile, calfile):
-    s.tv.specIf.LoadSpectra(specfile, None)
+@pytest.mark.parametrize("calfile", [
+    "test/share/osiris_bg.cal"])
+def test_cmd_cal_pos_read(calfile):
     f, ferr = hdtvcmd("calibration position read {}".format(calfile))
     assert ferr == ""
     assert "Calibrated spectrum with id 0" in f
@@ -196,39 +170,30 @@ def test_cmd_nuclide(nuclide):
     assert "Energy" in f
     assert "Intensity" in f
 
-@pytest.mark.parametrize("specfile", [
-    "test/share/example_Co60.tv"])
 @pytest.mark.parametrize("parameters, function", [
     ("0.1,0.2,0.3,0.4,0.5", "pow"),
     ("0.1,0.2,0.3,0.4,0.5", "exp"),
     ("0.1,0.2,0.3,0.4,0.5", "poly"),
     ("0.1,0.2,0.3,0.4,0.5", "wiedenhoever"),
     ("0.1,0.2,0.3,0.4,0.5", "wunder")])
-def test_cmd_cal_eff_set(specfile, parameters,function):
-    s.tv.specIf.LoadSpectra(specfile, None)
+def test_cmd_cal_eff_set(parameters,function):
     f, ferr = hdtvcmd(
             "calibration efficiency set -p {} {}".format(parameters, function))
     assert ferr == ""
     assert f == ""
 
-@pytest.mark.parametrize("specfile", [
-    "test/share/example_Co60.tv"])
 @pytest.mark.parametrize("args", [
     "", "0", "all", "0 1", "0,1"])
-def test_cmd_cal_eff_list(specfile, args):
-    for _ in range(3):
-        s.tv.specIf.LoadSpectra(specfile, None)
+def test_cmd_cal_eff_list(args):
     f, ferr = hdtvcmd(
             "calibration efficiency list {}".format(args))
     assert ferr == ""
     assert "Parameter" in f
 
-@pytest.mark.parametrize("specfile, parfile, efffunction", [(
-    "test/share/example_Co60.tv",
-    "test/share/example_Co60.par",
+@pytest.mark.parametrize("parfile, efffunction", [(
+    "test/share/osiris_bg.par",
     "wunder")])
-def test_cmd_cal_eff_read_par(specfile, parfile, efffunction):
-    s.tv.specIf.LoadSpectra(specfile, None)
+def test_cmd_cal_eff_read_par(parfile, efffunction):
     hdtvcmd(
         "calibration efficiency set {}".format(efffunction))
     f, ferr = hdtvcmd(
@@ -236,13 +201,11 @@ def test_cmd_cal_eff_read_par(specfile, parfile, efffunction):
     assert ferr == ""
     assert f == ""
 
-@pytest.mark.parametrize("specfile, parfile, covfile, efffunction", [(
-    "test/share/example_Co60.tv",
-    "test/share/example_Co60.par",
-    "test/share/example_Co60.cov",
+@pytest.mark.parametrize("parfile, covfile, efffunction", [(
+    "test/share/osiris_bg.par",
+    "test/share/osiris_bg.cov",
     "wunder")])
-def test_cmd_cal_eff_read_cov(specfile, parfile, covfile, efffunction):
-    s.tv.specIf.LoadSpectra(specfile, None)
+def test_cmd_cal_eff_read_cov(parfile, covfile, efffunction):
     hdtvcmd(
         "calibration efficiency set {}".format(efffunction))
     hdtvcmd(
@@ -252,13 +215,11 @@ def test_cmd_cal_eff_read_cov(specfile, parfile, covfile, efffunction):
     assert ferr == ""
     assert f == ""
 
-@pytest.mark.parametrize("specfile, parfile, covfile, efffunction", [(
-    "test/share/example_Co60.tv",
-    "test/share/example_Co60.par",
-    "test/share/example_Co60.cov",
+@pytest.mark.parametrize("parfile, covfile, efffunction", [(
+    "test/share/osiris_bg.par",
+    "test/share/osiris_bg.cov",
     "wunder")])
-def test_cmd_cal_eff_write_par(specfile, parfile, covfile, efffunction, temp_file):
-    s.tv.specIf.LoadSpectra(specfile, None)
+def test_cmd_cal_eff_write_par(parfile, covfile, efffunction, temp_file):
     hdtvcmd(
         "calibration efficiency set {}".format(efffunction))
     hdtvcmd(
@@ -270,13 +231,11 @@ def test_cmd_cal_eff_write_par(specfile, parfile, covfile, efffunction, temp_fil
     assert f == ""
     assert filecmp.cmp(parfile, temp_file)
 
-@pytest.mark.parametrize("specfile, parfile, covfile, efffunction", [(
-    "test/share/example_Co60.tv",
-    "test/share/example_Co60.par",
-    "test/share/example_Co60.cov",
+@pytest.mark.parametrize("parfile, covfile, efffunction", [(
+    "test/share/osiris_bg.par",
+    "test/share/osiris_bg.cov",
     "wunder")])
-def test_cmd_cal_eff_write_cov(specfile, parfile, covfile, efffunction, temp_file):
-    s.tv.specIf.LoadSpectra(specfile, None)
+def test_cmd_cal_eff_write_cov(parfile, covfile, efffunction, temp_file):
     hdtvcmd(
         "calibration efficiency set {}".format(efffunction))
     hdtvcmd(

@@ -39,13 +39,15 @@ import hdtv.plugins.specInterface
 import hdtv.plugins.matInterface
 
 s = __main__.s
+spectra = __main__.spectra
 
-@pytest.yield_fixture(autouse=True)
-def prepare():
+@pytest.fixture(autouse=True)
+def prepare(): 
     hdtv.options.Set("table", "classic")
     hdtv.options.Set("uncertainties", "short")
-    for (ID, _) in dict(s.spectra.dict).items():
-        s.spectra.Pop(ID)
+    spectra.Clear()
+    yield
+    spectra.Clear()
 
 @pytest.mark.skip(reason="need example matrix")
 def test_cmd_matrix_get_sym(matrix):

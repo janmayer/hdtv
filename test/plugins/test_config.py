@@ -32,7 +32,7 @@ import hdtv.plugins.config
 # populate with a few options
 import hdtv.plugins.dblookup
 
-@pytest.yield_fixture(autouse=True)
+@pytest.fixture(autouse=True)
 def prepare():
     for variable in [
         "table", 

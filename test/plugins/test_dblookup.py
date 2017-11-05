@@ -30,7 +30,7 @@ import hdtv.cmdline
 import hdtv.options
 import hdtv.plugins.dblookup
 
-@pytest.yield_fixture(autouse=True)
+@pytest.fixture(autouse=True)
 def prepare():
     hdtv.options.Set("table", "classic")
     hdtv.options.Set("uncertainties", "short")

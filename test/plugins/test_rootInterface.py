@@ -40,7 +40,7 @@ except RuntimeError:
 
 import hdtv.plugins.rootInterface
 
-@pytest.yield_fixture(autouse=True)
+@pytest.fixture(autouse=True)
 def prepare(request):
     #original_wd = os.path.abspath(os.path.join(__file__, os.pardir))
     original_wd = os.getcwd()

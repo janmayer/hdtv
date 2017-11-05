@@ -19,6 +19,8 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
+import os
+
 import pytest
 
 from test.helpers.utils import redirect_stdout, hdtvcmd
@@ -42,27 +44,28 @@ import hdtv.plugins.peakfinder
 import hdtv.plugins.fitmap
 
 s = __main__.s
+spectra = __main__.spectra
 
-@pytest.yield_fixture(autouse=True)
-def prepare():
-    for (ID, _) in dict(s.spectra.dict).items():
-        s.spectra.Pop(ID)
+testspectrum = os.path.join(
+    os.path.curdir, "test", "share", "osiris_bg.spc")
 
-@pytest.mark.parametrize("specfile", [
-    "test/share/example_Co60.tv"])
-def test_cmd_fit_position(specfile):
-    s.tv.specIf.LoadSpectra(specfile, None)
-    hdtvcmd("fit peakfind -a -t 0.005")
+@pytest.fixture(autouse=True)
+def prepare(): 
+    spectra.Clear()
+    yield
+    spectra.Clear()
+
+def test_cmd_fit_position():
+    s.tv.specIf.LoadSpectra(testspectrum, None)
+    hdtvcmd("fit peakfind -a -t 0.05")
     f, ferr = hdtvcmd(
-        "fit position assign 3.0 1173.228(3) 5.0 1332.492(4)",
-        "fit position erase 3.0 5.0")
+        "fit position assign 10.0 1173.228(3) 12.0 1332.492(4)",
+        "fit position erase 10.0 12.0")
     assert ferr == ""
 
-@pytest.mark.parametrize("specfile", [
-    "test/share/example_Co60.tv"])
-def test_cmd_fit_position_map(specfile):
-    s.tv.specIf.LoadSpectra(specfile, None)
-    hdtvcmd("fit peakfind -a -t 0.005")
-    f, ferr = hdtvcmd("fit position map test/share/example_Co60.map")
+def test_cmd_fit_position_map():
+    s.tv.specIf.LoadSpectra(testspectrum, None)
+    hdtvcmd("fit peakfind -a -t 0.002")
+    f, ferr = hdtvcmd("fit position map test/share/osiris_bg.map")
     assert ferr == ""
-    assert "Mapped 2 energies to peaks" in f
+    assert "Mapped 3 energies to peaks" in f

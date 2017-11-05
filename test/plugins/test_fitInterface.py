@@ -45,6 +45,9 @@ import hdtv.plugins.peakfinder
 s = __main__.s
 spectra = __main__.spectra
 
+testspectrum = os.path.join(
+    os.path.curdir, "test", "share", "osiris_bg.spc")
+
 @pytest.fixture(autouse=True)
 def prepare(): 
     __main__.f.ResetFitterParameters()
@@ -55,12 +58,9 @@ def prepare():
     spectra.Clear()
     __main__.f.ResetFitterParameters()
 
-
-@pytest.mark.parametrize("specfile", [
-    "test/share/example_Co60.tv"])
-def test_cmd_fit_various(specfile):
+def test_cmd_fit_various():
     hdtvcmd("fit function peak activate theuerkauf")
-    __main__.s.LoadSpectra(specfile)
+    __main__.s.LoadSpectra(testspectrum)
     assert len(s.spectra.dict) == 1
     f, ferr = setup_fit()
     assert f == ""
@@ -92,27 +92,25 @@ def test_cmd_fit_various(specfile):
     assert ferr == ""
     assert f == ""
 
-@pytest.mark.parametrize("specfile", [
-    "test/share/example_Co60.tv"])
-def test_cmd_fit_peakfind(specfile):
-    __main__.s.LoadSpectra(specfile)
+def test_cmd_fit_peakfind():
+    __main__.s.LoadSpectra(testspectrum)
     assert len(s.spectra.dict) == 1
-    f, ferr = hdtvcmd("fit peakfind -a -t 0.005")
+    f, ferr = hdtvcmd("fit peakfind -a -t 0.002")
     assert "Search Peaks in region" in f
-    assert "Found 8 peaks" in f
+    assert "Found 68 peaks" in f
     assert ferr == ""
 
 def setup_fit():
     return hdtvcmd(
         "fit parameter background set 2",
-        "fit marker peak set 1543",
-        "fit marker peak set 1747",
-        "fit marker background set 1400",
-        "fit marker background set 1520",
-        "fit marker background set 1760",
-        "fit marker background set 1860",
-        "fit marker region set 1520",
-        "fit marker region set 1760")
+        "fit marker peak set 580",
+        "fit marker peak set 610",
+        "fit marker background set 520",
+        "fit marker background set 550",
+        "fit marker background set 620",
+        "fit marker background set 650",
+        "fit marker region set 570",
+        "fit marker region set 615")
 
 
 # More tests are still needed for:

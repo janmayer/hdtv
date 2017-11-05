@@ -249,7 +249,7 @@ output of ``calibration position list``:
 .. code-block::
 
     hdtv> calibration position list
-    example_Co60.tv: -30.88423486072141   0.780361132236243
+    osiris_bg.spc: -30.88423486072141   0.780361132236243
 
 To load a calibration list file, use
 
