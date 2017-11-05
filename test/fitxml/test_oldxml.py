@@ -57,8 +57,7 @@ def prepare():
     spectra.Clear()
 
 
-@pytest.mark.parametrize("xmlfile", [
-    *test_XMLs])
+@pytest.mark.parametrize("xmlfile", test_XMLs)
 def test_old_xml(xmlfile):
     __main__.fitxml.ReadXML(spectra.Get("0").ID, xmlfile, refit=True, interactive=False)
     __main__.f.ListFits()

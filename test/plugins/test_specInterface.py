@@ -27,8 +27,8 @@ import shutil
 
 import pytest
 
-from helpers.utils import redirect_stdout, hdtvcmd
-from helpers.fixtures import temp_file
+from test.helpers.utils import redirect_stdout, hdtvcmd
+from test.helpers.fixtures import temp_file
 
 import hdtv.cmdline
 import hdtv.options

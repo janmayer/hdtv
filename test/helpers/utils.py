@@ -21,8 +21,11 @@
 
 import sys
 import os
-import io
 import contextlib
+try: # Python2
+    from StringIO import StringIO
+except ImportError: # Python3
+    from io import StringIO
 
 from hdtv.ui import ui
 import hdtv.cmdline
@@ -31,7 +34,7 @@ def setup_io(num=1):
     """
     Setup several StringIOs that can be used for stdout redirection.
     """
-    return [io.StringIO() for _ in range(num)]
+    return [StringIO() for _ in range(num)]
 
 @contextlib.contextmanager
 def redirect_stdout(target_out, target_err=None, target_debug=None):

@@ -23,7 +23,7 @@ import os
 
 import pytest
 
-from helpers.utils import setup_io, redirect_stdout, isclose
+from test.helpers.utils import setup_io, redirect_stdout, isclose
 
 import __main__
 

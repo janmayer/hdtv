@@ -31,7 +31,7 @@ try:
         try:
             curses.setupterm()
             return curses.tigetnum("cols")
-        except io.UnsupportedOperation:
+        except BaseException:
             return 80
 
 except ImportError:

@@ -31,8 +31,8 @@ import os
 
 import pytest
 
-from helpers.utils import setup_io, redirect_stdout
-from helpers.fixtures import temp_file
+from test.helpers.utils import setup_io, redirect_stdout
+from test.helpers.fixtures import temp_file
 
 import __main__
 

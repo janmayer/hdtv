@@ -26,8 +26,8 @@ import filecmp
 
 import pytest
 
-from helpers.utils import redirect_stdout, hdtvcmd
-from helpers.fixtures import temp_file
+from test.helpers.utils import redirect_stdout, hdtvcmd
+from test.helpers.fixtures import temp_file
 
 import hdtv.cmdline
 import hdtv.options
@@ -96,7 +96,7 @@ def test_cmd_cal_pos_enter(specfile):
     f, ferr = hdtvcmd("calibration position enter 1543 1173.228(3) 1747 1332.492(4)")
     assert ferr == ""
     assert "Calibrated spectrum with id 0" in f
-    assert "Chi^2" in f
+    assert "Chi" in f
 
 @pytest.mark.parametrize("specfile", [
     "test/share/example_Co60.tv"])
@@ -177,7 +177,7 @@ def test_cmd_cal_pos_recalibrate(specfile):
     f, ferr = hdtvcmd("calibration position recalibrate")
     assert ferr == ""
     assert "Calibrated spectrum with id 0" in f
-    assert "Chi^2" in f
+    assert "Chi" in f
 
 @pytest.mark.parametrize("specfile, calfile", [
     ("test/share/example_Co60.tv", "test/share/example_Co60.cal")])

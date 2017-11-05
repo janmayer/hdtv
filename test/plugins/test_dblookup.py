@@ -24,7 +24,7 @@ import sys
 
 import pytest
 
-from helpers.utils import redirect_stdout, hdtvcmd
+from test.helpers.utils import redirect_stdout, hdtvcmd
 
 import hdtv.cmdline
 import hdtv.options
@@ -52,7 +52,7 @@ def test_cmd_db_list():
 def test_cmd_db_lookup_base():
     f, ferr = hdtvcmd("db lookup")
     assert "usage" in f
-    assert "required" in ferr
+    assert "arguments" in ferr
 
     f, ferr = hdtvcmd("db lookup 0")
     assert ferr == ""

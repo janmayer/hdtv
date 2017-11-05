@@ -21,7 +21,7 @@
 
 import pytest
 
-from helpers.utils import redirect_stdout, hdtvcmd
+from test.helpers.utils import redirect_stdout, hdtvcmd
 
 import hdtv.cmdline
 import hdtv.options
