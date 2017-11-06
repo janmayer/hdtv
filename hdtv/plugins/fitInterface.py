@@ -553,6 +553,7 @@ class TvFitInterface(object):
             help="store peak after fit")
         parser.add_argument(
             "fitids",
+            nargs='*',
             default=None,
             help='id(s) of the fit(s) to (re)fit')
         hdtv.cmdline.AddCommand(

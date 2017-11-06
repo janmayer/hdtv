@@ -382,19 +382,9 @@ def test_cmd_spectrum_subtract(specfile0, specfile1):
     new_count = get_spec(0).hist.hist.GetSum()
     assert spec0_count - spec1_count - new_count < 0.00001 * spec0_count
 
-@pytest.mark.xfail(reason="This test has to be refined. What is spectrum update supposed to do?")
-@pytest.mark.parametrize("oldfile, newfile", [
-    ("test/share/osiris_bg.cal", "test/share/osiri_bg.spc")])
-def test_cmd_spectrum_update(oldfile, newfile, temp_file):
-    assert len(s.spectra.dict) == 0
-    shutil.copyfile(oldfile, temp_file)
-    hdtvcmd("spectrum get {}".format(temp_file))
-    old_count = get_spec(0).hist.hist.GetSum()
-    shutil.copyfile(newfile, temp_file)
-    hdtvcmd("spectrum update")
-    new_count = get_spec(0).hist.hist.GetSum()
-    assert old_count != new_count
-    assert len(s.spectra.dict) == 1
+@pytest.mark.skip(reason="What is spectrum update supposed to do?")
+def test_cmd_spectrum_update():
+    pass
 
 @pytest.mark.skip(reason="Implement in test_cal...")
 def test_cmd_spectrum_calbin():
