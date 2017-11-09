@@ -35,5 +35,5 @@ def temp_file(request):
     yield filename
     try:
         os.remove(filename)
-    except FileNotFoundError:
+    except OSError:
         pass

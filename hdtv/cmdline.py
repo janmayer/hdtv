@@ -466,6 +466,8 @@ class CommandLine(object):
 
     def SetReadlineHistory(self, filename):
         try:
+            if not os.path.isfile(filename):
+                open(filename, 'a').close()
             self.fReadlineHistory = filename
 
             readline.clear_history()
@@ -474,17 +476,14 @@ class CommandLine(object):
             if not self.fReadlineExitHandler:
                 atexit.register(self.WriteReadlineHistory)
                 self.fReadlineExitHandler = True
-        except PermissionError:
+        except OSError:
             hdtv.ui.error("Could not read history file \'" + filename +
-                "\', history will be discarded.")
-        except FileNotFoundError:
-            hdtv.ui.error("Could not find history file \'" + filename +
                 "\', history will be discarded.")
 
     def WriteReadlineHistory(self):
         try:
             readline.write_history_file(self.fReadlineHistory)
-        except (IOError, PermissionError, FileNotFoundError):
+        except (IOError, OSError):
             hdtv.ui.error("Could not write history file \'" + self.fReadlineHistory + "\', history was discarded.")
             sys.exit(1)
 

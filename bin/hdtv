@@ -38,8 +38,6 @@ for path in [datapath, configpath]:
         os.makedirs(path)
     except OSError:
         pass
-    except PermissionError:
-        print("Could not create " + path + ".", file=sys.stderr)
 
 if not os.access(datapath, os.W_OK) and os.access(configpath, os.W_OK):
     print("Could not access data path " + datapath +
