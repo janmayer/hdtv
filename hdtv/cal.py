@@ -90,6 +90,7 @@ class CalibrationFitter:
 
         If self.pairs contains ErrValues the channel std_dev is respected
         """
+        hdtv.ui.debug("conducting calibration from fitted peaks")
         if degree < 0:
             raise ValueError("Degree cannot be negative")
 
@@ -117,6 +118,7 @@ class CalibrationFitter:
         any_has_xerror = False
 
         for (ch, e) in self.pairs:
+            has_xerror = False
             has_error = False
 
             # Store channels
@@ -125,13 +127,13 @@ class CalibrationFitter:
                 channel_err = float(ch.std_dev)
                 channels.append(channel)
                 channels_err.append(channel_err)
-                if ch.std_dev == 0.:
-                    has_error = True
+                if ch.std_dev != 0.:
+                    has_xerror = True
             except AttributeError:
                 channels.append(float(ch))
                 channels_err.append(0.0)
 
-            any_has_xerror = has_error or any_has_xerror
+            any_has_xerror = has_xerror or any_has_xerror
 
             # Store energies
             try:  # try to read from ErrValue
@@ -139,7 +141,7 @@ class CalibrationFitter:
                 energy_err = float(e.std_dev)
                 energies.append(energy)
                 energies_err.append(energy_err)
-                if e.std_dev == 0:
+                if e.std_dev != 0.:
                     has_error = True
             except AttributeError:
                 energies.append(float(e))
@@ -147,6 +149,15 @@ class CalibrationFitter:
 
             all_have_error = all_have_error and has_error
             any_has_error = any_has_error or has_error
+
+        hdtv.ui.debug("all_have_error: " + str(all_have_error), level=2)
+        hdtv.ui.debug("any_has_error: " + str(any_has_error), level=2)
+        hdtv.ui.debug("any_has_xerror: " + str(any_has_xerror), level=2)
+
+        hdtv.ui.debug("channels: " + str(channels), level=3)
+        hdtv.ui.debug("channels err: " + str(channels_err), level=3)
+        hdtv.ui.debug("energies: " + str(energies), level=3)
+        hdtv.ui.debug("energies err: " + str(energies_err), level=3)
 
         self.__TF1.SetRange(0, max(energies) * 1.1)
         self.TGraph = ROOT.TGraphErrors(

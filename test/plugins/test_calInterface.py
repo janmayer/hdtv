@@ -101,8 +101,8 @@ def test_cmd_cal_pos_enter_underdefined():
 
 def test_cmd_cal_pos_enter_deg2():
     f, ferr = hdtvcmd(
-            "calibration position enter -d 2 1543 1173.228(3) 1747 1332.492(4) 3428 2614.5")
-    assert ferr == ""
+        "calibration position enter -d 2 1543 1173.228(3) 1747 1332.492(4) 3428 2614.5")
+    assert "Some values specified without error" in ferr
     assert "Calibrated spectrum with id 0" in f
 
 def test_cmd_cal_pos_enter_table():

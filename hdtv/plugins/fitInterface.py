@@ -162,7 +162,7 @@ class FitInterface(object):
         hdtv.ui.msg(str(fit))
         fit.Draw(self.window.viewport)
     
-    def ExecuteReintegrate(self, specID, fitID):
+    def ExecuteReintegrate(self, specID, fitID, print_result=True):
         """
         Re-Execute Fit on store fits
         """
@@ -197,7 +197,8 @@ class FitInterface(object):
         bg = fit.fitter.bgFitter
 
         fit.integral = hdtv.integral.Integrate(spec, bg, region)
-        hdtv.ui.msg(fit.print_integral())
+        if print_result:
+            hdtv.ui.msg(fit.print_integral())
         fit.Draw(self.window.viewport)
 
     def QuickFit(self, pos=None):
@@ -891,10 +892,10 @@ class TvFitInterface(object):
                 try:
                     hdtv.ui.msg("Executing fit %s in spectrum %s" %
                                 (fitID, specID))
+                    self.fitIf.ExecuteReintegrate(
+                        specID=specID, fitID=fitID, print_result=False)
                     self.fitIf.ExecuteRefit(
                         specID=specID, fitID=fitID, peaks=doPeaks)
-                    self.fitIf.ExecuteReintegrate(
-                        specID=specID, fitID=fitID)
                 except (KeyError, RuntimeError) as e:
                     hdtv.ui.warn(e)
                     continue
