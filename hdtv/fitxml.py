@@ -78,7 +78,7 @@ class FitXml(object):
         # create xml tree
         root = ET.Element("hdtv")
         root.set("version", VERSION)
-        for fit in fits.values():
+        for fit in sorted(fits.values()):
             root.append(self.Fit2Xml(fit))
         self._indent(root)
         return root
@@ -170,7 +170,7 @@ class FitXml(object):
             # <uncal>
             uncalElement = ET.SubElement(peakElement, "uncal")
             # Parameter
-            for param in fit.fitter.fParStatus.keys():
+            for param in sorted(fit.fitter.fParStatus.keys()):
                 paramElement = ET.SubElement(uncalElement, param)
                 status = fit.fitter.fParStatus[param]
                 if isinstance(status, list):
@@ -190,7 +190,7 @@ class FitXml(object):
             # <cal>
             calElement = ET.SubElement(peakElement, "cal")
             # Parameter
-            for param in fit.fitter.fParStatus.keys():
+            for param in sorted(fit.fitter.fParStatus.keys()):
                 paramElement = ET.SubElement(calElement, param)
                 status = fit.fitter.fParStatus[param]
                 if isinstance(status, list):
@@ -209,7 +209,7 @@ class FitXml(object):
                         errorElement.text = str(param.std_dev)
             # <extras>
             extraElement = ET.SubElement(peakElement, "extras")
-            for param in list(peak.extras.keys()):
+            for param in sorted(list(peak.extras.keys())):
                 paramElement = ET.SubElement(extraElement, param)
                 param = peak.extras[param]
                 try:

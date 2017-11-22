@@ -717,7 +717,7 @@ def backup_file(filename, bak_ext='bak'):
     for i in count():
         if not os.path.isfile(backup_name):
             break
-        backup_name = backup_name_stem + '.' + i
+        backup_name = backup_name_stem + '.' + str(i)
     os.rename(filename, backup_name)
 
 def count(index=0):
