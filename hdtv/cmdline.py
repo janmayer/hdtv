@@ -602,7 +602,7 @@ class CommandLine(object):
         except IOError as msg:
             hdtv.ui.error("%s" % msg)
         for line in file.lines:
-            print(hdtv.util.get_prompt('file', inputable=False))
+            print(hdtv.util.get_prompt('file', inputable=False) + line)
             self.DoLine(line)
             # TODO: HACK: How should I teach this micky mouse language that a
             # python statement (e.g. "for ...:") has ended???
