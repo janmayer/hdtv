@@ -251,6 +251,8 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         # Strip comments
         cmdline = hdtv.util.remove_comments(cmdline)
         for command in hdtv.util.split_line(cmdline):
+            if not command_line.fKeepRunning:
+                break
             parser = None
             try:
                 if command.strip() == "":
@@ -452,6 +454,8 @@ class CommandLine(object):
         self.fPyMode = False
         self.fPyMore = False
 
+        self.fKeepRunning = True
+
         if os.sep == '\\':
             eof = 'Ctrl-Z plus Return'
         else:
@@ -608,6 +612,9 @@ class CommandLine(object):
             # python statement (e.g. "for ...:") has ended???
             if self.fPyMore:
                 self.fPyMore = self._py_console.push("")
+            if not self.fKeepRunning:
+                print("")
+                break
 
     def ExecShell(self, cmd):
         subprocess.call(cmd, shell=True)
@@ -616,30 +623,38 @@ class CommandLine(object):
         """
         Deal with one line of input
         """
-        # In Python mode, all commands need to be Python commands ...
-        if self.fPyMode or self.fPyMore:
-            cmd_type = "PYTHON"
-            cmd = line
-        # ... otherwise, the prefix decides.
-        else:
-            (cmd_type, cmd) = self.Unescape(line)
+        try:
+            # In Python mode, all commands need to be Python commands ...
+            if self.fPyMode or self.fPyMore:
+                cmd_type = "PYTHON"
+                cmd = line
+            # ... otherwise, the prefix decides.
+            else:
+                (cmd_type, cmd) = self.Unescape(line)
 
-        # Execute as appropriate type
-        if cmd_type == "HDTV":
-            self.fCommandTree.ExecCommand(cmd)
-        elif cmd_type == "PYTHON":
-            # The push() function returns a boolean indicating
-            #  whether further input from the user is required.
-            #  We set the python mode accordingly.
-            self.fPyMore = self._py_console.push(cmd)
-        elif cmd_type == "CMDFILE":
-            self.ExecCmdfile(cmd)
-        elif cmd_type == "SHELL":
-            self.ExecShell(cmd)
+            # Execute as appropriate type
+            if cmd_type == "HDTV":
+                self.fCommandTree.ExecCommand(cmd)
+            elif cmd_type == "PYTHON":
+                # The push() function returns a boolean indicating
+                #  whether further input from the user is required.
+                #  We set the python mode accordingly.
+                self.fPyMore = self._py_console.push(cmd)
+            elif cmd_type == "CMDFILE":
+                self.ExecCmdfile(cmd)
+            elif cmd_type == "SHELL":
+                self.ExecShell(cmd)
+        except KeyboardInterrupt:
+            hdtv.ui.warn("Aborted")
+        except HDTVCommandError as msg:
+            hdtv.ui.error("%s" % str(msg))
+        except SystemExit:
+            self.Exit()
+        except Exception:
+            hdtv.ui.error("Unhandled exception:")
+            traceback.print_exc()
 
     def MainLoop(self):
-        self.fKeepRunning = True
-
         #self.fPyMode = False
         #self.fPyMore = False
 
@@ -658,7 +673,7 @@ class CommandLine(object):
 
             # Read the command
             try:
-                s = get_input(prompt)
+                line = get_input(prompt)
             except EOFError:
                 # Ctrl-D exits in command mode, and switches back to command mode
                 #  from Python mode
@@ -692,19 +707,7 @@ class CommandLine(object):
                 continue
 
             # Execute the command
-            try:
-                self.DoLine(s)
-
-            except KeyboardInterrupt:
-                hdtv.ui.warn("Aborted")
-            except HDTVCommandError as msg:
-                hdtv.ui.error("%s" % str(msg))
-            except SystemExit:
-                self.Exit()
-            except Exception:
-                hdtv.ui.error("Unhandled exception:")
-                traceback.print_exc()
-
+            self.DoLine(line)
 
 
 def RegisterInteractive(name, ref):
