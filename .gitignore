@@ -16,6 +16,8 @@ rootdict-*.pcm
 # Other
 hdtv_history
 .history
+.idea
+.python-version
 
 # man pages
 doc/guide/*.[1-8]

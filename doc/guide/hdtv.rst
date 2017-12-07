@@ -184,7 +184,7 @@ B
     Execute Fit (Background only)
 
 F
-    Execute Fit 
+    Execute Fit
 
 Q
     QuickFit
@@ -275,7 +275,7 @@ $HOME/.config/hdtv/plugins/
    Put plugins here.
 
 $HOME/.config/hdtv/inputrc
-    HDTV specific customizations of the Readline command line interface. 
+    HDTV specific customizations of the Readline command line interface.
 
 $HOME/.local/share/hdtv/hdtv_history
     History of commands executed in HDTV.
@@ -297,6 +297,7 @@ AUTHORS
 Jan Mayer (jan.mayer@ikp.uni-koeln.de),
 Elena Hoemann (ehoemann@ikp.uni-koeln.de),
 Oliver Papst (opapst@ikp.tu-darmstadt.de),
+Nigel Warr (warr@ikp.uni-koeln.de),
 Norbert Braun (n.braun@ikp.uni-koeln.de),
 Tanja Kotthaus (t.kotthaus@ikp.uni-koeln.de),
 Ralf Schulze (r.schulze@ikp.uni-koeln.de)

@@ -392,7 +392,7 @@ class TvMatInterface(object):
         """
         Show a overview of matrices with all cuts and cut spectra
         """
-        ids == "ALL":
+        ids == "ALL"
         matrices = set()
 
         for spec in self.spectra.dict.values():
