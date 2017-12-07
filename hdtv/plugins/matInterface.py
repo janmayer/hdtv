@@ -392,11 +392,7 @@ class TvMatInterface(object):
         """
         Show a overview of matrices with all cuts and cut spectra
         """
-        # FIXME: Function does not exist. Use ParseIds instead?
-        #ids = hdtv.util.ID.ParseIds(args.matrix, self.spectra)
-        ids = hdtv.util.ID.ParseRange(args.matrix)
-        if ids == "NONE":
-            return
+        ids == "ALL":
         matrices = set()
 
         for spec in self.spectra.dict.values():
@@ -420,7 +416,7 @@ class TvMatInterface(object):
         action = self.MarkerCompleter(args.action, args=[args.action,])
         if len(action) == 0:
             raise hdtv.cmdline.HDTVCommandError("Invalid action: %s" % args.action)
-        
+
         mtype = mtype[0].strip()
         # replace "background" with "cutbg" which is internally used
         if mtype == "background":
