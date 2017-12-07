@@ -223,7 +223,7 @@ class MatInterface(object):
         if matrix.sym:
             sym = "symmetric"
         else:
-            sym = "aymmetric"
+            sym = "asymmetric"
         header = "\nmatrix ID = " + matrix.ID + \
             " \"" + matrix.name + "\" (" + sym + ")\n"
         footer = "\n" + str(len(matrix.ids)) + " cuts, " + \
