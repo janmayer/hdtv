@@ -24,10 +24,7 @@
 # class to handle fitter setup and data transfer to the Python side
 #-------------------------------------------------------------------------
 import ROOT
-import hdtv.dlmgr
-
-hdtv.dlmgr.LoadLibrary("display")
-
+import hdtv.rootext.display
 
 # Base class for all peak models
 class PeakModel(object):

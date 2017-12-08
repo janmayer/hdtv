@@ -22,9 +22,9 @@
 from __future__ import print_function
 
 import ROOT
-import hdtv.dlmgr
 import array
 import os
+import hdtv.rootext.mfile
 
 
 class SpecReaderError(Exception):
@@ -227,12 +227,13 @@ class SpecReader(object):
             histtitle = os.path.basename(fname)
 
         if fmt.lower() == 'cracow':
-            hdtv.dlmgr.LoadLibrary("cracowio")
-            cio = ROOT.CracowIO()
-            hist = cio.GetCracowSpectrum(fname, histname, histtitle)
-            if not hist:
-                raise SpecReaderError(cio.GetErrorMsg())
-            return hist
+            # hdtv.dlmgr.LoadLibrary("cracowio")
+            # cio = ROOT.CracowIO()
+            # hist = cio.GetCracowSpectrum(fname, histname, histtitle)
+            # if not hist:
+            #     raise SpecReaderError(cio.GetErrorMsg())
+            # return hist
+            raise SpecReaderError("Format not longer supported")
         elif fmt.split(':')[0].lower() == 'col':
             # Extract subformat specifier to pass on to TextSpecReader
             pos = fmt.find(':')
@@ -245,7 +246,6 @@ class SpecReader(object):
             txtio = TextSpecReader(subfmt)
             return txtio.GetSpectrum(fname, histname, histtitle)
         else:
-            hdtv.dlmgr.LoadLibrary("mfile-root")
             mhist = ROOT.MFileHist()
 
             if not fmt or fmt.lower() == 'mfile':
@@ -276,7 +276,6 @@ class SpecReader(object):
         if histtitle is None:
             histtitle = os.path.basename(fname)
 
-        hdtv.dlmgr.LoadLibrary("mfile-root")
         mhist = ROOT.MFileHist()
 
         # FIXME: error handling
@@ -301,7 +300,6 @@ class SpecReader(object):
         if histtitle is None:
             histtitle = os.path.basename(fname)
 
-        hdtv.dlmgr.LoadLibrary("mfile-root")
         mhist = ROOT.MFileHist()
 
         # FIXME: error handling
@@ -314,7 +312,6 @@ class SpecReader(object):
         return ROOT.MFMatrix(mhist, 0)
 
     def WriteSpectrum(self, hist, fname, fmt):
-        hdtv.dlmgr.LoadLibrary("mfile-root")
         result = ROOT.MFileHist.WriteTH1(hist, fname, fmt)
         if result != ROOT.MFileHist.ERR_SUCCESS:
             raise SpecReaderError(ROOT.MFileHist.GetErrorMsg(result))

@@ -4,11 +4,10 @@ from __future__ import print_function
 import sys
 sys.path.append("/home/braun/projects/hdtv")
 import hdtv.specreader
-import hdtv.dlmgr
 from hdtv.errvalue import ErrValue
 import ROOT
 import math
-hdtv.dlmgr.LoadLibrary("fit")
+hdtv.rootext.fit
 
 
 def test(bgdeg):

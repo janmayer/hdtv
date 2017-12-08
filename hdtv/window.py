@@ -26,10 +26,7 @@ import hdtv.options
 import hdtv.color
 import hdtv.cmdline
 from hdtv.marker import MarkerCollection
-
-import hdtv.dlmgr
-hdtv.dlmgr.LoadLibrary("display")
-
+import hdtv.rootext.display
 
 class HotkeyList(object):
     "Class to handle multi-key hotkeys."

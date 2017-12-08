@@ -1,37 +1,35 @@
 # Makefile for HDTV::Display
-include ../Makefile.def
+MODNAME = display
 
 SOURCES= DisplaySpec.cxx DisplayFunc.cxx DisplayBlock.cxx DisplayObj.cxx DisplayStack.cxx DisplayCut.cxx Viewer.cxx Painter.cxx Marker.cxx XMarker.cxx YMarker.cxx Calibration.cxx View.cxx View1D.cxx View2D.cxx MTViewer.cxx
-# The ordering matters here: rootcling will complain on (some) different orderings.
-# The reason for this is unclear.
-EXPHEADERS= Calibration.h View.h View1D.h View2D.h MTViewer.h Viewer.h DisplaySpec.h DisplayFunc.h DisplayBlock.h DisplayObj.h DisplayCut.h Marker.h XMarker.h YMarker.h
-HEADERS= $(EXPHEADERS) Painter.h
+HEADERS= Calibration.h View.h View1D.h View2D.h MTViewer.h Viewer.h DisplaySpec.h DisplayFunc.h DisplayBlock.h DisplayObj.h DisplayCut.h Marker.h XMarker.h YMarker.h Painter.h
 OBJ= $(SOURCES:.cxx=.o)
-MODNAME= display
 
-.PHONY: all build copy clean
+CPP = g++
+ROOTCLING = rootcling
+CFLAGS += $(shell root-config --cflags) -Wall -g -O2 -fPIC
+LFLAGS += $(shell root-config --glibs)
 
-all: build copy
+.PHONY: all build clean
+
+all: build
 
 build: $(MODNAME).so
 
-$(MODNAME).so: $(OBJ) rootdict-$(MODNAME).o Makefile
-	$(CPP) -fpic $(CFLAGS) -shared -o $(MODNAME).so $(OBJ) rootdict-$(MODNAME).o $(LFLAGS) 
+$(MODNAME).so: $(OBJ) rootdict-$(MODNAME).o
+	$(CPP) $(CFLAGS) -shared -o $(MODNAME).so $(OBJ) rootdict-$(MODNAME).o $(LFLAGS)
 
-rootdict-$(MODNAME).cxx:  Makefile $(EXPHEADERS) LinkDef.h
-	$(ROOTCLING) -f rootdict-$(MODNAME).cxx $(EXPHEADERS) LinkDef.h
+rootdict-$(MODNAME).cxx: $(HEADERS) LinkDef.h
+	$(ROOTCLING) -f rootdict-$(MODNAME).cxx -inlineInputHeader $(HEADERS) LinkDef.h
 
-%.o: %.cxx $(HEADERS) Makefile
-	$(CPP) $(CFLAGS) -fpic -c $<
+%.o: %.cxx $(HEADERS)
+	$(CPP) $(CFLAGS) -c -o $@ $<
+
+%.o: %.c $(HEADERS)
+	$(CPP) $(CFLAGS) -c -o $@ $<
 
 clean:
 	-/bin/rm -f rootdict-$(MODNAME).cxx rootdict-$(MODNAME).h rootdict-$(MODNAME).o rootdict-$(MODNAME)_rdict.pcm
 	-/bin/rm -f *~
 	-/bin/rm -f $(OBJ)
-
-copy: $(DESTDIR)/$(MODNAME).so
-
-$(DESTDIR)/$(MODNAME).so: $(MODNAME).so
-	mkdir -p $(DESTDIR)
-	cp $(MODNAME).so $(DESTDIR)
-	cp rootdict-$(MODNAME)_rdict.pcm $(DESTDIR)
+	-/bin/rm -f *.so

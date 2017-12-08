@@ -1,35 +1,35 @@
 # Makefile for HDTV::Fit
-include ../Makefile.def
+MODNAME = fit
 
 SOURCES= Integral.cxx PolyBg.cxx Param.cxx Fitter.cxx TheuerkaufFitter.cxx EEFitter.cxx Util.cxx
-EXPHEADERS= Integral.h Background.h PolyBg.h Param.h Fitter.h TheuerkaufFitter.h EEFitter.h Util.h
-HEADERS= $(EXPHEADERS)
+HEADERS= Integral.h Background.h PolyBg.h Param.h Fitter.h TheuerkaufFitter.h EEFitter.h Util.h
 OBJ= $(SOURCES:.cxx=.o)
-MODNAME= fit
 
-.PHONY: all build copy clean
+CPP = g++
+ROOTCLING = rootcling
+CFLAGS += $(shell root-config --cflags) -Wall -g -O2 -fPIC
+LFLAGS += $(shell root-config --glibs)
 
-all: build copy
+.PHONY: all build clean
+
+all: build
 
 build: $(MODNAME).so
 
-$(MODNAME).so: $(OBJ) rootdict-$(MODNAME).o Makefile
-	$(CPP) -fpic $(CFLAGS) -shared -o $(MODNAME).so $(OBJ) rootdict-$(MODNAME).o  $(LFLAGS)
+$(MODNAME).so: $(OBJ) rootdict-$(MODNAME).o
+	$(CPP) $(CFLAGS) -shared -o $(MODNAME).so $(OBJ) rootdict-$(MODNAME).o $(LFLAGS)
 
-rootdict-$(MODNAME).cxx:  Makefile $(EXPHEADERS) LinkDef.h
-	$(ROOTCLING) -f rootdict-$(MODNAME).cxx $(EXPHEADERS) LinkDef.h
+rootdict-$(MODNAME).cxx: $(HEADERS) LinkDef.h
+	$(ROOTCLING) -f rootdict-$(MODNAME).cxx -inlineInputHeader $(HEADERS) LinkDef.h
 
-%.o: %.cxx $(HEADERS) Makefile
-	$(CPP) $(CFLAGS) -fpic -c $<
+%.o: %.cxx $(HEADERS)
+	$(CPP) $(CFLAGS) -c -o $@ $<
+
+%.o: %.c $(HEADERS)
+	$(CPP) $(CFLAGS) -c -o $@ $<
 
 clean:
 	-/bin/rm -f rootdict-$(MODNAME).cxx rootdict-$(MODNAME).h rootdict-$(MODNAME).o rootdict-$(MODNAME)_rdict.pcm
 	-/bin/rm -f *~
 	-/bin/rm -f $(OBJ)
-
-copy: $(DESTDIR)/$(MODNAME).so
-
-$(DESTDIR)/$(MODNAME).so: $(MODNAME).so
-	mkdir -p $(DESTDIR)
-	cp $(MODNAME).so $(DESTDIR)
-	cp rootdict-$(MODNAME)_rdict.pcm $(DESTDIR)
+	-/bin/rm -f *.so

@@ -23,7 +23,7 @@ import os
 
 import ROOT
 import hdtv.color
-import hdtv.dlmgr
+import hdtv.rootext.mfile
 
 from hdtv.drawable import Drawable
 from hdtv.specreader import SpecReader, SpecReaderError
@@ -642,9 +642,6 @@ class MHisto2D(Histo2D):
         Generate projection(s) and possibly transpose (for asymmetric matrices),
         if they do not exist yet.
         """
-
-        hdtv.dlmgr.LoadLibrary("mfile-root")
-
         basename = self.GetBasename(fname)
 
         # Generate projection(s)

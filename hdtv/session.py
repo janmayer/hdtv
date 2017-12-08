@@ -26,10 +26,8 @@ import signal
 import ROOT
 
 import hdtv.cal
-import hdtv.dlmgr
-hdtv.dlmgr.LoadLibrary("display")
-hdtv.dlmgr.LoadLibrary("fit")
-
+import hdtv.rootext.display
+import hdtv.rootext.fit
 
 from hdtv.window import Window
 from hdtv.drawable import DrawableManager

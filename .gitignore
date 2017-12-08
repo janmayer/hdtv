@@ -1,5 +1,6 @@
 # Compiled filed and build directories
 hdtv/clib
+dist
 build
 *.pyc
 *.so
@@ -18,6 +19,7 @@ hdtv_history
 .history
 .idea
 .python-version
+*.egg-info
 
 # man pages
 doc/guide/*.[1-8]

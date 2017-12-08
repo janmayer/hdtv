@@ -1,39 +1,35 @@
 # Makefile for mfile-root
-include ../Makefile.def
+MODNAME = mfile-root
 
-LFLAGS+= -L$(PREFIX)/lib -lmfile
-SOURCES= MFileHist.cxx VMatrix.cxx MatOp.cxx MFile.cxx \
-    matop/matop_adjust.c matop/matop_conv.c matop/matop_project.c
-HEADERS= MFileHist.h VMatrix.h MatOp.h
-OBJ= $(patsubst %.cxx,%.o,$(patsubst %.c,%.o, $(SOURCES)))
-MODNAME= mfile-root
+SOURCES = MFileHist.cxx VMatrix.cxx MatOp.cxx MFile.cxx matop/matop_adjust.c matop/matop_conv.c matop/matop_project.c
+HEADERS = MFileHist.h VMatrix.h MatOp.h MFile.h
+OBJ = $(patsubst %.cxx,%.o,$(patsubst %.c,%.o, $(SOURCES)))
 
-.PHONY: all build copy clean
+CPP = g++
+ROOTCLING = rootcling
+CFLAGS += $(shell root-config --cflags) -Wall -g -O2 -fPIC
+LFLAGS += $(shell root-config --glibs) -lmfile
 
-all: build copy
+.PHONY: all build clean
+
+all: build
 
 build: $(MODNAME).so
 
-$(MODNAME).so: $(OBJ) rootdict-$(MODNAME).o Makefile
-	$(CPP) -fpic $(CFLAGS) -shared -o $(MODNAME).so $(OBJ) rootdict-$(MODNAME).o $(LFLAGS) 
+$(MODNAME).so: $(OBJ) rootdict-$(MODNAME).o
+	$(CPP) $(CFLAGS) -shared -o $(MODNAME).so $(OBJ) rootdict-$(MODNAME).o $(LFLAGS)
 
-rootdict-$(MODNAME).cxx:  Makefile $(HEADERS) LinkDef.h
-	$(ROOTCLING) -f rootdict-$(MODNAME).cxx -I$(INCL_PATH) $(HEADERS) LinkDef.h
+rootdict-$(MODNAME).cxx: $(HEADERS) LinkDef.h
+	$(ROOTCLING) -f rootdict-$(MODNAME).cxx -inlineInputHeader $(HEADERS) LinkDef.h
 
-%.o: %.cxx $(HEADERS) MFile.h Makefile
-	$(CPP) $(CFLAGS) -fpic -c -o $@ $<
+%.o: %.cxx $(HEADERS)
+	$(CPP) $(CFLAGS) -c -o $@ $<
 
-%.o: %.c $(HEADERS) MFile.h Makefile
-	$(CPP) $(CFLAGS) -fpic -c -o $@ $<
+%.o: %.c $(HEADERS)
+	$(CPP) $(CFLAGS) -c -o $@ $<
 
 clean:
 	-/bin/rm -f rootdict-$(MODNAME).cxx rootdict-$(MODNAME).h rootdict-$(MODNAME).o rootdict-$(MODNAME)_rdict.pcm
 	-/bin/rm -f *~
 	-/bin/rm -f $(OBJ)
-
-copy: $(DESTDIR)/$(MODNAME).so
-
-$(DESTDIR)/$(MODNAME).so: $(MODNAME).so
-	mkdir -p $(DESTDIR)
-	cp $(MODNAME).so $(DESTDIR)
-	cp rootdict-$(MODNAME)_rdict.pcm $(DESTDIR)
+	-/bin/rm -f *.so
