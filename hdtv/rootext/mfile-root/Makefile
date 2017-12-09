@@ -1,35 +1,42 @@
 # Makefile for mfile-root
-MODNAME = mfile-root
+MODNAME := mfile-root
 
-SOURCES = MFileHist.cxx VMatrix.cxx MatOp.cxx MFile.cxx matop/matop_adjust.c matop/matop_conv.c matop/matop_project.c
-HEADERS = MFileHist.h VMatrix.h MatOp.h MFile.h
-OBJ = $(patsubst %.cxx,%.o,$(patsubst %.c,%.o, $(SOURCES)))
+SRC_FILES := $(wildcard *.cxx)
+HDR_FILES := $(SRC_FILES:.cxx=.h)
+OBJ_FILES := $(SRC_FILES:.cxx=.o)
 
-CPP = g++
-ROOTCLING = rootcling
-CFLAGS += $(shell root-config --cflags) -Wall -g -O2 -fPIC
-LFLAGS += $(shell root-config --glibs) -lmfile
+CPP := g++
+ROOTCLING := rootcling
+CXXFLAGS += $(shell root-config --cflags) -Wall -g -O2 -fPIC -MMD
+LFLAGS += $(shell root-config --glibs)
 
 .PHONY: all build clean
 
 all: build
 
-build: $(MODNAME).so
+build: lib$(MODNAME).so
 
-$(MODNAME).so: $(OBJ) rootdict-$(MODNAME).o
-	$(CPP) $(CFLAGS) -shared -o $(MODNAME).so $(OBJ) rootdict-$(MODNAME).o $(LFLAGS)
+lib$(MODNAME).so: $(OBJ_FILES) $(MODNAME)_rdict.o
+	$(CPP) $(CXXFLAGS) -shared -o lib$(MODNAME).so $(OBJ_FILES) $(MODNAME)_rdict.o $(LFLAGS)
 
-rootdict-$(MODNAME).cxx: $(HEADERS) LinkDef.h
-	$(ROOTCLING) -f rootdict-$(MODNAME).cxx -inlineInputHeader $(HEADERS) LinkDef.h
+$(MODNAME)_rdict.cxx: $(HDR_FILES) LinkDef.h
+	$(ROOTCLING) -f $(MODNAME)_rdict.cxx -noIncludePaths -inlineInputHeader -s lib$(MODNAME).so -rml lib$(MODNAME).so -rmf lib$(MODNAME).rootmap $(HDR_FILES) LinkDef.h
 
-%.o: %.cxx $(HEADERS)
-	$(CPP) $(CFLAGS) -c -o $@ $<
-
-%.o: %.c $(HEADERS)
-	$(CPP) $(CFLAGS) -c -o $@ $<
+%.o: %.cxx $(HDR_FILES)
+	$(CPP) $(CXXFLAGS) -c -o $@ $<
 
 clean:
-	-/bin/rm -f rootdict-$(MODNAME).cxx rootdict-$(MODNAME).h rootdict-$(MODNAME).o rootdict-$(MODNAME)_rdict.pcm
-	-/bin/rm -f *~
-	-/bin/rm -f $(OBJ)
-	-/bin/rm -f *.so
+	-/bin/rm -f *.o */*.o *.so *.d *.pcm *.rootmap *_rdict.*
+
+-include $(OBJ_FILES:.o=.d)
+
+SRC_FILES += $(wildcard matop/*.c)
+OBJ_FILES += $(patsubst matop/%.c, matop/%.o, $(wildcard matop/*.c))
+
+lib$(MODNAME).so: $(OBJ_FILES)
+
+CXXFLAGS += -Imatop
+LFLAGS += -lmfile
+
+matop/%.o: matop/%.c $(HDR_FILES)
+	$(CPP) $(CXXFLAGS) -c -o $@ $<

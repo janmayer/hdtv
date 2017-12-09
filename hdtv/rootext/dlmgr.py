@@ -24,58 +24,73 @@
 # ------------------------------------------------------------------------
 
 import os
-import stat
 import sys
 import shutil
 import subprocess
 import ROOT
 import hdtv.ui
 import hdtv.version
+from hdtv.rootext import modules, libfmt
 
-configpath = os.environ["HDTV_USER_PATH"] or os.environ["HOME"]
-usrlibdir = configpath + os.sep + "lib" + os.sep + \
-            "%d-%d-%s" % (sys.hexversion, ROOT.gROOT.GetVersionInt(), hdtv.version.VERSION)
+configpath = os.environ.get('HDTV_USER_PATH', os.path.join(os.environ.get('HOME', '~'), '.hdtv'))
+usrlibdir = os.path.join(configpath, 'lib',
+                         "%d-%d-%s" % (sys.hexversion, ROOT.gROOT.GetVersionInt(), hdtv.version.VERSION))
+syslibdir = os.path.join(os.path.dirname(__file__), str(ROOT.gROOT.GetVersionInt()))
 
-def FindLibrary(name):
+
+def FindLibrary(name, libname):
     """
-    Find a dynamic library in the path. Returns the full filename.
+    Find the path to a dynamic library in a subfolder. Returns the full filename.
     """
-    paths = [usrlibdir + os.sep + name, os.path.realpath(__file__) + os.sep + name]
-    for p in paths:
-        fname = p + os.sep + name + '.so'
-        pcmname = p + os.sep + 'rootdict-' + name + '_rdict.pcm'
-        try:
-            mode_so = os.stat(fname)[stat.ST_MODE]
-            mode_pcm = os.stat(pcmname)[stat.ST_MODE]
-            if stat.S_ISREG(mode_so) and stat.S_ISREG(mode_pcm):
-                return fname
-        except OSError:
-            # Ignore the file if stat failes
-            pass
+    paths = [os.path.join(usrlibdir, name), os.path.join(syslibdir, name)]
+    for path in paths:
+        fname = os.path.join(path, libname)
+        if os.path.isfile(fname):
+            return fname
     return None
 
+
 def LoadLibrary(name):
-    fname = FindLibrary(name)
-    if not fname:
-        fname = BuildLibraryForUsr(name)
+    """
+    Load a dynamic library. Try to find and load it, or rebuild it on fail
+    """
+    loaded = False
+    libname = libfmt % name
+    fname = FindLibrary(name, libname)
+    if fname:
+        ROOT.gSystem.SetDynamicPath(os.path.dirname(fname) + os.pathsep + ROOT.gSystem.GetDynamicPath())
+        ROOT.gSystem.SetIncludePath(os.path.dirname(fname) + os.pathsep + ROOT.gSystem.GetDynamicPath())
+        loaded = (ROOT.gSystem.Load(fname) >= 0)
 
-    if ROOT.gSystem.Load(fname) < 0:
-        hdtv.ui.info("Could not load library %s" % fname)
-        fname = BuildLibraryForUsr(name)
-        if ROOT.gSystem.Load(fname) < 0:
-            hdtv.ui.error("Failed to load library %s" % name)
-            sys.exit(1)
+    if not loaded:
+        fname = BuildLibrary(name, usrlibdir)
+        ROOT.gSystem.SetDynamicPath(os.path.dirname(fname) + os.pathsep + ROOT.gSystem.GetDynamicPath())
+        ROOT.gSystem.SetIncludePath(os.path.dirname(fname) + os.pathsep + ROOT.gSystem.GetDynamicPath())
+        loaded = (ROOT.gSystem.Load(fname) >= 0)
 
-def BuildLibraryForUsr(name):
-    hdtv.ui.info("Trying to rebuild library %s in %s" % (name, usrlibdir))
+    if not loaded:
+        hdtv.ui.error("Failed to load library %s" % libname)
+        sys.exit(1)
+
+
+def RebuildLibraries(libdir):
+    if os.path.exists(libdir):
+        shutil.rmtree(libdir)
+    for name in modules:
+        BuildLibrary(name, libdir)
+
+
+def BuildLibrary(name, libdir):
+    dir = os.path.join(libdir, name)
+    hdtv.ui.info("Rebuild library %s in %s" % ((libfmt % name), dir))
     # Create base directory
-    if not os.path.exists(usrlibdir):
-        os.makedirs(usrlibdir)
+    if not os.path.exists(libdir):
+        os.makedirs(libdir)
     # Copy everything
-    if os.path.exists(os.path.join(usrlibdir, name)):
-        shutil.rmtree(os.path.join(usrlibdir, name))
-    shutil.copytree(os.path.join(os.path.dirname(__file__), name), os.path.join(usrlibdir, name))
+    if os.path.exists(dir):
+        shutil.rmtree(dir)
+    shutil.copytree(os.path.join(os.path.dirname(__file__), name), dir)
     # Make library
-    subprocess.check_call(['make', 'clean', '-j', '--silent'], cwd=os.path.join(usrlibdir, name))
-    subprocess.check_call(['make', '-j', '--silent'], cwd=os.path.join(usrlibdir, name))
-    return os.path.join(usrlibdir, name) + os.sep + name + '.so'
+    subprocess.check_call(['make', 'clean', '-j', '--silent'], cwd=dir)
+    subprocess.check_call(['make', '-j', '--silent'], cwd=dir)
+    return os.path.join(dir, libfmt % name)

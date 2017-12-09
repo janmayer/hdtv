@@ -107,8 +107,6 @@ class View2D : public View {
     void ZtoRGB(int z, int &r, int &g, int &b);
     int GetValueAtPixel(int xs, int ys);
     
-  ClassDef(View2D, 1)
-  
   protected:
     std::list<DisplayCut> fCuts;
     
@@ -135,6 +133,8 @@ class View2D : public View {
     
     // Viewport dimensions (updated by Layout())
     int fVPHeight, fVPWidth;
+
+    ClassDef(View2D, 1)
 };
 
 } // end namespace Display

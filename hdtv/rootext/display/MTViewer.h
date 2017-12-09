@@ -44,15 +44,15 @@ class MTViewer : public TGMainFrame {
         { fView->AddCut(cut, invertAxes); }
     inline void DeleteAllCuts()
         { fView->DeleteAllCuts(); }
-    
-    ClassDef(MTViewer, 1)
-    
+
   private:
     void Init(UInt_t w, UInt_t h, TH2* mat, const char* title);
   
     HDTV::Display::View2D *fView;
     TGStatusBar *fStatusBar;
     TH2* fMatCopy;
+
+    ClassDef(MTViewer, 1)
 };
 
 } // end namespace Display

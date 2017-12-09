@@ -52,8 +52,6 @@ class Viewer : public TGMainFrame {
   char fKeyStr[16];  // Key string
   UInt_t fKeyState;  // Key mask
   
-  ClassDef(Viewer, 1)
-
  protected:
   void UpdateScrollbar(void);
   Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
@@ -63,6 +61,8 @@ class Viewer : public TGMainFrame {
   View1D* fView;
   TGHScrollBar* fScrollbar;
   TGStatusBar* fStatusBar;
+
+  ClassDef(Viewer, 1)
 };
 
 } // end namespace Display

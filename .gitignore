@@ -5,14 +5,15 @@ build
 *.pyc
 *.so
 *.o
+*.d
 
 # pytest cache
 .cache
 
 # ROOT generated filed
-rootdict-*.h
-rootdict-*.cxx
-rootdict-*.pcm
+*_rdict*
+*.pcm
+*.rootmap
 
 # Other
 hdtv_history

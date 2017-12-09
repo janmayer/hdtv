@@ -101,7 +101,8 @@ double DisplaySpec::GetMax_Cached(int b1, int b2)
   //! NOTE: For the caching to be effective, use this function ONLY for
   //! scrolling operations.
 
-  int bin, newBin;
+  int bin = 0;
+  int newBin = 0;
   double max, newMax=-1.0;
 
   if(b1 < 0) b1 = 0;
