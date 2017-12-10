@@ -58,6 +58,7 @@ class TheuerkaufPeak {
                    const Param& sw = Param::Empty());
     TheuerkaufPeak(const TheuerkaufPeak& src);
     TheuerkaufPeak& operator=(const TheuerkaufPeak& src);
+    TheuerkaufPeak() {}
 
     double Eval(double *x, double *p);
     double EvalNoStep(double *x, double *p);

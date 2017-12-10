@@ -15,9 +15,9 @@
 #pragma link C++ class HDTV::Fit::Param+;
 #pragma link C++ class HDTV::Fit::Fitter+;
 #pragma link C++ class HDTV::Fit::TheuerkaufPeak+;
-#pragma link C++ class HDTV::Fit::TheuerkaufFitter; //FIXME: + Breaks
+#pragma link C++ class HDTV::Fit::TheuerkaufFitter+;
 #pragma link C++ class HDTV::Fit::EEPeak+;
-#pragma link C++ class HDTV::Fit::EEFitter; //FIXME: + Breaks
+#pragma link C++ class HDTV::Fit::EEFitter+;
 #pragma link C++ function HDTV::TH1IntegateWithPartialBins;
 
 #endif

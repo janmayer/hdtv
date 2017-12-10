@@ -45,6 +45,7 @@ class EEPeak {
     EEPeak(const Param& pos, const Param& amp, const Param& sigma1, const Param& sigma2,
            const Param& eta, const Param& gamma);
     EEPeak(const EEPeak& src);
+    EEPeak(){}
     EEPeak& operator=(const EEPeak& src);
   
     double Eval(double *x, double *p);

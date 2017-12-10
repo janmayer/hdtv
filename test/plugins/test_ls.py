@@ -49,7 +49,7 @@ def test_cmd_pwd():
 def test_cmd_cd(start, cd, target):
     os.chdir(start)
     hdtvcmd('cd ' + cd)
-    assert os.getcwd() == target
+    assert os.getcwd() == os.path.realpath(target)
 
 def test_cmd_cd_minus():
     hdtvcmd('cd /')
