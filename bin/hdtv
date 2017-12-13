@@ -16,23 +16,17 @@ import argparse
 hdtv_args = sys.argv[1:]
 sys.argv = [sys.argv[0]]
 
-# Get ~/.config/hdtv directory
-datapath = None
-try:
-    configpath = os.environ["HDTV_USER_PATH"]
-except KeyError:
-    configpath = os.path.expanduser("~/.hdtv")
-    if not os.path.isdir(configpath):
-        try:
-            configpath = os.path.join(os.environ["XDG_CONFIG_HOME"], "hdtv")
-        except KeyError:
-            configpath = os.path.join(os.environ["HOME"], ".config", "hdtv")
-        try:
-            datapath = os.path.join(os.environ["XDG_DATA_HOME"], "hdtv")
-        except KeyError:
-            datapath = os.path.join(os.environ["HOME"], ".local", "share", "hdtv")
-if not datapath:
-    datapath = configpath
+# Get config and data directory
+legacypath = os.path.join(os.environ["HOME"], ".hdtv")
+configpath = os.getenv("HDTV_USER_PATH",
+    legacypath if os.path.isdir(legacypath) else
+    os.path.join(os.getenv("XDG_CONFIG_HOME", 
+        os.path.join(os.environ["HOME"], ".config")), "hdtv"))
+datapath = os.getenv("HDTV_USER_PATH",
+    legacypath if os.path.isdir(legacypath) else
+    os.path.join(os.getenv("XDG_DATA_HOME", 
+        os.path.join(os.environ["HOME"], ".local", "share")), "hdtv"))
+
 for path in [datapath, configpath]:
     try:
         os.makedirs(path)
@@ -57,10 +51,11 @@ hdtvpath = os.sep.join(hdtvpath[:-1])
 if os.path.exists(hdtvpath + os.sep + 'hdtv'):
     sys.path.insert(1, hdtvpath)
 else:
-    # If not, HDTV is most likely installed/split into the different system dirs
+    # HDTV is most likely installed/split into the different system dirs
     # Add HDTV include path to ROOT_INCLUDE_PATH
-    # This neds to happen before "import ROOT" is called the first time
-    # - if not, there will be a header not found error for *some* ROOT versions and install methods
+    # This neds to happen before "import ROOT" is called the first time –
+    # if not, there will be a header not found error
+    # for *some* ROOT versions and install methods
     import hdtv.rootext
     hdtv.rootext.UpdateRootIncludePath()
 
@@ -71,7 +66,8 @@ parser.add_argument("-b", "--batch", dest="batchfile",
     help="Open and execute HDTV batchfile")
 parser.add_argument("-e", "--execute", dest="commands",
     help="Execute HDTV command(s)")
-parser.add_argument("-v", "--version", action="version", help="Show HDTV Version",
+parser.add_argument("-v", "--version", action="version",
+    help="Show HDTV Version",
     version="HDTV {}".format(hdtv.version.VERSION))
 parser.add_argument("--rebuild-usr", action='store_true', dest='rebuildusr',
     help='Rebuild ROOT-loadable libraries for the current user')

@@ -6,5 +6,8 @@ modules = ['mfile-root', 'fit', 'display']
 libfmt = "lib%s.so"
 
 def UpdateRootIncludePath():
-    for module in modules:
-        os.environ['ROOT_INCLUDE_PATH'] = os.path.join(os.path.dirname(__file__), module) + os.pathsep + os.environ.get('ROOT_INCLUDE_PATH', '')
+    oldpath = os.getenv('ROOT_INCLUDE_PATH')
+    oldpath = (os.pathsep + oldpath) if oldpath else ""
+    os.environ['ROOT_INCLUDE_PATH'] = os.pathsep.join([
+        os.path.join(os.path.dirname(__file__), module)
+        for module in modules]) + oldpath

@@ -32,15 +32,18 @@ import hdtv.ui
 import hdtv.version
 from hdtv.rootext import modules, libfmt
 
-configpath = os.environ.get('HDTV_USER_PATH', os.path.join(os.environ.get('HOME', '~'), '.hdtv'))
-usrlibdir = os.path.join(configpath, 'lib',
-                         "%d-%d-%s" % (sys.hexversion, ROOT.gROOT.GetVersionInt(), hdtv.version.VERSION))
+cachepath = os.path.join(os.getenv("XDG_CACHE_HOME", 
+    os.path.join(os.environ["HOME"], ".cache")), "hdtv")
+usrlibdir = os.path.join(cachepath, 'lib',
+    "%d-%d-%s" % (sys.hexversion, ROOT.gROOT.GetVersionInt(),
+        hdtv.version.VERSION))
 syslibdir = os.path.join(os.path.dirname(__file__), str(ROOT.gROOT.GetVersionInt()))
 
 
 def FindLibrary(name, libname):
     """
-    Find the path to a dynamic library in a subfolder. Returns the full filename.
+    Find the path to a dynamic library in a subfolder.
+    Returns the full filename.
     """
     paths = [os.path.join(usrlibdir, name), os.path.join(syslibdir, name)]
     for path in paths:
@@ -58,19 +61,23 @@ def LoadLibrary(name):
     libname = libfmt % name
     fname = FindLibrary(name, libname)
     if fname:
-        ROOT.gSystem.SetDynamicPath(os.path.dirname(fname) + os.pathsep + ROOT.gSystem.GetDynamicPath())
-        ROOT.gSystem.SetIncludePath(os.path.dirname(fname) + os.pathsep + ROOT.gSystem.GetDynamicPath())
-        loaded = (ROOT.gSystem.Load(fname) >= 0)
+        loaded = (_LoadLibrary(fname) >= 0)
 
     if not loaded:
         fname = BuildLibrary(name, usrlibdir)
-        ROOT.gSystem.SetDynamicPath(os.path.dirname(fname) + os.pathsep + ROOT.gSystem.GetDynamicPath())
-        ROOT.gSystem.SetIncludePath(os.path.dirname(fname) + os.pathsep + ROOT.gSystem.GetDynamicPath())
-        loaded = (ROOT.gSystem.Load(fname) >= 0)
+        loaded = (_LoadLibrary(fname) >= 0)
 
     if not loaded:
         hdtv.ui.error("Failed to load library %s" % libname)
         sys.exit(1)
+
+
+def _LoadLibrary(fname):
+        ROOT.gSystem.SetDynamicPath(os.path.dirname(fname) + os.pathsep +
+            ROOT.gSystem.GetDynamicPath())
+        ROOT.gSystem.SetIncludePath(os.path.dirname(fname) + os.pathsep +
+            ROOT.gSystem.GetDynamicPath())
+        return ROOT.gSystem.Load(fname)
 
 
 def RebuildLibraries(libdir):
