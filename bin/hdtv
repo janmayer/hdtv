@@ -45,19 +45,16 @@ os.environ["HDTV_USER_PATH"] = configpath
 sys.path.append(configpath)
 sys.path.append(configpath + "/plugins")
 
-# Check if we are inside the hdtv source directory
-hdtvpath = sys.path[0].split(os.sep)
-hdtvpath = os.sep.join(hdtvpath[:-1])
-if os.path.exists(hdtvpath + os.sep + 'hdtv'):
+# Check if we are inside the hdtv source directory and append
+hdtvpath = os.sep.join(sys.path[0].split(os.sep)[:-1])
+if os.path.exists(os.path.join(hdtvpath, 'hdtv')):
     sys.path.insert(1, hdtvpath)
-else:
-    # HDTV is most likely installed/split into the different system dirs
-    # Add HDTV include path to ROOT_INCLUDE_PATH
-    # This neds to happen before "import ROOT" is called the first time –
-    # if not, there will be a header not found error
-    # for *some* ROOT versions and install methods
-    import hdtv.rootext
-    hdtv.rootext.UpdateRootIncludePath()
+
+# This needs to happen before "import ROOT" is called the first time –
+# if not, there will be a header not found error
+# for *some* ROOT versions and install methods
+import hdtv.rootext
+hdtv.rootext.UpdateRootIncludePath()
 
 import hdtv.version
 # Command line arguments

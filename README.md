@@ -9,38 +9,87 @@ customize. HDTV is written in a mixture of C++ and Python, glued
 together using PyROOT.
 
 
-## Install
+## Installation
 
-0. To build and run HDTV, the following dependencies are required:
+### Requirements
+To build and run HDTV, the following dependencies are required:
 
-    * [ROOT](https://root.cern/) 6
-    * [libmfile](https://gitlab.ikp.uni-koeln.de/jmayer/libmfile)
-    * python2.7 *or* python3
-    * python-scipy
-    * python-matplotlib
-    * python-docutils (*build, for the documentation*)
-    * libx11 (*build*)
+* libx11 (*build*)
+* python2.7 *or* python3
+* python-scipy
+* python-matplotlib
+* python-docutils (*build, for the documentation*)
+* [ROOT](https://root.cern/) 6
+    - Needs to be compiled against the correct python version.
+    - In python, `import ROOT` must succeed.
+    - System packages may be available, e.g. `root python2-root`
+* [libmfile](https://gitlab.ikp.uni-koeln.de/jmayer/libmfile)
 
-1. Run locally from source directory
 
-	```
-	make
-	./bin/hdtv
-	```
+### Installation via pip
 
-2. (Optionally) Generate man pages
+If you use pip to you manage your python packages (recommended):
+```
+pip install --egg https://gitlab.ikp.uni-koeln.de/staging/hdtv/repository/master/archive.zip
+```
+
+It is also possible to create a pip-installable package with 
+`python setup.py sdist`.
+
+
+### Installation without pip
+- Clone repository
 
     ```
-	make doc
-	```
+    git clone https://gitlab.ikp.uni-koeln.de/staging/hdtv.git
+    cd hdtv
+    ```
 
-3. Install into system for current user only
+- Install into system for current user only
 
-	`python setup.py install --user`
+    `python setup.py install --user`
 
-4. Install into system (requires superuser's rights)
+-  Install into system (requires superuser's rights)
 
 	`python setup.py install`
+
+
+### Run locally from source directory without installation
+
+```
+git clone https://gitlab.ikp.uni-koeln.de/staging/hdtv.git
+cd hdtv
+./bin/hdtv
+```
+
+Generate man pages:
+
+```
+cd doc/guide
+make doc
+```
+
+
+### Handling different ROOT versions
+
+HDTV uses `ROOT.gSystem.Load(libary)` to load some critical
+components. These need to be compiled against the *exact* ROOT
+version imported in python. HDTV will try to automatically recompile
+the libraries for the current ROOT if the available ones cannot
+be loaded. This can also be forced with:
+
+`hdtv --rebuild-usr`  
+
+When installed system-wide, the libraries can be recompiled once for
+all users with:
+ 
+`hdtv --rebuild-sys`
+
+This eliminates the need to reinstall HDTV after changes to the root
+installation.  
+
+Multiple Versions of ROOT can be used alongside, the correct library 
+version will be choosen.
 
 
 ## Documentation
