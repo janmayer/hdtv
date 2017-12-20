@@ -19,6 +19,8 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
+from __future__ import print_function
+
 import math
 import re
 import os
@@ -27,7 +29,7 @@ import traceback
 import hdtv.options
 import hdtv.errvalue
 import hdtv.ui
-
+from hdtv.color import tcolors
 
 def Indent(s, indent=" "):
     """
@@ -35,52 +37,28 @@ def Indent(s, indent=" "):
     """
     return indent + ("\n" + indent).join(s.splitlines()) + "\n"
 
+
 def GetCompleteOptions(begin, options):
     l = len(begin)
     return [o + " " for o in options if o[0:l] == begin]
-
-# FIXME: remove
-#def GetCompleteOptions(text, keys):
-#    options = []
-#    l = len(text)
-#    for k in keys:
-#        if k[0:l] == text:
-#            options.append(k)
-#    return options
-
-
-
-## FIXME: remove
-#def compareID(a,b):
-#    try:fa = float(a)
-#    except ValueError: fa=a
-#    try: fb = float(b)
-#    except ValueError: fb=b
-#    return cmp(fa,fb)
-#
-## FIXME: remove
-#class ErrValue(hdtv.errvalue.ErrValue):
-#    def __init__(self, *args):
-#        tb = traceback.extract_stack()[-2]
-#        hdtv.ui.warn("ErrValue class has been moved to file errvalue.py!\n"
-#                     + "    (called from file \"%s\", line %d, in %s)" % (tb[0], tb[1], tb[2]))
-#        hdtv.errvalue.ErrValue.__init__(self, *args)
 
 
 class TxtFile(object):
     """
     Handle txt files, ignoring commented lines
     """
-    def __init__(self, filename, mode = "r"):
+
+    def __init__(self, filename, mode="r"):
 
         self.lines = list()
         self.linos = list()
         self.mode = mode
-        filename = filename.rstrip() # TODO: this has to be handled properly (escaped whitespaces, etc...)
+        # TODO: this has to be handled properly (escaped whitespaces, etc...)
+        filename = filename.rstrip()
         self.filename = os.path.expanduser(filename)
         self.fd = None
 
-    def read(self, verbose = False):
+    def read(self, verbose=False):
         """
         Read text file to self.lines
 
@@ -92,9 +70,10 @@ class TxtFile(object):
             prev_line = ""
             number = 0
             for line in self.fd:
-                number +=1
+                number += 1
                 line = line.rstrip('\r\n ')
-                if len(line) > 0 and line[-1] == '\\': # line is continued on next line
+                # line is continued on next line
+                if len(line) > 0 and line[-1] == '\\':
                     prev_line += line.rstrip('\\')
                     continue
                 else:
@@ -102,21 +81,21 @@ class TxtFile(object):
                         line = prev_line + " " + line
                     prev_line = ""
                 if verbose:
-                    hdtv.ui.msg("file> " + str(line))
+                    hdtv.ui.msg(get_prompt('file', inputable=False) + str(line))
 
                 # Strip comments
-                line = line.split("#")[0]
+                line = remove_comments(line)
                 if line.strip() == "":
                     continue
                 self.lines.append(line)
                 self.linos.append(number)
 
-        except IOError, msg:
-            raise IOError, "Error opening file:" + str(msg)
-        except: # Let MainLoop handle other exceptions
-            raise
+        except IOError as msg:
+            raise IOError("Error opening file:" + str(msg))
+        #except BaseException:  # Let MainLoop handle other exceptions
+        #    raise
         finally:
-            if not self.fd is None:
+            if self.fd is not None:
                 self.fd.close()
 
     def write(self):
@@ -131,13 +110,14 @@ class TxtFile(object):
                 line.rstrip('\r\n ')
                 line += os.linesep
                 self.fd.write(line)
-        except IOError, msg:
-            raise IOError, ("Error opening file: %s" % msg)
-        except:
+        except IOError as msg:
+            raise IOError("Error opening file: %s" % msg)
+        except BaseException:
             raise
         finally:
-            if not self.fd is None:
+            if self.fd is not None:
                 self.fd.close()
+
 
 class Pairs(list):
     """
@@ -145,10 +125,12 @@ class Pairs(list):
 
     conv_func: conversion function to be called berfore storage of pair
     """
-    def __init__(self, conv_func = lambda x: x): # default conversion is "identity" -> No conversion
+
+    # default conversion is "identity" -> No conversion
+    def __init__(self, conv_func=lambda x: x):
 
         super(Pairs, self).__init__()
-        self.conv_func = conv_func # Conversion function, e.g. float
+        self.conv_func = conv_func  # Conversion function, e.g. float
 
     def add(self, x, y):
         """
@@ -162,7 +144,7 @@ class Pairs(list):
         """
         pass
 
-    def fromFile(self, fname, sep = None):
+    def fromFile(self, fname, sep=None):
         """
         Read pairs from file
         """
@@ -173,22 +155,30 @@ class Pairs(list):
             try:
                 self.add(pair[0], pair[1])
             except (ValueError, IndexError):
-                print "Invalid Line in", fname, ":", line
+                print("Invalid Line in", fname, ":", line)
 
     def fromLists(self, list1, list2):
         """
         Create pairs from to lists by assigning corresponding indices
         """
         if len(list1) != len(list2):
-            hdtv.ui.error("Lists for Pairs.fromLists() are of different length")
+            hdtv.ui.error(
+                "Lists for Pairs.fromLists() are of different length")
             return False
 
-        for i in range(0, len(list1)):
-            self.add(list1[i], list2[i])
+        for item1, item2 in zip(list1, list2):
+            self.add(item1, item2)
 
 
-opt = hdtv.options.Option(default = "classic")
-hdtv.options.RegisterOption("table", opt)
+opt_table = hdtv.options.Option(
+    default="modern",
+    parse=hdtv.options.parse_choices(["classic", "simple", "grid", "modern"]))
+hdtv.options.RegisterOption("table", opt_table)
+
+opt_uncertainties = hdtv.options.Option(
+    default="short",
+    parse=hdtv.options.parse_choices(["short", "long"]))
+hdtv.options.RegisterOption("uncertainties", opt_uncertainties)
 
 class Table(object):
     """
@@ -196,8 +186,17 @@ class Table(object):
 
     data: iterable that contains 'keys' as attributes or dict entries
     """
-    def __init__(self, data, keys, header = None, ignoreEmptyCols = True,
-                 sortBy = None, reverseSort = False, extra_header = None, extra_footer = None):
+
+    def __init__(
+            self,
+            data,
+            keys,
+            header=None,
+            ignoreEmptyCols=True,
+            sortBy=None,
+            reverseSort=False,
+            extra_header=None,
+            extra_footer=None):
         self.extra_header = extra_header
         self.extra_footer = extra_footer
         self.sortBy = sortBy
@@ -210,16 +209,30 @@ class Table(object):
             self.col_sep_char = "|"
             self.empty_field = "-"
             self.header_sep_char = "-"
+            self.header_sep_char_sorted = "~"
             self.crossing_char = "+"
-        else:
+        elif style == "simple":
             self.col_sep_char = "\t"
             self.empty_field = ""
             self.header_sep_char = ""
+            self.header_sep_char_sorted = ""
             self.crossing_char = ""
+        elif style == "grid":
+            self.col_sep_char =   '│'  
+            self.empty_field = ''
+            self.header_sep_char =   '─'  
+            self.header_sep_char_sorted =   '╌'  
+            self.crossing_char =   '┼'  
+        else: # default style 'modern'
+            self.col_sep_char = ''
+            self.empty_field = ''
+            self.header_sep_char =   '─'  
+            self.header_sep_char_sorted =   '━'  
+            self.crossing_char = ''
 
-        self._width = 0 # Width of table
-        self._col_width = list() # width of columns
 
+        self._width = 0  # Width of table
+        self._col_width = list()  # width of columns
 
         # One additional "border column"
         self._ignore_col = [ignoreEmptyCols for i in range(0, len(keys) + 1)]
@@ -257,46 +270,48 @@ class Table(object):
             self.header = header
         # initial width of columns
         for header in self.header:
-            # TODO: len fails on unicode characters (e.g. σ) -> str.decode(encoding)
+            # TODO: len fails on unicode characters (e.g. σ) ->
+            # str.decode(encoding)
             self._col_width.append(len(str(header)) + 2)
 
     def build_lines(self):
         lines = list()
         for d in self.data:
             line = list()
-            for i in range(0, len(self.keys)):
+            for i, key in enumerate(self.keys):
                 try:
-                    value = d[self.keys[i]]
+                    value = d[key]
                     # deal with ErrValues
                     try:
                         if value.value is None:
                             value = ""
-                    except:
+                    except BaseException:
                         pass
                     if value is None:
                         value = ""
                     else:
-                        if self.style == "classic":
+                        if hdtv.options.Get("uncertainties") == "short":
                             value = str(value)
                         else:
                             try:
                                 value = value.fmt_long(prec=4, separator=" ")
-                            except:
+                            except BaseException:
                                 value = str(value)
-                    if not value is "" : # We have values in this columns -> don't ignore it
+                    if not value is "":  # We have values in this columns -> don't ignore it
                         self._ignore_col[i] = False
 
                     line.append(value)
                     # TODO: len fails on unicode characters (e.g. σ) -> str.decode(encoding)
                     # Store maximum col width
-                    self._col_width[i] = max(self._col_width[i], len(value) + 2)
+                    self._col_width[i] = max(
+                        self._col_width[i], len(value) + 2)
                 except KeyError:
                     line.append(self.empty_field)
             lines.append(line)
         return lines
 
     def sort_data(self, sortBy, reverseSort=False):
-        self.data.sort(key = lambda x: x[sortBy], reverse = reverseSort)
+        self.data.sort(key=lambda x: x[sortBy], reverse=reverseSort)
 
     def calc_width(self):
         # Determine table widths
@@ -310,7 +325,8 @@ class Table(object):
         headerline = str()
         for col in range(0, len(self.header)):
             if not self._ignore_col[col]:
-                headerline += str(" " + self.header[col] + " ").center(self._col_width[col])
+                headerline += tcolors.bold(str(" " + self.header[col] +
+                                  " ").center(self._col_width[col]))
             if not self._ignore_col[col + 1]:
                 headerline += self.col_sep_char
         return headerline
@@ -321,14 +337,17 @@ class Table(object):
         for i in range(0, len(self._col_width)):
             if not self._ignore_col[i]:
                 for j in range(0, self._col_width[i]):
-                    header_sep_line += self.header_sep_char
+                    if self.header[i] == self.sortBy:
+                        header_sep_line += self.header_sep_char_sorted
+                    else:
+                        header_sep_line += self.header_sep_char
                 if not self._ignore_col[i + 1]:
                     header_sep_line += self.crossing_char
         return header_sep_line
 
     def __str__(self):
         text = str()
-        if not self.extra_header is None:
+        if self.extra_header is not None:
             text += str(self.extra_header) + os.linesep
 
         # this must be before the header, because of self._ignore_col
@@ -344,16 +363,18 @@ class Table(object):
             line_str = ""
             for col in range(0, len(line)):
                 if not self._ignore_col[col]:
-                    line_str += str(" " + line[col] + " ").rjust(self._col_width[col])
+                    line_str += str(" " + line[col] +
+                                    " ").rjust(self._col_width[col])
                 if not self._ignore_col[col + 1]:
                     line_str += self.col_sep_char
 
             text += line_str + os.linesep
 
-        if not self.extra_footer is None:
+        if self.extra_footer is not None:
             text += str(self.extra_footer) + os.linesep
 
         return text
+
 
 class Position(object):
     """
@@ -362,7 +383,8 @@ class Position(object):
     if self.pos_cal is set the position is fixed in calibrated space.
     if self.pos_uncal is set the position is fixed in uncalibrated space.
     """
-    def __init__(self, pos, fixedInCal, cal = None):
+
+    def __init__(self, pos, fixedInCal, cal=None):
         self.cal = cal
         self._fixedInCal = fixedInCal
         if fixedInCal:
@@ -375,7 +397,7 @@ class Position(object):
     # pos_cal
     def _set_pos_cal(self, pos):
         if not self.fixedInCal:
-            raise TypeError, "Position is fixed in uncalibrated space"
+            raise TypeError("Position is fixed in uncalibrated space")
         self._pos_cal = pos
         self._pos_uncal = None
 
@@ -390,7 +412,7 @@ class Position(object):
     # pos_uncal
     def _set_pos_uncal(self, pos):
         if self._fixedInCal:
-            raise TypeError, "Position is fixed in calibrated space"
+            raise TypeError("Position is fixed in calibrated space")
         self._pos_uncal = pos
         self._pos_cal = None
 
@@ -413,7 +435,6 @@ class Position(object):
         return self._fixedInCal
 
     fixedInCal = property(_get_fixedInCal, _set_fixedInCal)
-
 
     # other functions
     def __str__(self):
@@ -454,6 +475,7 @@ class Position(object):
             self._fixedInCal = False
             self.pos_uncal = self._E2Ch(self._pos_cal)
 
+
 class ID(object):
     def __init__(self, major=None, minor=None):
         if major is None:
@@ -461,48 +483,72 @@ class ID(object):
         else:
             self.major = int(major)
             if self.major < 0:
-                raise ValueError, "Only positive major IDs allowed"
+                raise ValueError("Only positive major IDs allowed")
         if minor is None:
             self.minor = None
         else:
             self.minor = int(minor)
             if self.minor < 0:
-                raise ValueError, "Only positive minor IDs allowed"
+                raise ValueError("Only positive minor IDs allowed")
 
-    def __cmp__(self, ID):
-        if ID is None:
-            return 1
-        if self.major > ID.major:
-            return 1
-        if self.major < ID.major:
-            return -1
-        return cmp(self.minor, ID.minor)
+    def __eq__(self, other):
+        if other is None:
+            return False
+        return ((self.major, self.minor) == (other.major, other.minor))
+
+    def __ne__(self, other):
+        if other is None:
+            return True
+        return not ((self.major, self.minor) == (other.major, other.minor))
+
+    def __gt__(self, other):
+        try:
+            if (self.major == other.major):
+                return self.minor > other.minor
+            return self.major > other.major
+        except TypeError:
+            return True
+
+    def __lt__(self, other):
+        try:
+            if (self.major == other.major):
+                return self.minor < other.minor
+            return self.major < other.major
+        except TypeError:
+            return False
+
+    def __ge__(self, other):
+        return (self.__gt__(other) or self.__eq__(other))
+
+    def __le__(self, other):
+        return (self.__lt__(other) or self.__eq__(other))
 
     def __hash__(self):
         # this is needed to use IDs as keys in dicts and in sets
-        return hash(self.major)^hash(self.minor)
+        return hash(self.major) ^ hash(self.minor)
 
     def __str__(self):
+        if self.major is None and self.minor is None:
+            return "-"
         if self.major is None:
-            return "."+str(self.minor)
+            return "." + str(self.minor)
         if self.minor is None:
             return str(self.major)
-        return str(self.major)+"."+str(self.minor)
+        return str(self.major) + "." + str(self.minor)
 
     def __int__(self):
         return int(self.major)
 
     def __float__(self):
         if self.major is None:
-            return int(self.minor)/10.
+            return int(self.minor) / 10.
         if self.minor is None:
             return int(self.major)
-        return int(self.major) + int(self.minor)/10.
-
+        return int(self.major) + int(self.minor) / 10.
 
     @classmethod
     def _parseSpecialID(cls, string, manager):
-        if string.upper()=="NONE":
+        if string.upper() == "NONE":
             return list()
         elif string.upper() == "NEXT":
             return [manager.nextID]
@@ -512,7 +558,7 @@ class ID(object):
             return [manager.firstID]
         elif string.upper() == "LAST":
             return [manager.lastID]
-        elif string.upper()== "ACTIVE":
+        elif string.upper() == "ACTIVE":
             return [manager.activeID]
         elif string.upper() == "ALL":
             return manager.ids
@@ -551,7 +597,7 @@ class ID(object):
         for s in parts:
             # first deal with ranges
             if "-" in s:
-                start,stop = s.split("-")
+                start, stop = s.split("-")
                 # start
                 try:
                     special = cls._parseSpecialID(start, manager)
@@ -561,7 +607,7 @@ class ID(object):
                     hdtv.ui.error("Invalid key word %s" % start)
                     raise ValueError
                 else:
-                    if len(special)==0:
+                    if len(special) == 0:
                         start = special[0]
                     elif len(special) > 0:
                         hdtv.ui.error("Invalid ID %s" % start)
@@ -572,16 +618,17 @@ class ID(object):
                 except ValueError:
                     stop = cls._parseNormalID(stop)
                 except AttributeError:
-                    hdtv.ui.error("Invalid key word %s" %stop)
+                    hdtv.ui.error("Invalid key word %s" % stop)
                     raise ValueError
                 else:
-                    if len(special)==0:
+                    if len(special) == 0:
                         stop = special[0]
                     elif len(special) > 0:
                         hdtv.ui.error("Invalid ID %s" % stop)
                         raise ValueError
                 # fill the range
-                ids.extend([i for i in manager.ids if (i>=start and i<=stop)])
+                ids.extend(
+                    [i for i in manager.ids if (i >= start and i <= stop)])
             else:
                 try:
                     special = cls._parseSpecialID(s, manager)
@@ -604,14 +651,79 @@ class ID(object):
                 for mID in manager.ids:
                     if (mID.major == ID.major) and (mID.minor == ID.minor):
                         valid_ids.append(ID)
-                        break # break out of for mID in manager.ids loop
+                        break  # break out of for mID in manager.ids loop
 
-                if ID not in valid_ids: # This only works because we appended IDs above, not mIDs, because they are different instances of the ID object
-                    hdtv.ui.warn("Non-existent id %s" %ID)
+                if ID not in valid_ids:  # This only works because we appended IDs above, not mIDs, because they are different instances of the ID object
+                    hdtv.ui.warn("Non-existent id %s" % ID)
 
         else:
-            valid_ids=ids
+            valid_ids = ids
 
         return valid_ids
 
+def remove_comments(string):
+    """
+    Removes '#' comments at the end of a line
+    """
+    pattern = r"(\".*?\"|\'.*?\')|(#[^\r\n]*$)"
+    regex = re.compile(pattern, re.MULTILINE|re.DOTALL)
+    def _replacer(match):
+        if match.group(2) is not None:
+            return ""
+        else:
+            return match.group(1)
+    return regex.sub(_replacer, string)
 
+def split_line(line):
+    """
+    Splits multiple commands in a single line separated by ';'
+    """
+    split_pattern = re.compile(r'''((?:[^;"']|"[^"]*"|'[^']*')+)''')
+    return split_pattern.split(line)[1::2]
+
+def get_prompt(prompt, sep='>', inputable=True):
+    if inputable:
+        return (tcolors.RL_PROMPT_START_IGNORE + tcolors.PROMPT +
+            tcolors.RL_PROMPT_END_IGNORE + prompt + sep + " " +
+            tcolors.RL_PROMPT_START_IGNORE  + tcolors.ENDC +
+            tcolors.RL_PROMPT_END_IGNORE)
+    else:
+        return tcolors.PROMPT + prompt + sep + " " + tcolors.ENDC
+
+def user_save_file(filename, force=False):
+    """
+    Make sure filename is not in use. Offer to backup existing file
+    unless force is True.
+    Returns filename if successful or False if aborted.
+    """
+    filename = os.path.expanduser(filename)
+    if not force and os.path.exists(filename):
+        hdtv.ui.warn('This file already exists:')
+        overwrite = None
+        while overwrite not in ['Y', 'y', 'N', 'n', 'B', 'b', '']:
+            question = "Replace [y/n] or backup [B] file? "
+            overwrite = hdtv.cmdline.get_input(question)
+        if overwrite in ['b', 'B', '']:
+            backup_file(filename)
+        elif overwrite in ['n', 'N']:
+            return False
+    return filename
+
+def backup_file(filename, bak_ext='bak'):
+    """
+    Safely backup a file, using a new filename
+    """
+    backup_name_stem = backup_name = filename + '.' + bak_ext
+    for i in count():
+        if not os.path.isfile(backup_name):
+            break
+        backup_name = backup_name_stem + '.' + str(i)
+    os.rename(filename, backup_name)
+
+def count(index=0):
+    """
+    Count to infinity
+    """
+    while True:
+        yield index
+        index += 1

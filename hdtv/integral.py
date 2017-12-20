@@ -19,59 +19,61 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
+from __future__ import print_function
+
 import ROOT
 import hdtv.ui
 from hdtv.errvalue import ErrValue
 
+
 def Integrate(spec, bg, region):
     hist = spec.hist.hist
-    
     region.sort()
+    
     int_tot = ROOT.HDTV.Fit.TH1Integral(hist, region[0], region[1])
-    
-    int_bac = None
-    int_sub = None
-    
-    if bg:
-        for i in range(0, bg.GetDegree()+1):
-            par = ErrValue(bg.GetFunc().GetParameter(i), bg.GetFunc().GetParError(i))
-            print "bg[%d]: %10s" % (i, par.fmt())
-        
-        int_bac = ROOT.HDTV.Fit.BgIntegral(bg, region[0], region[1], hist.GetXaxis())
-        int_sub = ROOT.HDTV.Fit.TH1BgsubIntegral(hist, bg, region[0], region[1])
-    
-    hdtv.ui.msg("")
-    hdtv.ui.msg("type        position           width          volume        skewness")
-    for (integral, kind) in zip((int_tot, int_bac, int_sub), ("tot:", "bac:", "sub:")):
-        if integral:
-            pos = ErrValue(integral.GetMean(), integral.GetMeanError())
-            width = ErrValue(integral.GetWidth(), integral.GetWidthError())
-            vol = ErrValue(integral.GetIntegral(), integral.GetIntegralError())
-            skew = ErrValue(integral.GetRawSkewness(), integral.GetRawSkewnessError())
-            
-            msg = "%s %15s %15s %15s %15s" % \
-                (kind, pos.fmt(), width.fmt(), vol.fmt(), skew.fmt())
-            hdtv.ui.msg(msg)
+    int_bac = ROOT.HDTV.Fit.BgIntegral(
+        bg, region[0], region[1], hist.GetXaxis()) if bg else None
+    int_sub = ROOT.HDTV.Fit.TH1BgsubIntegral(
+        hist, bg, region[0], region[1]) if bg else None
+
+    return {kind: get_integral_info(spec, integral) for (kind, integral) in
+            zip(("tot", "bg", "sub"), (int_tot, int_bac, int_sub))}
+
+def get_integral_info(spec, integral):
+    if not integral:
+        return None
+    pos = ErrValue(integral.GetMean(), integral.GetMeanError())
+    width = ErrValue(integral.GetWidth(), integral.GetWidthError())
+    vol = ErrValue(integral.GetIntegral(), integral.GetIntegralError())
+    skew = ErrValue(integral.GetRawSkewness(),
+                    integral.GetRawSkewnessError())
+    integral_info = {'uncal': {'pos': pos, 'width': width, 'vol': vol, 'skew': skew}}
     
     if spec.cal:
-        hdtv.ui.msg("")
-        hdtv.ui.msg("type  position (cal)     width (cal)")
-        for (integral, kind) in zip((int_tot, int_bac, int_sub), ("tot:", "bac:", "sub:")):
-            if integral:
-                pos_uncal = integral.GetMean()
-                pos_err_uncal = integral.GetMeanError()
-                pos_cal = spec.cal.Ch2E(pos_uncal)
-                pos_err_cal = abs(spec.cal.dEdCh(pos_uncal) * pos_err_uncal)
-                
-                hwhm_uncal = integral.GetWidth()/2
-                width_err_uncal = integral.GetWidthError()
-                width_cal = spec.cal.Ch2E(pos_uncal + hwhm_uncal) - spec.cal.Ch2E(pos_uncal - hwhm_uncal)
-                # This is only an approximation, valid as d(width_cal)/d(pos_uncal) \approx 0
-                #  (which is true for Ch2E \approx linear)
-                width_err_cal = abs( (spec.cal.dEdCh(pos_uncal + hwhm_uncal) / 2. + 
-                                      spec.cal.dEdCh(pos_uncal - hwhm_uncal) / 2.   ) * width_err_uncal)
-                msg = "%s %15s %15s" % \
-                    (kind, ErrValue(pos_cal, pos_err_cal).fmt(), \
-                     ErrValue(width_cal, width_err_cal).fmt())
-                hdtv.ui.msg(msg)
-            
+        return calibrate_integral(integral_info, spec.cal)
+    return integral_info
+
+def calibrate_integral(integral_info, cal):
+    pos = integral_info['uncal']['pos']
+    width = integral_info['uncal']['width']
+
+    pos_cal = ErrValue(
+        cal.Ch2E(pos.nominal_value),
+        abs(cal.dEdCh(pos.nominal_value) * pos.std_dev))
+    hwhm_uncal = width.nominal_value / 2
+    width_cal_n = (cal.Ch2E(pos.nominal_value + hwhm_uncal) -
+                   cal.Ch2E(pos.nominal_value - hwhm_uncal))
+    # This is only an approximation, valid as d(width_cal_n)/d(pos.nominal_value) ≈ 0
+    #  (which is true for Ch2E ≈ linear)
+    width_cal_std_dev = abs(
+        (cal.dEdCh(pos.nominal_value + hwhm_uncal) / 2. + 
+         cal.dEdCh(pos.nominal_value - hwhm_uncal) / 2.) *
+        width.std_dev)
+    width_cal = ErrValue(width_cal_n, width_cal_std_dev)
+    # TODO: Does it make sense to calibrate the skewness?
+    # Not relevant for calibrations with degree < 2
+    
+    cal = {'pos': pos_cal, 'width': width_cal, 'vol': integral_info['uncal']['vol']}
+    integral_info.update({'cal': cal})
+
+    return integral_info

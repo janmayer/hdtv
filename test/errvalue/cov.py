@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # Simple Monte Carlo simulation to test propagation of covariance.
@@ -19,19 +19,22 @@
 #    cov(a, b) = var(f) + (1-2)*cov(f,g) - 2*var(g) = -28
 #
 # This result is then compared to a Monte Carlo simulation.
+
+from __future__ import print_function
+
 import ROOT
 
 rand = ROOT.TRandom2()
 
 h = ROOT.TH2I("test", "test", 300, -60, 40, 300, -60., 100.)
 
-for i in range(0,1000000):
+for i in range(0, 1000000):
     x = rand.Gaus(0., 1.)
     y = rand.Gaus(0., 2.)
-    f = 3*x+2*y+5.
-    g = x-3*y-10.
-    
-    h.Fill(f+g-10., f-2*g-10.)
-    
-print "MC result: %.6f" % h.GetCovariance()
-print "Expected: -28"
+    f = 3 * x + 2 * y + 5.
+    g = x - 3 * y - 10.
+
+    h.Fill(f + g - 10., f - 2 * g - 10.)
+
+print("MC result: %.6f" % h.GetCovariance())
+print("Expected: -28")

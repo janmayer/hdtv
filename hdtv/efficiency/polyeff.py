@@ -21,9 +21,10 @@
 
 from . efficiency import _Efficiency
 from ROOT import TF1, TF2
-from hdtv.errvalue import ErrValue, log, exp
+from hdtv.errvalue import ErrValue
+from hdtv.errvalue import log, exp
+from math import pow
 from hdtv.util import Pairs
-import math
 
 
 class PolyEff(_Efficiency):
@@ -33,7 +34,8 @@ class PolyEff(_Efficiency):
     Internally working on double logarithmic E and eff scale
 
     """
-    def __init__(self, pars = list(), degree = 4, norm = False):
+
+    def __init__(self, pars=list(), degree=4, norm=False):
 
         self.name = "Polynom"
         self.id = self.name + "_" + hex(id(self))
@@ -43,12 +45,12 @@ class PolyEff(_Efficiency):
         TFString = "[0] * ([1]"
 
         for i in range(2, degree + 2):
-            TFString += " + [%d]*x^%d" % (i, i-1)
+            TFString += " + [%d]*x^%d" % (i, i - 1)
 
         TFString += ")"
 
         self.TF1 = TF1(self.id, TFString, 0, 0)
-        _Efficiency.__init__(self, num_pars = degree + 1 , pars = pars, norm = norm)
+        _Efficiency.__init__(self, num_pars=degree + 1, pars=pars, norm=norm)
 
         # Builing derivatives dEff/dParameter[x]
 
@@ -57,26 +59,23 @@ class PolyEff(_Efficiency):
         # http://code.activestate.com/recipes/502271/
         # for this strange constructor
         def dEff_dP(i):
-            return lambda logE, fPars: self.norm * math.pow(logE, i)
+            return lambda logE, fPars: self.norm * pow(logE, i)
 
         for i in range(0, degree + 1):
             self._dEff_dP[i] = dEff_dP(i)
 
-
-
     def _set_fitInput(self, fitPairs):
 
-        ln_fitPairs = Pairs(conv_func = log)
+        ln_fitPairs = Pairs(conv_func=log)
 
         for p in fitPairs:
             ln_fitPairs.add(p[0], p[1])
 
         _Efficiency._set_fitInput(self, ln_fitPairs)
 
-
     def _get_fitInput(self):
 
-        fitPairs = Pairs(conv_func = exp)
+        fitPairs = Pairs(conv_func=exp)
 
         for p in self._fitInput:
             fitPairs.add(p[0], p[1])
@@ -89,7 +88,8 @@ class PolyEff(_Efficiency):
         # Normalize the efficiency function
 
         try:
-            self.norm = 1.0 / exp(self.TF1.GetMaximum(min([p[0] for p in self._fitInput]), max([p[0] for p in self._fitInput])))
+            self.norm = 1.0 / exp(self.TF1.GetMaximum(
+                min([p[0] for p in self._fitInput]), max([p[0] for p in self._fitInput])))
         except ZeroDivisionError:
             self.norm = 1.0
 
@@ -119,6 +119,6 @@ class PolyEff(_Efficiency):
         tmp1 = self.norm * exp(ln_eff + ln_err)
         tmp2 = self.norm * exp(ln_eff - ln_err)
 
-        error = abs(tmp1 - tmp2)/2.
+        error = abs(tmp1 - tmp2) / 2.
 
         return self.norm * error

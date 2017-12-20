@@ -33,61 +33,60 @@ class Matrix(DrawableManager):
         self.histo2D = histo2D
         self.sym = sym
         self.ID = None
-        self._xproj=None
-        self._yproj=None
+        self._xproj = None
+        self._yproj = None
         self._color = hdtv.color.default
 
     # color property
     def _set_color(self, color):
         # give all cuts and projections the same color
         self._color = color
-        for cut in self.dict.itervalues():
+        for cut in self.dict.values():
             cut.color = color
         if self._xproj is not None:
             self._xproj.color = color
         if self._yproj is not None:
             self._yproj.color = color
-            
+
     def _get_color(self):
         return self._color
-        
+
     color = property(_get_color, _set_color)
-    
+
     # name
     @property
     def name(self):
         return self.histo2D.name
-        
+
     # projections
     @property
     def xproj(self):
         return self.project(axis="x")
-            
+
     @property
     def yproj(self):
         return self.project(axis="y")
-        
+
     def project(self, axis):
         """
         Return Projection along a given axis
         """
-        if getattr(self, "_%sproj" %axis) is None:
+        if getattr(self, "_%sproj" % axis) is None:
             # no valid link to that projection, create fresh object
-            hist = getattr(self.histo2D, "%sproj" %axis)
+            hist = getattr(self.histo2D, "%sproj" % axis)
             if self.sym:
                 a = "0"
             else:
                 a = axis
             proj = CutSpectrum(hist, self, axis=a)
             proj.color = self.color
-            setattr(self, "_%sproj" %axis, weakref(proj))
+            setattr(self, "_%sproj" % axis, weakref(proj))
             return proj
         else:
-            return getattr(self, "_%sproj" %axis)
-            
-        
+            return getattr(self, "_%sproj" % axis)
+
     def ExecuteCut(self, cut):
-        cutHisto = self.histo2D.ExecuteCut(cut.regionMarkers, 
+        cutHisto = self.histo2D.ExecuteCut(cut.regionMarkers,
                                            cut.bgMarkers, cut.axis)
         if cut.axis == "x":
             axis = "y"
@@ -114,17 +113,16 @@ class Matrix(DrawableManager):
         self.ActivateObject(ID)
         return ID
 
-
     def ActivateObject(self, ID):
         if ID is not None and ID not in self.ids:
-            raise KeyError 
+            raise KeyError
         # housekeeping for old active cut
         if self.activeID is not None:
             cut = self.GetActiveObject()
             cut.active = False
         # change active ID
-        self.activeID = ID 
-        self._iteratorID = self.activeID 
+        self.activeID = ID
+        self._iteratorID = self.activeID
         # housekeeping for new active cut
         if self.activeID is not None:
             cut = self.GetActiveObject()
@@ -132,8 +130,5 @@ class Matrix(DrawableManager):
 
     def Show(self, axis="0"):
         for ID in self.visible:
-            if self.dict[ID].axis==axis:
+            if self.dict[ID].axis == axis:
                 self.dict[ID].Show()
-    
-
-

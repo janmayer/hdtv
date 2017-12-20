@@ -19,30 +19,34 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 # Infrastructure for configuration variables
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 
-class Option:
+from hdtv.color import tcolors
+from collections import OrderedDict
+
+class Option(object):
     """
     A configuration variable
     """
+
     def __init__(self, default=None,
-                 parse=lambda(x): x,
-                 toStr=lambda(x): str(x),
+                 parse=lambda x: x,
+                 toStr=lambda x: str(x),
                  changeCallback=None):
         self.defaultValue = default
         self.value = self.defaultValue
-        self.Parse = parse
+        self.parse = parse
         self.ToStr = toStr
         self.ChangeCallback = changeCallback
-    
-    def __nonzero__(self):
+
+    def __bool__(self):
         """
         How to convert option to 'bool'
         """
         return bool(self.value)
-    
+
     def Set(self, value):
         """
         Set the variable to the specified value
@@ -50,25 +54,25 @@ class Option:
         self.value = value
         if self.ChangeCallback:
             self.ChangeCallback(self)
-            
+
     def ParseAndSet(self, rawValue):
         """
         Parses rawValue and sets the variable to the result
         """
-        self.Set(self.Parse(rawValue))
-            
+        self.Set(self.parse(rawValue))
+
     def Get(self):
         """
         Return the value of the variable
         """
         return self.value
-        
+
     def Reset(self):
         """
         Reset the variable to its default value
         """
         self.Set(self.defaultValue)
-        
+
     def __str__(self):
         """
         Returns the value as a string
@@ -81,17 +85,20 @@ def RegisterOption(varname, variable):
     Adds a configuration variable
     """
     global variables
-    if varname in variables.keys():
-        raise RuntimeError, "Refusing to overwrite existing configuration variable"
+    if varname in list(variables.keys()):
+        raise RuntimeError(
+            "Refusing to overwrite existing configuration variable")
     variables[varname] = variable
-    
+
+
 def Set(varname, rawValue):
     """
     Sets the variable specified by varname. Raises a KeyError if it does not exist.
     """
     global variables
     variables[varname].ParseAndSet(rawValue)
-    
+
+
 def Get(varname):
     """
     Gets the value of the variable varname. Raises a KeyError if it does not exist.
@@ -99,19 +106,31 @@ def Get(varname):
     global variables
     return variables[varname].Get()
 
+
 def Reset(varname):
     """
-    Resets the value of the variable varname to default. Raises a KeyError if it does not exist.
+    Resets value of variable varname to default. Raises KeyError if it does not exist.
     """
     global variables
     return variables[varname].Reset()
-        
+
+
+def ResetAll():
+    """
+    Resets value of all variables to default.
+    """
+    global variables
+    for (k, v) in variables.items():
+        variables[k].Reset()
+
+
 def Show(varname):
     """
     Shows the value of the variable varname
     """
     global variables
-    return "%s: %s" % (varname, str(variables[varname]))
+    return "%s: %s" % (tcolors.bold(varname), str(variables[varname]))
+
 
 def Str():
     """
@@ -119,11 +138,13 @@ def Str():
     """
     global variables
     string = ""
-    for (k,v) in variables.iteritems():
-        string += "%s: %s\n" % (k, str(v))
+    ordered_options = OrderedDict(sorted(variables.items()))
+    for (k, v) in ordered_options.items():
+        string += "%s: %s\n" % (tcolors.bold(k), str(v))
     return string
 
-def ParseBool(x):
+
+def parse_bool(x):
     """
     Parse boolean options
     """
@@ -132,7 +153,16 @@ def ParseBool(x):
     elif x.lower() == "false":
         return False
     else:
-        raise ValueError
+        raise ValueError("Valid options: True, False.")
 
-    
+def parse_choices(choices):
+    def _parse_choices(x):
+        if x in choices:
+            return x
+        else:
+            raise ValueError("Valid options: " + ", ".join(choices) + ".")
+    return _parse_choices
+
+
+
 variables = dict()

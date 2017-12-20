@@ -19,56 +19,76 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 # HDTV command line
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
+
+from __future__ import print_function
+
 import os
 import sys
 import signal
+import platform
 import traceback
 import code
 import atexit
 import subprocess
 import pwd
-import optparse
+import argparse
 import shlex
-import string
-import hdtv.util
-
 import readline
+#import _sitebuiltins
+
+try:
+    import builtins
+except ImportError:
+    import __builtin__ as builtins
+
+import hdtv.util
+from hdtv.color import tcolors
+
 import ROOT
 import __main__
 
+
 class HDTVCommandError(Exception):
-    pass
-    
+    def __init__(self, value=""):
+        self.value = value
+    def __str__(self):
+        return self.value
+
 class HDTVCommandAbort(Exception):
-    pass
-    
-class HDTVOptionParser(optparse.OptionParser):
-    def _process_args(self, largs, rargs, values):
-        # to avoid negative numbers being processed as options
-        # we add a whitespace in front, the parser no longer processes 
-        # them as options while typecast to numeric is unaffected
-        for i in range(len(rargs)):
-            if rargs[i][:1] == "-":
-                 try:
-                     if float(rargs[i]):
-                         rargs[i] = " " + rargs[i]
-                 except ValueError:
-                     pass
+    def __init__(self, value=""):
+        self.value = value
+    def __str__(self):
+        return self.value
 
-        return optparse.OptionParser._process_args(self, largs, rargs, values)
 
-    def error(self, msg):
-        raise HDTVCommandError, msg
-        
-    def exit(self, status=0, msg=None):
+class HDTVOptionParser(argparse.ArgumentParser):
+#    def _process_args(self, largs, rargs, values):
+#        # to avoid negative numbers being processed as options
+#        # we add a whitespace in front, the parser no longer processes
+#        # them as options while typecast to numeric is unaffected
+#        for i in range(len(rargs)):
+#            if rargs[i][:1] == "-":
+#                try:
+#                    if float(rargs[i]):
+#                        rargs[i] = " " + rargs[i]
+#                except ValueError:
+#                    pass
+#
+#        return optparse.OptionParser._process_args(self, largs, rargs, values)
+
+    def error(self, message):
+        raise HDTVCommandError(message)
+
+    def exit(self, status=0, message=None):
         if status == 0:
-            raise HDTVCommandAbort, msg
+            raise HDTVCommandAbort(message)
         else:
-            raise HDTVCommandError, msg
-    
+            raise HDTVCommandError(message)
+
+
 class HDTVCommandTreeNode(object):
     def __init__(self, parent, title, level):
         self.parent = parent
@@ -92,7 +112,7 @@ class HDTVCommandTreeNode(object):
 
         titles.reverse()
         return " ".join(titles)
-        
+
     def FindChild(self, title, use_levels=True):
         """
         Find the nodes child whose title begins with title.    The use_levels
@@ -113,7 +133,7 @@ class HDTVCommandTreeNode(object):
                 else:
                     return None
         return node
-            
+
     def PrimaryChild(self):
         """
         Returns the child with the lowest level, if unambiguous,
@@ -126,30 +146,32 @@ class HDTVCommandTreeNode(object):
             elif child.level == node.level:
                 return None
         return node
-        
+
     def HasChildren(self):
         """
         Checks if the node has child nodes
         """
         return (len(self.childs) != 0)
-        
+
     def RemoveChild(self, child):
         """
         Deletes the child node child
         """
         del self.childs[self.childs.index(child)]
 
+
 class HDTVCommandTree(HDTVCommandTreeNode):
     """
     The HDTVCommandTree structure contains all commands understood by HDTV.
     """
+
     def __init__(self):
         self.childs = []
         self.parent = None
         self.command = None
         self.options = None
         self.default_level = 1
-    
+
     def SplitCmdline(self, s):
         """
         Split a string, handling escaped whitespace.
@@ -161,19 +183,19 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         lex.quotes = "\""
         lex.commenters = ""
         return list(lex)
-    
+
     def SetDefaultLevel(self, level):
         self.default_level = level
-        
+
     def AddCommand(self, title, command, overwrite=False, level=None, **opt):
         """
         Adds a command, specified by title, to the command tree.
         """
-        if level == None:
+        if level is None:
             level = self.default_level
-        
+
         path = title.split()
-        
+
         node = self
         # Move down the command tree until the level just above the new node,
         #  creating nodes on the way if necessary
@@ -189,18 +211,19 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                 if not next:
                     next = HDTVCommandTreeNode(node, elem, level)
                 node = next
-                
+
         # Check to see if the node we are trying to add already exists; if it
         # does and we are not allowed to overwrite it, raise an error
         if not overwrite:
-            if path[-1] in map(lambda n: n.title, node.childs):
-                raise RuntimeError, "Refusing to overwrite already existing command"
-        
+            if path[-1] in [n.title for n in node.childs]:
+                raise RuntimeError(
+                    "Refusing to overwrite already existing command")
+
         # Create the last node
         node = HDTVCommandTreeNode(node, path[-1], level)
         node.command = command
         node.options = opt
-        
+
     def FindNode(self, path, use_levels=True):
         """
         Finds the command node given by path, which should be a list
@@ -215,108 +238,82 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         while path:
             elem = path.pop(0)
             next = node.FindChild(elem, use_levels)
-            if next == None:  # more than one node found
-                raise HDTVCommandError, "Command is ambiguous"
+            if next is None:  # more than one node found
+                raise HDTVCommandError("Command is ambiguous")
             elif next == 0:   # no nodes found
                 path.insert(0, elem)
                 break
             node = next
-        
+
         return (node, path)
-        
-    def CheckNumParams(self, cmdnode, n):
-        """
-        Checks if the command given by cmdnode will take n parameters.
-        """
-        if "nargs" in cmdnode.options and n != cmdnode.options["nargs"]:
-            return False
-        if "minargs" in cmdnode.options and n < cmdnode.options["minargs"]:
-            return False
-        if "maxargs" in cmdnode.options and n > cmdnode.options["maxargs"]:
-            return False
-        return True
-        
+
     def ExecCommand(self, cmdline):
-        if cmdline.strip() == "":
-            return
-        
-        # Strip comments 
-        cmdline = cmdline.split("#")[0] 
-        if cmdline == "":
-            return
-#        path = cmdline.split()
-        try:
-            path = self.SplitCmdline(cmdline)
-        except ValueError:
-            print "Inappropriate use of quotation characters."
-            return []
-
-        (node, args) = self.FindNode(path)
-        while node and not node.command:
-            node = node.PrimaryChild()
-
-        if not node or not node.command:
-            raise HDTVCommandError, "Command not recognized"
-            
-        # Check if node has a parser option set
-        if "parser" in node.options:
-            parser = node.options["parser"]
-        else:
+        # Strip comments
+        cmdline = hdtv.util.remove_comments(cmdline)
+        for command in hdtv.util.split_line(cmdline):
+            if not command_line.fKeepRunning:
+                break
             parser = None
-            
-        # Try to parse the commands arguments
-        try:
-            if parser:
-                (options, args) = parser.parse_args(args)
-            if not self.CheckNumParams(node, len(args)):
-                raise HDTVCommandError, "Wrong number of arguments to command"
-        except HDTVCommandAbort, msg:
-            if msg:
-                print msg
-            return
-        except HDTVCommandError, msg:
-            if msg:
-                print msg
-            if parser:
-                print parser.get_usage()
-            elif "usage" in node.options:
-                usage = node.options["usage"].replace("%prog", node.FullTitle())
-                print "usage: " + usage
-            return
-            
-        # Execute the command
-        if parser:
-            result = node.command(args, options)
-        else:
-            result = node.command(args)
-            
-        # Print usage if requested
-        if result == "USAGE":
-            if parser:
-                print parser.get_usage()
-            elif "usage" in node.options:
-                usage = node.options["usage"].replace("%prog", node.FullTitle())
-                print "usage: " + usage
-        
+            try:
+                if command.strip() == "":
+                    continue
+                try:
+                    path = self.SplitCmdline(command)
+                except ValueError:
+                    print("Inappropriate use of quotation characters.")
+                    continue
+
+                (node, args) = self.FindNode(path)
+                while node and not node.command:
+                    node = node.PrimaryChild()
+
+                if not node or not node.command:
+                    raise HDTVCommandError("Command not recognized")
+
+                try:
+                    parser = node.options["parser"]
+                except KeyError:
+                    parser = None
+
+                # Parse the commands arguments
+                if parser:
+                    args = parser.parse_args(args)
+
+                # Execute the command
+                node.command(args)
+            except HDTVCommandAbort as msg:
+                if msg.value:
+                    hdtv.ui.error(msg.value)
+            except (HDTVCommandError, BaseException) as msg:
+                try:
+                    if msg.value:
+                        hdtv.ui.error(msg.value)
+                except AttributeError:
+                    hdtv.ui.error(str(msg))
+                if parser:
+                    parser.print_usage()
+                hdtv.ui.debug(traceback.format_exc())
+        return
+
     def RemoveCommand(self, title):
         """
         Removes the command node specified by the string title.
         """
         (node, args) = self.FindNode(title.split(), False)
         if len(args) != 0 or not node.command:
-            raise RuntimeError, "No valid command node specified"
-            
-        while not node.HasChildren() and node.parent != None:
+            raise RuntimeError("No valid command node specified")
+
+        while not node.HasChildren() and node.parent is not None:
             node.parent.RemoveChild(node)
             node = node.parent
-        
+
     def GetFileCompleteOptions(self, directory, text, dirs_only=False):
         """
         Returns a list of all filenames in directory <directory> beginning
         with <text>. If dirs_only=True, only (sub)directories are considered.
         """
         directory = os.path.expanduser(directory)
-        
+
         try:
             files = os.listdir(directory)
         except OSError:
@@ -326,7 +323,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 
         if l:
             for f in files:
-                if string.find(f," ") > -1:
+                if f.find(" ") > -1:
                     files.remove(f)
 
         options = []
@@ -337,7 +334,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                 elif not dirs_only:
                     options.append(f + " ")
         return options
-        
+
     def GetCompleteOptions(self, text):
         """
         Get all possible completions. text is the last part of the current
@@ -348,7 +345,11 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         # Get the entire buffer from the readline library (we need the context)
         # and split it at spaces.
         buf = readline.get_line_buffer()
-        
+        try:
+            buf = hdtv.util.split_line(buf)[-1]
+        except BaseException:
+            pass
+
         try:
             path = self.SplitCmdline(buf)
         except ValueError:
@@ -360,12 +361,12 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         # of the node above are potential completion candidates, if their
         # names begin with the last part of the path.
         last_path = ""
-        
+
         # if buf != "" and not buf[-1].isspace():
         if buf != "" and (not buf[-1].isspace() or path[-1][-1].isspace()):
-                last_path = path[-1]
-                path = path[0:-1]
-        
+            last_path = path[-1]
+            path = path[0:-1]
+
         # Find node specified by path. Since we stripped the incomplete part
         # from path above, it now needs to be unambiguous. If is isn't, we
         # cannot suggest any completions.
@@ -374,11 +375,11 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         except RuntimeError:
             # Command is ambiguous
             return []
-            
+
         options = []
-        
+
         # If the node found has children, and no parts of the part had to
-        # be interpreted as arguments, we suggest suitable child nodes...        
+        # be interpreted as arguments, we suggest suitable child nodes...
         if not args and node.childs:
             l = len(text)
             for child in node.childs:
@@ -395,7 +396,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                 dirs_only = True
             else:
                 dirs_only = False
-             
+
             # If the last part of path was incomplete (i.e. did not end
             # in a space), but contains a slash '/', the part before that
             # slash should be taken a a directory from where to suggest
@@ -404,66 +405,101 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             if last_path:
                 (filepath, text) = os.path.split(last_path)
                 #filepath = os.path.split(last_path)[0]
-                
-            
+
             # Note that the readline library splits at either space ' ' or
             # slash '/', so text, the last part of the command line, would
             # be an (incomplete) filename, always without a directory.
 
-            options = self.GetFileCompleteOptions(filepath or ".", text, dirs_only)
+            options = self.GetFileCompleteOptions(
+                filepath or ".", text, dirs_only)
         else:
             options = []
-        
+
         return options
-            
+
+
+# _sitebuiltins not available in python2
+#class PyModeQuitter(_sitebuiltins.Quitter):
+class PyModeQuitter(object):
+    def __init__(self, name, eof):
+        self.name = name
+        self.eof = eof
+    def __repr__(self):
+        return 'Use %s() to exit hdtv or %s to exit python and return to hdtv' % (self.name, self.eof)
+    def __call__(self, code=None):
+        # Shells like IDLE catch the SystemExit, but listen when their
+        # stdin wrapper is closed.
+        try:
+            sys.stdin.close()
+        except:
+            pass
+        raise SystemExit(code)
+
+
 class CommandLine(object):
     """
     Class implementing the HDTV command line, including switching between
     command and Python mode.
     """
+
     def __init__(self, command_tree, python_completer=None):
         self.fCommandTree = command_tree
         self.fPythonCompleter = python_completer or (lambda: None)
-        
+
         self.fReadlineHistory = None
         self.fReadlineExitHandler = False
-        
+
         self._py_console = code.InteractiveConsole(__main__.__dict__)
 
         self.fPyMode = False
         self.fPyMore = False
-        
+
+        self.fKeepRunning = True
+
+        if os.sep == '\\':
+            eof = 'Ctrl-Z plus Return'
+        else:
+            eof = 'Ctrl-D (i.e. EOF)'
+
+        builtins.quit = PyModeQuitter('quit', eof)
+        builtins.exit = PyModeQuitter('exit', eof)
+
     def ReadReadlineInit(self, filename):
         if os.path.isfile(filename):
             readline.read_init_file(filename)
-        
+
     def SetReadlineHistory(self, filename):
-        self.fReadlineHistory = filename
-        
-        readline.clear_history()
-        if os.path.isfile(self.fReadlineHistory):
+        try:
+            if not os.path.isfile(filename):
+                open(filename, 'a').close()
+            self.fReadlineHistory = filename
+
+            readline.clear_history()
             readline.read_history_file(self.fReadlineHistory)
-            
-        if not self.fReadlineExitHandler:
-            atexit.register(self.WriteReadlineHistory)
-            self.fReadlineExitHandler = True
-            
+
+            if not self.fReadlineExitHandler:
+                atexit.register(self.WriteReadlineHistory)
+                self.fReadlineExitHandler = True
+        except OSError:
+            hdtv.ui.error("Could not read history file \'" + filename +
+                "\', history will be discarded.")
+
     def WriteReadlineHistory(self):
         try:
             readline.write_history_file(self.fReadlineHistory)
-        except IOError:
-            hdtv.ui.error("Could not write \'" + self.fReadlineHistory + "\'")
+        except (IOError, OSError):
+            hdtv.ui.error("Could not write history file \'" + self.fReadlineHistory + "\', history was discarded.")
             sys.exit(1)
-            
+
     def RegisterInteractive(self, name, ref):
         __main__.__dict__[name] = ref
-        
+
     def Unescape(self, s):
         "Recognize special command prefixes"
         s = s.lstrip()
         if len(s) == 0:
-            return (None, None)
-            
+            return ("HDTV", s)
+
         if s[0] == ':':
             return ("PYTHON", s[1:])
         elif s[0] == "%":
@@ -472,42 +508,49 @@ class CommandLine(object):
             return ("CMDFILE", s[1:])
         else:
             return ("HDTV", s)
-        
+
     def EnterPython(self, args=None):
+        if os.sep == '\\':
+            eof = 'Ctrl-Z plus Return'
+        else:
+            eof = 'Ctrl-D (i.e. EOF)'
+        hdtv.ui.msg(
+            "Python {}. Return to hdtv with {}.".format(
+                platform.python_version(), eof))
         self.fPyMode = True
-    
+
     def ExitPython(self):
-        print ""
+        print("")
         self.fPyMode = False
-        
+
     def EnterShell(self, args=None):
         "Execute a subshell"
-        
+
         if "SHELL" in os.environ:
             shell = os.environ["SHELL"]
         else:
             shell = pwd.getpwuid(os.getuid()).pw_shell
-        
+
         subprocess.call(shell)
-        
+
     def Exit(self, args=None):
         self.fKeepRunning = False
-        
+
     def AsyncExit(self):
         "Asynchronous exit; to be called from another thread"
         self.fKeepRunning = False
         os.kill(os.getpid(), signal.SIGINT)
-        
+
     def EOFHandler(self):
-        print ""
+        print("")
         self.Exit()
-        
+
     def GetCompleteOptions(self, text):
         if self.fPyMode or self.fPyMore:
             cmd_type = "PYTHON"
         else:
             (cmd_type, cmd) = self.Unescape(readline.get_line_buffer())
-            
+
         if cmd_type == "HDTV":
             return self.fCommandTree.GetCompleteOptions(text)
         elif cmd_type == "PYTHON":
@@ -515,26 +558,26 @@ class CommandLine(object):
             #  Python completer
             opts = list()
             state = 0
-            
+
             while True:
                 opt = self.fPythonCompleter(text, state)
-                if opt != None:
+                if opt is not None:
                     opts.append(opt)
                 else:
                     break
                 state += 1
-                    
+
             return opts
         elif cmd_type == "CMDFILE":
             filepath = os.path.split(cmd)[0]
-            return self.fCommandTree.GetFileCompleteOptions(filepath or ".", text)
+            return self.fCommandTree.GetFileCompleteOptions(
+                filepath or ".", text)
         else:
             # No completion support for shell commands
             return []
-    
-            
+
     def Complete(self, text, state):
-    	"""
+        """
         Suggest completions for the current command line, whose last token
         is text. This function is intended to be called from the readline
         library *only*.
@@ -556,53 +599,65 @@ class CommandLine(object):
         Execute a command file with hdtv commands (aka batch file)
         """
         hdtv.ui.msg("Execute file: " + fname)
-        
+
         try:
             file = hdtv.util.TxtFile(fname)
             file.read()
-        except IOError, msg:
+        except IOError as msg:
             hdtv.ui.error("%s" % msg)
         for line in file.lines:
-            print "file>", line
+            print(hdtv.util.get_prompt('file', inputable=False) + line)
             self.DoLine(line)
-            if self.fPyMore: # TODO: HACK: How should I teach this micky mouse language that a python statement (e.g. "for ...:") has ended???
+            # TODO: HACK: How should I teach this micky mouse language that a
+            # python statement (e.g. "for ...:") has ended???
+            if self.fPyMore:
                 self.fPyMore = self._py_console.push("")
-    
+            if not self.fKeepRunning:
+                print("")
+                break
+
     def ExecShell(self, cmd):
         subprocess.call(cmd, shell=True)
-    
-    
+
     def DoLine(self, line):
         """
         Deal with one line of input
         """
-         # In Python mode, all commands need to be Python commands ...
-        if self.fPyMode or self.fPyMore:
-            cmd_type = "PYTHON"
-            cmd = line
-        # ... otherwise, the prefix decides.
-        else:
-            (cmd_type, cmd) = self.Unescape(line)
-            
-        # Execute as appropriate type
-        if cmd_type == "HDTV":
-            self.fCommandTree.ExecCommand(cmd)
-        elif cmd_type == "PYTHON":
-            # The push() function returns a boolean indicating
-            #  whether further input from the user is required.
-            #  We set the python mode accordingly.
-            self.fPyMore = self._py_console.push(cmd)
-        elif cmd_type == "CMDFILE":
-            self.ExecCmdfile(cmd)
-        elif cmd_type == "SHELL":
-            self.ExecShell(cmd)
+        try:
+            # In Python mode, all commands need to be Python commands ...
+            if self.fPyMode or self.fPyMore:
+                cmd_type = "PYTHON"
+                cmd = line
+            # ... otherwise, the prefix decides.
+            else:
+                (cmd_type, cmd) = self.Unescape(line)
+
+            # Execute as appropriate type
+            if cmd_type == "HDTV":
+                self.fCommandTree.ExecCommand(cmd)
+            elif cmd_type == "PYTHON":
+                # The push() function returns a boolean indicating
+                #  whether further input from the user is required.
+                #  We set the python mode accordingly.
+                self.fPyMore = self._py_console.push(cmd)
+            elif cmd_type == "CMDFILE":
+                self.ExecCmdfile(cmd)
+            elif cmd_type == "SHELL":
+                self.ExecShell(cmd)
+        except KeyboardInterrupt:
+            hdtv.ui.warn("Aborted")
+        except HDTVCommandError as msg:
+            hdtv.ui.error("%s" % str(msg))
+        except SystemExit:
+            self.Exit()
+        except Exception:
+            hdtv.ui.error("Unhandled exception:")
+            traceback.print_exc()
 
     def MainLoop(self):
-        self.fKeepRunning = True
+        #self.fPyMode = False
+        #self.fPyMore = False
 
-        self.fPyMode = False
-        self.fPyMore = False
-            
         readline.set_completer(self.Complete)
         readline.set_completer_delims(" \t" + os.sep)
         readline.parse_and_bind("tab: complete")
@@ -610,15 +665,15 @@ class CommandLine(object):
             # Read a command from the user
             # Choose correct prompt for current mode
             if self.fPyMore:
-                prompt = "... > "
+                prompt = hdtv.util.get_prompt('... ')
             elif self.fPyMode:
-                prompt = "py  > "
+                prompt = hdtv.util.get_prompt('py', sep='>>>')
             else:
-                prompt = "hdtv> "
-                
+                prompt = hdtv.util.get_prompt('hdtv')
+
             # Read the command
             try:
-                s = raw_input(prompt)
+                line = get_input(prompt)
             except EOFError:
                 # Ctrl-D exits in command mode, and switches back to command mode
                 #  from Python mode
@@ -632,73 +687,73 @@ class CommandLine(object):
                 # exception) is used for asynchronous exit, i.e. if another thread
                 # (e.g. the GUI thread) wants to exit the application.
                 if not self.fKeepRunning:
-                    print ""
+                    print("")
                     break
-                
+
                 # If we get here, we assume the KeyboardInterrupt is due to the user
                 #  hitting Ctrl-C.
-                
+
                 # Ctrl-C can be used to abort the entry of a (multi-line) command.
                 #  If no command is being entered, we assume the user wants to exit
                 #  and explain how to do that correctly.
                 if self.fPyMore:
                     self._py_console.resetbuffer()
                     self.fPyMore = False
-                    print ""
+                    print("")
                 elif readline.get_line_buffer() != "":
-                    print ""
+                    print("")
                 else:
-                    print "\nKeyboardInterrupt: Use \'Ctrl-D\' to exit"
+                    print("\nKeyboardInterrupt: Use \'Ctrl-D\' to exit")
                 continue
-            
+
             # Execute the command
-            try:
-               self.DoLine(s)
-                    
-            except KeyboardInterrupt:
-                print "Aborted"
-            except HDTVCommandError, msg:
-                print "Error: %s" % msg
-            except SystemExit:
-                self.Exit()
-            except Exception:
-                print "Unhandled exception:"
-                traceback.print_exc()
+            self.DoLine(line)
+
+
 def RegisterInteractive(name, ref):
     global command_line
     command_line.RegisterInteractive(name, ref)
-    
+
+
 def SetInteractiveDict(d):
     global command_line
     command_line.fInteractiveLocals = d
 
+
 def AddCommand(title, command, **opt):
     global command_tree
     command_tree.AddCommand(title, command, **opt)
-    
+
+
 def ExecCommand(cmdline):
     global command_tree
     command_tree.ExecCommand(cmdline)
-    
+
+
 def RemoveCommand(title):
     global command_tree
     command_tree.RemoveCommand(title)
-    
+
+
 def ReadReadlineInit(filename):
     global command_line
     command_line.ReadReadlineInit(filename)
-    
+
+
 def SetReadlineHistory(filename):
     global command_line
     command_line.SetReadlineHistory(filename)
-    
+
+
 def AsyncExit():
     global command_line
     command_line.AsyncExit()
-    
+
+
 def MainLoop():
     global command_line
     command_line.MainLoop()
+
 
 # Module-global variables initialization
 global command_tree, command_line
@@ -706,7 +761,13 @@ command_tree = HDTVCommandTree()
 command_line = CommandLine(command_tree, readline.get_completer())
 RegisterInteractive("gCmd", command_tree)
 
-AddCommand("python", command_line.EnterPython, nargs=0)
-AddCommand("shell", command_line.EnterShell, nargs=0, level=2)
-AddCommand("exit", command_line.Exit, nargs=0)
-AddCommand("quit", command_line.Exit, nargs=0)
+AddCommand("python", command_line.EnterPython)
+AddCommand("shell", command_line.EnterShell, level=2)
+AddCommand("exit", command_line.Exit)
+AddCommand("quit", command_line.Exit)
+
+try: # Python2
+    get_input = raw_input
+except NameError: # Python3+
+    get_input = input
+

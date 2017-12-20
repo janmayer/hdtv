@@ -1,15 +1,26 @@
 # Compiled filed and build directories
 hdtv/clib
+dist
 build
 *.pyc
 *.so
 *.o
+*.d
+
+# pytest cache
+.cache
 
 # ROOT generated filed
-rootdict-*.h
-rootdict-*.cxx
-rootdict-*.pcm
+*_rdict*
+*.pcm
+*.rootmap
 
 # Other
 hdtv_history
 .history
+.idea
+.python-version
+*.egg-info
+
+# man pages
+doc/guide/*.[1-8]

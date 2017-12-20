@@ -23,18 +23,20 @@ import ROOT
 
 from hdtv.drawable import DrawableManager
 
+
 class Spectrum(DrawableManager):
     def __init__(self, histogram):
-        self.__dict__["hist"] = histogram   # Create histogram attribute avoiding __setattr__ method
+        # Create histogram attribute avoiding __setattr__ method
+        self.__dict__["hist"] = histogram
         DrawableManager.__init__(self)
 
     # delegate everything to the underlying histogram
     def __setattr__(self, name, value):
         if self.hist is not None:
             self.hist.__setattr__(name, value)
-        if hasattr(self, name): # Update attribute of this class, if existent
+        if hasattr(self, name):  # Update attribute of this class, if existent
             DrawableManager.__setattr__(self, name, value)
-        
+
     def __getattr__(self, name):
         # The use of self.__dict__ replaces an infinite recusion by a KeyError
         #  if self.hist does not exist
@@ -42,35 +44,35 @@ class Spectrum(DrawableManager):
 
     # color property
     def _set_color(self, color):
-        for fit in self.dict.itervalues():
+        for fit in self.dict.values():
             fit.color = color
-            
+
     def _get_color(self):
         return self.hist.color
-            
+
     color = property(_get_color, _set_color)
-        
+
     # cal property
     def _set_cal(self, cal):
-        for fit in self.dict.itervalues():
+        for fit in self.dict.values():
             fit.cal = cal
-    
+
     def _get_cal(self):
         return self.hist.cal
-        
+
     cal = property(_get_cal, _set_cal)
-    
+
     # overwrite some functions of DrawableManager to do some extra work
     def Insert(self, fit, ID=None):
         fit.spec = self
         return DrawableManager.Insert(self, fit, ID)
-        
+
     def Pop(self, ID):
         fit = DrawableManager.Pop(self, ID)
         if fit is not None:
             fit.spec = None
         return fit
-        
+
     def Draw(self, viewport):
         self.viewport = viewport
         self.viewport.LockUpdate()
@@ -78,7 +80,7 @@ class Spectrum(DrawableManager):
         if self.hist:
             self.hist.Draw(viewport)
         self.viewport.UnlockUpdate()
-        
+
     def Show(self):
         if self.viewport is None:
             return
@@ -87,7 +89,7 @@ class Spectrum(DrawableManager):
         if self.hist:
             self.hist.Show()
         self.viewport.UnlockUpdate()
-        
+
     def Hide(self):
         if self.viewport is None:
             return
@@ -96,7 +98,7 @@ class Spectrum(DrawableManager):
         if self.hist:
             self.hist.Hide()
         self.viewport.UnlockUpdate()
-        
+
     def Refresh(self):
         if self.viewport is None:
             return
@@ -105,16 +107,16 @@ class Spectrum(DrawableManager):
         if self.hist:
             self.hist.Refresh()
         self.viewport.UnlockUpdate()
-        
-    
+
+
 class CutSpectrum(Spectrum):
     def __init__(self, hist, matrix, axis):
         Spectrum.__init__(self, hist)
-        
+
         # Use self.__dict__ to avoid delegation to the underlying histogram
         self.__dict__["matrix"] = matrix
         self.__dict__["axis"] = axis
-        
+
     def Show(self):
         """
         Show all visible cut markers for the axis of this spectrum
@@ -125,18 +127,18 @@ class CutSpectrum(Spectrum):
 
     def Hide(self):
         """
-        Hide also the cut markers, but without changing the visibility state of the matrix 
+        Hide also the cut markers, but without changing the visibility state of the matrix
         """
         Spectrum.Hide(self)
         if self.matrix:
             self.matrix.Hide()
-        
+
     def Refresh(self):
         """
         Repeat the cut
         """
         if self.matrix:
-            for cut in self.matrix.dict.itervalues():
+            for cut in self.matrix.dict.values():
                 if self == cut.spec:
                     cut.Refresh()
                     break

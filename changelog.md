@@ -1,5 +1,23 @@
 # HDTV Change Log
 
+## 17.12
++ (Some) Support for Integrals: If one wants to work exclusively with integrals, it is possible to work with peak less fits. See e.g. `fit integral list`. (@opapst)
++ Support for Python3 (@warr, @opapst) (Closes #12)
++ Automatic recompilation on ROOT version changes (@jmayer)
++ Easier installation, e.g. via pip (@jmayer)
++ Switch from optparse to argparse (@opapst) (Closes #15)
++ Switch from own implementation of error values to uncertainties libary (@opapst) (Closes #14)
++ pytest based testing (@opapst)
+- Changes to diplay of tables and uncertainties, see `config set table help`, and `config set uncertainties help` (@opapst)
+- Improvements to calibration fitting procedure (@opapst)
+- Improvements to tab completion and command line interface (@opapst)
+- A bit of documentation (#6)
+- Replace deprecated auto_ptr (@warr)
+- Allow exiting the program from batch files and other operations (@opapst)
+- Missing background markers: Unexpected behavior fixed (@opapst)
+- Diverse other Fixes (@opapst, @warr, @jmayer)
+- Change location for user settings/history (@opapst)
+
 ## 17.01
 + Relative efficiencies limited to energy range of absolute efficiency (@ehoemann)
 + Fix Printing (@warr)

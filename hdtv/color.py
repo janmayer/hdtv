@@ -25,22 +25,23 @@ import ROOT
 import colorsys
 
 
-# some default colors 
-default= ROOT.kRed
+# some default colors
+default = ROOT.kRed
 zoom = ROOT.kWhite
 region = ROOT.kBlue - 4
-peak   = ROOT.kViolet - 4
-bg    = ROOT.kGreen -4
-cut   = ROOT.kYellow - 4
+peak = ROOT.kViolet - 4
+bg = ROOT.kGreen - 4
+cut = ROOT.kYellow - 4
 
 activeSatur = 1.0
 nonactiveSatur = 0.5
+
 
 def ColorForID(ID, active=False):
     try:
         ID = ID.split(".")
         ID = int(ID[0])
-    except:
+    except BaseException:
         pass
     if active:
         satur = activeSatur
@@ -48,26 +49,26 @@ def ColorForID(ID, active=False):
         satur = nonactiveSatur
     hue = HueForID(ID)
     value = 1.0
-    (r,g,b) = colorsys.hsv_to_rgb(hue, satur, value)
-    return ROOT.TColor.GetColor(r,g,b)
+    (r, g, b) = colorsys.hsv_to_rgb(hue, satur, value)
+    return ROOT.TColor.GetColor(r, g, b)
 
 
 def HueForID(ID):
     """
-    Returns the hue corresponding to a certain spectrum ID. The idea is to 
-    maximize the hue difference between the spectra shown, without knowing 
-    beforehand how many spectra there will be and without being able to change 
-    the color afterwards (that would confuse the user). The saturation and value 
-    of the color can be set arbitrarily, for example to indicate which spectrum 
+    Returns the hue corresponding to a certain spectrum ID. The idea is to
+    maximize the hue difference between the spectra shown, without knowing
+    beforehand how many spectra there will be and without being able to change
+    the color afterwards (that would confuse the user). The saturation and value
+    of the color can be set arbitrarily, for example to indicate which spectrum
     is currently active.
     """
     # Special case
-    if ID==0:
+    if ID == 0:
         hue = 0.0
     else:
         p = math.floor(math.log(float(ID)) / math.log(2))
         q = ID - 2**p
-        hue = 2**(-p-1) + q*2**(-p)
+        hue = 2**(-p - 1) + q * 2**(-p)
     return hue
 
 
@@ -80,10 +81,10 @@ def Highlight(color, active=True):
        color (no white).
      - Brightness value also ranges from 0 to 1, where 0 is black.
     """
-    if color==None:
+    if color is None:
         color = default
     # you can not highlight white and black
-    if color==10 or color==0: 
+    if color == 10 or color == 0:
         return color
     color = ROOT.gROOT.GetColor(color)
     if not color:
@@ -95,21 +96,22 @@ def Highlight(color, active=True):
         satur = activeSatur
     else:
         satur = nonactiveSatur
-    (r,g,b) = colorsys.hsv_to_rgb(hue/360, satur, value)
-    return ROOT.TColor.GetColor(r,g,b)
+    (r, g, b) = colorsys.hsv_to_rgb(hue / 360, satur, value)
+    return ROOT.TColor.GetColor(r, g, b)
+
 
 def GetRGB(color):
     color = ROOT.gROOT.GetColor(color)
     if not color:
         # FIXME
         raise RuntimeError
-    r= ROOT.TColor.GetRed(color)
-    g= ROOT.TColor.GetGreen(color)
-    b= ROOT.TColor.GetBlue(color)
-    return (r,g,b)
+    r = ROOT.TColor.GetRed(color)
+    g = ROOT.TColor.GetGreen(color)
+    b = ROOT.TColor.GetBlue(color)
+    return (r, g, b)
 
 # obsolete, use colorsys instead
-#def HSV2RGB(hue, satur, value):
+# def HSV2RGB(hue, satur, value):
 #    """
 #     Static method to compute RGB from HSV.
 #     - The hue value runs from 0 to 360.
@@ -164,5 +166,23 @@ def GetRGB(color):
 #        b = q
 
 #    return (r,g,b)
-#    
-#    
+
+class tcolors(object):
+    HEADER = '\033[95m'
+    DEBUG = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    SUBTLE = '\033[38;5;239m'
+    PROMPT = '\033[0m'
+    ENDC = '\033[0m'
+    # \001 and \002 (RL_PROMPT_START_IGNORE and RL_PROMPT_END_IGNORE) are
+    # necessary for correct length calculations by readline
+    RL_PROMPT_START_IGNORE = '\001'
+    RL_PROMPT_END_IGNORE = '\002'
+
+    @staticmethod
+    def bold(text):
+        return tcolors.BOLD + text + tcolors.ENDC

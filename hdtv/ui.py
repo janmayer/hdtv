@@ -19,14 +19,16 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 # Basic user interface functions (Input/Output, etc)
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 
 import sys
 import os
 
-DEBUG_LEVEL = 0
+import hdtv.options
+from hdtv.color import tcolors
+
 
 class SimpleUI(object):
     """
@@ -34,87 +36,93 @@ class SimpleUI(object):
     """
 
     def __init__(self):
-#        
+        #
         self.stdout = sys.stdout
         self.stderr = sys.stderr
         self.stdin = sys.stdin
         self.debugout = self.stderr
 
         self.linesep = os.linesep
-    
-    def msg(self, text, newline = True):
 
+    def msg(self, text, newline=True):
         self.stdout.write(text)
-        
-        if newline:
+
+        if newline and len(text) > 0 and text[-1] != self.linesep:
             self.stdout.write(self.linesep)
-    
-    def info(self, text, newline = True):
+
+    def info(self, text, newline=True):
         """
         Print informational message
         """
         text = "INFO: " + text
         self.stdout.write(text)
-        
+
         if newline:
             self.stdout.write(self.linesep)
-    
-    def warn(self, text, newline = True):
+
+    def warn(self, text, newline=True):
         """
         Print warning message
         """
-        text = "WARNING: " + text
-        self.stderr.write(text)
-        
+        self.stderr.write(tcolors.WARNING + "WARNING: " + text + tcolors.ENDC)
+
         if newline:
             self.stderr.write(self.linesep)
-    
-    def error(self, text, newline = True):
+
+    def error(self, text, newline=True):
         """
         Print error message
         """
-        text = "ERROR: " + text
-        self.stderr.write(text)
-        
+        self.stderr.write(tcolors.FAIL + "ERROR: " + text + tcolors.ENDC)
+
         if newline:
             self.stderr.write(self.linesep)
-  
-        
-    def debug(self, text, level = 1, newline = True):
-          """
-          Debugging output. The higher the level, the more specific is the debug message.
-          """
-          
-          text = "DEBUG: " + text
-          self.debugout.write(text)
-            
-          if newline:
-              self.debugout.write(self.linesep)
-        
+
+    def debug(self, text, level=1, newline=True):
+        """
+        Debugging output. The higher the level, the more specific is the debug message.
+        """
+        self.debugout.write(tcolors.DEBUG + "DEBUG: " + text + tcolors.ENDC)
+
+        if newline:
+            self.debugout.write(self.linesep)
+
     def newline(self):
-            self.msg("", newline = True)
+        self.msg("", newline=True)
 
 
-### Initialization
+# Initialization
 ui = SimpleUI()
-def msg(text, newline = True):
-    ui.msg(text, newline = newline)
 
-def info(text, newline = True):
-    ui.info(text, newline= newline)
 
-def warn(text, newline = True):
-    ui.warn(text, newline = newline)
+def msg(text, newline=True):
+    ui.msg(text, newline=newline)
 
-def error(text, newline = True):
-    ui.error(text, newline = newline)
 
-def debug(text, level = 1, newline = True):
-    if level > DEBUG_LEVEL:
+def info(text, newline=True):
+    ui.info(text, newline=newline)
+
+
+def warn(text, newline=True):
+    ui.warn(text, newline=newline)
+
+
+def error(text, newline=True):
+    ui.error(text, newline=newline)
+
+
+def debug(text, level=1, newline=True):
+    if level > hdtv.options.Get('debuglevel'):
         return
     else:
-        ui.debug(text, level = level, newline = newline)
+        ui.debug(text, level=level, newline=newline)
+
 
 def newline():
     ui.newline()
 
+
+opt = hdtv.options.Option(
+    default=0,
+    parse=lambda x: int(x))
+hdtv.options.RegisterOption('debuglevel', opt)

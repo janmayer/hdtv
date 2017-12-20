@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=HDTV
+GenericName=Nuclear Spectrum Analysis Tool
+Comment=Nuclear spectrum analysis tool on top of the ROOT data analysis toolkit
+Icon=hdtv
+Exec=hdtv
+Terminal=true
+StartupNotify=true
+Categories=Science;Development;

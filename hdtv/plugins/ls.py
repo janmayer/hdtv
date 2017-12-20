@@ -19,16 +19,19 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 # Plugin implementing some useful hdtv commands for navigation the file system
 # this includes a ls-like command, by special request from R. Schulze :)
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
+
+from __future__ import print_function
 
 import hdtv.tabformat
 import hdtv.cmdline
 import os
 import stat
 import glob
+
 
 def ls(args):
     """
@@ -38,7 +41,7 @@ def ls(args):
         pattern = os.path.expanduser(args[0])
     else:
         pattern = "*"
-    
+
     dirlist = []
     for fname in glob.glob(pattern):
         # For broken symlinks, os.stat may fail.
@@ -52,7 +55,7 @@ def ls(args):
                 dirlist.append(fname)
         except OSError:
             dirlist.append(fname)
-    
+
     dirlist.sort()
     hdtv.tabformat.tabformat(dirlist)
 
@@ -63,26 +66,27 @@ def cd(args):
     """
     if len(args) == 0:
         path = os.path.expanduser("~")
-    elif args[0]=="-":
+    elif args[0] == "-":
         path = os.environ["OLDPWD"]
     else:
         path = os.path.expanduser(args[0])
     try:
+        os.environ["OLDPWD"] = os.getcwd()
         os.chdir(path)
-        print path
-    except OSError, msg:
-        print msg
+        print(path)
+    except OSError as msg:
+        print(msg)
 
 
 def pwd(args):
     """
     print name of current/working directory
     """
-    print os.getcwdu()
+    print(os.getcwd())
 
 
 hdtv.cmdline.AddCommand("ls", ls, level=2, maxargs=1, dirargs=True)
 hdtv.cmdline.AddCommand("cd", cd, level=2, maxargs=1, dirargs=True)
-hdtv.cmdline.AddCommand("pwd", pwd, level=2, nargs=0) 
+hdtv.cmdline.AddCommand("pwd", pwd, level=2, nargs=0)
 
 hdtv.ui.debug("Loaded ls plugin")
