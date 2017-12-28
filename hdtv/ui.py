@@ -19,9 +19,9 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------
+# ----------------------------------------------------------------------
 # Basic user interface functions (Input/Output, etc)
-#-------------------------------------------------------------------------
+# ----------------------------------------------------------------------
 
 import sys
 import os
@@ -47,7 +47,7 @@ class SimpleUI(object):
     def msg(self, text, newline=True):
         self.stdout.write(text)
 
-        if newline and len(text) > 0 and text[-1] != self.linesep:
+        if newline and text and text[-1] != self.linesep:
             self.stdout.write(self.linesep)
 
     def info(self, text, newline=True):
@@ -80,7 +80,8 @@ class SimpleUI(object):
 
     def debug(self, text, level=1, newline=True):
         """
-        Debugging output. The higher the level, the more specific is the debug message.
+        Debugging output. The higher the level, the more specific is
+        the debug message.
         """
         self.debugout.write(tcolors.DEBUG + "DEBUG: " + text + tcolors.ENDC)
 

@@ -45,7 +45,7 @@ def stdDeviation(values):
 
 def wMean(values):
     """
-    Calculates weighted mean of a list of errvalues
+    Calculates weighted mean of a list of ufloats
     """
     wsum = .0
     weights = .0

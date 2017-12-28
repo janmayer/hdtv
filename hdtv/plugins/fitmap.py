@@ -18,14 +18,12 @@
 # You should have received a copy of the GNU General Public License
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
-import os
+
 import argparse
+from uncertainties import ufloat_fromstr
 
 import hdtv.cmdline
 import hdtv.ui
-
-from hdtv.errvalue import ErrValue
-
 
 class FitMap(object):
     def __init__(self, spectra, ecal):
@@ -121,7 +119,7 @@ class FitMap(object):
             raise hdtv.cmdline.HDTVCommandError("Number of arguments must be even")
         else:
             for i in range(0, len(args.args), 2):
-                en = ErrValue(args.args[i + 1]) # from string
+                en = ufloat_fromstr(args.args[i + 1])
                 try:
                     ids = hdtv.util.ID.ParseIds(
                         args.args[i], spec, only_existent=False)
@@ -187,7 +185,7 @@ class FitMap(object):
         f.read()
         energies = list()
         for line in f.lines:
-            energies.append(ErrValue(line.split(",")[0])) # from string
+            energies.append(ufloat_fromstr(line.split(",")[0]))
         if self.spectra.activeID is None:
             hdtv.ui.warn("No active spectrum, no action taken.")
             return False
@@ -203,16 +201,13 @@ class FitMap(object):
                     peak.extras.pop("pos_lit")
                 except BaseException:
                     pass
-                # start with a rather coarse search
-                tol = 7
-                enlit = [e for e in energies if e.equal(peak.pos_cal, f=tol)]
-                # and then refine it, if necessary
-                while len(enlit) > 1 and tol > 0:
-                    tol -= 1
-                    enlit = [e for e in energies if e.equal(
-                        peak.pos_cal, f=tol)]
+                # pick best match within a certain tolerance (if it exists)
+                tol = 12
+                enlit = [e for e in energies
+                         if abs(peak.pos_cal.std_score(e)) < tol]
                 if len(enlit) > 0:
-                    peak.extras["pos_lit"] = enlit[0]
+                    peak.extras["pos_lit"] = min(
+                        enlit, key=lambda e: abs(peak.pos_cal.std_score(e)))
                     count += 1
         # give a feetback to the user
         hdtv.ui.msg("Mapped %s energies to peaks" % count)

@@ -23,10 +23,12 @@
 # Peak Model for electron-electron scattering
 # Implementation requested by Oleksiy Burda <burda@ikp.tu-darmstadt.de>
 #-------------------------------------------------------------------------
+
+from uncertainties import ufloat
+
 import ROOT
 
 from .peak import PeakModel
-from hdtv.errvalue import ErrValue
 from hdtv.drawable import Drawable
 
 
@@ -37,7 +39,7 @@ class EEPeak(Drawable):
 
     def __init__(self, pos, amp, sigma1, sigma2, eta,
                  gamma, vol, color=None, cal=None):
-        Drawable.__init__(self, color, cal)
+        super(EEPeak, self).__init__(color, cal)
         self.pos = pos
         self.amp = amp
         self.sigma1 = sigma1
@@ -60,7 +62,7 @@ class EEPeak(Drawable):
             pos_err_uncal = self.pos.std_dev
             pos_cal = self.cal.Ch2E(pos_uncal)
             pos_err_cal = abs(self.cal.dEdCh(pos_uncal) * pos_err_uncal)
-            return ErrValue(pos_cal, pos_err_cal)
+            return ufloat(pos_cal, pos_err_cal)
         elif name == "sigma1_cal":
             if self.cal is None:
                 return self.sigma1
@@ -73,7 +75,7 @@ class EEPeak(Drawable):
             #  (which is true for Ch2E \approx linear)
             sigma1_err_cal = abs(self.cal.dEdCh(
                 pos_uncal - sigma1_uncal) * sigma1_err_uncal)
-            return ErrValue(sigma1_cal, sigma1_err_cal)
+            return ufloat(sigma1_cal, sigma1_err_cal)
         elif name == "sigma2_cal":
             if self.cal is None:
                 return self.sigma2
@@ -86,7 +88,7 @@ class EEPeak(Drawable):
             #  (which is true for Ch2E \approx linear)
             sigma2_err_cal = abs(self.cal.dEdCh(
                 pos_uncal - sigma2_uncal) * sigma2_err_uncal)
-            return ErrValue(sigma2_cal, sigma2_err_cal)
+            return ufloat(sigma2_cal, sigma2_err_cal)
         elif name in ["amp_cal", "eta_cal", "gamma_cal", "vol_cal"]:
             name = name[0:name.rfind("_cal")]
             return getattr(self, name)
@@ -104,16 +106,16 @@ class EEPeak(Drawable):
         """
         text = str()
         if verbose:
-            text += "Pos:         " + self.pos_cal.fmt() + "\n"
-            text += "Channel:     " + self.pos.fmt() + "\n"
-            text += "Amp:         " + self.amp.fmt() + "\n"
-            text += "Sigma1:      " + self.sigma1.fmt() + "\n"
-            text += "Sigma2:      " + self.sigma2.fmt() + "\n"
-            text += "Eta:         " + self.eta.fmt() + "\n"
-            text += "Gamma:       " + self.gamma.fmt() + "\n"
-            text += "Volume:      " + self.vol.fmt() + "\n"
+            text += ("Pos:         {.pos_cal:S}\n"
+                     "Channel:     {.pos:S}\n"
+                     "Amp:         {.amp:S}\n"
+                     "Sigma1:      {.sigma1:S}\n"
+                     "Sigma2:      {.sigma2:S}\n"
+                     "Eta:         {.eta:S}\n"
+                     "Gamma:       {.gamma:S}\n"
+                     "Volume:      {.vol:S}\n").format(self)
         else:
-            text += "Peak@ %s \n" % self.pos_cal.fmt()
+            text += "Peak@ {.pos_cal:S}\n".format(self)
         return text
 
     def __eq__(self, other):
@@ -159,7 +161,7 @@ class PeakModelEE(PeakModel):
     """
 
     def __init__(self):
-        PeakModel.__init__(self)
+        super(PeakModelEE, self).__init__()
         self.fOrderedParamKeys = ["pos", "amp",
                                   "sigma1", "sigma2", "eta", "gamma", "vol"]
         self.fParStatus = {
@@ -187,13 +189,13 @@ class PeakModelEE(PeakModel):
         """
         Copies peak data from a C++ peak class to a Python class
         """
-        pos = ErrValue(cpeak.GetPos(), cpeak.GetPosError())
-        amp = ErrValue(cpeak.GetAmp(), cpeak.GetAmpError())
-        sigma1 = ErrValue(cpeak.GetSigma1(), cpeak.GetSigma1Error())
-        sigma2 = ErrValue(cpeak.GetSigma2(), cpeak.GetSigma2Error())
-        eta = ErrValue(cpeak.GetEta(), cpeak.GetEtaError())
-        gamma = ErrValue(cpeak.GetGamma(), cpeak.GetGammaError())
-        vol = ErrValue(cpeak.GetVol(), cpeak.GetVolError())
+        pos = ufloat(cpeak.GetPos(), cpeak.GetPosError())
+        amp = ufloat(cpeak.GetAmp(), cpeak.GetAmpError())
+        sigma1 = ufloat(cpeak.GetSigma1(), cpeak.GetSigma1Error())
+        sigma2 = ufloat(cpeak.GetSigma2(), cpeak.GetSigma2Error())
+        eta = ufloat(cpeak.GetEta(), cpeak.GetEtaError())
+        gamma = ufloat(cpeak.GetGamma(), cpeak.GetGammaError())
+        vol = ufloat(cpeak.GetVol(), cpeak.GetVolError())
         # create the peak object
         peak = self.Peak(pos, amp, sigma1, sigma2, eta, gamma, vol)
         func = cpeak.GetPeakFunc()

@@ -26,7 +26,8 @@
 
 from __future__ import print_function
 
-import json
+from uncertainties import ufloat
+
 import hdtv.util
 from hdtv.database import IAEALibraries, DDEPLibraries
 
@@ -54,11 +55,11 @@ def TabelOfNuclide(nuclide, Energies, EnergiesError, Intensities,
     """
     tabledata = list()
     Data = [[], []]
-    data = hdtv.errvalue.ErrValue(Halflive, HalfliveError)
+    data = ufloat(Halflive, HalfliveError)
 
     for j in range(0, len(Energies)):
-        Data[0].append(hdtv.errvalue.ErrValue(Energies[j], EnergiesError[j]))
-        Data[1].append(hdtv.errvalue.ErrValue(
+        Data[0].append(ufloat(Energies[j], EnergiesError[j]))
+        Data[1].append(ufloat(
             Intensities[j], IntensitiesError[j]))
 
         # for table option values are saved
@@ -146,7 +147,7 @@ def MatchPeaksAndIntensities(
         [
             [
                 peak,
-                hdtv.errvalue.ErrValue(intensity, intensity_error),
+                ufloat(intensity, intensity_error),
                 peak_id,
             ] for peak, peak_id in zip(peaks, peak_ids)
             if abs(energy - peak) <= sigma

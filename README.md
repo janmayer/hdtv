@@ -18,6 +18,7 @@ To build and run HDTV, the following dependencies are required:
 * python2.7 *or* python3
 * python-scipy
 * python-matplotlib
+* python-uncertainties
 * python-docutils (*build, for the documentation*)
 * [ROOT](https://root.cern/) 6
     - Needs to be compiled against the correct python version.

@@ -26,10 +26,9 @@
 
 from __future__ import print_function
 
-import os
-import json
 import argparse
 import math
+from uncertainties import ufloat, ufloat_fromstr
 
 import hdtv.efficiency
 import hdtv.cmdline
@@ -37,7 +36,6 @@ import hdtv.options
 import hdtv.ui
 import hdtv.cal
 import hdtv.util
-import hdtv.errvalue
 from hdtv.fitxml import FitXml
 from . import EnergyCalibration
 
@@ -206,7 +204,7 @@ class EffCalIf(object):
                 raise hdtv.cmdline.HDTVCommandError(
                     "Efficiency function not set for spectrum %d, use calibration efficiency set" % spectrumID)
 
-        fitValues = hdtv.util.Pairs(lambda x: hdtv.errvalue.ErrValue(x, 0))
+        fitValues = hdtv.util.Pairs(lambda x: ufloat(x, 0))
         tabledata = list()
 
         if filename is not None:  # at the moment you can only fit from one file
@@ -282,7 +280,7 @@ class EffCalIf(object):
                             "Vol": volume})
 
                         fitValues = hdtv.util.Pairs(
-                            lambda x: hdtv.errvalue.ErrValue(x, 0))
+                            lambda x: ufloat(x, 0))
                 fitValues.fromLists(Efficiency[0], Efficiency[1])
         # Call function to do the fit
         if self.fit:
@@ -357,7 +355,7 @@ class EffCalIf(object):
         # It matches the Peaks and the given energies
         Match = EnergyCalibration.MatchPeaksAndIntensities(
             Peak, peakID, Energy, Intensity, IntensityError, sigma)
-        Peak = [hdtv.errvalue.ErrValue(peak, 0) for peak in list(Match[0])]
+        Peak = [ufloat(peak, 0) for peak in list(Match[0])]
         Intensity = Match[1]
         peakID = Match[2]
 
@@ -367,13 +365,13 @@ class EffCalIf(object):
 
         # saves the right intensities for the peaks
         for i, ID in enumerate(peakID):
-            Vol.append(hdtv.errvalue.ErrValue(
+            Vol.append(ufloat(
                 list(peaks.values())[ID].ExtractParams()[0][0]['vol'].nominal_value,
                 list(peaks.values())[ID].ExtractParams()[0][0]['vol'].std_dev))
 
             # Calculates the efficiency and its error and saves all peaks with
             # errors
-            Efficiency.append(hdtv.errvalue.ErrValue(
+            Efficiency.append(ufloat(
                 Vol[i].nominal_value / (coefficient * Intensity[i].nominal_value),
                 # TODO: error of the coefficient is not included
                 math.sqrt(
@@ -381,7 +379,7 @@ class EffCalIf(object):
                     + (Vol[i].nominal_value / (coefficient * Intensity[i].nominal_value**2) *
                        Intensity[i].std_dev)**2)))
             PeakFinal.append(
-                hdtv.errvalue.ErrValue(
+                ufloat(
                     Peak[i].nominal_value,
                     list(peaks.values())[ID].ExtractParams()[0][0]['pos'].std_dev))
 
@@ -887,7 +885,7 @@ class EnergyCalIf(object):
                 hdtv.ui.warn("Ignoring invalid peak id %s" % fid)
                 continue
             peak.extras["pos_lit"] = p[1]
-            valid_pairs.add(hdtv.errvalue.ErrValue(peak.pos.nominal_value), p[1])
+            valid_pairs.add(peak.pos, p[1])
         return self.CalFromPairs(valid_pairs, degree, table, fit, residual,
                                  ignore_errors=ignore_errors)
 
@@ -1187,7 +1185,7 @@ class EnergyCalHDTVInterface(object):
         # parsing command
         cal = [args.p0] + args.prest
         ids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
-        if len(ids) == 0:
+        if not ids:
             hdtv.ui.warn("Nothing to do")
             return
         # do the work
@@ -1200,7 +1198,7 @@ class EnergyCalHDTVInterface(object):
         """
         # parsing command
         ids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
-        if len(ids) == 0:
+        if not ids:
             hdtv.ui.warn("Nothing to do")
             return
         self.spectra.ApplyCalibration(ids, None)
@@ -1219,7 +1217,7 @@ class EnergyCalHDTVInterface(object):
         Create calibration from pairs of channel and energy
         """
         # parsing command
-        pairs = hdtv.util.Pairs(hdtv.errvalue.ErrValue)
+        pairs = hdtv.util.Pairs(ufloat_fromstr)
         degree = int(args.degree)
         if args.file is not None:  # Read from file
             pairs.fromFile(args.file)
@@ -1238,7 +1236,7 @@ class EnergyCalHDTVInterface(object):
             args.draw_residual,
             ignore_errors=args.ignore_errors)
 
-        if len(sids) == 0:
+        if not sids:
             hdtv.ui.msg("calibration: %s" % hdtv.cal.PrintCal(cal))
             return True
         self.spectra.ApplyCalibration(sids, cal)
@@ -1337,7 +1335,7 @@ class EnergyCalHDTVInterface(object):
         sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
         filename = args.filename
 
-        if len(sids) == 0:
+        if not sids:
             hdtv.ui.warn("Nothing to do")
             return
         # do the work
@@ -1369,10 +1367,10 @@ class EnergyCalHDTVInterface(object):
             for peak_id, energy in zip(*[iter(args.args)]*2):
                 ID = hdtv.util.ID.ParseIds(
                     peak_id, spec, only_existent=False)[0]
-                value = hdtv.errvalue.ErrValue(energy) # from string
+                value = ufloat_fromstr(energy)
                 pairs.add(ID, value)
         sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
-        if len(sids) == 0:
+        if not sids:
             sids = [self.spectra.activeID]
         degree = int(args.degree)
         # do the work

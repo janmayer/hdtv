@@ -30,7 +30,7 @@ setup(
     maintainer='Jan Mayer',
     maintainer_email='jan.mayer@ikp.uni-koeln.de',
     license='GPL',
-    install_requires=['scipy', 'matplotlib'],
+    install_requires=['scipy', 'matplotlib', 'uncertainties'],
     extras_require={
         'dev': ['docutils'],
         'test': ['pytest'],

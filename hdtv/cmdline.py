@@ -19,9 +19,9 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------
+# ----------------------------------------------------------------------
 # HDTV command line
-#-------------------------------------------------------------------------
+# ----------------------------------------------------------------------
 
 from __future__ import print_function
 
@@ -37,7 +37,6 @@ import pwd
 import argparse
 import shlex
 import readline
-#import _sitebuiltins
 
 try:
     import builtins
@@ -65,20 +64,6 @@ class HDTVCommandAbort(Exception):
 
 
 class HDTVOptionParser(argparse.ArgumentParser):
-#    def _process_args(self, largs, rargs, values):
-#        # to avoid negative numbers being processed as options
-#        # we add a whitespace in front, the parser no longer processes
-#        # them as options while typecast to numeric is unaffected
-#        for i in range(len(rargs)):
-#            if rargs[i][:1] == "-":
-#                try:
-#                    if float(rargs[i]):
-#                        rargs[i] = " " + rargs[i]
-#                except ValueError:
-#                    pass
-#
-#        return optparse.OptionParser._process_args(self, largs, rargs, values)
-
     def error(self, message):
         raise HDTVCommandError(message)
 
@@ -237,13 +222,13 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         node = self
         while path:
             elem = path.pop(0)
-            next = node.FindChild(elem, use_levels)
-            if next is None:  # more than one node found
+            next_elem = node.FindChild(elem, use_levels)
+            if next_elem is None:  # more than one node found
                 raise HDTVCommandError("Command is ambiguous")
-            elif next == 0:   # no nodes found
+            elif next_elem == 0:   # no nodes found
                 path.insert(0, elem)
                 break
-            node = next
+            node = next_elem
 
         return (node, path)
 
@@ -300,7 +285,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         Removes the command node specified by the string title.
         """
         (node, args) = self.FindNode(title.split(), False)
-        if len(args) != 0 or not node.command:
+        if args or not node.command:
             raise RuntimeError("No valid command node specified")
 
         while not node.HasChildren() and node.parent is not None:
@@ -418,8 +403,6 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         return options
 
 
-# _sitebuiltins not available in python2
-#class PyModeQuitter(_sitebuiltins.Quitter):
 class PyModeQuitter(object):
     def __init__(self, name, eof):
         self.name = name

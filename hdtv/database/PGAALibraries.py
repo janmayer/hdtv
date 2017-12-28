@@ -2,6 +2,8 @@
 # PGAA database from Institute of Isotopes, Hungarian Academey of Science,
 # Budapest
 
+from uncertainties import ufloat, ufloat_fromstr
+
 from hdtv.database.common import *
 import hdtv.ui
 
@@ -124,11 +126,11 @@ class PGAAlib_IKI2000(GammaLib):
             for line in reader:
                 Z = int(line[0])
                 A = int(line[1])
-                energy = ErrValue(float(line[2]), float(line[3]))
-                sigma = ErrValue(float(line[4]), float(line[5]))
-                intensity = ErrValue(float(line[6]), None) / 100.0
+                energy = ufloat(float(line[2]), float(line[3]))
+                sigma = ufloat(float(line[4]), float(line[5]))
+                intensity = ufloat(float(line[6]), 0) / 100.0
                 try:
-                    halflife = ErrValue(float(line[7]), 0.)
+                    halflife = ufloat(float(line[7]), 0)
                 except ValueError:
                     halflife = None
                 gamma = PGAAGamma(
@@ -199,9 +201,9 @@ class PromptGammas(GammaLib):
             for line in reader:
                 A = int(line[0])
                 Z = int(line[1])
-                energy = ErrValue(line[2]) # from string
-                sigma = ErrValue(line[3]) # from string
-                k0 = ErrValue(line[4]) # from string
+                energy = ufloat_fromstr(line[2])
+                sigma = ufloat_fromstr(line[3])
+                k0 = ufloat_fromstr(line[4])
                 gamma = PGAAGamma(
                     Nuclides(
                         Z,

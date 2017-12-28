@@ -19,7 +19,6 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-import os
 from array import array
 
 import ROOT
@@ -88,7 +87,7 @@ class CalibrationFitter:
         calibration function.
         If degree == 0, the linear coefficient of the polynomial is fixed at 1.
 
-        If self.pairs contains ErrValues the channel std_dev is respected
+        If self.pairs contains ufloats the channel std_dev is respected
         """
         hdtv.ui.debug("conducting calibration from fitted peaks")
         if degree < 0:
@@ -122,7 +121,7 @@ class CalibrationFitter:
             has_error = False
 
             # Store channels
-            try:  # try to read from ErrValue
+            try:  # try to read from ufloat 
                 channel = float(ch.nominal_value)
                 channel_err = float(ch.std_dev)
                 channels.append(channel)
@@ -136,7 +135,7 @@ class CalibrationFitter:
             any_has_xerror = has_xerror or any_has_xerror
 
             # Store energies
-            try:  # try to read from ErrValue
+            try:  # try to read from ufloat 
                 energy = float(e.nominal_value)
                 energy_err = float(e.std_dev)
                 energies.append(energy)
@@ -310,7 +309,7 @@ class CalibrationFitter:
             min_ch = min(min_ch, ch.nominal_value)
             max_ch = max(max_ch, ch.nominal_value)
             try:
-                # energie may be ErrValue
+                # energie may be ufloat 
                 e = e.nominal_value
             except BaseException:
                 pass

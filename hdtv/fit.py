@@ -18,6 +18,10 @@
 # You should have received a copy of the GNU General Public License
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+
+import copy
+from uncertainties import ufloat
+
 import ROOT
 import hdtv.color
 import hdtv.cal
@@ -26,11 +30,8 @@ import hdtv.ui
 
 from hdtv.drawable import Drawable
 from hdtv.marker import MarkerCollection
-from hdtv.errvalue import ErrValue
 from hdtv.util import Pairs, ID, Table
 from hdtv.weakref import weakref
-
-import copy
 
 
 class Fit(Drawable):
@@ -397,7 +398,7 @@ class Fit(Drawable):
             self.bgCoeffs = []
             deg = self.fitter.bgFitter.GetDegree()
             for i in range(0, deg + 1):
-                self.bgCoeffs.append(ErrValue(
+                self.bgCoeffs.append(ufloat(
                     self.fitter.bgFitter.GetCoeff(i),
                     self.fitter.bgFitter.GetCoeffError(i)))
 
@@ -433,14 +434,14 @@ class Fit(Drawable):
             deg = self.fitter.bgdeg
             if not self.fitter.bgFitter:
                 for i in range(deg + 1):
-                    self.bgCoeffs.append(ErrValue(
+                    self.bgCoeffs.append(ufloat(
                         self.fitter.peakFitter.GetIntBgCoeff(i),
                         self.fitter.peakFitter.GetIntBgCoeffError(i)))
             else:
                 # external background
                 self.bgChi = self.fitter.bgFitter.GetChisquare()
                 for i in range(deg + 1):
-                    self.bgCoeffs.append(ErrValue(
+                    self.bgCoeffs.append(ufloat(
                         self.fitter.bgFitter.GetCoeff(i),
                         self.fitter.bgFitter.GetCoeffError(i)))
             func = self.fitter.peakFitter.GetBgFunc()
@@ -749,7 +750,7 @@ class Fit(Drawable):
             markers.append(b.p1.pos_cal)
             markers.append(b.p2.pos_cal)
         # calulate region limits
-        if len(markers) == 0:  # No markers
+        if not markers:  # No markers
             return None
         else:
             x_start = min(markers)

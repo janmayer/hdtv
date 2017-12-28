@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import hdtv.cmdline
-from hdtv.errvalue import ErrValue
-import hdtv.ui
 import csv
 import os
+from uncertainties import ufloat_fromstr
+import hdtv.cmdline
+import hdtv.ui
 
 
 class _Element(object):
@@ -65,14 +65,14 @@ class _Elements(list):
                 Symbol = line[1].strip()
                 Name = line[2].strip()
                 try:
-                    Mass = ErrValue(line[3].strip()) # from string
+                    Mass = ufloat_fromstr(line[3].strip())
                 except ValueError:
                     Mass = None
                 element = _Element(Z, Symbol, Name, Mass)
                 tmp.append(element)
-        except csv.Error as e:
+        except csv.Error as err:
             hdtv.ui.error('file %s, line %d: %s' %
-                          (csvfile, reader.line_num, e))
+                          (csvfile, reader.line_num, err))
         finally:
             datfile.close()
 
@@ -192,15 +192,15 @@ class _Nuclides(object):
                 element = Elements(Z)
                 A = int(line[1].strip())
                 if line[2].strip():
-                    abd = ErrValue(line[2].strip()) / 100.0 # from string
+                    abd = ufloat_fromstr(line[2].strip()) / 100.0
                 else:
                     abd = None
                 if line[3].strip():
-                    M = ErrValue(line[3].strip()) # from string
+                    M = ufloat_fromstr(line[3].strip())
                 else:
                     M = None
                 if line[4].strip():
-                    sigma = ErrValue(line[4].strip()) # from string
+                    sigma = ufloat_fromstr(line[4].strip())
                 else:
                     sigma = None
 
@@ -420,19 +420,20 @@ class GammaLib(list):
         if fuzziness is None:
             fuzziness = self.fuzziness
 
-        if len(fargs) == 0:
+        if not fargs:
             return []
 
         for (key, value) in list(fargs.items()):
-            if value is not None:
-                if isinstance(value, int):
-                    results = [x for x in results if getattr(x, key) == value]
-                elif isinstance(value, str):  # Do lowercase comparison for strings
-                    results = [x for x in results
-                        if getattr(x, key).lower() == value.lower()]
-                else:  # Do fuzzy compare
-                    results = [x for x in results
-                        if (abs(getattr(x, key) - value) <= fuzziness)]
+            if value is None:
+                continue
+            if isinstance(value, int):
+                results = [x for x in results if getattr(x, key) == value]
+            elif isinstance(value, str):  # Do lowercase comparison for strings
+                results = [x for x in results
+                           if getattr(x, key).lower() == value.lower()]
+            else:  # Do fuzzy compare
+                results = [x for x in results
+                           if abs(getattr(x, key) - value) <= fuzziness]
 
         # Sort
         try:

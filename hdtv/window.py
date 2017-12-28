@@ -96,7 +96,7 @@ class KeyHandler(HotkeyList):
     """
 
     def __init__(self):
-        HotkeyList.__init__(self)
+        super(KeyHandler, self).__init__()
 
         self.fEditMode = False   # Status bar currently used as text entry
         # Modifier keys
@@ -201,7 +201,7 @@ class Window(KeyHandler):
     """
 
     def __init__(self):
-        KeyHandler.__init__(self)
+        super(Window, self).__init__()
 
         self.viewer = ROOT.HDTV.Display.Viewer()
         self.viewport = self.viewer.GetViewport()

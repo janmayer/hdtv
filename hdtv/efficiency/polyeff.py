@@ -19,11 +19,10 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
+from math import pow
+from uncertainties.umath import log, exp
 from . efficiency import _Efficiency
 from ROOT import TF1, TF2
-from hdtv.errvalue import ErrValue
-from hdtv.errvalue import log, exp
-from math import pow
 from hdtv.util import Pairs
 
 

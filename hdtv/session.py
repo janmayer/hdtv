@@ -21,9 +21,6 @@
 
 # main session of hdtv
 import copy
-import signal
-
-import ROOT
 
 import hdtv.cal
 import hdtv.rootext.display
@@ -140,7 +137,7 @@ class Session(DrawableManager):
                   fit.regionMarkers[0].p2.pos_uncal]
         bg = fit.fitter.bgFitter
 
-        fit.integral = hdtv.integral.Integrate(spec, bg, region)
+        fit.integral = Integrate(spec, bg, region)
         fit.Draw(self.window.viewport)
         hdtv.ui.msg(fit.print_integral())
 
@@ -177,7 +174,7 @@ class Session(DrawableManager):
         if fit.regionMarkers.IsFull():
             region = [fit.regionMarkers[0].p1.pos_uncal,
                       fit.regionMarkers[0].p2.pos_uncal]
-            fit.integral = hdtv.integral.Integrate(
+            fit.integral = Integrate(
                 spec, fit.fitter.bgFitter, region)
 
     def ClearFit(self, bg_only=False):

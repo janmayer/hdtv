@@ -21,13 +21,9 @@
 
 from __future__ import print_function
 
-import math
 import re
 import os
-import glob
-import traceback
 import hdtv.options
-import hdtv.errvalue
 import hdtv.ui
 from hdtv.color import tcolors
 
@@ -123,7 +119,7 @@ class Pairs(list):
     """
     List of pair values
 
-    conv_func: conversion function to be called berfore storage of pair
+    conv_func: conversion function to be called before storage of pair
     """
 
     # default conversion is "identity" -> No conversion
@@ -177,7 +173,7 @@ hdtv.options.RegisterOption("table", opt_table)
 
 opt_uncertainties = hdtv.options.Option(
     default="short",
-    parse=hdtv.options.parse_choices(["short", "long"]))
+    parse=hdtv.options.parse_choices(["short", "pretty", "long"]))
 hdtv.options.RegisterOption("uncertainties", opt_uncertainties)
 
 class Table(object):
@@ -281,7 +277,7 @@ class Table(object):
             for i, key in enumerate(self.keys):
                 try:
                     value = d[key]
-                    # deal with ErrValues
+                    # deal with ufloats
                     try:
                         if value.value is None:
                             value = ""
@@ -290,13 +286,15 @@ class Table(object):
                     if value is None:
                         value = ""
                     else:
-                        if hdtv.options.Get("uncertainties") == "short":
+                        try:
+                            if hdtv.options.Get("uncertainties") == "short":
+                                value = "{:S}".format(value)
+                            elif hdtv.options.Get("uncertainties") == "pretty":
+                                value = "{:P}".format(value)
+                            else:
+                                value = "{:.4u}".format(value).replace("+/-", " ")
+                        except BaseException:
                             value = str(value)
-                        else:
-                            try:
-                                value = value.fmt_long(prec=4, separator=" ")
-                            except BaseException:
-                                value = str(value)
                     if not value is "":  # We have values in this columns -> don't ignore it
                         self._ignore_col[i] = False
 

@@ -21,15 +21,14 @@
 
 from __future__ import print_function
 
-import ROOT
-import hdtv.ui
-from hdtv.errvalue import ErrValue
+from uncertainties import ufloat
 
+import ROOT
 
 def Integrate(spec, bg, region):
     hist = spec.hist.hist
     region.sort()
-    
+ 
     int_tot = ROOT.HDTV.Fit.TH1Integral(hist, region[0], region[1])
     int_bac = ROOT.HDTV.Fit.BgIntegral(
         bg, region[0], region[1], hist.GetXaxis()) if bg else None
@@ -42,13 +41,13 @@ def Integrate(spec, bg, region):
 def get_integral_info(spec, integral):
     if not integral:
         return None
-    pos = ErrValue(integral.GetMean(), integral.GetMeanError())
-    width = ErrValue(integral.GetWidth(), integral.GetWidthError())
-    vol = ErrValue(integral.GetIntegral(), integral.GetIntegralError())
-    skew = ErrValue(integral.GetRawSkewness(),
+    pos = ufloat(integral.GetMean(), integral.GetMeanError())
+    width = ufloat(integral.GetWidth(), integral.GetWidthError())
+    vol = ufloat(integral.GetIntegral(), integral.GetIntegralError())
+    skew = ufloat(integral.GetRawSkewness(),
                     integral.GetRawSkewnessError())
     integral_info = {'uncal': {'pos': pos, 'width': width, 'vol': vol, 'skew': skew}}
-    
+
     if spec.cal:
         return calibrate_integral(integral_info, spec.cal)
     return integral_info
@@ -57,7 +56,7 @@ def calibrate_integral(integral_info, cal):
     pos = integral_info['uncal']['pos']
     width = integral_info['uncal']['width']
 
-    pos_cal = ErrValue(
+    pos_cal = ufloat(
         cal.Ch2E(pos.nominal_value),
         abs(cal.dEdCh(pos.nominal_value) * pos.std_dev))
     hwhm_uncal = width.nominal_value / 2
@@ -69,10 +68,10 @@ def calibrate_integral(integral_info, cal):
         (cal.dEdCh(pos.nominal_value + hwhm_uncal) / 2. + 
          cal.dEdCh(pos.nominal_value - hwhm_uncal) / 2.) *
         width.std_dev)
-    width_cal = ErrValue(width_cal_n, width_cal_std_dev)
+    width_cal = ufloat(width_cal_n, width_cal_std_dev)
     # TODO: Does it make sense to calibrate the skewness?
     # Not relevant for calibrations with degree < 2
-    
+
     cal = {'pos': pos_cal, 'width': width_cal, 'vol': integral_info['uncal']['vol']}
     integral_info.update({'cal': cal})
 

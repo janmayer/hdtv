@@ -18,11 +18,13 @@
 # You should have received a copy of the GNU General Public License
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+
 import math
 from functools import total_ordering
+from uncertainties import ufloat
+
 import ROOT
 from .peak import PeakModel
-from hdtv.errvalue import ErrValue
 from hdtv.drawable import Drawable
 import hdtv.options
 
@@ -34,7 +36,7 @@ class TheuerkaufPeak(Drawable):
     """
 
     def __init__(self, pos, vol, width, tl, tr, sh, sw, color=None, cal=None):
-        Drawable.__init__(self, color, cal)
+        super(TheuerkaufPeak, self).__init__(color, cal)
         # values are uncalibrated!
         self.pos = pos
         self.vol = vol
@@ -58,7 +60,7 @@ class TheuerkaufPeak(Drawable):
             pos_err_uncal = self.pos.std_dev
             pos_cal = self.cal.Ch2E(pos_uncal)
             pos_err_cal = abs(self.cal.dEdCh(pos_uncal) * pos_err_uncal)
-            return ErrValue(pos_cal, pos_err_cal, self.pos.tag)
+            return ufloat(pos_cal, pos_err_cal, self.pos.tag)
         elif name == "width_cal":
             if self.cal is None:
                 return self.width
@@ -79,7 +81,7 @@ class TheuerkaufPeak(Drawable):
                     hwhm_uncal) /
                     2.) *
                 width_err_uncal)
-            return ErrValue(width_cal, width_err_cal, self.width.tag)
+            return ufloat(width_cal, width_err_cal, self.width.tag)
         elif name in ["vol_cal", "tl_cal", "tr_cal", "sh_cal", "sw_cal"]:
             name = name[0:name.rfind("_cal")]
             return getattr(self, name)
@@ -97,26 +99,26 @@ class TheuerkaufPeak(Drawable):
         """
         text = str()
         if verbose:
-            text += "Pos:         " + self.pos_cal.fmt() + "\n"
-            text += "Channel:     " + self.pos.fmt() + "\n"
-            text += "Volume:      " + self.vol.fmt() + "\n"
-            text += "FWHM:        " + self.width_cal.fmt() + "\n"
+            text += "Pos:         {.pos_cal:S}\n"
+            text += "Channel:     {.pos:S}\n"
+            text += "Volume:      {.vol:S}\n"
+            text += "FWHM:        {.width_cal:S}\n"
             if self.tl is not None:
-                text += "Left Tail:   " + self.tl.fmt() + "\n"
+                text += "Left Tail:   {.tl:S}\n"
             else:
                 text += "Left Tail:   None\n"
             if self.tr is not None:
-                text += "Right Tail:  " + self.tr.fmt() + "\n"
+                text += "Right Tail:  {.tr:S}\n"
             else:
                 text += "Right Tail:  None\n"
             if self.sh is not None:
-                text += "Step height: " + self.sh.fmt() + "\n"
-                text += "Step width:  " + self.sw.fmt() + "\n"
+                text += "Step height: {.sh:S}\n"
+                text += "Step width:  {.sw:S}\n"
             else:
                 text += "Step:        None\n"
         else:
-            text += "Peak@ %s \n" % self.pos_cal.fmt()
-        return text
+            text += "Peak@ {.pos_cal}\n"
+        return text.format(self)
 
     def __eq__(self, other):
         return ((self.pos, self.vol, self.width, self.tl, self.tr, self.sh, self.sw) == (
@@ -165,7 +167,7 @@ class PeakModelTheuerkauf(PeakModel):
     """
 
     def __init__(self):
-        PeakModel.__init__(self)
+        super(PeakModelTheuerkauf, self).__init__()
         self.fOrderedParamKeys = ["pos", "vol",
                                   "width", "tl", "tr", "sh", "sw"]
         self.fParStatus = {"pos": None, "vol": None, "width": None,
@@ -192,25 +194,25 @@ class PeakModelTheuerkauf(PeakModel):
         # width==fwhm (internally the C++ fitter uses sigma)
         width_uncal = cpeak.GetSigma() * 2. * math.sqrt(2. * math.log(2.))
         width_err_uncal = cpeak.GetSigmaError() * 2. * math.sqrt(2. * math.log(2.))
-        # create ErrValues objets from this
-        pos = ErrValue(pos_uncal, pos_err_uncal, cpeak.PosIsFree())
-        vol = ErrValue(cpeak.GetVol(), cpeak.GetVolError(), cpeak.VolIsFree())
-        width = ErrValue(width_uncal, width_err_uncal, cpeak.SigmaIsFree())
+        # create ufloats from this
+        pos = ufloat(pos_uncal, pos_err_uncal, cpeak.PosIsFree())
+        vol = ufloat(cpeak.GetVol(), cpeak.GetVolError(), cpeak.VolIsFree())
+        width = ufloat(width_uncal, width_err_uncal, cpeak.SigmaIsFree())
         # optional parameters
         if cpeak.HasLeftTail():
-            tl = ErrValue(cpeak.GetLeftTail(), cpeak.GetLeftTailError(),
+            tl = ufloat(cpeak.GetLeftTail(), cpeak.GetLeftTailError(),
                           cpeak.LeftTailIsFree())
         else:
             tl = None
         if cpeak.HasRightTail():
-            tr = ErrValue(cpeak.GetRightTail(), cpeak.GetRightTailError(),
+            tr = ufloat(cpeak.GetRightTail(), cpeak.GetRightTailError(),
                           cpeak.RightTailIsFree())
         else:
             tr = None
         if cpeak.HasStep():
-            sh = ErrValue(cpeak.GetStepHeight(), cpeak.GetStepHeightError(),
+            sh = ufloat(cpeak.GetStepHeight(), cpeak.GetStepHeightError(),
                           cpeak.StepHeightIsFree())
-            sw = ErrValue(cpeak.GetStepWidth(), cpeak.GetStepWidthError(),
+            sw = ufloat(cpeak.GetStepWidth(), cpeak.GetStepWidthError(),
                           cpeak.StepWidthIsFree())
         else:
             sh = sw = None

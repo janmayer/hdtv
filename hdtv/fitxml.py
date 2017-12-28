@@ -21,17 +21,13 @@
 
 from __future__ import print_function
 
-import os
-import glob
 import xml.etree.cElementTree as ET
+from uncertainties import ufloat
 
 import hdtv.ui
-
 from hdtv.util import Position
-from hdtv.errvalue import ErrValue
 from hdtv.fitter import Fitter
 from hdtv.fit import Fit
-from hdtv.peakmodels import PeakModels
 
 # Increase the version number if you changed something related to the xml output.
 # If your change affect the reading, you should increase the major number
@@ -277,7 +273,7 @@ class FitXml(object):
 
     def _readParamElement(self, paramElement):
         """
-        Reads parameter info from a xml element and creates an ErrValue object
+        Reads parameter info from a xml element and creates an ufloat
         """
         # status
         status = paramElement.get("status", "free")
@@ -297,7 +293,7 @@ class FitXml(object):
         # <error>
         errorElement = paramElement.find("error")
         error = float(errorElement.text)
-        return ErrValue(value, error, tag=free)
+        return ufloat(value, error, tag=free)
 
     def ReadFitlist(self, fname, sid=None, refit=False, interactive=True):
         """
@@ -576,7 +572,7 @@ class FitXml(object):
                 # <error>
                 errorElement = coeffElement.find("error")
                 error = float(errorElement.text)
-                coeff = ErrValue(value, error)
+                coeff = ufloat(value, error)
                 coeffs.append([deg, coeff])
             coeffs.sort()
             fit.bgCoeffs = [c[1] for c in coeffs]
@@ -611,7 +607,7 @@ class FitXml(object):
                         # <error>
                         errorElement = paramElement.find("error")
                         error = float(errorElement.text)
-                        extras[name] = ErrValue(value, error)
+                        extras[name] = ufloat(value, error)
             # create peak
             try:
                 peak = fit.fitter.peakModel.Peak(cal=calibration, **parameter)
@@ -645,7 +641,7 @@ class FitXml(object):
                     # <error>
                     errorElement = paramElement.find("error")
                     error = float(errorElement.text)
-                    coeff = ErrValue(value, error)
+                    coeff = ufloat(value, error)
                     integrals[integral_type][cal_type][paramElement.tag] = coeff
         if not integrals:
             integrals = None

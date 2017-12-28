@@ -161,7 +161,7 @@ class PrintOut(object):
         ax = pylab.gca()
         trans = transforms.blended_transform_factory(
             ax.transData, ax.transAxes)
-        pylab.text(x, 0.94 - 0.06 * i, peak.pos_cal.fmt(),
+        pylab.text(x, 0.94 - 0.06 * i, "{:S}".format(peak.pos_cal),
                    transform=trans, size="small")
 
     def PrintFunc(self, func, cal, color):

@@ -21,9 +21,9 @@
 
 from __future__ import print_function
 
-import ROOT
 import array
 import os
+import ROOT
 import hdtv.rootext.mfile
 
 

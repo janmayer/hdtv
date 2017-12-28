@@ -21,20 +21,20 @@
 
 from __future__ import print_function
 
-from hdtv.util import TxtFile, Pairs
-from hdtv.errvalue import ErrValue
-from math import sqrt
-from ROOT import TF1, TF2, TGraphErrors, TVirtualFitter
-import hdtv.ui
-
 import array
 import string
-import os
+from math import sqrt
+from uncertainties import ufloat
+
+from hdtv.util import TxtFile, Pairs
+import hdtv.ui
+from ROOT import TF1, TF2, TGraphErrors, TVirtualFitter
 
 
 class _Efficiency(object):
 
-    def __init__(self, num_pars=0, pars=list(), norm=True):
+    def __init__(self, num_pars=0, pars=None, norm=True):
+        pars = pars or []
 
         self._numPars = num_pars
         self.parameter = pars
@@ -49,7 +49,7 @@ class _Efficiency(object):
         self.TF1.FixParameter(0, self.norm)  # Normalization
         self.TF1.SetRange(0, 10000)  # Default range for efficiency function
 
-        self._fitInput = Pairs(lambda x: ErrValue(x, 0))
+        self._fitInput = Pairs(lambda x: ufloat(x, 0))
 
 #         if self.parameter: # Parameters were given
 #             map(lambda i: self.TF1.SetParameter(i + 1, self.parameter[i]), range(1, len(pars))) # Set initial parameters
@@ -91,7 +91,7 @@ class _Efficiency(object):
             error = self.error(E)
         except TypeError:
             error = None
-        return ErrValue(value, error)
+        return ufloat(value, error)
 
     def _set_fitInput(self, fitPairs):
 
@@ -126,7 +126,7 @@ class _Efficiency(object):
         Fit efficiency curve to values given by 'fitPairs' which should be a list
         of energy<->efficiency pairs. (See hdtv.util.Pairs())
 
-        'energies' and 'efficiencies' may be a list of hdtv.util.ErrValues()
+        'energies' and 'efficiencies' may be a list of ufloats
         """
         # TODO: Unify this with the energy calibration fitter
         if fitPairs is not None:
@@ -151,7 +151,7 @@ class _Efficiency(object):
                 x[0].value.std_dev), self._fitInput))
             list(map(lambda x: EN.append(0.0), self._fitInput))
             hasXerrors = True
-        except AttributeError:  # energies does not seem to be ErrValue list
+        except AttributeError:  # energies does not seem to be ufloat list
             list(map(lambda x: E.append(x[0]), self._fitInput))
             list(map(lambda x: delta_E.append(0.0), self._fitInput))
 
@@ -161,7 +161,7 @@ class _Efficiency(object):
             list(map(lambda x: delta_eff.append(
                 x[1].value.std_dev), self._fitInput))
             list(map(lambda x: effN.append(0.0), self._fitInput))
-        except AttributeError:  # energies does not seem to be ErrValue list
+        except AttributeError:  # energies does not seem to be ufloat list
             list(map(lambda x: eff.append(x[1]), self._fitInput))
             list(map(lambda x: delta_eff.append(0.0), self._fitInput))
 

@@ -22,9 +22,9 @@
 # Helper functions for access to ROOT files, treating them like POSIX
 # directories
 
-import ROOT
 import os.path
 import fnmatch
+import ROOT
 
 # Required for Get() to work (otherwise, histogram objects are automatically
 # destroyed when the file containing them is closed).
