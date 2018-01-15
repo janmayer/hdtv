@@ -21,7 +21,7 @@ lib$(MODNAME).so: $(OBJ_FILES) $(MODNAME)_rdict.o
 
 $(MODNAME)_rdict.cxx: $(HDR_FILES) LinkDef.h
 	# Fixme: -rml lib$(MODNAME).so breaks ROOT.HDTV.Fit.PolyBg(self.bgdeg)
-	$(ROOTCLING) -f $(MODNAME)_rdict.cxx -noIncludePaths -inlineInputHeader -s lib$(MODNAME).so -rmf $(MODNAME).rootmap $(HDR_FILES) LinkDef.h
+	$(ROOTCLING) -f $(MODNAME)_rdict.cxx -noIncludePaths -inlineInputHeader -s lib$(MODNAME).so -rmf lib$(MODNAME).rootmap $(HDR_FILES) LinkDef.h
 
 %.o: %.cxx $(HDR_FILES)
 	$(CPP) $(CXXFLAGS) -c -o $@ $<

@@ -45,7 +45,7 @@ def FindLibrary(name, libname):
     Find the path to a dynamic library in a subfolder.
     Returns the full filename.
     """
-    paths = [os.path.join(usrlibdir, name), os.path.join(syslibdir, name)]
+    paths = [os.path.join(usrlibdir, name), os.path.join(syslibdir, name), os.path.join(os.path.dirname(__file__), name)]
     for path in paths:
         fname = os.path.join(path, libname)
         if os.path.isfile(fname):
