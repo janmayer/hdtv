@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-VERSION = "17.12"
+VERSION = "18.01"

@@ -1,5 +1,8 @@
 # HDTV Change Log
 
+## 18.01
+- Changed building process in setup.py to allow for package building
+
 ## 17.12
 + (Some) Support for Integrals: If one wants to work exclusively with integrals, it is possible to work with peak less fits. See e.g. `fit integral list`. (@opapst)
 + Support for Python3 (@warr, @opapst) (Closes #12)
