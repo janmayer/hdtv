@@ -1,7 +1,7 @@
 # Makefile for mfile-root
 MODNAME := mfile-root
 
-SRC_FILES := $(wildcard *.cxx)
+SRC_FILES := MatOp.cxx MFile.cxx MFileHist.cxx VMatrix.cxx
 HDR_FILES := $(SRC_FILES:.cxx=.h)
 OBJ_FILES := $(SRC_FILES:.cxx=.o)
 

@@ -1,7 +1,7 @@
 # Makefile for HDTV::Display
 MODNAME := display
 
-SRC_FILES := $(wildcard *.cxx)
+SRC_FILES := Calibration.cxx DisplayBlock.cxx DisplayCut.cxx DisplayFunc.cxx DisplayObj.cxx DisplaySpec.cxx DisplayStack.cxx Marker.cxx MTViewer.cxx Painter.cxx View1D.cxx View2D.cxx View.cxx Viewer.cxx XMarker.cxx YMarker.cxx
 HDR_FILES := $(SRC_FILES:.cxx=.h)
 OBJ_FILES := $(SRC_FILES:.cxx=.o)
 

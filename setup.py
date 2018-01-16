@@ -2,29 +2,23 @@
 
 import hdtv.version
 from setuptools import setup
-from distutils.command.install import install
+from distutils.command.build import build
 import glob
+import subprocess
 import os
-import sys
-import shutil
 
-class CustomInstall(install):
+class CustomBuild(build):
     def run(self):
         # run original install code
-        install.run(self)
+        build.run(self)
 
-        # Build libraries for all users
+        # Build libraries for this system
         # run hdtv --rebuild-sys after installation or any root version change
-        # Fixme: This IS a very hacky solution
-        # Sometimes ROOT will complain while loading the library that headers can't be found, even if those
-        # are RIGHT THERE and all of them should have been inlined anyway.
-        # This behavior depends on the specific Python+ROOT version / parameters / position of the moon
-        #
-        # Prepend final install location (.../site-packages) and load this specific dlmgr.
-        sys.path.insert(1, os.path.join(self.install_lib, 'hdtv', 'rootext'))
-        import dlmgr
-        dlmgr.RebuildLibraries(dlmgr.syslibdir)
-
+        # or reinstall from scratch
+        for module in ['mfile-root', 'fit', 'display']:
+            dir = os.path.join(self.build_lib, 'hdtv/rootext/', module)
+            print("Building library in %s" % dir)
+            subprocess.check_call(['make', '-j', '--silent'], cwd=dir)
 
 manpages = glob.glob('doc/guide/*.1')
 
@@ -54,9 +48,12 @@ setup(
         'hdtv': ['share/*'],
         'hdtv.rootext': [
             'mfile-root/*.h', 'mfile-root/*.cxx', 'mfile-root/Makefile',
+            'mfile-root/libmfile-root.so', 'mfile-root/libmfile-root_rdict.pcm', 'mfile-root/libmfile-root.rootmap',
             'mfile-root/matop/*.h', 'mfile-root/matop/*.c',
             'fit/*.h', 'fit/*.cxx', 'fit/Makefile',
+            'fit/libfit.so', 'fit/libfit_rdict.pcm', 'fit/libfit.rootmap',
             'display/*.h', 'display/*.cxx', 'display/Makefile',
+            'display/libdisplay.so', 'display/libdisplay_rdict.pcm', 'display/libdisplay.rootmap',
         ],
     },
     data_files=[
@@ -66,6 +63,6 @@ setup(
         ('share/applications', ['data/hdtv.desktop']),
     ],
     cmdclass={
-        'install': CustomInstall,
+        'build': CustomBuild,
     }
 )
