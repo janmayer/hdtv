@@ -30,14 +30,13 @@ def SearchNuclide(nuclide):
     try: # Python3+
         with urllib.request.urlopen("http://www.nucleide.org/DDEP_WG/Nuclides/" + str(nuclide) + ".lara.txt") as resource:
             data = resource.read().decode("utf-8")
-    except NameError: # Python2
-        resource = urllib.urlopen(
-            "http://www.nucleide.org/DDEP_WG/Nuclides/"+str(nuclide)+".lara.txt")
-        data = resource.read().decode("utf-8")
-        resource.close()
-    except urllib.error.HTTPError as e:
-        raise hdtv.cmdline.HDTVCommandError("Error looking up nuclide {}: {}".format(
-            nuclide, e.msg))
+    except: # Python2
+        try:
+            resource = urllib.urlopen("http://www.nucleide.org/DDEP_WG/Nuclides/" + str(nuclide) + ".lara.txt")
+            data = resource.read().decode("utf-8")
+            resource.close()
+        except:
+            raise hdtv.cmdline.HDTVCommandError("Error looking up nuclide {}".format(nuclide))
 
     for line in data.split("\r\n"):
         sep = line.split(" ; ")
