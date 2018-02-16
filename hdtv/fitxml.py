@@ -74,7 +74,7 @@ class FitXml(object):
         # create xml tree
         root = ET.Element("hdtv")
         root.set("version", VERSION)
-        for fit in sorted(fits.values()):
+        for fit in sorted(fits.values(), key=lambda fit: fit.ID):
             root.append(self.Fit2Xml(fit))
         self._indent(root)
         return root
@@ -400,7 +400,6 @@ class FitXml(object):
             # finish this fit
             fits.append(fit)
         # add fits to spectrum
-        fits.sort()
         for fit in fits:
             ID = spec.Insert(fit)
             count += 1
