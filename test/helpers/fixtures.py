@@ -21,6 +21,7 @@
 
 import tempfile
 import os
+import sys
 
 import pytest
 
@@ -31,6 +32,23 @@ def temp_file(request):
     pytest fixture that provides a temporary file for writing
     """
     filename = tempfile.mkstemp(prefix="hdtv_")[1]
+    os.remove(filename)
+    yield filename
+    try:
+        os.remove(filename)
+    except OSError:
+        pass
+
+@pytest.fixture(scope='function', params=[
+    '.gz',
+    pytest.mark.xfail(sys.version_info < (3, 0), reason='no module lzma in python2')('.xz'),
+    pytest.mark.xfail(sys.version_info < (3, 0), reason='no module bz2 in python2')('.bz2'),
+    ''])
+def temp_file_compressed(request):
+    """
+    pytest fixture that provides a temporary file for writing
+    """
+    filename = tempfile.mkstemp(prefix="hdtv_", suffix=request.param)[1]
     os.remove(filename)
     yield filename
     try:

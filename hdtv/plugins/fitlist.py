@@ -26,6 +26,7 @@
 import os
 import glob
 import hdtv.cmdline
+import hdtv.options
 import hdtv.fitxml
 import hdtv.ui
 import hdtv.util
@@ -46,14 +47,16 @@ class FitlistManager(object):
         # remember absolut pathname for later use
         fname = os.path.abspath(fname)
         self.list[name] = fname
-        self.xml.WriteFitlist(fname, sid)
+        with hdtv.util.open_compressed(fname, mode='wb') as f:
+            self.xml.WriteFitlist(f, sid)
 
     def ReadXML(self, sid, fname, refit=False, interactive=True):
         spec = self.spectra.dict[sid]
         # remember absolut pathname for later use
         fname = os.path.abspath(fname)
         self.list[spec.name] = fname
-        self.xml.ReadFitlist(fname, sid, refit, interactive)
+        with hdtv.util.open_compressed(fname, mode='rb') as f:
+            self.xml.ReadFitlist(f, sid, refit, interactive, fname=fname)
 
     def WriteList(self, fname):
         lines = list()
@@ -193,7 +196,7 @@ class FitlistHDTVInterface(object):
                     fname = self.FitlistIf.list[name]
                 except KeyError:
                     (base, ext) = os.path.splitext(name)
-                    fname = base + ".xfl"
+                    fname = base + "." + hdtv.options.Get("default_fitlist_extension")
             else:
                 fname = os.path.expanduser(args.filename)
                 # Try to replace placeholder "%s" in filename with specid
@@ -253,6 +256,8 @@ class FitlistHDTVInterface(object):
             raise hdtv.cmdline.HDTVCommandError("No such file %s" % fname)
         self.FitlistIf.ReadList(fname)
 
+hdtv.options.RegisterOption('default_fitlist_extension',
+                            hdtv.options.Option(default="xfl"))
 
 import __main__
 __main__.fitxml = FitlistManager(__main__.spectra)

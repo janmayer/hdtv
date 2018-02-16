@@ -52,7 +52,7 @@ class FitXml(object):
         self.Xml2Fit = self.Xml2Fit_v1
 
 #### creating of xml #####################################################
-    def WriteFitlist(self, fname, sid=None):
+    def WriteFitlist(self, file_object, sid=None):
         """
         Write Fitlist to file
         """
@@ -65,7 +65,7 @@ class FitXml(object):
         root = self.CreateXml(fits)
         # save to file
         tree = ET.ElementTree(root)
-        tree.write(fname)
+        tree.write(file_object)
 
     def CreateXml(self, fits):
         """
@@ -295,7 +295,7 @@ class FitXml(object):
         error = float(errorElement.text)
         return ufloat(value, error, tag=free)
 
-    def ReadFitlist(self, fname, sid=None, refit=False, interactive=True):
+    def ReadFitlist(self, file_object, sid=None, refit=False, interactive=True, fname=None):
         """
         Reads fitlist from xml files
         """
@@ -306,7 +306,11 @@ class FitXml(object):
             raise hdtv.cmdline.HDTVCommandError("No spectrum with id %s loaded." % sid)
         count = 0
         try:
-            tree = ET.parse(fname)
+            fname = "'{}'".format(fname or file_object.name)
+        except AttributeError:
+            fname = "fitlist"
+        try:
+            tree = ET.parse(file_object)
             root = tree.getroot()
             if not root.tag == "hdtv" or root.get("version") is None:
                 e = "this is not a valid hdtv file"
@@ -350,13 +354,13 @@ class FitXml(object):
                         input("Please press enter to continue...\n")
                     count = self.RestoreFromXml_v0(root, True)
         except SyntaxError as e:
-            print("Error reading \'" + fname + "\':\n\t", e)
+            print("Error reading " + fname + ":\n\t", e)
         else:
-            msg = "\'%s\' loaded" % (fname)
+            msg = "%s loaded: " % (fname)
             if count == 1:
-                msg += ": 1 fit restored."
+                msg += "1 fit restored."
             else:
-                msg += ": %d fits restored" % count
+                msg += "%d fits restored." % count
             hdtv.ui.msg(msg)
         finally:
             self.spectra.viewport.UnlockUpdate()

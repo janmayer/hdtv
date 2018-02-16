@@ -32,7 +32,7 @@ import os
 import pytest
 
 from test.helpers.utils import setup_io, redirect_stdout
-from test.helpers.fixtures import temp_file
+from test.helpers.fixtures import temp_file_compressed
 
 import __main__
 
@@ -87,7 +87,7 @@ def fit_write_and_save(filename):
     assert out_original == list_fit()
 
 
-def test_fitxml_all_free_no_bg(temp_file):
+def test_fitxml_all_free_no_bg(temp_file_compressed):
     """
     all parameter free, just one peak, no background, theuerkauf model
     """
@@ -95,10 +95,10 @@ def test_fitxml_all_free_no_bg(temp_file):
     spectra.SetMarker("region", 1450)
     spectra.SetMarker("region", 1470)
     spectra.SetMarker("peak", 1460)
-    fit_write_and_save(temp_file)
+    fit_write_and_save(temp_file_compressed)
 
 
-def test_fitxml_all_free_bg(temp_file):
+def test_fitxml_all_free_bg(temp_file_compressed):
     """
     all parameter free, just one peak, background
     """
@@ -109,10 +109,10 @@ def test_fitxml_all_free_bg(temp_file):
     spectra.SetMarker("bg", 490)
     spectra.SetMarker("bg", 530)
     spectra.SetMarker("bg", 540)
-    fit_write_and_save(temp_file)
+    fit_write_and_save(temp_file_compressed)
 
 
-def test_fitxml_all_free_multi_peak(temp_file):
+def test_fitxml_all_free_multi_peak(temp_file_compressed):
     """
     all parameter free, more than one peak
     """
@@ -124,10 +124,10 @@ def test_fitxml_all_free_multi_peak(temp_file):
     spectra.SetMarker("bg", 1355)
     spectra.SetMarker("bg", 1420)
     spectra.SetMarker("bg", 1425)
-    fit_write_and_save(temp_file)
+    fit_write_and_save(temp_file_compressed)
 
 
-def test_fitxml_parameter_hold(temp_file):
+def test_fitxml_parameter_hold(temp_file_compressed):
     """
     one parameter status!=free, but equal for all peaks
     """
@@ -140,10 +140,10 @@ def test_fitxml_parameter_hold(temp_file):
     spectra.SetMarker("bg", 980)
     spectra.SetMarker("bg", 985)
     __main__.f.SetFitterParameter("pos", "hold")
-    fit_write_and_save(temp_file)
+    fit_write_and_save(temp_file_compressed)
 
 
-def test_fitxml_parameter_multi(temp_file):
+def test_fitxml_parameter_multi(temp_file_compressed):
     """
     different parameter status for each peak
     """
@@ -156,10 +156,10 @@ def test_fitxml_parameter_multi(temp_file):
     spectra.SetMarker("bg", 1800)
     spectra.SetMarker("bg", 1810)
     __main__.f.SetFitterParameter("pos", "hold,free")
-    fit_write_and_save(temp_file)
+    fit_write_and_save(temp_file_compressed)
 
 
-def test_fitxml_eepeak(temp_file):
+def test_fitxml_eepeak(temp_file_compressed):
     """
     ee peak (just proof of concept, not a thorough test)
     """
@@ -167,4 +167,4 @@ def test_fitxml_eepeak(temp_file):
     spectra.SetMarker("region", 1115)
     spectra.SetMarker("region", 1125)
     spectra.SetMarker("peak", 1120)
-    fit_write_and_save(temp_file)
+    fit_write_and_save(temp_file_compressed)

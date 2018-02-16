@@ -725,3 +725,28 @@ def count(index=0):
     while True:
         yield index
         index += 1
+
+
+def open_compressed(fname, mode='rb', **kwargs):
+    """
+    Behaves like open(), but automatically handles compression,
+    depending on the extension of the given filename.
+    """
+    ext = fname.split('.')[-1]
+    try:
+        if ext == 'gz':
+            import gzip
+            return gzip.open(fname, mode, **kwargs)
+        elif ext == 'xz':
+            hdtv.ui.warn("hdtv with python2 does not support xz files.")
+            import lzma
+            return lzma.open(fname, mode, **kwargs)
+        elif ext == 'bz2':
+            hdtv.ui.warn("hdtv with python2 does not support bz2 files.")
+            import bz2
+            return bz2.open(fname, mode, **kwargs)
+        return open(fname, mode, **kwargs)
+    except (ImportError, AttributeError):
+        raise NotImplementedError(
+            "{} files are not supported. Manually use '{}' instead.".format(
+                ext, 'bzip2' if 'bz2' else ext))
