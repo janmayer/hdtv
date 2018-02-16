@@ -221,22 +221,23 @@ class FitXml(object):
                         errorElement.text = str(param.std_dev)
                 except BaseException:
                     paramElement.text = str(param)
-        for integral_type, integral in fit.integral.items():
-            if integral is None:
-                continue
-            integralElement = ET.SubElement(fitElement, "integral")
-            integralElement.set("integraltype", integral_type)
-            for cal_type, cal_integral in integral.items():
-                calElement = ET.SubElement(integralElement, cal_type)
-                for name, param in cal_integral.items():
-                    if not name in ['id', 'stat', 'type']:
-                        paramElement = ET.SubElement(calElement, name)
-                        if param.nominal_value is not None:
-                            valueElement = ET.SubElement(paramElement, "value")
-                            valueElement.text = str(param.nominal_value)
-                        if param.std_dev is not None:
-                            errorElement = ET.SubElement(paramElement, "error")
-                            errorElement.text = str(param.std_dev)
+        if fit.integral:
+            for integral_type, integral in fit.integral.items():
+                if integral is None:
+                    continue
+                integralElement = ET.SubElement(fitElement, "integral")
+                integralElement.set("integraltype", integral_type)
+                for cal_type, cal_integral in integral.items():
+                    calElement = ET.SubElement(integralElement, cal_type)
+                    for name, param in cal_integral.items():
+                        if not name in ['id', 'stat', 'type']:
+                            paramElement = ET.SubElement(calElement, name)
+                            if param.nominal_value is not None:
+                                valueElement = ET.SubElement(paramElement, "value")
+                                valueElement.text = str(param.nominal_value)
+                            if param.std_dev is not None:
+                                errorElement = ET.SubElement(paramElement, "error")
+                                errorElement.text = str(param.std_dev)
         return fitElement
 
     def _indent(self, elem, level=0):

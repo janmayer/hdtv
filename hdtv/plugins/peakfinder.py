@@ -141,6 +141,12 @@ class PeakFinder(object):
                     if result:
                         text = "Warning: adding invalid fit:" + result
                         hdtv.ui.msg(text)
+            # Integrate. TODO: Might use this for additional checks
+            if fit.regionMarkers.IsFull():
+                region = [fit.regionMarkers[0].p1.pos_uncal,
+                          fit.regionMarkers[0].p2.pos_uncal]
+                fit.integral = hdtv.integral.Integrate(
+                    self.spec, fit.fitter.bgFitter, region)
             # add fits to spectrum
             ID = self.spec.Insert(fit)
             # FIXME: no fit title
