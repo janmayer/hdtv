@@ -23,14 +23,17 @@
 #ifndef __PolyBg_h__
 #define __PolyBg_h__
 
-#include <TF1.h>
-#include <TH1.h>
+#include <limits>
 #include <list>
-#include <vector>
 #include <memory>
-#include <Riostream.h>
+#include <vector>
+
+#include <TF1.h>
 
 #include "Background.h"
+
+class TArrayD;
+class TH1;
 
 namespace HDTV {
 namespace Fit {

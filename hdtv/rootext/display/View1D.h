@@ -24,13 +24,10 @@
 #define __View1D_h__
 
 #include <list>
-#include <TGFrame.h>
-#include <TGScrollBar.h>
-#include <TGStatusBar.h>
-#include "Painter.h"
-#include "DisplayObj.h"
-#include "DisplaySpec.h"
+
+#include "Calibration.h"
 #include "DisplayStack.h"
+#include "Painter.h"
 #include "View.h"
 
 enum XScaleType {
@@ -43,6 +40,9 @@ enum YScaleType {
   Y_SCALE_NONE = 0,
   Y_SCALE_COUNTS = 1
 };
+
+class TGHScrollBar;
+class TGStatusBar;
 
 namespace HDTV {
 namespace Display {

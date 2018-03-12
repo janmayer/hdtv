@@ -21,9 +21,14 @@
  */
 
 #include "View2D.h"
-#include <X11/Xlib.h>
+
 #include <iostream>
+
 #include <KeySymbols.h>
+#include <X11/Xlib.h>
+
+#include <TGStatusBar.h>
+#include <TH2.h>
 #include <TMath.h>
 
 namespace HDTV {

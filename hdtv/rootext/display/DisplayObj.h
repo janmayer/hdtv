@@ -24,15 +24,12 @@
 #define __DisplayObj_h__
 
 #include <list>
+
+#include "DisplayObjZIndex.h"
 #include "Painter.h"
 
 namespace HDTV {
 namespace Display {
-
-const int Z_INDEX_MISC =   10;
-const int Z_INDEX_SPEC =   20;
-const int Z_INDEX_FUNC =   30;
-const int Z_INDEX_MARKER = 40;
 
 class DisplayStack;
 class View1D;

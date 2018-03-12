@@ -23,9 +23,10 @@
 #ifndef __DisplayBlock_h__
 #define __DisplayBlock_h__
 
-#include "DisplayObj.h"
-#include <TGGC.h>
 #include "Calibration.h"
+#include "DisplayObj.h"
+
+class TGGC;
 
 namespace HDTV {
 namespace Display {

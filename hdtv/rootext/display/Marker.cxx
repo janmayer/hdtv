@@ -21,12 +21,13 @@
  */
 
 #include "Marker.h"
-#include "DisplayStack.h"
-#include "View1D.h"
 
 #include <TROOT.h>
-
 #include <Riostream.h>
+#include <TColor.h>
+
+#include "DisplayStack.h"
+#include "View1D.h"
 
 namespace HDTV {
 namespace Display {

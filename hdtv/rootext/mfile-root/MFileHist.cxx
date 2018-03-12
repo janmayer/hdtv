@@ -19,10 +19,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  * 
  */
+#include "MFileHist.h"
+
+#include <iostream>
 
 #include <TArrayD.h>
-#include <iostream>
-#include "MFileHist.h"
+#include <TH1.h>
+#include <TH2.h>
 
 const int MFileHist::ERR_SUCCESS = 0;
 const int MFileHist::ERR_READ_OPEN = 1;

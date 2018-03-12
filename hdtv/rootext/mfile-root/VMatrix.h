@@ -23,10 +23,14 @@
 #ifndef __VMatrix_h__
 #define __VMatrix_h__
 
-#include "MFileHist.h"
-#include <list>
-#include <TH1.h>
 #include <cmath>
+
+#include <list>
+
+#include <TH1.h>
+#include <TH2.h>
+
+#include "MFileHist.h"
 
 // VMatrix and RMatrix should be moved to a different module, as they are not
 // related to MFile...

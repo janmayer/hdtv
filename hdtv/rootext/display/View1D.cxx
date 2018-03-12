@@ -21,9 +21,15 @@
  */
 
 #include "View1D.h"
+
 #include <limits>
-#include <TMath.h>
+
 #include <Riostream.h>
+#include <TGScrollBar.h>
+#include <TGStatusBar.h>
+#include <TMath.h>
+
+#include "DisplaySpec.h"
 
 // These defines seem to be missing on some systems (e.g. MAC OSX/darwin)
 #ifndef M_SQRT2

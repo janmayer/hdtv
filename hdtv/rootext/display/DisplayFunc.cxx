@@ -22,9 +22,9 @@
 
 #include "DisplayFunc.h"
 
-#include "DisplayStack.h"
-
 #include <iostream>
+
+#include "DisplayStack.h"
 
 namespace HDTV {
 namespace Display {

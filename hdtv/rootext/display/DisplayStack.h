@@ -24,13 +24,13 @@
 #define __DisplayStack_h__
 
 #include <list>
-#include "DisplayObj.h"
-#include "Marker.h"
+
 #include "Painter.h"
 
 namespace HDTV {
 namespace Display {
 
+class DisplayObj;
 class View1D;
 
 //! An ordered list of objects being displayed

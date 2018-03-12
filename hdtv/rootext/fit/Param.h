@@ -23,7 +23,7 @@
 #ifndef __Param_h__
 #define __Param_h__
 
-#include <TF1.h>
+class TF1;
 
 namespace HDTV {
 namespace Fit {

@@ -23,8 +23,8 @@
 #ifndef __XMarker_h__
 #define __XMarker_h__
 
-#include "Marker.h"
 #include "Calibration.h"
+#include "Marker.h"
 #include "Painter.h"
 
 namespace HDTV {

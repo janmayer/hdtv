@@ -21,9 +21,8 @@
  */
  
 #include "Integral.h"
-#include <cmath>
 
-#include <iostream>
+#include <cmath>
 
 // ClassImp(HDTV::Fit::Integral)
 

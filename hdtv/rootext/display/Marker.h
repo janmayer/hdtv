@@ -26,19 +26,14 @@
 #ifndef __Marker_h__
 #define __Marker_h__
 
-#include <sstream>
-#include <TGFrame.h>
-#include <TColor.h>
+#include <string>
 
-#include "Calibration.h"
-#include "Painter.h"
 #include "DisplayObj.h"
+
+class TGGC;
 
 namespace HDTV {
 namespace Display {
-
-class DisplayStack;
-class View1D;
 
 //! A marker (displayed as a horizontal or vertical line)
 class Marker: public DisplayObj {
@@ -62,10 +57,7 @@ class Marker: public DisplayObj {
     inline void SetDash(bool dash1, bool dash2=false)
       { fDash1 = dash1; fDash2 = dash2; Update(); }
     void SetColor(int col);
-    inline void SetID(int ID){
-        std::ostringstream ss;
-        ss <<ID; fID = ss.str(); 
-        Update(); }
+    inline void SetID(int ID){ fID = std::to_string(ID); Update(); }
     inline void SetID(const std::string* ID)
         { if(ID) { fID = *ID; } else { fID = ""; } Update(); }
     inline void SetID(const char *ID)

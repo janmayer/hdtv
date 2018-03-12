@@ -22,6 +22,13 @@
 
 #include "Viewer.h"
 
+#include <KeySymbols.h>
+
+#include <TGScrollBar.h>
+#include <TGStatusBar.h>
+
+#include "View1D.h"
+
 namespace HDTV {
 namespace Display {
 

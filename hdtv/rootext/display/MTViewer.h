@@ -23,12 +23,14 @@
 #ifndef __MTViewer_h__
 #define __MTViewer_h__
 
-#include <TH2.h>
-#include <THnSparse.h>
-#include <TCutG.h>
 #include <TGFrame.h>
-#include <TGStatusBar.h>
+
 #include "View2D.h"
+
+class TCutG;
+class TGStatusBar;
+class TH2;
+class THnSparse;
 
 namespace HDTV {
 namespace Display {

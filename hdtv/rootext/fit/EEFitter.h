@@ -23,15 +23,15 @@
 #ifndef __EEFitter_h__
 #define __EEFitter_h__
 
-#include <TF1.h>
-#include <TH1.h>
 #include <memory>
-#include <list>
 #include <vector>
-#include <iostream>
 
-#include "Param.h"
 #include "Fitter.h"
+#include "Param.h"
+
+class TArrayD;
+class TF1;
+class TH1;
 
 namespace HDTV {
 namespace Fit {

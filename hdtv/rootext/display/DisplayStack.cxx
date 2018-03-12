@@ -21,9 +21,11 @@
  */
 
 #include "DisplayStack.h"
-#include "View1D.h"
 
 #include <iostream>
+
+#include "DisplayObj.h"
+#include "View1D.h"
 
 namespace HDTV {
 namespace Display {

@@ -20,8 +20,9 @@
  * 
  */
 
-#include <TArrayD.h>
 #include "VMatrix.h"
+
+#include <TArrayD.h>
 
 void VMatrix::AddRegion(std::list<int> &reglist, int l1, int l2)
 {
