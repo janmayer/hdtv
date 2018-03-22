@@ -21,11 +21,17 @@
  */
  
 #include "PolyBg.h"
-#include "Util.h"
-#include <iostream>
+
 #include <cmath>
+
+#include <iostream>
+
 #include <TError.h>
+#include <TF1.h>
+#include <TH1.h>
 #include <TVirtualFitter.h>
+
+#include "Util.h"
 
 namespace HDTV {
 namespace Fit {

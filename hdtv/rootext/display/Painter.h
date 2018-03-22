@@ -34,10 +34,12 @@
 #define __Painter_h__
 
 #include <list>
-#include <TGResourcePool.h>
+
 #include <TGFont.h>
 #include <TGFrame.h>
+#include <TGResourcePool.h>
 #include <TMath.h>
+
 #include "Calibration.h"
 
 namespace HDTV {

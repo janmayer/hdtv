@@ -21,12 +21,16 @@
  */
  
 #include "EEFitter.h"
-#include "Util.h"
+
+#include <cmath>
+
+#include <TError.h>
+#include <TF1.h>
+#include <TH1.h>
 #include <TMath.h>
 #include <TVirtualFitter.h>
-#include <TError.h>
-#include <math.h>
-#include <Riostream.h>
+
+#include "Util.h"
 
 namespace HDTV {
 namespace Fit {

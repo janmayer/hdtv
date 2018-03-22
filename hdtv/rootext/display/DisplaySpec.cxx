@@ -21,9 +21,12 @@
  */
 
 #include "DisplaySpec.h"
-#include <TROOT.h>
-#include <Riostream.h>
+
 #include <utility>
+
+#include <Riostream.h>
+#include <TH1.h>
+#include <TROOT.h>
 
 #include "DisplayStack.h"
 

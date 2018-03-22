@@ -23,9 +23,11 @@
 #ifndef __DisplaySpec_h__
 #define __DisplaySpec_h__
 
-#include <TH1.h>
 #include <memory>
 #include <sstream>
+
+#include <TH1.h>
+
 #include "DisplayBlock.h"
 
 namespace HDTV {

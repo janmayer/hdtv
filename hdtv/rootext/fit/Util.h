@@ -24,7 +24,8 @@
 #define __Util_h__
 
 #include <string>
-#include <TH1.h>
+
+class TH1;
 
 namespace HDTV {
 

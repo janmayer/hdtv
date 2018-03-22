@@ -21,11 +21,16 @@
  */
  
 #include "TheuerkaufFitter.h"
-#include "Util.h"
+
 #include <algorithm>
-#include <TMath.h>
-#include <TError.h>
+
 #include <Riostream.h>
+#include <TError.h>
+#include <TF1.h>
+#include <TH1.h>
+#include <TMath.h>
+
+#include "Util.h"
 
 namespace HDTV {
 namespace Fit {

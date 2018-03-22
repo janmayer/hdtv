@@ -1,6 +1,6 @@
 /*
  * HDTV - A ROOT-based spectrum analysis software
- *  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+ *  Copyright (C) 2006-2018  The HDTV development team (see file AUTHORS)
  *
  * This file is part of HDTV.
  *
@@ -19,41 +19,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  * 
  */
- 
-#include "Param.h"
 
-#include <limits>
-
-#include <TF1.h>
+#ifndef __DisplayObjZIndex_h__
+#define __DisplayObjZIndex_h__
 
 namespace HDTV {
-namespace Fit {
+namespace Display {
 
-Param::Param(int id, double value, bool free, bool hasIVal, bool valid)
-{
-  fId = id;
-  fValue = value;
-  fFree = free;
-  fHasIVal = hasIVal;
-  fValid = valid;
-}
+enum Z_INDEX {
+  Z_INDEX_MISC = 10,
+  Z_INDEX_SPEC = 20,
+  Z_INDEX_FUNC = 30,
+  Z_INDEX_MARKER = 40
+};
 
-double Param::Value(TF1 *func) const
-{
-  if(fFree)
-    return func ? func->GetParameter(fId) : std::numeric_limits<double>::quiet_NaN();
-  else
-  	return fValue;
-}
-
-double Param::Error(TF1 *func) const
-{
-  // Fixed parameters do not have a fit error
-  if(fFree)
-    return func ? func->GetParError(fId) : std::numeric_limits<double>::quiet_NaN();
-  else
-  	return 0.0;
-}
-
-} // end namespace Fit
+} // end namespace Display
 } // end namespace HDTV
+
+#endif

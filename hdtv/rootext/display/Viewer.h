@@ -23,18 +23,19 @@
 #ifndef __Viewer_h__
 #define __Viewer_h__
 
-#include <TApplication.h>
+// #include <TApplication.h>
 #include <TGFrame.h>
-#include <TGScrollBar.h>
-#include <TGStatusBar.h>
-#include <KeySymbols.h>
-#include "View1D.h"
 
 // see below...
 // #include <RQ_OBJECT.h>
 
+class TGHScrollBar;
+class TGStatusBar;
+
 namespace HDTV {
 namespace Display {
+
+class View1D;
 
 //! Class implementing a window (ROOT TGMainFrame) containing a View1D widget and a statusbar
 class Viewer : public TGMainFrame {

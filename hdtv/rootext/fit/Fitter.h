@@ -23,9 +23,10 @@
 #ifndef __Fitter_h__
 #define __Fitter_h__
 
-#include "Param.h"
-#include "Background.h"
 #include <memory>
+
+#include "Background.h"
+#include "Param.h"
 
 namespace HDTV {
 namespace Fit {

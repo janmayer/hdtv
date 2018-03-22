@@ -24,8 +24,9 @@
 #define __DisplayFunc_h__
 
 #include <TF1.h>
-#include "Painter.h"
+
 #include "DisplayBlock.h"
+#include "Painter.h"
 
 namespace HDTV {
 namespace Display {

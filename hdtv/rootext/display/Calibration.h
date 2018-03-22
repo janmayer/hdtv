@@ -24,7 +24,9 @@
 #define __Calibration_h__
 
 #include <vector>
-#include <TAxis.h>
+
+class TAxis;
+class TArrayD;
 
 namespace HDTV {
 

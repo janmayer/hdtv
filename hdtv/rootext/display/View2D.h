@@ -23,6 +23,8 @@
 #ifndef __View2D_h__
 #define __View2D_h__
 
+#include <cmath>
+
 #include <list>
 #include <map>
 
@@ -33,12 +35,12 @@ typedef unsigned int uint32_t;
 #include <stdint.h>
 #endif
 
-#include <TGStatusBar.h>
-#include <TH2.h>
-#include <math.h>
 #include "DisplayCut.h"
 #include "Painter.h"
 #include "View.h"
+
+class TGStatusBar;
+class TH2;
 
 namespace HDTV {
 namespace Display {

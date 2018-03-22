@@ -29,8 +29,13 @@
 typedef unsigned int u_int;
 #endif
 
-#include <TH1.h>
-#include <TH2.h>
+class TH1;
+class TH1I;
+class TH1D;
+
+class TH2;
+class TH2D;
+class TH2I;
 
 //! Wrapper around the mfile library for reading spectra
 class MFileHist {

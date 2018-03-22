@@ -23,18 +23,18 @@
 #ifndef __TheuerkaufFitter_h__
 #define __TheuerkaufFitter_h__
 
-#include <TF1.h>
-#include <TH1.h>
+#include <cmath>
 
-#include <math.h>
 #include <limits>
-#include <vector>
 #include <memory>
+#include <vector>
 
-#include "Param.h"
 #include "Fitter.h"
+#include "Param.h"
 
-#include <Riostream.h>
+class TArrayD;
+class TF1;
+class TH1;
 
 namespace HDTV {
 namespace Fit {

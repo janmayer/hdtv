@@ -21,9 +21,11 @@
  */
 
 #include "Util.h"
-#include "TAxis.h"
 
 #include <sstream>
+
+#include <TAxis.h>
+#include <TH1.h>
 
 namespace HDTV {
 

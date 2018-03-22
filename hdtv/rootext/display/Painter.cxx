@@ -21,14 +21,14 @@
  */
 
 #include "Painter.h"
-#include "DisplaySpec.h"
-#include "DisplayFunc.h"
-#include "XMarker.h"
-#include "YMarker.h"
 
 #include <Riostream.h>
 #include <TGX11.h>
 
+#include "DisplayFunc.h"
+#include "DisplaySpec.h"
+#include "XMarker.h"
+#include "YMarker.h"
 
 namespace HDTV {
 namespace Display {

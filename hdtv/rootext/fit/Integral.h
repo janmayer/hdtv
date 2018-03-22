@@ -23,9 +23,8 @@
 #ifndef __Integral_h__
 #define __Integral_h__
 
-#include <limits>
-#include <iostream>
 #include <TH1.h>
+
 #include "Background.h"
 
 namespace HDTV {

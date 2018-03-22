@@ -24,7 +24,8 @@
 #define __Background_h__
 
 #include <limits>
-#include <TF1.h>
+
+class TF1;
 
 namespace HDTV {
 namespace Fit {

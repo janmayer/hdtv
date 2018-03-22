@@ -22,6 +22,9 @@
  
 #include "Fitter.h"
 
+#include <TF1.h>
+#include <TMath.h>
+
 namespace HDTV {
 namespace Fit {
 

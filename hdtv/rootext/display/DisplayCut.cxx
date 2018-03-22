@@ -21,6 +21,8 @@
  */
 
 #include "DisplayCut.h"
+
+#include <TCutG.h>
 #include <TMath.h>
 
 namespace HDTV {

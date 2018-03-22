@@ -24,7 +24,8 @@
 #define __DisplayCut_h__
 
 #include <vector>
-#include <TCutG.h>
+
+class TCutG;
 
 namespace HDTV {
 namespace Display {

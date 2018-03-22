@@ -22,6 +22,12 @@
 
 #include "MTViewer.h"
 
+#include <TGStatusBar.h>
+#include <TH2.h>
+#include <THnSparse.h>
+
+#include "View2D.h"
+
 namespace HDTV {
 namespace Display {
 
