@@ -5,7 +5,7 @@ SRC_FILES := Integral.cxx PolyBg.cxx Param.cxx Fitter.cxx TheuerkaufFitter.cxx E
 HDR_FILES := Integral.h Background.h PolyBg.h Param.h Fitter.h TheuerkaufFitter.h EEFitter.h Util.h
 OBJ_FILES := $(SRC_FILES:.cxx=.o)
 
-CPP := g++
+CPP := $(shell root-config --cxx)
 ROOTCLING := rootcling
 CXXFLAGS += $(shell root-config --cflags) -Wall -g -O2 -fPIC -MMD
 LFLAGS += $(shell root-config --glibs)

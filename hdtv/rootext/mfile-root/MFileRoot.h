@@ -20,25 +20,24 @@
  * 
  */
 
-#include "MFile.h"
-#include <iostream>
+#ifndef __MFileRoot_h__
+#define __MFileRoot_h__
 
-MFile::MFile(const char* fname, const char* mode)
-    : fZombie(false), fFile(0)
-{
-    if(fname) {
-        fFile = mopen((char*)fname, (char*)mode);
-        if(fFile == 0) {
-            fZombie = true;
-        }
-    }
-}
+#include <mfile.h>
 
-MFile::~MFile()
-{
-    if(IsZombie() || IsNull()) return;
+class MFile {
+  public:
+    MFile(const char* fname = 0, const char* mode = "r");
+    ~MFile();
     
-    if(mclose(fFile) != 0)
-        std::cerr << "WARNING: mclose() failed" << std::endl;
-}
+    inline bool IsZombie()  { return fZombie; }
+    inline bool IsNull()    { return fFile == 0; }
+    inline MFILE* File() { return fFile; }
+    inline operator MFILE* () { return fFile; }
+    
+  private:
+    bool fZombie;
+    MFILE* fFile;
+};
 
+#endif

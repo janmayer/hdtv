@@ -1,11 +1,11 @@
 # Makefile for mfile-root
 MODNAME := mfile-root
 
-SRC_FILES := MatOp.cxx MFile.cxx MFileHist.cxx VMatrix.cxx
+SRC_FILES := MatOp.cxx MFileRoot.cxx MFileHist.cxx VMatrix.cxx
 HDR_FILES := $(SRC_FILES:.cxx=.h)
 OBJ_FILES := $(SRC_FILES:.cxx=.o)
 
-CPP := g++
+CPP := $(shell root-config --cxx)
 ROOTCLING := rootcling
 CXXFLAGS += $(shell root-config --cflags) -Wall -g -O2 -fPIC -MMD
 LFLAGS += $(shell root-config --glibs)
