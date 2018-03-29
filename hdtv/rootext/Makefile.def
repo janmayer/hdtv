@@ -1,0 +1,21 @@
+SOURCES := $(wildcard *.cc)
+HEADERS := $(wildcard *.hh)
+OBJECTS := $(patsubst %.cc,%.o,$(SOURCES))
+DEPS    := $(patsubst %.cc,%.d,$(SOURCES))
+
+ROOT_CLING        = rootcling
+# Removed -rml lib$(MODNAME).so as a precaution, failed in fit
+ROOT_CLING_FLAGS  = -f $@ -noIncludePaths -inlineInputHeader -s $(TARGET) -rmf $(ROOTMAP)
+ROOT_CXXFLAGS    := $(shell root-config --cflags)
+ROOT_GLIBS       := $(shell root-config --glibs)
+
+CFLAGS       = -O2 -g -Wall -fPIC $(DEPFLAGS)
+CXXFLAGS     = $(ROOT_CXXFLAGS) -Wall -g -O2 -fPIC $(DEPFLAGS)
+LDFLAGS      = -shared
+LDLIBS       = -lstdc++ $(ROOT_GLIBS) -lX11
+DEPFLAGS     = -MT $@ -MMD -MP -MF $*.Td
+POSTCOMPILE  = mv -f $*.Td $*.d
+
+TARGET   = lib$(MODNAME).so
+ROOTDICT = $(MODNAME)_rdict.cc
+ROOTMAP  = lib$(MODNAME).rootmap

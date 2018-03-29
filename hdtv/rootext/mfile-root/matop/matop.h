@@ -36,16 +36,18 @@
 
 #define MBUFSIZE 16*1024*1024	/* 16 MByte Buffer for Symm. und Transpose */
 
-#define MAT_OP_NONE	0
-#define MAT_CONV	1
-#define MAT_SYMM	2
-#define MAT_TRANS	3
-#define MAT_PROJ	4
-#define MAT_SUM		5
-#define MAT_SUB		6
-#define MAT_POLY	7
-#define MAT_MINMAX	8
-#define MAT_FILE	9
-#define MAT_STAT	10
+enum MAT_OP {
+    MAT_OP_NONE,
+    MAT_CONV,
+    MAT_SYMM,
+    MAT_TRANS,
+    MAT_PROJ,
+    MAT_SUM,
+    MAT_SUB,
+    MAT_POLY,
+    MAT_MINMAX,
+    MAT_FILE,
+    MAT_STAT
+};
 
 #endif
