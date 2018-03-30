@@ -31,23 +31,23 @@ namespace Fit {
 //! Description of a fit parameter
 class Param {
   public:
-    static inline Param Fixed(double val) { return Param(-1, val, false, true, true); }
-    static inline Param Fixed()  { return Param(-1, 0.0, false, false, true); }
-    static inline Param Free(int id) { return Param(id, 0.0, true, false, true); }
-    static inline Param Free(int id, double ival) { return Param(id, ival, true, true, true); }
-    static inline Param Empty() { return Param(-1, 0.0, false, false, false); }
-    inline Param() { }
+    static Param Fixed(double val) { return Param(-1, val, false, true, true); }
+    static Param Fixed()  { return Param(-1, 0.0, false, false, true); }
+    static Param Free(int id) { return Param(id, 0.0, true, false, true); }
+    static Param Free(int id, double ival) { return Param(id, ival, true, true, true); }
+    static Param Empty() { return Param(-1, 0.0, false, false, false); }
+    Param() { }
 
-    inline bool IsFree() const { return fFree; }
-    inline bool HasIVal() const { return fHasIVal; }
-    inline operator bool() const { return fValid; }
-    inline double Value(double *p) const { return fFree ? p[fId] : fValue; }
+    bool IsFree() const { return fFree; }
+    bool HasIVal() const { return fHasIVal; }
+    operator bool() const { return fValid; }
+    double Value(double *p) const { return fFree ? p[fId] : fValue; }
     double Value(TF1 *func) const;
     double Error(TF1 *func) const;
     int _Id() const { return fId; }
     double _Value() const { return fValue; }
 
-    inline void SetValue(double val) { fValue = val; }
+    void SetValue(double val) { fValue = val; }
 
   private:
     Param(int id, double value, bool free, bool hasIVal, bool valid);

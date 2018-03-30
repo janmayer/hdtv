@@ -37,13 +37,13 @@ class Fitter {
     Fitter(double r1, double r2);
     Param AllocParam();
     Param AllocParam(double ival);
-    inline bool IsFinal() const { return fFinal; }
+    bool IsFinal() const { return fFinal; }
 
     double GetIntBgCoeff(int i) const;
     double GetIntBgCoeffError(int i) const;
-    inline int GetIntBgDegree() const { return fIntBgDeg; }
+    int GetIntBgDegree() const { return fIntBgDeg; }
 
-    inline double GetChisquare() const { return fChisquare; }
+    double GetChisquare() const { return fChisquare; }
 
   protected:
     int fNumParams;

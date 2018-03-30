@@ -34,9 +34,9 @@ namespace Fit {
 class Cached {
   public:
     Cached() { fHasCached = false; }
-    inline operator bool() const { return fHasCached; }
-    inline double operator()() const { return fCachedValue; }
-    inline double operator()(double x) { fHasCached = true; fCachedValue = x; return x; }
+    operator bool() const { return fHasCached; }
+    double operator()() const { return fCachedValue; }
+    double operator()(double x) { fHasCached = true; fCachedValue = x; return x; }
 
   private:
     bool fHasCached;

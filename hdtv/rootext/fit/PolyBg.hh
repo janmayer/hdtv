@@ -53,8 +53,8 @@ class PolyBg: public Background {
     double GetCoeffError(int i)
       { return fFunc.get() != 0 ? fFunc->GetParError(i) :
               std::numeric_limits<double>::quiet_NaN(); }
-    inline int GetDegree()        { return fBgDeg; }
-    inline double GetChisquare()  { return fChisquare; }
+    int GetDegree()        { return fBgDeg; }
+    double GetChisquare()  { return fChisquare; }
     virtual double GetMin() const
       { return fBgRegions.empty() ? std::numeric_limits<double>::quiet_NaN() :
                   *(fBgRegions.begin()); }

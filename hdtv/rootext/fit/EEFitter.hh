@@ -50,42 +50,42 @@ class EEPeak {
 
     double Eval(double *x, double *p);
 
-    inline double GetPos()          { return fPos.Value(fFunc); };
-    inline double GetPosError()     { return fPos.Error(fFunc); };
-    inline void RestorePos(double value, double error)
+    double GetPos()          { return fPos.Value(fFunc); };
+    double GetPosError()     { return fPos.Error(fFunc); };
+    void RestorePos(double value, double error)
         { RestoreParam(fPos, value, error); };
 
-    inline double GetAmp()          { return fAmp.Value(fFunc); };
-    inline double GetAmpError()     { return fAmp.Error(fFunc); };
-    inline void RestoreAmp(double value, double error)
+    double GetAmp()          { return fAmp.Value(fFunc); };
+    double GetAmpError()     { return fAmp.Error(fFunc); };
+    void RestoreAmp(double value, double error)
         { RestoreParam(fAmp, value, error); };
 
-    inline double GetSigma1()       { return fSigma1.Value(fFunc); };
-    inline double GetSigma1Error()  { return fSigma1.Error(fFunc); };
-    inline void RestoreSigma1(double value, double error)
+    double GetSigma1()       { return fSigma1.Value(fFunc); };
+    double GetSigma1Error()  { return fSigma1.Error(fFunc); };
+    void RestoreSigma1(double value, double error)
         { RestoreParam(fSigma1, value, error); };
 
-    inline double GetSigma2()       { return fSigma2.Value(fFunc); };
-    inline double GetSigma2Error()  { return fSigma2.Error(fFunc); };
-    inline void RestoreSigma2(double value, double error)
+    double GetSigma2()       { return fSigma2.Value(fFunc); };
+    double GetSigma2Error()  { return fSigma2.Error(fFunc); };
+    void RestoreSigma2(double value, double error)
         { RestoreParam(fSigma2, value, error); };
 
-    inline double GetEta()          { return fEta.Value(fFunc); };
-    inline double GetEtaError()     { return fEta.Error(fFunc); };
-    inline void RestoreEta(double value, double error)
+    double GetEta()          { return fEta.Value(fFunc); };
+    double GetEtaError()     { return fEta.Error(fFunc); };
+    void RestoreEta(double value, double error)
         { RestoreParam(fEta, value, error); };
 
-    inline double GetGamma()        { return fGamma.Value(fFunc); };
-    inline double GetGammaError()   { return fGamma.Error(fFunc); };
-    inline void RestoreGamma(double value, double error)
+    double GetGamma()        { return fGamma.Value(fFunc); };
+    double GetGammaError()   { return fGamma.Error(fFunc); };
+    void RestoreGamma(double value, double error)
         { RestoreParam(fGamma, value, error); };
 
-    inline double GetVol()          { return fVol; }
-    inline double GetVolError()     { return fVolError; }
-    inline void RestoreVol(double value, double error)
+    double GetVol()          { return fVol; }
+    double GetVolError()     { return fVolError; }
+    void RestoreVol(double value, double error)
         { fVol = value; fVolError = error; };
 
-    inline void SetSumFunc(TF1 *func) { fFunc = func; }
+    void SetSumFunc(TF1 *func) { fFunc = func; }
 
     TF1* GetPeakFunc();
 
@@ -111,16 +111,16 @@ class EEFitter : public Fitter {
     void AddPeak(const EEPeak& peak);
     void Fit(TH1& hist, const Background& bg);
     void Fit(TH1& hist, int intBgDeg=-1);
-    inline int GetNumPeaks() { return fNumPeaks; }
-    inline const EEPeak& GetPeak(int i) { return fPeaks[i]; }
-    inline TF1* GetSumFunc() { return fSumFunc.get(); }
+    int GetNumPeaks() { return fNumPeaks; }
+    const EEPeak& GetPeak(int i) { return fPeaks[i]; }
+    TF1* GetSumFunc() { return fSumFunc.get(); }
     TF1* GetBgFunc();
     bool Restore(const Background& bg, double ChiSquare);
     bool Restore(const TArrayD& bgPolValues, const TArrayD& bgPolErrors,  double ChiSquare);
 
     // For debugging only
-    //inline double GetVol()          { return fInt; }
-    //inline double GetVolError()     { return fIntError; }
+    //double GetVol()          { return fInt; }
+    //double GetVolError()     { return fIntError; }
 
   private:
     // Copying the fitter is not supported
