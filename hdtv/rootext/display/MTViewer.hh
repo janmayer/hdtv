@@ -37,24 +37,25 @@ namespace Display {
 
 //! Class implementing a window (ROOT TGMainFrame) containing a View2D widget and a statusbar.
 class MTViewer : public TGMainFrame {
-  public:
-    MTViewer(UInt_t w, UInt_t h, TH2* mat, const char* title, bool copy=false);
-    MTViewer(UInt_t w, UInt_t h, THnSparse* mat, const char* title);
-    ~MTViewer();
+public:
+  MTViewer(UInt_t w, UInt_t h, TH2 *mat, const char *title, bool copy = false);
+  MTViewer(UInt_t w, UInt_t h, THnSparse *mat, const char *title);
+  ~MTViewer();
 
-    void AddCut(const TCutG& cut, bool invertAxes=false)
-        { fView->AddCut(cut, invertAxes); }
-    void DeleteAllCuts()
-        { fView->DeleteAllCuts(); }
+  void AddCut(const TCutG &cut, bool invertAxes = false) {
+    fView->AddCut(cut, invertAxes);
+  }
 
-  private:
-    void Init(UInt_t w, UInt_t h, TH2* mat, const char* title);
+  void DeleteAllCuts() { fView->DeleteAllCuts(); }
 
-    HDTV::Display::View2D *fView;
-    TGStatusBar *fStatusBar;
-    TH2* fMatCopy;
+private:
+  void Init(UInt_t w, UInt_t h, TH2 *mat, const char *title);
 
-    ClassDef(MTViewer, 1)
+  HDTV::Display::View2D *fView;
+  TGStatusBar *fStatusBar;
+  TH2 *fMatCopy;
+
+  ClassDef(MTViewer, 1)
 };
 
 } // end namespace Display

@@ -52,53 +52,72 @@ class View1D : public View {
   friend class DisplayObj;
   friend class DisplayBlock;
 
- public:
+public:
   View1D(const TGWindow *p, UInt_t w, UInt_t h);
   ~View1D();
+
   void SetXOffset(double offset);
   void SetXCenter(double center);
   void SetYOffset(double offset);
-  void ShiftXOffset(double f, bool update=true);
-  void ShiftYOffset(double f, bool update=true);
+  void ShiftXOffset(double f, bool update = true);
+  void ShiftYOffset(double f, bool update = true);
   void SetStatusText(const char *text);
+
   double GetXOffset() { return fXOffset; }
-  double GetXVisibleRegion(){ return fXVisibleRegion; }
+  double GetXVisibleRegion() { return fXVisibleRegion; }
   double GetYOffset() { return fYOffset; }
-  double GetYVisibleRegion(){ return fYVisibleRegion; }
+  double GetYVisibleRegion() { return fYVisibleRegion; }
+
   void HandleScrollbar(Long_t parm);
-  void SetXVisibleRegion(double region, bool update=true);
-  void SetYVisibleRegion(double region, bool update=true);
-  double GetYMinVisibleRegion()
-     { return fYMinVisibleRegion; }
-  void SetYMinVisibleRegion(double minRegion)
-     { fYMinVisibleRegion = minRegion; Update(); }
+  void SetXVisibleRegion(double region, bool update = true);
+  void SetYVisibleRegion(double region, bool update = true);
+
+  double GetYMinVisibleRegion() { return fYMinVisibleRegion; }
+
+  void SetYMinVisibleRegion(double minRegion) {
+    fYMinVisibleRegion = minRegion;
+    Update();
+  }
+
   void XZoomAroundCursor(double f);
   void YZoomAroundCursor(double f);
   void ToBegin(void);
   void ShowAll(void);
   void SetViewMode(ViewMode vm);
+
   ViewMode GetViewMode() { return fPainter.GetViewMode(); }
+
   void SetLogScale(Bool_t l);
+
   void ToggleLogScale() { SetLogScale(!GetLogScale()); }
   Bool_t GetLogScale() { return fPainter.GetLogScale(); }
+
   void SetUseNorm(Bool_t n);
+
   void ToggleUseNorm() { SetUseNorm(!GetUseNorm()); }
   Bool_t GetUseNorm() { return fPainter.GetUseNorm(); }
   void ToggleYAutoScale() { SetYAutoScale(!GetYAutoScale()); }
-  void SetYAutoScale(bool as, bool update=true);
+
+  void SetYAutoScale(bool as, bool update = true);
+
   Bool_t GetYAutoScale() { return fYAutoScale; }
-  void YAutoScaleOnce(bool update=true);
+
+  void YAutoScaleOnce(bool update = true);
+
   void SetCalibration(const Calibration &cal) { fCurrentCal = cal; }
+
   void Layout();
   void UpdateScrollbarRange();
+
   void SetScrollbar(TGHScrollBar *sb) { fScrollbar = sb; }
+
   void SetStatusBar(TGStatusBar *sb);
   double GetCursorX();
   double GetCursorY();
 
   void LockUpdate();
   void UnlockUpdate();
-  void Update(bool forceRedraw=false);
+  void Update(bool forceRedraw = false);
 
   /*** Helper functions to draw scales ***/
   void DrawXScales(UInt_t x1, UInt_t x2);
@@ -108,8 +127,8 @@ class View1D : public View {
   static const double DEFAULT_MAX_ENERGY;
   static const double MIN_ENERGY_REGION;
 
- protected:
-  DisplayStack* GetDisplayStack() { return &fDisplayStack; }
+protected:
+  DisplayStack *GetDisplayStack() { return &fDisplayStack; }
   void DoRedraw();
   void DoUpdate();
   Bool_t HandleMotion(Event_t *ev);
@@ -120,7 +139,7 @@ class View1D : public View {
   void UpdateStatusPos();
   void UpdateStatusScale();
 
- protected:
+protected:
   double fXVisibleRegion, fYVisibleRegion;
   double fYMinVisibleRegion;
   double fXOffset, fYOffset;

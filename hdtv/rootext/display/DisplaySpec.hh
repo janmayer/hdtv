@@ -35,73 +35,98 @@ namespace Display {
 
 //! Wrapper around a ROOT TH1 object being displayed
 class DisplaySpec : public DisplayBlock {
- public:
-   DisplaySpec(const TH1 *hist, int col = DEFAULT_COLOR);
+public:
+  DisplaySpec(const TH1 *hist, int col = DEFAULT_COLOR);
 
-   void SetHist(const TH1* hist);
-   TH1* GetHist()  { return fHist.get(); }
+  void SetHist(const TH1 *hist);
 
-   int GetRegionMaxBin(int b1, int b2);
-   double GetRegionMax(int b1, int b2);
+  TH1 *GetHist() { return fHist.get(); }
 
-   void SetID(int ID){
-        std::ostringstream ss;
-        ss <<ID; fID = ss.str();
-        Update(); }
-   void SetID(const std::string *ID)
-        { if(ID) { fID = *ID; } else { fID = ""; } Update(); }
-   void SetID(const char *ID)
-        { if(ID) { fID = ID; } else { fID = ""; } Update(); }
-   std::string GetID() const { return fID; }
+  int GetRegionMaxBin(int b1, int b2);
+  double GetRegionMax(int b1, int b2);
 
-   // Convenience functions to access the underlying histogram object and its x axis
-   double GetBinContent(Int_t bin) { return fHist->GetBinContent(bin); }
-   double GetBinCenter(Int_t bin) { return fHist->GetXaxis()->GetBinCenter(bin); }
-   Int_t FindBin(double x) { return fHist->GetXaxis()->FindBin(x); }
-   Int_t GetNbinsX(void) { return fHist->GetNbinsX(); }
+  void SetID(int ID) {
+    fID = std::to_string(ID);
+    Update();
+  }
 
-   void SetDrawUnderflowBin(bool x)  { fDrawUnderflowBin = x; }
-   void SetDrawOverflowBin(bool x)   { fDrawOverflowBin = x; }
-   bool GetDrawUnderflowBin() { return fDrawUnderflowBin; }
-   bool GetDrawOverflowBin()  { return fDrawOverflowBin; }
+  void SetID(const std::string *ID) {
+    if (ID) {
+      fID = *ID;
+    } else {
+      fID = "";
+    }
+    Update();
+  }
 
-   double GetMinCh(void) { return (double) fHist->GetXaxis()->GetXmin(); }
-   double GetMaxCh(void) { return (double) fHist->GetXaxis()->GetXmax(); }
+  void SetID(const char *ID) {
+    if (ID) {
+      fID = ID;
+    } else {
+      fID = "";
+    }
+    Update();
+  }
 
-   Int_t ClipBin(Int_t bin) {
-     if(fDrawUnderflowBin) {
-       if(bin < 0) bin = 0;
-     } else {
-       if(bin < 1) bin = 1;
-     }
+  std::string GetID() const { return fID; }
 
-     if(fDrawOverflowBin) {
-       if(bin > GetNbinsX()+1) bin = GetNbinsX()+1;
-     } else {
-       if(bin > GetNbinsX()) bin = GetNbinsX();
-     }
+  // Convenience functions to access the underlying histogram object and its x
+  // axis
+  double GetBinContent(Int_t bin) { return fHist->GetBinContent(bin); }
 
-     return bin;
-   }
+  double GetBinCenter(Int_t bin) {
+    return fHist->GetXaxis()->GetBinCenter(bin);
+  }
 
-   double GetClippedBinContent(Int_t bin) {
-     return GetBinContent(ClipBin(bin));
-   }
+  Int_t FindBin(double x) { return fHist->GetXaxis()->FindBin(x); }
+  Int_t GetNbinsX(void) { return fHist->GetNbinsX(); }
 
-   double GetMax_Cached(int b1, int b2);
+  void SetDrawUnderflowBin(bool x) { fDrawUnderflowBin = x; }
+  void SetDrawOverflowBin(bool x) { fDrawOverflowBin = x; }
+  bool GetDrawUnderflowBin() { return fDrawUnderflowBin; }
+  bool GetDrawOverflowBin() { return fDrawOverflowBin; }
 
-   virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter)
-      { if (IsVisible()) painter.DrawSpectrum(this, x1, x2); }
+  double GetMinCh(void) { return (double)fHist->GetXaxis()->GetXmin(); }
+  double GetMaxCh(void) { return (double)fHist->GetXaxis()->GetXmax(); }
 
-   virtual int GetZIndex() { return Z_INDEX_SPEC; }
+  Int_t ClipBin(Int_t bin) {
+    if (fDrawUnderflowBin) {
+      if (bin < 0)
+        bin = 0;
+    } else {
+      if (bin < 1)
+        bin = 1;
+    }
 
- private:
-   std::unique_ptr<TH1> fHist;
+    if (fDrawOverflowBin) {
+      if (bin > GetNbinsX() + 1)
+        bin = GetNbinsX() + 1;
+    } else {
+      if (bin > GetNbinsX())
+        bin = GetNbinsX();
+    }
 
-   int fCachedB1, fCachedB2, fCachedMaxBin;
-   double fCachedMax;
-   bool fDrawUnderflowBin, fDrawOverflowBin;
-   std::string fID;  // ID for use by higher-level structures
+    return bin;
+  }
+
+  double GetClippedBinContent(Int_t bin) { return GetBinContent(ClipBin(bin)); }
+
+  double GetMax_Cached(int b1, int b2);
+
+  virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter &painter) {
+    if (IsVisible())
+      painter.DrawSpectrum(this, x1, x2);
+  }
+
+  virtual int GetZIndex() { return Z_INDEX_SPEC; }
+
+private:
+  std::unique_ptr<TH1> fHist;
+
+  int fCachedB1, fCachedB2, fCachedMaxBin;
+  double fCachedMax;
+  bool fDrawUnderflowBin, fDrawOverflowBin;
+  std::string fID; // ID for use by higher-level structures
 };
 
 } // end namespace Display

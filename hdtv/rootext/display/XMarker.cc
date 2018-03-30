@@ -26,19 +26,15 @@ namespace HDTV {
 namespace Display {
 
 XMarker::XMarker(int n, double p1, double p2, int col)
-   : Marker(n, p1, p2, col),
-     fCal1(),
-     fCal2()
-{
+    : Marker(n, p1, p2, col), fCal1(), fCal2() {
   fConnectTop = true;
 }
 
-int XMarker::GetWidth(const FontStruct_t& fs)
-{
-    if(GetID().empty())
-        return 0;
-    else
-        return gVirtualX->TextWidth(fs, fID.c_str(), fID.size()) + 2;
+int XMarker::GetWidth(const FontStruct_t &fs) {
+  if (GetID().empty())
+    return 0;
+  else
+    return gVirtualX->TextWidth(fs, fID.c_str(), fID.size()) + 2;
 }
 
 } // end namespace Display

@@ -22,9 +22,9 @@
 
 #include "Marker.hh"
 
-#include <TROOT.h>
 #include <Riostream.h>
 #include <TColor.h>
+#include <TROOT.h>
 
 #include "DisplayStack.hh"
 #include "View1D.hh"
@@ -32,31 +32,25 @@
 namespace HDTV {
 namespace Display {
 
-Marker::Marker(int n, double p1, double p2, int col)
-   : DisplayObj()
-{
+Marker::Marker(int n, double p1, double p2, int col) : DisplayObj() {
   fN = n;
 
-  if(n <= 1 || p1 <= p2) {
-	fP1 = p1;
-	fP2 = p2;
+  if (n <= 1 || p1 <= p2) {
+    fP1 = p1;
+    fP2 = p2;
   } else {
-	fP1 = p2;
-	fP2 = p1;
+    fP1 = p2;
+    fP2 = p1;
   }
 
   fDash1 = fDash2 = false;
   InitGC(col);
 }
 
-Marker::~Marker(void)
-{
-  FreeGC();
-}
+Marker::~Marker(void) { FreeGC(); }
 
-void Marker::InitGC(int col)
-{
-  TColor *color = dynamic_cast<TColor*>(gROOT->GetListOfColors()->At(col));
+void Marker::InitGC(int col) {
+  TColor *color = dynamic_cast<TColor *>(gROOT->GetListOfColors()->At(col));
   GCValues_t gval;
   gval.fMask = kGCForeground | kGCLineStyle;
   gval.fForeground = color->GetPixel();
@@ -68,14 +62,12 @@ void Marker::InitGC(int col)
   fDashedGC = gClient->GetGCPool()->GetGC(&gval, true);
 }
 
-void Marker::FreeGC()
-{
+void Marker::FreeGC() {
   gClient->GetGCPool()->FreeGC(fGC);
   gClient->GetGCPool()->FreeGC(fDashedGC);
 }
 
-void Marker::SetColor(int col)
-{
+void Marker::SetColor(int col) {
   //! Set color for this marker
 
   FreeGC();

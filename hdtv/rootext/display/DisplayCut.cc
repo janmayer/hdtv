@@ -28,31 +28,30 @@
 namespace HDTV {
 namespace Display {
 
-DisplayCut::DisplayCut(const TCutG& cut, bool invertAxes)
-{
-    if(invertAxes)
-        Init(cut.GetN(), cut.GetY(), cut.GetX());
-    else
-        Init(cut.GetN(), cut.GetX(), cut.GetY());
+DisplayCut::DisplayCut(const TCutG &cut, bool invertAxes) {
+  if (invertAxes)
+    Init(cut.GetN(), cut.GetY(), cut.GetX());
+  else
+    Init(cut.GetN(), cut.GetX(), cut.GetY());
 }
 
-void DisplayCut::Init(int n, const double* x, const double* y)
-{
-    if(n <= 0) return;
+void DisplayCut::Init(int n, const double *x, const double *y) {
+  if (n <= 0)
+    return;
 
-    fPoints.reserve(n);
+  fPoints.reserve(n);
 
-    fPoints.push_back(CutPoint(x[0], y[0]));
-    fX1 = fX2 = x[0];
-    fY1 = fY2 = y[0];
+  fPoints.push_back(CutPoint(x[0], y[0]));
+  fX1 = fX2 = x[0];
+  fY1 = fY2 = y[0];
 
-    for(int i=1; i<n; ++i) {
-        fPoints.push_back(CutPoint(x[i], y[i]));
-        fX1 = TMath::Min(fX1, x[i]);
-        fX2 = TMath::Max(fX2, x[i]);
-        fY1 = TMath::Min(fY1, y[i]);
-        fY2 = TMath::Max(fY2, y[i]);
-    }
+  for (int i = 1; i < n; ++i) {
+    fPoints.push_back(CutPoint(x[i], y[i]));
+    fX1 = TMath::Min(fX1, x[i]);
+    fX2 = TMath::Max(fX2, x[i]);
+    fY1 = TMath::Min(fY1, y[i]);
+    fY2 = TMath::Max(fY2, y[i]);
+  }
 }
 
 } // end namespace Display

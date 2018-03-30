@@ -23,7 +23,6 @@
 #ifndef __Viewer_h__
 #define __Viewer_h__
 
-// #include <TApplication.h>
 #include <TGFrame.h>
 
 // see below...
@@ -37,31 +36,35 @@ namespace Display {
 
 class View1D;
 
-//! Class implementing a window (ROOT TGMainFrame) containing a View1D widget and a statusbar
+//! Class implementing a window (ROOT TGMainFrame) containing a View1D widget
+//! and a statusbar
 class Viewer : public TGMainFrame {
   // FIXME: uncommenting the following line causes the inherited CloseWindow()
   //  signal to stop working. The reason is not presently understood, however,
   //  the line does not seem to be needed.
   // RQ_OBJECT("HDTV::Display::Viewer")
- public:
-  Viewer(UInt_t w=800, UInt_t h=400, const char *title = "hdtv");
+public:
+  Viewer(UInt_t w = 800, UInt_t h = 400, const char *title = "hdtv");
   ~Viewer();
-  const View1D *GetViewport(void) { return fView; } // FIXME: should be called GetView
-  void KeyPressed()  { Emit("KeyPressed()"); }   // *SIGNAL*
 
-  UInt_t fKeySym;    // Key symbol
-  char fKeyStr[16];  // Key string
-  UInt_t fKeyState;  // Key mask
+  // FIXME: should be called GetView
+  const View1D *GetViewport(void) { return fView; }
 
- protected:
+  void KeyPressed() { Emit("KeyPressed()"); } // *SIGNAL*
+
+  UInt_t fKeySym;   // Key symbol
+  char fKeyStr[16]; // Key string
+  UInt_t fKeyState; // Key mask
+
+protected:
   void UpdateScrollbar(void);
   Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
   Bool_t HandleKey(Event_t *ev);
 
- protected:
-  View1D* fView;
-  TGHScrollBar* fScrollbar;
-  TGStatusBar* fStatusBar;
+protected:
+  View1D *fView;
+  TGHScrollBar *fScrollbar;
+  TGStatusBar *fStatusBar;
 
   ClassDef(Viewer, 1)
 };

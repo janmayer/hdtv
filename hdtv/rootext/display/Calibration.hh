@@ -44,83 +44,50 @@ namespace HDTV {
  */
 class Calibration {
 public:
-    Calibration() { }
+  Calibration() {}
 
-    Calibration(double cal0)
-    {
-        SetCal(cal0);
-    }
+  Calibration(double cal0) { SetCal(cal0); }
 
-    Calibration(double cal0, double cal1)
-    {
-        SetCal(cal0, cal1);
-    }
+  Calibration(double cal0, double cal1) { SetCal(cal0, cal1); }
 
-    Calibration(double cal0, double cal1, double cal2)
-    {
-        SetCal(cal0, cal1, cal2);
-    }
+  Calibration(double cal0, double cal1, double cal2) {
+    SetCal(cal0, cal1, cal2);
+  }
 
-    Calibration(double cal0, double cal1, double cal2, double cal3)
-    {
-        SetCal(cal0, cal1, cal2, cal3);
-    }
+  Calibration(double cal0, double cal1, double cal2, double cal3) {
+    SetCal(cal0, cal1, cal2, cal3);
+  }
 
-    Calibration(const std::vector<double> &cal)
-    {
-        SetCal(cal);
-    }
+  Calibration(const std::vector<double> &cal) { SetCal(cal); }
 
-    Calibration(const TArrayD &cal)
-    {
-        SetCal(cal);
-    }
+  Calibration(const TArrayD &cal) { SetCal(cal); }
 
-    void SetCal(double cal0);
-    void SetCal(double cal0, double cal1);
-    void SetCal(double cal0, double cal1, double cal2);
-    void SetCal(double cal0, double cal1, double cal2, double cal3);
-    void SetCal(const std::vector<double> &cal);
-    void SetCal(const TArrayD &cal);
+  void SetCal(double cal0);
+  void SetCal(double cal0, double cal1);
+  void SetCal(double cal0, double cal1, double cal2);
+  void SetCal(double cal0, double cal1, double cal2, double cal3);
+  void SetCal(const std::vector<double> &cal);
+  void SetCal(const TArrayD &cal);
 
-    bool operator==(const Calibration &rhs)
-    {
-        return this->fCal == rhs.fCal;
-    }
+  bool operator==(const Calibration &rhs) { return this->fCal == rhs.fCal; }
+  bool operator!=(const Calibration &rhs) { return !(*this == rhs); }
 
-    bool operator!=(const Calibration &rhs)
-    {
-        return !(*this == rhs);
-    }
+  operator bool() const { return !IsTrivial(); }
+  bool IsTrivial() const { return fCal.empty(); }
+  const std::vector<double> &GetCoeffs() const { return fCal; }
+  int GetDegree() const { return fCal.size() - 1; }
 
-    operator bool() const
-    {
-        return !IsTrivial();
-    }
-    bool IsTrivial() const
-    {
-        return fCal.empty();
-    }
-    const std::vector<double> &GetCoeffs() const
-    {
-        return fCal;
-    }
-    int GetDegree() const
-    {
-        return fCal.size() - 1;
-    }
+  double Ch2E(double ch) const;
+  double dEdCh(double ch) const;
+  double E2Ch(double e) const;
 
-    double Ch2E(double ch) const;
-    double dEdCh(double ch) const;
-    double E2Ch(double e) const;
-
-    void Rebin(const unsigned int nBins);
-    void Apply(TAxis *axis, int nbins);
+  void Rebin(const unsigned int nBins);
+  void Apply(TAxis *axis, int nbins);
 
 private:
-    std::vector<double> fCal;
-    std::vector<double> fCalDeriv;
-    void UpdateDerivative();
+  std::vector<double> fCal;
+  std::vector<double> fCalDeriv;
+  void UpdateDerivative();
 };
 
 } // end namespace HDTV

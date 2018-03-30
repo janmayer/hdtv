@@ -31,29 +31,27 @@ namespace HDTV {
 namespace Display {
 
 class DisplayCut {
+public:
+  class CutPoint {
   public:
-    class CutPoint {
-      public:
-        CutPoint(double _x, double _y)  { x = _x; y = _y; }
-        double x, y;
-    };
+    CutPoint(double _x, double _y) : x(_x), y(_y) {}
+    double x, y;
+  };
 
-    DisplayCut() {}
-    DisplayCut(int n, const double* x, const double* y)
-        { Init(n, x, y); }
-    DisplayCut(const TCutG& cut, bool invertAxes=false);
+  DisplayCut() {}
+  DisplayCut(int n, const double *x, const double *y) { Init(n, x, y); }
+  DisplayCut(const TCutG &cut, bool invertAxes = false);
 
-    const std::vector<CutPoint>& GetPoints() const
-        { return fPoints; }
-    double BB_x1() const { return fX1; }
-    double BB_y1() const { return fY1; }
-    double BB_x2() const { return fX2; }
-    double BB_y2() const { return fY2; }
+  const std::vector<CutPoint> &GetPoints() const { return fPoints; }
+  double BB_x1() const { return fX1; }
+  double BB_y1() const { return fY1; }
+  double BB_x2() const { return fX2; }
+  double BB_y2() const { return fY2; }
 
-  private:
-    void Init(int n, const double* x, const double* y);
-    std::vector<CutPoint> fPoints;
-    double fX1, fY1, fX2, fY2;   // bounding box
+private:
+  void Init(int n, const double *x, const double *y);
+  std::vector<CutPoint> fPoints;
+  double fX1, fY1, fX2, fY2; // bounding box
 };
 
 } // end namespace Display

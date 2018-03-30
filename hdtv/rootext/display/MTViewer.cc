@@ -31,32 +31,30 @@
 namespace HDTV {
 namespace Display {
 
-MTViewer::MTViewer(UInt_t w, UInt_t h, TH2* mat, const char* title, bool copy)
-  : TGMainFrame(gClient->GetRoot(), w, h), fMatCopy(0)
-{
-    if(copy) {
-        //fMatCopy = new TH2(*mat);
-	fMatCopy=(TH2*) mat->Clone();
-        Init(w, h, fMatCopy, title);
-    } else {
-        Init(w, h, mat, title);
-    }
-}
-
-MTViewer::MTViewer(UInt_t w, UInt_t h, THnSparse* mat, const char* title)
-  : TGMainFrame(gClient->GetRoot(), w, h), fMatCopy(0)
-{
-    fMatCopy = mat->Projection(0, 1, "A");
+MTViewer::MTViewer(UInt_t w, UInt_t h, TH2 *mat, const char *title, bool copy)
+    : TGMainFrame(gClient->GetRoot(), w, h), fMatCopy(0) {
+  if (copy) {
+    // fMatCopy = new TH2(*mat);
+    fMatCopy = (TH2 *)mat->Clone();
     Init(w, h, fMatCopy, title);
+  } else {
+    Init(w, h, mat, title);
+  }
 }
 
-void MTViewer::Init(UInt_t w, UInt_t h, TH2 *mat, const char* title)
-{
-  fView = new HDTV::Display::View2D(this, w-4, h-4, mat);
-  AddFrame(fView, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0,0,0,0));
+MTViewer::MTViewer(UInt_t w, UInt_t h, THnSparse *mat, const char *title)
+    : TGMainFrame(gClient->GetRoot(), w, h), fMatCopy(0) {
+  fMatCopy = mat->Projection(0, 1, "A");
+  Init(w, h, fMatCopy, title);
+}
+
+void MTViewer::Init(UInt_t w, UInt_t h, TH2 *mat, const char *title) {
+  fView = new HDTV::Display::View2D(this, w - 4, h - 4, mat);
+  AddFrame(fView,
+           new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
 
   fStatusBar = new TGStatusBar(this, 10, 16);
-  AddFrame(fStatusBar, new TGLayoutHints(kLHintsExpandX, 0,0,0,0));
+  AddFrame(fStatusBar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
 
   fView->SetStatusBar(fStatusBar);
 
@@ -66,10 +64,9 @@ void MTViewer::Init(UInt_t w, UInt_t h, TH2 *mat, const char* title)
   MapWindow();
 }
 
-MTViewer::~MTViewer()
-{
-    delete fMatCopy;
-    Cleanup();
+MTViewer::~MTViewer() {
+  delete fMatCopy;
+  Cleanup();
 }
 
 } // end namespace Display

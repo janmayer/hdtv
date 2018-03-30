@@ -37,20 +37,24 @@ class View1D;
 class DisplayStack {
   friend class DisplayObj;
   friend class View1D;
-  public:
-    DisplayStack(View1D *view) { fView = view; }
-    ~DisplayStack();
-    void Update();
-    inline void LockUpdate();
-    inline void UnlockUpdate();
-    void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter);
 
-    typedef std::list<DisplayObj *> ObjList;
+public:
+  DisplayStack(View1D *view) { fView = view; }
+  ~DisplayStack();
 
-  private:
-    ObjList fObjects;
+  void Update();
 
-    View1D* fView;
+  inline void LockUpdate();
+  inline void UnlockUpdate();
+
+  void PaintRegion(UInt_t x1, UInt_t x2, Painter &painter);
+
+  typedef std::list<DisplayObj *> ObjList;
+
+private:
+  ObjList fObjects;
+
+  View1D *fView;
 };
 
 } // end namespace Display

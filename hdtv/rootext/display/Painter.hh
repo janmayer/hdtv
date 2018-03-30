@@ -73,24 +73,41 @@ class YMarker;
 
 //! Helper class to do the actual painting of objects on screen
 class Painter {
- public:
+public:
   Painter();
-  void SetXVisibleRegion(double xv)
-	{ fXVisibleRegion = xv; fXZoom = fWidth / fXVisibleRegion; }
+
+  void SetXVisibleRegion(double xv) {
+    fXVisibleRegion = xv;
+    fXZoom = fWidth / fXVisibleRegion;
+  }
+
   double GetXVisibleRegion() { return fXVisibleRegion; }
-  void SetYVisibleRegion(double yv)
-	{ fYVisibleRegion = yv; UpdateYZoom(); }
+
+  void SetYVisibleRegion(double yv) {
+    fYVisibleRegion = yv;
+    UpdateYZoom();
+  }
+
   double GetYVisibleRegion() { return fYVisibleRegion; }
   double GetXZoom() { return fXZoom; }
   double GetYZoom() { return fYZoom; }
-  void SetLogScale(Bool_t l)
-	{ fLogScale = l; UpdateYZoom(); }
+
+  void SetLogScale(Bool_t l) {
+    fLogScale = l;
+    UpdateYZoom();
+  }
+
   Bool_t GetLogScale() { return fLogScale; }
   void SetUseNorm(Bool_t n) { fUseNorm = n; }
   Bool_t GetUseNorm() { return fUseNorm; }
   void SetViewMode(ViewMode vm) { fViewMode = vm; }
   ViewMode GetViewMode() { return fViewMode; }
-  void SetBasePoint(int x, int y) { fXBase = x; fYBase = y; }
+
+  void SetBasePoint(int x, int y) {
+    fXBase = x;
+    fYBase = y;
+  }
+
   Int_t GetBaseX() { return fXBase; }
   void SetSize(int w, int h);
   Int_t GetWidth() { return fWidth; }
@@ -99,7 +116,12 @@ class Painter {
   void SetAxisGC(GContext_t gc) { fAxisGC = gc; }
   void SetClearGC(GContext_t gc) { fClearGC = gc; }
   void SetXOffset(double offset) { fXOffset = offset; }
-  void SetYOffset(double offset) { fYOffset = offset; UpdateYZoom(); }
+
+  void SetYOffset(double offset) {
+    fYOffset = offset;
+    UpdateYZoom();
+  }
+
   double GetXOffset() { return fXOffset; }
   double GetYOffset() { return fYOffset; }
 
@@ -109,23 +131,23 @@ class Painter {
   double ModLog(double x);
   double InvModLog(double x);
 
-  double XtoE(Int_t x)
-	{ return (double) (x - fXBase) / fXZoom + fXOffset; }
-  int EtoX(double e)
-	{ return (int) TMath::Ceil(((e - fXOffset) * fXZoom) + fXBase - 0.5); }
-  double XtoE(double x)
-	{ return (x - (double) fXBase) / fXZoom + fXOffset; }
-  double dXtodE(int dX)
-	{ return ((double) dX / fXZoom); }
-  double dEtodX(double dE)
-	{ return dE * fXZoom; }
-  double dYtodC(int dY)
-    { return -((double) dY / fYZoom); }   // FIXME: only works for linear Y scale
+  double XtoE(Int_t x) { return (double)(x - fXBase) / fXZoom + fXOffset; }
+
+  int EtoX(double e) {
+    return (int)TMath::Ceil(((e - fXOffset) * fXZoom) + fXBase - 0.5);
+  }
+
+  double XtoE(double x) { return (x - (double)fXBase) / fXZoom + fXOffset; }
+  double dXtodE(int dX) { return ((double)dX / fXZoom); }
+  double dEtodX(double dE) { return dE * fXZoom; }
+  // FIXME: only works for linear Y scale
+  double dYtodC(int dY) { return -((double)dY / fYZoom); }
   int CtoY(double c);
   double YtoC(int y);
 
   Bool_t IsWithin(Int_t x, Int_t y) {
-    return (x >= fXBase && x <= fXBase + fWidth && y >= fYBase - fHeight && y <= fYBase);
+    return (x >= fXBase && x <= fXBase + fWidth && y >= fYBase - fHeight &&
+            y <= fYBase);
   }
 
   void DrawSpectrum(DisplaySpec *dSpec, int x1, int x2);
@@ -134,30 +156,31 @@ class Painter {
   void DrawYMarker(YMarker *marker, int x1, int x2);
   double GetYAutoZoom(DisplaySpec *dSpec);
   void DrawXScale(Int_t x1, Int_t x2);
-  void DrawXNonlinearScale(Int_t x1, Int_t x2, bool top, const Calibration& cal);
+  void DrawXNonlinearScale(Int_t x1, Int_t x2, bool top,
+                           const Calibration &cal);
   void ClearTopXScale();
   void ClearBottomXScale();
   void DrawYScale();
-  void DrawIDList(const std::list<DisplayObj *>& objects);
+  void DrawIDList(const std::list<DisplayObj *> &objects);
 
-  //ClassDef(Painter, 1)
+  // ClassDef(Painter, 1)
 
- protected:
+protected:
   void DrawYLinearScale();
   void DrawYLogScale();
   void _DrawYLogScale(int minDist, int sgn, double cMin, double cMax);
-  void DrawYMajorTic(double c, bool drawLine=true);
+  void DrawYMajorTic(double c, bool drawLine = true);
   void DrawString(GContext_t gc, int x, int y, const char *str, size_t len,
-				  HTextAlign hAlign, VTextAlign vAlign);
+                  HTextAlign hAlign, VTextAlign vAlign);
   inline void DrawYMinorTic(double c);
   double GetCountsAtPixel(DisplaySpec *dSpec, Int_t x);
   int GetYAtPixel(DisplaySpec *dSpec, Int_t x);
 
-  void GetTicDistance(double tic, double& major_tic, double& minor_tic, int& n);
+  void GetTicDistance(double tic, double &major_tic, double &minor_tic, int &n);
   void UpdateYZoom();
 
- protected:
-  double fXZoom, fYZoom;  // px / keV, px / count
+protected:
+  double fXZoom, fYZoom; // px / keV, px / count
   double fXVisibleRegion, fYVisibleRegion;
   double fXOffset, fYOffset;
   Bool_t fLogScale;

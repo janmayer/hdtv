@@ -30,45 +30,38 @@
 namespace HDTV {
 namespace Display {
 
-DisplayStack::~DisplayStack()
-{
+DisplayStack::~DisplayStack() {
   // Destructor
   // Removes all display objects from the stack
 
   // Note that we cannot use an iterator to traverse a changing list
-  while(!fObjects.empty()) {
+  while (!fObjects.empty()) {
     (*fObjects.begin())->Remove(this);
   }
 }
 
-void DisplayStack::Update()
-{
+void DisplayStack::Update() {
   //! Call Update() of corresponding view
 
   fView->Update(true);
 }
 
-void DisplayStack::LockUpdate()
-{
+void DisplayStack::LockUpdate() {
   //! Call LockUpdate() of corresponding view
 
   fView->LockUpdate();
 }
 
-void DisplayStack::UnlockUpdate()
-{
+void DisplayStack::UnlockUpdate() {
   //! Call UnlockUpdate() of corresponding view
 
   fView->UnlockUpdate();
 }
 
-void DisplayStack::PaintRegion(UInt_t x1, UInt_t x2, Painter& painter)
-{
+void DisplayStack::PaintRegion(UInt_t x1, UInt_t x2, Painter &painter) {
   //! Paints all objects in the stack
 
-  for(ObjList::iterator obj = fObjects.begin();
-      obj != fObjects.end();
-      ++obj) {
+  for (ObjList::iterator obj = fObjects.begin(); obj != fObjects.end(); ++obj) {
     (*obj)->PaintRegion(x1, x2, painter);
   }
 }

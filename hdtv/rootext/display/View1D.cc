@@ -33,11 +33,11 @@
 
 // These defines seem to be missing on some systems (e.g. MAC OSX/darwin)
 #ifndef M_SQRT2
- #define M_SQRT2 1.4142135623730950488016887
+#define M_SQRT2 1.4142135623730950488016887
 #endif
 
 #ifndef M_SQRT1_2
- #define M_SQRT1_2 0.70710678118654752440
+#define M_SQRT1_2 0.70710678118654752440
 #endif
 // END
 
@@ -48,11 +48,7 @@ const double View1D::DEFAULT_MAX_ENERGY = 1000.0;
 const double View1D::MIN_ENERGY_REGION = 1e-2;
 
 View1D::View1D(const TGWindow *p, UInt_t w, UInt_t h)
-  : View(p, w, h),
-    fCurrentCal(),
-    fDisplayStack(this),
-    fPainter()
-{
+    : View(p, w, h), fCurrentCal(), fDisplayStack(this), fPainter() {
   // Constructor
 
   SetBackgroundColor(GetBlackPixel());
@@ -71,7 +67,7 @@ View1D::View1D(const TGWindow *p, UInt_t w, UInt_t h)
   fTopBorder = 20;
   fBottomBorder = 30;
 
-  //fTopScale = X_SCALE_CHANNEL;
+  // fTopScale = X_SCALE_CHANNEL;
   fTopScale = X_SCALE_NONE;
   fBottomScale = X_SCALE_ENERGY;
   fLeftScale = Y_SCALE_COUNTS;
@@ -94,11 +90,10 @@ View1D::View1D(const TGWindow *p, UInt_t w, UInt_t h)
 View1D::~View1D() {
   //! Destructor
 
-  fClient->GetGCPool()->FreeGC(fCursorGC);   //?
+  fClient->GetGCPool()->FreeGC(fCursorGC); //?
 }
 
-void View1D::SetStatusBar(TGStatusBar *sb)
-{
+void View1D::SetStatusBar(TGStatusBar *sb) {
   //! Sets the status bar on which to ouput our status messages.
   //! Set to NULL to not display any status messages at all.
 
@@ -106,46 +101,42 @@ void View1D::SetStatusBar(TGStatusBar *sb)
   UpdateStatusScale();
 }
 
-void View1D::SetLogScale(Bool_t l)
-{
+void View1D::SetLogScale(Bool_t l) {
   //! Sets Y (counts) scale to logarithmic or linear
 
   fPainter.SetLogScale(l);
   Update(true);
 }
 
-void View1D::SetUseNorm(Bool_t n)
-{
+void View1D::SetUseNorm(Bool_t n) {
   //! Sets whether to use normalization information included in histograms
 
   fPainter.SetUseNorm(n);
   Update(true);
 }
 
-void View1D::YAutoScaleOnce(bool update)
-{
+void View1D::YAutoScaleOnce(bool update) {
   //! Sets the Y (counts) scale according to the autoscale rules, but does
   //! not actually enable autoscale mode.
   DisplaySpec *spec;
 
   fYVisibleRegion = fYMinVisibleRegion;
 
-  for(std::list<DisplayObj*>::iterator obj = fDisplayStack.fObjects.begin();
-      obj != fDisplayStack.fObjects.end();
-      ++obj) {
-    spec = dynamic_cast<DisplaySpec *> (*obj);
-    if(spec && spec->IsVisible())
-	  fYVisibleRegion = TMath::Max(fYVisibleRegion, fPainter.GetYAutoZoom(spec));
+  for (std::list<DisplayObj *>::iterator obj = fDisplayStack.fObjects.begin();
+       obj != fDisplayStack.fObjects.end(); ++obj) {
+    spec = dynamic_cast<DisplaySpec *>(*obj);
+    if (spec && spec->IsVisible())
+      fYVisibleRegion =
+          TMath::Max(fYVisibleRegion, fPainter.GetYAutoZoom(spec));
   }
 
   fYOffset = 0.0;
 
-  if(update)
+  if (update)
     Update();
 }
 
-void View1D::ShiftOffset(int dO)
-{
+void View1D::ShiftOffset(int dO) {
   Bool_t cv = fCursorVisible;
   UInt_t x, y, w, h;
 
@@ -155,108 +146,106 @@ void View1D::ShiftOffset(int dO)
   h = fHeight - fTopBorder - fBottomBorder - 4;
 
   // TODO: debug code, remove
-  if(dO == 0) {
-	std::cout << "WARNING: Pointless call to ShiftOffset()." << std::endl;
-	return;
+  if (dO == 0) {
+    std::cout << "WARNING: Pointless call to ShiftOffset()." << std::endl;
+    return;
   }
 
-  if(cv) DrawCursor();
+  if (cv)
+    DrawCursor();
 
-  if(dO < -((Int_t) w) || dO > ((Int_t) w)) { // entire area needs updating
-	gVirtualX->FillRectangle(GetId(), GetBlackGC()(), x, y, w+1, h+1);
-	fDisplayStack.PaintRegion(x, x+w, fPainter);
-  } else if(dO < 0) {   // move right (note that dO ist negative)
-	gVirtualX->CopyArea(GetId(), GetId(), GetWhiteGC()(), x, y,
-						w + dO + 1, h + 1, x - dO, y);
-	// Note that the area filled by FillRectangle() will not include
-	// the border drawn by DrawRectangle() on the right and the bottom
-	gVirtualX->FillRectangle(GetId(), GetBlackGC()(), x, y, -dO, h+1);
-	fDisplayStack.PaintRegion(x, x-dO, fPainter);
+  if (dO < -((Int_t)w) || dO > ((Int_t)w)) { // entire area needs updating
+    gVirtualX->FillRectangle(GetId(), GetBlackGC()(), x, y, w + 1, h + 1);
+    fDisplayStack.PaintRegion(x, x + w, fPainter);
+  } else if (dO < 0) { // move right (note that dO ist negative)
+    gVirtualX->CopyArea(GetId(), GetId(), GetWhiteGC()(), x, y, w + dO + 1,
+                        h + 1, x - dO, y);
+    // Note that the area filled by FillRectangle() will not include
+    // the border drawn by DrawRectangle() on the right and the bottom
+    gVirtualX->FillRectangle(GetId(), GetBlackGC()(), x, y, -dO, h + 1);
+    fDisplayStack.PaintRegion(x, x - dO, fPainter);
   } else { // if(dO > 0) : move left (we caught dO == 0 above)
-	gVirtualX->CopyArea(GetId(), GetId(), GetWhiteGC()(), x + dO, y,
-						w - dO + 1, h + 1, x, y);
-	gVirtualX->FillRectangle(GetId(), GetBlackGC()(), x+w-dO+1, y, dO, h+1);
-	fDisplayStack.PaintRegion(x+w-dO+1, x+w, fPainter);
+    gVirtualX->CopyArea(GetId(), GetId(), GetWhiteGC()(), x + dO, y, w - dO + 1,
+                        h + 1, x, y);
+    gVirtualX->FillRectangle(GetId(), GetBlackGC()(), x + w - dO + 1, y, dO,
+                             h + 1);
+    fDisplayStack.PaintRegion(x + w - dO + 1, x + w, fPainter);
   }
 
   // Redrawing the entire scale is not terribly efficient, but
   // for now I am lazy...
   ClearXScales();
-  DrawXScales(x, x+w);
+  DrawXScales(x, x + w);
 
-  if(cv) DrawCursor();
+  if (cv)
+    DrawCursor();
 }
 
-void View1D::ClearXScales()
-{
+void View1D::ClearXScales() {
   //! Clear the top and the bottom X scale, if it exists
 
   // Clear top X scale
-  if(fTopScale != X_SCALE_NONE)
+  if (fTopScale != X_SCALE_NONE)
     fPainter.ClearTopXScale();
 
   // Clear bottom X scale
-  if(fBottomScale != X_SCALE_NONE)
+  if (fBottomScale != X_SCALE_NONE)
     fPainter.ClearBottomXScale();
 }
 
-void View1D::DrawXScales(UInt_t x1, UInt_t x2)
-{
+void View1D::DrawXScales(UInt_t x1, UInt_t x2) {
   //! Draw the top and the bottom X scale
 
   // Draw top X scale
-  switch(fTopScale) {
-    case X_SCALE_ENERGY:
-      fPainter.DrawXScale(x1, x2);
-      break;
-    case X_SCALE_CHANNEL:
-      fPainter.DrawXNonlinearScale(x1, x2, true, fCurrentCal);
-      break;
-    default:
-      break;
+  switch (fTopScale) {
+  case X_SCALE_ENERGY:
+    fPainter.DrawXScale(x1, x2);
+    break;
+  case X_SCALE_CHANNEL:
+    fPainter.DrawXNonlinearScale(x1, x2, true, fCurrentCal);
+    break;
+  default:
+    break;
   }
 
   // Draw bottom X scale
-  switch(fBottomScale) {
-    case X_SCALE_ENERGY:
-      fPainter.DrawXScale(x1, x2);
-      break;
-    case X_SCALE_CHANNEL:
-      fPainter.DrawXNonlinearScale(x1, x2, false, fCurrentCal);
-      break;
-    default:
-      break;
+  switch (fBottomScale) {
+  case X_SCALE_ENERGY:
+    fPainter.DrawXScale(x1, x2);
+    break;
+  case X_SCALE_CHANNEL:
+    fPainter.DrawXNonlinearScale(x1, x2, false, fCurrentCal);
+    break;
+  default:
+    break;
   }
 }
 
-void View1D::SetViewMode(HDTV::Display::ViewMode vm)
-{
+void View1D::SetViewMode(HDTV::Display::ViewMode vm) {
   //! Set the paint mode for spectra
 
-  if(vm != fPainter.GetViewMode()) {
-	fPainter.SetViewMode(vm);
-	fNeedClear = true;
-	gClient->NeedRedraw(this);
+  if (vm != fPainter.GetViewMode()) {
+    fPainter.SetViewMode(vm);
+    fNeedClear = true;
+    gClient->NeedRedraw(this);
   }
 }
 
-double View1D::GetCursorX()
-{
+double View1D::GetCursorX() {
   //! Returns the X position of the cursor, in energy units.
 
-  return fPainter.XtoE((Int_t) fCursorX);
+  return fPainter.XtoE((Int_t)fCursorX);
 }
 
-double View1D::GetCursorY()
-{
+double View1D::GetCursorY() {
   //! Returns the Y position of the cursor, in units of counts.
 
   return fPainter.YtoC(fCursorY);
 }
 
-void View1D::XZoomAroundCursor(double f)
-{
-  //! Zooms the X (energy) axis around the current cursor position by a factor f.
+void View1D::XZoomAroundCursor(double f) {
+  //! Zooms the X (energy) axis around the current cursor position by a factor
+  //! f.
 
   fXOffset += fPainter.GetXOffsetDelta(fCursorX, f);
   fXVisibleRegion /= f;
@@ -264,9 +253,9 @@ void View1D::XZoomAroundCursor(double f)
   Update();
 }
 
-void View1D::YZoomAroundCursor(double f)
-{
-  //! Zooms the Y (counts) axis around the current cursor position by a factor f.
+void View1D::YZoomAroundCursor(double f) {
+  //! Zooms the Y (counts) axis around the current cursor position by a factor
+  //! f.
 
   fYOffset += fPainter.GetYOffsetDelta(fCursorY, f);
   fYVisibleRegion /= f;
@@ -275,40 +264,40 @@ void View1D::YZoomAroundCursor(double f)
   Update();
 }
 
-void View1D::ToBegin(void)
-{
+void View1D::ToBegin(void) {
   //! Set the X (energy) axis offset such that its zero appears on the left edge
   //! of the visible area. Leaves the zoom unchanged.
 
   SetXOffset(fMinEnergy);
 }
 
-void View1D::ShowAll(void)
-{
+void View1D::ShowAll(void) {
   //! Set the X (energy) axis zoom so that all spectra are fully visible.
-  //! Shows a range from 0 to DEFAULT_MAX_ENERGY if the view contains no spectra.
+  //! Shows a range from 0 to DEFAULT_MAX_ENERGY if the view contains no
+  //! spectra.
 
-  fMinEnergy =   std::numeric_limits<double>::infinity();
-  fMaxEnergy = - std::numeric_limits<double>::infinity();
+  fMinEnergy = std::numeric_limits<double>::infinity();
+  fMaxEnergy = -std::numeric_limits<double>::infinity();
   double minE, maxE;
   DisplaySpec *spec;
   bool hadSpec = false;
 
-  for(std::list<DisplayObj*>::iterator obj = fDisplayStack.fObjects.begin();
-      obj != fDisplayStack.fObjects.end();
-      ++obj) {
-    spec = dynamic_cast<DisplaySpec *> (*obj);
-    if(spec && spec->IsVisible()) {
+  for (std::list<DisplayObj *>::iterator obj = fDisplayStack.fObjects.begin();
+       obj != fDisplayStack.fObjects.end(); ++obj) {
+    spec = dynamic_cast<DisplaySpec *>(*obj);
+    if (spec && spec->IsVisible()) {
       minE = spec->GetMinE();
       maxE = spec->GetMaxE();
 
-      if(minE < fMinEnergy) fMinEnergy = minE;
-      if(maxE > fMaxEnergy) fMaxEnergy = maxE;
+      if (minE < fMinEnergy)
+        fMinEnergy = minE;
+      if (maxE > fMaxEnergy)
+        fMaxEnergy = maxE;
       hadSpec = true;
     }
   }
 
-  if(!hadSpec) {
+  if (!hadSpec) {
     fMinEnergy = 0.0;
     fMaxEnergy = DEFAULT_MAX_ENERGY;
   }
@@ -319,74 +308,72 @@ void View1D::ShowAll(void)
   Update();
 }
 
-void View1D::LockUpdate()
-{
+void View1D::LockUpdate() {
   //! Calls to Update() will not actually update the display any more.
 
   fUpdateLocked++;
 }
 
-void View1D::UnlockUpdate()
-{
-  //! Calls to Update() will update the display again. If Update() was called in the
+void View1D::UnlockUpdate() {
+  //! Calls to Update() will update the display again. If Update() was called in
+  //! the
   //! meantime, this function will do the update.
 
-  if(fUpdateLocked > 0)
+  if (fUpdateLocked > 0)
     fUpdateLocked--;
 
-  if(fUpdateLocked <= 0 && fNeedsUpdate)
+  if (fUpdateLocked <= 0 && fNeedsUpdate)
     DoUpdate();
 }
 
-void View1D::Update(bool forceRedraw)
-{
-  //! Do an update if possible, or remember to do it once it becomes possible again.
+void View1D::Update(bool forceRedraw) {
+  //! Do an update if possible, or remember to do it once it becomes possible
+  //! again.
 
-  //cout << "View1D::Update() called, fUpdateLocked=" << fUpdateLocked << endl;
+  // cout << "View1D::Update() called, fUpdateLocked=" << fUpdateLocked << endl;
 
   fForceRedraw = (fForceRedraw || forceRedraw);
 
-  if(fUpdateLocked <= 0)
+  if (fUpdateLocked <= 0)
     DoUpdate();
   else
     fNeedsUpdate = true;
 }
 
-void View1D::DoUpdate()
-{
+void View1D::DoUpdate() {
   //! This function brings the viewport up-to-date after a change in any
   //! relevant parameters. It tries to do so with minimal effort,
   //! i.e. not by redrawing unconditionally.
 
   double dO, dOPix;
 
-  bool redraw = fForceRedraw;  // Do we need a full redraw?
+  bool redraw = fForceRedraw; // Do we need a full redraw?
 
-  //cout << "Update() called " << redraw << endl;
+  // cout << "Update() called " << redraw << endl;
 
   // Remember not to compare floating point values
   // for equality directly (rouding error problems)
-  if(TMath::Abs(fXVisibleRegion - fPainter.GetXVisibleRegion()) > 1e-7) {
-	redraw = true;
-	fPainter.SetXVisibleRegion(fXVisibleRegion);
-	UpdateScrollbarRange();
+  if (TMath::Abs(fXVisibleRegion - fPainter.GetXVisibleRegion()) > 1e-7) {
+    redraw = true;
+    fPainter.SetXVisibleRegion(fXVisibleRegion);
+    UpdateScrollbarRange();
   }
 
   dO = fXOffset - fPainter.GetXOffset();
-  if(TMath::Abs(dO) > 1e-5) {
-	fPainter.SetXOffset(fXOffset);
+  if (TMath::Abs(dO) > 1e-5) {
+    fPainter.SetXOffset(fXOffset);
   }
 
-  if(fYAutoScale) {
+  if (fYAutoScale) {
     YAutoScaleOnce(false);
   }
 
-  if(TMath::Abs(fYVisibleRegion - fPainter.GetYVisibleRegion()) > 1e-7) {
-	redraw = true;
-	fPainter.SetYVisibleRegion(fYVisibleRegion);
+  if (TMath::Abs(fYVisibleRegion - fPainter.GetYVisibleRegion()) > 1e-7) {
+    redraw = true;
+    fPainter.SetYVisibleRegion(fYVisibleRegion);
   }
 
-  if(TMath::Abs(fYOffset - fPainter.GetYOffset()) > 1e-5) {
+  if (TMath::Abs(fYOffset - fPainter.GetYOffset()) > 1e-5) {
     redraw = true;
     fPainter.SetYOffset(fYOffset);
   }
@@ -394,16 +381,16 @@ void View1D::DoUpdate()
   // We can only use ShiftOffset if the shift is an integer number
   // of pixels, otherwise we will have to do a full redraw
   dOPix = fPainter.dEtodX(dO);
-  if(TMath::Abs(TMath::Ceil(dOPix - 0.5) - dOPix) > 1e-7) {
-	redraw = true;
+  if (TMath::Abs(TMath::Ceil(dOPix - 0.5) - dOPix) > 1e-7) {
+    redraw = true;
   }
 
-  if(redraw) {
-	//cout << "redraw" << endl;
-	fNeedClear = true;
-	gClient->NeedRedraw(this);
-  } else if(TMath::Abs(dOPix) > 0.5) {
-	ShiftOffset((int) TMath::Ceil(dOPix - 0.5));
+  if (redraw) {
+    // cout << "redraw" << endl;
+    fNeedClear = true;
+    gClient->NeedRedraw(this);
+  } else if (TMath::Abs(dOPix) > 0.5) {
+    ShiftOffset((int)TMath::Ceil(dOPix - 0.5));
   }
 
   UpdateScrollbarRange();
@@ -414,46 +401,43 @@ void View1D::DoUpdate()
   fForceRedraw = false;
 }
 
-void View1D::UpdateScrollbarRange(void)
-{
-  if(fScrollbar) {
-	UInt_t as, rs, pos;
-	double minE, maxE;
+void View1D::UpdateScrollbarRange(void) {
+  if (fScrollbar) {
+    UInt_t as, rs, pos;
+    double minE, maxE;
 
-	as = fPainter.GetWidth();
+    as = fPainter.GetWidth();
 
-	minE = fMinEnergy;
-	minE = TMath::Min(minE, fPainter.GetXOffset());
+    minE = fMinEnergy;
+    minE = TMath::Min(minE, fPainter.GetXOffset());
 
-	maxE = fMaxEnergy;
-	maxE = TMath::Max(maxE, fPainter.GetXOffset() + fXVisibleRegion);
+    maxE = fMaxEnergy;
+    maxE = TMath::Max(maxE, fPainter.GetXOffset() + fXVisibleRegion);
 
-	rs = (UInt_t) TMath::Ceil(fPainter.dEtodX(maxE - minE));
+    rs = (UInt_t)TMath::Ceil(fPainter.dEtodX(maxE - minE));
 
-	pos = (UInt_t) TMath::Ceil(fPainter.dEtodX(fPainter.GetXOffset() - minE) - 0.5);
+    pos = (UInt_t)TMath::Ceil(fPainter.dEtodX(fPainter.GetXOffset() - minE) -
+                              0.5);
 
-	fScrollbar->SetRange(rs, as);
-	fScrollbar->SetPosition(pos);
+    fScrollbar->SetRange(rs, as);
+    fScrollbar->SetPosition(pos);
   }
 }
 
-void View1D::SetXOffset(double offset)
-{
+void View1D::SetXOffset(double offset) {
   //! Sets the offset of the X (energy) axis, in units of energy (??? FIXME).
 
   fXOffset = offset;
   Update();
 }
 
-void View1D::SetXCenter(double center)
-{
-   //! Convenience function to set the center of the X (energy) axis
+void View1D::SetXCenter(double center) {
+  //! Convenience function to set the center of the X (energy) axis
 
-   SetXOffset(center - fXVisibleRegion/2.);
+  SetXOffset(center - fXVisibleRegion / 2.);
 }
 
-void View1D::SetYOffset(double offset)
-{
+void View1D::SetYOffset(double offset) {
   // Sets the offset of the Y (counts) axis, in units of counts.
 
   fYOffset = offset;
@@ -461,82 +445,75 @@ void View1D::SetYOffset(double offset)
   Update();
 }
 
-void View1D::ShiftXOffset(double f, bool update)
-{
+void View1D::ShiftXOffset(double f, bool update) {
   //! Shifts the offset of the X (energy) axis by a factor of f of the
   //! currently visible region.
 
   fXOffset += f * fXVisibleRegion;
-  if(update)
+  if (update)
     Update();
 }
 
-
-void View1D::ShiftYOffset(double f, bool update)
-{
+void View1D::ShiftYOffset(double f, bool update) {
   //! Shifts the offset of the Y (counts) axis by a factor of f of the
   //! currently visible region.
 
   fYOffset += f * fYVisibleRegion;
   fYAutoScale = false;
-  if(update)
+  if (update)
     Update();
 }
 
-void View1D::SetYAutoScale(bool as, bool update)
-{
+void View1D::SetYAutoScale(bool as, bool update) {
   //! Sets or unsets automatic scaling of the Y (counts) axis
   //! If automatic scaling is enabled, the Y axis will always range from
   //! zero to the number of counts in the maximum bin currently visible.
 
   fYAutoScale = as;
-  if(update)
+  if (update)
     Update();
 }
 
-void View1D::SetXVisibleRegion(double region, bool update)
-{
+void View1D::SetXVisibleRegion(double region, bool update) {
   //! Sets the X size of the visible region in units of energy
 
   fXVisibleRegion = region;
-  if(update)
+  if (update)
     Update();
 }
 
-void View1D::SetYVisibleRegion(double region, bool update)
-{
+void View1D::SetYVisibleRegion(double region, bool update) {
   //! Sets the Y size of the visible region in units of counts
 
   fYVisibleRegion = region;
-  if(update)
+  if (update)
     Update();
 }
 
-void View1D::HandleScrollbar(Long_t parm)
-{
+void View1D::HandleScrollbar(Long_t parm) {
   //! Callback for scrollbar motion
 
   // Capture nonsense input (TODO: still required?)
-  if(parm < 0)
+  if (parm < 0)
     parm = 0;
 
-  if(fXOffset < fMinEnergy)
-	fXOffset += fPainter.dXtodE(parm);
+  if (fXOffset < fMinEnergy)
+    fXOffset += fPainter.dXtodE(parm);
   else
-	fXOffset = fMinEnergy + fPainter.dXtodE(parm);
+    fXOffset = fMinEnergy + fPainter.dXtodE(parm);
 
   Update();
 }
 
-void View1D::UpdateStatusPos()
-{
+void View1D::UpdateStatusPos() {
   //! Update the cursor position in the status bar
 
   char temp[32];
 
-  if(fStatusBar) {
-    if(fPainter.IsWithin(fCursorX, fCursorY)) {
-      snprintf(temp, 32, "%.4g %.4g", fPainter.XtoE((Int_t) fCursorX), fPainter.YtoC(fCursorY));
+  if (fStatusBar) {
+    if (fPainter.IsWithin(fCursorX, fCursorY)) {
+      snprintf(temp, 32, "%.4g %.4g", fPainter.XtoE((Int_t)fCursorX),
+               fPainter.YtoC(fCursorY));
       fStatusBar->SetText(temp, 0);
     } else {
       fStatusBar->SetText("", 0);
@@ -544,107 +521,108 @@ void View1D::UpdateStatusPos()
   }
 }
 
-void View1D::UpdateStatusScale()
-{
+void View1D::UpdateStatusScale() {
   //! Update Y autoscale status in the status bar
 
-  if(fStatusBar) {
-    if(fYAutoScale && fPainter.GetUseNorm())
+  if (fStatusBar) {
+    if (fYAutoScale && fPainter.GetUseNorm())
       fStatusBar->SetText("AUTO NORM", 1);
-    else if(fYAutoScale && !fPainter.GetUseNorm())
+    else if (fYAutoScale && !fPainter.GetUseNorm())
       fStatusBar->SetText("AUTO", 1);
-    else if(!fYAutoScale && fPainter.GetUseNorm())
+    else if (!fYAutoScale && fPainter.GetUseNorm())
       fStatusBar->SetText("NORM", 1);
     else
       fStatusBar->SetText("", 1);
   }
 }
 
-void View1D::SetStatusText(const char *text)
-{
+void View1D::SetStatusText(const char *text) {
   //! Sets text to appear in the text section of the status bar
 
-  if(fStatusBar)
+  if (fStatusBar)
     fStatusBar->SetText(text, 2);
 }
 
-Bool_t View1D::HandleMotion(Event_t *ev)
-{
+Bool_t View1D::HandleMotion(Event_t *ev) {
   //! Callback for mouse motion
 
   bool cv = fCursorVisible;
   int accel = (ev->fState & kKeyControlMask) ? 10 : 1;
-  int dX = accel * ((int) fCursorX - ev->fX);
-  int dY = accel * ((int) fCursorY - ev->fY);
-  if(cv) DrawCursor();
+  int dX = accel * ((int)fCursorX - ev->fX);
+  int dY = accel * ((int)fCursorY - ev->fY);
+  if (cv)
+    DrawCursor();
 
   fCursorX = ev->fX;
   fCursorY = ev->fY;
 
-  if(fDragging) {
-	SetXOffset(fXOffset + fPainter.dXtodE(dX));
-	if(ev->fState & kKeyShiftMask)
-	   SetYOffset(fYOffset + fPainter.dYtodC(dY));
+  if (fDragging) {
+    SetXOffset(fXOffset + fPainter.dXtodE(dX));
+    if (ev->fState & kKeyShiftMask)
+      SetYOffset(fYOffset + fPainter.dYtodC(dY));
   }
 
   // If we are dragging, Update() will update the statusbar
-  if(!fDragging)  UpdateStatusPos();
+  if (!fDragging)
+    UpdateStatusPos();
 
-  if(cv) DrawCursor();
+  if (cv)
+    DrawCursor();
 
   return true;
 }
 
-Bool_t View1D::HandleButton(Event_t *ev)
-{
+Bool_t View1D::HandleButton(Event_t *ev) {
   //! Callback for mouse button events
 
-  if(ev->fType == kButtonPress) {
-	switch(ev->fCode) {
-	  case 1:
-	    fDragging = true;
-	    break;
-	  case 4:
-        if(ev->fState & kKeyShiftMask)
-          YZoomAroundCursor(M_SQRT2);
-        else
-          XZoomAroundCursor(M_SQRT2);
-	    break;
-	  case 5:
-        if(ev->fState & kKeyShiftMask)
-          YZoomAroundCursor(M_SQRT1_2);
-        else
-          XZoomAroundCursor(M_SQRT1_2);
-	    break;
-	}
-  } else if(ev->fType == kButtonRelease) {
-    if(ev->fCode == 1)
+  if (ev->fType == kButtonPress) {
+    switch (ev->fCode) {
+    case 1:
+      fDragging = true;
+      break;
+    case 4:
+      if (ev->fState & kKeyShiftMask)
+        YZoomAroundCursor(M_SQRT2);
+      else
+        XZoomAroundCursor(M_SQRT2);
+      break;
+    case 5:
+      if (ev->fState & kKeyShiftMask)
+        YZoomAroundCursor(M_SQRT1_2);
+      else
+        XZoomAroundCursor(M_SQRT1_2);
+      break;
+    }
+  } else if (ev->fType == kButtonRelease) {
+    if (ev->fCode == 1)
       fDragging = false;
   }
 
   return true;
 }
 
-Bool_t View1D::HandleCrossing(Event_t *ev)
-{
-  //! Callback for mouse crossing events (mouse enters or leaves our screen area)
+Bool_t View1D::HandleCrossing(Event_t *ev) {
+  //! Callback for mouse crossing events (mouse enters or leaves our screen
+  //! area)
 
-  if(ev->fType == kEnterNotify) {
-	if(fCursorVisible) DrawCursor();
-	/* fCursorX = ev->fX;
-	fCursorY = ev->fY; */
-	DrawCursor();
-	UpdateStatusPos();
-  } else if(ev->fType == kLeaveNotify) {
-	if(fCursorVisible) DrawCursor();
-	if(fStatusBar) fStatusBar->SetText("", 0);
+  if (ev->fType == kEnterNotify) {
+    if (fCursorVisible)
+      DrawCursor();
+    /* fCursorX = ev->fX;
+    fCursorY = ev->fY; */
+    DrawCursor();
+    UpdateStatusPos();
+  } else if (ev->fType == kLeaveNotify) {
+    if (fCursorVisible)
+      DrawCursor();
+    if (fStatusBar)
+      fStatusBar->SetText("", 0);
   }
 
   return true;
 }
 
-void View1D::Layout(void)
-{
+void View1D::Layout(void) {
   //! Callback for changes in size of our screen area
 
   fPainter.SetBasePoint(fLeftBorder + 2, fHeight - fBottomBorder - 2);
@@ -652,8 +630,7 @@ void View1D::Layout(void)
                    fHeight - fTopBorder - fBottomBorder - 4);
 }
 
-void View1D::DoRedraw(void)
-{
+void View1D::DoRedraw(void) {
   //! Redraws the Viewport completely.  If fNeedClear is set, it is
   //! cleared first, otherwise it is just redrawn. This is a callback for
   //! the windowing system. It should not be called directly, but via
@@ -667,7 +644,7 @@ void View1D::DoRedraw(void)
   w = fWidth - fLeftBorder - fRightBorder;
   h = fHeight - fTopBorder - fBottomBorder;
 
-  //cout << "DoRedraw()" << endl;
+  // cout << "DoRedraw()" << endl;
 
   fPainter.SetXVisibleRegion(fXVisibleRegion);
   fPainter.SetYVisibleRegion(fYVisibleRegion);
@@ -675,23 +652,25 @@ void View1D::DoRedraw(void)
   fPainter.SetYOffset(fYOffset);
 
   cv = fCursorVisible;
-  if(cv) DrawCursor();
+  if (cv)
+    DrawCursor();
 
-  if(fNeedClear) {
-	// Note that the area filled by FillRectangle() will not include
-	// the border drawn by DrawRectangle() on the right and the bottom
-	gVirtualX->FillRectangle(GetId(), GetBlackGC()(), 0, 0, fWidth, fHeight);
-	fNeedClear = false;
+  if (fNeedClear) {
+    // Note that the area filled by FillRectangle() will not include
+    // the border drawn by DrawRectangle() on the right and the bottom
+    gVirtualX->FillRectangle(GetId(), GetBlackGC()(), 0, 0, fWidth, fHeight);
+    fNeedClear = false;
   }
 
   gVirtualX->DrawRectangle(GetId(), GetHilightGC()(), x, y, w, h);
 
-  fDisplayStack.PaintRegion(x+2, x+w-2, fPainter);
-  DrawXScales(x+2, x+w-2);
+  fDisplayStack.PaintRegion(x + 2, x + w - 2, fPainter);
+  DrawXScales(x + 2, x + w - 2);
   fPainter.DrawYScale();
   fPainter.DrawIDList(fDisplayStack.fObjects);
 
-  if(cv) DrawCursor();
+  if (cv)
+    DrawCursor();
 }
 
 } // end namespace Display

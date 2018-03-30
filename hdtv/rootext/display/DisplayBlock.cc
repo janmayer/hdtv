@@ -25,43 +25,36 @@
 #include "DisplayStack.hh"
 #include "View1D.hh"
 
-#include <TMath.h>
-#include <TGFrame.h>
 #include <TColor.h>
+#include <TGFrame.h>
+#include <TMath.h>
 #include <TROOT.h>
 
 namespace HDTV {
 namespace Display {
 
-DisplayBlock::DisplayBlock(int col)
-  : DisplayObj(),
-    fCal(),
-    fNorm(1.0)
-{
+DisplayBlock::DisplayBlock(int col) : DisplayObj(), fCal(), fNorm(1.0) {
   //! Constructor
 
   InitGC(col);
 }
 
-DisplayBlock::~DisplayBlock()
-{
+DisplayBlock::~DisplayBlock() {
   //! Destructor
 
   gClient->GetGCPool()->FreeGC(fGC);
 }
 
-inline void DisplayBlock::InitGC(int col)
-{
+inline void DisplayBlock::InitGC(int col) {
   // Setup GC for requested color
-  TColor *color = dynamic_cast<TColor*>(gROOT->GetListOfColors()->At(col));
+  TColor *color = dynamic_cast<TColor *>(gROOT->GetListOfColors()->At(col));
   GCValues_t gval;
   gval.fMask = kGCForeground;
   gval.fForeground = color->GetPixel();
   fGC = gClient->GetGCPool()->GetGC(&gval, true);
 }
 
-void DisplayBlock::SetColor(int col)
-{
+void DisplayBlock::SetColor(int col) {
   // Free old GC
   gClient->GetGCPool()->FreeGC(fGC);
 
@@ -71,28 +64,22 @@ void DisplayBlock::SetColor(int col)
   Update();
 }
 
-double DisplayBlock::GetMinE()
-{
+double DisplayBlock::GetMinE() {
   //! Return the spectrums lower endpoint in energy units
 
-  return TMath::Min(Ch2E((double) GetMinCh()),
-					Ch2E((double) GetMaxCh()));
+  return TMath::Min(Ch2E((double)GetMinCh()), Ch2E((double)GetMaxCh()));
 }
 
-double DisplayBlock::GetMaxE()
-{
+double DisplayBlock::GetMaxE() {
   //! Return the spectrums upper endpoint in energy units
 
-  return TMath::Max(Ch2E((double) GetMinCh()),
-					Ch2E((double) GetMaxCh()));
+  return TMath::Max(Ch2E((double)GetMinCh()), Ch2E((double)GetMaxCh()));
 }
 
-double DisplayBlock::GetERange()
-{
+double DisplayBlock::GetERange() {
   //! Returns the width of the spectrum in energy units
 
-  return TMath::Abs(Ch2E((double) GetMinCh())
-					- Ch2E((double) GetMaxCh()));
+  return TMath::Abs(Ch2E((double)GetMinCh()) - Ch2E((double)GetMaxCh()));
 }
 
 } // end namespace Display

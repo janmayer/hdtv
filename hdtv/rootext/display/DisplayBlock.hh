@@ -33,37 +33,48 @@ namespace Display {
 
 //! DisplayBlock: common baseclass for DisplayFunc and DisplaySpec
 // FIXME: think of a better name?
-class DisplayBlock: public DisplayObj
-{
+class DisplayBlock : public DisplayObj {
   friend class Painter;
-  public:
-    DisplayBlock(int col);
-    ~DisplayBlock();
-	void SetCal(const Calibration& cal) { fCal = cal; Update(); };
-    double Ch2E(double ch) { return fCal ? fCal.Ch2E(ch) : ch; }
-    double E2Ch(double e) { return fCal ? fCal.E2Ch(e) : e; }
 
-    double GetMaxE();
-    double GetMinE();
-    double GetERange();
-    virtual double GetMinCh() { return 0.0; }
-    virtual double GetMaxCh() { return 0.0; }
-    double GetCenterCh() { return (GetMinCh() + GetMaxCh()) / 2.0; }
+public:
+  DisplayBlock(int col);
+  ~DisplayBlock();
 
-    void SetColor(int col);
+  void SetCal(const Calibration &cal) {
+    fCal = cal;
+    Update();
+  };
 
-    void SetNorm(double norm)  { fNorm = norm; Update(); }
-    double GetNorm() { return fNorm; }
+  double Ch2E(double ch) { return fCal ? fCal.Ch2E(ch) : ch; }
+  double E2Ch(double e) { return fCal ? fCal.E2Ch(e) : e; }
 
-  protected:
-    const TGGC *GetGC() const { return fGC; }
+  double GetMaxE();
+  double GetMinE();
+  double GetERange();
 
-  private:
-    void InitGC(int col);
+  virtual double GetMinCh() { return 0.0; }
+  virtual double GetMaxCh() { return 0.0; }
 
-    Calibration fCal;
-    TGGC *fGC;
-    double fNorm;  // normalization factor
+  double GetCenterCh() { return (GetMinCh() + GetMaxCh()) / 2.0; }
+
+  void SetColor(int col);
+
+  void SetNorm(double norm) {
+    fNorm = norm;
+    Update();
+  }
+
+  double GetNorm() { return fNorm; }
+
+protected:
+  const TGGC *GetGC() const { return fGC; }
+
+private:
+  void InitGC(int col);
+
+  Calibration fCal;
+  TGGC *fGC;
+  double fNorm; // normalization factor
 };
 
 } // end namespace Display

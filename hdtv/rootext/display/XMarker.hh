@@ -37,24 +37,41 @@ class View1D;
     no calibration is given, and in channel units otherwise. */
 class XMarker : public Marker {
   friend class Painter;
-  public:
-    XMarker(int n, double p1, double p2=0.0, int col=5);
-    TGGC *GetGC_C() { return (fDash1 && fDash2) ? fDashedGC : fGC; }
-    double GetE1() { return fCal1 ? fCal1.Ch2E(fP1) : fP1; }
-    double GetE2() { return fCal2 ? fCal2.Ch2E(fP2) : fP2; }
-    void SetCal(const Calibration& cal1)
-      { fCal1 = cal1; fCal2 = cal1; Update(); }
-    void SetCal(const Calibration& cal1, const Calibration& cal2)
-      { fCal1 = cal1; fCal2 = cal2; Update(); }
-    void SetConnectTop(bool ct)
-      { fConnectTop = ct; Update(); }
-    int GetWidth(const FontStruct_t& fs);
-    virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter)
-      { if(IsVisible()) painter.DrawXMarker(this, x1, x2); }
 
-  private:
-    Calibration fCal1, fCal2;
-    bool fConnectTop;
+public:
+  XMarker(int n, double p1, double p2 = 0.0, int col = 5);
+
+  TGGC *GetGC_C() { return (fDash1 && fDash2) ? fDashedGC : fGC; }
+  double GetE1() { return fCal1 ? fCal1.Ch2E(fP1) : fP1; }
+  double GetE2() { return fCal2 ? fCal2.Ch2E(fP2) : fP2; }
+
+  void SetCal(const Calibration &cal1) {
+    fCal1 = cal1;
+    fCal2 = cal1;
+    Update();
+  }
+
+  void SetCal(const Calibration &cal1, const Calibration &cal2) {
+    fCal1 = cal1;
+    fCal2 = cal2;
+    Update();
+  }
+
+  void SetConnectTop(bool ct) {
+    fConnectTop = ct;
+    Update();
+  }
+
+  int GetWidth(const FontStruct_t &fs);
+
+  virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter &painter) {
+    if (IsVisible())
+      painter.DrawXMarker(this, x1, x2);
+  }
+
+private:
+  Calibration fCal1, fCal2;
+  bool fConnectTop;
 };
 
 } // end namespace Display

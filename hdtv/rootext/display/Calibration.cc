@@ -32,38 +32,33 @@
 
 namespace HDTV {
 
-void Calibration::SetCal(const std::vector<double>& cal)
-{
+void Calibration::SetCal(const std::vector<double> &cal) {
   fCal = cal;
   UpdateDerivative();
 }
 
-void Calibration::SetCal(const TArrayD& cal)
-{
+void Calibration::SetCal(const TArrayD &cal) {
   fCal.clear();
-  for(int i=0; i<cal.GetSize(); i++)
+  for (int i = 0; i < cal.GetSize(); i++)
     fCal.push_back(cal[i]);
 
   UpdateDerivative();
 }
 
-void Calibration::SetCal(double cal0)
-{
+void Calibration::SetCal(double cal0) {
   fCal.clear();
   fCal.push_back(cal0);
   UpdateDerivative();
 }
 
-void Calibration::SetCal(double cal0, double cal1)
-{
+void Calibration::SetCal(double cal0, double cal1) {
   fCal.clear();
   fCal.push_back(cal0);
   fCal.push_back(cal1);
   UpdateDerivative();
 }
 
-void Calibration::SetCal(double cal0, double cal1, double cal2)
-{
+void Calibration::SetCal(double cal0, double cal1, double cal2) {
   fCal.clear();
   fCal.push_back(cal0);
   fCal.push_back(cal1);
@@ -71,8 +66,7 @@ void Calibration::SetCal(double cal0, double cal1, double cal2)
   UpdateDerivative();
 }
 
-void Calibration::SetCal(double cal0, double cal1, double cal2, double cal3)
-{
+void Calibration::SetCal(double cal0, double cal1, double cal2, double cal3) {
   fCal.clear();
   fCal.push_back(cal0);
   fCal.push_back(cal1);
@@ -81,8 +75,7 @@ void Calibration::SetCal(double cal0, double cal1, double cal2, double cal3)
   UpdateDerivative();
 }
 
-void Calibration::UpdateDerivative()
-{
+void Calibration::UpdateDerivative() {
   // Update the coefficients of the derivative polynomial.
   // (Internal use only.)
 
@@ -91,59 +84,56 @@ void Calibration::UpdateDerivative()
 
   fCalDeriv.clear();
 
-  if(c != fCal.end())
+  if (c != fCal.end())
     ++c;
 
-  while(c != fCal.end()) {
+  while (c != fCal.end()) {
     fCalDeriv.push_back(a * *c++);
     a += 1.;
   }
 }
 
-double Calibration::Ch2E(double ch) const
-{
+double Calibration::Ch2E(double ch) const {
   //! Convert a channel to an energy, using the chosen energy
   //! calibration.
 
   // Catch special case of a trivial calibration
-  if(fCal.empty())
+  if (fCal.empty())
     return ch;
 
   std::vector<double>::const_reverse_iterator c = fCal.rbegin();
   double E = *c++;
 
-  while(c != fCal.rend())
+  while (c != fCal.rend())
     E = E * ch + *c++;
 
   return E;
 }
 
-double Calibration::dEdCh(double ch) const
-{
+double Calibration::dEdCh(double ch) const {
   //! Calculate the slope of the calibration function, \frac{dE}{dCh},
   //! at position ch .
 
   // Catch special case of a trivial calibration
-  if(fCal.empty())
+  if (fCal.empty())
     return 1.0;
 
   std::vector<double>::const_reverse_iterator c = fCalDeriv.rbegin();
   double slope = *c++;
 
-  while(c != fCalDeriv.rend())
+  while (c != fCalDeriv.rend())
     slope = slope * ch + *c++;
 
   return slope;
 }
 
-double Calibration::E2Ch(double e) const
-{
+double Calibration::E2Ch(double e) const {
   //! Convert an energy to a channel, using the chosen energy
   //! calibration.
   //! TODO: deal with slope == 0.0
 
   // Catch special case of a trivial calibration
-  if(fCal.empty())
+  if (fCal.empty())
     return e;
 
   double ch = 1.0;
@@ -152,13 +142,14 @@ double Calibration::E2Ch(double e) const
   double _e = TMath::Abs(e);
   std::vector<double>::const_reverse_iterator c;
 
-  if(_e < 1.0) _e = 1.0;
+  if (_e < 1.0)
+    _e = 1.0;
 
-  for(int i=0; i<10 && TMath::Abs(de / _e) > 1e-10; i++) {
+  for (int i = 0; i < 10 && TMath::Abs(de / _e) > 1e-10; i++) {
     // Calculate slope
     c = fCalDeriv.rbegin();
     slope = *c++;
-    while(c != fCalDeriv.rend()) {
+    while (c != fCalDeriv.rend()) {
       slope = slope * ch + *c++;
     }
 
@@ -166,18 +157,18 @@ double Calibration::E2Ch(double e) const
     de = Ch2E(ch) - e;
   }
 
-  if(TMath::Abs(de / _e) > 1e-10) {
-    std::cout << "Warning: Solver failed to converge in Calibration::E2Ch()." << std::endl;
+  if (TMath::Abs(de / _e) > 1e-10) {
+    std::cout << "Warning: Solver failed to converge in Calibration::E2Ch()."
+              << std::endl;
   }
 
   return ch;
 }
 
-void Calibration::Apply(TAxis *axis, int nbins)
-{
+void Calibration::Apply(TAxis *axis, int nbins) {
   double *centers = new double[nbins];
 
-  for(int i=0; i<nbins; i++) {
+  for (int i = 0; i < nbins; i++) {
     centers[i] = Ch2E((double)i);
   }
 
@@ -186,11 +177,9 @@ void Calibration::Apply(TAxis *axis, int nbins)
   delete[] centers;
 }
 
-void Calibration::Rebin(const unsigned int nBins)
-{
+void Calibration::Rebin(const unsigned int nBins) {
   const unsigned int size = fCal.size();
-  for(unsigned int i = 0; i < size; i++)
-  {
+  for (unsigned int i = 0; i < size; i++) {
     fCal[i] *= std::pow(nBins, i);
   }
   UpdateDerivative();

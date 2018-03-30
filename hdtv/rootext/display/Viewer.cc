@@ -33,22 +33,23 @@ namespace HDTV {
 namespace Display {
 
 Viewer::Viewer(UInt_t w, UInt_t h, const char *title)
-  : TGMainFrame(gClient->GetRoot(), w, h)
-{
+    : TGMainFrame(gClient->GetRoot(), w, h) {
   Int_t parts[3] = {20, 15, 65};
 
-  // FIXME: how is the memory for TGLayoutHints supposed to be handled correctly???
+  // FIXME: how is the memory for TGLayoutHints supposed to be handled
+  // correctly???
 
-  fView = new View1D(this, w-4, h-4);
-  AddFrame(fView, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0,0,0,0));
+  fView = new View1D(this, w - 4, h - 4);
+  AddFrame(fView,
+           new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
 
   fScrollbar = new TGHScrollBar(this, 10, kDefaultScrollBarWidth);
-  AddFrame(fScrollbar, new TGLayoutHints(kLHintsExpandX, 0,0,0,0));
+  AddFrame(fScrollbar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
 
   fStatusBar = new TGStatusBar(this, 10, 16);
   fStatusBar->SetParts(parts, 3);
 
-  AddFrame(fStatusBar, new TGLayoutHints(kLHintsExpandX, 0,0,0,0));
+  AddFrame(fStatusBar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
 
   fView->SetScrollbar(fScrollbar);
   fView->SetStatusBar(fStatusBar);
@@ -63,8 +64,7 @@ Viewer::Viewer(UInt_t w, UInt_t h, const char *title)
   AddInput(kKeyPressMask);
 }
 
-Viewer::~Viewer()
-{
+Viewer::~Viewer() {
   //! Destructor
 
   // This will delete all contained frames, and all layout hints.
@@ -72,26 +72,24 @@ Viewer::~Viewer()
   Cleanup();
 }
 
-Bool_t Viewer::HandleKey(Event_t *ev)
-{
-  if(ev->fType == kGKeyPress) {
-	gVirtualX->LookupString(ev, fKeyStr, 16, fKeySym);
-	fKeyState = ev->fState;
-	KeyPressed();
+Bool_t Viewer::HandleKey(Event_t *ev) {
+  if (ev->fType == kGKeyPress) {
+    gVirtualX->LookupString(ev, fKeyStr, 16, fKeySym);
+    fKeyState = ev->fState;
+    KeyPressed();
   }
 
   return true;
 }
 
-Bool_t Viewer::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
-{
+Bool_t Viewer::ProcessMessage(Long_t msg, Long_t parm1, Long_t) {
   int handled = false;
 
-  if(GET_MSG(msg) == kC_HSCROLL) {
-	if(GET_SUBMSG(msg) == kSB_SLIDERTRACK) {
-	  fView->HandleScrollbar(parm1);
-	  handled = true;
-	}
+  if (GET_MSG(msg) == kC_HSCROLL) {
+    if (GET_SUBMSG(msg) == kSB_SLIDERTRACK) {
+      fView->HandleScrollbar(parm1);
+      handled = true;
+    }
   }
 
   return handled;

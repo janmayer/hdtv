@@ -26,7 +26,7 @@ namespace HDTV {
 namespace Display {
 
 YMarker::YMarker(int n, double p1, double p2, int col)
-  : Marker(n, p1, p2, col) { }
+    : Marker(n, p1, p2, col) {}
 
 } // end namespace Display
 } // end namespace HDTV

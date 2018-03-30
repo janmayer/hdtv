@@ -25,11 +25,9 @@
 namespace HDTV {
 namespace Display {
 
-View::View(const TGWindow *p, UInt_t w, UInt_t h)
-  : TGFrame(p, w, h)
-{
-  AddInput(kPointerMotionMask | kEnterWindowMask | kLeaveWindowMask
-		   | kButtonPressMask | kButtonReleaseMask);
+View::View(const TGWindow *p, UInt_t w, UInt_t h) : TGFrame(p, w, h) {
+  AddInput(kPointerMotionMask | kEnterWindowMask | kLeaveWindowMask |
+           kButtonPressMask | kButtonReleaseMask);
 
   GCValues_t gval;
   gval.fMask = kGCForeground | kGCFunction;
@@ -43,10 +41,11 @@ View::View(const TGWindow *p, UInt_t w, UInt_t h)
   fDragging = false;
 }
 
-void View::DrawCursor(void)
-{
-  gVirtualX->DrawLine(GetId(), fCursorGC->GetGC(), 1, fCursorY, fWidth, fCursorY);
-  gVirtualX->DrawLine(GetId(), fCursorGC->GetGC(), fCursorX, 1, fCursorX, fHeight);
+void View::DrawCursor(void) {
+  gVirtualX->DrawLine(GetId(), fCursorGC->GetGC(), 1, fCursorY, fWidth,
+                      fCursorY);
+  gVirtualX->DrawLine(GetId(), fCursorGC->GetGC(), fCursorX, 1, fCursorX,
+                      fHeight);
   fCursorVisible = !fCursorVisible;
 }
 

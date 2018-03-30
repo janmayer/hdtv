@@ -36,45 +36,53 @@ class View1D;
 
 //! An object being displayed in a View1D widget
 class DisplayObj {
-  public:
-    DisplayObj() : fVisible(true) { }
-    virtual ~DisplayObj();
+public:
+  DisplayObj() : fVisible(true) {}
+  virtual ~DisplayObj();
 
-    bool IsVisible() const { return fVisible; }
-    void Show() { fVisible = true; Update(true); }
-    void Hide() { fVisible = false; Update(true); }
+  bool IsVisible() const { return fVisible; }
 
-    /* Management functions */
-    void Draw(View1D *view);
-    void Remove(View1D *view);
+  void Show() {
+    fVisible = true;
+    Update(true);
+  }
 
-    void Draw(DisplayStack *stack);
-    void Remove(DisplayStack *stack);
+  void Hide() {
+    fVisible = false;
+    Update(true);
+  }
 
-    void Remove();
+  /* Management functions */
+  void Draw(View1D *view);
+  void Remove(View1D *view);
 
-    void ToTop(View1D *view);
-    void ToBottom(View1D *view);
+  void Draw(DisplayStack *stack);
+  void Remove(DisplayStack *stack);
 
-    void ToTop(DisplayStack *stack);
-    void ToBottom(DisplayStack *stack);
+  void Remove();
 
-    void ToTop();
-    void ToBottom();
+  void ToTop(View1D *view);
+  void ToBottom(View1D *view);
 
-    virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter) { }
+  void ToTop(DisplayStack *stack);
+  void ToBottom(DisplayStack *stack);
 
-    virtual int GetZIndex() { return Z_INDEX_MISC; }
+  void ToTop();
+  void ToBottom();
 
-    static const int DEFAULT_COLOR;
+  virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter &painter) {}
 
-  protected:
-    void Update(bool force=false);
-    std::list<DisplayStack*> fStacks;
-    int fZIndex;
+  virtual int GetZIndex() { return Z_INDEX_MISC; }
 
-  private:
-    bool fVisible;
+  static const int DEFAULT_COLOR;
+
+protected:
+  void Update(bool force = false);
+  std::list<DisplayStack *> fStacks;
+  int fZIndex;
+
+private:
+  bool fVisible;
 };
 
 } // end namespace Display
