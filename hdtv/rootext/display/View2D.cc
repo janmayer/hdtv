@@ -84,8 +84,8 @@ void View2D::ShiftOffset(int dX, int dY) {
 /* Copied from GSViewport: Merge? */
 Bool_t View2D::HandleMotion(Event_t *ev) {
   bool cv = fCursorVisible;
-  int dX = (int)fCursorX - ev->fX;
-  int dY = (int)fCursorY - ev->fY;
+  int dX = static_cast<int>(fCursorX) - ev->fX;
+  int dY = static_cast<int>(fCursorY) - ev->fY;
   if (cv)
     DrawCursor();
 
@@ -307,16 +307,16 @@ Pixmap_t View2D::RenderTile(int xoff, int yoff) {
   img = gVirtualX->CreateImage(cTileSize, cTileSize);
 
   /* Calculate shifts required for color channels. Positive shifts go to the
-     left,
-     negative shifts go to the right.
+     left, negative shifts go to the right.
 
      NOTE: This code only works as long as the bit mask for each color channel
      contains only a single, continuous strings of 1s. Otherwise, much more
      complicated and slow code would be needed, as a single shift would no
      longer be sufficient.   */
-  r_mask = ((XImage *)img)->red_mask;
-  g_mask = ((XImage *)img)->green_mask;
-  b_mask = ((XImage *)img)->blue_mask;
+  const XImage *x_img = reinterpret_cast<XImage *>(img);
+  r_mask = x_img->red_mask;
+  g_mask = x_img->green_mask;
+  b_mask = x_img->blue_mask;
 
   r_shift = g_shift = b_shift = 0;
   while (r_mask) {
@@ -335,9 +335,9 @@ Pixmap_t View2D::RenderTile(int xoff, int yoff) {
   }
   b_shift -= 8;
 
-  r_mask = ((XImage *)img)->red_mask;
-  g_mask = ((XImage *)img)->green_mask;
-  b_mask = ((XImage *)img)->blue_mask;
+  r_mask = x_img->red_mask;
+  g_mask = x_img->green_mask;
+  b_mask = x_img->blue_mask;
 
   for (y = 0; y < cTileSize; y++) {
     for (x = 0; x < cTileSize; x++) {
@@ -401,8 +401,9 @@ void View2D::RenderCut(const DisplayCut &cut, int xoff, int yoff,
 
 void View2D::DrawPolyLine(Drawable_t id, GContext_t gc, Int_t n,
                           short *points) {
-  XDrawLines((::Display *)gVirtualX->GetDisplay(), (Drawable)id, (GC)gc,
-             (XPoint *)points, n, CoordModeOrigin);
+  XDrawLines(reinterpret_cast<::Display *>(gVirtualX->GetDisplay()),
+             static_cast<Drawable>(id), reinterpret_cast<GC>(gc),
+             reinterpret_cast<XPoint *>(points), n, CoordModeOrigin);
 }
 
 void View2D::WeedTiles() {
@@ -416,11 +417,11 @@ void View2D::WeedTiles() {
     iter++;
     x = elem->first & 0xFFFF;
     y = elem->first >> 16;
-    xpos = (int)x * cTileSize + fXTileOffset;
-    ypos = (int)y * cTileSize + fYTileOffset;
+    xpos = x * cTileSize + fXTileOffset;
+    ypos = y * cTileSize + fYTileOffset;
 
-    if (xpos < -2 * cTileSize || xpos > (int)fWidth + cTileSize ||
-        ypos < -2 * cTileSize || ypos > (int)fHeight + cTileSize) {
+    if (xpos < -2 * cTileSize || xpos > static_cast<int>(fWidth) + cTileSize ||
+        ypos < -2 * cTileSize || ypos > static_cast<int>(fHeight) + cTileSize) {
       // cout << "Deleting Tile " << x << " " << y << " " << xpos << " " << ypos
       // << endl;
       gVirtualX->DeletePixmap(elem->second);

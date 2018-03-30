@@ -79,20 +79,15 @@ public:
   Bool_t HandleButton(Event_t *ev);
   Bool_t HandleCrossing(Event_t *ev);
 
-  double XTileToE(int x) {
-    return ((double)x) / fPainter.GetXZoom() - fXEOffset;
-  }
-
-  double YTileToE(int y) {
-    return ((double)y) / fPainter.GetYZoom() + fYEOffset;
-  }
+  double XTileToE(int x) { return x / fPainter.GetXZoom() - fXEOffset; }
+  double YTileToE(int y) { return y / fPainter.GetYZoom() + fYEOffset; }
 
   int EToXTile(double e) {
-    return (int)std::ceil((e + fXEOffset) * fPainter.GetXZoom() - 0.5);
+    return std::ceil((e + fXEOffset) * fPainter.GetXZoom() - 0.5);
   }
 
   int EToYTile(double e) {
-    return (int)std::ceil((e - fYEOffset) * fPainter.GetYZoom() - 0.5);
+    return std::ceil((e - fYEOffset) * fPainter.GetYZoom() - 0.5);
   }
 
   int XScrToTile(int x) { return x - fXTileOffset; }
@@ -100,7 +95,7 @@ public:
   double XScrToE(int x) { return XTileToE(XScrToTile(x)); }
   double YScrToE(int y) { return YTileToE(YScrToTile(y)); }
   int ZCtsToScr(double z) {
-    return (int)(((z - fZOffset) / fZVisibleRegion) * cZColorRange);
+    return ((z - fZOffset) / fZVisibleRegion) * cZColorRange;
   }
 
   /*

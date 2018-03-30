@@ -80,7 +80,7 @@ int MFileHist::WriteTH1(const TH1 *hist, char *fname, char *fmt) {
   minfo info;
   int nbins = hist->GetNbinsX();
 
-  mf = mopen(fname, (char *)"w");
+  mf = mopen(fname, const_cast<char *>("w"));
   if (!mf)
     return ERR_WRITE_OPEN;
 
@@ -120,7 +120,7 @@ int MFileHist::WriteTH2(const TH2 *hist, char *fname, char *fmt) {
   int nbinsy = hist->GetNbinsY();
   int col, line;
 
-  mf = mopen(fname, (char *)"w");
+  mf = mopen(fname, const_cast<char *>("w"));
   if (!mf)
     return ERR_WRITE_OPEN;
 
@@ -169,7 +169,7 @@ int MFileHist::Open(char *fname, char *fmt) {
     return fErrno;
   }
 
-  fHist = mopen(fname, (char *)"r");
+  fHist = mopen(fname, const_cast<char *>("r"));
   if (!fHist) {
     fErrno = ERR_READ_OPEN;
     return fErrno;
@@ -222,8 +222,7 @@ histType *MFileHist::ToTH1(const char *name, const char *title,
     return NULL;
   }
 
-  hist = new histType(name, title, fInfo->columns, -0.5,
-                      (double)fInfo->columns - 0.5);
+  hist = new histType(name, title, fInfo->columns, -0.5, fInfo->columns - 0.5);
 
   // FillTH1 will set fErrno
   if (!FillTH1(hist, level, line)) {
@@ -247,8 +246,8 @@ TH1 *MFileHist::FillTH1(TH1 *hist, unsigned int level, unsigned int line) {
 
   TArrayD buf(fInfo->columns);
 
-  if ((unsigned)mgetdbl(fHist, buf.GetArray(), level, line, 0,
-                        fInfo->columns) != fInfo->columns) {
+  int rc = mgetdbl(fHist, buf.GetArray(), level, line, 0, fInfo->columns);
+  if (rc < 0 || static_cast<unsigned int>(rc) != fInfo->columns) {
     fErrno = ERR_READ_GET;
     return NULL;
   }
@@ -283,8 +282,8 @@ double *MFileHist::FillBuf1D(double *buf, unsigned int level,
     return NULL;
   }
 
-  if ((unsigned)mgetdbl(fHist, buf, level, line, 0, fInfo->columns) !=
-      fInfo->columns) {
+  int rc = mgetdbl(fHist, buf, level, line, 0, fInfo->columns);
+  if (rc < 0 || static_cast<unsigned int>(rc) != fInfo->columns) {
     fErrno = ERR_READ_GET;
     return NULL;
   }
@@ -309,8 +308,8 @@ TH2 *MFileHist::FillTH2(TH2 *hist, unsigned int level) {
   TArrayD buf(fInfo->columns);
 
   for (line = 0; line < fInfo->lines; line++) {
-    if ((unsigned)mgetdbl(fHist, buf.GetArray(), level, line, 0,
-                          fInfo->columns) != fInfo->columns)
+    int rc = mgetdbl(fHist, buf.GetArray(), level, line, 0, fInfo->columns);
+    if (rc < 0 || static_cast<unsigned int>(rc) != fInfo->columns)
       break;
 
     for (col = 0; col < fInfo->columns; col++) {
@@ -342,9 +341,8 @@ histType *MFileHist::ToTH2(const char *name, const char *title,
     return NULL;
   }
 
-  hist = new histType(name, title, fInfo->columns, -0.5,
-                      (double)fInfo->columns - 0.5, fInfo->lines, -0.5,
-                      (double)fInfo->lines - 0.5);
+  hist = new histType(name, title, fInfo->columns, -0.5, fInfo->columns - 0.5,
+                      fInfo->lines, -0.5, fInfo->lines - 0.5);
 
   // FillTH2 will set fErrno
   if (!FillTH2(hist, level)) {

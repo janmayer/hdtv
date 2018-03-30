@@ -25,6 +25,7 @@
 #include <cmath>
 
 #include <iostream>
+#include <memory>
 
 #include <TAxis.h>
 
@@ -164,15 +165,13 @@ double Calibration::E2Ch(double e) const {
 }
 
 void Calibration::Apply(TAxis *axis, int nbins) {
-  double *centers = new double[nbins];
+  auto centers = std::make_unique<double[]>(nbins);
 
   for (int i = 0; i < nbins; i++) {
-    centers[i] = Ch2E((double)i);
+    centers[i] = Ch2E(i);
   }
 
-  axis->Set(nbins, centers);
-
-  delete[] centers;
+  axis->Set(nbins, centers.get());
 }
 
 void Calibration::Rebin(const unsigned int nBins) {

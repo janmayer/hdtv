@@ -35,7 +35,7 @@ MTViewer::MTViewer(UInt_t w, UInt_t h, TH2 *mat, const char *title, bool copy)
     : TGMainFrame(gClient->GetRoot(), w, h), fMatCopy(0) {
   if (copy) {
     // fMatCopy = new TH2(*mat);
-    fMatCopy = (TH2 *)mat->Clone();
+    fMatCopy = static_cast<TH2 *>(mat->Clone());
     Init(w, h, fMatCopy, title);
   } else {
     Init(w, h, mat, title);

@@ -132,17 +132,17 @@ public:
   double ModLog(double x);
   double InvModLog(double x);
 
-  double XtoE(Int_t x) { return (double)(x - fXBase) / fXZoom + fXOffset; }
+  double XtoE(Int_t x) { return (x - fXBase) / fXZoom + fXOffset; }
 
   int EtoX(double e) {
-    return (int)std::ceil(((e - fXOffset) * fXZoom) + fXBase - 0.5);
+    return std::ceil(((e - fXOffset) * fXZoom) + fXBase - 0.5);
   }
 
-  double XtoE(double x) { return (x - (double)fXBase) / fXZoom + fXOffset; }
-  double dXtodE(int dX) { return ((double)dX / fXZoom); }
+  double XtoE(double x) { return (x - fXBase) / fXZoom + fXOffset; }
+  double dXtodE(int dX) { return dX / fXZoom; }
   double dEtodX(double dE) { return dE * fXZoom; }
   // FIXME: only works for linear Y scale
-  double dYtodC(int dY) { return -((double)dY / fYZoom); }
+  double dYtodC(int dY) { return -(dY / fYZoom); }
   int CtoY(double c);
   double YtoC(int y);
 

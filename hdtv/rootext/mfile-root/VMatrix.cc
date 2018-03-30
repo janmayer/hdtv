@@ -110,7 +110,7 @@ TH1 *VMatrix::Cut(const char *histname, const char *histtitle) {
     return NULL;
   }
 
-  double bgFac = (nBg == 0) ? 0.0 : (double)nCut / nBg;
+  double bgFac = (nBg == 0) ? 0.0 : static_cast<double>(nCut) / nBg;
   TH1D *hist = new TH1D(histname, histtitle, GetProjXbins(), GetProjXmin(),
                         GetProjXmax());
   // cols, -0.5, (double) cols - 0.5);

@@ -68,11 +68,11 @@ void Painter::DrawFunction(DisplayFunc *dFunc, int x1, int x2) {
     x2 = maxX;
 
   int ly, cy;
-  ch = dFunc->E2Ch(XtoE((double)x1 - 0.5));
+  ch = dFunc->E2Ch(XtoE(x1 - 0.5));
   ly = CtoY(norm * dFunc->Eval(ch));
 
   for (x = x1; x <= x2; x++) {
-    ch = dFunc->E2Ch(XtoE((double)x + 0.5));
+    ch = dFunc->E2Ch(XtoE(x + 0.5));
     y = cy = CtoY(norm * dFunc->Eval(ch));
 
     if (std::min(y, ly) <= lClip && std::max(y, ly) >= hClip) {
@@ -295,8 +295,8 @@ double Painter::GetCountsAtPixel(DisplaySpec *dSpec, Int_t x) {
 
   // Calculate the lower and upper edge of the screen bin in fractional
   // histogram channels, applying the calibration if specified
-  double c1 = dSpec->E2Ch(XtoE((double)x - 0.5));
-  double c2 = dSpec->E2Ch(XtoE((double)x + 0.5));
+  double c1 = dSpec->E2Ch(XtoE(x - 0.5));
+  double c2 = dSpec->E2Ch(XtoE(x + 0.5));
 
   // Our calibration may have a negative slope...
   if (c1 > c2) {
@@ -330,7 +330,7 @@ double Painter::GetCountsAtPixel(DisplaySpec *dSpec, Int_t x) {
     return dSpec->GetRegionMax(b1, b2);
   } else {
     // "Zoomed in" mode, special case
-    double c = dSpec->E2Ch(XtoE((double)x));
+    double c = dSpec->E2Ch(XtoE(static_cast<double>(x)));
     Int_t b = dSpec->FindBin(c);
     return dSpec->GetClippedBinContent(b);
   }
@@ -372,12 +372,12 @@ int Painter::CtoY(double c) {
   else
     c = c - fYOffset;
 
-  return fYBase - (int)std::ceil(c * fYZoom - 0.5);
+  return fYBase - static_cast<int>(std::ceil(c * fYZoom - 0.5));
 }
 
 double Painter::YtoC(int y) {
   double c;
-  c = (double)(fYBase - y) / fYZoom;
+  c = static_cast<double>(fYBase - y) / fYZoom;
 
   if (fLogScale)
     c = InvModLog(c + ModLog(fYOffset));
@@ -396,7 +396,7 @@ double Painter::GetYOffsetDelta(int y, double f) {
     // This case is presently unhandled...
     return 0.0;
   } else {
-    return (1.0 - 1.0 / f) * (double)(fYBase - y) / fYZoom;
+    return (1.0 - 1.0 / f) * static_cast<double>(fYBase - y) / fYZoom;
   }
 }
 
@@ -410,7 +410,7 @@ double Painter::GetYAutoZoom(DisplaySpec *dSpec) {
   b1 = dSpec->FindBin(dSpec->E2Ch(e1));
   b2 = dSpec->FindBin(dSpec->E2Ch(e2));
 
-  return (double)dSpec->GetMax_Cached(b1, b2) * norm;
+  return dSpec->GetMax_Cached(b1, b2) * norm;
 }
 
 void Painter::ClearTopXScale() {
@@ -493,24 +493,24 @@ void Painter::DrawXNonlinearScale(Int_t x1, Int_t x2, bool top,
   //  fmt[2] = '0' - n;
 
   // Draw the minor tics
-  i = (int)std::ceil(cal.E2Ch(XtoE(x1)) / minor_tic);
-  i2 = (int)std::floor(cal.E2Ch(XtoE(x2)) / minor_tic);
+  i = std::ceil(cal.E2Ch(XtoE(x1)) / minor_tic);
+  i2 = std::floor(cal.E2Ch(XtoE(x2)) / minor_tic);
 
   for (; i <= i2; ++i) {
-    x = EtoX(cal.Ch2E((double)i * minor_tic));
+    x = EtoX(cal.Ch2E(i * minor_tic));
     gVirtualX->DrawLine(fDrawable, fAxisGC, x, y, x, y + 5 * sgn);
   }
 
   // Draw the major tics
-  i = (int)std::ceil(cal.E2Ch(XtoE(x1)) / major_tic);
-  i2 = (int)std::floor(cal.E2Ch(XtoE(x2)) / major_tic);
+  i = std::ceil(cal.E2Ch(XtoE(x1)) / major_tic);
+  i2 = std::floor(cal.E2Ch(XtoE(x2)) / major_tic);
 
   for (; i <= i2; ++i) {
-    x = EtoX(cal.Ch2E((double)i * major_tic));
+    x = EtoX(cal.Ch2E(i * major_tic));
     gVirtualX->DrawLine(fDrawable, fAxisGC, x, y, x, y + 9 * sgn);
 
     // TODO: handle len > 16
-    len = snprintf(tmp, 16, fmt, (double)major_tic * i);
+    len = snprintf(tmp, 16, fmt, major_tic * i);
     if (top)
       DrawString(fAxisGC, x, y - 12, tmp, len, kCenter, kBottom);
     else
@@ -528,31 +528,31 @@ void Painter::DrawXScale(Int_t x1, Int_t x2) {
   double major_tic, minor_tic;
   int n;
 
-  GetTicDistance((double)50.0 / fXZoom, major_tic, minor_tic, n);
+  GetTicDistance(50.0 / fXZoom, major_tic, minor_tic, n);
 
   // Set the required precision
   if (n < 0)
     fmt[2] = '0' - n;
 
   // Draw the minor tics
-  i = (int)std::ceil(XtoE(x1) / minor_tic);
-  i2 = (int)std::floor(XtoE(x2) / minor_tic);
+  i = std::ceil(XtoE(x1) / minor_tic);
+  i2 = std::floor(XtoE(x2) / minor_tic);
 
   for (; i <= i2; ++i) {
-    x = EtoX((double)i * minor_tic);
+    x = EtoX(i * minor_tic);
     gVirtualX->DrawLine(fDrawable, fAxisGC, x, y + 1, x, y + 5);
   }
 
   // Draw the major tics
-  i = (int)std::ceil(XtoE(x1) / major_tic);
-  i2 = (int)std::floor(XtoE(x2) / major_tic);
+  i = std::ceil(XtoE(x1) / major_tic);
+  i2 = std::floor(XtoE(x2) / major_tic);
 
   for (; i <= i2; ++i) {
-    x = EtoX((double)i * major_tic);
+    x = EtoX(i * major_tic);
     gVirtualX->DrawLine(fDrawable, fAxisGC, x, y + 1, x, y + 9);
 
     // TODO: handle len > 16
-    len = snprintf(tmp, 16, fmt, (double)major_tic * i);
+    len = snprintf(tmp, 16, fmt, major_tic * i);
     DrawString(fAxisGC, x, y + 12, tmp, len, kCenter, kTop);
   }
 }
@@ -608,27 +608,27 @@ void Painter::DrawYLinearScale() {
   double major_tic, minor_tic;
   int n;
 
-  GetTicDistance((double)50.0 / fYZoom, major_tic, minor_tic, n);
+  GetTicDistance(50.0 / fYZoom, major_tic, minor_tic, n);
 
   // Draw the minor tics
-  i = (int)std::ceil(YtoC(fYBase) / minor_tic);
-  i2 = (int)std::floor(YtoC(fYBase - fHeight) / minor_tic);
+  i = std::ceil(YtoC(fYBase) / minor_tic);
+  i2 = std::floor(YtoC(fYBase - fHeight) / minor_tic);
 
   for (; i <= i2; ++i) {
-    y = CtoY((double)i * minor_tic);
+    y = CtoY(i * minor_tic);
     gVirtualX->DrawLine(fDrawable, fAxisGC, x - 5, y, x, y);
   }
 
   // Draw the major tics
-  i = (int)std::ceil(YtoC(fYBase) / major_tic);
-  i2 = (int)std::floor(YtoC(fYBase - fHeight) / major_tic);
+  i = std::ceil(YtoC(fYBase) / major_tic);
+  i2 = std::floor(YtoC(fYBase - fHeight) / major_tic);
 
   for (; i <= i2; ++i) {
-    y = CtoY((double)i * major_tic);
+    y = CtoY(i * major_tic);
     gVirtualX->DrawLine(fDrawable, fAxisGC, x - 9, y, x, y);
 
     // TODO: handle len > 16
-    len = snprintf(tmp, 16, "%.4g", (double)major_tic * i);
+    len = snprintf(tmp, 16, "%.4g", major_tic * i);
     DrawString(fAxisGC, x - 12, y, tmp, len, kRight, kMiddle);
   }
 }
@@ -666,14 +666,14 @@ void Painter::_DrawYLogScale(int minDist, int sgn, double cMin, double cMax) {
   while ((10.0 * exp) < cMin) {
     exp *= 10.0;
   }
-  while ((double)c * exp < cMin) {
+  while (c * exp < cMin) {
     c += 1;
   }
 
   // Scale: 0, 1, 2, 3, ..., 9, 10, 20, ... without minor tics
   if (minDist >= 20) {
-    while ((double)c * exp <= cMax) {
-      DrawYMajorTic((double)sgn * c * exp);
+    while (c * exp <= cMax) {
+      DrawYMajorTic(sgn * c * exp);
 
       if (++c > 9) {
         exp *= 10.0;
@@ -688,11 +688,11 @@ void Painter::_DrawYLogScale(int minDist, int sgn, double cMin, double cMax) {
   minDist = CtoY(1.0) - CtoY(3.0);
 
   if (minDist >= 30) {
-    while ((double)c * exp <= cMax) {
+    while (c * exp <= cMax) {
       if (c == 1 || c == 3)
-        DrawYMajorTic((double)sgn * c * exp);
+        DrawYMajorTic(sgn * c * exp);
       else
-        DrawYMinorTic((double)sgn * c * exp);
+        DrawYMinorTic(sgn * c * exp);
 
       if (++c > 9) {
         exp *= 10.0;
@@ -702,21 +702,21 @@ void Painter::_DrawYLogScale(int minDist, int sgn, double cMin, double cMax) {
 
     // Label the last minor tic drawn, if appropriate
     if (c == 1)
-      DrawYMajorTic((double)sgn * 0.9 * exp, false);
+      DrawYMajorTic(sgn * 0.9 * exp, false);
     else if (c > 5)
-      DrawYMajorTic((double)sgn * (c - 1) * exp, false);
+      DrawYMajorTic(sgn * (c - 1) * exp, false);
 
     return;
   }
 
   // Scale: 0, 1, 10, 100, ... with minor tics at 3, 30, ...
   if (minDist >= 5) {
-    while ((double)c * exp <= cMax) {
+    while (c * exp <= cMax) {
       if (c == 1) {
-        DrawYMajorTic((double)sgn * c * exp);
+        DrawYMajorTic(sgn * c * exp);
         c = 3;
       } else {
-        DrawYMinorTic((double)sgn * c * exp);
+        DrawYMinorTic(sgn * c * exp);
         c = 1;
         exp *= 10.0;
       }
@@ -727,7 +727,7 @@ void Painter::_DrawYLogScale(int minDist, int sgn, double cMin, double cMax) {
 
   // Scale: 0, 1, 10, 100 without minor tics
   while (exp <= cMax) {
-    DrawYMajorTic((double)sgn * exp);
+    DrawYMajorTic(sgn * exp);
     exp *= 10.0;
   }
 }

@@ -86,8 +86,8 @@ public:
   bool GetDrawUnderflowBin() { return fDrawUnderflowBin; }
   bool GetDrawOverflowBin() { return fDrawOverflowBin; }
 
-  double GetMinCh(void) { return (double)fHist->GetXaxis()->GetXmin(); }
-  double GetMaxCh(void) { return (double)fHist->GetXaxis()->GetXmax(); }
+  double GetMinCh(void) { return fHist->GetXaxis()->GetXmin(); }
+  double GetMaxCh(void) { return fHist->GetXaxis()->GetXmax(); }
 
   Int_t ClipBin(Int_t bin) {
     if (fDrawUnderflowBin) {

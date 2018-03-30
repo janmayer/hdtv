@@ -130,7 +130,7 @@ public:
   virtual ~MFMatrix(){};
   virtual int FindCutBin(double x) // convert channel to bin number
   {
-    return (int)ceil(x - 0.5);
+    return std::ceil(x - 0.5);
   }
 
   virtual int GetCutLowBin() { return 0; }
