@@ -63,7 +63,7 @@ class View2D : public View {
     void ZoomFull(Bool_t update=true);
     void ZoomAroundCursor(double fx, double fy, Bool_t update=true);
     double Log(double x);
-    inline void SetStatusBar(TGStatusBar *sb)
+    void SetStatusBar(TGStatusBar *sb)
       { fStatusBar = sb; }
 
     void AddCut(const TCutG& cut, bool invertAxes=false);
@@ -78,32 +78,32 @@ class View2D : public View {
     Bool_t HandleButton(Event_t *ev);
     Bool_t HandleCrossing(Event_t *ev);
 
-    inline double XTileToE(int x)
+    double XTileToE(int x)
        { return ((double) x) / fPainter.GetXZoom() - fXEOffset; }
-    inline double YTileToE(int y)
+    double YTileToE(int y)
        { return ((double) y) / fPainter.GetYZoom() + fYEOffset; }
-    inline int EToXTile(double e)
+    int EToXTile(double e)
        { return (int) TMath::Ceil((e + fXEOffset) * fPainter.GetXZoom() - 0.5); }
-    inline int EToYTile(double e)
+    int EToYTile(double e)
        { return (int) TMath::Ceil((e - fYEOffset) * fPainter.GetYZoom() - 0.5); }
-    inline int XScrToTile(int x)
+    int XScrToTile(int x)
        { return x - fXTileOffset; }
-    inline int YScrToTile(int y)
+    int YScrToTile(int y)
        { return -y + fYTileOffset; }
-    inline double XScrToE(int x)
+    double XScrToE(int x)
        { return XTileToE(XScrToTile(x)); }
-    inline double YScrToE(int y)
+    double YScrToE(int y)
        { return YTileToE(YScrToTile(y)); }
-    inline int ZCtsToScr(double z)
+    int ZCtsToScr(double z)
        { return (int) (((z - fZOffset) / fZVisibleRegion) * cZColorRange); }
-    /* inline void SetXVisibleRegion(double xreg)
+    /* void SetXVisibleRegion(double xreg)
        { fXZoom = (double) fWidth / xreg; }
-    inline void SetYVisibleRegion(double yreg)
+    void SetYVisibleRegion(double yreg)
        { fYZoom = (double) fHeight / yreg; } */
     void ShiftOffset(int dX, int dY);
 
     // Calculate floor(pos / cTileSize)
-    inline int GetTileId(int pos)
+    int GetTileId(int pos)
        { return pos < 0 ? (pos / cTileSize) - 1 : pos / cTileSize; }
 
     void ZtoRGB(int z, int &r, int &g, int &b);

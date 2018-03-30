@@ -40,15 +40,15 @@ class DisplayBlock: public DisplayObj
     DisplayBlock(int col);
     ~DisplayBlock();
 	void SetCal(const Calibration& cal) { fCal = cal; Update(); };
-    inline double Ch2E(double ch) { return fCal ? fCal.Ch2E(ch) : ch; }
-    inline double E2Ch(double e) { return fCal ? fCal.E2Ch(e) : e; }
+    double Ch2E(double ch) { return fCal ? fCal.Ch2E(ch) : ch; }
+    double E2Ch(double e) { return fCal ? fCal.E2Ch(e) : e; }
 
     double GetMaxE();
     double GetMinE();
     double GetERange();
-    virtual inline double GetMinCh() { return 0.0; }
-    virtual inline double GetMaxCh() { return 0.0; }
-    inline double GetCenterCh() { return (GetMinCh() + GetMaxCh()) / 2.0; }
+    virtual double GetMinCh() { return 0.0; }
+    virtual double GetMaxCh() { return 0.0; }
+    double GetCenterCh() { return (GetMinCh() + GetMaxCh()) / 2.0; }
 
     void SetColor(int col);
 
@@ -56,7 +56,7 @@ class DisplayBlock: public DisplayObj
     double GetNorm() { return fNorm; }
 
   protected:
-    inline const TGGC *GetGC() const { return fGC; }
+    const TGGC *GetGC() const { return fGC; }
 
   private:
     void InitGC(int col);

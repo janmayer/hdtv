@@ -39,36 +39,36 @@ class DisplaySpec : public DisplayBlock {
    DisplaySpec(const TH1 *hist, int col = DEFAULT_COLOR);
 
    void SetHist(const TH1* hist);
-   inline TH1* GetHist()  { return fHist.get(); }
+   TH1* GetHist()  { return fHist.get(); }
 
    int GetRegionMaxBin(int b1, int b2);
    double GetRegionMax(int b1, int b2);
 
-   inline void SetID(int ID){
+   void SetID(int ID){
         std::ostringstream ss;
         ss <<ID; fID = ss.str();
         Update(); }
-   inline void SetID(const std::string *ID)
+   void SetID(const std::string *ID)
         { if(ID) { fID = *ID; } else { fID = ""; } Update(); }
-   inline void SetID(const char *ID)
+   void SetID(const char *ID)
         { if(ID) { fID = ID; } else { fID = ""; } Update(); }
-   inline std::string GetID() const { return fID; }
+   std::string GetID() const { return fID; }
 
    // Convenience functions to access the underlying histogram object and its x axis
-   inline double GetBinContent(Int_t bin) { return fHist->GetBinContent(bin); }
-   inline double GetBinCenter(Int_t bin) { return fHist->GetXaxis()->GetBinCenter(bin); }
-   inline Int_t FindBin(double x) { return fHist->GetXaxis()->FindBin(x); }
-   inline Int_t GetNbinsX(void) { return fHist->GetNbinsX(); }
+   double GetBinContent(Int_t bin) { return fHist->GetBinContent(bin); }
+   double GetBinCenter(Int_t bin) { return fHist->GetXaxis()->GetBinCenter(bin); }
+   Int_t FindBin(double x) { return fHist->GetXaxis()->FindBin(x); }
+   Int_t GetNbinsX(void) { return fHist->GetNbinsX(); }
 
-   inline void SetDrawUnderflowBin(bool x)  { fDrawUnderflowBin = x; }
-   inline void SetDrawOverflowBin(bool x)   { fDrawOverflowBin = x; }
-   inline bool GetDrawUnderflowBin() { return fDrawUnderflowBin; }
-   inline bool GetDrawOverflowBin()  { return fDrawOverflowBin; }
+   void SetDrawUnderflowBin(bool x)  { fDrawUnderflowBin = x; }
+   void SetDrawOverflowBin(bool x)   { fDrawOverflowBin = x; }
+   bool GetDrawUnderflowBin() { return fDrawUnderflowBin; }
+   bool GetDrawOverflowBin()  { return fDrawOverflowBin; }
 
-   inline double GetMinCh(void) { return (double) fHist->GetXaxis()->GetXmin(); }
-   inline double GetMaxCh(void) { return (double) fHist->GetXaxis()->GetXmax(); }
+   double GetMinCh(void) { return (double) fHist->GetXaxis()->GetXmin(); }
+   double GetMaxCh(void) { return (double) fHist->GetXaxis()->GetXmax(); }
 
-   inline Int_t ClipBin(Int_t bin) {
+   Int_t ClipBin(Int_t bin) {
      if(fDrawUnderflowBin) {
        if(bin < 0) bin = 0;
      } else {
@@ -84,7 +84,7 @@ class DisplaySpec : public DisplayBlock {
      return bin;
    }
 
-   inline double GetClippedBinContent(Int_t bin) {
+   double GetClippedBinContent(Int_t bin) {
      return GetBinContent(ClipBin(bin));
    }
 

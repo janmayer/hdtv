@@ -46,7 +46,7 @@ class Viewer : public TGMainFrame {
  public:
   Viewer(UInt_t w=800, UInt_t h=400, const char *title = "hdtv");
   ~Viewer();
-  inline const View1D *GetViewport(void) { return fView; } // FIXME: should be called GetView
+  const View1D *GetViewport(void) { return fView; } // FIXME: should be called GetView
   void KeyPressed()  { Emit("KeyPressed()"); }   // *SIGNAL*
 
   UInt_t fKeySym;    // Key symbol

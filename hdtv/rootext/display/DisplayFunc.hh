@@ -36,16 +36,16 @@ class DisplayFunc : public DisplayBlock {
 public:
   DisplayFunc(TF1 *func, int col = DEFAULT_COLOR);
 
-  inline TF1 *GetFunc() { return fFunc; }
-  inline double Eval(double x) { return fFunc->Eval(x); }
+  TF1 *GetFunc() { return fFunc; }
+  double Eval(double x) { return fFunc->Eval(x); }
 
-  inline double GetMinCh(void) {
+  double GetMinCh(void) {
     double min, max;
     fFunc->GetRange(min, max);
     return min;
   }
 
-  inline double GetMaxCh(void) {
+  double GetMaxCh(void) {
     double min, max;
     fFunc->GetRange(min, max);
     return max;

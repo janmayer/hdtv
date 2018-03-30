@@ -75,33 +75,33 @@ class YMarker;
 class Painter {
  public:
   Painter();
-  inline void SetXVisibleRegion(double xv)
+  void SetXVisibleRegion(double xv)
 	{ fXVisibleRegion = xv; fXZoom = fWidth / fXVisibleRegion; }
-  inline double GetXVisibleRegion() { return fXVisibleRegion; }
-  inline void SetYVisibleRegion(double yv)
+  double GetXVisibleRegion() { return fXVisibleRegion; }
+  void SetYVisibleRegion(double yv)
 	{ fYVisibleRegion = yv; UpdateYZoom(); }
-  inline double GetYVisibleRegion() { return fYVisibleRegion; }
-  inline double GetXZoom() { return fXZoom; }
-  inline double GetYZoom() { return fYZoom; }
-  inline void SetLogScale(Bool_t l)
+  double GetYVisibleRegion() { return fYVisibleRegion; }
+  double GetXZoom() { return fXZoom; }
+  double GetYZoom() { return fYZoom; }
+  void SetLogScale(Bool_t l)
 	{ fLogScale = l; UpdateYZoom(); }
-  inline Bool_t GetLogScale() { return fLogScale; }
-  inline void SetUseNorm(Bool_t n) { fUseNorm = n; }
-  inline Bool_t GetUseNorm() { return fUseNorm; }
-  inline void SetViewMode(ViewMode vm) { fViewMode = vm; }
-  inline ViewMode GetViewMode() { return fViewMode; }
-  inline void SetBasePoint(int x, int y) { fXBase = x; fYBase = y; }
-  inline Int_t GetBaseX() { return fXBase; }
+  Bool_t GetLogScale() { return fLogScale; }
+  void SetUseNorm(Bool_t n) { fUseNorm = n; }
+  Bool_t GetUseNorm() { return fUseNorm; }
+  void SetViewMode(ViewMode vm) { fViewMode = vm; }
+  ViewMode GetViewMode() { return fViewMode; }
+  void SetBasePoint(int x, int y) { fXBase = x; fYBase = y; }
+  Int_t GetBaseX() { return fXBase; }
   void SetSize(int w, int h);
-  inline Int_t GetWidth() { return fWidth; }
-  inline Int_t GetHeight() { return fHeight; }
-  inline void SetDrawable(Drawable_t drawable) { fDrawable = drawable; }
-  inline void SetAxisGC(GContext_t gc) { fAxisGC = gc; }
-  inline void SetClearGC(GContext_t gc) { fClearGC = gc; }
-  inline void SetXOffset(double offset) { fXOffset = offset; }
-  inline void SetYOffset(double offset) { fYOffset = offset; UpdateYZoom(); }
-  inline double GetXOffset() { return fXOffset; }
-  inline double GetYOffset() { return fYOffset; }
+  Int_t GetWidth() { return fWidth; }
+  Int_t GetHeight() { return fHeight; }
+  void SetDrawable(Drawable_t drawable) { fDrawable = drawable; }
+  void SetAxisGC(GContext_t gc) { fAxisGC = gc; }
+  void SetClearGC(GContext_t gc) { fClearGC = gc; }
+  void SetXOffset(double offset) { fXOffset = offset; }
+  void SetYOffset(double offset) { fYOffset = offset; UpdateYZoom(); }
+  double GetXOffset() { return fXOffset; }
+  double GetYOffset() { return fYOffset; }
 
   double GetXOffsetDelta(int x, double f);
   double GetYOffsetDelta(int y, double f);
@@ -109,22 +109,22 @@ class Painter {
   double ModLog(double x);
   double InvModLog(double x);
 
-  inline double XtoE(Int_t x)
+  double XtoE(Int_t x)
 	{ return (double) (x - fXBase) / fXZoom + fXOffset; }
-  inline int EtoX(double e)
+  int EtoX(double e)
 	{ return (int) TMath::Ceil(((e - fXOffset) * fXZoom) + fXBase - 0.5); }
-  inline double XtoE(double x)
+  double XtoE(double x)
 	{ return (x - (double) fXBase) / fXZoom + fXOffset; }
-  inline double dXtodE(int dX)
+  double dXtodE(int dX)
 	{ return ((double) dX / fXZoom); }
-  inline double dEtodX(double dE)
+  double dEtodX(double dE)
 	{ return dE * fXZoom; }
-  inline double dYtodC(int dY)
+  double dYtodC(int dY)
     { return -((double) dY / fYZoom); }   // FIXME: only works for linear Y scale
   int CtoY(double c);
   double YtoC(int y);
 
-  inline Bool_t IsWithin(Int_t x, Int_t y) {
+  Bool_t IsWithin(Int_t x, Int_t y) {
     return (x >= fXBase && x <= fXBase + fWidth && y >= fYBase - fHeight && y <= fYBase);
   }
 

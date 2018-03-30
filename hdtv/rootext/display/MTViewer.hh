@@ -42,9 +42,9 @@ class MTViewer : public TGMainFrame {
     MTViewer(UInt_t w, UInt_t h, THnSparse* mat, const char* title);
     ~MTViewer();
 
-    inline void AddCut(const TCutG& cut, bool invertAxes=false)
+    void AddCut(const TCutG& cut, bool invertAxes=false)
         { fView->AddCut(cut, invertAxes); }
-    inline void DeleteAllCuts()
+    void DeleteAllCuts()
         { fView->DeleteAllCuts(); }
 
   private:

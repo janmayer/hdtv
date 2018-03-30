@@ -45,10 +45,10 @@ class DisplayCut {
 
     const std::vector<CutPoint>& GetPoints() const
         { return fPoints; }
-    inline double BB_x1() const { return fX1; }
-    inline double BB_y1() const { return fY1; }
-    inline double BB_x2() const { return fX2; }
-    inline double BB_y2() const { return fY2; }
+    double BB_x1() const { return fX1; }
+    double BB_y1() const { return fY1; }
+    double BB_x2() const { return fX2; }
+    double BB_y2() const { return fY2; }
 
   private:
     void Init(int n, const double* x, const double* y);

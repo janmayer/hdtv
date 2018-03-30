@@ -44,25 +44,25 @@ class Marker: public DisplayObj {
     Marker(int n, double p1, double p2=0.0, int col=5);
     ~Marker();
 
-    inline TGGC *GetGC_1() { return fDash1 ? fDashedGC : fGC; }
-    inline TGGC *GetGC_2() { return fDash2 ? fDashedGC : fGC; }
-    inline int GetN() { return fN; }
-    inline double GetP1() { return fP1; }
-    inline double GetP2() { return fP2; }
+    TGGC *GetGC_1() { return fDash1 ? fDashedGC : fGC; }
+    TGGC *GetGC_2() { return fDash2 ? fDashedGC : fGC; }
+    int GetN() { return fN; }
+    double GetP1() { return fP1; }
+    double GetP2() { return fP2; }
 
-    inline void SetN(int n)
+    void SetN(int n)
       { fN = n; Update(); }
-    inline void SetPos(double p1, double p2=0.0)
+    void SetPos(double p1, double p2=0.0)
       { fP1 = p1; fP2 = p2; Update(); }
-    inline void SetDash(bool dash1, bool dash2=false)
+    void SetDash(bool dash1, bool dash2=false)
       { fDash1 = dash1; fDash2 = dash2; Update(); }
     void SetColor(int col);
-    inline void SetID(int ID){ fID = std::to_string(ID); Update(); }
-    inline void SetID(const std::string* ID)
+    void SetID(int ID){ fID = std::to_string(ID); Update(); }
+    void SetID(const std::string* ID)
         { if(ID) { fID = *ID; } else { fID = ""; } Update(); }
-    inline void SetID(const char *ID)
+    void SetID(const char *ID)
         { if(ID) { fID = ID; } else { fID = ""; } Update(); }
-    inline std::string GetID() const { return fID; }
+    std::string GetID() const { return fID; }
 
     virtual int GetZIndex() { return Z_INDEX_MARKER; }
 

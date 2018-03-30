@@ -40,9 +40,9 @@ class DisplayObj {
     DisplayObj() : fVisible(true) { }
     virtual ~DisplayObj();
 
-    inline bool IsVisible() const { return fVisible; }
-    inline void Show() { fVisible = true; Update(true); }
-    inline void Hide() { fVisible = false; Update(true); }
+    bool IsVisible() const { return fVisible; }
+    void Show() { fVisible = true; Update(true); }
+    void Hide() { fVisible = false; Update(true); }
 
     /* Management functions */
     void Draw(View1D *view);

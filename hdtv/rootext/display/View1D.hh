@@ -61,37 +61,37 @@ class View1D : public View {
   void ShiftXOffset(double f, bool update=true);
   void ShiftYOffset(double f, bool update=true);
   void SetStatusText(const char *text);
-  inline double GetXOffset() { return fXOffset; }
-  inline double GetXVisibleRegion(){ return fXVisibleRegion; }
-  inline double GetYOffset() { return fYOffset; }
-  inline double GetYVisibleRegion(){ return fYVisibleRegion; }
+  double GetXOffset() { return fXOffset; }
+  double GetXVisibleRegion(){ return fXVisibleRegion; }
+  double GetYOffset() { return fYOffset; }
+  double GetYVisibleRegion(){ return fYVisibleRegion; }
   void HandleScrollbar(Long_t parm);
   void SetXVisibleRegion(double region, bool update=true);
   void SetYVisibleRegion(double region, bool update=true);
-  inline double GetYMinVisibleRegion()
+  double GetYMinVisibleRegion()
      { return fYMinVisibleRegion; }
-  inline void SetYMinVisibleRegion(double minRegion)
+  void SetYMinVisibleRegion(double minRegion)
      { fYMinVisibleRegion = minRegion; Update(); }
   void XZoomAroundCursor(double f);
   void YZoomAroundCursor(double f);
   void ToBegin(void);
   void ShowAll(void);
   void SetViewMode(ViewMode vm);
-  inline ViewMode GetViewMode() { return fPainter.GetViewMode(); }
+  ViewMode GetViewMode() { return fPainter.GetViewMode(); }
   void SetLogScale(Bool_t l);
-  inline void ToggleLogScale() { SetLogScale(!GetLogScale()); }
-  inline Bool_t GetLogScale() { return fPainter.GetLogScale(); }
+  void ToggleLogScale() { SetLogScale(!GetLogScale()); }
+  Bool_t GetLogScale() { return fPainter.GetLogScale(); }
   void SetUseNorm(Bool_t n);
-  inline void ToggleUseNorm() { SetUseNorm(!GetUseNorm()); }
-  inline Bool_t GetUseNorm() { return fPainter.GetUseNorm(); }
-  inline void ToggleYAutoScale() { SetYAutoScale(!GetYAutoScale()); }
+  void ToggleUseNorm() { SetUseNorm(!GetUseNorm()); }
+  Bool_t GetUseNorm() { return fPainter.GetUseNorm(); }
+  void ToggleYAutoScale() { SetYAutoScale(!GetYAutoScale()); }
   void SetYAutoScale(bool as, bool update=true);
-  inline Bool_t GetYAutoScale() { return fYAutoScale; }
+  Bool_t GetYAutoScale() { return fYAutoScale; }
   void YAutoScaleOnce(bool update=true);
-  inline void SetCalibration(const Calibration &cal) { fCurrentCal = cal; }
+  void SetCalibration(const Calibration &cal) { fCurrentCal = cal; }
   void Layout();
   void UpdateScrollbarRange();
-  inline void SetScrollbar(TGHScrollBar *sb) { fScrollbar = sb; }
+  void SetScrollbar(TGHScrollBar *sb) { fScrollbar = sb; }
   void SetStatusBar(TGStatusBar *sb);
   double GetCursorX();
   double GetCursorY();

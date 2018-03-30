@@ -83,29 +83,29 @@ public:
     void SetCal(const std::vector<double> &cal);
     void SetCal(const TArrayD &cal);
 
-    inline bool operator==(const Calibration &rhs)
+    bool operator==(const Calibration &rhs)
     {
         return this->fCal == rhs.fCal;
     }
 
-    inline bool operator!=(const Calibration &rhs)
+    bool operator!=(const Calibration &rhs)
     {
         return !(*this == rhs);
     }
 
-    inline operator bool() const
+    operator bool() const
     {
         return !IsTrivial();
     }
-    inline bool IsTrivial() const
+    bool IsTrivial() const
     {
         return fCal.empty();
     }
-    inline const std::vector<double> &GetCoeffs() const
+    const std::vector<double> &GetCoeffs() const
     {
         return fCal;
     }
-    inline int GetDegree() const
+    int GetDegree() const
     {
         return fCal.size() - 1;
     }
