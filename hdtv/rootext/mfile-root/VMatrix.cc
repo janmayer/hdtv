@@ -24,8 +24,7 @@
 
 #include <TArrayD.h>
 
-void VMatrix::AddRegion(std::list<int> &reglist, int l1, int l2)
-{
+void VMatrix::AddRegion(std::list<int> &reglist, int l1, int l2) {
   std::list<int>::iterator iter, next;
   bool inside = false;
   int min, max;
@@ -34,47 +33,47 @@ void VMatrix::AddRegion(std::list<int> &reglist, int l1, int l2)
   max = TMath::Max(l1, l2);
 
   // Perform clipping
-  if(max < GetCutLowBin() || min > GetCutHighBin())
+  if (max < GetCutLowBin() || min > GetCutHighBin())
     return;
   min = TMath::Max(min, GetCutLowBin());
   max = TMath::Min(max, GetCutHighBin());
 
   iter = reglist.begin();
-  while(iter != reglist.end() && *iter < min) {
+  while (iter != reglist.end() && *iter < min) {
     inside = !inside;
     iter++;
   }
 
-  if(!inside) {
+  if (!inside) {
     iter = reglist.insert(iter, min);
     iter++;
   }
 
-  while(iter != reglist.end() && *iter < max) {
+  while (iter != reglist.end() && *iter < max) {
     inside = !inside;
-    next = iter; next++;
+    next = iter;
+    next++;
     reglist.erase(iter);
     iter = next;
   }
 
-  if(!inside) {
+  if (!inside) {
     reglist.insert(iter, max);
   }
 }
 
-class ReadException { };
+class ReadException {};
 
-TH1 *VMatrix::Cut(const char *histname, const char *histtitle)
-{
-  int l, l1, l2;   // lines
+TH1 *VMatrix::Cut(const char *histname, const char *histtitle) {
+  int l, l1, l2; // lines
   std::list<int>::iterator iter;
-  int nCut=0, nBg=0;   // total number of cut and background lines
+  int nCut = 0, nBg = 0; // total number of cut and background lines
   int pbins = GetProjXbins();
 
-  if(Failed())
+  if (Failed())
     return NULL;
 
-  if(fCutRegions.empty())
+  if (fCutRegions.empty())
     return NULL;
 
   // Sum of cut lines
@@ -88,10 +87,10 @@ TH1 *VMatrix::Cut(const char *histname, const char *histtitle)
   try {
     // Add up all cut lines
     iter = fCutRegions.begin();
-    while(iter != fCutRegions.end()) {
+    while (iter != fCutRegions.end()) {
       l1 = *iter++;
       l2 = *iter++;
-      for(l=l1; l<=l2; l++) {
+      for (l = l1; l <= l2; l++) {
         AddLine(sum, l);
         nCut++;
       }
@@ -99,75 +98,66 @@ TH1 *VMatrix::Cut(const char *histname, const char *histtitle)
 
     // Add up all background lines
     iter = fBgRegions.begin();
-    while(iter != fBgRegions.end()) {
+    while (iter != fBgRegions.end()) {
       l1 = *iter++;
       l2 = *iter++;
-      for(l=l1; l<=l2; l++) {
+      for (l = l1; l <= l2; l++) {
         AddLine(bg, l);
         nBg++;
       }
     }
-  }
-  catch(ReadException&) {
+  } catch (ReadException &) {
     return NULL;
   }
 
-  double bgFac = (nBg == 0) ? 0.0 : (double) nCut / nBg;
-  TH1D *hist = new TH1D(histname, histtitle, GetProjXbins(), GetProjXmin(), GetProjXmax());
-  //cols, -0.5, (double) cols - 0.5);
-  for(int c=0; c<pbins; c++) {
-    hist->SetBinContent(c+1, sum[c] - bg[c] * bgFac);
+  double bgFac = (nBg == 0) ? 0.0 : (double)nCut / nBg;
+  TH1D *hist = new TH1D(histname, histtitle, GetProjXbins(), GetProjXmin(),
+                        GetProjXmax());
+  // cols, -0.5, (double) cols - 0.5);
+  for (int c = 0; c < pbins; c++) {
+    hist->SetBinContent(c + 1, sum[c] - bg[c] * bgFac);
   }
 
   return hist;
 }
 
-RMatrix::RMatrix(TH2* hist, ProjAxis_t paxis)
-  : VMatrix(),
-    fHist(hist),
-    fProjAxis(paxis)
-{ }
+RMatrix::RMatrix(TH2 *hist, ProjAxis_t paxis)
+    : VMatrix(), fHist(hist), fProjAxis(paxis) {}
 
-void RMatrix::AddLine(TArrayD& dst, int l)
-{
-  if(fProjAxis == PROJ_X) {
+void RMatrix::AddLine(TArrayD &dst, int l) {
+  if (fProjAxis == PROJ_X) {
     int cols = fHist->GetNbinsX();
 
-    for(int c=1; c<=cols; ++c) {
+    for (int c = 1; c <= cols; ++c) {
       // Bad for speed; overloaded operator[] checks array bounds
-      dst[c-1] += fHist->GetBinContent(c, l);
+      dst[c - 1] += fHist->GetBinContent(c, l);
     }
   } else {
     int cols = fHist->GetNbinsY();
 
-    for(int c=1; c<=cols; ++c) {
+    for (int c = 1; c <= cols; ++c) {
       // Bad for speed; overloaded operator[] checks array bounds
-      dst[c-1] += fHist->GetBinContent(l, c);
+      dst[c - 1] += fHist->GetBinContent(l, c);
     }
   }
 }
 
 MFMatrix::MFMatrix(MFileHist *mat, unsigned int level)
- : VMatrix(),
-   fMatrix(mat),
-   fLevel(level),
-   fBuf()
-{
+    : VMatrix(), fMatrix(mat), fLevel(level), fBuf() {
   // Sanity checks
-  if(fLevel < 0 || fLevel >= fMatrix->GetNLevels())
+  if (fLevel < 0 || fLevel >= fMatrix->GetNLevels())
     fFail = true;
   else
     fBuf.Set(fMatrix->GetNColumns());
 }
 
-void MFMatrix::AddLine(TArrayD& dst, int l)
-{
-  if(!fMatrix->FillBuf1D(fBuf.GetArray(), fLevel, l))
+void MFMatrix::AddLine(TArrayD &dst, int l) {
+  if (!fMatrix->FillBuf1D(fBuf.GetArray(), fLevel, l))
     throw ReadException();
 
   int cols = fMatrix->GetNColumns();
 
-  for(int c=0; c<cols; ++c) {
+  for (int c = 0; c < cols; ++c) {
     // Bad for speed; overloaded operator[] checks array bounds
     dst[c] += fBuf[c];
   }

@@ -39,61 +39,64 @@ class TH2I;
 
 //! Wrapper around the mfile library for reading spectra
 class MFileHist {
-  public:
-    MFileHist();
-    ~MFileHist();
+public:
+  MFileHist();
+  ~MFileHist();
 
-    int Open(char *fname, char *fmt=NULL);
-    int Close();
+  int Open(char *fname, char *fmt = NULL);
+  int Close();
 
-    int GetFileType()   { return fInfo ? fInfo->filetype : MAT_INVALID; }
-    u_int GetNLevels()  { return fInfo ? fInfo->levels : 0; }
-    u_int GetNLines()   { return fInfo ? fInfo->lines : 0; }
-    u_int GetNColumns() { return fInfo ? fInfo->columns : 0; }
+  int GetFileType() { return fInfo ? fInfo->filetype : MAT_INVALID; }
+  u_int GetNLevels() { return fInfo ? fInfo->levels : 0; }
+  u_int GetNLines() { return fInfo ? fInfo->lines : 0; }
+  u_int GetNColumns() { return fInfo ? fInfo->columns : 0; }
 
-    double *FillBuf1D(double *buf, unsigned int level, unsigned int line);
+  double *FillBuf1D(double *buf, unsigned int level, unsigned int line);
 
-    template <class histType>
-    histType *ToTH1(const char *name, const char *title, unsigned int level, unsigned int line);
+  template <class histType>
+  histType *ToTH1(const char *name, const char *title, unsigned int level,
+                  unsigned int line);
 
-    TH1 *FillTH1(TH1 *hist, unsigned int level, unsigned int line);
+  TH1 *FillTH1(TH1 *hist, unsigned int level, unsigned int line);
 
-    TH1D *ToTH1D(const char *name, const char *title, unsigned int level, unsigned int line);
-	TH1I *ToTH1I(const char *name, const char *title, unsigned int level, unsigned int line);
+  TH1D *ToTH1D(const char *name, const char *title, unsigned int level,
+               unsigned int line);
+  TH1I *ToTH1I(const char *name, const char *title, unsigned int level,
+               unsigned int line);
 
-	template <class histType>
-    histType *ToTH2(const char *name, const char *title, unsigned int level);
+  template <class histType>
+  histType *ToTH2(const char *name, const char *title, unsigned int level);
 
-    TH2 *FillTH2(TH2 *hist, unsigned int level);
+  TH2 *FillTH2(TH2 *hist, unsigned int level);
 
-    TH2D *ToTH2D(const char *name, const char *title, unsigned int level);
-	TH2I *ToTH2I(const char *name, const char *title, unsigned int level);
+  TH2D *ToTH2D(const char *name, const char *title, unsigned int level);
+  TH2I *ToTH2I(const char *name, const char *title, unsigned int level);
 
-	static int WriteTH1(const TH1 *hist, char *fname, char *fmt);
-	static int WriteTH2(const TH2 *hist, char *fname, char *fmt);
+  static int WriteTH1(const TH1 *hist, char *fname, char *fmt);
+  static int WriteTH2(const TH2 *hist, char *fname, char *fmt);
 
-	static const char *GetErrorMsg(int error_nr);
-	const char *GetErrorMsg() { return GetErrorMsg(fErrno); }
+  static const char *GetErrorMsg(int error_nr);
+  const char *GetErrorMsg() { return GetErrorMsg(fErrno); }
 
-	static const int ERR_SUCCESS;
-	static const int ERR_READ_OPEN;
-	static const int ERR_READ_INFO;
-	static const int ERR_READ_NOTOPEN;
-	static const int ERR_READ_BADIDX;
-	static const int ERR_READ_GET;
-	static const int ERR_READ_CLOSE;
-	static const int ERR_WRITE_OPEN;
-	static const int ERR_WRITE_INFO;
-	static const int ERR_WRITE_PUT;
-	static const int ERR_WRITE_CLOSE;
-	static const int ERR_INVALID_FORMAT;
-	static const int ERR_UNKNOWN;
+  static const int ERR_SUCCESS;
+  static const int ERR_READ_OPEN;
+  static const int ERR_READ_INFO;
+  static const int ERR_READ_NOTOPEN;
+  static const int ERR_READ_BADIDX;
+  static const int ERR_READ_GET;
+  static const int ERR_READ_CLOSE;
+  static const int ERR_WRITE_OPEN;
+  static const int ERR_WRITE_INFO;
+  static const int ERR_WRITE_PUT;
+  static const int ERR_WRITE_CLOSE;
+  static const int ERR_INVALID_FORMAT;
+  static const int ERR_UNKNOWN;
 
-  private:
+private:
 #ifndef __CINT__
-    MFILE *fHist;
-    minfo *fInfo;
-    int fErrno;
+  MFILE *fHist;
+  minfo *fInfo;
+  int fErrno;
 #endif
 };
 

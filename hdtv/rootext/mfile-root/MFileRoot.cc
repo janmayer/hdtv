@@ -23,21 +23,19 @@
 #include "MFileRoot.hh"
 #include <iostream>
 
-MFile::MFile(const char* fname, const char* mode)
-    : fZombie(false), fFile(0)
-{
-    if(fname) {
-        fFile = mopen((char*)fname, (char*)mode);
-        if(fFile == 0) {
-            fZombie = true;
-        }
+MFile::MFile(const char *fname, const char *mode) : fZombie(false), fFile(0) {
+  if (fname) {
+    fFile = mopen((char *)fname, (char *)mode);
+    if (fFile == 0) {
+      fZombie = true;
     }
+  }
 }
 
-MFile::~MFile()
-{
-    if(IsZombie() || IsNull()) return;
+MFile::~MFile() {
+  if (IsZombie() || IsNull())
+    return;
 
-    if(mclose(fFile) != 0)
-        std::cerr << "WARNING: mclose() failed" << std::endl;
+  if (mclose(fFile) != 0)
+    std::cerr << "WARNING: mclose() failed" << std::endl;
 }
