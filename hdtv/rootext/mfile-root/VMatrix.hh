@@ -55,8 +55,8 @@ class VMatrix {
     VMatrix() : fFail(false) { };
     virtual ~VMatrix() {};
 
-    inline void AddCutRegion(int c1, int c2) { AddRegion(fCutRegions, c1, c2); }
-    inline void AddBgRegion(int c1, int c2) { AddRegion(fBgRegions, c1, c2); }
+    void AddCutRegion(int c1, int c2) { AddRegion(fCutRegions, c1, c2); }
+    void AddBgRegion(int c1, int c2) { AddRegion(fBgRegions, c1, c2); }
     void ResetRegions() { fCutRegions.clear(); fBgRegions.clear(); }
 
     TH1 *Cut(const char *histname, const char *histtitle);
@@ -73,7 +73,7 @@ class VMatrix {
 
     virtual void AddLine(TArrayD& dst, int l) = 0;
 
-    inline bool Failed() { return fFail; }
+    bool Failed() { return fFail; }
 
   private:
     void AddRegion(std::list<int> &reglist, int c1, int c2);

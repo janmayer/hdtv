@@ -46,10 +46,10 @@ class MFileHist {
     int Open(char *fname, char *fmt=NULL);
     int Close();
 
-    inline int GetFileType()   { return fInfo ? fInfo->filetype : MAT_INVALID; }
-    inline u_int GetNLevels()  { return fInfo ? fInfo->levels : 0; }
-    inline u_int GetNLines()   { return fInfo ? fInfo->lines : 0; }
-    inline u_int GetNColumns() { return fInfo ? fInfo->columns : 0; }
+    int GetFileType()   { return fInfo ? fInfo->filetype : MAT_INVALID; }
+    u_int GetNLevels()  { return fInfo ? fInfo->levels : 0; }
+    u_int GetNLines()   { return fInfo ? fInfo->lines : 0; }
+    u_int GetNColumns() { return fInfo ? fInfo->columns : 0; }
 
     double *FillBuf1D(double *buf, unsigned int level, unsigned int line);
 
@@ -73,7 +73,7 @@ class MFileHist {
 	static int WriteTH2(const TH2 *hist, char *fname, char *fmt);
 
 	static const char *GetErrorMsg(int error_nr);
-	inline const char *GetErrorMsg() { return GetErrorMsg(fErrno); }
+	const char *GetErrorMsg() { return GetErrorMsg(fErrno); }
 
 	static const int ERR_SUCCESS;
 	static const int ERR_READ_OPEN;

@@ -30,10 +30,10 @@ class MFile {
     MFile(const char* fname = 0, const char* mode = "r");
     ~MFile();
 
-    inline bool IsZombie()  { return fZombie; }
-    inline bool IsNull()    { return fFile == 0; }
-    inline MFILE* File() { return fFile; }
-    inline operator MFILE* () { return fFile; }
+    bool IsZombie()  { return fZombie; }
+    bool IsNull()    { return fFile == 0; }
+    MFILE* File() { return fFile; }
+    operator MFILE* () { return fFile; }
 
   private:
     bool fZombie;
