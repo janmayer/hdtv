@@ -30,30 +30,33 @@ namespace Fit {
 
 //! Description of a fit parameter
 class Param {
-  public:
-    static Param Fixed(double val) { return Param(-1, val, false, true, true); }
-    static Param Fixed()  { return Param(-1, 0.0, false, false, true); }
-    static Param Free(int id) { return Param(id, 0.0, true, false, true); }
-    static Param Free(int id, double ival) { return Param(id, ival, true, true, true); }
-    static Param Empty() { return Param(-1, 0.0, false, false, false); }
-    Param() { }
+public:
+  Param() {}
 
-    bool IsFree() const { return fFree; }
-    bool HasIVal() const { return fHasIVal; }
-    operator bool() const { return fValid; }
-    double Value(double *p) const { return fFree ? p[fId] : fValue; }
-    double Value(TF1 *func) const;
-    double Error(TF1 *func) const;
-    int _Id() const { return fId; }
-    double _Value() const { return fValue; }
+  static Param Fixed(double val) { return Param(-1, val, false, true, true); }
+  static Param Fixed() { return Param(-1, 0.0, false, false, true); }
+  static Param Free(int id) { return Param(id, 0.0, true, false, true); }
+  static Param Free(int id, double ival) {
+    return Param(id, ival, true, true, true);
+  }
+  static Param Empty() { return Param(-1, 0.0, false, false, false); }
 
-    void SetValue(double val) { fValue = val; }
+  bool IsFree() const { return fFree; }
+  bool HasIVal() const { return fHasIVal; }
+  operator bool() const { return fValid; }
+  double Value(double *p) const { return fFree ? p[fId] : fValue; }
+  void SetValue(double val) { fValue = val; }
 
-  private:
-    Param(int id, double value, bool free, bool hasIVal, bool valid);
-    bool fFree, fHasIVal, fValid;
-    int fId;
-    double fValue;
+  double Value(TF1 *func) const;
+  double Error(TF1 *func) const;
+  int _Id() const { return fId; }
+  double _Value() const { return fValue; }
+
+private:
+  Param(int id, double value, bool free, bool hasIVal, bool valid);
+  bool fFree, fHasIVal, fValid;
+  int fId;
+  double fValue;
 };
 
 } // end namespace Fit

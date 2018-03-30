@@ -29,8 +29,7 @@
 namespace HDTV {
 namespace Fit {
 
-Param::Param(int id, double value, bool free, bool hasIVal, bool valid)
-{
+Param::Param(int id, double value, bool free, bool hasIVal, bool valid) {
   fId = id;
   fValue = value;
   fFree = free;
@@ -38,9 +37,8 @@ Param::Param(int id, double value, bool free, bool hasIVal, bool valid)
   fValid = valid;
 }
 
-double Param::Value(TF1 *func) const
-{
-  if(fFree) {
+double Param::Value(TF1 *func) const {
+  if (fFree) {
     return func ? func->GetParameter(fId)
                 : std::numeric_limits<double>::quiet_NaN();
   } else {
@@ -48,10 +46,9 @@ double Param::Value(TF1 *func) const
   }
 }
 
-double Param::Error(TF1 *func) const
-{
+double Param::Error(TF1 *func) const {
   // Fixed parameters do not have a fit error
-  if(fFree) {
+  if (fFree) {
     return func ? func->GetParError(fId)
                 : std::numeric_limits<double>::quiet_NaN();
   } else {

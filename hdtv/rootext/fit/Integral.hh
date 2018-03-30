@@ -30,152 +30,200 @@
 namespace HDTV {
 namespace Fit {
 
-//! Helper class wrapping a cached double
-class Cached {
-  public:
-    Cached() { fHasCached = false; }
-    operator bool() const { return fHasCached; }
-    double operator()() const { return fCachedValue; }
-    double operator()(double x) { fHasCached = true; fCachedValue = x; return x; }
+//! Helper class template wrapping a cached value
+template<typename T> class CachedValue {
+  T value_;
+  bool valid_;
+public:
+  CachedValue() : valid_{false} {}
+  CachedValue(const T &value) : value_{value}, valid_{true} {}
 
-  private:
-    bool fHasCached;
-    double fCachedValue;
+  operator bool() const { return valid_; }
+
+  CachedValue<T> &operator =(const T &value) {
+    value_ = value;
+    valid_ = true;
+    return value;
+  }
+
+  CachedValue<T> &operator =(T &&value) {
+    value_ = std::move(value);
+    valid_ = true;
+    return *this;
+  }
+
+  T &get() {
+    if (!valid_) {
+      throw std::runtime_error("trying to access uncached value");
+    }
+    return value_;
+  }
+
+  const T &get() const {
+    if (!valid_) {
+      throw std::runtime_error("trying to access uncached value");
+    }
+    return value_;
+  }
+
+  template <typename CalcFn> T &get_or_eval(CalcFn calc) {
+    if (!valid_) {
+      value_ = calc();
+      valid_ = true;
+    }
+    return value_;
+  }
 };
 
-//! Helper class to calculate various statistical moments (integral, mean, ...) of a histogram
+//! Helper class to calculate various statistical moments (integral, mean, ...)
+//! of a histogram
 class Integral {
-  public:
-    //! Constructor
-    /*!
-      \param b1 First bin in sum (inclusive)
-      \param b2 Last bin in sum (inclusive)
-    */
-    Integral(int b1, int b2)
-     : fB1(b1), fB2(b2) { }
-    virtual ~Integral()  { }
+public:
+  /*! Constructor
+   * \param b1 First bin in sum (inclusive)
+   * \param b2 Last bin in sum (inclusive)
+   */
+  Integral(int b1, int b2) : fB1(b1), fB2(b2) {}
+  virtual ~Integral() {}
 
-    //! Cached version of CalcIntegral()
-    double GetIntegral()
-      { return fCIntegral ? fCIntegral() : fCIntegral(CalcIntegral()); }
+  //! Cached version of CalcIntegral()
+  double GetIntegral() {
+    return fCIntegral.get_or_eval([&]() { return CalcIntegral(); });
+  }
 
-    //! Cached version of CalcIntegralError()
-    double GetIntegralError()
-      { return fCIntegralError ? fCIntegralError() : fCIntegralError(CalcIntegralError()); }
+  //! Cached version of CalcIntegralError()
+  double GetIntegralError() {
+    return fCIntegralError.get_or_eval([&]() { return CalcIntegralError(); });
+  }
 
-    //! Cached version of CalcMean()
-    double GetMean()
-      { return fCMean ? fCMean() : fCMean(CalcMean()); }
+  //! Cached version of CalcMean()
+  double GetMean() {
+    return fCMean.get_or_eval([&]() { return CalcMean(); });
+  }
 
-    //! Cached version of CalcMeanError()
-    double GetMeanError()
-      { return fCMeanError ? fCMeanError() : fCMeanError(CalcMeanError()); }
+  //! Cached version of CalcMeanError()
+  double GetMeanError() {
+    return fCMeanError.get_or_eval([&]() { return CalcMeanError(); });
+  }
 
-    //! Cached version of CalcVariance()
-    double GetVariance()
-      { return fCVariance ? fCVariance() : fCVariance(CalcVariance()); }
+  //! Cached version of CalcVariance()
+  double GetVariance() {
+    return fCVariance.get_or_eval([&]() { return CalcVariance(); });
+  }
 
-    //! Cached version of CalcVarianceError()
-    double GetVarianceError()
-      { return fCVarianceError ? fCVarianceError() : fCVarianceError(CalcVarianceError()); }
+  //! Cached version of CalcVarianceError()
+  double GetVarianceError() {
+    return fCVarianceError.get_or_eval([&]() { return CalcVarianceError(); });
+  }
 
-    //! Cached version of CalcRawSkewness()
-    double GetRawSkewness()
-      { return fCRawSkewness ? fCRawSkewness() : fCRawSkewness(CalcRawSkewness()); }
+  //! Cached version of CalcRawSkewness()
+  double GetRawSkewness() {
+    return fCRawSkewness.get_or_eval([&]() { return CalcRawSkewness(); });
+  }
 
-    //! Cached version of CalcRawSkewnessError()
-    double GetRawSkewnessError()
-      { return fCRawSkewnessError ? fCRawSkewnessError() : fCRawSkewnessError(CalcRawSkewnessError()); }
+  //! Cached version of CalcRawSkewnessError()
+  double GetRawSkewnessError() {
+    return fCRawSkewnessError.get_or_eval(
+        [&]() { return CalcRawSkewnessError(); });
+  }
 
-    //! Cached version of CalcSkewness()
-    double GetSkewness()
-      { return fCSkewness ? fCSkewness() : fCSkewness(CalcSkewness()); }
+  //! Cached version of CalcSkewness()
+  double GetSkewness() {
+    return fCSkewness.get_or_eval([&]() { return CalcSkewness(); });
+  }
 
-    //! Cached version of CalcSkewnessError()
-    double GetSkewnessError()
-      { return fCSkewnessError ? fCSkewnessError() : fCSkewnessError(CalcSkewnessError()); }
+  //! Cached version of CalcSkewnessError()
+  double GetSkewnessError() {
+    return fCSkewnessError.get_or_eval([&]() { return CalcSkewnessError(); });
+  }
 
-    double GetStdDev();
-    double GetStdDevError();
-    double GetWidth();
-    double GetWidthError();
+  double GetStdDev();
+  double GetStdDevError();
+  double GetWidth();
+  double GetWidthError();
 
-  protected:
-    double CalcIntegral();
-    double CalcIntegralError();
-    double CalcMean();
-    double CalcMeanError();
-    double CalcVariance();
-    double CalcVarianceError();
-    double CalcRawSkewness();
-    double CalcRawSkewnessError();
-    double CalcSkewness();
-    double CalcSkewnessError();
+protected:
+  double CalcIntegral();
+  double CalcIntegralError();
+  double CalcMean();
+  double CalcMeanError();
+  double CalcVariance();
+  double CalcVarianceError();
+  double CalcRawSkewness();
+  double CalcRawSkewnessError();
+  double CalcSkewness();
+  double CalcSkewnessError();
 
-    //! Get content of bin
-    virtual double GetBinContent(int bin) = 0;
-    //! Get squared error of bin
-    virtual double GetBinError2(int bin) = 0;
-    //! Get center position of bin
-    virtual double GetBinCenter(int bin) = 0;
+  //! Get content of bin
+  virtual double GetBinContent(int bin) = 0;
+  //! Get squared error of bin
+  virtual double GetBinError2(int bin) = 0;
+  //! Get center position of bin
+  virtual double GetBinCenter(int bin) = 0;
 
-    int fB1, fB2;
+  int fB1, fB2;
 
-    Cached fCIntegral, fCIntegralError;
-    Cached fCMean, fCMeanError;
-    Cached fCVariance, fCVarianceError;
-    Cached fCRawSkewness, fCRawSkewnessError;
-    Cached fCSkewness, fCSkewnessError;
+  CachedValue<double> fCIntegral, fCIntegralError;
+  CachedValue<double> fCMean, fCMeanError;
+  CachedValue<double> fCVariance, fCVarianceError;
+  CachedValue<double> fCRawSkewness, fCRawSkewnessError;
+  CachedValue<double> fCSkewness, fCSkewnessError;
 
-    // ClassDef(HDTV::Fit::Integral, 0)
+  // ClassDef(HDTV::Fit::Integral, 0)
 };
 
 //! Calculate moments of a TH1 histogram
-class TH1Integral: public Integral {
-  public:
-    TH1Integral(TH1 *hist, double r1, double r2);
+class TH1Integral : public Integral {
+public:
+  TH1Integral(TH1 *hist, double r1, double r2);
 
-  protected:
-    virtual double GetBinContent(int bin)
-      { return fHist->GetBinContent(bin); }
-    virtual double GetBinError2(int bin)
-      { double e = fHist->GetBinError(bin); return e*e; }
-    virtual double GetBinCenter(int bin)
-      { return fHist->GetBinCenter(bin); }
+protected:
+  virtual double GetBinContent(int bin) { return fHist->GetBinContent(bin); }
 
-    const TH1* fHist;
+  virtual double GetBinError2(int bin) {
+    double e = fHist->GetBinError(bin);
+    return e * e;
+  }
+
+  virtual double GetBinCenter(int bin) { return fHist->GetBinCenter(bin); }
+
+  const TH1 *fHist;
 };
 
 //! Calculate moments of a background function (using a user-specified binning)
-class BgIntegral: public Integral {
-  public:
-    BgIntegral(const Background* background, double r1, double r2, TAxis* axis);
+class BgIntegral : public Integral {
+public:
+  BgIntegral(const Background *background, double r1, double r2, TAxis *axis);
 
-  protected:
-    virtual double GetBinContent(int bin)
-      { return fBackground->Eval(GetBinCenter(bin)); }
-    virtual double GetBinError2(int bin)
-      { double e = fBackground->EvalError(GetBinCenter(bin)); return e*e; }
-    virtual double GetBinCenter(int bin)
-      { return fAxis->GetBinCenter(bin); }
+protected:
+  virtual double GetBinContent(int bin) {
+    return fBackground->Eval(GetBinCenter(bin));
+  }
 
-    const Background* fBackground;
-    const TAxis* fAxis;
+  virtual double GetBinError2(int bin) {
+    double e = fBackground->EvalError(GetBinCenter(bin));
+    return e * e;
+  }
+
+  virtual double GetBinCenter(int bin) { return fAxis->GetBinCenter(bin); }
+
+  const Background *fBackground;
+  const TAxis *fAxis;
 };
 
 //! Calculate moments of a background-substracted TH1 histogram
-class TH1BgsubIntegral: public Integral {
-  public:
-    TH1BgsubIntegral(TH1* hist, const Background* background, double r1, double r2);
+class TH1BgsubIntegral : public Integral {
+public:
+  TH1BgsubIntegral(TH1 *hist, const Background *background, double r1,
+                   double r2);
 
-  protected:
-    virtual double GetBinContent(int bin);
-    virtual double GetBinError2(int bin);
-    virtual double GetBinCenter(int bin)
-      { return fHist->GetBinCenter(bin); }
+protected:
+  virtual double GetBinContent(int bin);
+  virtual double GetBinError2(int bin);
+  virtual double GetBinCenter(int bin) { return fHist->GetBinCenter(bin); }
 
-    const TH1* fHist;
-    const Background* fBackground;
+  const TH1 *fHist;
+  const Background *fBackground;
 };
 
 } // end namespace Fit

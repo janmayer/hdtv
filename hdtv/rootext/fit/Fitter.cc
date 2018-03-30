@@ -29,42 +29,33 @@ namespace HDTV {
 namespace Fit {
 
 Fitter::Fitter(double r1, double r2)
- : fNumParams(0), fFinal(false),
-   fMin(TMath::Min(r1, r2)), fMax(TMath::Max(r1, r2)),
-   fNumPeaks(0), fIntBgDeg(-1),
-   fChisquare(std::numeric_limits<double>::quiet_NaN())
-{}
+    : fNumParams(0), fFinal(false), fMin(TMath::Min(r1, r2)),
+      fMax(TMath::Max(r1, r2)), fNumPeaks(0), fIntBgDeg(-1),
+      fChisquare(std::numeric_limits<double>::quiet_NaN()) {}
 
-Param Fitter::AllocParam()
-{
-  return Param::Free(fNumParams++);
-}
+Param Fitter::AllocParam() { return Param::Free(fNumParams++); }
 
-Param Fitter::AllocParam(double ival)
-{
+Param Fitter::AllocParam(double ival) {
   return Param::Free(fNumParams++, ival);
 }
 
-void Fitter::SetParameter(TF1& func, Param& param, double ival)
-{
-  if(!param.HasIVal())
+void Fitter::SetParameter(TF1 &func, Param &param, double ival) {
+  if (!param.HasIVal())
     param.SetValue(ival);
 
-  if(param.IsFree())
+  if (param.IsFree())
     func.SetParameter(param._Id(), param._Value());
 }
 
-double Fitter::GetIntBgCoeff(int i) const
-{
-  if(fSumFunc.get() == 0 || i < 0 || i > fIntBgDeg)
+double Fitter::GetIntBgCoeff(int i) const {
+  if (fSumFunc.get() == 0 || i < 0 || i > fIntBgDeg)
     return std::numeric_limits<double>::quiet_NaN();
   else
     return fSumFunc->GetParameter(fNumParams - fIntBgDeg - 1 + i);
 }
 
-double Fitter::GetIntBgCoeffError(int i) const
-{
-  if(fSumFunc.get() == 0 || i < 0 || i > fIntBgDeg)
+double Fitter::GetIntBgCoeffError(int i) const {
+  if (fSumFunc.get() == 0 || i < 0 || i > fIntBgDeg)
     return std::numeric_limits<double>::quiet_NaN();
   else
     return fSumFunc->GetParError(fNumParams - fIntBgDeg - 1 + i);

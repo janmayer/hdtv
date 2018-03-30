@@ -33,31 +33,32 @@ namespace Fit {
 
 //! Common base class for all different (foreground) fitters
 class Fitter {
-  public:
-    Fitter(double r1, double r2);
-    Param AllocParam();
-    Param AllocParam(double ival);
-    bool IsFinal() const { return fFinal; }
+public:
+  Fitter(double r1, double r2);
+  Param AllocParam();
+  Param AllocParam(double ival);
 
-    double GetIntBgCoeff(int i) const;
-    double GetIntBgCoeffError(int i) const;
-    int GetIntBgDegree() const { return fIntBgDeg; }
+  bool IsFinal() const { return fFinal; }
 
-    double GetChisquare() const { return fChisquare; }
+  double GetIntBgCoeff(int i) const;
+  double GetIntBgCoeffError(int i) const;
 
-  protected:
-    int fNumParams;
-    bool fFinal;
+  int GetIntBgDegree() const { return fIntBgDeg; }
+  double GetChisquare() const { return fChisquare; }
 
-    double fMin, fMax;
-    int fNumPeaks;
-    int fIntBgDeg;
-    std::unique_ptr<Background> fBackground;
-    std::unique_ptr<TF1> fSumFunc;
-    std::unique_ptr<TF1> fBgFunc;
-    double fChisquare;
+protected:
+  int fNumParams;
+  bool fFinal;
 
-    void SetParameter(TF1& func, Param& param, double ival=0.0);
+  double fMin, fMax;
+  int fNumPeaks;
+  int fIntBgDeg;
+  std::unique_ptr<Background> fBackground;
+  std::unique_ptr<TF1> fSumFunc;
+  std::unique_ptr<TF1> fBgFunc;
+  double fChisquare;
+
+  void SetParameter(TF1 &func, Param &param, double ival = 0.0);
 };
 
 } // end namespace Fit

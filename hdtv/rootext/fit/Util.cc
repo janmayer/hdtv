@@ -31,27 +31,30 @@ namespace HDTV {
 
 static int num = 0;
 
-std::string GetFuncUniqueName(const char *prefix, void *ptr)
-{
-    // Constructs a unique name for a function by concatenation of an instance-unique prefix,
-    // a textual representation of this, and an increasing number.
-    // FIXME: not thread safe. The whole requirement of unique names is extremely ugly anyway.
+std::string GetFuncUniqueName(const char *prefix, void *ptr) {
+  // Constructs a unique name for a function by concatenation of an
+  // instance-unique prefix,
+  // a textual representation of this, and an increasing number.
+  // FIXME: not thread safe. The whole requirement of unique names is extremely
+  // ugly anyway.
 
-    std::ostringstream name;
-    name << prefix << "_" << ptr << "_" << ++num;
+  std::ostringstream name;
+  name << prefix << "_" << ptr << "_" << ++num;
 
-    return name.str();
+  return name.str();
 }
 
-double TH1IntegateWithPartialBins(const TH1 *spec, const double xmin, const double xmax)
-{
-    const TAxis *axis = spec->GetXaxis();
-    const int bmin = axis->FindBin(xmin);
-    const int bmax = axis->FindBin(xmax);
-    double integral  = spec->Integral(bmin, bmax);
-    integral -= spec->GetBinContent(bmin) * (xmin - axis->GetBinLowEdge(bmin)) / axis->GetBinWidth(bmin);
-    integral -= spec->GetBinContent(bmax) * (axis->GetBinUpEdge(bmax) - xmax) / axis->GetBinWidth(bmax);
-    return integral;
+double TH1IntegateWithPartialBins(const TH1 *spec, const double xmin,
+                                  const double xmax) {
+  const TAxis *axis = spec->GetXaxis();
+  const int bmin = axis->FindBin(xmin);
+  const int bmax = axis->FindBin(xmax);
+  double integral = spec->Integral(bmin, bmax);
+  integral -= spec->GetBinContent(bmin) * (xmin - axis->GetBinLowEdge(bmin)) /
+              axis->GetBinWidth(bmin);
+  integral -= spec->GetBinContent(bmax) * (axis->GetBinUpEdge(bmax) - xmax) /
+              axis->GetBinWidth(bmax);
+  return integral;
 }
 
 } // end namespace HDTV
