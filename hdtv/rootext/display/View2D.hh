@@ -23,17 +23,17 @@
 #ifndef __View2D_h__
 #define __View2D_h__
 
-#include <cmath>
-
-#include <list>
-#include <map>
-
 // Seems root 5 cint cannot handle the OS X stdint.h
 #if defined(__APPLE__) && defined(__CINT__)
 typedef unsigned int uint32_t;
 #else
 #include <cstdint>
 #endif
+
+#include <cmath>
+
+#include <list>
+#include <map>
 
 #include "DisplayCut.hh"
 #include "Painter.hh"
@@ -88,11 +88,11 @@ public:
   }
 
   int EToXTile(double e) {
-    return (int)TMath::Ceil((e + fXEOffset) * fPainter.GetXZoom() - 0.5);
+    return (int)std::ceil((e + fXEOffset) * fPainter.GetXZoom() - 0.5);
   }
 
   int EToYTile(double e) {
-    return (int)TMath::Ceil((e - fYEOffset) * fPainter.GetYZoom() - 0.5);
+    return (int)std::ceil((e - fYEOffset) * fPainter.GetYZoom() - 0.5);
   }
 
   int XScrToTile(int x) { return x - fXTileOffset; }

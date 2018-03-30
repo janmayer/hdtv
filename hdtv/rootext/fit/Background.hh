@@ -31,26 +31,27 @@ namespace HDTV {
 namespace Fit {
 
 //! Base class for background fitters
-class Background
-{
-  public:
-    Background()  { }
-    virtual ~Background()  { }
-    virtual Background* Clone() const
-      { return new Background(); }
-    virtual TF1* GetFunc()
-      { return NULL; }
-    virtual double GetMin() const
-      { return std::numeric_limits<double>::quiet_NaN(); }
-    virtual double GetMax() const
-      { return std::numeric_limits<double>::quiet_NaN(); }
-    virtual double Eval(double x) const
-      { return std::numeric_limits<double>::quiet_NaN(); }
-    virtual double EvalError(double x) const
-      { return std::numeric_limits<double>::quiet_NaN(); }
+class Background {
+public:
+  Background() {}
+  virtual ~Background() {}
+  virtual Background *Clone() const { return new Background(); }
+  virtual TF1 *GetFunc() { return NULL; }
+  virtual double GetMin() const {
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+  virtual double GetMax() const {
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+  virtual double Eval(double x) const {
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+  virtual double EvalError(double x) const {
+    return std::numeric_limits<double>::quiet_NaN();
+  }
 
-  private:
-    Background(const Background& b) { }
+private:
+  Background(const Background &b) {}
 };
 
 } // end namespace Fit

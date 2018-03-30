@@ -23,8 +23,8 @@
 #ifndef __View_h__
 #define __View_h__
 
-#include <TGX11.h>
 #include <TGFrame.h>
+#include <TGX11.h>
 
 namespace HDTV {
 namespace Display {
@@ -32,17 +32,17 @@ namespace Display {
 //! Code shared between View1D and View2D
 /** Presently, this implements mostly the XOR cursor. */
 class View : public TGFrame {
-  public:
-    View(const TGWindow *p, UInt_t w, UInt_t h);
+public:
+  View(const TGWindow *p, UInt_t w, UInt_t h);
 
-  protected:
-    void DrawCursor(void);
+protected:
+  void DrawCursor(void);
 
-  protected:
-    TGGC *fCursorGC;
-    UInt_t fCursorX, fCursorY;
-    Bool_t fCursorVisible;
-    Bool_t fDragging;
+protected:
+  TGGC *fCursorGC;
+  UInt_t fCursorX, fCursorY;
+  Bool_t fCursorVisible;
+  Bool_t fDragging;
 
   ClassDef(View, 1)
 };

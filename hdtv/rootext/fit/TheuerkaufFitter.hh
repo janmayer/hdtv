@@ -23,8 +23,6 @@
 #ifndef __TheuerkaufFitter_h__
 #define __TheuerkaufFitter_h__
 
-#include <cmath>
-
 #include <limits>
 #include <memory>
 #include <vector>
@@ -205,9 +203,7 @@ private:
   public:
     CmpPeakPos(const PeakVector_t &peaks);
 
-    bool operator()(PeakID_t p1, PeakID_t p2) {
-      return fPos[p1] < fPos[p2];
-    }
+    bool operator()(PeakID_t p1, PeakID_t p2) { return fPos[p1] < fPos[p2]; }
 
   private:
     std::vector<double> fPos;

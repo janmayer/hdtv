@@ -51,8 +51,8 @@ public:
     return max;
   }
 
-  virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter& painter) {
-    if(IsVisible()) {
+  virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter &painter) {
+    if (IsVisible()) {
       painter.DrawFunction(this, x1, x2);
     }
   }

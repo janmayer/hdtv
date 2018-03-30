@@ -22,15 +22,16 @@
 
 #include "Fitter.hh"
 
+#include <cmath>
+
 #include <TF1.h>
-#include <TMath.h>
 
 namespace HDTV {
 namespace Fit {
 
 Fitter::Fitter(double r1, double r2)
-    : fNumParams(0), fFinal(false), fMin(TMath::Min(r1, r2)),
-      fMax(TMath::Max(r1, r2)), fNumPeaks(0), fIntBgDeg(-1),
+    : fNumParams(0), fFinal(false), fMin(std::min(r1, r2)),
+      fMax(std::max(r1, r2)), fNumPeaks(0), fIntBgDeg(-1),
       fChisquare(std::numeric_limits<double>::quiet_NaN()) {}
 
 Param Fitter::AllocParam() { return Param::Free(fNumParams++); }

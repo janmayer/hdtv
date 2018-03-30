@@ -31,7 +31,8 @@ namespace HDTV {
 
 std::string GetFuncUniqueName(const char *prefix, void *ptr);
 
-double TH1IntegateWithPartialBins(const TH1 *spec, const double xmin, const double xmax);
+double TH1IntegateWithPartialBins(const TH1 *spec, const double xmin,
+                                  const double xmax);
 
 } // end namespace HDTV
 

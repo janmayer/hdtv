@@ -22,13 +22,14 @@
 
 #include "TheuerkaufFitter.hh"
 
+#include <cmath>
+
 #include <algorithm>
 
 #include <Riostream.h>
 #include <TError.h>
 #include <TF1.h>
 #include <TH1.h>
-#include <TMath.h>
 
 #include "Util.hh"
 
@@ -179,7 +180,7 @@ double TheuerkaufPeak::EvalNoStep(double *x, double *p) {
     _x = -tr / (sigma * sigma) * (dx - tr / 2.0);
   }
 
-  return vol * norm * exp(_x);
+  return vol * norm * std::exp(_x);
 }
 
 double TheuerkaufPeak::EvalStep(double *x, double *p) {
@@ -194,7 +195,8 @@ double TheuerkaufPeak::EvalStep(double *x, double *p) {
     double vol = fVol.Value(p);
     double norm = GetNorm(sigma, fTL.Value(p), fTR.Value(p));
 
-    return vol * norm * sh * (M_PI / 2. + atan(sw * dx / (sqrt(2.) * sigma)));
+    return vol * norm * sh *
+           (M_PI / 2. + std::atan(sw * dx / (std::sqrt(2.) * sigma)));
   } else {
     return 0.0;
   }
@@ -208,18 +210,20 @@ double TheuerkaufPeak::GetNorm(double sigma, double tl, double tr) {
 
   // Contribution from left tail + left half of truncated gaussian
   if (fHasLeftTail) {
-    vol = (sigma * sigma) / tl * exp(-(tl * tl) / (2.0 * sigma * sigma));
-    vol += sqrt(M_PI / 2.0) * sigma * TMath::Erf(tl / (sqrt(2.0) * sigma));
+    vol = (sigma * sigma) / tl * std::exp(-(tl * tl) / (2.0 * sigma * sigma));
+    vol +=
+        std::sqrt(M_PI / 2.0) * sigma * std::erf(tl / (std::sqrt(2.0) * sigma));
   } else {
-    vol = sqrt(M_PI / 2.0) * sigma;
+    vol = std::sqrt(M_PI / 2.0) * sigma;
   }
 
   // Contribution from right tail + right half of truncated gaussian
   if (fHasRightTail) {
-    vol += (sigma * sigma) / tr * exp(-(tr * tr) / (2.0 * sigma * sigma));
-    vol += sqrt(M_PI / 2.0) * sigma * TMath::Erf(tr / (sqrt(2.0) * sigma));
+    vol += (sigma * sigma) / tr * std::exp(-(tr * tr) / (2.0 * sigma * sigma));
+    vol +=
+        std::sqrt(M_PI / 2.0) * sigma * std::erf(tr / (std::sqrt(2.0) * sigma));
   } else {
-    vol += sqrt(M_PI / 2.0) * sigma;
+    vol += std::sqrt(M_PI / 2.0) * sigma;
   }
 
   fCachedSigma = sigma;
@@ -306,8 +310,8 @@ TF1 *TheuerkaufFitter::GetBgFunc() {
 
   double min, max;
   if (fBackground.get() != 0) {
-    min = TMath::Min(fMin, fBackground->GetMin());
-    max = TMath::Max(fMax, fBackground->GetMax());
+    min = std::min(fMin, fBackground->GetMin());
+    max = std::max(fMax, fBackground->GetMax());
   } else {
     min = fMin;
     max = fMax;
@@ -527,13 +531,13 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
         else
           curStep = citer->fSH._Value();
         int b = hist.FindBin(citer->fPos._Value());
-        sumVol -= curStep * (b2 - TMath::Min(b, b2) + 0.5);
+        sumVol -= curStep * (b2 - std::min(b, b2) + 0.5);
       }
     }
   }
 
   // Second: calculate average peak width (sigma)
-  double avgSigma = sumVol / (sumAmp * sqrt(2. * M_PI));
+  double avgSigma = sumVol / (sumAmp * std::sqrt(2. * M_PI));
 
   // Third: calculate sum of free volumes and amplitudes
   double sumFreeAmp = sumAmp;

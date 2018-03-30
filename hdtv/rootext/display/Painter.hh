@@ -33,12 +33,13 @@
 #ifndef __Painter_h__
 #define __Painter_h__
 
+#include <cmath>
+
 #include <list>
 
 #include <TGFont.h>
 #include <TGFrame.h>
 #include <TGResourcePool.h>
-#include <TMath.h>
 
 #include "Calibration.hh"
 
@@ -50,20 +51,20 @@ class DisplayObj;
 enum ViewMode {
   kVMSolid = 1,
   kVMHollow = 2,
-  kVMDotted = 3
+  kVMDotted = 3,
 };
 
 enum HTextAlign {
   kLeft = 1,
   kCenter = 2,
-  kRight = 3
+  kRight = 3,
 };
 
 enum VTextAlign {
   kBottom = 1,
   kBaseline = 2,
   kMiddle = 3,
-  kTop = 4
+  kTop = 4,
 };
 
 class DisplaySpec;
@@ -134,7 +135,7 @@ public:
   double XtoE(Int_t x) { return (double)(x - fXBase) / fXZoom + fXOffset; }
 
   int EtoX(double e) {
-    return (int)TMath::Ceil(((e - fXOffset) * fXZoom) + fXBase - 0.5);
+    return (int)std::ceil(((e - fXOffset) * fXZoom) + fXBase - 0.5);
   }
 
   double XtoE(double x) { return (x - (double)fXBase) / fXZoom + fXOffset; }

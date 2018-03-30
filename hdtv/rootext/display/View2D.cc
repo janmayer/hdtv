@@ -29,7 +29,6 @@
 
 #include <TGStatusBar.h>
 #include <TH2.h>
-#include <TMath.h>
 
 namespace HDTV {
 namespace Display {

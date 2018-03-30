@@ -22,21 +22,21 @@
 
 #include "VMatrix.hh"
 
+#include <cmath>
+
 #include <TArrayD.h>
 
 void VMatrix::AddRegion(std::list<int> &reglist, int l1, int l2) {
   std::list<int>::iterator iter, next;
   bool inside = false;
-  int min, max;
-
-  min = TMath::Min(l1, l2);
-  max = TMath::Max(l1, l2);
+  int min = std::min(l1, l2);
+  int max = std::max(l1, l2);
 
   // Perform clipping
   if (max < GetCutLowBin() || min > GetCutHighBin())
     return;
-  min = TMath::Max(min, GetCutLowBin());
-  max = TMath::Min(max, GetCutHighBin());
+  min = std::max(min, GetCutLowBin());
+  max = std::min(max, GetCutHighBin());
 
   iter = reglist.begin();
   while (iter != reglist.end() && *iter < min) {

@@ -24,27 +24,27 @@
 #define __MatOp_h__
 
 class MatOp {
-  public:
-    static int Project(const char* src_fname, const char* prx_fname,
-        const char* pry_fname = 0);
-    static int Transpose(const char* src_fname, const char* dst_fname);
+public:
+  static int Project(const char *src_fname, const char *prx_fname,
+                     const char *pry_fname = 0);
+  static int Transpose(const char *src_fname, const char *dst_fname);
 
-    static const char* GetErrorString(int error_nr);
+  static const char *GetErrorString(int error_nr);
 
-    const static int ERR_SUCCESS;
-    const static int ERR_UNKNOWN;
-    const static int ERR_SRC_OPEN;
-    const static int ERR_PRX_OPEN;
-    const static int ERR_PRX_FMT;
-    const static int ERR_PRY_OPEN;
-    const static int ERR_PRY_FMT;
-    const static int ERR_PROJ_FAIL;
-    const static int ERR_TRANS_OPEN;
-    const static int ERR_TRANS_FMT;
-    const static int ERR_TRANS_FAIL;
-    const static int MAX_ERR;
+  const static int ERR_SUCCESS;
+  const static int ERR_UNKNOWN;
+  const static int ERR_SRC_OPEN;
+  const static int ERR_PRX_OPEN;
+  const static int ERR_PRX_FMT;
+  const static int ERR_PRY_OPEN;
+  const static int ERR_PRY_FMT;
+  const static int ERR_PROJ_FAIL;
+  const static int ERR_TRANS_OPEN;
+  const static int ERR_TRANS_FMT;
+  const static int ERR_TRANS_FAIL;
+  const static int MAX_ERR;
 
-    const static char* ErrDesc[];
+  const static char *ErrDesc[];
 };
 
 #endif

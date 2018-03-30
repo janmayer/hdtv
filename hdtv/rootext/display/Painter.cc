@@ -75,7 +75,7 @@ void Painter::DrawFunction(DisplayFunc *dFunc, int x1, int x2) {
     ch = dFunc->E2Ch(XtoE((double)x + 0.5));
     y = cy = CtoY(norm * dFunc->Eval(ch));
 
-    if (TMath::Min(y, ly) <= lClip && TMath::Max(y, ly) >= hClip) {
+    if (std::min(y, ly) <= lClip && std::max(y, ly) >= hClip) {
       if (cy < hClip)
         cy = hClip;
       else if (cy > lClip)
@@ -346,11 +346,11 @@ double Painter::ModLog(double x) {
   //! positive monotonic, and goes from R to R
 
   if (x > 1.0) {
-    return TMath::Log(x) + 1.0;
+    return std::log(x) + 1.0;
   } else if (x > -1.0) {
     return x;
   } else {
-    return -TMath::Log(-x) - 1.0;
+    return -std::log(-x) - 1.0;
   }
 }
 
@@ -358,11 +358,11 @@ double Painter::InvModLog(double x) {
   //! Inverse modified log (see Painter::ModLog for definition)
 
   if (x > 1.0) {
-    return TMath::Exp(x - 1.0);
+    return std::exp(x - 1.0);
   } else if (x > -1.0) {
     return x;
   } else {
-    return -TMath::Exp(-x - 1.0);
+    return -std::exp(-x - 1.0);
   }
 }
 
@@ -372,7 +372,7 @@ int Painter::CtoY(double c) {
   else
     c = c - fYOffset;
 
-  return fYBase - (int)TMath::Ceil(c * fYZoom - 0.5);
+  return fYBase - (int)std::ceil(c * fYZoom - 0.5);
 }
 
 double Painter::YtoC(int y) {
@@ -493,8 +493,8 @@ void Painter::DrawXNonlinearScale(Int_t x1, Int_t x2, bool top,
   //  fmt[2] = '0' - n;
 
   // Draw the minor tics
-  i = (int)TMath::Ceil(cal.E2Ch(XtoE(x1)) / minor_tic);
-  i2 = (int)TMath::Floor(cal.E2Ch(XtoE(x2)) / minor_tic);
+  i = (int)std::ceil(cal.E2Ch(XtoE(x1)) / minor_tic);
+  i2 = (int)std::floor(cal.E2Ch(XtoE(x2)) / minor_tic);
 
   for (; i <= i2; ++i) {
     x = EtoX(cal.Ch2E((double)i * minor_tic));
@@ -502,8 +502,8 @@ void Painter::DrawXNonlinearScale(Int_t x1, Int_t x2, bool top,
   }
 
   // Draw the major tics
-  i = (int)TMath::Ceil(cal.E2Ch(XtoE(x1)) / major_tic);
-  i2 = (int)TMath::Floor(cal.E2Ch(XtoE(x2)) / major_tic);
+  i = (int)std::ceil(cal.E2Ch(XtoE(x1)) / major_tic);
+  i2 = (int)std::floor(cal.E2Ch(XtoE(x2)) / major_tic);
 
   for (; i <= i2; ++i) {
     x = EtoX(cal.Ch2E((double)i * major_tic));
@@ -535,8 +535,8 @@ void Painter::DrawXScale(Int_t x1, Int_t x2) {
     fmt[2] = '0' - n;
 
   // Draw the minor tics
-  i = (int)TMath::Ceil(XtoE(x1) / minor_tic);
-  i2 = (int)TMath::Floor(XtoE(x2) / minor_tic);
+  i = (int)std::ceil(XtoE(x1) / minor_tic);
+  i2 = (int)std::floor(XtoE(x2) / minor_tic);
 
   for (; i <= i2; ++i) {
     x = EtoX((double)i * minor_tic);
@@ -544,8 +544,8 @@ void Painter::DrawXScale(Int_t x1, Int_t x2) {
   }
 
   // Draw the major tics
-  i = (int)TMath::Ceil(XtoE(x1) / major_tic);
-  i2 = (int)TMath::Floor(XtoE(x2) / major_tic);
+  i = (int)std::ceil(XtoE(x1) / major_tic);
+  i2 = (int)std::floor(XtoE(x2) / major_tic);
 
   for (; i <= i2; ++i) {
     x = EtoX((double)i * major_tic);
@@ -611,8 +611,8 @@ void Painter::DrawYLinearScale() {
   GetTicDistance((double)50.0 / fYZoom, major_tic, minor_tic, n);
 
   // Draw the minor tics
-  i = (int)TMath::Ceil(YtoC(fYBase) / minor_tic);
-  i2 = (int)TMath::Floor(YtoC(fYBase - fHeight) / minor_tic);
+  i = (int)std::ceil(YtoC(fYBase) / minor_tic);
+  i2 = (int)std::floor(YtoC(fYBase - fHeight) / minor_tic);
 
   for (; i <= i2; ++i) {
     y = CtoY((double)i * minor_tic);
@@ -620,8 +620,8 @@ void Painter::DrawYLinearScale() {
   }
 
   // Draw the major tics
-  i = (int)TMath::Ceil(YtoC(fYBase) / major_tic);
-  i2 = (int)TMath::Floor(YtoC(fYBase - fHeight) / major_tic);
+  i = (int)std::ceil(YtoC(fYBase) / major_tic);
+  i2 = (int)std::floor(YtoC(fYBase - fHeight) / major_tic);
 
   for (; i <= i2; ++i) {
     y = CtoY((double)i * major_tic);
@@ -646,8 +646,7 @@ void Painter::DrawYLogScale() {
   if (cMax > 10.0)
     minDist = CtoY(9.0) - CtoY(10.0);
   else
-    minDist =
-        CtoY(TMath::Floor(YtoC(yTop)) - 1.0) - CtoY(TMath::Floor(YtoC(yTop)));
+    minDist = CtoY(std::floor(YtoC(yTop)) - 1.0) - CtoY(std::floor(YtoC(yTop)));
 
   if (cMax > 0.0)
     _DrawYLogScale(minDist, +1, cMin, cMax);

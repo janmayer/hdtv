@@ -171,8 +171,8 @@ void PolyBg::AddRegion(double p1, double p2) {
   bool inside = false;
   double min, max;
 
-  min = TMath::Min(p1, p2);
-  max = TMath::Max(p1, p2);
+  min = std::min(p1, p2);
+  max = std::max(p1, p2);
 
   iter = fBgRegions.begin();
   while (iter != fBgRegions.end() && *iter < min) {

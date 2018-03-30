@@ -23,8 +23,6 @@
 #ifndef __VMatrix_h__
 #define __VMatrix_h__
 
-#include <cmath>
-
 #include <list>
 
 #include <TH1.h>
@@ -51,93 +49,103 @@
 
 //! A ``virtual matrix'', i.e. a matrix that is not necessarily stored in memory
 class VMatrix {
-  public:
-    VMatrix() : fFail(false) { };
-    virtual ~VMatrix() {};
+public:
+  VMatrix() : fFail(false){};
+  virtual ~VMatrix(){};
 
-    void AddCutRegion(int c1, int c2) { AddRegion(fCutRegions, c1, c2); }
-    void AddBgRegion(int c1, int c2) { AddRegion(fBgRegions, c1, c2); }
-    void ResetRegions() { fCutRegions.clear(); fBgRegions.clear(); }
+  void AddCutRegion(int c1, int c2) { AddRegion(fCutRegions, c1, c2); }
+  void AddBgRegion(int c1, int c2) { AddRegion(fBgRegions, c1, c2); }
+  void ResetRegions() {
+    fCutRegions.clear();
+    fBgRegions.clear();
+  }
 
-    TH1 *Cut(const char *histname, const char *histtitle);
+  TH1 *Cut(const char *histname, const char *histtitle);
 
-    // Cut axis info
-    virtual int FindCutBin(double x) = 0;
-    virtual int GetCutLowBin() = 0;
-    virtual int GetCutHighBin() = 0;
+  // Cut axis info
+  virtual int FindCutBin(double x) = 0;
+  virtual int GetCutLowBin() = 0;
+  virtual int GetCutHighBin() = 0;
 
-    // Projection axis info
-    virtual double GetProjXmin() = 0;
-    virtual double GetProjXmax() = 0;
-    virtual int GetProjXbins() = 0;
+  // Projection axis info
+  virtual double GetProjXmin() = 0;
+  virtual double GetProjXmax() = 0;
+  virtual int GetProjXbins() = 0;
 
-    virtual void AddLine(TArrayD& dst, int l) = 0;
+  virtual void AddLine(TArrayD &dst, int l) = 0;
 
-    bool Failed() { return fFail; }
+  bool Failed() { return fFail; }
 
-  private:
-    void AddRegion(std::list<int> &reglist, int c1, int c2);
-    std::list<int> fCutRegions, fBgRegions;
+private:
+  void AddRegion(std::list<int> &reglist, int c1, int c2);
+  std::list<int> fCutRegions, fBgRegions;
 
-  protected:
-    bool fFail;
+protected:
+  bool fFail;
 };
 
 //! ROOT TH2-backed VMatrix
-class RMatrix: public VMatrix {
-  public:
-    enum ProjAxis_t { PROJ_X, PROJ_Y };
+class RMatrix : public VMatrix {
+public:
+  enum ProjAxis_t { PROJ_X, PROJ_Y };
 
-    RMatrix(TH2* hist, ProjAxis_t paxis);
-    virtual ~RMatrix() {};
+  RMatrix(TH2 *hist, ProjAxis_t paxis);
+  virtual ~RMatrix(){};
 
-    virtual int FindCutBin(double x)
-       { TAxis *a = (fProjAxis == PROJ_X) ? fHist->GetYaxis() : fHist->GetXaxis();
-         return a->FindBin(x); }
+  virtual int FindCutBin(double x) {
+    TAxis *a = (fProjAxis == PROJ_X) ? fHist->GetYaxis() : fHist->GetXaxis();
+    return a->FindBin(x);
+  }
 
-    virtual int GetCutLowBin()  { return 1; }
-    virtual int GetCutHighBin()
-       { return (fProjAxis == PROJ_X) ? fHist->GetNbinsY() : fHist->GetNbinsX(); }
+  virtual int GetCutLowBin() { return 1; }
+  virtual int GetCutHighBin() {
+    return (fProjAxis == PROJ_X) ? fHist->GetNbinsY() : fHist->GetNbinsX();
+  }
 
-    virtual double GetProjXmin()
-       { TAxis *a = (fProjAxis == PROJ_X) ? fHist->GetXaxis() : fHist->GetYaxis();
-         return a->GetXmin(); }
+  virtual double GetProjXmin() {
+    TAxis *a = (fProjAxis == PROJ_X) ? fHist->GetXaxis() : fHist->GetYaxis();
+    return a->GetXmin();
+  }
 
-    virtual double GetProjXmax()
-       { TAxis *a = (fProjAxis == PROJ_X) ? fHist->GetXaxis() : fHist->GetYaxis();
-         return a->GetXmax(); }
+  virtual double GetProjXmax() {
+    TAxis *a = (fProjAxis == PROJ_X) ? fHist->GetXaxis() : fHist->GetYaxis();
+    return a->GetXmax();
+  }
 
-    virtual int GetProjXbins()
-       { return (fProjAxis == PROJ_X) ? fHist->GetNbinsX() : fHist->GetNbinsY(); }
+  virtual int GetProjXbins() {
+    return (fProjAxis == PROJ_X) ? fHist->GetNbinsX() : fHist->GetNbinsY();
+  }
 
-    virtual void AddLine(TArrayD& dst, int l);
+  virtual void AddLine(TArrayD &dst, int l);
 
-  private:
-    TH2* fHist;
-    ProjAxis_t fProjAxis;
+private:
+  TH2 *fHist;
+  ProjAxis_t fProjAxis;
 };
 
 //! MFile-histogram-backed VMatrix
-class MFMatrix: public VMatrix {
-  public:
-    MFMatrix(MFileHist *mat, unsigned int level);
-    virtual ~MFMatrix() {};
-    virtual int FindCutBin(double x)  // convert channel to bin number
-      { return (int) ceil(x - 0.5); }
+class MFMatrix : public VMatrix {
+public:
+  MFMatrix(MFileHist *mat, unsigned int level);
+  virtual ~MFMatrix(){};
+  virtual int FindCutBin(double x) // convert channel to bin number
+  {
+    return (int)ceil(x - 0.5);
+  }
 
-    virtual int GetCutLowBin()   { return 0; }
-    virtual int GetCutHighBin()  { return fMatrix->GetNLines() - 1; }
+  virtual int GetCutLowBin() { return 0; }
+  virtual int GetCutHighBin() { return fMatrix->GetNLines() - 1; }
 
-    virtual double GetProjXmin() { return -0.5; }
-    virtual double GetProjXmax() { return fMatrix->GetNColumns() - .5; }
-    virtual int GetProjXbins()   { return fMatrix->GetNColumns(); }
+  virtual double GetProjXmin() { return -0.5; }
+  virtual double GetProjXmax() { return fMatrix->GetNColumns() - .5; }
+  virtual int GetProjXbins() { return fMatrix->GetNColumns(); }
 
-    virtual void AddLine(TArrayD& dst, int l);
+  virtual void AddLine(TArrayD &dst, int l);
 
-  private:
-    MFileHist *fMatrix;
-    unsigned int fLevel;
-    TArrayD fBuf;
+private:
+  MFileHist *fMatrix;
+  unsigned int fLevel;
+  TArrayD fBuf;
 };
 
 #endif

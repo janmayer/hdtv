@@ -27,8 +27,6 @@
 #include <iostream>
 
 #include <TAxis.h>
-#include <TMath.h>
-//#include <Riostream.h>
 
 namespace HDTV {
 
@@ -139,13 +137,13 @@ double Calibration::E2Ch(double e) const {
   double ch = 1.0;
   double de = Ch2E(ch) - e;
   double slope;
-  double _e = TMath::Abs(e);
+  double _e = std::abs(e);
   std::vector<double>::const_reverse_iterator c;
 
   if (_e < 1.0)
     _e = 1.0;
 
-  for (int i = 0; i < 10 && TMath::Abs(de / _e) > 1e-10; i++) {
+  for (int i = 0; i < 10 && std::abs(de / _e) > 1e-10; i++) {
     // Calculate slope
     c = fCalDeriv.rbegin();
     slope = *c++;
@@ -157,7 +155,7 @@ double Calibration::E2Ch(double e) const {
     de = Ch2E(ch) - e;
   }
 
-  if (TMath::Abs(de / _e) > 1e-10) {
+  if (std::abs(de / _e) > 1e-10) {
     std::cout << "Warning: Solver failed to converge in Calibration::E2Ch()."
               << std::endl;
   }

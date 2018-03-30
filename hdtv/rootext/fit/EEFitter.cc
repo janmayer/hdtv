@@ -27,7 +27,6 @@
 #include <TError.h>
 #include <TF1.h>
 #include <TH1.h>
-#include <TMath.h>
 #include <TVirtualFitter.h>
 
 #include "Util.hh"
@@ -96,14 +95,15 @@ double EEPeak::Eval(double *x, double *p) {
   double _y;
 
   if (dx <= 0) {
-    _y = exp(-log(2.) * dx * dx / (sigma1 * sigma1));
+    _y = std::exp(-std::log(2.) * dx * dx / (sigma1 * sigma1));
   } else if (dx <= (eta * sigma2)) {
-    _y = exp(-log(2.) * dx * dx / (sigma2 * sigma2));
+    _y = std::exp(-std::log(2.) * dx * dx / (sigma2 * sigma2));
   } else {
-    double B = (sigma2 * gamma - 2. * sigma2 * eta * eta * log(2)) /
-               (2. * eta * log(2));
-    double A = exp(-eta * eta * log(2.)) * exp(gamma * log(sigma2 * eta + B));
-    _y = A / exp(gamma * log(B + dx));
+    double B = (sigma2 * gamma - 2. * sigma2 * eta * eta * std::log(2)) /
+               (2. * eta * std::log(2));
+    double A = std::exp(-eta * eta * std::log(2.)) *
+               std::exp(gamma * std::log(sigma2 * eta + B));
+    _y = A / std::exp(gamma * std::log(B + dx));
   }
 
   return fAmp.Value(p) * _y;
@@ -155,43 +155,45 @@ void EEPeak::StoreIntegral() {
   double dVdSigma2 = 0.0, dVdEta = 0.0, dVdGamma = 0.0;
 
   // Contribution from left half
-  vol = 0.5 * sqrt(M_PI / log(2.)) * sigma1;
-  dVdSigma1 = 0.5 * sqrt(M_PI / log(2.));
+  vol = 0.5 * std::sqrt(M_PI / std::log(2.)) * sigma1;
+  dVdSigma1 = 0.5 * std::sqrt(M_PI / std::log(2.));
 
   // See if radiative tail needs to be included in integral
   if (5. * sigma1 > eta * sigma2) {
     // Contribution from tail
-    double B = (sigma2 * gamma - 2. * sigma2 * eta * eta * log(2.)) /
-               (2. * eta * log(2.));
-    double A = exp(-eta * eta * log(2.)) * exp(gamma * log(sigma2 * eta + B));
+    double B = (sigma2 * gamma - 2. * sigma2 * eta * eta * std::log(2.)) /
+               (2. * eta * std::log(2.));
+    double A = std::exp(-eta * eta * std::log(2.)) *
+               std::exp(gamma * std::log(sigma2 * eta + B));
 
     double dBdSigma2 = B / sigma2;
     double dBdEta = -(2. * sigma2 + B / eta);
-    double dBdGamma = sigma2 / (2. * eta * log(2));
+    double dBdGamma = sigma2 / (2. * eta * std::log(2));
 
     double dAdSigma2 =
-        (gamma * gamma) / (2. * eta * log(2)) * A / (sigma2 * eta + B);
-    double dAdEta = -(2. * log(2) * eta + gamma / eta) * A;
-    double dAdGamma =
-        A * (log(sigma2 * eta + B) + gamma / (sigma2 * eta + B) * dBdGamma);
+        (gamma * gamma) / (2. * eta * std::log(2)) * A / (sigma2 * eta + B);
+    double dAdEta = -(2. * std::log(2) * eta + gamma / eta) * A;
+    double dAdGamma = A * (std::log(sigma2 * eta + B) +
+                           gamma / (sigma2 * eta + B) * dBdGamma);
 
-    double Vt = A / (1. - gamma) * (pow(B + 5. * sigma1, 1. - gamma) -
-                                    pow(B + eta * sigma2, 1. - gamma));
+    double Vt = A / (1. - gamma) * (std::pow(B + 5. * sigma1, 1. - gamma) -
+                                    std::pow(B + eta * sigma2, 1. - gamma));
 
     double dVtdA = Vt / A;
-    double dVtdB =
-        A * (pow(B + 5. * sigma1, -gamma) - pow(B + eta * sigma2, -gamma));
+    double dVtdB = A * (std::pow(B + 5. * sigma1, -gamma) -
+                        std::pow(B + eta * sigma2, -gamma));
 
-    double dVtdSigma1 = 5. * A * pow(B + 5. * sigma1, -gamma);
+    double dVtdSigma1 = 5. * A * std::pow(B + 5. * sigma1, -gamma);
     double dVtdSigma2 = dVtdA * dAdSigma2 + dVtdB * dBdSigma2 -
-                        A * pow(B + eta * sigma2, -gamma) * eta;
+                        A * std::pow(B + eta * sigma2, -gamma) * eta;
     double dVtdEta = dVtdA * dAdEta + dVtdB * dBdEta -
-                     A * pow(B + eta * sigma2, -gamma) * sigma2;
+                     A * std::pow(B + eta * sigma2, -gamma) * sigma2;
     double dVtdGamma =
         dVtdA * dAdGamma + dVtdB * dBdGamma + Vt / (1. - gamma) -
         A / (1. - gamma) *
-            (log(B + 5. * sigma1) * pow(B + 5. * sigma1, 1. - gamma) -
-             log(B + eta * sigma2) * pow(B + eta * sigma2, 1. - gamma));
+            (std::log(B + 5. * sigma1) * std::pow(B + 5. * sigma1, 1. - gamma) -
+             std::log(B + eta * sigma2) *
+                 std::pow(B + eta * sigma2, 1. - gamma));
 
     vol += Vt;
 
@@ -201,24 +203,24 @@ void EEPeak::StoreIntegral() {
     dVdGamma += dVtdGamma;
 
     // Contribution from truncated right half
-    double Vr =
-        0.5 * sqrt(M_PI / log(2.)) * sigma2 * TMath::Erf(sqrt(log(2.)) * eta);
+    double Vr = 0.5 * std::sqrt(M_PI / std::log(2.)) * sigma2 *
+                std::erf(std::sqrt(std::log(2.)) * eta);
     double dVrdSigma2 = Vr / sigma2;
-    double dVrdEta = sigma2 * exp(-log(2) * eta * eta);
+    double dVrdEta = sigma2 * std::exp(-std::log(2) * eta * eta);
 
     vol += Vr;
     dVdSigma2 += dVrdSigma2;
     dVdEta += dVrdEta;
   } else {
     // Contribution from truncated right half
-    double Vr = 0.5 * sqrt(M_PI / log(2.)) * sigma2 *
-                TMath::Erf(5. * sqrt(log(2.)) * sigma1 / sigma2);
-    double dVrdSigma1 =
-        5. * exp(-25. * log(2) * (sigma1 * sigma1) / (sigma2 * sigma2));
-    double dVrdSigma2 =
-        Vr / sigma2 -
-        5. * exp(-25. * log(2) * (sigma1 * sigma1) / (sigma2 * sigma2)) *
-            sigma1 / sigma2;
+    double Vr = 0.5 * std::sqrt(M_PI / std::log(2.)) * sigma2 *
+                std::erf(5. * std::sqrt(std::log(2.)) * sigma1 / sigma2);
+    double dVrdSigma1 = 5. * std::exp(-25. * std::log(2) * (sigma1 * sigma1) /
+                                      (sigma2 * sigma2));
+    double dVrdSigma2 = Vr / sigma2 -
+                        5. * std::exp(-25. * std::log(2) * (sigma1 * sigma1) /
+                                      (sigma2 * sigma2)) *
+                            sigma1 / sigma2;
 
     vol += Vr;
     dVdSigma1 += dVrdSigma1;
@@ -252,7 +254,7 @@ void EEPeak::StoreIntegral() {
   }
 
   fVol = amp * vol;
-  fVolError = sqrt(errsq);
+  fVolError = std::sqrt(errsq);
 }
 
 /*** EEFitter ***/
@@ -318,8 +320,8 @@ TF1 *EEFitter::GetBgFunc() {
 
   double min, max;
   if (fBackground.get() != 0) {
-    min = TMath::Min(fMin, fBackground->GetMin());
-    max = TMath::Max(fMax, fBackground->GetMax());
+    min = std::min(fMin, fBackground->GetMin());
+    max = std::max(fMax, fBackground->GetMax());
   } else {
     min = fMin;
     max = fMax;

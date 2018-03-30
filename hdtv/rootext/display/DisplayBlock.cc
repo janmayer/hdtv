@@ -21,14 +21,16 @@
  */
 
 #include "DisplayBlock.hh"
-#include "DisplayObj.hh"
-#include "DisplayStack.hh"
-#include "View1D.hh"
+
+#include <cmath>
 
 #include <TColor.h>
 #include <TGFrame.h>
-#include <TMath.h>
 #include <TROOT.h>
+
+#include "DisplayObj.hh"
+#include "DisplayStack.hh"
+#include "View1D.hh"
 
 namespace HDTV {
 namespace Display {
@@ -64,22 +66,19 @@ void DisplayBlock::SetColor(int col) {
   Update();
 }
 
+//! Return the spectrums lower endpoint in energy units
 double DisplayBlock::GetMinE() {
-  //! Return the spectrums lower endpoint in energy units
-
-  return TMath::Min(Ch2E((double)GetMinCh()), Ch2E((double)GetMaxCh()));
+  return std::min(Ch2E(GetMinCh()), Ch2E(GetMaxCh()));
 }
 
+//! Return the spectrums upper endpoint in energy units
 double DisplayBlock::GetMaxE() {
-  //! Return the spectrums upper endpoint in energy units
-
-  return TMath::Max(Ch2E((double)GetMinCh()), Ch2E((double)GetMaxCh()));
+  return std::max(Ch2E(GetMinCh()), Ch2E(GetMaxCh()));
 }
 
+//! Returns the width of the spectrum in energy units
 double DisplayBlock::GetERange() {
-  //! Returns the width of the spectrum in energy units
-
-  return TMath::Abs(Ch2E((double)GetMinCh()) - Ch2E((double)GetMaxCh()));
+  return std::abs(Ch2E(GetMinCh()) - Ch2E(GetMaxCh()));
 }
 
 } // end namespace Display

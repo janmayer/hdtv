@@ -33,12 +33,12 @@
 enum XScaleType {
   X_SCALE_NONE = 0,
   X_SCALE_ENERGY = 1,
-  X_SCALE_CHANNEL = 2
+  X_SCALE_CHANNEL = 2,
 };
 
 enum YScaleType {
   Y_SCALE_NONE = 0,
-  Y_SCALE_COUNTS = 1
+  Y_SCALE_COUNTS = 1,
 };
 
 class TGHScrollBar;

@@ -31,22 +31,23 @@ namespace HDTV {
 namespace Fit {
 
 //! Helper class template wrapping a cached value
-template<typename T> class CachedValue {
+template <typename T> class CachedValue {
   T value_;
   bool valid_;
+
 public:
   CachedValue() : valid_{false} {}
   CachedValue(const T &value) : value_{value}, valid_{true} {}
 
   operator bool() const { return valid_; }
 
-  CachedValue<T> &operator =(const T &value) {
+  CachedValue<T> &operator=(const T &value) {
     value_ = value;
     valid_ = true;
     return value;
   }
 
-  CachedValue<T> &operator =(T &&value) {
+  CachedValue<T> &operator=(T &&value) {
     value_ = std::move(value);
     valid_ = true;
     return *this;

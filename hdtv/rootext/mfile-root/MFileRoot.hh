@@ -26,18 +26,18 @@
 #include <mfile.h>
 
 class MFile {
-  public:
-    MFile(const char* fname = 0, const char* mode = "r");
-    ~MFile();
+public:
+  MFile(const char *fname = 0, const char *mode = "r");
+  ~MFile();
 
-    bool IsZombie()  { return fZombie; }
-    bool IsNull()    { return fFile == 0; }
-    MFILE* File() { return fFile; }
-    operator MFILE* () { return fFile; }
+  bool IsZombie() { return fZombie; }
+  bool IsNull() { return fFile == 0; }
+  MFILE *File() { return fFile; }
+  operator MFILE *() { return fFile; }
 
-  private:
-    bool fZombie;
-    MFILE* fFile;
+private:
+  bool fZombie;
+  MFILE *fFile;
 };
 
 #endif

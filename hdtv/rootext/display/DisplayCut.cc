@@ -22,8 +22,9 @@
 
 #include "DisplayCut.hh"
 
+#include <cmath>
+
 #include <TCutG.h>
-#include <TMath.h>
 
 namespace HDTV {
 namespace Display {
@@ -47,10 +48,10 @@ void DisplayCut::Init(int n, const double *x, const double *y) {
 
   for (int i = 1; i < n; ++i) {
     fPoints.push_back(CutPoint(x[i], y[i]));
-    fX1 = TMath::Min(fX1, x[i]);
-    fX2 = TMath::Max(fX2, x[i]);
-    fY1 = TMath::Min(fY1, y[i]);
-    fY2 = TMath::Max(fY2, y[i]);
+    fX1 = std::min(fX1, x[i]);
+    fX2 = std::max(fX2, x[i]);
+    fY1 = std::min(fY1, y[i]);
+    fY2 = std::max(fY2, y[i]);
   }
 }
 

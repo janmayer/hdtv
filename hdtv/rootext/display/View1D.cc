@@ -22,12 +22,13 @@
 
 #include "View1D.hh"
 
+#include <cmath>
+
 #include <limits>
 
 #include <Riostream.h>
 #include <TGScrollBar.h>
 #include <TGStatusBar.h>
-#include <TMath.h>
 
 #include "DisplaySpec.hh"
 
@@ -126,8 +127,7 @@ void View1D::YAutoScaleOnce(bool update) {
        obj != fDisplayStack.fObjects.end(); ++obj) {
     spec = dynamic_cast<DisplaySpec *>(*obj);
     if (spec && spec->IsVisible())
-      fYVisibleRegion =
-          TMath::Max(fYVisibleRegion, fPainter.GetYAutoZoom(spec));
+      fYVisibleRegion = std::max(fYVisibleRegion, fPainter.GetYAutoZoom(spec));
   }
 
   fYOffset = 0.0;
@@ -303,7 +303,7 @@ void View1D::ShowAll(void) {
   }
 
   fXOffset = fMinEnergy;
-  fXVisibleRegion = TMath::Max(fMaxEnergy - fMinEnergy, MIN_ENERGY_REGION);
+  fXVisibleRegion = std::max(fMaxEnergy - fMinEnergy, MIN_ENERGY_REGION);
 
   Update();
 }
@@ -353,14 +353,14 @@ void View1D::DoUpdate() {
 
   // Remember not to compare floating point values
   // for equality directly (rouding error problems)
-  if (TMath::Abs(fXVisibleRegion - fPainter.GetXVisibleRegion()) > 1e-7) {
+  if (std::abs(fXVisibleRegion - fPainter.GetXVisibleRegion()) > 1e-7) {
     redraw = true;
     fPainter.SetXVisibleRegion(fXVisibleRegion);
     UpdateScrollbarRange();
   }
 
   dO = fXOffset - fPainter.GetXOffset();
-  if (TMath::Abs(dO) > 1e-5) {
+  if (std::abs(dO) > 1e-5) {
     fPainter.SetXOffset(fXOffset);
   }
 
@@ -368,12 +368,12 @@ void View1D::DoUpdate() {
     YAutoScaleOnce(false);
   }
 
-  if (TMath::Abs(fYVisibleRegion - fPainter.GetYVisibleRegion()) > 1e-7) {
+  if (std::abs(fYVisibleRegion - fPainter.GetYVisibleRegion()) > 1e-7) {
     redraw = true;
     fPainter.SetYVisibleRegion(fYVisibleRegion);
   }
 
-  if (TMath::Abs(fYOffset - fPainter.GetYOffset()) > 1e-5) {
+  if (std::abs(fYOffset - fPainter.GetYOffset()) > 1e-5) {
     redraw = true;
     fPainter.SetYOffset(fYOffset);
   }
@@ -381,7 +381,7 @@ void View1D::DoUpdate() {
   // We can only use ShiftOffset if the shift is an integer number
   // of pixels, otherwise we will have to do a full redraw
   dOPix = fPainter.dEtodX(dO);
-  if (TMath::Abs(TMath::Ceil(dOPix - 0.5) - dOPix) > 1e-7) {
+  if (std::abs(std::ceil(dOPix - 0.5) - dOPix) > 1e-7) {
     redraw = true;
   }
 
@@ -389,8 +389,8 @@ void View1D::DoUpdate() {
     // cout << "redraw" << endl;
     fNeedClear = true;
     gClient->NeedRedraw(this);
-  } else if (TMath::Abs(dOPix) > 0.5) {
-    ShiftOffset((int)TMath::Ceil(dOPix - 0.5));
+  } else if (std::abs(dOPix) > 0.5) {
+    ShiftOffset((int)std::ceil(dOPix - 0.5));
   }
 
   UpdateScrollbarRange();
@@ -409,15 +409,15 @@ void View1D::UpdateScrollbarRange(void) {
     as = fPainter.GetWidth();
 
     minE = fMinEnergy;
-    minE = TMath::Min(minE, fPainter.GetXOffset());
+    minE = std::min(minE, fPainter.GetXOffset());
 
     maxE = fMaxEnergy;
-    maxE = TMath::Max(maxE, fPainter.GetXOffset() + fXVisibleRegion);
+    maxE = std::max(maxE, fPainter.GetXOffset() + fXVisibleRegion);
 
-    rs = (UInt_t)TMath::Ceil(fPainter.dEtodX(maxE - minE));
+    rs = (UInt_t)std::ceil(fPainter.dEtodX(maxE - minE));
 
-    pos = (UInt_t)TMath::Ceil(fPainter.dEtodX(fPainter.GetXOffset() - minE) -
-                              0.5);
+    pos =
+        (UInt_t)std::ceil(fPainter.dEtodX(fPainter.GetXOffset() - minE) - 0.5);
 
     fScrollbar->SetRange(rs, as);
     fScrollbar->SetPosition(pos);

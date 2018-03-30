@@ -33,7 +33,7 @@ double Integral::GetStdDev() {
   //! Returns the standard deviation
   //! \f[ \sigma = \sqrt{\sigma^{2}} \f]
 
-  return sqrt(GetVariance());
+  return std::sqrt(GetVariance());
 }
 
 double Integral::GetStdDevError() {
@@ -50,14 +50,14 @@ double Integral::GetWidth() {
   //! For a Gaussian distribution, this corresponds to the full width at half
   //! maximum (FWHM).
 
-  return 2. * sqrt(2. * log(2.)) * GetStdDev();
+  return 2. * std::sqrt(2. * std::log(2.)) * GetStdDev();
 }
 
 double Integral::GetWidthError() {
   //! Returns the error of the width,
   //! \f[ \Delta w = 2 \sqrt{2 \ln(2)} \Delta \sigma \f]
 
-  return 2. * sqrt(2. * log(2.)) * GetStdDevError();
+  return 2. * std::sqrt(2. * std::log(2.)) * GetStdDevError();
 }
 
 // Worker functions

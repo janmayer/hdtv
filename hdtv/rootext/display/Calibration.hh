@@ -30,7 +30,8 @@ class TArrayD;
 
 namespace HDTV {
 
-//! A calibration (channel-energy relationship) with a polynomial of an arbitrary degree
+//! A calibration (channel-energy relationship) with a polynomial of an
+//! arbitrary degree
 /** It should be noted that this class knows nothing about the binning of the
  *  histogram it might belong to. In hdtv, a Calibration is used to convert an
  *  energy to a channel, and the ROOT TAxis object of the respective histogram
