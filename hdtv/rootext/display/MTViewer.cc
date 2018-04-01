@@ -32,20 +32,19 @@ namespace HDTV {
 namespace Display {
 
 MTViewer::MTViewer(UInt_t w, UInt_t h, TH2 *mat, const char *title, bool copy)
-    : TGMainFrame(gClient->GetRoot(), w, h), fMatCopy(0) {
+    : TGMainFrame(gClient->GetRoot(), w, h) {
   if (copy) {
-    // fMatCopy = new TH2(*mat);
-    fMatCopy = static_cast<TH2 *>(mat->Clone());
-    Init(w, h, fMatCopy, title);
+    fMatCopy.reset(static_cast<TH2 *>(mat->Clone()));
+    Init(w, h, fMatCopy.get(), title);
   } else {
     Init(w, h, mat, title);
   }
 }
 
 MTViewer::MTViewer(UInt_t w, UInt_t h, THnSparse *mat, const char *title)
-    : TGMainFrame(gClient->GetRoot(), w, h), fMatCopy(0) {
-  fMatCopy = mat->Projection(0, 1, "A");
-  Init(w, h, fMatCopy, title);
+    : TGMainFrame(gClient->GetRoot(), w, h),
+      fMatCopy(mat->Projection(0, 1, "A")) {
+  Init(w, h, fMatCopy.get(), title);
 }
 
 void MTViewer::Init(UInt_t w, UInt_t h, TH2 *mat, const char *title) {
@@ -65,7 +64,6 @@ void MTViewer::Init(UInt_t w, UInt_t h, TH2 *mat, const char *title) {
 }
 
 MTViewer::~MTViewer() {
-  delete fMatCopy;
   Cleanup();
 }
 

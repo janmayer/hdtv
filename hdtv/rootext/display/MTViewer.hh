@@ -23,6 +23,8 @@
 #ifndef __MTViewer_h__
 #define __MTViewer_h__
 
+#include <memory>
+
 #include <TGFrame.h>
 
 #include "View2D.hh"
@@ -54,7 +56,7 @@ private:
 
   HDTV::Display::View2D *fView;
   TGStatusBar *fStatusBar;
-  TH2 *fMatCopy;
+  std::unique_ptr<TH2> fMatCopy;
 
   ClassDef(MTViewer, 1)
 };
