@@ -33,25 +33,25 @@ namespace Fit {
 //! Base class for background fitters
 class Background {
 public:
-  Background() {}
-  virtual ~Background() {}
+  Background() = default;
+  virtual ~Background() = default;
   virtual Background *Clone() const { return new Background(); }
-  virtual TF1 *GetFunc() { return NULL; }
+  virtual TF1 *GetFunc() { return nullptr; }
   virtual double GetMin() const {
     return std::numeric_limits<double>::quiet_NaN();
   }
   virtual double GetMax() const {
     return std::numeric_limits<double>::quiet_NaN();
   }
-  virtual double Eval(double x) const {
+  virtual double Eval(double /*x*/) const {
     return std::numeric_limits<double>::quiet_NaN();
   }
-  virtual double EvalError(double x) const {
+  virtual double EvalError(double /*x*/) const {
     return std::numeric_limits<double>::quiet_NaN();
   }
 
 private:
-  Background(const Background &b) {}
+  Background(const Background & /*b*/) = default;
 };
 
 } // end namespace Fit

@@ -43,7 +43,7 @@ public:
   MFileHist();
   ~MFileHist();
 
-  int Open(char *fname, char *fmt = NULL);
+  int Open(char *fname, char *fmt = nullptr);
   int Close();
 
   int GetFileType() { return fInfo ? fInfo->filetype : MAT_INVALID; }

@@ -31,7 +31,7 @@ namespace Fit {
 //! Description of a fit parameter
 class Param {
 public:
-  Param() {}
+  Param() = default;
 
   static Param Fixed(double val) { return Param(-1, val, false, true, true); }
   static Param Fixed() { return Param(-1, 0.0, false, false, true); }
@@ -43,8 +43,8 @@ public:
 
   bool IsFree() const { return fFree; }
   bool HasIVal() const { return fHasIVal; }
-  operator bool() const { return fValid; }
-  double Value(double *p) const { return fFree ? p[fId] : fValue; }
+  explicit operator bool() const { return fValid; }
+  double Value(const double *p) const { return fFree ? p[fId] : fValue; }
   void SetValue(double val) { fValue = val; }
 
   double Value(TF1 *func) const;

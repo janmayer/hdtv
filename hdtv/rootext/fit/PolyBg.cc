@@ -48,7 +48,7 @@ PolyBg::PolyBg(const PolyBg &src)
       fChisquare(src.fChisquare), fCovar(src.fCovar) {
   //! Copy constructor
 
-  if (src.fFunc.get() != 0) {
+  if (src.fFunc != nullptr) {
     fFunc.reset(new TF1(GetFuncUniqueName("b", this).c_str(), this,
                         &PolyBg::_Eval, src.fFunc->GetXmin(),
                         src.fFunc->GetXmax(), fBgDeg + 1, "PolyBg", "_Eval"));
@@ -64,8 +64,9 @@ PolyBg &PolyBg::operator=(const PolyBg &src) {
   //! Assignment operator
 
   // Handle self assignment
-  if (this == &src)
+  if (this == &src) {
     return *this;
+  }
 
   fBgRegions = src.fBgRegions;
   fBgDeg = src.fBgDeg;
@@ -87,8 +88,9 @@ PolyBg &PolyBg::operator=(const PolyBg &src) {
 void PolyBg::Fit(TH1 &hist) {
   //! Fit the background function to the histogram hist
 
-  if (fBgDeg < 0) // Degenerate case, no free parameters in fit
+  if (fBgDeg < 0) { // Degenerate case, no free parameters in fit
     return;
+  }
 
   // Create function to be used for fitting
   // Note that a polynomial of degree N has N+1 parameters
@@ -96,8 +98,9 @@ void PolyBg::Fit(TH1 &hist) {
               &PolyBg::_EvalRegion, GetMin(), GetMax(), fBgDeg + 1, "PolyBg",
               "_EvalRegion");
 
-  for (int i = 0; i <= fBgDeg; i++)
+  for (int i = 0; i <= fBgDeg; i++) {
     fitFunc.SetParameter(i, 0.0);
+  }
 
   // Fit
   hist.Fit(&fitFunc, "RQNM");
@@ -107,7 +110,7 @@ void PolyBg::Fit(TH1 &hist) {
 
   // Copy covariance matrix (needed for error evaluation)
   TVirtualFitter *fitter = TVirtualFitter::GetFitter();
-  if (fitter == 0) {
+  if (fitter == nullptr) {
     Error("PolyBg::Fit", "No existing fitter after fit");
   } else {
     fCovar = std::vector<std::vector<double>>(fBgDeg + 1,
@@ -206,8 +209,9 @@ double PolyBg::_EvalRegion(double *x, double *p) {
 
   bool reject = true;
   for (iter = fBgRegions.begin(); iter != fBgRegions.end() && *iter < x[0];
-       iter++)
+       iter++) {
     reject = !reject;
+  }
 
   if (reject) {
     TF1::RejectPoint();
@@ -215,8 +219,9 @@ double PolyBg::_EvalRegion(double *x, double *p) {
   } else {
     double bg;
     bg = p[fBgDeg];
-    for (int i = fBgDeg - 1; i >= 0; i--)
+    for (int i = fBgDeg - 1; i >= 0; i--) {
       bg = bg * x[0] + p[i];
+    }
     return bg;
   }
 }
@@ -225,8 +230,9 @@ double PolyBg::_Eval(double *x, double *p) {
   //! Evaluate background function at position x
 
   double bg = p[fBgDeg];
-  for (int i = fBgDeg - 1; i >= 0; i--)
+  for (int i = fBgDeg - 1; i >= 0; i--) {
     bg = bg * x[0] + p[i];
+  }
 
   return bg;
 }
@@ -234,8 +240,9 @@ double PolyBg::_Eval(double *x, double *p) {
 double PolyBg::EvalError(double x) const {
   // Returns the error of the value of the background function at position x
 
-  if (fCovar.empty()) // No covariance matrix available
+  if (fCovar.empty()) { // No covariance matrix available
     return std::numeric_limits<double>::quiet_NaN();
+  }
 
   // Evaluate \sum_{i=0}^{fBgDeg} \sum_{j=0}^{fBgDeg} cov(c_i, c_j) x^i x^j
   // via a dual Horner scheme

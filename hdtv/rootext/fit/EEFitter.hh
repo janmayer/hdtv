@@ -46,49 +46,56 @@ public:
   EEPeak(const Param &pos, const Param &amp, const Param &sigma1,
          const Param &sigma2, const Param &eta, const Param &gamma);
   EEPeak(const EEPeak &src);
-  EEPeak() {}
+  EEPeak() = default;
   EEPeak &operator=(const EEPeak &src);
 
   double Eval(double *x, double *p);
 
   double GetPos() { return fPos.Value(fFunc); };
   double GetPosError() { return fPos.Error(fFunc); };
+
   void RestorePos(double value, double error) {
     RestoreParam(fPos, value, error);
   };
 
   double GetAmp() { return fAmp.Value(fFunc); };
   double GetAmpError() { return fAmp.Error(fFunc); };
+
   void RestoreAmp(double value, double error) {
     RestoreParam(fAmp, value, error);
   };
 
   double GetSigma1() { return fSigma1.Value(fFunc); };
   double GetSigma1Error() { return fSigma1.Error(fFunc); };
+
   void RestoreSigma1(double value, double error) {
     RestoreParam(fSigma1, value, error);
   };
 
   double GetSigma2() { return fSigma2.Value(fFunc); };
   double GetSigma2Error() { return fSigma2.Error(fFunc); };
+
   void RestoreSigma2(double value, double error) {
     RestoreParam(fSigma2, value, error);
   };
 
   double GetEta() { return fEta.Value(fFunc); };
   double GetEtaError() { return fEta.Error(fFunc); };
+
   void RestoreEta(double value, double error) {
     RestoreParam(fEta, value, error);
   };
 
   double GetGamma() { return fGamma.Value(fFunc); };
   double GetGammaError() { return fGamma.Error(fFunc); };
+
   void RestoreGamma(double value, double error) {
     RestoreParam(fGamma, value, error);
   };
 
   double GetVol() { return fVol; }
   double GetVolError() { return fVolError; }
+
   void RestoreVol(double value, double error) {
     fVol = value;
     fVolError = error;
@@ -116,6 +123,10 @@ class EEFitter : public Fitter {
 public:
   EEFitter(double r1, double r2) : Fitter(r1, r2) {}
 
+  // Copying the fitter is not supported
+  EEFitter(const EEFitter &) = delete;
+  EEFitter &operator=(const EEFitter &) = delete;
+
   void AddPeak(const EEPeak &peak);
   void Fit(TH1 &hist, const Background &bg);
   void Fit(TH1 &hist, int intBgDeg = -1);
@@ -134,9 +145,6 @@ public:
   // double GetVolError() { return fIntError; }
 
 private:
-  // Copying the fitter is not supported
-  EEFitter(const EEFitter &src) : Fitter(0., 0.) {}
-  EEFitter &operator=(const EEFitter &src) { return *this; }
 
   double Eval(double *x, double *p);
   double EvalBg(double *x, double *p);

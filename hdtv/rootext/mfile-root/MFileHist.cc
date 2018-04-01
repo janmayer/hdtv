@@ -56,23 +56,25 @@ const char *MFileHist::GetErrorMsg(int error_nr) {
                                     "Invalid format specified",
                                     "Unknown error"};
 
-  if (error_nr < 0 || error_nr > ERR_UNKNOWN)
+  if (error_nr < 0 || error_nr > ERR_UNKNOWN) {
     error_nr = ERR_UNKNOWN;
+  }
 
   return errorDesc[error_nr];
 }
 
 MFileHist::MFileHist() {
-  fHist = NULL;
-  fInfo = NULL;
+  fHist = nullptr;
+  fInfo = nullptr;
   fErrno = ERR_SUCCESS;
 }
 
 MFileHist::~MFileHist() {
   delete fInfo;
 
-  if (fHist)
+  if (fHist) {
     mclose(fHist);
+  }
 }
 
 int MFileHist::WriteTH1(const TH1 *hist, char *fname, char *fmt) {
@@ -81,8 +83,9 @@ int MFileHist::WriteTH1(const TH1 *hist, char *fname, char *fmt) {
   int nbins = hist->GetNbinsX();
 
   mf = mopen(fname, const_cast<char *>("w"));
-  if (!mf)
+  if (!mf) {
     return ERR_WRITE_OPEN;
+  }
 
   if (msetfmt(mf, fmt) != 0) {
     mclose(mf);
@@ -99,16 +102,18 @@ int MFileHist::WriteTH1(const TH1 *hist, char *fname, char *fmt) {
   }
 
   TArrayD buf(nbins);
-  for (int i = 0; i < nbins; i++)
+  for (int i = 0; i < nbins; i++) {
     buf[i] = hist->GetBinContent(i + 1);
+  }
 
   if (mputdbl(mf, buf.GetArray(), 0, 0, 0, nbins) != nbins) {
     mclose(mf);
     return ERR_WRITE_PUT;
   }
 
-  if (mclose(mf) != 0)
+  if (mclose(mf) != 0) {
     return ERR_WRITE_CLOSE;
+  }
 
   return ERR_SUCCESS;
 }
@@ -121,8 +126,9 @@ int MFileHist::WriteTH2(const TH2 *hist, char *fname, char *fmt) {
   int col, line;
 
   mf = mopen(fname, const_cast<char *>("w"));
-  if (!mf)
+  if (!mf) {
     return ERR_WRITE_OPEN;
+  }
 
   if (msetfmt(mf, fmt) != 0) {
     mclose(mf);
@@ -141,11 +147,13 @@ int MFileHist::WriteTH2(const TH2 *hist, char *fname, char *fmt) {
   TArrayD buf(nbinsx);
 
   for (line = 0; line < nbinsy; line++) {
-    for (col = 0; col < nbinsx; col++)
+    for (col = 0; col < nbinsx; col++) {
       buf[col] = hist->GetBinContent(col + 1, line + 1);
+    }
 
-    if (mputdbl(mf, buf.GetArray(), 0, line, 0, nbinsx) != nbinsx)
+    if (mputdbl(mf, buf.GetArray(), 0, line, 0, nbinsx) != nbinsx) {
       break;
+    }
   }
 
   if (line != nbinsy) {
@@ -153,8 +161,9 @@ int MFileHist::WriteTH2(const TH2 *hist, char *fname, char *fmt) {
     return ERR_WRITE_PUT;
   }
 
-  if (mclose(mf) != 0)
+  if (mclose(mf) != 0) {
     return ERR_WRITE_CLOSE;
+  }
 
   return ERR_SUCCESS;
 }
@@ -164,7 +173,7 @@ int MFileHist::Open(char *fname, char *fmt) {
    * return an error otherwise. We then set the format for the real matrix with
    * no further error checking. This mirrors how it is done in the matconv
    * program. */
-  if (fmt && msetfmt(NULL, fmt) != 0) {
+  if (fmt && msetfmt(nullptr, fmt) != 0) {
     fErrno = ERR_INVALID_FORMAT;
     return fErrno;
   }
@@ -175,17 +184,18 @@ int MFileHist::Open(char *fname, char *fmt) {
     return fErrno;
   }
 
-  if (fmt)
+  if (fmt) {
     msetfmt(fHist, fmt);
+  }
 
   fInfo = new minfo;
 
   if (mgetinfo(fHist, fInfo) != 0) {
     delete fInfo;
-    fInfo = NULL;
+    fInfo = nullptr;
 
     mclose(fHist);
-    fHist = NULL;
+    fHist = nullptr;
 
     fErrno = ERR_READ_INFO;
     return fErrno;
@@ -197,12 +207,13 @@ int MFileHist::Open(char *fname, char *fmt) {
 
 int MFileHist::Close() {
   delete fInfo;
-  fInfo = NULL;
+  fInfo = nullptr;
   fErrno = ERR_SUCCESS;
 
-  if (fHist && mclose(fHist) != 0)
+  if (fHist && mclose(fHist) != 0) {
     fErrno = ERR_READ_CLOSE;
-  fHist = NULL;
+  }
+  fHist = nullptr;
 
   return fErrno;
 }
@@ -214,12 +225,12 @@ histType *MFileHist::ToTH1(const char *name, const char *title,
 
   if (!fHist || !fInfo) {
     fErrno = ERR_READ_NOTOPEN;
-    return NULL;
+    return nullptr;
   }
 
   if (level >= fInfo->levels || line >= fInfo->lines) {
     fErrno = ERR_READ_BADIDX;
-    return NULL;
+    return nullptr;
   }
 
   hist = new histType(name, title, fInfo->columns, -0.5, fInfo->columns - 0.5);
@@ -227,7 +238,7 @@ histType *MFileHist::ToTH1(const char *name, const char *title,
   // FillTH1 will set fErrno
   if (!FillTH1(hist, level, line)) {
     delete hist;
-    return NULL;
+    return nullptr;
   }
 
   return hist;
@@ -236,12 +247,12 @@ histType *MFileHist::ToTH1(const char *name, const char *title,
 TH1 *MFileHist::FillTH1(TH1 *hist, unsigned int level, unsigned int line) {
   if (!fHist || !fInfo) {
     fErrno = ERR_READ_NOTOPEN;
-    return NULL;
+    return nullptr;
   }
 
   if (level >= fInfo->levels || line >= fInfo->lines) {
     fErrno = ERR_READ_BADIDX;
-    return NULL;
+    return nullptr;
   }
 
   TArrayD buf(fInfo->columns);
@@ -249,7 +260,7 @@ TH1 *MFileHist::FillTH1(TH1 *hist, unsigned int level, unsigned int line) {
   int rc = mgetdbl(fHist, buf.GetArray(), level, line, 0, fInfo->columns);
   if (rc < 0 || static_cast<unsigned int>(rc) != fInfo->columns) {
     fErrno = ERR_READ_GET;
-    return NULL;
+    return nullptr;
   }
 
   for (unsigned int i = 0; i < fInfo->columns; i++) {
@@ -274,18 +285,18 @@ double *MFileHist::FillBuf1D(double *buf, unsigned int level,
                              unsigned int line) {
   if (!fHist || !fInfo) {
     fErrno = ERR_READ_NOTOPEN;
-    return NULL;
+    return nullptr;
   }
 
   if (level >= fInfo->levels || line >= fInfo->lines) {
     fErrno = ERR_READ_BADIDX;
-    return NULL;
+    return nullptr;
   }
 
   int rc = mgetdbl(fHist, buf, level, line, 0, fInfo->columns);
   if (rc < 0 || static_cast<unsigned int>(rc) != fInfo->columns) {
     fErrno = ERR_READ_GET;
-    return NULL;
+    return nullptr;
   }
 
   fErrno = ERR_SUCCESS;
@@ -297,20 +308,21 @@ TH2 *MFileHist::FillTH2(TH2 *hist, unsigned int level) {
 
   if (!fHist || !fInfo) {
     fErrno = ERR_READ_NOTOPEN;
-    return NULL;
+    return nullptr;
   }
 
   if (level >= fInfo->levels) {
     fErrno = ERR_READ_BADIDX;
-    return NULL;
+    return nullptr;
   }
 
   TArrayD buf(fInfo->columns);
 
   for (line = 0; line < fInfo->lines; line++) {
     int rc = mgetdbl(fHist, buf.GetArray(), level, line, 0, fInfo->columns);
-    if (rc < 0 || static_cast<unsigned int>(rc) != fInfo->columns)
+    if (rc < 0 || static_cast<unsigned int>(rc) != fInfo->columns) {
       break;
+    }
 
     for (col = 0; col < fInfo->columns; col++) {
       hist->SetBinContent(col + 1, line + 1, buf[col]);
@@ -319,7 +331,7 @@ TH2 *MFileHist::FillTH2(TH2 *hist, unsigned int level) {
 
   if (line != fInfo->lines) {
     fErrno = ERR_READ_GET;
-    return NULL;
+    return nullptr;
   }
 
   fErrno = ERR_SUCCESS;
@@ -333,12 +345,12 @@ histType *MFileHist::ToTH2(const char *name, const char *title,
 
   if (!fHist || !fInfo) {
     fErrno = ERR_READ_NOTOPEN;
-    return NULL;
+    return nullptr;
   }
 
   if (level >= fInfo->levels) {
     fErrno = ERR_READ_BADIDX;
-    return NULL;
+    return nullptr;
   }
 
   hist = new histType(name, title, fInfo->columns, -0.5, fInfo->columns - 0.5,
@@ -347,7 +359,7 @@ histType *MFileHist::ToTH2(const char *name, const char *title,
   // FillTH2 will set fErrno
   if (!FillTH2(hist, level)) {
     delete hist;
-    return NULL;
+    return nullptr;
   }
 
   return hist;

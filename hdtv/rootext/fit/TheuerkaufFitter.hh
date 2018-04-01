@@ -50,6 +50,7 @@ class TheuerkaufPeak {
   friend class TheuerkaufFitter;
 
 public:
+  TheuerkaufPeak() = default;
   TheuerkaufPeak(const Param &pos, const Param &vol, const Param &sigma,
                  const Param &tl = Param::Empty(),
                  const Param &tr = Param::Empty(),
@@ -57,7 +58,6 @@ public:
                  const Param &sw = Param::Empty());
   TheuerkaufPeak(const TheuerkaufPeak &src);
   TheuerkaufPeak &operator=(const TheuerkaufPeak &src);
-  TheuerkaufPeak() {}
 
   double Eval(double *x, double *p);
   double EvalNoStep(double *x, double *p);
@@ -178,6 +178,10 @@ public:
   TheuerkaufFitter(double r1, double r2, bool debugShowInipar = false)
       : Fitter(r1, r2), fDebugShowInipar(debugShowInipar) {}
 
+  // Copying the fitter is not supported
+  TheuerkaufFitter(const TheuerkaufFitter &) = delete;
+  TheuerkaufFitter &operator=(const TheuerkaufFitter &) = delete;
+
   void AddPeak(const TheuerkaufPeak &peak);
   void Fit(TH1 &hist, const Background &bg);
   void Fit(TH1 &hist, int intBgDeg = -1);
@@ -192,12 +196,8 @@ public:
                double ChiSquare);
 
 private:
-  // Copying the fitter is not supported
-  TheuerkaufFitter(const TheuerkaufFitter &src) : Fitter(0., 0.) {}
-  TheuerkaufFitter &operator=(const TheuerkaufFitter &src) { return *this; }
-
-  typedef std::vector<TheuerkaufPeak> PeakVector_t;
-  typedef PeakVector_t::size_type PeakID_t;
+  using PeakVector_t = std::vector<TheuerkaufPeak>;
+  using PeakID_t = PeakVector_t::size_type;
 
   class CmpPeakPos {
   public:

@@ -58,62 +58,79 @@ const char *MatOp::ErrDesc[] = {
 
 int MatOp::Project(const char *src_fname, const char *prx_fname,
                    const char *pry_fname) {
-  if (prx_fname && !(*prx_fname))
-    prx_fname = 0;
-  if (pry_fname && !(*pry_fname))
-    pry_fname = 0;
+  if (prx_fname && !(*prx_fname)) {
+    prx_fname = nullptr;
+  }
+  if (pry_fname && !(*pry_fname)) {
+    pry_fname = nullptr;
+  }
 
   MFile in_matrix(src_fname, "r");
-  if (in_matrix.IsZombie())
+  if (in_matrix.IsZombie()) {
     return ERR_SRC_OPEN;
+  }
 
   // std::cout << "Info: input format is " << mgetfmt(in_matrix, NULL) <<
   // std::endl;
 
   MFile out_prx(prx_fname, "w");
-  if (out_prx.IsZombie())
+  if (out_prx.IsZombie()) {
     return ERR_PRX_OPEN;
+  }
 
   if (!out_prx.IsNull()) {
-    if (matop_adjustfmts_prx(out_prx, in_matrix) != 0)
+    if (matop_adjustfmts_prx(static_cast<MFILE *>(out_prx),
+                             static_cast<MFILE *>(in_matrix)) != 0) {
       return ERR_PRX_FMT;
+    }
   }
 
   MFile out_pry(pry_fname, "w");
-  if (out_pry.IsZombie())
+  if (out_pry.IsZombie()) {
     return ERR_PRY_OPEN;
-
-  if (!out_pry.IsNull()) {
-    if (matop_adjustfmts_pry(out_pry, in_matrix) != 0)
-      return ERR_PRY_FMT;
   }
 
-  if (matop_proj(out_prx, out_pry, in_matrix) != 0)
+  if (!out_pry.IsNull()) {
+    if (matop_adjustfmts_pry(static_cast<MFILE *>(out_pry),
+                             static_cast<MFILE *>(in_matrix)) != 0) {
+      return ERR_PRY_FMT;
+    }
+  }
+
+  if (matop_proj(static_cast<MFILE *>(out_prx), static_cast<MFILE *>(out_pry),
+                 static_cast<MFILE *>(in_matrix)) != 0) {
     return ERR_PROJ_FAIL;
+  }
 
   return ERR_SUCCESS;
 }
 
 int MatOp::Transpose(const char *src_fname, const char *dst_fname) {
   MFile in_matrix(src_fname, "r");
-  if (in_matrix.IsZombie())
+  if (in_matrix.IsZombie()) {
     return ERR_SRC_OPEN;
+  }
 
   // std::cout << "Info: input format is " << mgetfmt(in_matrix, NULL) <<
   // std::endl;
 
   MFile out_matrix(dst_fname, "w");
-  if (out_matrix.IsZombie())
+  if (out_matrix.IsZombie()) {
     return ERR_TRANS_OPEN;
+  }
 
-  if (matop_adjustfmts_trans(out_matrix, in_matrix) != 0)
+  if (matop_adjustfmts_trans(static_cast<MFILE *>(out_matrix),
+                             static_cast<MFILE *>(in_matrix)) != 0) {
     return ERR_TRANS_FMT;
+  }
 
   // std::cout << "Info: output format is " << mgetfmt(out_matrix, NULL) <<
   // std::endl;
 
-  if (matop_conv(out_matrix, in_matrix, MAT_TRANS) != 0)
+  if (matop_conv(static_cast<MFILE *>(out_matrix),
+                 static_cast<MFILE *>(in_matrix), MAT_TRANS) != 0) {
     return ERR_TRANS_FAIL;
+  }
 
   matop_conv_free_cache();
 
@@ -121,8 +138,9 @@ int MatOp::Transpose(const char *src_fname, const char *dst_fname) {
 }
 
 const char *MatOp::GetErrorString(int error_nr) {
-  if (error_nr < 0 || error_nr > MAX_ERR)
+  if (error_nr < 0 || error_nr > MAX_ERR) {
     error_nr = ERR_UNKNOWN;
+  }
 
   return ErrDesc[error_nr];
 }

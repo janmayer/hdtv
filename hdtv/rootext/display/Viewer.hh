@@ -66,7 +66,7 @@ protected:
   TGHScrollBar *fScrollbar;
   TGStatusBar *fStatusBar;
 
-  ClassDef(Viewer, 1)
+  ClassDef(Viewer, 1) // NOLINT
 };
 
 } // end namespace Display

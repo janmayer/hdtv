@@ -43,7 +43,7 @@ namespace Fit {
 
 class PolyBg : public Background {
 public:
-  PolyBg(int bgDeg = 0);
+  explicit PolyBg(int bgDeg = 0);
   PolyBg(const PolyBg &src);
   PolyBg &operator=(const PolyBg &src);
 
@@ -59,11 +59,11 @@ public:
 
   int GetDegree() { return fBgDeg; }
   double GetChisquare() { return fChisquare; }
-  virtual double GetMin() const {
+  double GetMin() const override {
     return fBgRegions.empty() ? std::numeric_limits<double>::quiet_NaN()
                               : *(fBgRegions.begin());
   }
-  virtual double GetMax() const {
+  double GetMax() const override {
     return fBgRegions.empty() ? std::numeric_limits<double>::quiet_NaN()
                               : *(fBgRegions.rbegin());
   }
@@ -72,14 +72,14 @@ public:
   bool Restore(const TArrayD &values, const TArrayD &errors, double ChiSquare);
   void AddRegion(double p1, double p2);
 
-  virtual PolyBg *Clone() const { return new PolyBg(*this); }
-  virtual TF1 *GetFunc() { return fFunc.get(); }
+  PolyBg *Clone() const override { return new PolyBg(*this); }
+  TF1 *GetFunc() override { return fFunc.get(); }
 
-  virtual double Eval(double x) const {
+  double Eval(double x) const override {
     return fFunc ? fFunc->Eval(x) : std::numeric_limits<double>::quiet_NaN();
   }
 
-  virtual double EvalError(double x) const;
+  double EvalError(double x) const override;
 
 private:
   double _EvalRegion(double *x, double *p);

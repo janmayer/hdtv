@@ -37,68 +37,36 @@ namespace HDTV {
 namespace Fit {
 
 // *** TheuerkaufPeak ***
+//! Constructor
+//! Note that no tails correspond to tail parameters tl = tr = \infty. However,
+//! all  member functions are supposed to check fHasLeftTail and fHasRightTail
+//! and then ignore the tail parameters. We only need to have some definite
+//! value to not interfere with norm caching.
 TheuerkaufPeak::TheuerkaufPeak(const Param &pos, const Param &vol,
                                const Param &sigma, const Param &tl,
                                const Param &tr, const Param &sh,
-                               const Param &sw) {
-  //! Constructor
+                               const Param &sw)
+    : fPos{pos}, fVol{vol}, fSigma{sigma}, fTL{tl ? tl : Param::Fixed(0.0)},
+      fTR{tr ? tr : Param::Fixed(0.0)}, fSH{sh ? sh : Param::Fixed(0.0)},
+      fSW{sw ? sw : Param::Fixed(1.0)}, fHasLeftTail{tl},
+      fHasRightTail{tr}, fHasStep{sh}, fFunc{nullptr},
+      fCachedNorm{std::numeric_limits<double>::quiet_NaN()},
+      fCachedSigma{std::numeric_limits<double>::quiet_NaN()},
+      fCachedTL{std::numeric_limits<double>::quiet_NaN()},
+      fCachedTR{std::numeric_limits<double>::quiet_NaN()} {}
 
-  fPos = pos;
-  fVol = vol;
-  fSigma = sigma;
-
-  // Note that no tails correspond to tail parameters tl = tr = \infty. However,
-  // all
-  // member functions are supposed to check fHasLeftTail and fHasRightTail and
-  // then ignore the tail parameters. We only need to have some definite value
-  // to
-  // not interfere with norm caching.
-  if (!tl) {
-    fTL = Param::Fixed(0.0);
-    fHasLeftTail = false;
-  } else {
-    fTL = tl;
-    fHasLeftTail = true;
-  }
-
-  if (!tr) {
-    fTR = Param::Fixed(0.0);
-    fHasRightTail = false;
-  } else {
-    fTR = tr;
-    fHasRightTail = true;
-  }
-
-  if (!sh) {
-    fSH = Param::Fixed(0.0);
-    fHasStep = false;
-  } else {
-    fSH = sh;
-    fHasStep = true;
-  }
-
-  if (!sw) {
-    fSW = Param::Fixed(1.0);
-  } else {
-    fSW = sw;
-  }
-
-  fFunc = NULL;
-}
-
+//! Copy constructor
+//! Does not copy the fPeakFunc pointer, it will be re-generated when needed.
 TheuerkaufPeak::TheuerkaufPeak(const TheuerkaufPeak &src)
-    : fPos(src.fPos), fVol(src.fVol), fSigma(src.fSigma), fTL(src.fTL),
-      fTR(src.fTR), fSH(src.fSH), fSW(src.fSW), fHasLeftTail(src.fHasLeftTail),
-      fHasRightTail(src.fHasRightTail), fHasStep(src.fHasStep),
-      fFunc(src.fFunc), fPeakFunc(nullptr) // Do not copy the fPeakFunc pointer,
-                                           // it will be generated when needed.
-{
-  //! Copy constructor
-}
+    : fPos{src.fPos}, fVol{src.fVol}, fSigma{src.fSigma}, fTL{src.fTL},
+      fTR{src.fTR}, fSH{src.fSH}, fSW{src.fSW}, fHasLeftTail{src.fHasLeftTail},
+      fHasRightTail{src.fHasRightTail}, fHasStep{src.fHasStep},
+      fFunc{src.fFunc}, fCachedNorm{src.fCachedNorm},
+      fCachedSigma{src.fCachedSigma}, fCachedTL{src.fCachedTL},
+      fCachedTR{src.fCachedTR} {}
 
+//! Assignment operator (handles self-assignment implicitly)
 TheuerkaufPeak &TheuerkaufPeak::operator=(const TheuerkaufPeak &src) {
-  //! Assignment operator (handles self-assignment implicitly)
-
   fPos = src.fPos;
   fVol = src.fVol;
   fSigma = src.fSigma;
@@ -110,9 +78,13 @@ TheuerkaufPeak &TheuerkaufPeak::operator=(const TheuerkaufPeak &src) {
   fHasRightTail = src.fHasRightTail;
   fHasStep = src.fHasStep;
   fFunc = src.fFunc;
+  fCachedNorm = src.fCachedNorm;
+  fCachedSigma = src.fCachedSigma;
+  fCachedTL = src.fCachedTL;
+  fCachedTR = src.fCachedTR;
 
   // Do not copy the fPeakFunc pointer, it will be generated when needed.
-  fPeakFunc.reset(0);
+  fPeakFunc.reset(nullptr);
 
   return *this;
 }
@@ -123,12 +95,12 @@ void TheuerkaufPeak::RestoreParam(const Param &param, double value,
   //! Warnings:    Restore function of corresponding fitter has to be called
   //!              beforehand!
 
-  if (fFunc != NULL) {
+  if (fFunc) {
     fFunc->SetParameter(param._Id(), value);
     fFunc->SetParError(param._Id(), error);
   }
 
-  if (fPeakFunc.get()) {
+  if (fPeakFunc) {
     fPeakFunc->SetParameter(param._Id(), value);
     fPeakFunc->SetParError(param._Id(), error);
   }
@@ -137,11 +109,13 @@ void TheuerkaufPeak::RestoreParam(const Param &param, double value,
 const double TheuerkaufPeak::DECOMP_FUNC_WIDTH = 5.0;
 
 TF1 *TheuerkaufPeak::GetPeakFunc() {
-  if (fPeakFunc.get() != 0)
+  if (fPeakFunc) {
     return fPeakFunc.get();
+  }
 
-  if (fFunc == NULL)
-    return NULL;
+  if (!fFunc) {
+    return nullptr;
+  }
 
   double min = fPos.Value(fFunc) - DECOMP_FUNC_WIDTH * fSigma.Value(fFunc);
   double max = fPos.Value(fFunc) + DECOMP_FUNC_WIDTH * fSigma.Value(fFunc);
@@ -238,8 +212,9 @@ double TheuerkaufPeak::GetNorm(double sigma, double tl, double tr) {
 void TheuerkaufFitter::AddPeak(const TheuerkaufPeak &peak) {
   //! Adds a peak to the peak list
 
-  if (IsFinal())
+  if (IsFinal()) {
     return;
+  }
 
   fPeaks.push_back(peak);
   fNumPeaks++;
@@ -248,11 +223,8 @@ void TheuerkaufFitter::AddPeak(const TheuerkaufPeak &peak) {
 double TheuerkaufFitter::Eval(double *x, double *p) {
   //! Private: evaluation function for fit
 
-  double sum = 0.0;
-
   // Evaluate background function, if it has been given
-  if (fBackground.get() != 0)
-    sum = fBackground->Eval(*x);
+  double sum = fBackground ? fBackground->Eval(*x) : 0.0;
 
   // Evaluate internal background
   double bg = 0.0;
@@ -273,11 +245,8 @@ double TheuerkaufFitter::Eval(double *x, double *p) {
 double TheuerkaufFitter::EvalBg(double *x, double *p) {
   //! Private: evaluation function for background
 
-  double sum = 0.0;
-
   // Evaluate background function, if it has been given
-  if (fBackground.get() != 0)
-    sum = fBackground->Eval(*x);
+  double sum = fBackground ? fBackground->Eval(*x) : 0.0;
 
   // Evaluate internal background
   double bg = 0.0;
@@ -295,21 +264,23 @@ double TheuerkaufFitter::EvalBg(double *x, double *p) {
   return sum;
 }
 
+//! Return a pointer to a function describing this fits background, including
+//! any steps in peaks.
+//!
+//! The function remains owned by the TheuerkaufFitter and is only valid as
+//! long as the TheuerkaufFitter is.
 TF1 *TheuerkaufFitter::GetBgFunc() {
-  //! Return a pointer to a function describing this fits background, including
-  //! any steps in peaks.
-  //! The function remains owned by the TheuerkaufFitter and is only valid as
-  //! long
-  //! as the TheuerkaufFitter is.
 
-  if (fBgFunc.get() != 0)
+  if (fBgFunc != nullptr) {
     return fBgFunc.get();
+  }
 
-  if (fSumFunc.get() == 0)
-    return 0;
+  if (fSumFunc == nullptr) {
+    return nullptr;
+  }
 
   double min, max;
-  if (fBackground.get() != 0) {
+  if (fBackground != nullptr) {
     min = std::min(fMin, fBackground->GetMin());
     max = std::max(fMax, fBackground->GetMax());
   } else {
@@ -333,8 +304,9 @@ void TheuerkaufFitter::Fit(TH1 &hist, const Background &bg) {
   //! Do the fit, using the given background function
 
   // Refuse to fit twice
-  if (IsFinal())
+  if (IsFinal()) {
     return;
+  }
 
   fBackground.reset(bg.Clone());
   fIntBgDeg = -1;
@@ -346,8 +318,9 @@ void TheuerkaufFitter::Fit(TH1 &hist, int intBgDeg) {
   //! at the same time. Set intBgDeg to -1 to disable background completely.
 
   // Refuse to fit twice
-  if (IsFinal())
+  if (IsFinal()) {
     return;
+  }
 
   fBackground.reset();
   fIntBgDeg = intBgDeg;
@@ -393,23 +366,26 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
   if (fIntBgDeg >= 0) {
     if (steps) {
       intBg0 = hist.GetBinContent(b1);
-      if (fBackground.get() != 0)
+      if (fBackground != nullptr) {
         intBg0 -= fBackground->Eval(hist.GetBinCenter(b1));
+      }
     } else {
       intBg0 = std::numeric_limits<double>::infinity();
 
-      if (fBackground.get() != 0) {
+      if (fBackground != nullptr) {
         for (int b = b1; b <= b2; ++b) {
           double bc =
               hist.GetBinContent(b) - fBackground->Eval(hist.GetBinCenter(b));
-          if (bc < intBg0)
+          if (bc < intBg0) {
             intBg0 = bc;
+          }
         }
       } else {
         for (int b = b1; b <= b2; ++b) {
           double bc = hist.GetBinContent(b);
-          if (bc < intBg0)
+          if (bc < intBg0) {
             intBg0 = bc;
+          }
         }
       }
     }
@@ -417,8 +393,9 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
     // Set background parameters of sum function
     fSumFunc->SetParameter(fNumParams - fIntBgDeg - 1, intBg0);
     if (fIntBgDeg >= 1) {
-      for (int i = fNumParams - fIntBgDeg; i < fNumParams; ++i)
+      for (int i = fNumParams - fIntBgDeg; i < fNumParams; ++i) {
         fSumFunc->SetParameter(i, 0.0);
+      }
     }
   }
 
@@ -448,12 +425,12 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
   }
 
   // Estimate peak amplitudes:
-  // We assume that the peak positions provided are already a good estimate
-  // of the peak centers. The peak amplitude is then estimated as the
-  // bin content at the center, with possible external and internal
-  // background, and a possible step, substracted. Note that our estimate
-  // gets bad if peaks overlap a lot, but it seems hard to do something
-  // about this, because we do not know the peak width yet.
+  // We assume that the peak positions provided are already a good estimate of
+  // the peak centers. The peak amplitude is then estimated as the bin content
+  // at the center, with possible external and internal background, and a
+  // possible step, substracted. Note that our estimate gets bad if peaks
+  // overlap a lot, but it seems hard to do something about this, because we do
+  // not know the peak width yet.
   std::vector<double> amps;
   amps.reserve(fPeaks.size());
   double sumAmp = 0.0;
@@ -502,13 +479,15 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
   }
 
   // Estimate peak parameters
+  //
   // Assuming that all peaks in the fit have the same width, their volume is
   // proportional to their amplitude. We thus calculate the total volume as a
-  // sum over bin contents (with background substracted) and distribute it
-  // among the peaks according to their amplitude. Last, we can estimate the
-  // common width from the total volume and the sum of the amplitudes.
-  // NOTE: This assumes that the peaks are purely Gaussian, i.e. that there
-  // are no tails.
+  // sum over bin contents (with background substracted) and distribute it among
+  // the peaks according to their amplitude. Last, we can estimate the common
+  // width from the total volume and the sum of the amplitudes.
+  //
+  // NOTE: This assumes that the peaks are purely Gaussian, i.e. that there are
+  // no tails.
 
   // First: calculate total volume
   double sumVol = 0.0;
@@ -516,7 +495,7 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
     sumVol += hist.GetBinContent(b);
   }
   sumVol -= intBg0 * (b2 - b1 + 1.);
-  if (fBackground.get() != 0) {
+  if (fBackground != nullptr) {
     for (int b = b1; b <= b2; ++b) {
       sumVol -= fBackground->Eval(hist.GetBinCenter(b));
     }
@@ -587,20 +566,17 @@ TheuerkaufFitter::CmpPeakPos::CmpPeakPos(const PeakVector_t &peaks) {
   }
 }
 
+//! Restore the fit, using the given background function
 bool TheuerkaufFitter::Restore(const Background &bg, double ChiSquare) {
-  //! Restore the fit, using the given background function
-
   fBackground.reset(bg.Clone());
   fIntBgDeg = -1;
-
   _Restore(ChiSquare);
   return true;
 }
 
+//! Restore the fit, using the given internal background polynomial
 bool TheuerkaufFitter::Restore(const TArrayD &bgPolValues,
                                const TArrayD &bgPolErrors, double ChiSquare) {
-  //! Restore the fit, using the given internal background polynomial
-
   fBackground.reset();
 
   if (bgPolValues.GetSize() != bgPolErrors.GetSize()) {
@@ -629,9 +605,8 @@ bool TheuerkaufFitter::Restore(const TArrayD &bgPolValues,
   return true;
 }
 
+//! Internal worker function to restore the fit
 void TheuerkaufFitter::_Restore(double ChiSquare) {
-  //! Internal worker function to restore the fit
-
   // Create fit function
   fSumFunc.reset(new TF1(GetFuncUniqueName("f", this).c_str(), this,
                          &TheuerkaufFitter::Eval, fMin, fMax, fNumParams,

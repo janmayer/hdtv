@@ -137,7 +137,7 @@ protected:
   // Viewport dimensions (updated by Layout())
   int fVPHeight, fVPWidth;
 
-  ClassDef(View2D, 1)
+  ClassDef(View2D, 1) // NOLINT
 };
 
 } // end namespace Display

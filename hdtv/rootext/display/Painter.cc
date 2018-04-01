@@ -255,7 +255,7 @@ void Painter::DrawIDList(const std::list<DisplayObj *> &objects) {
   for (const auto &obj : objects) {
     if (auto spec = dynamic_cast<const DisplaySpec *>(obj)) {
       if (!spec->IsVisible()) {
-	continue;
+        continue;
       }
       tmp = spec->GetID();
       tmp.push_back(' ');

@@ -27,13 +27,13 @@
 
 class MFile {
 public:
-  MFile(const char *fname = 0, const char *mode = "r");
+  explicit MFile(const char *fname = nullptr, const char *mode = "r");
   ~MFile();
 
   bool IsZombie() { return fZombie; }
-  bool IsNull() { return fFile == 0; }
+  bool IsNull() { return fFile == nullptr; }
   MFILE *File() { return fFile; }
-  operator MFILE *() { return fFile; }
+  explicit operator MFILE *() { return fFile; }
 
 private:
   bool fZombie;

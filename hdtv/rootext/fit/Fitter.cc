@@ -41,25 +41,29 @@ Param Fitter::AllocParam(double ival) {
 }
 
 void Fitter::SetParameter(TF1 &func, Param &param, double ival) {
-  if (!param.HasIVal())
+  if (!param.HasIVal()) {
     param.SetValue(ival);
+  }
 
-  if (param.IsFree())
+  if (param.IsFree()) {
     func.SetParameter(param._Id(), param._Value());
+  }
 }
 
 double Fitter::GetIntBgCoeff(int i) const {
-  if (fSumFunc.get() == 0 || i < 0 || i > fIntBgDeg)
+  if (fSumFunc == nullptr || i < 0 || i > fIntBgDeg) {
     return std::numeric_limits<double>::quiet_NaN();
-  else
+  } else {
     return fSumFunc->GetParameter(fNumParams - fIntBgDeg - 1 + i);
+  }
 }
 
 double Fitter::GetIntBgCoeffError(int i) const {
-  if (fSumFunc.get() == 0 || i < 0 || i > fIntBgDeg)
+  if (fSumFunc == nullptr || i < 0 || i > fIntBgDeg) {
     return std::numeric_limits<double>::quiet_NaN();
-  else
+  } else {
     return fSumFunc->GetParError(fNumParams - fIntBgDeg - 1 + i);
+  }
 }
 
 } // end namespace Fit

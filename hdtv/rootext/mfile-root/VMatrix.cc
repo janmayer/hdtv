@@ -33,8 +33,9 @@ void VMatrix::AddRegion(std::list<int> &reglist, int l1, int l2) {
   int max = std::max(l1, l2);
 
   // Perform clipping
-  if (max < GetCutLowBin() || min > GetCutHighBin())
+  if (max < GetCutLowBin() || min > GetCutHighBin()) {
     return;
+  }
   min = std::max(min, GetCutLowBin());
   max = std::min(max, GetCutHighBin());
 
@@ -70,11 +71,13 @@ TH1 *VMatrix::Cut(const char *histname, const char *histtitle) {
   int nCut = 0, nBg = 0; // total number of cut and background lines
   int pbins = GetProjXbins();
 
-  if (Failed())
-    return NULL;
+  if (Failed()) {
+    return nullptr;
+  }
 
-  if (fCutRegions.empty())
-    return NULL;
+  if (fCutRegions.empty()) {
+    return nullptr;
+  }
 
   // Sum of cut lines
   TArrayD sum(pbins);
@@ -107,11 +110,11 @@ TH1 *VMatrix::Cut(const char *histname, const char *histtitle) {
       }
     }
   } catch (ReadException &) {
-    return NULL;
+    return nullptr;
   }
 
   double bgFac = (nBg == 0) ? 0.0 : static_cast<double>(nCut) / nBg;
-  TH1D *hist = new TH1D(histname, histtitle, GetProjXbins(), GetProjXmin(),
+  auto hist = new TH1D(histname, histtitle, GetProjXbins(), GetProjXmin(),
                         GetProjXmax());
   // cols, -0.5, (double) cols - 0.5);
   for (int c = 0; c < pbins; c++) {
@@ -153,8 +156,9 @@ MFMatrix::MFMatrix(MFileHist *mat, unsigned int level)
 }
 
 void MFMatrix::AddLine(TArrayD &dst, int l) {
-  if (!fMatrix->FillBuf1D(fBuf.GetArray(), fLevel, l))
+  if (!fMatrix->FillBuf1D(fBuf.GetArray(), fLevel, l)) {
     throw ReadException();
+  }
 
   int cols = fMatrix->GetNColumns();
 

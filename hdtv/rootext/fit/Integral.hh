@@ -37,14 +37,14 @@ template <typename T> class CachedValue {
 
 public:
   CachedValue() : valid_{false} {}
-  CachedValue(const T &value) : value_{value}, valid_{true} {}
+  explicit CachedValue(const T &value) : value_{value}, valid_{true} {}
 
-  operator bool() const { return valid_; }
+  explicit operator bool() const { return valid_; }
 
   CachedValue<T> &operator=(const T &value) {
     value_ = value;
     valid_ = true;
-    return value;
+    return *this;
   }
 
   CachedValue<T> &operator=(T &&value) {
@@ -85,7 +85,7 @@ public:
    * \param b2 Last bin in sum (inclusive)
    */
   Integral(int b1, int b2) : fB1(b1), fB2(b2) {}
-  virtual ~Integral() {}
+  virtual ~Integral() = default;
 
   //! Cached version of CalcIntegral()
   double GetIntegral() {
@@ -179,14 +179,14 @@ public:
   TH1Integral(TH1 *hist, double r1, double r2);
 
 protected:
-  virtual double GetBinContent(int bin) { return fHist->GetBinContent(bin); }
+  double GetBinContent(int bin) override { return fHist->GetBinContent(bin); }
 
-  virtual double GetBinError2(int bin) {
+  double GetBinError2(int bin) override {
     double e = fHist->GetBinError(bin);
     return e * e;
   }
 
-  virtual double GetBinCenter(int bin) { return fHist->GetBinCenter(bin); }
+  double GetBinCenter(int bin) override { return fHist->GetBinCenter(bin); }
 
   const TH1 *fHist;
 };
@@ -197,16 +197,16 @@ public:
   BgIntegral(const Background *background, double r1, double r2, TAxis *axis);
 
 protected:
-  virtual double GetBinContent(int bin) {
+  double GetBinContent(int bin) override {
     return fBackground->Eval(GetBinCenter(bin));
   }
 
-  virtual double GetBinError2(int bin) {
+  double GetBinError2(int bin) override {
     double e = fBackground->EvalError(GetBinCenter(bin));
     return e * e;
   }
 
-  virtual double GetBinCenter(int bin) { return fAxis->GetBinCenter(bin); }
+  double GetBinCenter(int bin) override { return fAxis->GetBinCenter(bin); }
 
   const Background *fBackground;
   const TAxis *fAxis;
@@ -219,9 +219,9 @@ public:
                    double r2);
 
 protected:
-  virtual double GetBinContent(int bin);
-  virtual double GetBinError2(int bin);
-  virtual double GetBinCenter(int bin) { return fHist->GetBinCenter(bin); }
+  double GetBinContent(int bin) override;
+  double GetBinError2(int bin) override;
+  double GetBinCenter(int bin) override { return fHist->GetBinCenter(bin); }
 
   const TH1 *fHist;
   const Background *fBackground;

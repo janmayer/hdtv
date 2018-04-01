@@ -278,7 +278,7 @@ void View1D::ShowAll() {
   for (auto &obj : fDisplayStack.fObjects) {
     if (auto spec = dynamic_cast<DisplaySpec *>(obj)) {
       if (!spec->IsVisible()) {
-	continue;
+        continue;
       }
 
       fMinEnergy = std::min(fMinEnergy, spec->GetMinE());

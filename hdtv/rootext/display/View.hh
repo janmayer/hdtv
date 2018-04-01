@@ -44,7 +44,7 @@ protected:
   Bool_t fCursorVisible;
   Bool_t fDragging;
 
-  ClassDef(View, 1)
+  ClassDef(View, 1) // NOLINT
 };
 
 } // end namespace Display

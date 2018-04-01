@@ -58,7 +58,7 @@ private:
   TGStatusBar *fStatusBar;
   std::unique_ptr<TH2> fMatCopy;
 
-  ClassDef(MTViewer, 1)
+  ClassDef(MTViewer, 1) // NOLINT
 };
 
 } // end namespace Display

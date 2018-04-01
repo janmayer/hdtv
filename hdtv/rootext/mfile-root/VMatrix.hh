@@ -51,7 +51,7 @@
 class VMatrix {
 public:
   VMatrix() : fFail(false){};
-  virtual ~VMatrix(){};
+  virtual ~VMatrix() = default;
 
   void AddCutRegion(int c1, int c2) { AddRegion(fCutRegions, c1, c2); }
   void AddBgRegion(int c1, int c2) { AddRegion(fBgRegions, c1, c2); }
@@ -90,33 +90,33 @@ public:
   enum ProjAxis_t { PROJ_X, PROJ_Y };
 
   RMatrix(TH2 *hist, ProjAxis_t paxis);
-  virtual ~RMatrix(){};
+  ~RMatrix() override = default;
 
-  virtual int FindCutBin(double x) {
+  int FindCutBin(double x) override {
     TAxis *a = (fProjAxis == PROJ_X) ? fHist->GetYaxis() : fHist->GetXaxis();
     return a->FindBin(x);
   }
 
-  virtual int GetCutLowBin() { return 1; }
-  virtual int GetCutHighBin() {
+  int GetCutLowBin() override { return 1; }
+  int GetCutHighBin() override {
     return (fProjAxis == PROJ_X) ? fHist->GetNbinsY() : fHist->GetNbinsX();
   }
 
-  virtual double GetProjXmin() {
+  double GetProjXmin() override {
     TAxis *a = (fProjAxis == PROJ_X) ? fHist->GetXaxis() : fHist->GetYaxis();
     return a->GetXmin();
   }
 
-  virtual double GetProjXmax() {
+  double GetProjXmax() override {
     TAxis *a = (fProjAxis == PROJ_X) ? fHist->GetXaxis() : fHist->GetYaxis();
     return a->GetXmax();
   }
 
-  virtual int GetProjXbins() {
+  int GetProjXbins() override {
     return (fProjAxis == PROJ_X) ? fHist->GetNbinsX() : fHist->GetNbinsY();
   }
 
-  virtual void AddLine(TArrayD &dst, int l);
+  void AddLine(TArrayD &dst, int l) override;
 
 private:
   TH2 *fHist;
@@ -127,20 +127,21 @@ private:
 class MFMatrix : public VMatrix {
 public:
   MFMatrix(MFileHist *mat, unsigned int level);
-  virtual ~MFMatrix(){};
-  virtual int FindCutBin(double x) // convert channel to bin number
+  ~MFMatrix() override = default;
+
+  int FindCutBin(double x) override // convert channel to bin number
   {
     return std::ceil(x - 0.5);
   }
 
-  virtual int GetCutLowBin() { return 0; }
-  virtual int GetCutHighBin() { return fMatrix->GetNLines() - 1; }
+  int GetCutLowBin() override { return 0; }
+  int GetCutHighBin() override { return fMatrix->GetNLines() - 1; }
 
-  virtual double GetProjXmin() { return -0.5; }
-  virtual double GetProjXmax() { return fMatrix->GetNColumns() - .5; }
-  virtual int GetProjXbins() { return fMatrix->GetNColumns(); }
+  double GetProjXmin() override { return -0.5; }
+  double GetProjXmax() override { return fMatrix->GetNColumns() - .5; }
+  int GetProjXbins() override { return fMatrix->GetNColumns(); }
 
-  virtual void AddLine(TArrayD &dst, int l);
+  void AddLine(TArrayD &dst, int l) override;
 
 private:
   MFileHist *fMatrix;

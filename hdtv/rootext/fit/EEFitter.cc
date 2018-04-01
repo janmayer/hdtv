@@ -34,19 +34,21 @@
 namespace HDTV {
 namespace Fit {
 
+const double EEPeak::DECOMP_FUNC_WIDTH = 4.0;
+
 EEPeak::EEPeak(const Param &pos, const Param &amp, const Param &sigma1,
                const Param &sigma2, const Param &eta, const Param &gamma)
-    : fPos(pos), fAmp(amp), fSigma1(sigma1), fSigma2(sigma2), fEta(eta),
-      fGamma(gamma), fVol(std::numeric_limits<double>::quiet_NaN()),
-      fVolError(std::numeric_limits<double>::quiet_NaN()), fFunc(NULL),
-      fPeakFunc(nullptr) {}
+    : fPos{pos}, fAmp{amp}, fSigma1{sigma1}, fSigma2{sigma2}, fEta{eta},
+      fGamma{gamma}, fVol{std::numeric_limits<double>::quiet_NaN()},
+      fVolError{std::numeric_limits<double>::quiet_NaN()}, fFunc{nullptr},
+      fPeakFunc{nullptr} {}
 
 EEPeak::EEPeak(const EEPeak &src)
-    : fPos(src.fPos), fAmp(src.fAmp), fSigma1(src.fSigma1),
-      fSigma2(src.fSigma2), fEta(src.fEta), fGamma(src.fGamma), fVol(src.fVol),
-      fVolError(src.fVolError), fFunc(src.fFunc),
-      fPeakFunc(nullptr) // Do not copy the fPeakFunc pointer, it will be
-                         // generated when needed.
+    : fPos{src.fPos}, fAmp{src.fAmp}, fSigma1{src.fSigma1},
+      fSigma2{src.fSigma2}, fEta{src.fEta}, fGamma{src.fGamma}, fVol{src.fVol},
+      fVolError{src.fVolError}, fFunc{src.fFunc}, fPeakFunc{nullptr}
+// Do not copy the fPeakFunc pointer, it will be
+// generated when needed.
 {}
 
 EEPeak &EEPeak::operator=(const EEPeak &src) {
@@ -63,24 +65,22 @@ EEPeak &EEPeak::operator=(const EEPeak &src) {
   fFunc = src.fFunc;
 
   // Do not copy the fPeakFunc pointer, it will be generated when needed.
-  fPeakFunc.reset(0);
+  fPeakFunc.reset(nullptr);
 
   return *this;
 }
 
+//! Restores parameters and error for fit function.
+//! Warnings:    Restore function of corresponding fitter has to be called
+//!              beforehand!
 void EEPeak::RestoreParam(const Param &param, double value, double error) {
-  //! Restores parameters and error for fit function.
-  //! Warnings:    Restore function of corresponding fitter has to be called
-  //!              beforehand!
-
   // Note: same as TheuerkaufPeak::RestoreParam. Merge?
-
-  if (fFunc != NULL) {
+  if (fFunc != nullptr) {
     fFunc->SetParameter(param._Id(), value);
     fFunc->SetParError(param._Id(), error);
   }
 
-  if (fPeakFunc.get()) {
+  if (fPeakFunc) {
     fPeakFunc->SetParameter(param._Id(), value);
     fPeakFunc->SetParError(param._Id(), error);
   }
@@ -109,14 +109,14 @@ double EEPeak::Eval(double *x, double *p) {
   return fAmp.Value(p) * _y;
 }
 
-const double EEPeak::DECOMP_FUNC_WIDTH = 4.0;
-
 TF1 *EEPeak::GetPeakFunc() {
-  if (fPeakFunc.get() != 0)
+  if (fPeakFunc != nullptr) {
     return fPeakFunc.get();
+  }
 
-  if (fFunc == NULL)
-    return NULL;
+  if (fFunc == nullptr) {
+    return nullptr;
+  }
 
   double min = fPos.Value(fFunc) - DECOMP_FUNC_WIDTH * fSigma1.Value(fFunc);
   double max = fPos.Value(fFunc) + DECOMP_FUNC_WIDTH * fSigma2.Value(fFunc);
@@ -133,14 +133,13 @@ TF1 *EEPeak::GetPeakFunc() {
   return fPeakFunc.get();
 }
 
+//! Initialize fVol and fVolError
+//! The volume is the integral from -\infty to x_0 + 5 * \sigma_1
+//!  (see email from Oleksiy Burda <burda@ikp.tu-darmstadt.de>, 2008-12-05)
 void EEPeak::StoreIntegral() {
-  //! Initialize fVol and fVolError
-  //! The volume is the integral from -\infty to x_0 + 5 * \sigma_1
-  //!  (see email from Oleksiy Burda <burda@ikp.tu-darmstadt.de>, 2008-12-05)
-
   // Get fitter
   TVirtualFitter *fitter = TVirtualFitter::GetFitter();
-  if (fitter == 0) {
+  if (fitter == nullptr) {
     Error("EEPeak::StoreIntegral", "No existing fitter");
     return;
   }
@@ -244,10 +243,11 @@ void EEPeak::StoreIntegral() {
       double covar;
 
       // Fixed parameters do not have covariances
-      if (id[i] < 0 || id[j] < 0)
+      if (id[i] < 0 || id[j] < 0) {
         covar = 0.0;
-      else
+      } else {
         covar = fitter->GetCovarianceMatrixElement(id[i], id[j]);
+      }
 
       errsq += deriv[i] * deriv[j] * covar;
     }
@@ -290,12 +290,8 @@ double EEFitter::Eval(double *x, double *p) {
 
 double EEFitter::EvalBg(double *x, double *p) {
   // Private: evaluation function for background
-
-  double sum = 0.0;
-
   // Evaluate background function, if it has been given
-  if (fBackground.get() != 0)
-    sum = fBackground->Eval(*x);
+  double sum = fBackground ? fBackground->Eval(*x) : 0.0;
 
   // Evaluate internal background
   double bg = 0.0;
@@ -312,14 +308,16 @@ TF1 *EEFitter::GetBgFunc() {
   // The function remains owned by the EEFitter and is only valid as long
   // as the EEFitter is.
 
-  if (fBgFunc.get() != 0)
+  if (fBgFunc != nullptr) {
     return fBgFunc.get();
+  }
 
-  if (fSumFunc.get() == 0)
-    return 0;
+  if (fSumFunc == nullptr) {
+    return nullptr;
+  }
 
   double min, max;
-  if (fBackground.get() != 0) {
+  if (fBackground != nullptr) {
     min = std::min(fMin, fBackground->GetMin());
     max = std::max(fMax, fBackground->GetMax());
   } else {
@@ -343,8 +341,9 @@ void EEFitter::Fit(TH1 &hist, const Background &bg) {
   // Do the fit, using the given background function
 
   // Refuse to fit twice
-  if (IsFinal())
+  if (IsFinal()) {
     return;
+  }
 
   fBackground.reset(bg.Clone());
   fIntBgDeg = -1;
@@ -356,8 +355,9 @@ void EEFitter::Fit(TH1 &hist, int intBgDeg) {
   // at the same time. Set intBgDeg to -1 to disable background completely.
 
   // Refuse to fit twice
-  if (IsFinal())
+  if (IsFinal()) {
     return;
+  }
 
   fBackground.reset();
   fIntBgDeg = intBgDeg;
@@ -421,9 +421,8 @@ void EEFitter::_Fit(TH1 &hist) {
   fIntError = func->IntegralError(pos - 10. * sigma1, pos + 5. * sigma1);
 } */
 
+//! Restore the fit, using the given background function
 bool EEFitter::Restore(const Background &bg, double ChiSquare) {
-  // Restore the fit, using the given background function
-
   fBackground.reset(bg.Clone());
   fIntBgDeg = -1;
 
@@ -431,10 +430,9 @@ bool EEFitter::Restore(const Background &bg, double ChiSquare) {
   return true;
 }
 
+//! Restore the fit, using the given internal background polynomial
 bool EEFitter::Restore(const TArrayD &bgPolValues, const TArrayD &bgPolErrors,
                        double ChiSquare) {
-  //! Restore the fit, using the given internal background polynomial
-
   fBackground.reset();
 
   if (bgPolValues.GetSize() != bgPolErrors.GetSize()) {
