@@ -86,8 +86,9 @@ Bool_t View2D::HandleMotion(Event_t *ev) {
   bool cv = fCursorVisible;
   int dX = static_cast<int>(fCursorX) - ev->fX;
   int dY = static_cast<int>(fCursorY) - ev->fY;
-  if (cv)
+  if (cv) {
     DrawCursor();
+  }
 
   fCursorX = ev->fX;
   fCursorY = ev->fY;
@@ -96,8 +97,9 @@ Bool_t View2D::HandleMotion(Event_t *ev) {
     ShiftOffset(-dX, -dY);
   }
 
-  if (cv)
+  if (cv) {
     DrawCursor();
+  }
 
   UpdateStatusBar();
 
@@ -113,25 +115,28 @@ Bool_t View2D::HandleButton(Event_t *ev) {
       fDragging = true;
       break;
     case 4:
-      if (ev->fState & kKeyShiftMask)
+      if (ev->fState & kKeyShiftMask) {
         ZoomAroundCursor(1., M_SQRT2);
-      else if (ev->fState & kKeyControlMask)
+      } else if (ev->fState & kKeyControlMask) {
         ZoomAroundCursor(M_SQRT2, 1.);
-      else
+      } else {
         ZoomAroundCursor(M_SQRT2, M_SQRT2);
+      }
       break;
     case 5:
-      if (ev->fState & kKeyShiftMask)
+      if (ev->fState & kKeyShiftMask) {
         ZoomAroundCursor(1., M_SQRT1_2);
-      else if (ev->fState & kKeyControlMask)
+      } else if (ev->fState & kKeyControlMask) {
         ZoomAroundCursor(M_SQRT1_2, 1.);
-      else
+      } else {
         ZoomAroundCursor(M_SQRT1_2, M_SQRT1_2);
+      }
       break;
     }
   } else if (ev->fType == kButtonRelease) {
-    if (ev->fCode == 1)
+    if (ev->fCode == 1) {
       fDragging = false;
+    }
   }
 
   return true;
@@ -166,10 +171,11 @@ Bool_t View2D::HandleKey(Event_t *ev) {
       break;
     case kKey_l:
       fLogScale = !fLogScale;
-      if (fLogScale)
+      if (fLogScale) {
         fZVisibleRegion = Log(fMatrixMax);
-      else
+      } else {
         fZVisibleRegion = fMatrixMax;
+      }
       Update();
     }
   }
@@ -198,8 +204,9 @@ void View2D::ZoomAroundCursor(double fx, double fy, Bool_t update) {
   fPainter.SetXVisibleRegion(fPainter.GetXVisibleRegion() / fx);
   fPainter.SetYVisibleRegion(fPainter.GetYVisibleRegion() / fy);
 
-  if (update)
+  if (update) {
     Update();
+  }
 }
 
 void View2D::ZoomFull(Bool_t update) {
@@ -216,29 +223,33 @@ void View2D::ZoomFull(Bool_t update) {
   fXTileOffset = fLeftBorder;
   fYTileOffset = fTopBorder + fVPHeight;
 
-  if (update)
+  if (update) {
     Update();
+  }
 }
 
 double View2D::Log(double x) {
-  if (x < 0.0)
+  if (x < 0.0) {
     return 0.0;
-  else if (x < 1.0)
+  } else if (x < 1.0) {
     return x;
-  else
+  } else {
     return log(x) + 1.0;
+  }
 }
 
 Bool_t View2D::HandleCrossing(Event_t *ev) {
   if (ev->fType == kEnterNotify) {
-    if (fCursorVisible)
+    if (fCursorVisible) {
       DrawCursor();
+    }
     fCursorX = ev->fX;
     fCursorY = ev->fY;
     DrawCursor();
   } else if (ev->fType == kLeaveNotify) {
-    if (fCursorVisible)
+    if (fCursorVisible) {
       DrawCursor();
+    }
   }
 
   return true;
@@ -289,8 +300,9 @@ int View2D::GetValueAtPixel(int x, int y) {
 
   z = fMatrix->GetBinContent(fMatrix->FindBin(XTileToE(x), YTileToE(y)));
 
-  if (fLogScale)
+  if (fLogScale) {
     z = Log(z);
+  }
 
   return ZCtsToScr(z);
 }
@@ -377,8 +389,9 @@ void View2D::RenderCut(const DisplayCut &cut, int xoff, int yoff,
   const double y2 = YTileToE(-yoff * cTileSize);
 
   if (x2 < cut.BB_x1() || x1 > cut.BB_x2() || y2 < cut.BB_y1() ||
-      y1 > cut.BB_y2())
+      y1 > cut.BB_y2()) {
     return;
+  }
 
   const int N = cut.GetPoints().size();
   TArrayS points(2 * N + 2);
@@ -430,10 +443,9 @@ void View2D::WeedTiles() {
   }
 }
 
+//! Destroy all tiles in the cache, causing them to be redrawn when needed (e.g.
+//! after a zoom level change)
 void View2D::FlushTiles() {
-  //! Destroy all tiles in the cache, causing them to be redrawn when needed
-  //! (e.g. after a zoom level change)
-
   std::map<uint32_t, Pixmap_t>::iterator iter;
 
   for (iter = fTiles.begin(); iter != fTiles.end(); iter++) {
@@ -457,9 +469,8 @@ Pixmap_t View2D::GetTile(int x, int y) {
   }
 }
 
+//! Callback for changes in size of our screen area
 void View2D::Layout() {
-  //! Callback for changes in size of our screen area
-
   // Convert offset to energy units
   fXEOffset += (fXTileOffset - fLeftBorder) / fPainter.GetXZoom();
   fYEOffset += (fYTileOffset - fTopBorder - fVPHeight) / fPainter.GetYZoom();
@@ -489,8 +500,9 @@ void View2D::DoRedraw() {
   y1 = GetTileId(fTopBorder - fYTileOffset);
   y2 = GetTileId(fTopBorder + fVPHeight - fYTileOffset);
 
-  if (cv)
+  if (cv) {
     DrawCursor();
+  }
 
   // gVirtualX->FillRectangle(GetId(), GetWhiteGC()(), 0, 0, fWidth, fHeight);
 
@@ -507,11 +519,13 @@ void View2D::DoRedraw() {
       dest_y = y * cTileSize + fYTileOffset;
 
       // Perform clipping
-      if (dest_x + width > fLeftBorder + fVPWidth)
+      if (dest_x + width > fLeftBorder + fVPWidth) {
         width = fLeftBorder + fVPWidth - dest_x;
+      }
 
-      if (dest_y + height > fTopBorder + fVPHeight)
+      if (dest_y + height > fTopBorder + fVPHeight) {
         height = fTopBorder + fVPHeight - dest_y;
+      }
 
       if (dest_x < fLeftBorder) {
         src_x += fLeftBorder - dest_x;
@@ -536,11 +550,12 @@ void View2D::DoRedraw() {
   fPainter.ClearBottomXScale();
   fPainter.DrawXScale(fLeftBorder, fWidth - fRightBorder);
   gVirtualX->FillRectangle(GetId(), GetBlackGC()(), 0, 0, fLeftBorder, fHeight);
-  //  fPainter.ClearYScale();
+  // fPainter.ClearYScale();
   fPainter.DrawYScale();
 
-  if (cv)
+  if (cv) {
     DrawCursor();
+  }
 
   NTiles = (fWidth / cTileSize + 4) * (fHeight / cTileSize + 4);
   if (fTiles.size() > NTiles) {

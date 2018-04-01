@@ -71,14 +71,17 @@ void Painter::DrawFunction(DisplayFunc *dFunc, int x1, int x2) {
     y = cy = CtoY(norm * dFunc->Eval(ch));
 
     if (std::min(y, ly) <= lClip && std::max(y, ly) >= hClip) {
-      if (cy < hClip)
+      if (cy < hClip) {
         cy = hClip;
-      else if (cy > lClip)
+      } else if (cy > lClip) {
         cy = lClip;
-      if (ly < hClip)
+      }
+
+      if (ly < hClip) {
         ly = hClip;
-      else if (ly > lClip)
+      } else if (ly > lClip) {
         ly = lClip;
+      }
 
       gVirtualX->DrawLine(fDrawable, dFunc->GetGC()->GetGC(), x, ly, x, cy);
     }
@@ -103,10 +106,12 @@ void Painter::DrawSpectrum(DisplaySpec *dSpec, int x1, int x2) {
   case kVMSolid:
     for (x = x1; x <= x2; x++) {
       y = GetYAtPixel(dSpec, x);
-      if (y < hClip)
+      if (y < hClip) {
         y = hClip;
-      if (y > lClip)
+      }
+      if (y > lClip) {
         y = lClip;
+      }
       gVirtualX->DrawLine(fDrawable, dSpec->GetGC()->GetGC(), x, fYBase, x, y);
     }
     break;
@@ -114,9 +119,10 @@ void Painter::DrawSpectrum(DisplaySpec *dSpec, int x1, int x2) {
   case kVMDotted:
     for (x = x1; x <= x2; x++) {
       y = GetYAtPixel(dSpec, x);
-      if (y >= hClip && y <= lClip)
+      if (y >= hClip && y <= lClip) {
         gVirtualX->DrawRectangle(fDrawable, dSpec->GetGC()->GetGC(), x, y, 0,
                                  0);
+      }
     }
     break;
 
@@ -130,27 +136,33 @@ void Painter::DrawSpectrum(DisplaySpec *dSpec, int x1, int x2) {
       if (y < ly) {
         if (ly >= hClip && y <= lClip) {
           y1 = ly;
-          if (y1 > lClip)
+          if (y1 > lClip) {
             y1 = lClip;
+          }
           y2 = y;
-          if (y2 < hClip)
+          if (y2 < hClip) {
             y2 = hClip;
+          }
           gVirtualX->DrawLine(fDrawable, dSpec->GetGC()->GetGC(), x, y1, x, y2);
         }
       } else {
         if (y >= hClip && ly <= lClip) {
           y1 = ly;
-          if (y1 < hClip)
+          if (y1 < hClip) {
             y1 = hClip;
+          }
           y2 = y;
-          if (y2 > lClip)
+          if (y2 > lClip) {
             y2 = lClip;
-          if (x > fXBase)
+          }
+          if (x > fXBase) {
             gVirtualX->DrawLine(fDrawable, dSpec->GetGC()->GetGC(), x - 1, y1,
                                 x - 1, y2);
-          if (y <= lClip)
+          }
+          if (y <= lClip) {
             gVirtualX->DrawRectangle(fDrawable, dSpec->GetGC()->GetGC(), x, y2,
                                      0, 0);
+          }
         }
       }
 
@@ -188,9 +200,10 @@ void Painter::DrawXMarker(XMarker *marker, int x1, int x2) {
     // Draw second marker of the pair
     xm2 = EtoX(marker->GetE2());
 
-    if (xm2 >= x1 && xm2 <= x2)
+    if (xm2 >= x1 && xm2 <= x2) {
       gVirtualX->DrawLine(fDrawable, marker->GetGC_2()->GetGC(), xm2, fYBase,
                           xm2, fYBase - fHeight);
+    }
 
     // Draw connecting line
     if (xm1 > xm2) {
@@ -199,17 +212,20 @@ void Painter::DrawXMarker(XMarker *marker, int x1, int x2) {
       xm1 = tmp;
     }
 
-    if (xm1 < x1)
+    if (xm1 < x1) {
       xm1 = x1;
-    if (xm2 > x2)
+    }
+    if (xm2 > x2) {
       xm2 = x2;
+    }
 
     if (xm1 <= xm2) {
       int h;
-      if (marker->fConnectTop)
+      if (marker->fConnectTop) {
         h = fYBase - fHeight;
-      else
+      } else {
         h = fYBase;
+      }
       gVirtualX->DrawLine(fDrawable, marker->GetGC_C()->GetGC(), xm1, h, xm2,
                           h);
     }
@@ -306,14 +322,17 @@ double Painter::GetCountsAtPixel(DisplaySpec *dSpec, Int_t x) {
   Int_t b2 = dSpec->FindBin(c2);
 
   // Shortcut for "zoomed in" mode
-  if (b1 == b2)
+  if (b1 == b2) {
     return dSpec->GetClippedBinContent(b1);
+  }
 
   // Get bins to consider for maximum: b1..b2 (inclusive)
-  if (dSpec->GetBinCenter(b1) < c1)
+  if (dSpec->GetBinCenter(b1) < c1) {
     b1++;
-  if (dSpec->GetBinCenter(b2) >= c2)
+  }
+  if (dSpec->GetBinCenter(b2) >= c2) {
     b2--;
+  }
 
   if (b2 >= b1) {
     // "Zoomed out" mode
@@ -357,10 +376,11 @@ double Painter::InvModLog(double x) {
 }
 
 int Painter::CtoY(double c) {
-  if (fLogScale)
+  if (fLogScale) {
     c = ModLog(c) - ModLog(fYOffset);
-  else
+  } else {
     c = c - fYOffset;
+  }
 
   return fYBase - static_cast<int>(std::ceil(c * fYZoom - 0.5));
 }
@@ -369,10 +389,11 @@ double Painter::YtoC(int y) {
   double c;
   c = static_cast<double>(fYBase - y) / fYZoom;
 
-  if (fLogScale)
+  if (fLogScale) {
     c = InvModLog(c + ModLog(fYOffset));
-  else
+  } else {
     c = c + fYOffset;
+  }
 
   return c;
 }
@@ -430,8 +451,9 @@ void Painter::GetTicDistance(double tic, double &major_tic, double &minor_tic,
   double exp;
 
   // limit tic distance to a sensible value
-  if (tic < 0.001)
+  if (tic < 0.001) {
     tic = 0.001;
+  }
 
   // Write tic in the form tic * exp, where exp = 10^n with n \in N
   // and 1 < tic <= 10
@@ -501,10 +523,11 @@ void Painter::DrawXNonlinearScale(Int_t x1, Int_t x2, bool top,
 
     // TODO: handle len > 16
     len = snprintf(tmp, 16, fmt, major_tic * i);
-    if (top)
+    if (top) {
       DrawString(fAxisGC, x, y - 12, tmp, len, kCenter, kBottom);
-    else
+    } else {
       DrawString(fAxisGC, x, y + 12, tmp, len, kCenter, kTop);
+    }
   }
 }
 
@@ -521,8 +544,9 @@ void Painter::DrawXScale(Int_t x1, Int_t x2) {
   GetTicDistance(50.0 / fXZoom, major_tic, minor_tic, n);
 
   // Set the required precision
-  if (n < 0)
+  if (n < 0) {
     fmt[2] = '0' - n;
+  }
 
   // Draw the minor tics
   i = std::ceil(XtoE(x1) / minor_tic);
@@ -548,10 +572,11 @@ void Painter::DrawXScale(Int_t x1, Int_t x2) {
 }
 
 void Painter::DrawYScale() {
-  if (fLogScale)
+  if (fLogScale) {
     DrawYLogScale();
-  else
+  } else {
     DrawYLinearScale();
+  }
 }
 
 void Painter::DrawString(GContext_t gc, int x, int y, const char *str,
@@ -633,19 +658,23 @@ void Painter::DrawYLogScale() {
 
   // Calculate the distance (in pixels) between the closest tics
   // (either 9 and 10 or the upmost tics drawn)
-  if (cMax > 10.0)
+  if (cMax > 10.0) {
     minDist = CtoY(9.0) - CtoY(10.0);
-  else
+  } else {
     minDist = CtoY(std::floor(YtoC(yTop)) - 1.0) - CtoY(std::floor(YtoC(yTop)));
+  }
 
-  if (cMax > 0.0)
+  if (cMax > 0.0) {
     _DrawYLogScale(minDist, +1, cMin, cMax);
+  }
 
-  if (cMax >= 0.0 && cMin <= 0.0)
+  if (cMax >= 0.0 && cMin <= 0.0) {
     DrawYMajorTic(0.0);
+  }
 
-  if (cMin < 0.0)
+  if (cMin < 0.0) {
     _DrawYLogScale(minDist, -1, -cMax, -cMin);
+  }
 }
 
 void Painter::_DrawYLogScale(int minDist, int sgn, double cMin, double cMax) {
@@ -679,10 +708,11 @@ void Painter::_DrawYLogScale(int minDist, int sgn, double cMin, double cMax) {
 
   if (minDist >= 30) {
     while (c * exp <= cMax) {
-      if (c == 1 || c == 3)
+      if (c == 1 || c == 3) {
         DrawYMajorTic(sgn * c * exp);
-      else
+      } else {
         DrawYMinorTic(sgn * c * exp);
+      }
 
       if (++c > 9) {
         exp *= 10.0;
@@ -691,10 +721,11 @@ void Painter::_DrawYLogScale(int minDist, int sgn, double cMin, double cMax) {
     }
 
     // Label the last minor tic drawn, if appropriate
-    if (c == 1)
+    if (c == 1) {
       DrawYMajorTic(sgn * 0.9 * exp, false);
-    else if (c > 5)
+    } else if (c > 5) {
       DrawYMajorTic(sgn * (c - 1) * exp, false);
+    }
 
     return;
   }
@@ -728,8 +759,9 @@ void Painter::DrawYMajorTic(double c, bool drawLine) {
   char tmp[16];
   size_t len;
 
-  if (drawLine)
+  if (drawLine) {
     gVirtualX->DrawLine(fDrawable, fAxisGC, x - 9, y, x, y);
+  }
 
   // TODO: handle len > 16
   len = snprintf(tmp, 16, "%.4g", c);

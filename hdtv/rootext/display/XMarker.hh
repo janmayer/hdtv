@@ -65,8 +65,9 @@ public:
   int GetWidth(const FontStruct_t &fs);
 
   virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter &painter) {
-    if (IsVisible())
+    if (IsVisible()) {
       painter.DrawXMarker(this, x1, x2);
+    }
   }
 
 private:

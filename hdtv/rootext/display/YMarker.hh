@@ -35,8 +35,9 @@ class YMarker : public Marker {
 public:
   YMarker(int n, double p1, double p2 = 0.0, int col = 5);
   virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter &painter) {
-    if (IsVisible())
+    if (IsVisible()) {
       painter.DrawYMarker(this, x1, x2);
+    }
   }
 };
 

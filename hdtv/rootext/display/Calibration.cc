@@ -122,8 +122,9 @@ double Calibration::E2Ch(double e) const {
   //! TODO: deal with slope == 0.0
 
   // Catch special case of a trivial calibration
-  if (fCal.empty())
+  if (fCal.empty()) {
     return e;
+  }
 
   double ch = 1.0;
   double de = Ch2E(ch) - e;
@@ -131,8 +132,9 @@ double Calibration::E2Ch(double e) const {
   double _e = std::abs(e);
   std::vector<double>::const_reverse_iterator c;
 
-  if (_e < 1.0)
+  if (_e < 1.0) {
     _e = 1.0;
+  }
 
   for (int i = 0; i < 10 && std::abs(de / _e) > 1e-10; i++) {
     // Calculate slope

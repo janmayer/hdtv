@@ -99,8 +99,9 @@ public:
   double GetMax_Cached(int b1, int b2);
 
   virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter &painter) {
-    if (IsVisible())
+    if (IsVisible()) {
       painter.DrawSpectrum(this, x1, x2);
+    }
   }
 
   virtual int GetZIndex() { return Z_INDEX_SPEC; }

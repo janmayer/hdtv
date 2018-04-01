@@ -33,9 +33,9 @@
 namespace HDTV {
 namespace Display {
 
+//! Constructor
 DisplaySpec::DisplaySpec(const TH1 *hist, int col)
     : DisplayBlock(col), fDrawUnderflowBin(false), fDrawOverflowBin(false) {
-  //! Constructor
 
   fHist.reset(dynamic_cast<TH1 *>(hist->Clone()));
 

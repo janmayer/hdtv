@@ -31,10 +31,11 @@ XMarker::XMarker(int n, double p1, double p2, int col)
 }
 
 int XMarker::GetWidth(const FontStruct_t &fs) {
-  if (GetID().empty())
+  if (GetID().empty()) {
     return 0;
-  else
+  } else {
     return gVirtualX->TextWidth(fs, fID.c_str(), fID.size()) + 2;
+  }
 }
 
 } // end namespace Display
