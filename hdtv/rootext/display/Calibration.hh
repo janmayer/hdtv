@@ -47,7 +47,7 @@ class Calibration {
 public:
   Calibration() {}
 
-  Calibration(double cal0) { SetCal(cal0); }
+  explicit Calibration(double cal0) { SetCal(cal0); }
 
   Calibration(double cal0, double cal1) { SetCal(cal0, cal1); }
 
@@ -59,9 +59,9 @@ public:
     SetCal(cal0, cal1, cal2, cal3);
   }
 
-  Calibration(const std::vector<double> &cal) { SetCal(cal); }
+  explicit Calibration(const std::vector<double> &cal) { SetCal(cal); }
 
-  Calibration(const TArrayD &cal) { SetCal(cal); }
+  explicit Calibration(const TArrayD &cal) { SetCal(cal); }
 
   void SetCal(double cal0);
   void SetCal(double cal0, double cal1);
@@ -73,7 +73,7 @@ public:
   bool operator==(const Calibration &rhs) { return this->fCal == rhs.fCal; }
   bool operator!=(const Calibration &rhs) { return !(*this == rhs); }
 
-  operator bool() const { return !IsTrivial(); }
+  explicit operator bool() const { return !IsTrivial(); }
   bool IsTrivial() const { return fCal.empty(); }
   const std::vector<double> &GetCoeffs() const { return fCal; }
   int GetDegree() const { return fCal.size() - 1; }

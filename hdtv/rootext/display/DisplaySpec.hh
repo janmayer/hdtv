@@ -36,7 +36,7 @@ namespace Display {
 //! Wrapper around a ROOT TH1 object being displayed
 class DisplaySpec : public DisplayBlock {
 public:
-  DisplaySpec(const TH1 *hist, int col = DEFAULT_COLOR);
+  explicit DisplaySpec(const TH1 *hist, int col = DEFAULT_COLOR);
 
   void SetHist(const TH1 *hist);
 

@@ -40,7 +40,7 @@ public:
 
   DisplayCut() {}
   DisplayCut(int n, const double *x, const double *y) { Init(n, x, y); }
-  DisplayCut(const TCutG &cut, bool invertAxes = false);
+  explicit DisplayCut(const TCutG &cut, bool invertAxes = false);
 
   const std::vector<CutPoint> &GetPoints() const { return fPoints; }
   double BB_x1() const { return fX1; }

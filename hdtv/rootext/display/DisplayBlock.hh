@@ -37,7 +37,7 @@ class DisplayBlock : public DisplayObj {
   friend class Painter;
 
 public:
-  DisplayBlock(int col);
+  explicit DisplayBlock(int col);
   ~DisplayBlock();
 
   void SetCal(const Calibration &cal) {

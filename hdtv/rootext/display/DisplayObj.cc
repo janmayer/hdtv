@@ -34,10 +34,10 @@ namespace Display {
 
 const int DisplayObj::DEFAULT_COLOR = 3;
 
+//! Destructor
 DisplayObj::~DisplayObj() {
-  //! Destructor
-
-  Remove(); // Remove object from all display stacks
+  // Remove object from all display stacks
+  Remove();
 }
 
 //! Update all display stacks that the object is presently on

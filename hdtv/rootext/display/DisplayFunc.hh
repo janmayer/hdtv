@@ -34,7 +34,7 @@ namespace Display {
 //! Wrapper around a ROOT TF1 object being displayed
 class DisplayFunc : public DisplayBlock {
 public:
-  DisplayFunc(TF1 *func, int col = DEFAULT_COLOR);
+  explicit DisplayFunc(TF1 *func, int col = DEFAULT_COLOR);
 
   TF1 *GetFunc() { return fFunc; }
   double Eval(double x) { return fFunc->Eval(x); }

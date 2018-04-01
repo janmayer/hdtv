@@ -44,7 +44,7 @@ class Viewer : public TGMainFrame {
   //  the line does not seem to be needed.
   // RQ_OBJECT("HDTV::Display::Viewer")
 public:
-  Viewer(UInt_t w = 800, UInt_t h = 400, const char *title = "hdtv");
+  explicit Viewer(UInt_t w = 800, UInt_t h = 400, const char *title = "hdtv");
   ~Viewer();
 
   // FIXME: should be called GetView
