@@ -122,9 +122,9 @@ TF1 *EEPeak::GetPeakFunc() {
   double max = fPos.Value(fFunc) + DECOMP_FUNC_WIDTH * fSigma2.Value(fFunc);
   int numParams = fFunc->GetNpar();
 
-  fPeakFunc.reset(new TF1(GetFuncUniqueName("eepeak", this).c_str(), this,
-                          &EEPeak::Eval, min, max, numParams, "EEPeak",
-                          "Eval"));
+  fPeakFunc = std::make_unique<TF1>(GetFuncUniqueName("eepeak", this).c_str(),
+                                    this, &EEPeak::Eval, min, max, numParams,
+                                    "EEPeak", "Eval");
 
   for (int i = 0; i < numParams; i++) {
     fPeakFunc->SetParameter(i, fFunc->GetParameter(i));
@@ -325,9 +325,9 @@ TF1 *EEFitter::GetBgFunc() {
     max = fMax;
   }
 
-  fBgFunc.reset(new TF1(GetFuncUniqueName("fitbg_ee", this).c_str(), this,
-                        &EEFitter::EvalBg, min, max, fNumParams, "EEFitter",
-                        "EvalBg"));
+  fBgFunc = std::make_unique<TF1>(GetFuncUniqueName("fitbg_ee", this).c_str(),
+                                  this, &EEFitter::EvalBg, min, max, fNumParams,
+                                  "EEFitter", "EvalBg");
 
   for (int i = 0; i < fNumParams; i++) {
     fBgFunc->SetParameter(i, fSumFunc->GetParameter(i));
@@ -372,8 +372,8 @@ void EEFitter::_Fit(TH1 &hist) {
   }
 
   // Create fit function
-  fSumFunc.reset(new TF1("f", this, &EEFitter::Eval, fMin, fMax, fNumParams,
-                         "EEFitter", "Eval"));
+  fSumFunc = std::make_unique<TF1>("f", this, &EEFitter::Eval, fMin, fMax,
+                                   fNumParams, "EEFitter", "Eval");
 
   // Init fit parameters
   // Note: this may set parameters several times, but that should not matter
@@ -465,9 +465,9 @@ void EEFitter::_Restore(double ChiSquare) {
   // Internal worker function to restore the fit
 
   // Create fit function
-  fSumFunc.reset(new TF1(GetFuncUniqueName("f", this).c_str(), this,
-                         &EEFitter::Eval, fMin, fMax, fNumParams, "EEFitter",
-                         "Eval"));
+  fSumFunc = std::make_unique<TF1>(GetFuncUniqueName("f", this).c_str(), this,
+                                   &EEFitter::Eval, fMin, fMax, fNumParams,
+                                   "EEFitter", "Eval");
 
   std::vector<EEPeak>::iterator iter;
   for (iter = fPeaks.begin(); iter != fPeaks.end(); iter++) {
