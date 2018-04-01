@@ -61,8 +61,8 @@ void DisplayStack::UnlockUpdate() {
 void DisplayStack::PaintRegion(UInt_t x1, UInt_t x2, Painter &painter) {
   //! Paints all objects in the stack
 
-  for (ObjList::iterator obj = fObjects.begin(); obj != fObjects.end(); ++obj) {
-    (*obj)->PaintRegion(x1, x2, painter);
+  for (auto &obj : fObjects) {
+    obj->PaintRegion(x1, x2, painter);
   }
 }
 

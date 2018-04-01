@@ -179,7 +179,7 @@ void Painter::DrawXMarker(XMarker *marker, int x1, int x2) {
                         fYBase - fHeight);
 
     if (!marker->GetID().empty()) {
-      Rectangle_t rect;
+      Rectangle_t rect{};
       rect.fX = x1;
       rect.fY = fYBase - fHeight;
       rect.fWidth = x2 - x1 + 1;
@@ -249,15 +249,16 @@ void Painter::DrawYMarker(YMarker *marker, int x1, int x2) {
 
 void Painter::DrawIDList(const std::list<DisplayObj *> &objects) {
   //! Draw a colered list of IDs. This is a quick hack, really.
-
-  DisplaySpec *spec;
   int x = fXBase;
 
-  for (std::list<DisplayObj *>::const_iterator obj = objects.begin();
-       obj != objects.end(); ++obj) {
-    spec = dynamic_cast<DisplaySpec *>(*obj);
-    if (spec && spec->IsVisible()) {
-      std::string tmp = spec->GetID() + " ";
+  std::string tmp;
+  for (const auto &obj : objects) {
+    if (auto spec = dynamic_cast<const DisplaySpec *>(obj)) {
+      if (!spec->IsVisible()) {
+	continue;
+      }
+      tmp = spec->GetID();
+      tmp.push_back(' ');
       gVirtualX->DrawString(fDrawable, spec->GetGC()->GetGC(), x,
                             fYBase - fHeight - 5, tmp.c_str(), tmp.size());
       x += gVirtualX->TextWidth(fFontStruct, tmp.c_str(), tmp.size());

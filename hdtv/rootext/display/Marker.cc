@@ -44,7 +44,7 @@ Marker::Marker(int n, double p1, double p2, int col)
 Marker::~Marker(void) { FreeGC(); }
 
 void Marker::InitGC(int col) {
-  TColor *color = dynamic_cast<TColor *>(gROOT->GetListOfColors()->At(col));
+  auto color = dynamic_cast<TColor *>(gROOT->GetListOfColors()->At(col));
   GCValues_t gval;
   gval.fMask = kGCForeground | kGCLineStyle;
   gval.fForeground = color->GetPixel();

@@ -72,7 +72,7 @@ public:
 
   virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter &painter) {}
 
-  virtual int GetZIndex() { return Z_INDEX_MISC; }
+  virtual int GetZIndex() const { return Z_INDEX_MISC; }
 
   static const int DEFAULT_COLOR;
 

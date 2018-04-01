@@ -33,7 +33,8 @@ namespace HDTV {
 namespace Display {
 
 Viewer::Viewer(UInt_t w, UInt_t h, const char *title)
-    : TGMainFrame(gClient->GetRoot(), w, h) {
+    : TGMainFrame{gClient->GetRoot(), w, h}, fKeySym{kKey_Unknown}, fKeyStr{},
+      fKeyState{0}, fView{nullptr}, fScrollbar{nullptr}, fStatusBar{nullptr} {
   Int_t parts[3] = {20, 15, 65};
 
   // FIXME: how is the memory for TGLayoutHints supposed to be handled

@@ -41,7 +41,7 @@ View2D::View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
   fMatrix = mat;
   fMatrixMax = fMatrix->GetMaximum();
 
-  fStatusBar = NULL;
+  fStatusBar = nullptr;
 
   fLeftBorder = 50;
   fRightBorder = 10;
@@ -63,7 +63,7 @@ View2D::View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
 View2D::~View2D() { FlushTiles(); }
 
 void View2D::AddCut(const TCutG &cut, bool invertAxes) {
-  fCuts.push_back(DisplayCut(cut, invertAxes));
+  fCuts.emplace_back(cut, invertAxes);
   FlushTiles();
   gClient->NeedRedraw(this);
 }
@@ -375,9 +375,8 @@ Pixmap_t View2D::RenderTile(int xoff, int yoff) {
 }
 
 void View2D::RenderCuts(int xoff, int yoff, Pixmap_t pixmap) {
-  for (std::list<DisplayCut>::const_iterator cut = fCuts.begin();
-       cut != fCuts.end(); ++cut) {
-    RenderCut(*cut, xoff, yoff, pixmap);
+  for (auto &cut : fCuts) {
+    RenderCut(cut, xoff, yoff, pixmap);
   }
 }
 
@@ -422,14 +421,10 @@ void View2D::DrawPolyLine(Drawable_t id, GContext_t gc, Int_t n,
 void View2D::WeedTiles() {
   int16_t x, y;
   int xpos, ypos;
-  std::map<uint32_t, Pixmap_t>::iterator iter, elem;
 
-  iter = fTiles.begin();
-  while (iter != fTiles.end()) {
-    elem = iter;
-    iter++;
-    x = elem->first & 0xFFFF;
-    y = elem->first >> 16;
+  for (auto &tile : fTiles) {
+    x = tile.first & 0xFFFF;
+    y = tile.first >> 16;
     xpos = x * cTileSize + fXTileOffset;
     ypos = y * cTileSize + fYTileOffset;
 
@@ -437,8 +432,8 @@ void View2D::WeedTiles() {
         ypos < -2 * cTileSize || ypos > static_cast<int>(fHeight) + cTileSize) {
       // cout << "Deleting Tile " << x << " " << y << " " << xpos << " " << ypos
       // << endl;
-      gVirtualX->DeletePixmap(elem->second);
-      fTiles.erase(elem);
+      gVirtualX->DeletePixmap(tile.second);
+      fTiles.erase(tile);
     }
   }
 }
@@ -446,19 +441,16 @@ void View2D::WeedTiles() {
 //! Destroy all tiles in the cache, causing them to be redrawn when needed (e.g.
 //! after a zoom level change)
 void View2D::FlushTiles() {
-  std::map<uint32_t, Pixmap_t>::iterator iter;
-
-  for (iter = fTiles.begin(); iter != fTiles.end(); iter++) {
-    gVirtualX->DeletePixmap(iter->second);
+  for (auto &tile : fTiles) {
+    gVirtualX->DeletePixmap(tile.second);
   }
   fTiles.clear();
 }
 
 Pixmap_t View2D::GetTile(int x, int y) {
   uint32_t id = (y << 16) | (x & 0xFFFF);
-  std::map<uint32_t, Pixmap_t>::iterator iter;
 
-  iter = fTiles.find(id);
+  auto iter = fTiles.find(id);
   if (iter == fTiles.end()) {
     Pixmap_t tile = RenderTile(x, y);
     // cout << "Rendering Tile " << x << " " << y << endl;

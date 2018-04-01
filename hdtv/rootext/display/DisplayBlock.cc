@@ -45,7 +45,7 @@ DisplayBlock::~DisplayBlock() { gClient->GetGCPool()->FreeGC(fGC); }
 
 inline void DisplayBlock::InitGC(int col) {
   // Setup GC for requested color
-  TColor *color = dynamic_cast<TColor *>(gROOT->GetListOfColors()->At(col));
+  auto color = dynamic_cast<TColor *>(gROOT->GetListOfColors()->At(col));
   GCValues_t gval;
   gval.fMask = kGCForeground;
   gval.fForeground = color->GetPixel();

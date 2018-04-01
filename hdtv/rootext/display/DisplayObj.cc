@@ -46,9 +46,8 @@ void DisplayObj::Update(bool force) {
     return;
   }
 
-  for (std::list<DisplayStack *>::iterator stack = fStacks.begin();
-       stack != fStacks.end(); stack++) {
-    (*stack)->Update();
+  for (auto &stack : fStacks) {
+    stack->Update();
   }
 }
 
@@ -120,9 +119,8 @@ void DisplayObj::ToTop(DisplayStack *stack) {
 //! Move the object to the top of all objects with lower or equal z-index in all
 //! display stacks it appears in.
 void DisplayObj::ToTop() {
-  for (std::list<DisplayStack *>::iterator stack = fStacks.begin();
-       stack != fStacks.end(); ++stack) {
-    ToTop(*stack);
+  for (auto &stack : fStacks) {
+    ToTop(stack);
   }
 }
 
@@ -149,9 +147,8 @@ void DisplayObj::ToBottom(DisplayStack *stack) {
 //! Move the object to the bottom of all objects with higher or equal z-index in
 //! all display stacks it appears in.
 void DisplayObj::ToBottom() {
-  for (std::list<DisplayStack *>::iterator stack = fStacks.begin();
-       stack != fStacks.end(); ++stack) {
-    ToBottom(*stack);
+  for (auto &stack : fStacks) {
+    ToBottom(stack);
   }
 }
 
