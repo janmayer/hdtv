@@ -41,7 +41,7 @@ View::View(const TGWindow *p, UInt_t w, UInt_t h) : TGFrame(p, w, h) {
   fDragging = false;
 }
 
-void View::DrawCursor(void) {
+void View::DrawCursor() {
   gVirtualX->DrawLine(GetId(), fCursorGC->GetGC(), 1, fCursorY, fWidth,
                       fCursorY);
   gVirtualX->DrawLine(GetId(), fCursorGC->GetGC(), fCursorX, 1, fCursorX,

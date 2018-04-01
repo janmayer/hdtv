@@ -79,7 +79,7 @@ public:
   }
 
   Int_t FindBin(double x) { return fHist->GetXaxis()->FindBin(x); }
-  Int_t GetNbinsX(void) { return fHist->GetNbinsX(); }
+  Int_t GetNbinsX() { return fHist->GetNbinsX(); }
 
   void SetDrawUnderflowBin(bool x) { fDrawUnderflowBin = x; }
   void SetDrawOverflowBin(bool x) { fDrawOverflowBin = x; }

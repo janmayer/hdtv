@@ -266,11 +266,11 @@ void View1D::YZoomAroundCursor(double f) {
 
 //! Set the X (energy) axis offset such that its zero appears on the left edge
 //! of the visible area. Leaves the zoom unchanged.
-void View1D::ToBegin(void) { SetXOffset(fMinEnergy); }
+void View1D::ToBegin() { SetXOffset(fMinEnergy); }
 
 //! Set the X (energy) axis zoom so that all spectra are fully visible. Shows a
 //! range from 0 to DEFAULT_MAX_ENERGY if the view contains no spectra.
-void View1D::ShowAll(void) {
+void View1D::ShowAll() {
   fMinEnergy = std::numeric_limits<double>::infinity();
   fMaxEnergy = -std::numeric_limits<double>::infinity();
   bool hadSpec = false;
@@ -394,7 +394,7 @@ void View1D::DoUpdate() {
   fForceRedraw = false;
 }
 
-void View1D::UpdateScrollbarRange(void) {
+void View1D::UpdateScrollbarRange() {
   if (fScrollbar) {
     UInt_t as = fPainter.GetWidth();
     double minE = std::min(fMinEnergy, fPainter.GetXOffset());
@@ -625,7 +625,7 @@ Bool_t View1D::HandleCrossing(Event_t *ev) {
   return true;
 }
 
-void View1D::Layout(void) {
+void View1D::Layout() {
   //! Callback for changes in size of our screen area
 
   fPainter.SetBasePoint(fLeftBorder + 2, fHeight - fBottomBorder - 2);
@@ -633,7 +633,7 @@ void View1D::Layout(void) {
                    fHeight - fTopBorder - fBottomBorder - 4);
 }
 
-void View1D::DoRedraw(void) {
+void View1D::DoRedraw() {
   //! Redraws the Viewport completely.  If fNeedClear is set, it is
   //! cleared first, otherwise it is just redrawn. This is a callback for
   //! the windowing system. It should not be called directly, but via

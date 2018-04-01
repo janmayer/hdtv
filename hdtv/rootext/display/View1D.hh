@@ -81,8 +81,8 @@ public:
 
   void XZoomAroundCursor(double f);
   void YZoomAroundCursor(double f);
-  void ToBegin(void);
-  void ShowAll(void);
+  void ToBegin();
+  void ShowAll();
   void SetViewMode(ViewMode vm);
 
   ViewMode GetViewMode() { return fPainter.GetViewMode(); }

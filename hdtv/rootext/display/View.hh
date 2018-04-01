@@ -36,7 +36,7 @@ public:
   View(const TGWindow *p, UInt_t w, UInt_t h);
 
 protected:
-  void DrawCursor(void);
+  void DrawCursor();
 
 protected:
   TGGC *fCursorGC;

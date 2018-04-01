@@ -48,7 +48,7 @@ public:
   ~Viewer() override;
 
   // FIXME: should be called GetView
-  const View1D *GetViewport(void) { return fView; }
+  const View1D *GetViewport() { return fView; }
 
   void KeyPressed() { Emit("KeyPressed()"); } // *SIGNAL*
 
@@ -57,7 +57,7 @@ public:
   UInt_t fKeyState; // Key mask
 
 protected:
-  void UpdateScrollbar(void);
+  void UpdateScrollbar();
   Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t) override;
   Bool_t HandleKey(Event_t *ev) override;
 

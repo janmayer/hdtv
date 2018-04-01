@@ -41,7 +41,7 @@ Marker::Marker(int n, double p1, double p2, int col)
   InitGC(col);
 }
 
-Marker::~Marker(void) { FreeGC(); }
+Marker::~Marker() { FreeGC(); }
 
 void Marker::InitGC(int col) {
   auto color = dynamic_cast<TColor *>(gROOT->GetListOfColors()->At(col));
