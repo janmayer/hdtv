@@ -161,7 +161,7 @@ protected:
   bool fNeedsUpdate;
   bool fForceRedraw;
 
-  ClassDef(View1D, 1) // NOLINT
+  ClassDefOverride(View1D, 1) // NOLINT
 };
 
 } // end namespace Display
