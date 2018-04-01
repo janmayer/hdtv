@@ -34,8 +34,8 @@ namespace HDTV {
 namespace Display {
 
 View2D::View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
-    : View(p, w, h), fXEOffset(0.), fYEOffset(0.), fXTileOffset(0),
-      fYTileOffset(0), fPainter() {
+    : View(p, w, h), fXEOffset{0.0}, fYEOffset{0.0}, fXTileOffset{0},
+      fYTileOffset{0}, fVPHeight{0}, fVPWidth{0} {
   TGFrame::SetBackgroundColor(GetBlackPixel());
 
   fMatrix = mat;

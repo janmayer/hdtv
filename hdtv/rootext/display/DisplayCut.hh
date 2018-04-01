@@ -38,8 +38,8 @@ public:
     double x, y;
   };
 
-  DisplayCut() {}
-  DisplayCut(int n, const double *x, const double *y) { Init(n, x, y); }
+  DisplayCut() : fX1{0.0}, fY1{0.0}, fX2{0.0}, fY2{0.0} {}
+  DisplayCut(int n, const double *x, const double *y);
   explicit DisplayCut(const TCutG &cut, bool invertAxes = false);
 
   const std::vector<CutPoint> &GetPoints() const { return fPoints; }
@@ -49,7 +49,8 @@ public:
   double BB_y2() const { return fY2; }
 
 private:
-  void Init(int n, const double *x, const double *y);
+  void UpdateBoundingBox();
+
   std::vector<CutPoint> fPoints;
   double fX1, fY1, fX2, fY2; // bounding box
 };

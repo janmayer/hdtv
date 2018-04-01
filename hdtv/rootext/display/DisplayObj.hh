@@ -37,7 +37,7 @@ class View1D;
 //! An object being displayed in a View1D widget
 class DisplayObj {
 public:
-  DisplayObj() : fVisible(true) {}
+  DisplayObj() : fZIndex{0}, fVisible{true} {}
   virtual ~DisplayObj();
 
   bool IsVisible() const { return fVisible; }

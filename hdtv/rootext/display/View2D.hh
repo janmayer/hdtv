@@ -94,9 +94,7 @@ public:
   int YScrToTile(int y) { return -y + fYTileOffset; }
   double XScrToE(int x) { return XTileToE(XScrToTile(x)); }
   double YScrToE(int y) { return YTileToE(YScrToTile(y)); }
-  int ZCtsToScr(double z) {
-    return ((z - fZOffset) / fZVisibleRegion) * cZColorRange;
-  }
+  int ZCtsToScr(double z) { return (z / fZVisibleRegion) * cZColorRange; }
 
   /*
   void SetXVisibleRegion(double xreg) { fXZoom = (double)fWidth / xreg; }
@@ -117,7 +115,7 @@ protected:
   std::list<DisplayCut> fCuts;
 
   std::map<uint32_t, Pixmap_t> fTiles;
-  double fZVisibleRegion, fZOffset;
+  double fZVisibleRegion;
   Bool_t fLogScale;
 
   TH2 *fMatrix;
@@ -125,7 +123,6 @@ protected:
 
   double fXEOffset, fYEOffset;
   int fXTileOffset, fYTileOffset;
-  int fXNumTiles, fYNumTiles;
 
   TGStatusBar *fStatusBar;
 

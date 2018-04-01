@@ -29,29 +29,57 @@
 namespace HDTV {
 namespace Display {
 
-DisplayCut::DisplayCut(const TCutG &cut, bool invertAxes) {
-  if (invertAxes)
-    Init(cut.GetN(), cut.GetY(), cut.GetX());
-  else
-    Init(cut.GetN(), cut.GetX(), cut.GetY());
+namespace {
+
+std::vector<DisplayCut::CutPoint>
+make_points(const double *x_begin, const double *x_end, const double *y_begin) {
+  std::vector<DisplayCut::CutPoint> points;
+  if (x_end > x_begin) {
+    points.reserve(std::distance(x_begin, x_end));
+    while (x_begin != x_end) {
+      points.emplace_back(*x_begin++, *y_begin++);
+    }
+  }
+  return points;
 }
 
-void DisplayCut::Init(int n, const double *x, const double *y) {
-  if (n <= 0)
+} // namespace
+
+DisplayCut::DisplayCut(int n, const double *x, const double *y)
+    : fPoints{make_points(x, x + n, y)}, fX1{0.0}, fY1{0.0}, fX2{0.0},
+      fY2{0.0} {
+  UpdateBoundingBox();
+}
+
+DisplayCut::DisplayCut(const TCutG &cut, bool invertAxes)
+    : fPoints{invertAxes
+                  ? make_points(cut.GetY(), cut.GetY() + cut.GetN(), cut.GetX())
+                  : make_points(cut.GetX(), cut.GetX() + cut.GetN(),
+                                cut.GetY())},
+      fX1{0.0}, fY1{0.0}, fX2{0.0}, fY2{0.0} {
+  UpdateBoundingBox();
+}
+
+void DisplayCut::UpdateBoundingBox() {
+  if (fPoints.empty()) {
+    fX1 = 0.0;
+    fX2 = 0.0;
+    fY1 = 0.0;
+    fY2 = 0.0;
     return;
+  }
 
-  fPoints.reserve(n);
+  fX1 = std::numeric_limits<double>::max();
+  fX2 = std::numeric_limits<double>::min();
 
-  fPoints.push_back(CutPoint(x[0], y[0]));
-  fX1 = fX2 = x[0];
-  fY1 = fY2 = y[0];
+  fY1 = std::numeric_limits<double>::max();
+  fY2 = std::numeric_limits<double>::min();
 
-  for (int i = 1; i < n; ++i) {
-    fPoints.push_back(CutPoint(x[i], y[i]));
-    fX1 = std::min(fX1, x[i]);
-    fX2 = std::max(fX2, x[i]);
-    fY1 = std::min(fY1, y[i]);
-    fY2 = std::max(fY2, y[i]);
+  for (auto &point : fPoints) {
+    fX1 = std::min(fX1, point.x);
+    fX2 = std::max(fX2, point.x);
+    fY1 = std::min(fY1, point.y);
+    fY2 = std::max(fY2, point.y);
   }
 }
 

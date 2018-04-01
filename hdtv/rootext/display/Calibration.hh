@@ -45,7 +45,7 @@ namespace HDTV {
  */
 class Calibration {
 public:
-  Calibration() {}
+  Calibration() = default;
 
   explicit Calibration(double cal0) { SetCal(cal0); }
 

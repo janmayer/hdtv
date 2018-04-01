@@ -181,13 +181,13 @@ protected:
   void UpdateYZoom();
 
 protected:
+  Int_t fWidth, fHeight;
+  Int_t fXBase, fYBase;
   double fXZoom, fYZoom; // px / keV, px / count
   double fXVisibleRegion, fYVisibleRegion;
   double fXOffset, fYOffset;
   Bool_t fLogScale;
   Bool_t fUseNorm;
-  Int_t fXBase, fYBase;
-  Int_t fWidth, fHeight;
   ViewMode fViewMode;
   Drawable_t fDrawable;
   GContext_t fAxisGC;

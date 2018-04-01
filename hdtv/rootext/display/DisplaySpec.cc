@@ -35,7 +35,8 @@ namespace Display {
 
 //! Constructor
 DisplaySpec::DisplaySpec(const TH1 *hist, int col)
-    : DisplayBlock(col), fDrawUnderflowBin(false), fDrawOverflowBin(false) {
+    : DisplayBlock(col), fCachedMaxBin{0}, fCachedMax{0.0},
+      fDrawUnderflowBin(false), fDrawOverflowBin(false) {
 
   fHist.reset(dynamic_cast<TH1 *>(hist->Clone()));
 

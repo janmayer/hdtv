@@ -39,7 +39,9 @@ class DisplayStack {
   friend class View1D;
 
 public:
-  DisplayStack(View1D *view) { fView = view; }
+  using ObjList = std::list<DisplayObj *>;
+
+  explicit DisplayStack(View1D *view) { fView = view; }
   ~DisplayStack();
 
   void Update();
@@ -49,11 +51,8 @@ public:
 
   void PaintRegion(UInt_t x1, UInt_t x2, Painter &painter);
 
-  typedef std::list<DisplayObj *> ObjList;
-
 private:
   ObjList fObjects;
-
   View1D *fView;
 };
 

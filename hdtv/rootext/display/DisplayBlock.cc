@@ -35,17 +35,13 @@
 namespace HDTV {
 namespace Display {
 
-DisplayBlock::DisplayBlock(int col) : DisplayObj(), fCal(), fNorm(1.0) {
-  //! Constructor
-
+//! Constructor
+DisplayBlock::DisplayBlock(int col) : DisplayObj(), fGC{nullptr}, fNorm{1.0} {
   InitGC(col);
 }
 
-DisplayBlock::~DisplayBlock() {
-  //! Destructor
-
-  gClient->GetGCPool()->FreeGC(fGC);
-}
+//! Destructor
+DisplayBlock::~DisplayBlock() { gClient->GetGCPool()->FreeGC(fGC); }
 
 inline void DisplayBlock::InitGC(int col) {
   // Setup GC for requested color
