@@ -145,10 +145,11 @@ void RMatrix::AddLine(TArrayD &dst, int l) {
 MFMatrix::MFMatrix(MFileHist *mat, unsigned int level)
     : VMatrix(), fMatrix(mat), fLevel(level), fBuf() {
   // Sanity checks
-  if (fLevel < 0 || fLevel >= fMatrix->GetNLevels())
+  if (fLevel >= fMatrix->GetNLevels()) {
     fFail = true;
-  else
+  } else {
     fBuf.Set(fMatrix->GetNColumns());
+  }
 }
 
 void MFMatrix::AddLine(TArrayD &dst, int l) {
