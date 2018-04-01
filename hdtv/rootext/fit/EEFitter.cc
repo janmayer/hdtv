@@ -24,6 +24,9 @@
 
 #include <cmath>
 
+#include <iterator>
+#include <numeric>
+
 #include <TError.h>
 #include <TF1.h>
 #include <TH1.h>
@@ -265,27 +268,9 @@ void EEFitter::AddPeak(const EEPeak &peak) {
 
 double EEFitter::Eval(const double *x, const double *p) const {
   // Private: evaluation function for fit
-
-  double sum = 0.0;
-
-  // Evaluate background function, if it has been given
-  if (fBackground.get() != 0)
-    sum = fBackground->Eval(*x);
-
-  // Evaluate internal background
-  double bg = 0.0;
-  for (int i = fNumParams - 1; i >= (fNumParams - fIntBgDeg - 1); i--) {
-    bg = bg * *x + p[i];
-  }
-  sum += bg;
-
-  // Evaluate peaks
-  std::vector<EEPeak>::iterator iter;
-  for (iter = fPeaks.begin(); iter != fPeaks.end(); iter++) {
-    sum += iter->Eval(x, p);
-  }
-
-  return sum;
+  return std::accumulate(
+      fPeaks.begin(), fPeaks.end(), EvalBg(x, p),
+      [x, p](double sum, const EEPeak &peak) { return sum + peak.Eval(x, p); });
 }
 
 double EEFitter::EvalBg(const double *x, const double *p) const {
@@ -294,13 +279,11 @@ double EEFitter::EvalBg(const double *x, const double *p) const {
   double sum = fBackground ? fBackground->Eval(*x) : 0.0;
 
   // Evaluate internal background
-  double bg = 0.0;
-  for (int i = fNumParams - 1; i >= (fNumParams - fIntBgDeg - 1); i--) {
-    bg = bg * *x + p[i];
-  }
-  sum += bg;
-
-  return sum;
+  return sum +
+         std::accumulate(
+             std::reverse_iterator<const double *>(p + fNumParams - 1),
+             std::reverse_iterator<const double *>(p + fNumParams - fIntBgDeg),
+             0.0, [x = *x](double bg, double param) { return bg * x + param; });
 }
 
 TF1 *EEFitter::GetBgFunc() {
@@ -377,28 +360,28 @@ void EEFitter::_Fit(TH1 &hist) {
 
   // Init fit parameters
   // Note: this may set parameters several times, but that should not matter
-  std::vector<EEPeak>::iterator iter;
-  for (iter = fPeaks.begin(); iter != fPeaks.end(); iter++) {
-    double amp = hist.GetBinContent(hist.FindBin(iter->fPos._Value()));
-    if (fBackground.get() != 0)
-      amp -= fBackground->Eval(iter->fPos._Value());
+  for (auto &peak : fPeaks) {
+    double amp = hist.GetBinContent(hist.FindBin(peak.fPos._Value()));
+    if (fBackground) {
+      amp -= fBackground->Eval(peak.fPos._Value());
+    }
+    SetParameter(*fSumFunc, peak.fPos);
+    SetParameter(*fSumFunc, peak.fAmp, amp);
+    SetParameter(*fSumFunc, peak.fSigma1, 1.0);
+    SetParameter(*fSumFunc, peak.fSigma2, 1.0);
+    SetParameter(*fSumFunc, peak.fEta, 1.0);
+    SetParameter(*fSumFunc, peak.fGamma, 1.0);
 
-    SetParameter(*fSumFunc, iter->fPos);
-    SetParameter(*fSumFunc, iter->fAmp, amp);
-    SetParameter(*fSumFunc, iter->fSigma1, 1.0);
-    SetParameter(*fSumFunc, iter->fSigma2, 1.0);
-    SetParameter(*fSumFunc, iter->fEta, 1.0);
-    SetParameter(*fSumFunc, iter->fGamma, 1.0);
-
-    iter->SetSumFunc(fSumFunc.get());
+    peak.SetSumFunc(fSumFunc.get());
   }
 
   // Do the fit
   hist.Fit(fSumFunc.get(), "RQNM");
 
   // Calculate the peak volumes while the covariance matrix is still available
-  for (iter = fPeaks.begin(); iter != fPeaks.end(); iter++)
-    iter->StoreIntegral();
+  for (auto &peak : fPeaks) {
+    peak.StoreIntegral();
+  }
 
   // For debugging only
   /* if(fPeaks.size() > 0) {
@@ -469,9 +452,8 @@ void EEFitter::_Restore(double ChiSquare) {
                                    &EEFitter::Eval, fMin, fMax, fNumParams,
                                    "EEFitter", "Eval");
 
-  std::vector<EEPeak>::iterator iter;
-  for (iter = fPeaks.begin(); iter != fPeaks.end(); iter++) {
-    iter->SetSumFunc(fSumFunc.get());
+  for (auto &peak : fPeaks) {
+    peak.SetSumFunc(fSumFunc.get());
   }
 
   // Store Chi^2

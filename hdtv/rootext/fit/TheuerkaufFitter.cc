@@ -25,6 +25,7 @@
 #include <cmath>
 
 #include <algorithm>
+#include <numeric>
 
 #include <Riostream.h>
 #include <TError.h>
@@ -228,19 +229,16 @@ double TheuerkaufFitter::Eval(const double *x, const double *p) const {
   double sum = fBackground ? fBackground->Eval(*x) : 0.0;
 
   // Evaluate internal background
-  double bg = 0.0;
-  for (int i = fNumParams - 1; i >= (fNumParams - fIntBgDeg - 1); i--) {
-    bg = bg * *x + p[i];
-  }
-  sum += bg;
+  sum += std::accumulate(
+      std::reverse_iterator<const double *>(p + fNumParams - 1),
+      std::reverse_iterator<const double *>(p + fNumParams - fIntBgDeg),
+      0.0, [x = *x](double bg, double param) { return bg * x + param; });
 
   // Evaluate peaks
-  PeakVector_t::iterator iter;
-  for (iter = fPeaks.begin(); iter != fPeaks.end(); iter++) {
-    sum += iter->Eval(x, p);
-  }
-
-  return sum;
+  return std::accumulate(fPeaks.begin(), fPeaks.end(), sum,
+                         [x, p](double sum, const TheuerkaufPeak &peak) {
+                           return sum + peak.Eval(x, p);
+                         });
 }
 
 double TheuerkaufFitter::EvalBg(const double *x, const double *p) const {
@@ -250,19 +248,16 @@ double TheuerkaufFitter::EvalBg(const double *x, const double *p) const {
   double sum = fBackground ? fBackground->Eval(*x) : 0.0;
 
   // Evaluate internal background
-  double bg = 0.0;
-  for (int i = fNumParams - 1; i >= (fNumParams - fIntBgDeg - 1); i--) {
-    bg = bg * *x + p[i];
-  }
-  sum += bg;
+  sum += std::accumulate(
+      std::reverse_iterator<const double *>(p + fNumParams - 1),
+      std::reverse_iterator<const double *>(p + fNumParams - fIntBgDeg),
+      0.0, [x = *x](double bg, double param) { return bg * x + param; });
 
   // Evaluate steps in peaks
-  PeakVector_t::iterator iter;
-  for (iter = fPeaks.begin(); iter != fPeaks.end(); iter++) {
-    sum += iter->EvalStep(x, p);
-  }
-
-  return sum;
+  return std::accumulate(fPeaks.begin(), fPeaks.end(), sum,
+                         [x, p](double sum, const TheuerkaufPeak &peak) {
+                           return sum + peak.EvalStep(x, p);
+                         });
 }
 
 //! Return a pointer to a function describing this fits background, including
@@ -349,11 +344,10 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
   int b2 = hist.FindBin(fMax);
 
   // Check if any of the peaks contain steps
-  bool steps = false;
-  for (citer = fPeaks.begin(); citer != fPeaks.end(); citer++) {
-    if (citer->HasStep())
-      steps = true;
-  }
+  bool steps = std::find_if(fPeaks.begin(), fPeaks.end(),
+                            [](const TheuerkaufPeak &peak) {
+                              return peak.HasStep();
+                            }) != fPeaks.end();
 
   // If there is internal background, we need to estimate it first. We will
   // estimate that the background is constant at the level of the bin with the
@@ -410,19 +404,28 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
   // width depends on the peak width, which will only be estimated in the end.
   double avgFreeStep = 0.0;
   if (steps) {
-    double sumFixedStep = 0.;
-    int nStepFree = 0;
-    for (citer = fPeaks.begin(); citer != fPeaks.end(); ++citer) {
-      if (citer->fSH) {
-        if (citer->fSH.IsFree())
-          ++nStepFree;
-        else
-          sumFixedStep += citer->fSH._Value();
-      }
-    }
+    struct Result {
+      int nStepFree;
+      double sumFixedStep;
+    };
+
+    auto result =
+        std::accumulate(fPeaks.begin(), fPeaks.end(), Result{0, 0.0},
+                        [](Result result, const TheuerkaufPeak &peak) {
+                          if (peak.fSH) {
+                            if (peak.fSH.IsFree()) {
+                              ++result.nStepFree;
+                            } else {
+                              result.sumFixedStep += peak.fSH._Value();
+                            }
+                          }
+                          return result;
+                        });
+
     double sumStep = hist.GetBinContent(b2) - hist.GetBinContent(b1);
-    if (nStepFree != 0)
-      avgFreeStep = (sumStep - sumFixedStep) / nStepFree;
+    if (result.nStepFree != 0) {
+      avgFreeStep = (sumStep - result.sumFixedStep) / result.nStepFree;
+    }
   }
 
   // Estimate peak amplitudes:
@@ -437,46 +440,45 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
   double sumAmp = 0.0;
 
   // First: no steps
-  for (citer = fPeaks.begin(); citer != fPeaks.end(); ++citer) {
-    double pos = citer->fPos._Value();
-    double amp = hist.GetBinContent(hist.FindBin(pos)) - intBg0;
-    if (fBackground.get() != 0)
-      amp -= fBackground->Eval(pos);
-    amps.push_back(amp);
-    sumAmp += amp;
-  }
+  std::transform(fPeaks.begin(), fPeaks.end(), std::back_inserter(amps),
+                 [&](const TheuerkaufPeak &peak) {
+                   double pos = peak.fPos._Value();
+                   double amp = hist.GetBinContent(hist.FindBin(pos)) - intBg0;
+                   if (fBackground) {
+                     amp -= fBackground->Eval(pos);
+                   }
+                   sumAmp += amp;
+                   return amp;
+                 });
 
   // Second: include steps
   if (steps) {
-    double sumStep = 0.0;
-    double curStep;
-
     // Generate a list of peak IDs sorted by position
-    PeakID_t nPeaks = fPeaks.size();
-    CmpPeakPos cmp(fPeaks);
-    std::vector<PeakID_t> sortedPeakIDs;
-    sortedPeakIDs.reserve(nPeaks);
-    for (PeakID_t i = 0; i < nPeaks; ++i)
-      sortedPeakIDs.push_back(i);
-    std::sort(sortedPeakIDs.begin(), sortedPeakIDs.end(), cmp);
+    std::vector<PeakID_t> sortedPeakIDs(fPeaks.size());
+    std::iota(sortedPeakIDs.begin(), sortedPeakIDs.end(), 0);
+    std::sort(sortedPeakIDs.begin(), sortedPeakIDs.end(),
+              [&](const PeakID_t &lhs, const PeakID_t &rhs) {
+                return fPeaks[lhs].fPos._Value() < fPeaks[rhs].fPos._Value();
+              });
 
-    std::vector<PeakID_t>::const_iterator IDIter;
-    for (IDIter = sortedPeakIDs.begin(); IDIter != sortedPeakIDs.end();
-         ++IDIter) {
-      const TheuerkaufPeak &peak = fPeaks[*IDIter];
-      if (peak.HasStep()) {
-        if (peak.fSH.IsFree())
-          curStep = avgFreeStep;
-        else
-          curStep = peak.fSH._Value();
-      } else {
-        curStep = 0.0;
-      }
-      amps[*IDIter] -= sumStep + curStep / 2.0;
-      sumAmp -= sumStep + curStep / 2.0;
-
-      sumStep += curStep;
-    }
+    struct Sums {
+      double step, amp;
+    };
+    auto sums = std::accumulate(sortedPeakIDs.begin(), sortedPeakIDs.end(),
+                                Sums{0.0, 0.0}, [&](Sums sums, PeakID_t id) {
+                                  auto &peak = fPeaks[id];
+                                  double curStep = 0.0;
+                                  if (peak.HasStep()) {
+                                    curStep = peak.fSH.IsFree()
+                                                  ? peak.fSH._Value()
+                                                  : avgFreeStep;
+                                  }
+                                  amps[id] -= sums.step + curStep / 2.0;
+                                  sums.amp -= sums.step + curStep / 2.0;
+                                  sums.step += curStep;
+                                  return sums;
+                                });
+    sumAmp -= sums.amp;
   }
 
   // Estimate peak parameters
@@ -503,17 +505,17 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
   }
 
   if (steps) {
-    for (citer = fPeaks.begin(); citer != fPeaks.end(); ++citer) {
-      if (citer->HasStep()) {
-        double curStep;
-        if (citer->fSH.IsFree())
-          curStep = avgFreeStep;
-        else
-          curStep = citer->fSH._Value();
-        int b = hist.FindBin(citer->fPos._Value());
-        sumVol -= curStep * (b2 - std::min(b, b2) + 0.5);
-      }
-    }
+    sumVol -= std::accumulate(fPeaks.begin(), fPeaks.end(), 0.0,
+                              [&](double sum, const TheuerkaufPeak &peak) {
+                                if (peak.HasStep()) {
+                                  double curStep = peak.fSH.IsFree()
+                                                       ? avgFreeStep
+                                                       : peak.fSH._Value();
+                                  int b = hist.FindBin(peak.fPos._Value());
+                                  sum -= curStep * (b2 - std::min(b, b2) + 0.5);
+                                }
+                                return sum;
+                              });
   }
 
   // Second: calculate average peak width (sigma)
@@ -522,29 +524,28 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
   // Third: calculate sum of free volumes and amplitudes
   double sumFreeAmp = sumAmp;
   double sumFreeVol = sumVol;
-  std::vector<double>::const_iterator ampIter;
-  ampIter = amps.begin();
-  for (citer = fPeaks.begin(); citer != fPeaks.end(); ++citer) {
-    if (!citer->fVol.IsFree()) {
+  auto ampIter = amps.begin();
+  for (auto &peak : fPeaks) {
+    if (peak.fVol.IsFree()) {
       sumFreeAmp -= *(ampIter++);
-      sumFreeVol -= citer->fVol._Value();
+      sumFreeVol -= peak.fVol._Value();
     }
   }
 
   // Init fit parameters for peaks
   ampIter = amps.begin();
   PeakVector_t::iterator iter;
-  for (iter = fPeaks.begin(); iter != fPeaks.end(); iter++) {
+  for (auto &peak : fPeaks) {
     double amp = *(ampIter++);
-    SetParameter(*fSumFunc, iter->fPos);
-    SetParameter(*fSumFunc, iter->fVol, sumFreeVol * amp / sumFreeAmp);
-    SetParameter(*fSumFunc, iter->fSigma, avgSigma);
-    SetParameter(*fSumFunc, iter->fTL, 10.0);
-    SetParameter(*fSumFunc, iter->fTR, 10.0);
-    SetParameter(*fSumFunc, iter->fSH, avgFreeStep / (amp * M_PI));
-    SetParameter(*fSumFunc, iter->fSW, 1.0);
+    SetParameter(*fSumFunc, peak.fPos);
+    SetParameter(*fSumFunc, peak.fVol, sumFreeVol * amp / sumFreeAmp);
+    SetParameter(*fSumFunc, peak.fSigma, avgSigma);
+    SetParameter(*fSumFunc, peak.fTL, 10.0);
+    SetParameter(*fSumFunc, peak.fTR, 10.0);
+    SetParameter(*fSumFunc, peak.fSH, avgFreeStep / (amp * M_PI));
+    SetParameter(*fSumFunc, peak.fSW, 1.0);
 
-    iter->SetSumFunc(fSumFunc.get());
+    peak.SetSumFunc(fSumFunc.get());
   }
 
   if (!fDebugShowInipar) {
@@ -557,14 +558,6 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
 
   // Finalize fitter
   fFinal = true;
-}
-
-TheuerkaufFitter::CmpPeakPos::CmpPeakPos(const PeakVector_t &peaks) {
-  PeakVector_t::const_iterator citer;
-  fPos.reserve(peaks.size());
-  for (citer = peaks.begin(); citer != peaks.end(); ++citer) {
-    fPos.push_back(citer->fPos._Value());
-  }
 }
 
 //! Restore the fit, using the given background function
@@ -613,9 +606,8 @@ void TheuerkaufFitter::_Restore(double ChiSquare) {
                                    &TheuerkaufFitter::Eval, fMin, fMax,
                                    fNumParams, "TheuerkaufFitter", "Eval");
 
-  PeakVector_t::iterator iter;
-  for (iter = fPeaks.begin(); iter != fPeaks.end(); iter++) {
-    iter->SetSumFunc(fSumFunc.get());
+  for (auto &peak : fPeaks) {
+    peak.SetSumFunc(fSumFunc.get());
   }
 
   // Store Chi^2
