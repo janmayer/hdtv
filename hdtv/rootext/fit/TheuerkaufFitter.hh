@@ -59,9 +59,9 @@ public:
   TheuerkaufPeak(const TheuerkaufPeak &src);
   TheuerkaufPeak &operator=(const TheuerkaufPeak &src);
 
-  double Eval(double *x, double *p);
-  double EvalNoStep(double *x, double *p);
-  double EvalStep(double *x, double *p);
+  double Eval(const double *x, const double *p) const;
+  double EvalNoStep(const double *x, const double *p) const;
+  double EvalStep(const double *x, const double *p) const;
 
   double GetPos() const { return fPos.Value(fFunc); }
   double GetPosError() const { return fPos.Error(fFunc); }
@@ -157,15 +157,14 @@ public:
   TF1 *GetPeakFunc();
 
 private:
-  double GetNorm(double sigma, double tl, double tr);
+  double GetNorm(double sigma, double tl, double tr) const;
 
   Param fPos, fVol, fSigma, fTL, fTR, fSH, fSW;
   bool fHasLeftTail, fHasRightTail, fHasStep;
   TF1 *fFunc;
   std::unique_ptr<TF1> fPeakFunc;
 
-  double fCachedNorm;
-  double fCachedSigma, fCachedTL, fCachedTR;
+  mutable double fCachedNorm, fCachedSigma, fCachedTL, fCachedTR;
 
   void RestoreParam(const Param &param, double value, double error);
 
@@ -199,18 +198,8 @@ private:
   using PeakVector_t = std::vector<TheuerkaufPeak>;
   using PeakID_t = PeakVector_t::size_type;
 
-  class CmpPeakPos {
-  public:
-    CmpPeakPos(const PeakVector_t &peaks);
-
-    bool operator()(PeakID_t p1, PeakID_t p2) { return fPos[p1] < fPos[p2]; }
-
-  private:
-    std::vector<double> fPos;
-  };
-
-  double Eval(double *x, double *p);
-  double EvalBg(double *x, double *p);
+  double Eval(const double *x, const double *p) const;
+  double EvalBg(const double *x, const double *p) const;
   void _Fit(TH1 &hist);
   void _Restore(double ChiSquare);
 

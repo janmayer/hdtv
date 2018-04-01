@@ -49,7 +49,7 @@ public:
   EEPeak() = default;
   EEPeak &operator=(const EEPeak &src);
 
-  double Eval(double *x, double *p);
+  double Eval(const double *x, const double *p) const;
 
   double GetPos() { return fPos.Value(fFunc); };
   double GetPosError() { return fPos.Error(fFunc); };
@@ -146,8 +146,8 @@ public:
 
 private:
 
-  double Eval(double *x, double *p);
-  double EvalBg(double *x, double *p);
+  double Eval(const double *x, const double *p) const;
+  double EvalBg(const double *x, const double *p) const;
   void _Fit(TH1 &hist);
   void _Restore(double ChiSquare);
 

@@ -86,7 +86,7 @@ void EEPeak::RestoreParam(const Param &param, double value, double error) {
   }
 }
 
-double EEPeak::Eval(double *x, double *p) {
+double EEPeak::Eval(const double *x, const double *p) const {
   double dx = *x - fPos.Value(p);
   double sigma1 = fSigma1.Value(p);
   double sigma2 = fSigma2.Value(p);
@@ -263,7 +263,7 @@ void EEFitter::AddPeak(const EEPeak &peak) {
   fNumPeaks++;
 }
 
-double EEFitter::Eval(double *x, double *p) {
+double EEFitter::Eval(const double *x, const double *p) const {
   // Private: evaluation function for fit
 
   double sum = 0.0;
@@ -288,7 +288,7 @@ double EEFitter::Eval(double *x, double *p) {
   return sum;
 }
 
-double EEFitter::EvalBg(double *x, double *p) {
+double EEFitter::EvalBg(const double *x, const double *p) const {
   // Private: evaluation function for background
   // Evaluate background function, if it has been given
   double sum = fBackground ? fBackground->Eval(*x) : 0.0;

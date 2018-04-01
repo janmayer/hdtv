@@ -132,11 +132,11 @@ TF1 *TheuerkaufPeak::GetPeakFunc() {
   return fPeakFunc.get();
 }
 
-double TheuerkaufPeak::Eval(double *x, double *p) {
+double TheuerkaufPeak::Eval(const double *x, const double *p) const {
   return EvalNoStep(x, p) + EvalStep(x, p);
 }
 
-double TheuerkaufPeak::EvalNoStep(double *x, double *p) {
+double TheuerkaufPeak::EvalNoStep(const double *x, const double *p) const {
   double dx = *x - fPos.Value(p);
   double vol = fVol.Value(p);
   double sigma = fSigma.Value(p);
@@ -157,7 +157,7 @@ double TheuerkaufPeak::EvalNoStep(double *x, double *p) {
   return vol * norm * std::exp(_x);
 }
 
-double TheuerkaufPeak::EvalStep(double *x, double *p) {
+double TheuerkaufPeak::EvalStep(const double *x, const double *p) const {
   //! Step function
 
   if (fHasStep) {
@@ -176,9 +176,10 @@ double TheuerkaufPeak::EvalStep(double *x, double *p) {
   }
 }
 
-double TheuerkaufPeak::GetNorm(double sigma, double tl, double tr) {
-  if (fCachedSigma == sigma && fCachedTL == tl && fCachedTR == tr)
+double TheuerkaufPeak::GetNorm(double sigma, double tl, double tr) const {
+  if (fCachedSigma == sigma && fCachedTL == tl && fCachedTR == tr) {
     return fCachedNorm;
+  }
 
   double vol;
 
@@ -220,7 +221,7 @@ void TheuerkaufFitter::AddPeak(const TheuerkaufPeak &peak) {
   fNumPeaks++;
 }
 
-double TheuerkaufFitter::Eval(double *x, double *p) {
+double TheuerkaufFitter::Eval(const double *x, const double *p) const {
   //! Private: evaluation function for fit
 
   // Evaluate background function, if it has been given
@@ -242,7 +243,7 @@ double TheuerkaufFitter::Eval(double *x, double *p) {
   return sum;
 }
 
-double TheuerkaufFitter::EvalBg(double *x, double *p) {
+double TheuerkaufFitter::EvalBg(const double *x, const double *p) const {
   //! Private: evaluation function for background
 
   // Evaluate background function, if it has been given
