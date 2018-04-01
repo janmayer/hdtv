@@ -63,9 +63,7 @@ void MTViewer::Init(UInt_t w, UInt_t h, TH2 *mat, const char *title) {
   MapWindow();
 }
 
-MTViewer::~MTViewer() {
-  Cleanup();
-}
+MTViewer::~MTViewer() { TGMainFrame::Cleanup(); }
 
 } // end namespace Display
 } // end namespace HDTV

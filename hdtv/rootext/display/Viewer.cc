@@ -40,28 +40,30 @@ Viewer::Viewer(UInt_t w, UInt_t h, const char *title)
   // correctly???
 
   fView = new View1D(this, w - 4, h - 4);
-  AddFrame(fView,
-           new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
+  TGMainFrame::AddFrame(
+      fView, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
 
   fScrollbar = new TGHScrollBar(this, 10, kDefaultScrollBarWidth);
-  AddFrame(fScrollbar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
+  TGMainFrame::AddFrame(fScrollbar,
+                        new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
 
   fStatusBar = new TGStatusBar(this, 10, 16);
   fStatusBar->SetParts(parts, 3);
 
-  AddFrame(fStatusBar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
+  TGMainFrame::AddFrame(fStatusBar,
+                        new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
 
   fView->SetScrollbar(fScrollbar);
   fView->SetStatusBar(fStatusBar);
 
-  SetWindowName(title);
-  MapSubwindows();
-  Resize(GetDefaultSize());
-  MapWindow();
+  TGMainFrame::SetWindowName(title);
+  TGMainFrame::MapSubwindows();
+  TGMainFrame::Resize(TGMainFrame::GetDefaultSize());
+  TGMainFrame::MapWindow();
 
   fView->UpdateScrollbarRange();
 
-  AddInput(kKeyPressMask);
+  TGMainFrame::AddInput(kKeyPressMask);
 }
 
 Viewer::~Viewer() {
@@ -69,7 +71,7 @@ Viewer::~Viewer() {
 
   // This will delete all contained frames, and all layout hints.
   // DO NOT delete them again ``by hand''!
-  Cleanup();
+  TGMainFrame::Cleanup();
 }
 
 Bool_t Viewer::HandleKey(Event_t *ev) {

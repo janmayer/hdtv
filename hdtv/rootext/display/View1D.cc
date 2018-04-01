@@ -52,7 +52,7 @@ View1D::View1D(const TGWindow *p, UInt_t w, UInt_t h)
     : View(p, w, h), fCurrentCal(), fDisplayStack(this), fPainter() {
   // Constructor
 
-  SetBackgroundColor(GetBlackPixel());
+  TGFrame::SetBackgroundColor(GetBlackPixel());
   fXVisibleRegion = DEFAULT_MAX_ENERGY;
   fYMinVisibleRegion = 20.0;
   fYVisibleRegion = fYMinVisibleRegion;

@@ -36,7 +36,7 @@ namespace Display {
 View2D::View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
     : View(p, w, h), fXEOffset(0.), fYEOffset(0.), fXTileOffset(0),
       fYTileOffset(0), fPainter() {
-  SetBackgroundColor(GetBlackPixel());
+  TGFrame::SetBackgroundColor(GetBlackPixel());
 
   fMatrix = mat;
   fMatrixMax = fMatrix->GetMaximum();
@@ -48,7 +48,7 @@ View2D::View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
   fTopBorder = 10;
   fBottomBorder = 30;
 
-  Layout();
+  View2D::Layout();
   ZoomFull(false);
   fZVisibleRegion = Log(fMatrixMax) + 1.0;
   fLogScale = true;
