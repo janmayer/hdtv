@@ -49,7 +49,7 @@ namespace Display {
 class View2D : public View {
 public:
   View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat);
-  ~View2D();
+  ~View2D() override;
 
   Pixmap_t RenderTile(int xoff, int yoff);
   void RenderCuts(int xoff, int yoff, Pixmap_t pixmap);
@@ -57,8 +57,8 @@ public:
   Pixmap_t GetTile(int x, int y);
   void FlushTiles();
   void WeedTiles();
-  void DoRedraw();
-  void Layout();
+  void DoRedraw() override;
+  void Layout() override;
   void Update();
   void UpdateStatusBar();
   void ZoomFull(Bool_t update = true);
@@ -70,14 +70,14 @@ public:
   void AddCut(const TCutG &cut, bool invertAxes = false);
   void DeleteAllCuts();
 
-  Bool_t HandleKey(Event_t *ev);
+  Bool_t HandleKey(Event_t *ev) override;
 
   void DrawPolyLine(Drawable_t id, GContext_t gc, Int_t n, short *points);
 
   /* Copied from GSViewport: Merge? */
-  Bool_t HandleMotion(Event_t *ev);
-  Bool_t HandleButton(Event_t *ev);
-  Bool_t HandleCrossing(Event_t *ev);
+  Bool_t HandleMotion(Event_t *ev) override;
+  Bool_t HandleButton(Event_t *ev) override;
+  Bool_t HandleCrossing(Event_t *ev) override;
 
   double XTileToE(int x) { return x / fPainter.GetXZoom() - fXEOffset; }
   double YTileToE(int y) { return y / fPainter.GetYZoom() + fYEOffset; }

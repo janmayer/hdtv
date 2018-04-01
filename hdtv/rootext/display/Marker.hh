@@ -42,7 +42,7 @@ class Marker : public DisplayObj {
 
 public:
   Marker(int n, double p1, double p2 = 0.0, int col = 5);
-  ~Marker();
+  ~Marker() override;
 
   TGGC *GetGC_1() { return fDash1 ? fDashedGC : fGC; }
   TGGC *GetGC_2() { return fDash2 ? fDashedGC : fGC; }

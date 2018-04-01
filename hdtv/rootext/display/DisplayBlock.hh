@@ -38,7 +38,7 @@ class DisplayBlock : public DisplayObj {
 
 public:
   explicit DisplayBlock(int col);
-  ~DisplayBlock();
+  ~DisplayBlock() override;
 
   void SetCal(const Calibration &cal) {
     fCal = cal;

@@ -54,7 +54,7 @@ class View1D : public View {
 
 public:
   View1D(const TGWindow *p, UInt_t w, UInt_t h);
-  ~View1D();
+  ~View1D() override;
 
   void SetXOffset(double offset);
   void SetXCenter(double center);
@@ -106,7 +106,7 @@ public:
 
   void SetCalibration(const Calibration &cal) { fCurrentCal = cal; }
 
-  void Layout();
+  void Layout() override;
   void UpdateScrollbarRange();
 
   void SetScrollbar(TGHScrollBar *sb) { fScrollbar = sb; }
@@ -129,11 +129,11 @@ public:
 
 protected:
   DisplayStack *GetDisplayStack() { return &fDisplayStack; }
-  void DoRedraw();
+  void DoRedraw() override;
   void DoUpdate();
-  Bool_t HandleMotion(Event_t *ev);
-  Bool_t HandleButton(Event_t *ev);
-  Bool_t HandleCrossing(Event_t *ev);
+  Bool_t HandleMotion(Event_t *ev) override;
+  Bool_t HandleButton(Event_t *ev) override;
+  Bool_t HandleCrossing(Event_t *ev) override;
   void ShiftOffset(int dO);
 
   void UpdateStatusPos();

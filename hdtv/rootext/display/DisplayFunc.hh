@@ -39,19 +39,19 @@ public:
   TF1 *GetFunc() { return fFunc; }
   double Eval(double x) { return fFunc->Eval(x); }
 
-  double GetMinCh(void) {
+  double GetMinCh() override {
     double min, max;
     fFunc->GetRange(min, max);
     return min;
   }
 
-  double GetMaxCh(void) {
+  double GetMaxCh() override {
     double min, max;
     fFunc->GetRange(min, max);
     return max;
   }
 
-  virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter &painter) {
+  void PaintRegion(UInt_t x1, UInt_t x2, Painter &painter) override {
     if (IsVisible()) {
       painter.DrawFunction(this, x1, x2);
     }

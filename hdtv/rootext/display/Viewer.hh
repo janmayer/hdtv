@@ -45,7 +45,7 @@ class Viewer : public TGMainFrame {
   // RQ_OBJECT("HDTV::Display::Viewer")
 public:
   explicit Viewer(UInt_t w = 800, UInt_t h = 400, const char *title = "hdtv");
-  ~Viewer();
+  ~Viewer() override;
 
   // FIXME: should be called GetView
   const View1D *GetViewport(void) { return fView; }
@@ -58,8 +58,8 @@ public:
 
 protected:
   void UpdateScrollbar(void);
-  Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
-  Bool_t HandleKey(Event_t *ev);
+  Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t) override;
+  Bool_t HandleKey(Event_t *ev) override;
 
 protected:
   View1D *fView;

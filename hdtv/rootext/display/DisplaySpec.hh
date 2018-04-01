@@ -86,8 +86,8 @@ public:
   bool GetDrawUnderflowBin() { return fDrawUnderflowBin; }
   bool GetDrawOverflowBin() { return fDrawOverflowBin; }
 
-  double GetMinCh(void) { return fHist->GetXaxis()->GetXmin(); }
-  double GetMaxCh(void) { return fHist->GetXaxis()->GetXmax(); }
+  double GetMinCh() override { return fHist->GetXaxis()->GetXmin(); }
+  double GetMaxCh() override { return fHist->GetXaxis()->GetXmax(); }
 
   Int_t ClipBin(Int_t bin) {
     return std::min(std::max(bin, fDrawOverflowBin ? 0 : 1),
@@ -98,7 +98,7 @@ public:
 
   double GetMax_Cached(int b1, int b2);
 
-  virtual void PaintRegion(UInt_t x1, UInt_t x2, Painter &painter) {
+  void PaintRegion(UInt_t x1, UInt_t x2, Painter &painter) override {
     if (IsVisible()) {
       painter.DrawSpectrum(this, x1, x2);
     }
