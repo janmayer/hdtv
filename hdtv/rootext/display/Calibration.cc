@@ -24,8 +24,10 @@
 
 #include <cmath>
 
+#include <algorithm>
 #include <iostream>
 #include <memory>
+#include <numeric>
 
 #include <TAxis.h>
 
@@ -38,9 +40,9 @@ void Calibration::SetCal(const std::vector<double> &cal) {
 
 void Calibration::SetCal(const TArrayD &cal) {
   fCal.clear();
-  for (int i = 0; i < cal.GetSize(); i++)
-    fCal.push_back(cal[i]);
-
+  fCal.reserve(cal.GetSize());
+  std::copy(cal.GetArray(), cal.GetArray() + cal.GetSize(),
+            std::back_inserter(fCal));
   UpdateDerivative();
 }
 
@@ -78,52 +80,40 @@ void Calibration::UpdateDerivative() {
   // Update the coefficients of the derivative polynomial.
   // (Internal use only.)
 
-  std::vector<double>::iterator c = fCal.begin();
+  fCalDeriv.clear();
+  if (fCal.empty()) {
+    return;
+  }
+
   double a = 1.0;
 
-  fCalDeriv.clear();
-
-  if (c != fCal.end())
-    ++c;
-
-  while (c != fCal.end()) {
-    fCalDeriv.push_back(a * *c++);
-    a += 1.;
-  }
+  std::transform(fCal.begin() + 1, fCal.end(), std::back_inserter(fCalDeriv),
+                 [&](double coeff) { return coeff * a++; });
 }
 
+//! Convert a channel to an energy, using the chosen energy
+//! calibration.
 double Calibration::Ch2E(double ch) const {
-  //! Convert a channel to an energy, using the chosen energy
-  //! calibration.
-
   // Catch special case of a trivial calibration
-  if (fCal.empty())
+  if (fCal.empty()) {
     return ch;
+  }
 
-  std::vector<double>::const_reverse_iterator c = fCal.rbegin();
-  double E = *c++;
-
-  while (c != fCal.rend())
-    E = E * ch + *c++;
-
-  return E;
+  return std::accumulate(
+      fCal.rbegin(), fCal.rend(), 0.0,
+      [ch](double E, double coeff) { return E * ch + coeff; });
 }
 
+//! Calculate the slope of the calibration function, \frac{dE}{dCh},
+//! at position ch .
 double Calibration::dEdCh(double ch) const {
-  //! Calculate the slope of the calibration function, \frac{dE}{dCh},
-  //! at position ch .
-
   // Catch special case of a trivial calibration
-  if (fCal.empty())
+  if (fCal.empty()) {
     return 1.0;
-
-  std::vector<double>::const_reverse_iterator c = fCalDeriv.rbegin();
-  double slope = *c++;
-
-  while (c != fCalDeriv.rend())
-    slope = slope * ch + *c++;
-
-  return slope;
+  }
+  return std::accumulate(
+      fCalDeriv.rbegin(), fCalDeriv.rend(), 0.0,
+      [ch](double slope, double coeff) { return slope * ch + coeff; });
 }
 
 double Calibration::E2Ch(double e) const {
@@ -146,11 +136,9 @@ double Calibration::E2Ch(double e) const {
 
   for (int i = 0; i < 10 && std::abs(de / _e) > 1e-10; i++) {
     // Calculate slope
-    c = fCalDeriv.rbegin();
-    slope = *c++;
-    while (c != fCalDeriv.rend()) {
-      slope = slope * ch + *c++;
-    }
+    slope = std::accumulate(
+        fCalDeriv.rbegin(), fCalDeriv.rend(), 0.0,
+        [ch](double slope, double coeff) { return slope * ch + coeff; });
 
     ch -= de / slope;
     de = Ch2E(ch) - e;

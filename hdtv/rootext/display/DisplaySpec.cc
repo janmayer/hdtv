@@ -101,10 +101,8 @@ double DisplaySpec::GetMax_Cached(int b1, int b2) {
   int newBin = 0;
   double max, newMax = -1.0;
 
-  if (b1 < 0)
-    b1 = 0;
-  if (b2 > GetNbinsX() + 1)
-    b2 = GetNbinsX() + 1;
+  b1 = std::max(b1, 0);
+  b2 = std::min(b2, GetNbinsX() + 1);
 
   if (b2 < b1) {
     std::swap(b1, b2);

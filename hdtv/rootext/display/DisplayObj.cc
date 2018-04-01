@@ -22,6 +22,8 @@
 
 #include "DisplayObj.hh"
 
+#include <algorithm>
+
 #include <Riostream.h>
 
 #include "DisplayStack.hh"
@@ -67,19 +69,16 @@ void DisplayObj::Remove(View1D *view) {
   Remove(view->GetDisplayStack());
 }
 
+//! Add the object to the display stack
 void DisplayObj::Draw(DisplayStack *stack) {
-  //! Add the object to the display stack
-
-  DisplayStack::ObjList &list = stack->fObjects;
-
-  DisplayStack::ObjList::iterator pos = list.begin();
-  while (pos != list.end() && (*pos)->GetZIndex() <= GetZIndex()) {
-    ++pos;
-  }
-  list.insert(pos, this);
-
+  auto &objects = stack->fObjects;
+  auto pos = std::find_if(
+      objects.begin(),
+      objects.end(), [zindex = GetZIndex()](const DisplayObj *obj) {
+        return obj->GetZIndex() > zindex;
+      });
+  objects.insert(pos, this);
   fStacks.insert(fStacks.begin(), stack);
-
   stack->Update();
 }
 
@@ -112,23 +111,21 @@ void DisplayObj::ToBottom(View1D *view) {
   ToBottom(view->GetDisplayStack());
 }
 
+//! Move the object to the top of all objects with lower or equal z-index in the
+//! display stack.
 void DisplayObj::ToTop(DisplayStack *stack) {
-  //! Move the object to the top of all objects with lower or equal z-index in
-  //! the display stack.
-
-  DisplayStack::ObjList &list = stack->fObjects;
-
-  DisplayStack::ObjList::iterator pos = list.begin();
-  while (pos != list.end() && (*pos)->GetZIndex() <= GetZIndex()) {
-    ++pos;
+  auto &objects = stack->fObjects;
+  auto pos = std::find_if(
+      objects.begin(),
+      objects.end(), [zindex = GetZIndex()](const DisplayObj *obj) {
+        return obj->GetZIndex() > zindex;
+      });
+  if (pos != objects.end() && *pos == this) {
+    return;
   }
 
-  if (pos != list.end() && *pos == this)
-    return;
-
-  list.remove(this);
-  list.insert(pos, this);
-
+  objects.remove(this);
+  objects.insert(pos, this);
   stack->Update();
 }
 
@@ -142,22 +139,22 @@ void DisplayObj::ToTop() {
   }
 }
 
+//! Move the object to the bottom of all objects with higher or equal z-index in
+//! the display stack.
 void DisplayObj::ToBottom(DisplayStack *stack) {
-  //! Move the object to the bottom of all objects with higher or equal z-index
-  //! in the display stack.
 
-  DisplayStack::ObjList &list = stack->fObjects;
-
-  DisplayStack::ObjList::iterator pos = list.begin();
-  while (pos != list.end() && (*pos)->GetZIndex() < GetZIndex()) {
-    ++pos;
+  auto &objects = stack->fObjects;
+  auto pos = std::find_if(
+      objects.begin(),
+      objects.end(), [zindex = GetZIndex()](const DisplayObj *obj) {
+        return !(obj->GetZIndex() < zindex);
+      });
+  if (pos != objects.end() && *pos == this) {
+    return;
   }
 
-  if (pos != list.end() && *pos == this)
-    return;
-
-  list.remove(this);
-  list.insert(list.begin(), this);
+  objects.remove(this);
+  objects.insert(objects.begin(), this);
 
   stack->Update();
 }

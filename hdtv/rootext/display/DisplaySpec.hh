@@ -90,23 +90,8 @@ public:
   double GetMaxCh(void) { return fHist->GetXaxis()->GetXmax(); }
 
   Int_t ClipBin(Int_t bin) {
-    if (fDrawUnderflowBin) {
-      if (bin < 0)
-        bin = 0;
-    } else {
-      if (bin < 1)
-        bin = 1;
-    }
-
-    if (fDrawOverflowBin) {
-      if (bin > GetNbinsX() + 1)
-        bin = GetNbinsX() + 1;
-    } else {
-      if (bin > GetNbinsX())
-        bin = GetNbinsX();
-    }
-
-    return bin;
+    return std::min(std::max(bin, fDrawOverflowBin ? 0 : 1),
+                    fDrawOverflowBin ? GetNbinsX() + 1 : GetNbinsX());
   }
 
   double GetClippedBinContent(Int_t bin) { return GetBinContent(ClipBin(bin)); }
