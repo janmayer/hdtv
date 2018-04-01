@@ -418,24 +418,34 @@ void View2D::DrawPolyLine(Drawable_t id, GContext_t gc, Int_t n,
              reinterpret_cast<XPoint *>(points), n, CoordModeOrigin);
 }
 
-void View2D::WeedTiles() {
-  int16_t x, y;
-  int xpos, ypos;
+template <typename ContainerT, typename Cond>
+void erase_if(ContainerT &container, Cond cond) {
+  auto it = container.begin();
+  while (it != container.end()) {
+    if (cond(*it)) {
+      it = container.erase(it);
+    } else {
+      ++it;
+    }
+  }
+}
 
-  for (auto &tile : fTiles) {
-    x = tile.first & 0xFFFF;
-    y = tile.first >> 16;
-    xpos = x * cTileSize + fXTileOffset;
-    ypos = y * cTileSize + fYTileOffset;
+void View2D::WeedTiles() {
+  erase_if(fTiles, [&](decltype(fTiles)::value_type &tile) {
+    int16_t x = tile.first & 0xFFFF;
+    int16_t y = tile.first >> 16;
+    int xpos = x * cTileSize + fXTileOffset;
+    int ypos = y * cTileSize + fYTileOffset;
 
     if (xpos < -2 * cTileSize || xpos > static_cast<int>(fWidth) + cTileSize ||
         ypos < -2 * cTileSize || ypos > static_cast<int>(fHeight) + cTileSize) {
       // cout << "Deleting Tile " << x << " " << y << " " << xpos << " " << ypos
       // << endl;
       gVirtualX->DeletePixmap(tile.second);
-      fTiles.erase(tile);
+      return true;
     }
-  }
+    return false;
+  });
 }
 
 //! Destroy all tiles in the cache, causing them to be redrawn when needed (e.g.
