@@ -47,12 +47,13 @@ setup(
     package_data={
         'hdtv': ['share/*'],
         'hdtv.rootext': [
-            'mfile-root/*.h', 'mfile-root/*.cxx', 'mfile-root/Makefile',
+            'Makefile', 'Makefile.def', 'Makefile.body',
+            'mfile-root/*.hh', 'mfile-root/*.cc', 'mfile-root/Makefile', 'mfile-root/LinkDef.h',
             'mfile-root/libmfile-root.so', 'mfile-root/libmfile-root_rdict.pcm', 'mfile-root/libmfile-root.rootmap',
             'mfile-root/matop/*.h', 'mfile-root/matop/*.c',
-            'fit/*.h', 'fit/*.cxx', 'fit/Makefile',
+            'fit/*.hh', 'fit/*.cc', 'fit/Makefile', 'fit/LinkDef.h',
             'fit/libfit.so', 'fit/libfit_rdict.pcm', 'fit/libfit.rootmap',
-            'display/*.h', 'display/*.cxx', 'display/Makefile',
+            'display/*.hh', 'display/*.cc', 'display/Makefile', 'display/LinkDef.h',
             'display/libdisplay.so', 'display/libdisplay_rdict.pcm', 'display/libdisplay.rootmap',
         ],
     },
