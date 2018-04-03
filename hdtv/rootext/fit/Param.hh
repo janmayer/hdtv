@@ -23,6 +23,8 @@
 #ifndef __Param_h__
 #define __Param_h__
 
+#include <iosfwd>
+
 class TF1;
 
 namespace HDTV {
@@ -53,11 +55,15 @@ public:
   double _Value() const { return fValue; }
 
 private:
-  Param(int id, double value, bool free, bool hasIVal, bool valid);
+  Param(int id, double value, bool free, bool hasIVal, bool valid) noexcept
+      : fFree{free}, fHasIVal{hasIVal}, fValid{valid}, fId{id}, fValue{value} {}
+
   bool fFree, fHasIVal, fValid;
   int fId;
   double fValue;
 };
+
+std::ostream &operator <<(std::ostream &lhs, const Param &rhs);
 
 } // end namespace Fit
 } // end namespace HDTV

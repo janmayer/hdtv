@@ -43,10 +43,10 @@ class EEPeak {
   friend class EEFitter;
 
 public:
+  EEPeak() = default;
   EEPeak(const Param &pos, const Param &amp, const Param &sigma1,
          const Param &sigma2, const Param &eta, const Param &gamma);
   EEPeak(const EEPeak &src);
-  EEPeak() = default;
   EEPeak &operator=(const EEPeak &src);
 
   double Eval(const double *x, const double *p) const;

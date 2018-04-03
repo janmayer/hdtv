@@ -34,7 +34,7 @@ namespace Fit {
 //! Common base class for all different (foreground) fitters
 class Fitter {
 public:
-  Fitter(double r1, double r2);
+  Fitter(double r1, double r2) noexcept;
   Param AllocParam();
   Param AllocParam(double ival);
 

@@ -22,20 +22,13 @@
 
 #include "Param.hh"
 
+#include <iostream>
 #include <limits>
 
 #include <TF1.h>
 
 namespace HDTV {
 namespace Fit {
-
-Param::Param(int id, double value, bool free, bool hasIVal, bool valid) {
-  fId = id;
-  fValue = value;
-  fFree = free;
-  fHasIVal = hasIVal;
-  fValid = valid;
-}
 
 double Param::Value(TF1 *func) const {
   if (fFree) {
@@ -54,6 +47,13 @@ double Param::Error(TF1 *func) const {
   } else {
     return 0.0;
   }
+}
+
+std::ostream &operator <<(std::ostream &lhs, const Param &rhs) {
+  lhs << "[Id=" << rhs._Id() << ", Free=" << rhs.IsFree()
+      << ", IVal=" << rhs.HasIVal() << ", Valid=" << static_cast<bool>(rhs)
+      << ", Value=" << rhs._Value() << ']';
+  return lhs;
 }
 
 } // end namespace Fit

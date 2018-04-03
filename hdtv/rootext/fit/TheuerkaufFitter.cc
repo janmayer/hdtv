@@ -38,6 +38,7 @@ namespace HDTV {
 namespace Fit {
 
 // *** TheuerkaufPeak ***
+
 //! Constructor
 //! Note that no tails correspond to tail parameters tl = tr = \infty. However,
 //! all  member functions are supposed to check fHasLeftTail and fHasRightTail
@@ -90,12 +91,11 @@ TheuerkaufPeak &TheuerkaufPeak::operator=(const TheuerkaufPeak &src) {
   return *this;
 }
 
+//! Restores parameters and error for fit function.
+//! Warnings:    Restore function of corresponding fitter has to be called
+//!              beforehand!
 void TheuerkaufPeak::RestoreParam(const Param &param, double value,
                                   double error) {
-  //! Restores parameters and error for fit function.
-  //! Warnings:    Restore function of corresponding fitter has to be called
-  //!              beforehand!
-
   if (fFunc) {
     fFunc->SetParameter(param._Id(), value);
     fFunc->SetParError(param._Id(), error);
@@ -230,8 +230,8 @@ double TheuerkaufFitter::Eval(const double *x, const double *p) const {
 
   // Evaluate internal background
   sum += std::accumulate(
-      std::reverse_iterator<const double *>(p + fNumParams - 1),
-      std::reverse_iterator<const double *>(p + fNumParams - fIntBgDeg),
+      std::reverse_iterator<const double *>(p + fNumParams),
+      std::reverse_iterator<const double *>(p + fNumParams - fIntBgDeg - 1),
       0.0, [x = *x](double bg, double param) { return bg * x + param; });
 
   // Evaluate peaks
@@ -249,8 +249,8 @@ double TheuerkaufFitter::EvalBg(const double *x, const double *p) const {
 
   // Evaluate internal background
   sum += std::accumulate(
-      std::reverse_iterator<const double *>(p + fNumParams - 1),
-      std::reverse_iterator<const double *>(p + fNumParams - fIntBgDeg),
+      std::reverse_iterator<const double *>(p + fNumParams),
+      std::reverse_iterator<const double *>(p + fNumParams - fIntBgDeg - 1),
       0.0, [x = *x](double bg, double param) { return bg * x + param; });
 
   // Evaluate steps in peaks
@@ -296,9 +296,8 @@ TF1 *TheuerkaufFitter::GetBgFunc() {
   return fBgFunc.get();
 }
 
+//! Do the fit, using the given background function
 void TheuerkaufFitter::Fit(TH1 &hist, const Background &bg) {
-  //! Do the fit, using the given background function
-
   // Refuse to fit twice
   if (IsFinal()) {
     return;
@@ -309,10 +308,9 @@ void TheuerkaufFitter::Fit(TH1 &hist, const Background &bg) {
   _Fit(hist);
 }
 
+//! Do the fit, fitting a polynomial of degree intBgDeg for the background at
+//! the same time. Set intBgDeg to -1 to disable background completely.
 void TheuerkaufFitter::Fit(TH1 &hist, int intBgDeg) {
-  //! Do the fit, fitting a polynomial of degree intBgDeg for the background
-  //! at the same time. Set intBgDeg to -1 to disable background completely.
-
   // Refuse to fit twice
   if (IsFinal()) {
     return;
@@ -323,9 +321,8 @@ void TheuerkaufFitter::Fit(TH1 &hist, int intBgDeg) {
   _Fit(hist);
 }
 
+//! Private: worker function to actually do the fit
 void TheuerkaufFitter::_Fit(TH1 &hist) {
-  //! Private: worker function to actually do the fit
-
   // Allocate additional parameters for internal polynomial background
   // Note that a polynomial of degree n has n+1 parameters!
   if (fIntBgDeg >= 0) {
@@ -526,7 +523,7 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
   double sumFreeVol = sumVol;
   auto ampIter = amps.begin();
   for (auto &peak : fPeaks) {
-    if (peak.fVol.IsFree()) {
+    if (!peak.fVol.IsFree()) {
       sumFreeAmp -= *(ampIter++);
       sumFreeVol -= peak.fVol._Value();
     }
