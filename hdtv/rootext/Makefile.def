@@ -9,8 +9,11 @@ ROOT_CLING_FLAGS  = -f $@ -noIncludePaths -inlineInputHeader -s $(TARGET) -rmf $
 ROOT_CXXFLAGS    := $(shell root-config --cflags)
 ROOT_GLIBS       := $(shell root-config --glibs)
 
-CFLAGS       = -O2 -g -Wall -fPIC $(DEPFLAGS)
-CXXFLAGS     = $(ROOT_CXXFLAGS) -Wall -g -O2 -fPIC $(DEPFLAGS)
+MFILE_CFLAGS  = # e.g. -I/usr/local/include
+MFILE_LDFLAGS = # e.g. -L /opt/lib64
+
+CFLAGS       = -O2 -g -Wall -fPIC $(DEPFLAGS) $(MFILE_CFLAGS)
+CXXFLAGS     = $(ROOT_CXXFLAGS) $(MFILE_CFLAGS) -Wall -g -O2 -fPIC $(DEPFLAGS)
 LDFLAGS      = -shared
 LDLIBS       = -lstdc++ $(ROOT_GLIBS) -lX11
 DEPFLAGS     = -MT $@ -MMD -MP -MF $*.Td

@@ -3,6 +3,7 @@ MODNAME := mfile-root
 
 include ../Makefile.def
 
+LDFLAGS += $(MFILE_LDFLAGS)
 LDLIBS += -lmfile
 
 MATOP_SOURCES := $(wildcard matop/*.c)
