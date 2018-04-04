@@ -97,6 +97,8 @@ def BuildLibrary(name, libdir):
     if os.path.exists(dir):
         shutil.rmtree(dir)
     shutil.copytree(os.path.join(os.path.dirname(__file__), name), dir)
+    shutil.copyfile(os.path.join(os.path.dirname(__file__), name, "../Makefile.def"), os.path.join(dir, "../Makefile.def"))
+    shutil.copyfile(os.path.join(os.path.dirname(__file__), name, "../Makefile.body"), os.path.join(dir, "../Makefile.body"))
     # Make library
     subprocess.check_call(['make', 'clean', '-j', '--silent'], cwd=dir)
     subprocess.check_call(['make', '-j', '--silent'], cwd=dir)

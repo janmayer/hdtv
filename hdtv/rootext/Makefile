@@ -1,19 +1,10 @@
-MODULES= display fit mfile-root
+SUBDIRS = display fit mfile-root
 
-.PHONY: all clean $(MODULES)
+.PHONY: all clean $(SUBDIRS)
 
-all: $(MODULES)
+all: $(SUBDIRS)
 
-clean:
-	$(MAKE) -C display clean
-	$(MAKE) -C fit clean
-	$(MAKE) -C mfile-root clean
+clean: $(SUBDIRS)
 
-display:
-	$(MAKE) -C display
-
-fit:
-	$(MAKE) -C fit
-
-mfile-root:
-	$(MAKE) -C mfile-root
+$(SUBDIRS):
+	$(MAKE) -C $@ $(MAKECMDGOALS)

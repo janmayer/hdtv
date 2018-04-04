@@ -1,43 +1,26 @@
 # Makefile for mfile-root
 MODNAME := mfile-root
 
-SRC_FILES := MatOp.cxx MFileRoot.cxx MFileHist.cxx VMatrix.cxx
-HDR_FILES := $(SRC_FILES:.cxx=.h)
-OBJ_FILES := $(SRC_FILES:.cxx=.o)
+include ../Makefile.def
 
-CPP := $(shell root-config --cxx)
-ROOTCLING := rootcling
-CXXFLAGS += $(shell root-config --cflags) -Wall -g -O2 -fPIC -MMD
-LFLAGS += $(shell root-config --glibs)
+CFLAGS   += $(LIBMFILE_CFLAGS)
+CXXFLAGS += $(LIBMFILE_CFLAGS)
 
-.PHONY: all build clean
+LDFLAGS  += $(MFILE_LDFLAGS)
 
-all: build
+LDLIBS   += $(ROOT_LIBS)
+LDLIBS   += -lmfile
 
-build: lib$(MODNAME).so
+ROOT_CLING_FLAGS += $(LIBMFILE_CFLAGS)
 
-lib$(MODNAME).so: $(OBJ_FILES) $(MODNAME)_rdict.o
-	$(CPP) $(CXXFLAGS) -shared -o lib$(MODNAME).so $(OBJ_FILES) $(MODNAME)_rdict.o $(LFLAGS)
+MATOP_SOURCES := $(wildcard matop/*.c)
+MATOP_OBJECTS := $(patsubst %.c,%.o,$(MATOP_SOURCES))
+MATOP_DEPS    := $(patsubst %.c,%.d,$(MATOP_SOURCES))
 
-$(MODNAME)_rdict.cxx: $(HDR_FILES) LinkDef.h
-	# Removed -rml lib$(MODNAME).so as a precaution, failed in fit
-	$(ROOTCLING) -f $(MODNAME)_rdict.cxx -noIncludePaths -inlineInputHeader -s lib$(MODNAME).so -rmf lib$(MODNAME).rootmap $(HDR_FILES) LinkDef.h
+SOURCES += $(MATOP_SOURCES)
+OBJECTS += $(MATOP_OBJECTS)
+DEPS    += $(MATOP_DEPS)
 
-%.o: %.cxx $(HDR_FILES)
-	$(CPP) $(CXXFLAGS) -c -o $@ $<
+include ../Makefile.body
 
-clean:
-	-/bin/rm -f *.o */*.o *.so *.d *.pcm *.rootmap *_rdict.*
-
--include $(OBJ_FILES:.o=.d)
-
-SRC_FILES += $(wildcard matop/*.c)
-OBJ_FILES += $(patsubst matop/%.c, matop/%.o, $(wildcard matop/*.c))
-
-lib$(MODNAME).so: $(OBJ_FILES)
-
-CXXFLAGS += -Imatop
-LFLAGS += -lmfile
-
-matop/%.o: matop/%.c $(HDR_FILES)
-	$(CPP) $(CXXFLAGS) -c -o $@ $<
+-include $(MATOP_DEPS)

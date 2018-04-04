@@ -18,7 +18,7 @@ class CustomBuild(build):
         for module in ['mfile-root', 'fit', 'display']:
             dir = os.path.join(self.build_lib, 'hdtv/rootext/', module)
             print("Building library in %s" % dir)
-            subprocess.check_call(['make', '-j', '--silent'], cwd=dir)
+            subprocess.check_call(['make', '-j'], cwd=dir)
 
 manpages = glob.glob('doc/guide/*.1')
 
@@ -47,13 +47,18 @@ setup(
     package_data={
         'hdtv': ['share/*'],
         'hdtv.rootext': [
-            'mfile-root/*.h', 'mfile-root/*.cxx', 'mfile-root/Makefile',
-            'mfile-root/libmfile-root.so', 'mfile-root/libmfile-root_rdict.pcm', 'mfile-root/libmfile-root.rootmap',
-            'mfile-root/matop/*.h', 'mfile-root/matop/*.c',
-            'fit/*.h', 'fit/*.cxx', 'fit/Makefile',
+            'Makefile', 'Makefile.def', 'Makefile.body',
+            'mfile-root/*.hh', 'mfile-root/*.cc', 'mfile-root/Makefile',
+            'mfile-root/LinkDef.h', 'mfile-root/libmfile-root.so',
+            'mfile-root/libmfile-root_rdict.pcm',
+            'mfile-root/libmfile-root.rootmap', 'mfile-root/matop/*.h',
+            'mfile-root/matop/*.c',
+            'fit/*.hh', 'fit/*.cc', 'fit/Makefile', 'fit/LinkDef.h',
             'fit/libfit.so', 'fit/libfit_rdict.pcm', 'fit/libfit.rootmap',
-            'display/*.h', 'display/*.cxx', 'display/Makefile',
-            'display/libdisplay.so', 'display/libdisplay_rdict.pcm', 'display/libdisplay.rootmap',
+            'display/*.hh', 'display/*.cc', 'display/Makefile',
+            'display/LinkDef.h', 'display/libdisplay.so',
+            'display/libdisplay_rdict.pcm', 'display/libdisplay.rootmap',
+            'util/Compat.hh'
         ],
     },
     data_files=[
