@@ -58,6 +58,7 @@ setup(
             'display/*.hh', 'display/*.cc', 'display/Makefile',
             'display/LinkDef.h', 'display/libdisplay.so',
             'display/libdisplay_rdict.pcm', 'display/libdisplay.rootmap',
+            'util/Compat.hh'
         ],
     },
     data_files=[

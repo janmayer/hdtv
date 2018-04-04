@@ -1,5 +1,10 @@
 .PHONY: all clean
 
+# Add C++14 standard flag if no other C++ standard was selected
+ifneq (,$(findstring CXXFLAGS,-std=))
+  CXXFLAGS += -std=c++14
+endif
+
 all: $(TARGET)
 
 clean:

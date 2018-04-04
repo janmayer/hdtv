@@ -31,6 +31,7 @@
 #include <TH1.h>
 #include <TVirtualFitter.h>
 
+#include "Compat.hh"
 #include "Util.hh"
 
 namespace HDTV {
@@ -49,10 +50,10 @@ PolyBg::PolyBg(const PolyBg &src)
   //! Copy constructor
 
   if (src.fFunc != nullptr) {
-    fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
-                                  &PolyBg::_Eval, src.fFunc->GetXmin(),
-                                  src.fFunc->GetXmax(), fBgDeg + 1, "PolyBg",
-                                  "_Eval");
+    fFunc = Util::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
+                                   &PolyBg::_Eval, src.fFunc->GetXmin(),
+                                   src.fFunc->GetXmax(), fBgDeg + 1, "PolyBg",
+                                   "_Eval");
 
     for (int i = 0; i <= fBgDeg; i++) {
       fFunc->SetParameter(i, src.fFunc->GetParameter(i));
@@ -74,10 +75,10 @@ PolyBg &PolyBg::operator=(const PolyBg &src) {
   fChisquare = src.fChisquare;
   fCovar = src.fCovar;
 
-  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
-                                &PolyBg::_Eval, src.fFunc->GetXmin(),
-                                src.fFunc->GetXmax(), fBgDeg + 1, "PolyBg",
-                                "_Eval");
+  fFunc = Util::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
+                                 &PolyBg::_Eval, src.fFunc->GetXmin(),
+                                 src.fFunc->GetXmax(), fBgDeg + 1, "PolyBg",
+                                 "_Eval");
 
   for (int i = 0; i <= fBgDeg; i++) {
     fFunc->SetParameter(i, src.fFunc->GetParameter(i));
@@ -125,9 +126,9 @@ void PolyBg::Fit(TH1 &hist) {
   }
 
   // Copy parameters to new function
-  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
-                                &PolyBg::_Eval, GetMin(), GetMax(), fBgDeg + 1,
-                                "PolyBg", "_Eval");
+  fFunc = Util::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
+                                 &PolyBg::_Eval, GetMin(), GetMax(), fBgDeg + 1,
+                                 "PolyBg", "_Eval");
 
   for (int i = 0; i <= fBgDeg; i++) {
     fFunc->SetParameter(i, fitFunc.GetParameter(i));
@@ -148,9 +149,9 @@ bool PolyBg::Restore(const TArrayD &values, const TArrayD &errors,
   }
 
   // Copy parameters to new function
-  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
-                                &PolyBg::_Eval, GetMin(), GetMax(), fBgDeg + 1,
-                                "PolyBg", "_Eval");
+  fFunc = Util::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
+                                 &PolyBg::_Eval, GetMin(), GetMax(), fBgDeg + 1,
+                                 "PolyBg", "_Eval");
 
   for (int i = 0; i <= fBgDeg; i++) {
     fFunc->SetParameter(i, values[i]);
