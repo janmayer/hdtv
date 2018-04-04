@@ -24,7 +24,6 @@
 
 #include <utility>
 
-#include <Riostream.h>
 #include <TH1.h>
 #include <TROOT.h>
 

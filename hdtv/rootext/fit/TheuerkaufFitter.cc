@@ -27,7 +27,6 @@
 #include <algorithm>
 #include <numeric>
 
-#include <Riostream.h>
 #include <TError.h>
 #include <TF1.h>
 #include <TH1.h>

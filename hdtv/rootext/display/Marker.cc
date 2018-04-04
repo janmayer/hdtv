@@ -22,7 +22,6 @@
 
 #include "Marker.hh"
 
-#include <Riostream.h>
 #include <TColor.h>
 #include <TROOT.h>
 

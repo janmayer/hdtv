@@ -23,8 +23,7 @@
 #include "DisplayObj.hh"
 
 #include <algorithm>
-
-#include <Riostream.h>
+#include <iostream>
 
 #include "DisplayStack.hh"
 #include "View1D.hh"

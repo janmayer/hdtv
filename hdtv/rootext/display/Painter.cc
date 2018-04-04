@@ -22,7 +22,6 @@
 
 #include "Painter.hh"
 
-#include <Riostream.h>
 #include <TGX11.h>
 
 #include "DisplayFunc.hh"
