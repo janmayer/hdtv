@@ -277,14 +277,16 @@ double EEFitter::Eval(const double *x, const double *p) const {
 double EEFitter::EvalBg(const double *x, const double *p) const {
   // Private: evaluation function for background
   // Evaluate background function, if it has been given
-  double sum = fBackground ? fBackground->Eval(*x) : 0.0;
+  const double sum = fBackground ? fBackground->Eval(*x) : 0.0;
 
   // Evaluate internal background
-  return sum +
-         std::accumulate(
-             std::reverse_iterator<const double *>(p + fNumParams - 1),
-             std::reverse_iterator<const double *>(p + fNumParams - fIntBgDeg),
-             0.0, [x = *x](double bg, double param) { return bg * x + param; });
+  auto first = p + fNumParams;
+  auto last = first - fIntBgDeg - 1;
+  return sum + std::accumulate(std::reverse_iterator<const double *>(first),
+                               std::reverse_iterator<const double *>(last),
+                               0.0, [x = *x](double bg, double param) {
+                                 return std::fma(bg, x, param);
+                               });
 }
 
 TF1 *EEFitter::GetBgFunc() {
