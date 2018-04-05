@@ -86,19 +86,32 @@ def RebuildLibraries(libdir):
     for name in modules:
         BuildLibrary(name, libdir)
 
-
-def BuildLibrary(name, libdir):
-    dir = os.path.join(libdir, name)
-    hdtv.ui.info("Rebuild library %s in %s" % ((libfmt % name), dir))
+def PrepareBuild(libdir):
     # Create base directory
     if not os.path.exists(libdir):
         os.makedirs(libdir)
-    # Copy everything
+
+    utildir = os.path.join(libdir, "util")
+    if os.path.exists(utildir):
+        shutil.rmtree(utildir)
+
+    srcdir = os.path.dirname(__file__)
+    shutil.copytree(os.path.join(srcdir, "util"), utildir)
+    shutil.copy(os.path.join(srcdir, "Makefile.def"), libdir)
+    shutil.copy(os.path.join(srcdir, "Makefile.body"), libdir)
+
+def BuildLibrary(name, libdir):
+    PrepareBuild(libdir)
+
+    dir = os.path.join(libdir, name)
+    hdtv.ui.info("Rebuild library %s in %s" % ((libfmt % name), dir))
+
+    # Remove existing plugin
     if os.path.exists(dir):
         shutil.rmtree(dir)
+    # Copy everything
     shutil.copytree(os.path.join(os.path.dirname(__file__), name), dir)
-    shutil.copyfile(os.path.join(os.path.dirname(__file__), name, "../Makefile.def"), os.path.join(dir, "../Makefile.def"))
-    shutil.copyfile(os.path.join(os.path.dirname(__file__), name, "../Makefile.body"), os.path.join(dir, "../Makefile.body"))
+
     # Make library
     subprocess.check_call(['make', 'clean', '-j', '--silent'], cwd=dir)
     subprocess.check_call(['make', '-j', '--silent'], cwd=dir)
