@@ -1,5 +1,11 @@
 # HDTV Change Log
 
+## 18.04
+- Use uncertainties library (@opapst)
+- Large overhaul of compiled libraries (@nima) (Closes #21)
+- Fix efficiency fit and nuclide data (@jmayer)
+- Other small fixes
+
 ## 18.01
 - Changed building process in setup.py to allow for package building
 
