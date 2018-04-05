@@ -166,9 +166,9 @@ def test_cmd_cal_pos_read(calfile):
 def test_cmd_nuclide(nuclide):
     f, ferr = hdtvcmd("nuclide {}".format(nuclide))
     assert ferr == ""
-    assert "Data of the nuclide" in f
-    assert "Energy" in f
-    assert "Intensity" in f
+    assert "Nuclide:" in f
+    assert "energy" in f
+    assert "intensity" in f
 
 @pytest.mark.parametrize("parameters, function", [
     ("0.1,0.2,0.3,0.4,0.5", "pow"),

@@ -146,9 +146,9 @@ class _Efficiency(object):
         hasXerrors = False
         # Convert energies to array needed by ROOT
         try:
-            list(map(lambda x: E.append(x[0].value.nominal_value), self._fitInput))
+            list(map(lambda x: E.append(x[0].nominal_value), self._fitInput))
             list(map(lambda x: delta_E.append(
-                x[0].value.std_dev), self._fitInput))
+                x[0].std_dev), self._fitInput))
             list(map(lambda x: EN.append(0.0), self._fitInput))
             hasXerrors = True
         except AttributeError:  # energies does not seem to be ufloat list
@@ -157,9 +157,9 @@ class _Efficiency(object):
 
         # Convert efficiencies to array needed by ROOT
         try:
-            list(map(lambda x: eff.append(x[1].value.nominal_value), self._fitInput))
+            list(map(lambda x: eff.append(x[1].nominal_value), self._fitInput))
             list(map(lambda x: delta_eff.append(
-                x[1].value.std_dev), self._fitInput))
+                x[1].std_dev), self._fitInput))
             list(map(lambda x: effN.append(0.0), self._fitInput))
         except AttributeError:  # energies does not seem to be ufloat list
             list(map(lambda x: eff.append(x[1]), self._fitInput))

@@ -48,38 +48,23 @@ def SearchNuclide(nuclide, database):
     return data
 
 
-def TabelOfNuclide(nuclide, Energies, EnergiesError, Intensities,
-                   IntensitiesError, Halflive, HalfliveError, source):
+def TableOfNuclide(data):
     """
     Creates a table of the given data.
     """
-    tabledata = list()
-    Data = [[], []]
-    data = ufloat(Halflive, HalfliveError)
+    result_header = ' '.join(["\n",
+        "Nuclide:", data['nuclide'], "\n",
+        "Halflife:", str(data['halflife']), "\n",
+        "Reference:", data['reference'], "\n",
+    ])
 
-    for j in range(0, len(Energies)):
-        Data[0].append(ufloat(Energies[j], EnergiesError[j]))
-        Data[1].append(ufloat(
-            Intensities[j], IntensitiesError[j]))
-
-        # for table option values are saved
-        tableline = dict()
-        tableline["Energy"] = Data[0][j]
-        tableline["Intensity"] = Data[1][j]
-        tabledata.append(tableline)
-
-    result_header = "Data of the nuclide " + \
-        str(nuclide) + " of the data source " + \
-        str(source) + "." + "\n" + "Halflife: " + str(data)
-    print()
     table = hdtv.util.Table(
-        data=tabledata,
-        keys=[
-            "Energy",
-            "Intensity"],
+        data=data['transitions'],
+        keys=["energy", "intensity"],
         extra_header=result_header,
         sortBy=None,
         ignoreEmptyCols=False)
+
     hdtv.ui.msg(str(table))
 
 
@@ -136,20 +121,13 @@ def MatchPeaksAndEnergies(peaks, energies, sigma):
     return(accordance)
 
 
-# Peak is the Energy of the fitted Peak, Vol its volume
-def MatchPeaksAndIntensities(
-        peaks, peak_ids, energies, intensities, intensities_error, sigma=0.5):
-    # and Intensity and Energy the data from the chart
+def MatchFitsAndTransitions(fits, transitions, sigma=0.5):
     """
-    Combines peaks with the right intensities from the table (with searchEnergie).
+    Combines peaks with the right intensities.
     """
-    return list(zip([
-        [
-            [
-                peak,
-                ufloat(intensity, intensity_error),
-                peak_id,
-            ] for peak, peak_id in zip(peaks, peak_ids)
-            if abs(energy - peak) <= sigma
-        ] for energy, intensity, intensity_error in zip(
-            energies, intensities, intensities_error)]))
+    return [
+        {'fit': fit, 'transition': transition}
+        for fit in fits
+        for transition in transitions
+        if abs(transition['energy'] - fit.ExtractParams()[0][0]['pos']) <= sigma
+    ]
