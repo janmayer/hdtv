@@ -66,9 +66,10 @@ void DisplayObj::Remove(View1D *view) { Remove(view->GetDisplayStack()); }
 //! Add the object to the display stack
 void DisplayObj::Draw(DisplayStack *stack) {
   auto &objects = stack->fObjects;
+  auto zindex = GetZIndex();
   auto pos = std::find_if(
       objects.begin(),
-      objects.end(), [zindex = GetZIndex()](const DisplayObj *obj) {
+      objects.end(), [&zindex](const DisplayObj *obj) {
         return obj->GetZIndex() > zindex;
       });
   objects.insert(pos, this);
@@ -101,9 +102,10 @@ void DisplayObj::ToBottom(View1D *view) { ToBottom(view->GetDisplayStack()); }
 //! display stack.
 void DisplayObj::ToTop(DisplayStack *stack) {
   auto &objects = stack->fObjects;
+  auto zindex = GetZIndex();
   auto pos = std::find_if(
       objects.begin(),
-      objects.end(), [zindex = GetZIndex()](const DisplayObj *obj) {
+      objects.end(), [&zindex](const DisplayObj *obj) {
         return obj->GetZIndex() > zindex;
       });
   if (pos != objects.end() && *pos == this) {
@@ -128,9 +130,10 @@ void DisplayObj::ToTop() {
 void DisplayObj::ToBottom(DisplayStack *stack) {
 
   auto &objects = stack->fObjects;
+  auto zindex = GetZIndex();
   auto pos = std::find_if(
       objects.begin(),
-      objects.end(), [zindex = GetZIndex()](const DisplayObj *obj) {
+      objects.end(), [&zindex](const DisplayObj *obj) {
         return !(obj->GetZIndex() < zindex);
       });
   if (pos != objects.end() && *pos == this) {

@@ -284,8 +284,8 @@ double EEFitter::EvalBg(const double *x, const double *p) const {
   auto last = first - fIntBgDeg - 1;
   return sum + std::accumulate(std::reverse_iterator<const double *>(first),
                                std::reverse_iterator<const double *>(last),
-                               0.0, [x = *x](double bg, double param) {
-                                 return std::fma(bg, x, param);
+                               0.0, [&x](double bg, double param) {
+                                 return std::fma(bg, *x, param);
                                });
 }
 

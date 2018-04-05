@@ -233,7 +233,7 @@ double TheuerkaufFitter::Eval(const double *x, const double *p) const {
   sum += std::accumulate(
       std::reverse_iterator<const double *>(p + fNumParams),
       std::reverse_iterator<const double *>(p + fNumParams - fIntBgDeg - 1),
-      0.0, [x = *x](double bg, double param) { return bg * x + param; });
+      0.0, [&x](double bg, double param) { return bg * *x + param; });
 
   // Evaluate peaks
   return std::accumulate(fPeaks.begin(), fPeaks.end(), sum,
@@ -252,7 +252,7 @@ double TheuerkaufFitter::EvalBg(const double *x, const double *p) const {
   sum += std::accumulate(
       std::reverse_iterator<const double *>(p + fNumParams),
       std::reverse_iterator<const double *>(p + fNumParams - fIntBgDeg - 1),
-      0.0, [x = *x](double bg, double param) { return bg * x + param; });
+      0.0, [&x](double bg, double param) { return bg * *x + param; });
 
   // Evaluate steps in peaks
   return std::accumulate(fPeaks.begin(), fPeaks.end(), sum,
