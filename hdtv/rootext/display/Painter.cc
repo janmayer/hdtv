@@ -53,8 +53,8 @@ void Painter::DrawFunction(DisplayFunc *dFunc, int x1, int x2) {
   double norm = fUseNorm ? dFunc->GetNorm() : 1.0;
 
   // Do x axis clipping
-  x1 = std::min(x1, EtoX(dFunc->GetMinE()));
-  x2 = std::max(x2, EtoX(dFunc->GetMaxE()));
+  x1 = std::max(x1, EtoX(dFunc->GetMinE()));
+  x2 = std::min(x2, EtoX(dFunc->GetMaxE()));
 
   int ly, cy;
   ch = dFunc->E2Ch(XtoE(x1 - 0.5));
@@ -93,8 +93,8 @@ void Painter::DrawSpectrum(DisplaySpec *dSpec, int x1, int x2) {
   int lClip = fYBase;
 
   // Do x axis clipping
-  x1 = std::min(x1, EtoX(dSpec->GetMinE()));
-  x2 = std::max(x2, EtoX(dSpec->GetMaxE()));
+  x1 = std::max(x1, EtoX(dSpec->GetMinE()));
+  x2 = std::min(x2, EtoX(dSpec->GetMaxE()));
 
   switch (fViewMode) {
   case kVMSolid:
