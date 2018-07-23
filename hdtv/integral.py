@@ -41,11 +41,11 @@ def Integrate(spec, bg, region):
 def get_integral_info(spec, integral):
     if not integral:
         return None
-    pos = ufloat(integral.GetMean(), integral.GetMeanError())
-    width = ufloat(integral.GetWidth(), integral.GetWidthError())
-    vol = ufloat(integral.GetIntegral(), integral.GetIntegralError())
+    pos = ufloat(integral.GetMean(), abs(integral.GetMeanError()))
+    width = ufloat(integral.GetWidth(), abs(integral.GetWidthError()))
+    vol = ufloat(integral.GetIntegral(), abs(integral.GetIntegralError()))
     skew = ufloat(integral.GetRawSkewness(),
-                    integral.GetRawSkewnessError())
+                  abs(integral.GetRawSkewnessError()))
     integral_info = {'uncal': {'pos': pos, 'width': width, 'vol': vol, 'skew': skew}}
 
     if spec.cal:
@@ -68,7 +68,7 @@ def calibrate_integral(integral_info, cal):
         (cal.dEdCh(pos.nominal_value + hwhm_uncal) / 2. + 
          cal.dEdCh(pos.nominal_value - hwhm_uncal) / 2.) *
         width.std_dev)
-    width_cal = ufloat(width_cal_n, width_cal_std_dev)
+    width_cal = ufloat(width_cal_n, abs(width_cal_std_dev))
     # TODO: Does it make sense to calibrate the skewness?
     # Not relevant for calibrations with degree < 2
 
