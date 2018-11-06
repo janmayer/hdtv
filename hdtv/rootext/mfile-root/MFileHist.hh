@@ -25,8 +25,6 @@
 
 #ifndef __CINT__
 #include <mfile.h>
-#else
-typedef unsigned int u_int;
 #endif
 
 class TH1;
@@ -47,9 +45,9 @@ public:
   int Close();
 
   int GetFileType() { return fInfo ? fInfo->filetype : MAT_INVALID; }
-  u_int GetNLevels() { return fInfo ? fInfo->levels : 0; }
-  u_int GetNLines() { return fInfo ? fInfo->lines : 0; }
-  u_int GetNColumns() { return fInfo ? fInfo->columns : 0; }
+  unsigned int GetNLevels() { return fInfo ? fInfo->levels : 0; }
+  unsigned int GetNLines() { return fInfo ? fInfo->lines : 0; }
+  unsigned int GetNColumns() { return fInfo ? fInfo->columns : 0; }
 
   double *FillBuf1D(double *buf, unsigned int level, unsigned int line);
 
