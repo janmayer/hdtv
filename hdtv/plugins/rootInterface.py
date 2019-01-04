@@ -412,12 +412,15 @@ class RootFileInterface(object):
                     sid = self.spectra.Insert(spec)
                     spec.color = hdtv.color.ColorForID(sid.major)
                     loaded.append(sid)
-                    if args.load_cal:
-                        if spec.name in self.spectra.caldict:
-                            spec.cal = self.caldict[spec.name]
-                        else:
-                            print("Warning: no calibration found for %s" %
-                                  spec.name)
+                    if spec.cal:
+                        self.caldict[spec.name] = spec.cal
+                    else:
+                        if args.load_cal:
+                            if spec.name in self.spectra.caldict:
+                                spec.cal = self.caldict[spec.name]
+                            else:
+                                print("Warning: no calibration found for %s" %
+                                      spec.name)
                 else:
                     hdtv.ui.warn("%s is not a 1D histogram object" %
                                  obj.GetName())

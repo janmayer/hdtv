@@ -147,6 +147,27 @@ def test_fit_in_calibrated_spectrum(region1, region2, peak, calfactor):
     markers_consistent(calfactor, region1, region2)
 
 
+# Check that bin sizes are handled in fitted peak volume (see also test_root_fit_volume_with_binning)
+@pytest.mark.parametrize("spectrum, calfactor", [("h", 1), ("h2", 0.5)])
+@pytest.mark.parametrize("region1, region2, peak, expected_volume", [(500., 1500., 1000., 1000000.)])
+def test_mfile_fit_volume_with_binning(region1, region2, peak, expected_volume, spectrum, calfactor):
+    spectra.Clear()
+
+    __main__.s.LoadSpectra(os.path.join("test", "share", "binning_root_" + spectrum + ".spc"))
+    spectra.ApplyCalibration("0", [0, calfactor])
+
+    spectra.SetMarker("region", region1)
+    spectra.SetMarker("region", region2)
+    spectra.SetMarker("peak", peak)
+    spectra.ExecuteFit()
+    fit = spectra.workFit
+    fit_volume = fit.ExtractParams()[0][0]["vol"].nominal_value
+    integral_volume= fit.ExtractIntegralParams()[0][0]["vol"].nominal_value
+
+    assert isclose(integral_volume, expected_volume, abs_tol=10)
+    assert isclose(fit_volume, expected_volume, abs_tol=200)
+
+
 @pytest.mark.parametrize("calfactor1", [
     2.1, 1.9])
 @pytest.mark.parametrize("calfactor2", [

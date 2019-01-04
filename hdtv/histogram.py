@@ -27,9 +27,19 @@ import hdtv.rootext.mfile
 
 from hdtv.drawable import Drawable
 from hdtv.specreader import SpecReader, SpecReaderError
+from hdtv.cal import CalibrationFitter
 
 # Don't add created spectra to the ROOT directory
 ROOT.TH1.AddDirectory(ROOT.kFALSE)
+
+
+def HasPrimitiveBinning(hist):
+    if hist.GetNbinsX() != (hist.GetXaxis().GetXmax() - hist.GetXaxis().GetXmin()):
+        return False
+    for bin in range(0, hist.GetNbinsX()):
+        if hist.GetBinWidth(bin) != 1.:
+            return False
+    return True
 
 
 class Histogram(Drawable):
@@ -43,11 +53,24 @@ class Histogram(Drawable):
 
     def __init__(self, hist, color=hdtv.color.default, cal=None):
         Drawable.__init__(self, color, cal)
-        self._hist = hist
         self._norm = 1.0
         self._ID = None
         self.effCal = None
         self.typeStr = "spectrum"
+        self.cal = cal
+        if HasPrimitiveBinning(hist):
+            self._hist = hist
+        else:
+            hdtv.ui.info(hist.GetName() + " unconventional binning detected. Converting and creating calibration ...")
+            self._hist = ROOT.TH1D(hist.GetName(), hist.GetTitle(), hist.GetNbinsX(), 0, hist.GetNbinsX())
+            cf = CalibrationFitter()
+            # TODO: Slow
+            for bin in range(0, hist.GetNbinsX()):
+                cf.AddPair(bin, hist.GetXaxis().GetBinUpEdge(bin))
+                self._hist.SetBinContent(bin, hist.GetBinContent(bin))
+                # TODO: Copy Errors?
+            cf.FitCal(4)
+            self.cal = cf.calib
 
     def __str__(self):
         return self.name
