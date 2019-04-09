@@ -624,11 +624,11 @@ class MHisto2D(Histo2D):
                 othercal = self._yproj.cal
             else:
                 othercal = self._xproj.cal
-            matrix = self.vmatrix
+            matrix = self.tvmatrix
         else:
             thiscal = self._yproj.cal
             othercal = self._xproj.cal
-            matrix = self.tvmatrix
+            matrix = self.vmatrix
 
         matrix.ResetRegions()
 
