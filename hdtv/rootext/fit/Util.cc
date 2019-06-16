@@ -44,7 +44,7 @@ std::string GetFuncUniqueName(const char *prefix, void *ptr) {
   return name.str();
 }
 
-double TH1IntegateWithPartialBins(const TH1 *spec, const double xmin,
+double TH1IntegrateWithPartialBins(const TH1 *spec, const double xmin,
                                   const double xmax) {
   const TAxis *axis = spec->GetXaxis();
   const int bmin = axis->FindBin(xmin);
