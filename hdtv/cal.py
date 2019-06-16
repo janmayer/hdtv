@@ -25,7 +25,7 @@ import ROOT
 import hdtv.util
 from hdtv.color import tcolors
 
-import hdtv.rootext.display
+import hdtv.rootext.calibration
 
 def MakeCalibration(cal):
     """

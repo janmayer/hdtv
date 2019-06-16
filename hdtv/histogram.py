@@ -24,6 +24,7 @@ import os
 import ROOT
 import hdtv.color
 import hdtv.rootext.mfile
+import hdtv.rootext.calibration
 import hdtv.rootext.display
 import hdtv.rootext.fit
 
