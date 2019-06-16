@@ -161,7 +161,7 @@ class Histogram(Drawable):
             hdtv.ui.info("Adding calibrated")
             nbins = self._hist.GetNbinsX()
             for n in range(0, nbins):
-                integral = ROOT.HDTV.TH1IntegateWithPartialBins(spec._hist, spec.cal.E2Ch(
+                integral = ROOT.HDTV.TH1IntegrateWithPartialBins(spec._hist, spec.cal.E2Ch(
                     self.cal.Ch2E(n - 0.5)), spec.cal.E2Ch(self.cal.Ch2E(n + 0.5)))
                 # Note: Can't use Fill due to bin errors?
                 self._hist.SetBinContent(
@@ -188,7 +188,7 @@ class Histogram(Drawable):
             hdtv.ui.info("Adding calibrated")
             nbins = self._hist.GetNbinsX()
             for n in range(0, nbins):
-                integral = ROOT.HDTV.TH1IntegateWithPartialBins(spec._hist, spec.cal.E2Ch(
+                integral = ROOT.HDTV.TH1IntegrateWithPartialBins(spec._hist, spec.cal.E2Ch(
                     self.cal.Ch2E(n - 0.5)), spec.cal.E2Ch(self.cal.Ch2E(n + 0.5)))
                 # Note: Can't use Fill due to bin errors?
                 self._hist.SetBinContent(
@@ -244,7 +244,7 @@ class Histogram(Drawable):
         # For each bin in the new histogram, integrate the respective part in
         # the old histogram
         for i, e in enumerate(range(lower, upper)):
-            integral = ROOT.HDTV.TH1IntegateWithPartialBins(
+            integral = ROOT.HDTV.TH1IntegrateWithPartialBins(
                 self._hist, self.cal.E2Ch(e - 0.5), self.cal.E2Ch(e + 0.5))
             # Note: Can't use Fill due to bin errors? i+1, as bin 0 is
             # underflow
