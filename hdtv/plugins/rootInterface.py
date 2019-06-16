@@ -27,6 +27,7 @@ import os
 import fnmatch
 import readline
 import ROOT
+import hdtv.rootext.display
 
 import hdtv.cmdline
 import hdtv.tabformat

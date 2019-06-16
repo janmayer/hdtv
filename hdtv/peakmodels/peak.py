@@ -24,7 +24,7 @@
 # class to handle fitter setup and data transfer to the Python side
 #-------------------------------------------------------------------------
 import ROOT
-import hdtv.rootext.display
+import hdtv.rootext.fit
 
 # Base class for all peak models
 class PeakModel(object):

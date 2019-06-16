@@ -23,8 +23,6 @@
 import copy
 
 import hdtv.cal
-import hdtv.rootext.display
-import hdtv.rootext.fit
 
 from hdtv.window import Window
 from hdtv.drawable import DrawableManager
