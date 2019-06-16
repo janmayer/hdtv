@@ -299,7 +299,8 @@ class FitXml(object):
         """
         Reads fitlist from xml files
         """
-        self.spectra.viewport.LockUpdate()
+        if self.spectra.viewport:
+            self.spectra.viewport.LockUpdate()
         if sid is None:
             sid = self.spectra.activeID
         if sid not in self.spectra.ids:
@@ -363,7 +364,8 @@ class FitXml(object):
                 msg += "%d fits restored." % count
             hdtv.ui.msg(msg)
         finally:
-            self.spectra.viewport.UnlockUpdate()
+            if self.spectra.viewport:
+                self.spectra.viewport.UnlockUpdate()
 
 #### version 1* ###############################################################
     def RestoreFromXml_v1_4(self, root, sid, refit=False):

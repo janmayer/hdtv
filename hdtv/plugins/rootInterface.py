@@ -405,7 +405,8 @@ class RootFileInterface(object):
             self.spectra.Clear()
 
         loaded = list()
-        self.window.viewport.LockUpdate()
+        if self.window.viewport:
+            self.window.viewport.LockUpdate()
         try:  # We should really use a context manager here...
             for obj in objs:
                 if isinstance(obj, ROOT.TH1):
@@ -435,7 +436,8 @@ class RootFileInterface(object):
             if len(self.spectra) == 1:
                 self.window.Expand()
         finally:
-            self.window.viewport.UnlockUpdate()
+            if self.window.viewport:
+                self.window.viewport.UnlockUpdate()
 
 
 # plugin initialisation

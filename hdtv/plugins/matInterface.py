@@ -37,7 +37,6 @@ from hdtv.specreader import SpecReader, SpecReaderError
 
 from hdtv.matrix import Matrix
 from hdtv.histogram import MHisto2D
-from hdtv.specreader import SpecReaderError
 
 
 class MatInterface(object):
