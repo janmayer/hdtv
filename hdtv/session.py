@@ -41,16 +41,17 @@ class Session(DrawableManager):
     and of a list of calibrations.
     """
 
-    def __init__(self):
-        self.window = Window()
-        super(Session, self).__init__(viewport=self.window.viewport)
+    def __init__(self, gui=True):
+        self.window = Window() if gui else None
+        super(Session, self).__init__(
+            viewport=self.window.viewport if self.window else None)
         # TODO: make peakModel and bgdeg configurable
         self.workFit = Fit(Fitter(peakModel="theuerkauf", bgdeg=1))
         self.workFit.active = True
-        self.workFit.Draw(self.window.viewport)
+        self.workFit.Draw(self.viewport)
         self.workCut = Cut()
         self.workCut.active = True
-        self.workCut.Draw(self.window.viewport)
+        self.workCut.Draw(self.viewport)
         self.caldict = dict()
         # main session is always active
         self._active = True
@@ -136,7 +137,7 @@ class Session(DrawableManager):
         bg = fit.fitter.bgFitter
 
         fit.integral = Integrate(spec, bg, region)
-        fit.Draw(self.window.viewport)
+        fit.Draw(self.viewport)
         hdtv.ui.msg(fit.print_integral())
 
     # Functions to handle workFit
@@ -166,7 +167,7 @@ class Session(DrawableManager):
                 fit.FitPeakFunc(spec)
             # show fit result
             hdtv.ui.msg(str(fit), newline=False)
-            fit.Draw(self.window.viewport)
+            fit.Draw(self.viewport)
         except OverflowError as msg:
             hdtv.ui.error("Fit failed: %s" % msg)
         if fit.regionMarkers.IsFull():
@@ -216,7 +217,7 @@ class Session(DrawableManager):
             # make a copy for workFit
             self.workFit = copy.copy(spec.GetActiveObject())
             self.workFit.active = True
-            self.workFit.Draw(self.window.viewport)
+            self.workFit.Draw(self.viewport)
 
     def StoreFit(self, ID=None):
         """
@@ -244,7 +245,7 @@ class Session(DrawableManager):
         hdtv.ui.msg("Storing workFit with ID %s" % ID)
         self.workFit = copy.copy(self.workFit)
         self.workFit.active = True
-        self.workFit.Draw(self.window.viewport)
+        self.workFit.Draw(self.viewport)
 
     # Functions to handle workCut
     def ExecuteCut(self):
@@ -282,7 +283,7 @@ class Session(DrawableManager):
         if ID is not None:
             self.workCut = copy.copy(spec.matrix.GetActiveObject())
             self.workCut.active = True
-            self.workCut.Draw(self.window.viewport)
+            self.workCut.Draw(self.viewport)
 
     def StoreCut(self, ID=None):
         # for interactive use of this function
@@ -307,7 +308,7 @@ class Session(DrawableManager):
         hdtv.ui.msg("Storing workCut with ID %s" % ID)
         self.workCut = copy.copy(self.workCut)
         self.workCut.active = True
-        self.workCut.Draw(self.window.viewport)
+        self.workCut.Draw(self.viewport)
 
     # Overwrite some functions of DrawableManager to do some extra work
     def ActivateObject(self, ID):
@@ -367,6 +368,6 @@ class Session(DrawableManager):
         """
         self.workFit = Fit(Fitter(peakModel="theuerkauf", bgdeg=1))
         self.workFit.active = True
-        self.workFit.Draw(self.window.viewport)
+        self.workFit.Draw(self.viewport)
         self.caldict = dict()
         return super(Session, self).Clear()

@@ -523,7 +523,8 @@ class Fit(Drawable):
             raise RuntimeError("Object can only be drawn on a single viewport")
         self.viewport = viewport
         # Lock updates
-        self.viewport.LockUpdate()
+        if self.viewport:
+            self.viewport.LockUpdate()
         # draw the markers (do this after the fit,
         # because the fit updates the position of the peak markers)
         self.peakMarkers.Draw(self.viewport)
@@ -539,7 +540,8 @@ class Fit(Drawable):
             peak.color = self.color
             peak.Draw(self.viewport)
         self.Show()
-        self.viewport.UnlockUpdate()
+        if self.viewport:
+            self.viewport.UnlockUpdate()
 
     def Refresh(self):
         """
