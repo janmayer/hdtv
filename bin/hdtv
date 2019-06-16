@@ -20,11 +20,11 @@ sys.argv = [sys.argv[0]]
 legacypath = os.path.join(os.environ["HOME"], ".hdtv")
 configpath = os.getenv("HDTV_USER_PATH",
     legacypath if os.path.isdir(legacypath) else
-    os.path.join(os.getenv("XDG_CONFIG_HOME",
+    os.path.join(os.getenv("XDG_CONFIG_HOME", 
         os.path.join(os.environ["HOME"], ".config")), "hdtv"))
 datapath = os.getenv("HDTV_USER_PATH",
     legacypath if os.path.isdir(legacypath) else
-    os.path.join(os.getenv("XDG_DATA_HOME",
+    os.path.join(os.getenv("XDG_DATA_HOME", 
         os.path.join(os.environ["HOME"], ".local", "share")), "hdtv"))
 
 for path in [datapath, configpath]:
@@ -67,7 +67,7 @@ parser.add_argument("-e", "--execute", dest="commands",
     help="Execute HDTV command(s)")
 parser.add_argument("-v", "--version", action="version",
     help="Show HDTV Version",
-    version="HDTV" + str(__version__))
+    version="HDTV {}".format(__version__))
 parser.add_argument("--rebuild-usr", action='store_true', dest='rebuildusr',
     help='Rebuild ROOT-loadable libraries for the current user')
 parser.add_argument("--rebuild-sys", action='store_true', dest='rebuildsys',

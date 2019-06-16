@@ -24,6 +24,8 @@ import os
 import ROOT
 import hdtv.color
 import hdtv.rootext.mfile
+import hdtv.rootext.display
+import hdtv.rootext.fit
 
 from hdtv.drawable import Drawable
 from hdtv.specreader import SpecReader, SpecReaderError

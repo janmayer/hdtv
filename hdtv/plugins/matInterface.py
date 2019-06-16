@@ -25,8 +25,10 @@
 
 from __future__ import print_function
 
-import ROOT
 import os
+
+import ROOT
+import hdtv.rootext.display
 
 import hdtv.ui
 import hdtv.util

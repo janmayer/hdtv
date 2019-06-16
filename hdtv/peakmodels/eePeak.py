@@ -27,6 +27,8 @@
 from uncertainties import ufloat
 
 import ROOT
+import hdtv.rootext.display
+import hdtv.rootext.fit
 
 from .peak import PeakModel
 from hdtv.drawable import Drawable

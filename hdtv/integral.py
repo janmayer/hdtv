@@ -21,9 +21,11 @@
 
 from __future__ import print_function
 
+
 from uncertainties import ufloat
 
 import ROOT
+import hdtv.rootext.fit
 
 def Integrate(spec, bg, region):
     hist = spec.hist.hist
