@@ -5,7 +5,6 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace HDTV;
-#pragma link C++ class HDTV::Calibration;
 #pragma link C++ namespace HDTV::Display;
 #pragma link C++ class HDTV::Display::View+;
 #pragma link C++ class HDTV::Display::View1D+;
