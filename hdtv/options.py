@@ -80,68 +80,58 @@ class Option(object):
         return self.ToStr(self.value)
 
 
-def RegisterOption(varname, variable):
-    """
-    Adds a configuration variable
-    """
-    global variables
-    if varname in list(variables.keys()):
-        raise RuntimeError(
-            "Refusing to overwrite existing configuration variable")
-    variables[varname] = variable
+class _OptionManager(dict):
+    """Manages a set of options"""
+ 
+    def RegisterOption(self, varname, value):
+        """
+        Adds a configuration variable
+        """
+        if varname in self:
+            msg = 'Option {!r} already exists with, refusing to overWrite'
+            raise RuntimeError(msg.format(varname, self[varname]))
+        self.__dict__[varname] = value
 
+    def Set(self, varname, rawValue):
+        """
+        Sets the variable specified by varname. Raises a KeyError if it does not exist.
+        """
+        self.__dict__[varname].ParseAndSet(rawValue)
 
-def Set(varname, rawValue):
-    """
-    Sets the variable specified by varname. Raises a KeyError if it does not exist.
-    """
-    global variables
-    variables[varname].ParseAndSet(rawValue)
+    def Get(self, varname):
+        """
+        Gets the value of the variable varname. Raises a KeyError if it does not exist.
+        """
+        return self.__dict__[varname].Get()
 
+    def Reset(self, varname):
+        """
+        Resets value of variable varname to default. Raises KeyError if it does not exist.
+        """
+        self.__dict__[varname].Reset()
 
-def Get(varname):
-    """
-    Gets the value of the variable varname. Raises a KeyError if it does not exist.
-    """
-    global variables
-    return variables[varname].Get()
+    def ResetAll(self):
+        """
+        Resets value of all variables to default.
+        """
+        for key in self.__dict__.keys():
+            self.__dict__[key].Reset()
 
+    def Show(self, varname):
+        """
+        Shows the value of the variable varname
+        """
+        return "%s: %s" % (tcolors.bold(varname),
+                           str(self.__dict__[varname]))
 
-def Reset(varname):
-    """
-    Resets value of variable varname to default. Raises KeyError if it does not exist.
-    """
-    global variables
-    return variables[varname].Reset()
-
-
-def ResetAll():
-    """
-    Resets value of all variables to default.
-    """
-    global variables
-    for (k, v) in variables.items():
-        variables[k].Reset()
-
-
-def Show(varname):
-    """
-    Shows the value of the variable varname
-    """
-    global variables
-    return "%s: %s" % (tcolors.bold(varname), str(variables[varname]))
-
-
-def Str():
-    """
-    Returns all options as a string
-    """
-    global variables
-    string = ""
-    ordered_options = OrderedDict(sorted(variables.items()))
-    for (k, v) in ordered_options.items():
-        string += "%s: %s\n" % (tcolors.bold(k), str(v))
-    return string
+    def Str(self):
+        """
+        Returns all options as a string
+        """
+        string = ""
+        for (k, v) in sorted(self.__dict__.items()):
+            string += "%s: %s\n" % (tcolors.bold(k), str(v))
+        return string
 
 
 def parse_bool(x):
@@ -164,5 +154,43 @@ def parse_choices(choices):
     return _parse_choices
 
 
+OptionManager = _OptionManager()
+def RegisterOption(varname, value):
+    """Adds a configuration variable"""
+    OptionManager.RegisterOption(varname, value)
 
-variables = dict()
+def Set(varname, rawValue):
+    """
+    Sets the variable specified by varname. Raises a KeyError if it does not exist.
+    """
+    return OptionManager.Set(varname, rawValue)
+
+def Get(varname):
+    """
+    Gets the value of the variable varname. Raises a KeyError if it does not exist.
+    """
+    return OptionManager.Get(varname)
+
+def Reset(varname):
+    """
+    Resets value of variable varname to default. Raises KeyError if it does not exist.
+    """
+    return OptionManager.Reset(varname)
+
+def ResetAll():
+    """
+    Resets value of all variables to default.
+    """
+    return OptionManager.ResetAll()
+
+def Show(varname):
+    """
+    Shows the value of the variable varname
+    """
+    return OptionManager.Show(varname)
+
+def Str():
+    """
+    Returns all options as a string
+    """
+    return OptionManager.Str()
