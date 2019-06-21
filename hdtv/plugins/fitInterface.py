@@ -1238,3 +1238,5 @@ class TvFitInterface(object):
 # plugin initialisation
 import __main__
 __main__.f = FitInterface(__main__.spectra)
+
+

@@ -47,7 +47,6 @@ import hdtv.util
 from hdtv.color import tcolors
 
 import ROOT
-import __main__
 
 
 class HDTVCommandError(Exception):
@@ -424,6 +423,8 @@ class CommandLine(object):
     Class implementing the HDTV command line, including switching between
     command and Python mode.
     """
+    cmds = dict()
+    cmds['__name__'] = 'hdtv'
 
     def __init__(self, command_tree, python_completer=None):
         self.fCommandTree = command_tree
@@ -432,7 +433,7 @@ class CommandLine(object):
         self.fReadlineHistory = None
         self.fReadlineExitHandler = False
 
-        self._py_console = code.InteractiveConsole(__main__.__dict__)
+        self._py_console = code.InteractiveConsole(self.cmds)
 
         self.fPyMode = False
         self.fPyMore = False
@@ -475,7 +476,7 @@ class CommandLine(object):
             sys.exit(1)
 
     def RegisterInteractive(self, name, ref):
-        __main__.__dict__[name] = ref
+        self.cmds[name] = ref
 
     def Unescape(self, s):
         "Recognize special command prefixes"

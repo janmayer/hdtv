@@ -750,3 +750,17 @@ def open_compressed(fname, mode='rb', **kwargs):
         raise NotImplementedError(
             "{} files are not supported. Manually use '{}' instead.".format(
                 ext, 'bzip2' if 'bz2' else ext))
+
+
+class Singleton(type):
+    """
+    Permit no more than a single instance of a class.
+    Use as a metaclass:
+
+        class MyClass(metaclass=Singleton)
+    """
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]

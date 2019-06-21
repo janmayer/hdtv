@@ -247,4 +247,6 @@ import __main__
 if not hasattr(__main__, 'ecal'):
     from . import calInterface
     __main__.ecal = calInterface.EnergyCalIf(__main__.spectra)
-__main__.fitmap = FitMap(__main__.spectra, __main__.ecal)
+
+from hdtv.cmdline import RegisterInteractive
+RegisterInteractive('fitmap', FitMap(__main__.spectra, __main__.ecal))

@@ -1361,5 +1361,5 @@ class EnergyCalHDTVInterface(object):
 
 
 import __main__
-__main__.eff = EffCalIf(__main__.spectra)
+hdtv.cmdline.RegisterInteractive("eff", EffCalIf(__main__.spectra))
 __main__.ecal = EnergyCalIf(__main__.spectra)

@@ -27,7 +27,7 @@ import copy
 import hdtv.cmdline
 import hdtv.options
 import hdtv.ui
-
+import hdtv.plugins
 
 import ROOT
 
@@ -214,10 +214,11 @@ class PeakFinder(object):
 
 # plugin initialisation
 import __main__
-__main__.peakfinder = PeakFinder(__main__.spectra)
+peakfinder = PeakFinder(__main__.spectra)
+hdtv.cmdline.RegisterInteractive("peakfinder", peakfinder)
+
 
 # wrapper function
-
 
 def PeakSearch(args):
     try:
@@ -237,7 +238,8 @@ def PeakSearch(args):
     if args.autofit is None:
         args.autofit = hdtv.options.Get("fit.peakfind.auto_fit")
 
-    __main__.peakfinder(sid, args.sigma, args.threshold,
+    # TODO: Access session peakfinder
+    peakfinder(sid, args.sigma, args.threshold,
         args.start, args.end, args.autofit, args.reject)
 
 
