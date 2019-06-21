@@ -25,6 +25,7 @@
 
 import re
 
+import hdtv.plugins
 import hdtv.cmdline
 import hdtv.options
 import hdtv.database
@@ -281,5 +282,5 @@ class Database(object):
 
 
 # plugin initialisation
-import __main__
-__main__.database = Database()
+database = Database()
+hdtv.cmdline.RegisterInteractive("database", database)

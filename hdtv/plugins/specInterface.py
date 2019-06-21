@@ -784,4 +784,4 @@ class TvSpecInterface(object):
 
 # plugin initialisation
 import __main__
-__main__.s = SpecInterface(__main__.spectra)
+hdtv.cmdline.RegisterInteractive("s", SpecInterface(__main__.spectra))
