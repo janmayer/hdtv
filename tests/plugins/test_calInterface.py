@@ -41,13 +41,12 @@ except RuntimeError:
     pass
 
 
-import hdtv.plugins.specInterface
+from hdtv.plugins.specInterface import spec_interface
 import hdtv.plugins.calInterface
-import hdtv.plugins.fitInterface
+from hdtv.plugins.fitInterface import fit_interface
 import hdtv.plugins.peakfinder
 import hdtv.plugins.fitmap
 
-s = __main__.s
 spectra = __main__.spectra
 
 testspectrumfile = "osiris_bg.spc"
@@ -56,11 +55,11 @@ testspectrum = os.path.join(
 
 @pytest.fixture(autouse=True)
 def prepare():
-    __main__.f.ResetFitterParameters()
+    fit_interface.ResetFitterParameters()
     hdtv.options.Set("table", "classic")
     hdtv.options.Set("uncertainties", "short")
     for _ in range(3):
-        __main__.s.LoadSpectra(testspectrum)
+        spec_interface.LoadSpectra(testspectrum)
     spectra.ActivateObject("0")
     yield
     spectra.Clear()

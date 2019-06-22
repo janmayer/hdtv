@@ -38,11 +38,10 @@ try:
 except RuntimeError:
     pass
 
-import hdtv.plugins.specInterface
-import hdtv.plugins.fitInterface
+from hdtv.plugins.specInterface import spec_interface
+from hdtv.plugins.fitInterface import fit_interface
 import hdtv.plugins.peakfinder
 
-s = __main__.s
 spectra = __main__.spectra
 
 testspectrum = os.path.join(
@@ -50,18 +49,18 @@ testspectrum = os.path.join(
 
 @pytest.fixture(autouse=True)
 def prepare():
-    __main__.f.ResetFitterParameters()
+    fit_interface.ResetFitterParameters()
     hdtv.options.Set("table", "classic")
     hdtv.options.Set("uncertainties", "short")
     spectra.Clear()
     yield
     spectra.Clear()
-    __main__.f.ResetFitterParameters()
+    fit_interface.ResetFitterParameters()
 
 def test_cmd_fit_various():
     hdtvcmd("fit function peak activate theuerkauf")
-    __main__.s.LoadSpectra(testspectrum)
-    assert len(s.spectra.dict) == 1
+    spec_interface.LoadSpectra(testspectrum)
+    assert len(spec_interface.spectra.dict) == 1
     f, ferr = setup_fit()
     assert f == ""
     assert ferr == ""
@@ -93,8 +92,8 @@ def test_cmd_fit_various():
     assert f == ""
 
 def test_cmd_fit_peakfind():
-    __main__.s.LoadSpectra(testspectrum)
-    assert len(s.spectra.dict) == 1
+    spec_interface.LoadSpectra(testspectrum)
+    assert len(spec_interface.spectra.dict) == 1
     f, ferr = hdtvcmd("fit peakfind -a -t 0.002")
     assert "Search Peaks in region" in f
     assert "Found 68 peaks" in f

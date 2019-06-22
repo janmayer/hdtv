@@ -37,13 +37,12 @@ except RuntimeError:
     pass
 
 
-import hdtv.plugins.specInterface
+from hdtv.plugins.specInterface import spec_interface
 import hdtv.plugins.calInterface
 import hdtv.plugins.fitInterface
 import hdtv.plugins.peakfinder
 import hdtv.plugins.fitmap
 
-s = __main__.s
 spectra = __main__.spectra
 
 testspectrum = os.path.join(
@@ -56,7 +55,7 @@ def prepare():
     spectra.Clear()
 
 def test_cmd_fit_position():
-    s.tv.specIf.LoadSpectra(testspectrum, None)
+    spec_interface.tv.specIf.LoadSpectra(testspectrum, None)
     hdtvcmd("fit peakfind -a -t 0.05")
     f, ferr = hdtvcmd(
         "fit position assign 10.0 1173.228(3) 12.0 1332.492(4)",
@@ -64,7 +63,7 @@ def test_cmd_fit_position():
     assert ferr == ""
 
 def test_cmd_fit_position_map():
-    s.tv.specIf.LoadSpectra(testspectrum, None)
+    spec_interface.tv.specIf.LoadSpectra(testspectrum, None)
     hdtvcmd("fit peakfind -a -t 0.002")
     f, ferr = hdtvcmd("fit position map tests/share/osiris_bg.map")
     assert ferr == ""

@@ -262,5 +262,6 @@ class PrintInterface(object):
 
 # plugin initialisation
 import __main__
-hdtv.cmdline.RegisterInteractive("p", __main__.spectra)
+print_interface = PrintInterface(__main__.spectra)
+hdtv.cmdline.RegisterInteractive("p", print_interface)
 hdtv.ui.debug("Loaded user interface for printing")

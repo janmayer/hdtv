@@ -44,7 +44,7 @@ except RuntimeError:
 
 import hdtv.plugins.specInterface
 
-s = __main__.s
+s = hdtv.plugins.specInterface.spec_interface
 spectra = __main__.spectra
 
 testspectrum = os.path.join(

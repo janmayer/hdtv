@@ -260,4 +260,5 @@ hdtv.options.RegisterOption('default_fitlist_extension',
                             hdtv.options.Option(default="xfl"))
 
 import __main__
-hdtv.cmdline.RegisterInteractive("fitxml", FitlistManager(__main__.spectra))
+fitxml = FitlistManager(__main__.spectra)
+hdtv.cmdline.RegisterInteractive("fitxml", fitxml)

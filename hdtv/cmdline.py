@@ -694,55 +694,21 @@ class CommandLine(object):
             self.DoLine(line)
 
 
-def RegisterInteractive(name, ref):
-    global command_line
-    command_line.RegisterInteractive(name, ref)
-
-
-def SetInteractiveDict(d):
-    global command_line
-    command_line.fInteractiveLocals = d
-
-
-def AddCommand(title, command, **opt):
-    global command_tree
-    command_tree.AddCommand(title, command, **opt)
-
-
-def ExecCommand(cmdline):
-    global command_tree
-    command_tree.ExecCommand(cmdline)
-
-
-def RemoveCommand(title):
-    global command_tree
-    command_tree.RemoveCommand(title)
-
-
-def ReadReadlineInit(filename):
-    global command_line
-    command_line.ReadReadlineInit(filename)
-
-
-def SetReadlineHistory(filename):
-    global command_line
-    command_line.SetReadlineHistory(filename)
-
-
-def AsyncExit():
-    global command_line
-    command_line.AsyncExit()
-
-
-def MainLoop():
-    global command_line
-    command_line.MainLoop()
-
-
-# Module-global variables initialization
-global command_tree, command_line
 command_tree = HDTVCommandTree()
 command_line = CommandLine(command_tree, readline.get_completer())
+
+def SetInteractiveDict(d):
+    command_line.fInteractiveLocals = d
+
+RegisterInteractive = command_line.RegisterInteractive
+AddCommand = command_tree.AddCommand
+ExecCommand = command_tree.ExecCommand
+RemoveCommand = command_tree.RemoveCommand
+ReadReadlineInit = command_line.ReadReadlineInit
+SetReadlineHistory = command_line.SetReadlineHistory
+AsyncExit = command_line.AsyncExit
+MainLoop = command_line.MainLoop
+
 RegisterInteractive("gCmd", command_tree)
 
 AddCommand("python", command_line.EnterPython)

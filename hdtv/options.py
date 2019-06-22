@@ -87,9 +87,9 @@ class _OptionManager(dict):
         """
         Adds a configuration variable
         """
-        if varname in self:
+        if varname in self.__dict__:
             msg = 'Option {!r} already exists with, refusing to overWrite'
-            raise RuntimeError(msg.format(varname, self[varname]))
+            raise RuntimeError(msg.format(varname))
         self.__dict__[varname] = value
 
     def Set(self, varname, rawValue):
@@ -155,42 +155,11 @@ def parse_choices(choices):
 
 
 OptionManager = _OptionManager()
-def RegisterOption(varname, value):
-    """Adds a configuration variable"""
-    OptionManager.RegisterOption(varname, value)
 
-def Set(varname, rawValue):
-    """
-    Sets the variable specified by varname. Raises a KeyError if it does not exist.
-    """
-    return OptionManager.Set(varname, rawValue)
-
-def Get(varname):
-    """
-    Gets the value of the variable varname. Raises a KeyError if it does not exist.
-    """
-    return OptionManager.Get(varname)
-
-def Reset(varname):
-    """
-    Resets value of variable varname to default. Raises KeyError if it does not exist.
-    """
-    return OptionManager.Reset(varname)
-
-def ResetAll():
-    """
-    Resets value of all variables to default.
-    """
-    return OptionManager.ResetAll()
-
-def Show(varname):
-    """
-    Shows the value of the variable varname
-    """
-    return OptionManager.Show(varname)
-
-def Str():
-    """
-    Returns all options as a string
-    """
-    return OptionManager.Str()
+RegisterOption = OptionManager.RegisterOption
+Set = OptionManager.Set
+Get = OptionManager.Get
+Reset = OptionManager.Reset
+ResetAll = OptionManager.ResetAll
+Show = OptionManager.Show
+Str = OptionManager.Str

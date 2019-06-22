@@ -59,7 +59,10 @@ class FitInterface(object):
         hdtv.options.RegisterOption(
             "fit.display.decomp", self.opt['display.decomp'])
 
-        # Register hotkeys
+        if self.window:
+            self._register_hotkeys()
+
+    def _register_hotkeys(self):
         self.window.AddHotkey(ROOT.kKey_b,
                               lambda: self.spectra.SetMarker("bg"))
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_b],
@@ -89,7 +92,6 @@ class FitInterface(object):
                               lambda: self.ShowDecomposition(True))
         self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_D],
                               lambda: self.ShowDecomposition(False))
-
         self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_s],
                               lambda: self.window.EnterEditMode(prompt="Show Fit: ",
                                                                 handler=self._HotkeyShow))
@@ -99,7 +101,6 @@ class FitInterface(object):
                               lambda: self._HotkeyShow("PREV"))
         self.window.AddHotkey([ROOT.kKey_f, ROOT.kKey_n],
                               lambda: self._HotkeyShow("NEXT"))
-
         self.window.AddHotkey(ROOT.kKey_I, self.spectra.ExecuteIntegral)
 
     def _HotkeyShow(self, args):
@@ -135,7 +136,7 @@ class FitInterface(object):
         if len(ids) == 1:
             self.window.viewport.SetStatusText("Activating fit %s" % ids[0])
             self.spectra.ActivateFit(ids[0])
-        elif len(ids) == 0:
+        elif not ids:
             self.window.viewport.SetStatusText("Deactivating fit")
             self.spectra.ActivateFit(None)
         else:
@@ -184,7 +185,7 @@ class FitInterface(object):
             hdtv.ui.error("Region not set.")
             return
 
-        if len(fit.bgMarkers) > 0:
+        if fit.bgMarkers:
             if fit.fitter.bgdeg == -1:
                 hdtv.ui.error(
                     "Background degree of -1 contradicts background fit.")
@@ -224,7 +225,7 @@ class FitInterface(object):
             sid = self.spectra.activeID
         spec = self.spectra.dict[sid]
         # if there are not fits for this spectrum, there is not much to do
-        if len(spec.ids) == 0:
+        if not spec.ids:
             hdtv.ui.newline()
             hdtv.ui.msg("Spectrum " + str(sid) +
                         " (" + spec.name + "): No fits")
@@ -326,7 +327,7 @@ class FitInterface(object):
         for fit in fits:
             # Get peaks
             (peaklist, fitparams) = fit.ExtractParams()
-            if len(peaklist) == 0:
+            if not peaklist:
                 continue
             # update list of valid params
             for p in fitparams:
@@ -885,7 +886,8 @@ class TvFitInterface(object):
                 else:
                     self.spectra.ExecuteFit(peaks=doPeaks)
 
-                if args.store is True:   # Needed when args.quick is set for multiple spectra, else fits will be lost
+                # Needed when args.quick is set for multiple spectra, else fits will be lost
+                if args.store is True:
                     self.spectra.StoreFit()  # Store current fit
 
             for fitID in fitIDs:
@@ -909,7 +911,7 @@ class TvFitInterface(object):
         Execute integral over fit region
         """
         specIDs = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
-        if len(specIDs) == 0:
+        if not specIDs:
             hdtv.ui.warn("No spectrum to work on")
             return
 
@@ -920,7 +922,7 @@ class TvFitInterface(object):
             self.spectra.ActivateObject(ID=specID)
             fitIDs = hdtv.util.ID.ParseIds(
                 args.fitids, self.spectra.dict[specID])
-            if len(fitIDs) == 0:
+            if not fitIDs:
                 self.spectra.ExecuteIntegral()
 
                 if args.store is True:   # Needed when args.quick is set for multiple spectra, else fits will be lost
@@ -971,7 +973,7 @@ class TvFitInterface(object):
         if len(ids) == 1:
             hdtv.ui.msg("Activating fit %s" % ids[0])
             self.spectra.ActivateFit(ids[0], sid)
-        elif len(ids) == 0:
+        elif not ids:
             hdtv.ui.msg("Deactivating fit")
             self.spectra.ActivateFit(None, sid)
         else:
@@ -982,7 +984,7 @@ class TvFitInterface(object):
         Delete fits
         """
         sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
-        if len(sids) == 0:
+        if not sids:
             hdtv.ui.warn("No spectra chosen or active")
             return
         else:
@@ -1048,7 +1050,7 @@ class TvFitInterface(object):
             spec = self.spectra.dict[sid]
             fitIDs = hdtv.util.ID.ParseIds(args.fitids, spec)
 
-            if len(fitIDs) == 0:
+            if not fitIDs:
                 fitIDs = None
             self.fitIf.ShowDecomposition(show, sid=sid, ids=fitIDs)
 
@@ -1061,7 +1063,7 @@ class TvFitInterface(object):
         sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
 
         fits = list()
-        if len(args.fitid) == 0:
+        if not args.fitid:
             fits.append(self.spectra.workFit)
             spec = self.spectra.GetActiveObject()
             activeFit = spec.GetActiveObject()
@@ -1073,7 +1075,7 @@ class TvFitInterface(object):
                 ids = hdtv.util.ID.ParseIds(args.fitid, spec)
                 fits.extend([spec.dict[ID] for ID in ids])
                 spec.ShowObjects(ids, clear=False)
-                if len(fits) == 0:
+                if not fits:
                     hdtv.ui.warn("Nothing to focus in spectrum %s" % sid)
                     return
         self.spectra.window.FocusObjects(fits)
@@ -1086,7 +1088,7 @@ class TvFitInterface(object):
         """
         self.fitIf.PrintWorkFit()
         sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
-        if len(sids) == 0:
+        if not sids:
             hdtv.ui.warn("No spectra chosen or active")
             return
         # parse sort_key
@@ -1098,7 +1100,7 @@ class TvFitInterface(object):
             ids = hdtv.util.ID.ParseIds(args.fit, spec)
             if args.visible:
                 ids = [ID for ID in spec.visible]
-            if len(ids) == 0:
+            if not ids:
                 continue
             self.fitIf.ListFits(sid, ids, sortBy=key_sort,
                                 reverseSort=args.reverse_sort)
@@ -1168,7 +1170,7 @@ class TvFitInterface(object):
         # check for unambiguity
         if len(parameter) > 1:
             raise hdtv.cmdline.HDTVCommandError("Parameter name %s is ambiguous" % param)
-        if len(parameter) == 0:
+        if not parameter:
             raise hdtv.cmdline.HDTVCommandError("Parameter name %s is not valid" % param)
         param = parameter[0].strip()
         ids = list()
@@ -1223,11 +1225,11 @@ class TvFitInterface(object):
         Reset fitter of a fit to unfitted default.
         """
         specIDs = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
-        if len(specIDs) == 0:
+        if not specIDs:
             raise hdtv.cmdline.HDTVCommandError("No spectrum to work on")
         for specID in specIDs:
             fitIDs = hdtv.util.ID.ParseIds(args.fitids, self.spectra.dict[specID])
-            if len(fitIDs) == 0:
+            if not fitIDs:
                 hdtv.ui.warn("No fit for spectrum %d to work on", specID)
                 continue
             for fitID in fitIDs:
@@ -1236,7 +1238,8 @@ class TvFitInterface(object):
 
 
 # plugin initialisation
-import __main__
-__main__.f = FitInterface(__main__.spectra)
 
+import __main__
+fit_interface = FitInterface(__main__.spectra)
+hdtv.cmdline.RegisterInteractive("f", fit_interface)
 

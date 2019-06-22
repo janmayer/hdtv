@@ -36,7 +36,7 @@ except RuntimeError:
 session = __main__.spectra
 
 import hdtv.plugins.specInterface
-import hdtv.plugins.fitInterface
+from hdtv.plugins.fitInterface import fit_interface
 import hdtv.plugins.rootInterface
 
 import hdtv.cmdline
@@ -46,7 +46,7 @@ import hdtv.rfile_utils
 
 @pytest.fixture(autouse=True)
 def prepare(request):
-    __main__.f.ResetFitterParameters()
+    fit_interface.ResetFitterParameters()
     # original_wd = os.path.abspath(os.path.join(__file__, os.pardir))
     original_wd = os.getcwd()
     os.chdir(original_wd)
@@ -120,5 +120,6 @@ def test_root_to_root_conversion_for_unconventional_binning():
 
 
 def get_spec(specid):
-    return __main__.s.spectra.dict.get(
-        [x for x in list(__main__.s.spectra.dict) if x.major == specid][0])
+    s = hdtv.plugins.specInterface.spec_interface
+    return s.spectra.dict.get(
+        [x for x in list(s.spectra.dict) if x.major == specid][0])
