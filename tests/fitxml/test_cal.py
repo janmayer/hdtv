@@ -39,21 +39,20 @@ except RuntimeError:
     pass
 spectra = __main__.spectra
 
-import hdtv.plugins.specInterface
-import hdtv.plugins.fitInterface
-import hdtv.plugins.fitlist
-import hdtv.fitxml
+from hdtv.plugins.specInterface import spec_interface
+from hdtv.plugins.fitInterface import fit_interface
+from hdtv.plugins.fitlist import fitxml
 
 testspectrum = os.path.join(
     os.path.curdir, "tests", "share", "osiris_bg.spc")
 
 
 @pytest.fixture(autouse=True)
-def prepare():
-    __main__.f.ResetFitterParameters()
+def prepare(): 
+    fit_interface.ResetFitterParameters()
     hdtv.options.Set("table", "classic")
     hdtv.options.Set("uncertainties", "short")
-    __main__.s.LoadSpectra(testspectrum)
+    spec_interface.LoadSpectra(testspectrum)
     yield
     spectra.Clear()
 
@@ -85,8 +84,8 @@ def markers_consistent(calfactor=1., region1=None, region2=None, fit=None):
 def list_fit():
     f, ferr = setup_io(2)
     with redirect_stdout(f, ferr):
-        __main__.f.ListFits()
-        __main__.f.ListIntegrals()
+        fit_interface.ListFits()
+        fit_interface.ListIntegrals()
     assert ferr.getvalue().strip() == ''
     return f.getvalue().strip()
 
@@ -153,7 +152,7 @@ def test_fit_in_calibrated_spectrum(region1, region2, peak, calfactor):
 def test_mfile_fit_volume_with_binning(region1, region2, peak, expected_volume, spectrum, calfactor):
     spectra.Clear()
 
-    __main__.s.LoadSpectra(os.path.join("tests", "share", "binning_root_" + spectrum + ".spc"))
+    spec_interface.LoadSpectra(os.path.join("test", "share", "binning_root_" + spectrum + ".spc"))
     spectra.ApplyCalibration("0", [0, calfactor])
 
     spectra.SetMarker("region", region1)
@@ -349,9 +348,9 @@ def test_write_read_xml(temp_file, region1, region2, peak,
     out_original = list_fit()
 
     spectra.ClearFit()
-    __main__.fitxml.WriteXML(spectra.Get("0").ID, temp_file)
+    fitxml.WriteXML(spectra.Get("0").ID, temp_file)
     spectra.Get("0").Clear()
-    __main__.fitxml.ReadXML(spectra.Get("0").ID, temp_file)
+    fitxml.ReadXML(spectra.Get("0").ID, temp_file)
 
     assert out_original == list_fit()
 
@@ -413,10 +412,10 @@ def test_reimport_calibrate_write_read(temp_file, region1, region2, peak,
     markers_initial = get_markers(fit)
     integral_initial = fit.ExtractIntegralParams()[0][0]
 
-    __main__.fitxml.WriteXML(spectra.Get("0").ID, temp_file)
+    fitxml.WriteXML(spectra.Get("0").ID, temp_file)
     spectra.Get("0").Clear()
     spectra.ApplyCalibration(0, [0, calfactor3])
-    __main__.fitxml.ReadXML(spectra.Get("0").ID, temp_file)
+    fitxml.ReadXML(spectra.Get("0").ID, temp_file)
 
     fit = list(spectra.Get("0").dict.items())[0][1]
     markers_final = get_markers(fit)

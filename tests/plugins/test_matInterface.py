@@ -35,10 +35,9 @@ try:
 except RuntimeError:
     pass
 
-import hdtv.plugins.specInterface
+from hdtv.plugins.specInterface import spec_interface
 import hdtv.plugins.matInterface
 
-s = __main__.s
 spectra = __main__.spectra
 
 @pytest.fixture(autouse=True)

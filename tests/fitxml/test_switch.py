@@ -34,8 +34,8 @@ except RuntimeError:
     pass
 spectra = __main__.spectra
 
-import hdtv.plugins.specInterface
-import hdtv.plugins.fitInterface
+from hdtv.plugins.specInterface import spec_interface
+from hdtv.plugins.fitInterface import fit_interface
 import hdtv.plugins.fitlist
 
 testspectrum = os.path.join(
@@ -43,12 +43,12 @@ testspectrum = os.path.join(
 
 @pytest.fixture(autouse=True)
 def prepare():
-    __main__.f.ResetFitterParameters()
+    fit_interface.ResetFitterParameters()
     hdtv.options.Set("table", "classic")
     hdtv.options.Set("uncertainties", "short")
-    __main__.s.LoadSpectra(testspectrum)
+    spec_interface.LoadSpectra(testspectrum)
     for i in range(5):
-        __main__.s.LoadSpectra(testspectrum)
+        spec_interface.LoadSpectra(testspectrum)
         spectra.Get(str(i)).cal = [0, (i + 1) * 0.5]
     yield
     spectra.Clear()
@@ -57,7 +57,7 @@ def prepare():
 def get_list(no_err=True):
     f, ferr = setup_io(2)
     with redirect_stdout(f, ferr):
-        __main__.s.ListSpectra()
+        spec_interface.ListSpectra()
     if no_err:
         assert ferr.getvalue().strip() == ''
         return f.getvalue()
@@ -173,7 +173,7 @@ def test_spectra_remove_one():
 
 def test_spectra_reload_one():
     spectra.Pop("3")
-    __main__.s.LoadSpectra(testspectrum)
+    spec_interface.LoadSpectra(testspectrum)
     res = get_list()
     assert '3 |   AV' in res
 

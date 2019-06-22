@@ -244,9 +244,5 @@ class FitMap(object):
 
 # plugin initialisation
 import __main__
-if not hasattr(__main__, 'ecal'):
-    from . import calInterface
-    __main__.ecal = calInterface.EnergyCalIf(__main__.spectra)
-
-from hdtv.cmdline import RegisterInteractive
-RegisterInteractive('fitmap', FitMap(__main__.spectra, __main__.ecal))
+from hdtv.plugins.calInterface import energy_cal_interface
+hdtv.cmdline.RegisterInteractive('fitmap', FitMap(__main__.spectra, energy_cal_interface))

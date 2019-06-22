@@ -227,7 +227,5 @@ class fitTex:
 
 # plugin initialisation
 import __main__
-if not __main__.f:
-    from . import fitInterface
-    __main__.f = fitInterface.FitInterface(__main__.spectra)
-hdtv.cmdline.RegisterInteractive("fittex", fitTex(__main__.spectra, __main__.f))
+from hdtv.plugins.fitInterface import fit_interface
+hdtv.cmdline.RegisterInteractive("fittex", fitTex(__main__.spectra, fit_interface))

@@ -43,10 +43,9 @@ except RuntimeError:
     pass
 spectra = __main__.spectra
 
-import hdtv.plugins.specInterface
-import hdtv.plugins.fitInterface
-import hdtv.plugins.fitlist
-import hdtv.fitxml
+from hdtv.plugins.specInterface import spec_interface
+from hdtv.plugins.fitInterface import fit_interface
+from hdtv.plugins.fitlist import fitxml
 
 testspectrum = os.path.join(
     os.path.curdir, "tests", "share", "osiris_bg.spc")
@@ -54,10 +53,10 @@ testspectrum = os.path.join(
 
 @pytest.fixture(autouse=True)
 def prepare():
-    __main__.f.ResetFitterParameters()
+    fit_interface.ResetFitterParameters()
     hdtv.options.Set("table", "classic")
     hdtv.options.Set("uncertainties", "short")
-    __main__.s.LoadSpectra(testspectrum)
+    spec_interface.LoadSpectra(testspectrum)
     yield
     spectra.Clear()
 
@@ -65,8 +64,8 @@ def prepare():
 def list_fit():
     f, ferr = setup_io(2)
     with redirect_stdout(f, ferr):
-        __main__.f.ListFits()
-        __main__.f.ListIntegrals()
+        fit_interface.ListFits()
+        fit_interface.ListIntegrals()
     assert ferr.getvalue().strip() == ''
     return f.getvalue().strip()
 
@@ -78,11 +77,11 @@ def fit_write_and_save(filename):
     out_original = list_fit()
 
     print('Saving fits to file %s' % filename)
-    __main__.fitxml.WriteXML(spectra.Get("0").ID, filename)
+    fitxml.WriteXML(spectra.Get("0").ID, filename)
     print('Deleting all fits')
     spectra.Get("0").Clear()
     print('Reading fits from file %s' % filename)
-    __main__.fitxml.ReadXML(spectra.Get("0").ID, filename)
+    fitxml.ReadXML(spectra.Get("0").ID, filename)
 
     assert out_original == list_fit()
 
@@ -91,7 +90,7 @@ def test_fitxml_all_free_no_bg(temp_file_compressed):
     """
     all parameter free, just one peak, no background, theuerkauf model
     """
-    __main__.f.SetPeakModel("theuerkauf")
+    fit_interface.SetPeakModel("theuerkauf")
     spectra.SetMarker("region", 1450)
     spectra.SetMarker("region", 1470)
     spectra.SetMarker("peak", 1460)
@@ -139,7 +138,7 @@ def test_fitxml_parameter_hold(temp_file_compressed):
     spectra.SetMarker("bg", 955)
     spectra.SetMarker("bg", 980)
     spectra.SetMarker("bg", 985)
-    __main__.f.SetFitterParameter("pos", "hold")
+    fit_interface.SetFitterParameter("pos", "hold")
     fit_write_and_save(temp_file_compressed)
 
 
@@ -155,7 +154,7 @@ def test_fitxml_parameter_multi(temp_file_compressed):
     spectra.SetMarker("bg", 1710)
     spectra.SetMarker("bg", 1800)
     spectra.SetMarker("bg", 1810)
-    __main__.f.SetFitterParameter("pos", "hold,free")
+    fit_interface.SetFitterParameter("pos", "hold,free")
     fit_write_and_save(temp_file_compressed)
 
 
@@ -163,7 +162,7 @@ def test_fitxml_eepeak(temp_file_compressed):
     """
     ee peak (just proof of concept, not a thorough test)
     """
-    __main__.f.SetPeakModel("ee")
+    fit_interface.SetPeakModel("ee")
     spectra.SetMarker("region", 1115)
     spectra.SetMarker("region", 1125)
     spectra.SetMarker("peak", 1120)

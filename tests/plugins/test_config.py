@@ -105,6 +105,7 @@ def test_register_option():
     assert hdtv.options.Get("test.option") == "default"
 
 def test_register_option_fail():
+    error_occurred = False
     opt = hdtv.options.Option(default="default")
     hdtv.options.RegisterOption("test.fail", opt)
     try:
