@@ -41,8 +41,10 @@ def temp_file(request):
 
 @pytest.fixture(scope='function', params=[
     '.gz',
-    pytest.mark.xfail(sys.version_info < (3, 0), reason='no module lzma in python2')('.xz'),
-    pytest.mark.xfail(sys.version_info < (3, 0), reason='no module bz2 in python2')('.bz2'),
+    pytest.param('.xz', marks=pytest.mark.skipif(sys.version_info < (3, 0),
+        reason='no module lzma in python2')),
+    pytest.param('.bz2', marks=pytest.mark.skipif(sys.version_info < (3, 0),
+        reason='no module bz2 in python2')),
     ''])
 def temp_file_compressed(request):
     """
