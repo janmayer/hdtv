@@ -86,7 +86,7 @@ class FitXml(object):
         # <fit>
         fitElement = ET.Element("fit")
         fitElement.set("peakModel", fit.fitter.peakModel.name)
-        fitElement.set("bgDegree", str(fit.fitter.bgdeg))
+        fitElement.set("bgDegree", str(fit.fitter.backgroundModel.bgdeg))
         fitElement.set("chi", str(fit.chi))
         # <spectrum>
         spec = fit.spec

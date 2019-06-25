@@ -37,6 +37,7 @@ class BackgroundModel(object):
 
     def __init__(self):
         self.fGlobalParams = dict()
+        self.bgdeg = 1
 
     def ResetGlobalParams(self):
         self.fGlobalParams.clear()

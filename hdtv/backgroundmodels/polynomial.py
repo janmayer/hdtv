@@ -19,13 +19,10 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-import math
-from uncertainties import ufloat
+#import math
 
 import ROOT
 from .background import BackgroundModel
-from hdtv.drawable import Drawable
-import hdtv.options
 
 class BackgroundModelPolynomial(BackgroundModel):
     """
@@ -53,8 +50,10 @@ class BackgroundModelPolynomial(BackgroundModel):
         """
         if isinstance(self.fParStatus['bgdeg'], int):
             self.fFitter = ROOT.HDTV.Fit.PolyBg(self.fParStatus['bgdeg'])
+            self.bgdeg = self.fParStatus['bgdeg']
         elif self.fParStatus['bgdeg'] == "free":
             self.fFitter = ROOT.HDTV.Fit.PolyBg(bgdeg)
+            self.bgdeg = bgdeg
         else:
             msg = "Status specifier %s of background fitter is invalid." % fParStatus['bgdeg']
             raise ValueError(msg)
