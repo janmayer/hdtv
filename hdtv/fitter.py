@@ -22,6 +22,7 @@
 import ROOT
 
 import hdtv.peakmodels
+import hdtv.backgroundmodels
 from hdtv.util import Pairs
 
 
@@ -31,9 +32,9 @@ class Fitter(object):
     The parts that depend on a special peak model can be found in peak.py.
     """
 
-    def __init__(self, peakModel, bgdeg):
+    def __init__(self, peakModel, backgroundModel):
         self.SetPeakModel(peakModel)
-        self.bgdeg = bgdeg
+        self.SetBackgroundModel(backgroundModel)
         self.peakFitter = None
         self.bgFitter = None
 
@@ -46,7 +47,7 @@ class Fitter(object):
         return params
 
     def __getattr__(self, name):
-        # Look in peakModell for unknown attributes
+        # Look in peakModel for unknown attributes
         return getattr(self.peakModel, name)
 
     def FitBackground(self, spec, backgrounds=Pairs()):
@@ -54,10 +55,9 @@ class Fitter(object):
         Create Background Fitter object and do the background fit
         """
         # create fitter
-        bgfitter = ROOT.HDTV.Fit.PolyBg(self.bgdeg)
+        self.bgFitter = self.backgroundModel.GetFitter(len(backgrounds))
         for bg in backgrounds:
-            bgfitter.AddRegion(bg[0], bg[1])
-        self.bgFitter = bgfitter
+            self.bgFitter.AddRegion(bg[0], bg[1])
         # do the background fit
         self.bgFitter.Fit(spec.hist.hist)
 
@@ -67,11 +67,7 @@ class Fitter(object):
         Create Background Fitter object and
         restore the background polynom from coeffs
         """
-        # create fitter
-        bgfitter = ROOT.HDTV.Fit.PolyBg(self.bgdeg)
-        for bg in backgrounds:
-            bgfitter.AddRegion(bg[0], bg[1])
-        self.bgFitter = bgfitter
+        self.bgFitter = self.backgroundModel.GetFitter()
         # restore the fitter
         valueArray = ROOT.TArrayD(len(coeffs))
         errorArray = ROOT.TArrayD(len(coeffs))
@@ -92,7 +88,7 @@ class Fitter(object):
             self.peakFitter.Fit(spec.hist.hist, self.bgFitter)
         else:
             # internal background
-            self.peakFitter.Fit(spec.hist.hist, self.bgdeg)
+            self.peakFitter.Fit(spec.hist.hist, self.backgroundModel.fParStatus['bgdeg'])
 
     def RestorePeaks(self, cal=None, region=Pairs(),
                      peaks=list(), chisquare=0.0, coeffs=list()):
@@ -131,20 +127,23 @@ class Fitter(object):
         self.peakModel = model()
         self.peakFitter = None
 
+    def SetBackgroundModel(self, model):
+        """
+        Sets the background model to be used for fitting.
+        Model can be either a string, in which case it is used as a key into
+        the gPeakModels dictionary, or a BackgroundModel object.
+        """
+        if isinstance(model, str):
+            model = hdtv.backgroundmodels.BackgroundModels[model]
+        self.backgroundModel = model()
+        self.backgroundFitter = None
+
     def SetParameter(self, parname, status):
         """
         Sets the parameter status for fitting.
         """
         if parname == "background":
-            try:
-                deg = int(status)
-            except ValueError:
-                try:  # HACK! 'background degree <degree>' should still be possible
-                    deg = int(status.split()[1])
-                except (ValueError, IndexError):
-                    msg = "Failed to parse status specifier `%s'" % status
-                    raise ValueError(msg)
-            self.bgdeg = deg
+            self.backgroundModel.SetParameter('bgdeg', status)
         else:
             # all other parnames are treated in the peakmodel
             self.peakModel.SetParameter(parname, status)
