@@ -46,7 +46,8 @@ class Session(DrawableManager):
         super(Session, self).__init__(
             viewport=self.window.viewport if self.window else None)
         # TODO: make peakModel and bgdeg configurable
-        self.workFit = Fit(Fitter(peakModel="theuerkauf", bgdeg=1))
+        self.workFit = Fit(Fitter(peakModel="theuerkauf",
+                                  backgroundModel="polynomial"))
         self.workFit.active = True
         self.workFit.Draw(self.viewport)
         self.workCut = Cut()
@@ -145,7 +146,7 @@ class Session(DrawableManager):
         """
         Execute the fit
 
-        If peaks=False, just an background fit is done, else a peak fit is done.
+        If peaks=False, just a background fit is executed, else a peak fit is executed.
         """
         hdtv.ui.debug("Executing the fit")
         spec = self.GetActiveObject()
@@ -156,11 +157,6 @@ class Session(DrawableManager):
         fit = self.workFit
         try:
             if not peaks and len(fit.bgMarkers) > 0:
-                if fit.fitter.bgdeg == -1:
-                    hdtv.ui.error(
-                        "Background degree of -1 contradicts background fit.")
-                    return
-                # pure background fit
                 fit.FitBgFunc(spec)
             if peaks:
                 # full fit
@@ -366,7 +362,8 @@ class Session(DrawableManager):
         """
         Clear everything
         """
-        self.workFit = Fit(Fitter(peakModel="theuerkauf", bgdeg=1))
+        self.workFit = Fit(Fitter(peakModel="theuerkauf",
+                                  backgroundModel="polynomial"))
         self.workFit.active = True
         self.workFit.Draw(self.viewport)
         self.caldict = dict()

@@ -414,7 +414,7 @@ class Fit(Drawable):
         self.spec = spec
         self.Erase()
         # fit background
-        if self.fitter.bgdeg != -1 and len(self.bgMarkers) > 0:
+        if len(self.bgMarkers) > 0:
             backgrounds = self._get_background_pairs()
             self.fitter.FitBackground(spec=self.spec, backgrounds=backgrounds)
         # fit peaks
@@ -431,7 +431,7 @@ class Fit(Drawable):
             self.fitter.FitPeaks(spec=self.spec, region=region, peaklist=peaks)
             # get background function
             self.bgCoeffs = []
-            deg = self.fitter.bgdeg
+            deg = self.fitter.backgroundModel.fParStatus['bgdeg']
             if not self.fitter.bgFitter:
                 for i in range(deg + 1):
                     self.bgCoeffs.append(ufloat(
