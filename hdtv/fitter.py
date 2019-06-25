@@ -154,6 +154,7 @@ class Fitter(object):
         This also copies the status of the corresponding peakModel,
         and hence the status of the fit parameters.
         """
-        new = Fitter(self.peakModel.name, self.bgdeg)
+        new = Fitter(self.peakModel.name, self.backgroundModel.name)
         new.peakModel.fParStatus = self.peakModel.fParStatus.copy()
+        new.backgroundModel.fParStatus = self.backgroundModel.fParStatus.copy()
         return new
