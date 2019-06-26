@@ -21,7 +21,7 @@
 
 from __future__ import print_function
 
-import xml.etree.cElementTree as ET
+import xml.etree.ElementTree as ET
 from uncertainties import ufloat
 
 import hdtv.ui
