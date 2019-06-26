@@ -102,4 +102,4 @@ def test_cmd_db_set(db):
 
 def count_results(query):
     f, ferr = hdtvcmd(query)
-    return int(re.search('Found (\d+) results', f).groups()[0])
+    return int(re.search(r'Found (\d+) results', f).groups()[0])

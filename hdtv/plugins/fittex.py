@@ -23,31 +23,31 @@ import hdtv.ui
 import hdtv.util
 import hdtv.cmdline
 
-preamble = """\makeatletter
-\@ifundefined{standalonetrue}{\\newif\ifstandalone}{\let\ifbackup=\ifstandalone}
+preamble = r"""\makeatletter
+\@ifundefined{standalonetrue}{\newif\ifstandalone}{\let\ifbackup=\ifstandalone}
 \@ifundefined{section}{\standalonetrue}{\standalonefalse}
 \makeatother
 \ifstandalone
 
 \documentclass[12pt,oneside,a4paper]{report}
-\\usepackage[ngerman]{babel}
-\\usepackage{amsmath}
-\\usepackage{amssymb}
-\\usepackage{graphicx}
-\\usepackage{a4}
-\\usepackage[T1]{fontenc}
-\\usepackage{ae,aecompl}
-\\usepackage[utf8]{inputenc}
-\\usepackage[font=small,labelfont=bf,textfont=it]{caption}
-\\usepackage{longtable}
+\usepackage[ngerman]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{a4}
+\usepackage[T1]{fontenc}
+\usepackage{ae,aecompl}
+\usepackage[utf8]{inputenc}
+\usepackage[font=small,labelfont=bf,textfont=it]{caption}
+\usepackage{longtable}
 
 
-\\begin{document}
-\\fi
-\\begin{center}
-\\begin{longtable}"""
+\begin{document}
+\fi
+\begin{center}
+\begin{longtable}"""
 
-enddok = """\end{longtable}
+enddok = r"""\end{longtable}
 \end{center}
 
 \ifstandalone
@@ -55,7 +55,7 @@ enddok = """\end{longtable}
 \else
 \let\ifstandalone=\ifbackup
 \expandafter\endinput
-\\fi
+\fi
 """
 
 
@@ -77,27 +77,27 @@ class TexTable(hdtv.util.Table):
         self.ha = ha
 
     def build_header(self):
-        header = "\hline" + os.linesep
+        header = r"\hline" + os.linesep
         for i in range(2):
             for string in self.header:
                 string = string.replace("_", "-")
-                header += "\multicolumn{1}{%s}{\\textbf{%s}} &" % (
+                header += r"\multicolumn{1}{%s}{\textbf{%s}} &" % (
                     self.ha, string)
             header = header.rstrip("&")
-            header += "\\\ \hline" + os.linesep
+            header += r"\\ \hline" + os.linesep
             if i == 0:
-                header += "\endfirsthead" + os.linesep + os.linesep
-                header += "\hline" + os.linesep
+                header += r"\endfirsthead" + os.linesep + os.linesep
+                header += r"\hline" + os.linesep
             else:
-                header += "\endhead" + os.linesep + os.linesep
+                header += r"\endhead" + os.linesep + os.linesep
 
-        header += "\hline" + os.linesep
-        header += "\multicolumn{%d}{r}{{wird fortgesetzt...}} \\\ " % len(
+        header += r"\hline" + os.linesep
+        header += r"\multicolumn{%d}{r}{{wird fortgesetzt...}} \\\ " % len(
             self.header) + os.linesep
-        header += "\endfoot" + os.linesep + os.linesep
+        header += r"\endfoot" + os.linesep + os.linesep
 
-        header += "\hline " + os.linesep
-        header += "\endlastfoot" + os.linesep + os.linesep
+        header += r"\hline " + os.linesep
+        header += r"\endlastfoot" + os.linesep + os.linesep
 
         return header
 
@@ -122,7 +122,7 @@ class TexTable(hdtv.util.Table):
                 if col != len(line) - 1:
                     line_str += self.col_sep_char
 
-            text += line_str + "\\\ " + os.linesep
+            text += line_str + r"\\ " + os.linesep
 
         if self.extra_footer is not None:
             text += str(self.extra_footer)
