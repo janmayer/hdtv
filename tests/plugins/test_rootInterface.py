@@ -24,11 +24,13 @@ import os
 import pytest
 from tests.helpers.utils import redirect_stdout, hdtvcmd, isclose, setup_io
 
+from hdtv.util import monkey_patch_ui
+monkey_patch_ui()
+
 import hdtv.session
 
 import __main__
 
-# We don’t want to see the GUI. Can we prevent this?
 try:
     __main__.spectra = hdtv.session.Session()
 except RuntimeError:
@@ -69,6 +71,7 @@ def test_cmd_root_cd(start, cd, target):
     hdtvcmd('root cd ' + cd)
     assert os.getcwd() == target
 
+@pytest.mark.skip(reason="opens TBrowser GUI")
 def test_cmd_root_browse():
     hdtvcmd('root browse')
     assert hdtv.plugins.rootInterface.r.browser.GetName() == 'Browser'

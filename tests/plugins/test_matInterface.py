@@ -23,12 +23,14 @@ import pytest
 
 from tests.helpers.utils import redirect_stdout, hdtvcmd
 
+from hdtv.util import monkey_patch_ui
+monkey_patch_ui()
+
 import hdtv.cmdline
 import hdtv.options
 import hdtv.session
 
 import __main__
-# We don’t want to see the GUI. Can we prevent this?
 try:
     if not __main__.spectra:
         __main__.spectra = hdtv.session.Session()

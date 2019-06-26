@@ -30,6 +30,7 @@ from hdtv.fitter import Fitter
 from hdtv.fit import Fit
 from hdtv.cut import Cut
 from hdtv.integral import Integrate
+from hdtv.util import monkey_patch_ui
 
 
 class Session(DrawableManager):
@@ -41,10 +42,9 @@ class Session(DrawableManager):
     and of a list of calibrations.
     """
 
-    def __init__(self, gui=True):
-        self.window = Window() if gui else None
-        super(Session, self).__init__(
-            viewport=self.window.viewport if self.window else None)
+    def __init__(self):
+        self.window = Window()
+        super(Session, self).__init__(viewport=self.window.viewport)
         # TODO: make peakModel and bgdeg configurable
         self.workFit = Fit(Fitter(peakModel="theuerkauf",
                                   backgroundModel="polynomial"))
