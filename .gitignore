@@ -5,6 +5,8 @@ __pycache__/
 
 # C extensions
 *.so
+*.o
+*.d
 
 # Distribution / packaging
 .Python
@@ -66,6 +68,13 @@ target/
 *_rdict*
 *.pcm
 *.rootmap
+
+# Other
+hdtv_history
+.history
+.idea
+.python-version
+*.egg-info
 
 # man pages
 doc/guide/*.[1-8]
