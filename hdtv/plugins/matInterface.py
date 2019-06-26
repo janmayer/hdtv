@@ -51,48 +51,50 @@ class MatInterface(object):
         self.tv = TvMatInterface(self)
 
         # Register hotkeys
-        self.window.AddHotkey(
-            ROOT.kKey_g, lambda: self.spectra.SetMarker("cut"))
-        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_g],
-                              lambda: self.spectra.SetMarker("cutregion"))
-        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_b],
-                              lambda: self.spectra.SetMarker("cutbg"))
-        self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_c, ROOT.kKey_g],
-                              lambda: self.spectra.RemoveMarker("cutregion"))
-        self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_c, ROOT.kKey_b],
-                              lambda: self.spectra.RemoveMarker("cutbg"))
-        self.window.AddHotkey(
-            [ROOT.kKey_Minus, ROOT.kKey_C], self.spectra.ClearCut)
-        self.window.AddHotkey(
-            [ROOT.kKey_Plus, ROOT.kKey_C], self.spectra.StoreCut)
-        self.window.AddHotkey(ROOT.kKey_C, self.spectra.ExecuteCut)
-        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_s],
-                              lambda: self.window.EnterEditMode(prompt="Show Cut: ",
-                                                                handler=self._HotkeyShow))
-        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_a], lambda: self.window.EnterEditMode(
-            prompt="Activate Cut: ", handler=self._HotkeyActivate))
-        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_p],
-                              lambda: self._HotkeyShow("PREV"))
-        self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_n],
-                              lambda: self._HotkeyShow("NEXT"))
-        self.window.AddHotkey(ROOT.kKey_Tab, self._HotkeySwitch)
+        if self.window:
+            self.window.AddHotkey(
+                ROOT.kKey_g, lambda: self.spectra.SetMarker("cut"))
+            self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_g],
+                                  lambda: self.spectra.SetMarker("cutregion"))
+            self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_b],
+                                  lambda: self.spectra.SetMarker("cutbg"))
+            self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_c, ROOT.kKey_g],
+                                  lambda: self.spectra.RemoveMarker("cutregion"))
+            self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_c, ROOT.kKey_b],
+                                  lambda: self.spectra.RemoveMarker("cutbg"))
+            self.window.AddHotkey(
+                [ROOT.kKey_Minus, ROOT.kKey_C], self.spectra.ClearCut)
+            self.window.AddHotkey(
+                [ROOT.kKey_Plus, ROOT.kKey_C], self.spectra.StoreCut)
+            self.window.AddHotkey(ROOT.kKey_C, self.spectra.ExecuteCut)
+            self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_s],
+                                  lambda: self.window.EnterEditMode(prompt="Show Cut: ",
+                                                                    handler=self._HotkeyShow))
+            self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_a], lambda: self.window.EnterEditMode(
+                prompt="Activate Cut: ", handler=self._HotkeyActivate))
+            self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_p],
+                                  lambda: self._HotkeyShow("PREV"))
+            self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_n],
+                                  lambda: self._HotkeyShow("NEXT"))
+            self.window.AddHotkey(ROOT.kKey_Tab, self._HotkeySwitch)
 
     def _HotkeyShow(self, args):
         """
         Show wrapper for use with a Hotkey (internal use)
         """
         spec = self.spectra.GetActiveObject()
-        if spec is None:
+        if spec is None and self.window:
             self.window.viewport.SetStatusText("No active spectrum")
             return
-        if not hasattr(spec, "matrix") or spec.matrix is None:
+        if (not hasattr(spec, "matrix") or spec.matrix is None) and self.window:
             self.window.viewport.SetStatusText("No matrix")
             return
         try:
             ids = hdtv.util.ID.ParseIds(args, spec.matrix)
         except ValueError:
-            self.window.viewport.SetStatusText(
-                "Invalid cut identifier: %s" % args)
+            if self.window:
+                self.window.viewport.SetStatusText(
+                    "Invalid cut identifier: %s" % args)
             return
         spec.ShowObjects(ids)
 
@@ -101,26 +103,30 @@ class MatInterface(object):
         ActivateObject wrapper for use with a Hotkey (internal use)
         """
         spec = self.spectra.GetActiveObject()
-        if spec is None:
+        if spec is None and self.window:
             self.window.viewport.SetStatusText("No active spectrum")
             return
-        if not hasattr(spec, "matrix") or spec.matrix is None:
+        if (not hasattr(spec, "matrix") or spec.matrix is None) and self.window:
             self.window.viewport.SetStatusText("No matrix")
             return
         try:
             ids = hdtv.util.ID.ParseIds(args, spec.matrix)
         except ValueError:
-            self.window.viewport.SetStatusText(
-                "Invalid cut identifier: %s" % args)
+            if self.window:
+                self.window.viewport.SetStatusText(
+                    "Invalid cut identifier: %s" % args)
             return
         if len(ids) == 1:
-            self.window.viewport.SetStatusText("Activating cut %s" % ids[0])
+            if self.window:
+                self.window.viewport.SetStatusText("Activating cut %s" % ids[0])
             self.spectra.ActivateCut(ids[0])
         elif len(ids) == 0:
-            self.window.viewport.SetStatusText("Deactivating cut")
+            if self.window:
+                self.window.viewport.SetStatusText("Deactivating cut")
             self.spectra.ActivateCut(None)
         else:
-            self.window.viewport.SetStatusText("Can only activate one cut")
+            if self.window:
+                self.window.viewport.SetStatusText("Can only activate one cut")
 
     def _HotkeySwitch(self):
         # FIXME

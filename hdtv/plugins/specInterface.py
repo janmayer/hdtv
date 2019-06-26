@@ -51,26 +51,27 @@ class SpecInterface(object):
         self.tv = TvSpecInterface(self)
 
         # good to have as well...
-        self.window.AddHotkey(ROOT.kKey_PageUp, self.spectra.ShowPrev)
-        self.window.AddHotkey(ROOT.kKey_PageDown, self.spectra.ShowNext)
+        if self.window:
+            self.window.AddHotkey(ROOT.kKey_PageUp, self.spectra.ShowPrev)
+            self.window.AddHotkey(ROOT.kKey_PageDown, self.spectra.ShowNext)
 
-        # register common tv hotkeys
-        self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_p],
-                              self.spectra.ShowPrev)
-        self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_n],
-                              self.spectra.ShowNext)
-        self.window.AddHotkey(ROOT.kKey_Equal, self.spectra.RefreshAll)
-        self.window.AddHotkey(ROOT.kKey_t, self.spectra.RefreshVisible)
-        self.window.AddHotkey(
-            ROOT.kKey_n,
-            lambda: self.window.EnterEditMode(
-                prompt="Show spectrum: ",
-                handler=self._HotkeyShow))
-        self.window.AddHotkey(
-            ROOT.kKey_a,
-            lambda: self.window.EnterEditMode(
-                prompt="Activate spectrum: ",
-                handler=self._HotkeyActivate))
+            # register common tv hotkeys
+            self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_p],
+                                  self.spectra.ShowPrev)
+            self.window.AddHotkey([ROOT.kKey_N, ROOT.kKey_n],
+                                  self.spectra.ShowNext)
+            self.window.AddHotkey(ROOT.kKey_Equal, self.spectra.RefreshAll)
+            self.window.AddHotkey(ROOT.kKey_t, self.spectra.RefreshVisible)
+            self.window.AddHotkey(
+                ROOT.kKey_n,
+                lambda: self.window.EnterEditMode(
+                    prompt="Show spectrum: ",
+                    handler=self._HotkeyShow))
+            self.window.AddHotkey(
+                ROOT.kKey_a,
+                lambda: self.window.EnterEditMode(
+                    prompt="Activate spectrum: ",
+                    handler=self._HotkeyActivate))
 
     def _HotkeyShow(self, arg):
         """
@@ -83,8 +84,9 @@ class SpecInterface(object):
             else:
                 self.spectra.ShowObjects(ids)
         except ValueError:
-            self.window.viewport.SetStatusText(
-                "Invalid spectrum identifier: %s" % arg)
+            if self.window:
+                self.window.viewport.SetStatusText(
+                    "Invalid spectrum identifier: %s" % arg)
 
     def _HotkeyActivate(self, arg):
         """
@@ -93,20 +95,24 @@ class SpecInterface(object):
         try:
             ids = hdtv.util.ID.ParseIds(arg, self.spectra)
             if len(ids) > 1:
-                self.window.viewport.SetStatusText(
-                    "Cannot activate more than one spectrum")
+                if self.window:
+                    self.window.viewport.SetStatusText(
+                        "Cannot activate more than one spectrum")
             elif len(ids) == 0:  # Deactivate
                 oldactive = self.spectra.activeID
                 self.spectra.ActivateObject(None)
-                self.window.viewport.SetStatusText(
-                    "Deactivated spectrum %s" % oldactive)
+                if self.window:
+                    self.window.viewport.SetStatusText(
+                        "Deactivated spectrum %s" % oldactive)
             else:
                 ID = ids[0]
                 self.spectra.ActivateObject(ID)
-                self.window.viewport.SetStatusText(
-                    "Activated spectrum %s" % self.spectra.activeID)
+                if self.window:
+                    self.window.viewport.SetStatusText(
+                        "Activated spectrum %s" % self.spectra.activeID)
         except ValueError:
-            self.window.viewport.SetStatusText("Invalid id: %s" % arg)
+            if self.window:
+                self.window.viewport.SetStatusText("Invalid id: %s" % arg)
 
     def LoadSpectra(self, patterns, ID=None):
         """
@@ -116,13 +122,15 @@ class SpecInterface(object):
         replacing a spectrum that was there before.
         """
         # Avoid multiple updates
-        self.window.viewport.LockUpdate()
+        if self.window:
+            self.window.viewport.LockUpdate()
         # only one filename is given
         if isinstance(patterns, str) or isinstance(patterns, str):
             patterns = [patterns]
 
         if ID is not None and len(patterns) > 1:
-            self.window.viewport.UnlockUpdate()
+            if self.window:
+                self.window.viewport.UnlockUpdate()
             raise hdtv.cmdline.HDTVCommandError(
                 "If you specify an ID, you can only give one pattern")
 
@@ -168,8 +176,10 @@ class SpecInterface(object):
             self.spectra.ActivateObject(loaded[-1])
         # Expand window if it is the only spectrum
         if len(self.spectra) == 1:
-            self.window.Expand()
-        self.window.viewport.UnlockUpdate()
+            if self.window:
+                self.window.Expand()
+        if self.window:
+            self.window.viewport.UnlockUpdate()
         return loaded
 
     def ListSpectra(self, visible=False):
