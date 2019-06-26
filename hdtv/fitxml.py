@@ -150,6 +150,7 @@ class FitXml(object):
         deg = len(fit.bgCoeffs) - 1
         bgElement.set("deg", str(deg))
         bgElement.set("chisquare", str(fit.bgChi))
+        bgElement.set("peakModel", fit.fitter.backgroundModel.name)
         # <coeff>
         for i in range(0, deg + 1):
             coeffElement = ET.SubElement(bgElement, "coeff")

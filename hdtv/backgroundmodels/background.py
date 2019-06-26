@@ -142,39 +142,3 @@ class BackgroundModel(object):
                 (parname, self.name))
 
         self.fParStatus[parname] = self.ParseParamStatus(parname, status)
-
-    def GetParam(self, name, peak_id, pos_uncal, cal, ival=None):
-        """
-        Return an appropriate HDTV.Fit.Param object for the specified parameter
-        """
-        # See if the parameter status has been specified for each peak
-        # individually, or for all peaks at once
-        if isinstance(self.fParStatus[name], list):
-            parStatus = self.fParStatus[name][peak_id]
-        else:
-            parStatus = self.fParStatus[name]
-        # Switch according to parameter status
-        if parStatus == "equal":
-            if name not in self.fGlobalParams:
-                if ival is None:
-                    self.fGlobalParams[name] = self.fFitter.AllocParam()
-                else:
-                    self.fGlobalParams[name] = self.fFitter.AllocParam(ival)
-            return self.fGlobalParams[name]
-        elif parStatus == "free":
-            if ival is None:
-                return self.fFitter.AllocParam()
-            else:
-                return self.fFitter.AllocParam(ival)
-        elif parStatus == "hold":
-            if ival is None:
-                return ROOT.HDTV.Fit.Param.Fixed()
-            else:
-                return ROOT.HDTV.Fit.Param.Fixed(ival)
-        elif parStatus == "none":
-            return ROOT.HDTV.Fit.Param.Empty()
-        elif isinstance(parStatus, float):
-            return ROOT.HDTV.Fit.Param.Fixed(
-                self.Uncal(name, parStatus, pos_uncal, cal))
-        else:
-            raise RuntimeError("Invalid parameter status")
