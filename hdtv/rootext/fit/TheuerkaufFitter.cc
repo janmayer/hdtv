@@ -335,8 +335,6 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
                                     &TheuerkaufFitter::Eval, fMin, fMax,
                                     fNumParams, "TheuerkaufFitter", "Eval");
 
-  PeakVector_t::const_iterator citer;
-
   // *** Initial parameter estimation ***
   int b1 = hist.FindBin(fMin);
   int b2 = hist.FindBin(fMax);
@@ -532,7 +530,6 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
 
   // Init fit parameters for peaks
   ampIter = amps.begin();
-  PeakVector_t::iterator iter;
   for (auto &peak : fPeaks) {
     double amp = *(ampIter++);
     SetParameter(*fSumFunc, peak.fPos);
