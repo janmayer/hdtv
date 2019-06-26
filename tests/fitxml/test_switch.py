@@ -25,6 +25,9 @@ import pytest
 
 from tests.helpers.utils import setup_io, redirect_stdout, isclose
 
+from hdtv.util import monkey_patch_ui
+monkey_patch_ui()
+
 import __main__
 
 import hdtv.session

@@ -26,6 +26,7 @@ import os
 import hdtv.options
 import hdtv.ui
 from hdtv.color import tcolors
+import hdtv.dummy
 
 def Indent(s, indent=" "):
     """
@@ -764,3 +765,22 @@ class Singleton(type):
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
+
+
+class monkey_patch_ui():
+    """Replace ROOT.HDTV.Display by a noop dummy version"""
+    def __init__(self):
+        import hdtv
+        import hdtv.rootext.display
+        import ROOT
+        import hdtv.dummy
+       
+        self._orig = ROOT.HDTV.Display
+        ROOT.HDTV.Display = hdtv.dummy
+    
+    def __enter__(self):
+        pass
+
+    def __exit__(self, *args, **kws):
+        import ROOT
+        ROOT.HDTV.Display = self._orig
