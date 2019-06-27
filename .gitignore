@@ -78,6 +78,3 @@ hdtv_history
 
 # man pages
 doc/guide/*.[1-8]
-
-# IDEs
-.idea/

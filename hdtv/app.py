@@ -14,7 +14,8 @@ import argparse
 
 if __name__ == "__main__":
     project_dir = Path(__file__).absolute().parents[1]
-    sys.path.insert(1, str(project_dir))
+    sys.path.remove(str(project_dir/"hdtv"))
+    sys.path.insert(0, str(project_dir))
 
 
 class App:
