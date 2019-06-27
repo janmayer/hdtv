@@ -141,11 +141,16 @@ class App:
 
     def run_commands(self, args):
         """Execute commands given on command line"""
+        import hdtv.cmdline
+
         if args.commands is not None:
             hdtv.cmdline.command_line.DoLine(args.commands)
 
     def run_batchfile(self, args):
         """Execute batchfile given on command line"""
+        import hdtv.cmdline
+        import hdtv.ui
+
         try:
             if args.batchfile is not None:
                 hdtv.cmdline.command_line.ExecCmdfile(args.batchfile)
