@@ -31,7 +31,7 @@ import hdtv.ui
 from hdtv.drawable import Drawable
 from hdtv.marker import MarkerCollection
 from hdtv.util import Pairs, ID, Table
-from hdtv.weakref_proxy import weakref
+from hdtv.weakref import weakref
 
 
 class Fit(Drawable):
