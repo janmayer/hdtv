@@ -489,8 +489,6 @@ class CommandLine(object):
 
         if s[0] == ':':
             return ("PYTHON", s[1:])
-        elif s[0] == "%":
-            return ("SHELL", s[1:])
         elif s[0] == "@":
             return ("CMDFILE", s[1:])
         else:
@@ -629,8 +627,6 @@ class CommandLine(object):
                 self.fPyMore = self._py_console.push(cmd)
             elif cmd_type == "CMDFILE":
                 self.ExecCmdfile(cmd)
-            elif cmd_type == "SHELL":
-                self.ExecShell(cmd)
         except KeyboardInterrupt:
             hdtv.ui.warn("Aborted")
         except HDTVCommandError as msg:
@@ -658,7 +654,8 @@ class CommandLine(object):
             else:
                 return 'hdtv> '
 
-        session = PromptSession(message)
+        completer = HDTVCompleter(self.fCommandTree, self)
+        session = PromptSession(message, enable_system_prompt=True)
 
         while(self.fKeepRunning):
             # Read a command from the user
@@ -703,8 +700,9 @@ class CommandLine(object):
 
 
 class HDTVCompleter(Completer):
-    def __init__(self, command_tree):
+    def __init__(self, command_tree, cmdline):
         self.fCommandTree = command_tree
+        self.cmdline = cmdline
         self.loading = 0
 
     def get_completions(self, document, complete_event):
