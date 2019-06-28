@@ -35,6 +35,7 @@ class BackgroundModelPolynomial(BackgroundModel):
 
         self.ResetParamStatus()
         self.name = "polynomial"
+        self.requiredBgRegions = 1
 
     def ResetParamStatus(self):
         """

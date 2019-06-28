@@ -35,6 +35,7 @@ class BackgroundModelInterpolation(BackgroundModel):
 
         self.ResetParamStatus()
         self.name = "interpolation"
+        self.requiredBgRegions = 3
 
     def ResetParamStatus(self):
         """
@@ -42,18 +43,15 @@ class BackgroundModelInterpolation(BackgroundModel):
         """
         self.fParStatus["bgdeg"] = 1
 
-    def GetFitter(self, bgdeg=1):
+    def GetFitter(self, nBgRegions):
         """
         Creates a C++ Fitter object, which can then do the real work
         """
-        if isinstance(self.fParStatus['bgdeg'], int):
-            self.fFitter = ROOT.HDTV.Fit.InterpolationBg(self.fParStatus['bgdeg'])
-        elif self.fParStatus['bgdeg'] == "free":
-            self.fFitter = ROOT.HDTV.Fit.InterpolationBg(bgdeg)
-        else:
-            msg = "Status specifier %s of background fitter is invalid." % fParStatus['bgdeg']
-            raise ValueError(msg)
-
+       
+        if nBgRegions < self.requiredBgRegions:
+            return None
+        self.fFitter = ROOT.HDTV.Fit.InterpolationBg(nBgRegions)
         self.ResetGlobalParams()
 
         return self.fFitter
+

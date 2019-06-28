@@ -56,10 +56,15 @@ class Fitter(object):
         """
         # create fitter
         self.bgFitter = self.backgroundModel.GetFitter(len(backgrounds))
-        for bg in backgrounds:
-            self.bgFitter.AddRegion(bg[0], bg[1])
-        # do the background fit
-        self.bgFitter.Fit(spec.hist.hist)
+        if self.bgFitter is None:
+            msg = ("Background model %s needs at least %i background regions to execute a fit. Found %i." % 
+                    (self.backgroundModel.name, self.backgroundModel.requiredBgRegions, len(backgrounds)))
+            raise ValueError(msg)
+        else:
+            for bg in backgrounds:
+                self.bgFitter.AddRegion(bg[0], bg[1])
+            # do the background fit
+            self.bgFitter.Fit(spec.hist.hist)
 
     def RestoreBackground(self, backgrounds=Pairs(),
                           coeffs=list(), chisquare=0.0):
