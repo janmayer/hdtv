@@ -150,7 +150,7 @@ class FitXml(object):
         deg = len(fit.bgCoeffs) - 1
         bgElement.set("deg", str(deg))
         bgElement.set("chisquare", str(fit.bgChi))
-        bgElement.set("peakModel", fit.fitter.backgroundModel.name)
+        bgElement.set("backgroundModel", fit.fitter.backgroundModel.name)
         # <coeff>
         for i in range(0, deg + 1):
             coeffElement = ET.SubElement(bgElement, "coeff")
@@ -529,8 +529,16 @@ class FitXml(object):
         # <fit>
         success = True
         peakModel = fitElement.get("peakModel")
-        bgdeg = int(fitElement.get("bgDegree"))
-        fitter = Fitter(peakModel, bgdeg)
+        bgElement = fitElement.find("background")
+        # Simple fix for older xml file versions, where the only background
+        # model was a polynomial, and therefore it did not have to be stored
+        try:
+            backgroundModel = bgElement.get("backgroundModel")
+        except AttributeError:
+            backgroundModel = "polynomial"
+        if backgroundModel is None:
+            backgroundModel = "polynomial"
+        fitter = Fitter(peakModel, backgroundModel)
         fit = Fit(fitter, cal=calibration)
         try:
             fit.chi = float(fitElement.get("chi"))
@@ -687,7 +695,7 @@ class FitXml(object):
                 count = count + 1
                 peakModel = fitElement.get("peakModel")
                 bgdeg = int(fitElement.get("bgDegree"))
-                fitter = Fitter(peakModel, bgdeg)
+                fitter = Fitter(peakModel, "polynomial")
                 # <result>
                 params = dict()
                 for resultElement in fitElement.findall("result"):
