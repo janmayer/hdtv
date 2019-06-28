@@ -292,7 +292,7 @@ class EffCalIf(object):
                 self.spectra.dict[spectrumID].effCal.fit(
                     fitValues, quiet=False)
             except AttributeError:
-                hdtv.ui.error(
+                raise hdtv.cmdline.HDTVCommandAbort(
                     "No efficiency for spectrum ID %d set", spectrumID)
             if show_graph:
                 self.spectra.dict[spectrumID].effCal.TGraph.Draw("a*")

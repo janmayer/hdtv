@@ -59,6 +59,22 @@ class HotkeyList(object):
 
             key = key[-1]
 
+        def _wrapper():
+            try:
+                cmd()
+            except HDTVCommandAbort as msg:
+                if msg.value:
+                    hdtv.ui.error(msg.value)
+            except (HDTVCommandError, BaseException) as msg:
+                try:
+                    if msg.value:
+                        hdtv.ui.error(msg.value)
+                except AttributeError:
+                    hdtv.ui.error(str(msg))
+                if parser:
+                    parser.print_usage()
+                hdtv.ui.debug(traceback.format_exc())
+        
         curNode[key] = cmd
 
     def HandleHotkey(self, key):

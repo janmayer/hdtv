@@ -5,6 +5,7 @@
 from uncertainties import ufloat, ufloat_fromstr
 
 from hdtv.database.common import *
+import hdtv.cmdline
 import hdtv.ui
 
 
@@ -144,7 +145,7 @@ class PGAAlib_IKI2000(GammaLib):
                     k0_comp=self.k0_comp)
                 self.append(gamma)
         except csv.Error as e:
-            hdtv.ui.error('file %s, line %d: %s' %
+            raise HDTVCommandAbort('file %s, line %d: %s' %
                           (self.csvfile, reader.line_num, e))
         else:
             self.opened = True

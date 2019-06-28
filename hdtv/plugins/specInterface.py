@@ -148,7 +148,7 @@ class SpecInterface(object):
             if len(files) == 0:
                 hdtv.ui.warn("%s: no such file" % fpat)
             elif ID is not None and len(files) > 1:
-                hdtv.ui.error(
+                raise hdtv.cmdline.HDTVCommandAbort(
                     "pattern %s is ambiguous and you specified an ID" % fpat)
                 break
 
