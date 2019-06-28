@@ -384,7 +384,10 @@ class FitInterface(object):
                     continue
                 fitter = spec.dict[ID].fitter
                 statstr += "fitter status of fit id %d: \n" % ID
-            statstr += "Background model: polynomial, deg=%d\n" % fitter.bgdeg
+            if fitter.backgroundModel.name == "polynomial":
+                statstr += "Background model: %s, deg=%i\n" % fitter.backgroundModel.name, fitter.backgroundModel.bgdeg
+            else:
+                statstr += "Background model: %s\n" % fitter.backgroundModel.name
             statstr += "Peak model: %s\n" % fitter.peakModel.name
             statstr += "\n"
             statstr += fitter.OptionsStr()
@@ -480,6 +483,33 @@ class FitInterface(object):
         for ID in ids:
             fit = spec.dict[ID]
             fit.fitter.SetPeakModel(peakmodel)
+            fit.Refresh()
+
+    def SetBackgroundModel(self, backgroundModel, ids=None):
+        """
+        Set the background model (function used for fitting the quasi-continuous background)
+
+        If a list of ids is given, the peak model of the stored fits with that
+        ids will be set. Note, that the latter will fail silently for invalid
+        fit ids.
+        """
+        # active fit
+        fit = self.spectra.workFit
+        fit.fitter.SetBackgroundModel(backgroundModel)
+        fit.Refresh()
+        # fit list
+        if not ids:   # works for None and empty list
+            return
+        spec = self.spectra.GetActiveObject()
+        if spec is None:
+            hdtv.ui.warn("No active spectrum")
+        try:
+            iter(ids)
+        except TypeError:
+            ids = [ids]
+        for ID in ids:
+            fit = spec.dict[ID]
+            fit.fitter.SetBackgroundModel(peakmodel)
             fit.Refresh()
 
     def SetDecomposition(self, default_enable):
@@ -822,6 +852,19 @@ class TvFitInterface(object):
                                 completer=self.PeakModelCompleter,
                                 parser=parser)
 
+        prog = "fit function background activate"
+        description = "selects which background model to use"
+        parser = hdtv.cmdline.HDTVOptionParser(
+            prog=prog, description=description)
+        parser.add_argument("-f", "--fit", action="store", default=None,
+            help="change selected fits and refit")
+        parser.add_argument(
+            "backgroundmodel",
+            help="name of background model")
+        hdtv.cmdline.AddCommand(prog, self.FitSetBackgroundModel,
+                                completer=self.BackgroundModelCompleter,
+                                parser=parser)
+
     def FitMarkerChange(self, args):
         """
         Set or delete a marker from command line
@@ -1152,12 +1195,42 @@ class TvFitInterface(object):
                 ids = hdtv.util.ID.ParseIds(args.fit, spec)
             self.fitIf.SetPeakModel(name, ids)
 
+    def FitSetBackgroundModel(self, args):
+        """
+        Defines background model to use for fitting
+        """
+        name = args.backgroundmodel.lower()
+        # complete the model name if needed
+        models = self.BackgroundModelCompleter(name)
+        # check for unambiguity
+        if len(models) > 1:
+            raise hdtv.cmdline.HDTVCommandError("Background model name '%s' is ambiguous" % name)
+        if not models:
+            raise hdtv.cmdline.HDTVCommandError("Invalid background model '%s'" % name)
+        else:
+            name = models[0].strip()
+            ids = list()
+            if args.fit:
+                spec = self.spectra.GetActiveObject()
+                if spec is None:
+                    hdtv.ui.warn("No active spectrum, no action taken.")
+                    return
+                ids = hdtv.util.ID.ParseIds(args.fit, spec)
+            self.fitIf.SetBackgroundModel(name, ids)
+
     def PeakModelCompleter(self, text, args=None):
         """
         Helper function for FitSetPeakModel
         """
         return hdtv.util.GetCompleteOptions(
             text, iter(hdtv.peakmodels.PeakModels.keys()))
+
+    def BackgroundModelCompleter(self, text, args=None):
+        """
+        Helper function for FitSetBackgroundModel
+        """
+        return hdtv.util.GetCompleteOptions(
+            text, iter(hdtv.backgroundmodels.BackgroundModels.keys()))
 
     def FitParam(self, args):
         """
