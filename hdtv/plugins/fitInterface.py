@@ -226,10 +226,8 @@ class FitInterface(object):
         spec = self.spectra.dict[sid]
         # if there are not fits for this spectrum, there is not much to do
         if not spec.ids:
-            hdtv.ui.newline()
             hdtv.ui.msg("Spectrum " + str(sid) +
                         " (" + spec.name + "): No fits")
-            hdtv.ui.newline()
             return
         # create result header
         result_header = "Fits in Spectrum " + \
@@ -268,10 +266,8 @@ class FitInterface(object):
         spec = self.spectra.dict[sid]
         # if there are not fits for this spectrum, there is not much to do
         if not spec.ids:
-            hdtv.ui.newline()
             hdtv.ui.msg("Spectrum " + str(sid) +
                         " (" + spec.name + "): No fits")
-            hdtv.ui.newline()
             return
         # create result header
         result_header = "Integrals of fit regions in Spectrum " + \

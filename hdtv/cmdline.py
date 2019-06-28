@@ -43,6 +43,9 @@ try:
 except ImportError:
     import __builtin__ as builtins
 
+from prompt_toolkit.shortcuts import PromptSession
+from prompt_toolkit.completion import Completer, Completion
+
 import hdtv.util
 from hdtv.color import tcolors
 
@@ -645,19 +648,24 @@ class CommandLine(object):
         readline.set_completer(self.Complete)
         readline.set_completer_delims(" \t" + os.sep)
         readline.parse_and_bind("tab: complete")
+
+        def message():
+            """Choose correct prompt for current mode."""
+            if self.fPyMore:
+                return '... > '
+            elif self.fPyMode:
+                return 'py>>> '
+            else:
+                return 'hdtv> '
+
+        session = PromptSession(message)
+
         while(self.fKeepRunning):
             # Read a command from the user
-            # Choose correct prompt for current mode
-            if self.fPyMore:
-                prompt = hdtv.util.get_prompt('... ')
-            elif self.fPyMode:
-                prompt = hdtv.util.get_prompt('py', sep='>>>')
-            else:
-                prompt = hdtv.util.get_prompt('hdtv')
 
             # Read the command
             try:
-                line = get_input(prompt)
+                line = session.prompt()
             except EOFError:
                 # Ctrl-D exits in command mode, and switches back to command mode
                 #  from Python mode
@@ -694,6 +702,24 @@ class CommandLine(object):
             self.DoLine(line)
 
 
+class HDTVCompleter(Completer):
+    def __init__(self, command_tree):
+        self.fCommandTree = command_tree
+        self.loading = 0
+
+    def get_completions(self, document, complete_event):
+        # Keep count of how many completion generators are running.
+        self.loading += 1
+        word_before_cursor = document.get_word_before_cursor()
+        start = document.current_line_before_cursor.lstrip()
+        try:
+            for completion in self.cmd_tree.get_completions(start):
+                word = completion
+                yield Completion(word, -len(word_before_cursor))
+        finally:
+            self.loading -= 1
+
+
 command_tree = HDTVCommandTree()
 command_line = CommandLine(command_tree, readline.get_completer())
 
@@ -715,9 +741,3 @@ AddCommand("python", command_line.EnterPython)
 AddCommand("shell", command_line.EnterShell, level=2)
 AddCommand("exit", command_line.Exit)
 AddCommand("quit", command_line.Exit)
-
-try: # Python2
-    get_input = raw_input
-except NameError: # Python3+
-    get_input = input
-

@@ -88,9 +88,6 @@ class SimpleUI(object):
         if newline:
             self.debugout.write(self.linesep)
 
-    def newline(self):
-        self.msg("", newline=True)
-
 
 # Initialization
 ui = SimpleUI()
@@ -113,17 +110,13 @@ def error(text, newline=True):
 
 
 def debug(text, level=1, newline=True):
-    if level > hdtv.options.Get('debuglevel'):
+    if level > hdtv.options.Get('ui.out.level'):
         return
     else:
         ui.debug(text, level=level, newline=newline)
 
 
-def newline():
-    ui.newline()
-
-
 opt = hdtv.options.Option(
     default=0,
     parse=lambda x: int(x))
-hdtv.options.RegisterOption('debuglevel', opt)
+hdtv.options.RegisterOption('ui.out.level', opt)
