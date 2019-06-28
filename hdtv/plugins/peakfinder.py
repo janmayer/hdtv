@@ -226,7 +226,7 @@ def PeakSearch(args):
             hdtv.ui.warn("Active spectrum is not visible, no action taken")
             return True
     except KeyError:
-        hdtv.ui.error("No active spectrum")
+        raise hdtv.cmdline.HDTVCommandAbort("No active spectrum")
         return False
 
     sid = __main__.spectra.activeID

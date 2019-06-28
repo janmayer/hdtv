@@ -65,10 +65,13 @@ class HDTVCommandAbort(Exception):
     def __str__(self):
         return self.value
 
+class HDTVCommandParserError(HDTVCommandError):
+    pass
+
 
 class HDTVOptionParser(argparse.ArgumentParser):
     def error(self, message):
-        raise HDTVCommandError(message)
+        raise HDTVCommandParserError(message)
 
     def exit(self, status=0, message=None):
         if status == 0:
@@ -266,21 +269,22 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                     if parser:
                         args = parser.parse_args(args)
 
-                    # Execute the command
-                    node.command(args)
-                except HDTVCommandAbort as msg:
-                    hdtv.ui.error(str(msg))
-                except (HDTVCommandError, BaseException) as msg:
-                    hdtv.ui.error(str(msg))
-                    if parser:
-                        parser.print_usage()
-                    hdtv.ui.debug(traceback.format_exc())
+                # Execute the command
+                node.command(args)
+            except HDTVCommandAbort as msg:
+                hdtv.ui.error(str(msg))
+            except (HDTVCommandParserError) as msg:
+                hdtv.ui.error(str(msg))
+                if parser:
+                    parser.print_usage()
+            except (HDTVCommandError, BaseException) as msg:
+                hdtv.ui.error(str(msg))
+                hdtv.ui.debug(traceback.format_exc())
         except ValueError as msg:
             hdtv.ui.error(str(msg))
         except BaseException as msg:
             hdtv.ui.error(str(msg))
             hdtv.ui.debug(traceback.format_exc())
-
 
     def RemoveCommand(self, title):
         """
@@ -740,3 +744,9 @@ AddCommand("python", command_line.EnterPython)
 AddCommand("shell", command_line.EnterShell, level=2)
 AddCommand("exit", command_line.Exit)
 AddCommand("quit", command_line.Exit)
+
+try: # Python2
+    get_input = raw_input
+except NameError: # Python3+
+    get_input = input
+

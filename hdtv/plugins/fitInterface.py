@@ -182,12 +182,12 @@ class FitInterface(object):
 #                raise RuntimeError("background degree of -1")
 #            fit.FitBgFunc(spec)
         if not fit.regionMarkers.IsFull():
-            hdtv.ui.error("Region not set.")
+            raise hdtv.cmdline.HDTVCommandAbort("Region not set.")
             return
 
         if fit.bgMarkers:
             if fit.fitter.bgdeg == -1:
-                hdtv.ui.error(
+                raise hdtv.cmdline.HDTVCommandAbort(
                     "Background degree of -1 contradicts background fit.")
                 return
             # pure background fit
@@ -409,7 +409,7 @@ class FitInterface(object):
             fit.fitter.SetParameter(parname, status)
             fit.Refresh()
         except ValueError as msg:
-            hdtv.ui.error("while editing active Fit: \n\t%s" % msg)
+            raise hdtv.cmdline.HDTVCommandError("while editing active Fit: \n\t%s" % msg)
         # fit list
         if not ids:   # works for None and empty list
             return
@@ -1284,7 +1284,7 @@ class TvFitInterface(object):
                     # fitter
                     msg = "Invalid parameter %s for active peak model %s" % (
                         param, activePM.name)
-                    hdtv.ui.error(msg)
+                    raise hdtv.cmdline.HDTVCommandAbort(msg)
                 # remove <type: float> option
                 states.remove(float)
                 return hdtv.util.GetCompleteOptions(text, states)
