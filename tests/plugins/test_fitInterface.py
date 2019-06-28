@@ -103,7 +103,7 @@ def test_cmd_fit_peakfind():
 
 def setup_fit():
     return hdtvcmd(
-        "fit parameter background set 2",
+        "fit parameter background 2",
         "fit marker peak set 580",
         "fit marker peak set 610",
         "fit marker background set 520",

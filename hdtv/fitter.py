@@ -105,9 +105,9 @@ class Fitter(object):
             self.peakFitter.Restore(self.bgFitter, chisquare)
         else:
             # internal background
-            values = ROOT.TArrayD(self.bgdeg + 1)
-            errors = ROOT.TArrayD(self.bgdeg + 1)
-            for i in range(0, self.bgdeg + 1):
+            values = ROOT.TArrayD(self.backgroundModel.bgdeg + 1)
+            errors = ROOT.TArrayD(self.backgroundModel.bgdeg + 1)
+            for i in range(0, self.backgroundModel.bgdeg + 1):
                 values[i] = coeffs[i].nominal_value
                 errors[i] = coeffs[i].std_dev
             self.peakFitter.Restore(values, errors, chisquare)
