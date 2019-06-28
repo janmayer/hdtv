@@ -101,6 +101,18 @@ def test_cmd_fit_peakfind():
     assert "Found 68 peaks" in f
     assert ferr == ""
 
+def background_interpolation():
+    spec_interface.LoadSpectra(testspectrum)
+    f, ferr = hdtvcmd(
+            "schnitzel",
+            "fit function background activate interpolation",
+            "fit marker background set 520",
+            "fit marker background set 550",
+            "fit marker background set 620",
+            "fit marker background set 650",
+            "fit execute")
+    assert ferr == ""
+
 def setup_fit():
     return hdtvcmd(
         "fit function background activate polynomial",

@@ -389,18 +389,22 @@ class Fit(Drawable):
         # fit background
         if len(self.bgMarkers) > 0:
             backgrounds = self._get_background_pairs()
-            self.fitter.FitBackground(spec=self.spec, backgrounds=backgrounds)
-            func = self.fitter.bgFitter.GetFunc()
-            self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(
-                func, hdtv.color.bg)
-            self.dispBgFunc.SetCal(self.cal)
-            self.bgChi = self.fitter.bgFitter.GetChisquare()
-            self.bgCoeffs = []
-            deg = self.fitter.bgFitter.GetDegree()
-            for i in range(0, deg + 1):
-                self.bgCoeffs.append(ufloat(
-                    self.fitter.bgFitter.GetCoeff(i),
-                    self.fitter.bgFitter.GetCoeffError(i)))
+
+            try:
+                self.fitter.FitBackground(spec=self.spec, backgrounds=backgrounds)
+                func = self.fitter.bgFitter.GetFunc()
+                self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(
+                    func, hdtv.color.bg)
+                self.dispBgFunc.SetCal(self.cal)
+                self.bgChi = self.fitter.bgFitter.GetChisquare()
+                self.bgCoeffs = []
+                deg = self.fitter.bgFitter.GetDegree()
+                for i in range(0, deg + 1):
+                    self.bgCoeffs.append(ufloat(
+                        self.fitter.bgFitter.GetCoeff(i),
+                        self.fitter.bgFitter.GetCoeffError(i)))
+            except ValueError:
+                raise hdtv.cmdline.HDTVCommandAbort("Background fit failed.")
 
     def FitPeakFunc(self, spec):
         """

@@ -86,9 +86,12 @@ public:
 		inter(0, ROOT::Math::Interpolation::kCSPLINE)
 	{
 		std::vector<double> xx;
-		for(int i = 0; i < iw.GetX().size(); ++i)
+		std::vector<double> yy;
+		for(int i = 0; i < iw.GetX().size(); ++i){
 			xx.push_back(iw.GetX()[i]);
-		inter.SetData(xx, iw.GetY());
+			yy.push_back(iw.GetY()[i]);
+		}
+		inter.SetData(xx, yy);
 	}
 	InterpolationWrapper &operator=(const InterpolationWrapper &iw){
 		if (this == &iw)
