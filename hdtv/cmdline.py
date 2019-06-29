@@ -37,6 +37,7 @@ import pwd
 import argparse
 import shlex
 import readline
+import itertools
 
 try:
     import builtins
@@ -165,11 +166,19 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         Essentially our own version of shlex.split, but with only double
         quotes accepted as quotes.
         """
-        lex = shlex.shlex(s, posix=True)
-        lex.whitespace_split = True
-        lex.quotes = "\""
-        lex.commenters = ""
+        lex = shlex.shlex(s, posix=True, punctuation_chars=True)
+        lex.quotes = r'"'
+        lex.commenters = '#'
         return list(lex)
+
+    def SplitCmdlines(self, s):
+        """
+        Split line into multiple commands separated by ';'.
+        """ 
+        seg = self.SplitCmdline(s)
+        cmd_sep = [";"]
+        return [list(y) for x, y in itertools.groupby(seg, 
+            key=lambda x: x not in cmd_sep) if x]
 
     def SetDefaultLevel(self, level):
         self.default_level = level
@@ -235,52 +244,43 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         return (node, path)
 
     def ExecCommand(self, cmdline):
-        # Strip comments
-        cmdline = hdtv.util.remove_comments(cmdline)
-        for command in hdtv.util.split_line(cmdline):
-            if not command_line.fKeepRunning:
-                break
-            parser = None
-            try:
-                if command.strip() == "":
-                    continue
+        try:
+            for path in self.SplitCmdlines(cmdline):
+                if not command_line.fKeepRunning:
+                    break
+                parser = None
                 try:
-                    path = self.SplitCmdline(command)
-                except ValueError:
-                    print("Inappropriate use of quotation characters.")
-                    continue
+                    (node, args) = self.FindNode(path)
+                    while node and not node.command:
+                        node = node.PrimaryChild()
 
-                (node, args) = self.FindNode(path)
-                while node and not node.command:
-                    node = node.PrimaryChild()
+                    if not node or not node.command:
+                        raise HDTVCommandError("Command not recognized")
 
-                if not node or not node.command:
-                    raise HDTVCommandError("Command not recognized")
+                    try:
+                        parser = node.options["parser"]
+                    except KeyError:
+                        parser = None
 
-                try:
-                    parser = node.options["parser"]
-                except KeyError:
-                    parser = None
+                    # Parse the commands arguments
+                    if parser:
+                        args = parser.parse_args(args)
 
-                # Parse the commands arguments
-                if parser:
-                    args = parser.parse_args(args)
-
-                # Execute the command
-                node.command(args)
-            except HDTVCommandAbort as msg:
-                if msg.value:
-                    hdtv.ui.error(msg.value)
-            except (HDTVCommandError, BaseException) as msg:
-                try:
-                    if msg.value:
-                        hdtv.ui.error(msg.value)
-                except AttributeError:
+                    # Execute the command
+                    node.command(args)
+                except HDTVCommandAbort as msg:
                     hdtv.ui.error(str(msg))
-                if parser:
-                    parser.print_usage()
-                hdtv.ui.debug(traceback.format_exc())
-        return
+                except (HDTVCommandError, BaseException) as msg:
+                    hdtv.ui.error(str(msg))
+                    if parser:
+                        parser.print_usage()
+                    hdtv.ui.debug(traceback.format_exc())
+        except ValueError as msg:
+            hdtv.ui.error(str(msg))
+        except BaseException as msg:
+            hdtv.ui.error(str(msg))
+            hdtv.ui.debug(traceback.format_exc())
+
 
     def RemoveCommand(self, title):
         """
@@ -322,23 +322,20 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                     options.append(f + " ")
         return options
 
-    def GetCompleteOptions(self, text):
+    def GetCompleteOptions(self, word_before_cursor, text_before_cursor):
         """
         Get all possible completions. text is the last part of the current
         command line, split according to the separators defined by the
         readline library. This is the part for which completions are
         suggested.
         """
-        # Get the entire buffer from the readline library (we need the context)
-        # and split it at spaces.
-        buf = readline.get_line_buffer()
         try:
-            buf = hdtv.util.split_line(buf)[-1]
+            buf = hdtv.util.split_line(text_before_cursor)[-1]
         except BaseException:
             pass
 
         try:
-            path = self.SplitCmdline(buf)
+            path = self.SplitCmdlines(buf)[-1]
         except ValueError:
             return []
         # If the buffer is empty or ends in a space, the children of the
@@ -368,13 +365,13 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         # If the node found has children, and no parts of the part had to
         # be interpreted as arguments, we suggest suitable child nodes...
         if not args and node.childs:
-            l = len(text)
+            l = len(word_before_cursor)
             for child in node.childs:
-                if child.title[0:l] == text:
+                if child.title[0:l] == word_before_cursor:
                     options.append(child.title + " ")
         # ... if not, we use the nodes registered autocomplete handler ...
         elif "completer" in node.options and callable(node.options["completer"]):
-            options = node.options["completer"](text, args)
+            options = node.options["completer"](word_before_cursor, args)
         # ... if that fails as well, we suggest files, but only if the command will
         # take files or directories as arguments.
         elif ("fileargs" in node.options and node.options["fileargs"]) or \
@@ -390,15 +387,15 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             # files.
             filepath = ""
             if last_path:
-                (filepath, text) = os.path.split(last_path)
+                (filepath, word_before_cursor) = os.path.split(last_path)
                 #filepath = os.path.split(last_path)[0]
 
-            # Note that the readline library splits at either space ' ' or
-            # slash '/', so text, the last part of the command line, would
-            # be an (incomplete) filename, always without a directory.
+            # Note that the readline library splits at either space ' '
+            # or slash '/', so word_before_cursor would be an
+            # (incomplete) filename, always without a directory.
 
             options = self.GetFileCompleteOptions(
-                filepath or ".", text, dirs_only)
+                filepath or ".", word_before_cursor, dirs_only)
         else:
             options = []
 
@@ -655,7 +652,8 @@ class CommandLine(object):
                 return 'hdtv> '
 
         completer = HDTVCompleter(self.fCommandTree, self)
-        session = PromptSession(message, enable_system_prompt=True)
+        session = PromptSession(message,
+            enable_system_prompt=True, completer=completer)
 
         while(self.fKeepRunning):
             # Read a command from the user
@@ -672,19 +670,20 @@ class CommandLine(object):
                     self.EOFHandler()
                 continue
             except KeyboardInterrupt:
-                # The SIGINT signal (which Python turns into a KeyboardInterrupt
-                # exception) is used for asynchronous exit, i.e. if another thread
-                # (e.g. the GUI thread) wants to exit the application.
+                # The SIGINT signal (which Python turns into a
+                # KeyboardInterrupt exception) is used for asynchronous
+                # exit, i.e. if another thread (e.g. the GUI thread)
+                # wants to exit the application.
                 if not self.fKeepRunning:
                     print("")
                     break
 
-                # If we get here, we assume the KeyboardInterrupt is due to the user
-                #  hitting Ctrl-C.
+                # If we get here, we assume the KeyboardInterrupt is
+                # due to the user hitting Ctrl-C.
 
-                # Ctrl-C can be used to abort the entry of a (multi-line) command.
-                #  If no command is being entered, we assume the user wants to exit
-                #  and explain how to do that correctly.
+                # Ctrl-C can be used to abort the entry of a (multi-line)
+                # command. If no command is being entered, we assume the
+                # user wants to exit and explain how to do that correctly.
                 if self.fPyMore:
                     self._py_console.resetbuffer()
                     self.fPyMore = False
@@ -709,9 +708,11 @@ class HDTVCompleter(Completer):
         # Keep count of how many completion generators are running.
         self.loading += 1
         word_before_cursor = document.get_word_before_cursor()
+        text_before_cursor = document.text_before_cursor
         start = document.current_line_before_cursor.lstrip()
         try:
-            for completion in self.cmd_tree.get_completions(start):
+            for completion in self.fCommandTree.GetCompleteOptions(
+                    word_before_cursor, text_before_cursor):
                 word = completion
                 yield Completion(word, -len(word_before_cursor))
         finally:
