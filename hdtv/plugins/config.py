@@ -29,7 +29,7 @@ from hdtv.color import tcolors
 
 def ConfigVarCompleter(text, args=None):
     return hdtv.util.GetCompleteOptions(
-        text, iter(hdtv.options.variables.keys()))
+        text, hdtv.options.OptionManager.keys())
 
 
 def ConfigSet(args):
