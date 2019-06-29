@@ -399,7 +399,8 @@ class TvMatInterface(object):
         """
         Show a overview of matrices with all cuts and cut spectra
         """
-        ids == "ALL"
+        # TODO: Parse ids
+        ids = "ALL"
         matrices = set()
 
         for spec in self.spectra.dict.values():
@@ -410,7 +411,7 @@ class TvMatInterface(object):
         result = str()
         for mat in matrices:
             result += self.matIf.ListMatrix(mat)
-        hdtv.ui.msg(result)
+        hdtv.ui.msg(html=result)
 
     def CutMarkerChange(self, args):
         """

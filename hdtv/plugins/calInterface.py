@@ -24,8 +24,6 @@
 #
 #-------------------------------------------------------------------------
 
-from __future__ import print_function
-
 import argparse
 import math
 from uncertainties import ufloat, ufloat_fromstr
@@ -182,7 +180,7 @@ class EffCalIf(object):
                 "Parameter"],
             sortBy="ID",
             ignoreEmptyCols=False)
-        hdtv.ui.msg(str(table))
+        hdtv.ui.msg(html=str(table))
 
     def Plot(self, spectrumID):
         """
@@ -210,7 +208,7 @@ class EffCalIf(object):
         if filename is not None:  # at the moment you can only fit from one file
             # TODO: maybe it makes more sense to write another method for this
             fitValues.fromFile(filename, sep=" ")  # TODO: separator
-            print(spectrumIDs)
+            hdtv.ui.msg(spectrumIDs)
             spectrumID = spectrumIDs[0]
         else:  # the spectrum has to be calibrated
             # try:
@@ -303,7 +301,6 @@ class EffCalIf(object):
 
         # if table option is called a table will be created
         if show_table:
-            print()
             table = hdtv.util.Table(
                 data=tabledata,
                 keys=[
@@ -315,7 +312,7 @@ class EffCalIf(object):
                     "Vol"],
                 sortBy="ID",
                 ignoreEmptyCols=False)
-            hdtv.ui.msg(str(table))
+            hdtv.ui.msg(html=str(table))
 
     def CalculateEff(self, spectrumID, nuclide, coefficient, source, sigma):
         """
@@ -807,10 +804,9 @@ class EnergyCalIf(object):
         for p in pairs:
             fitter.AddPair(p[0], p[1])
         fitter.FitCal(degree, ignore_errors=ignore_errors)
-        print(fitter.ResultStr())
+        hdtv.ui.msg(html=fitter.ResultStr())
         if table:
-            print("")
-            print(fitter.ResultTable())
+            hdtv.ui.msg(html=str(fitter.ResultTable()))
         if fit:
             fitter.DrawCalFit()
         if residual:
@@ -1242,7 +1238,7 @@ class EnergyCalHDTVInterface(object):
         nuclideStr = ' '.join(args.nuclide)
         spectrumIDStr = ' '.join([str(i) for i in spectrumID])
 
-        print("Create a calibration for nuclide " + nuclideStr +
+        hdtv.ui.msg("Create a calibration for nuclide " + nuclideStr +
              " (sigma: " + str(args.sigma) +
              ", spectrum" + spectrumIDStr +
              ", database " + nuclei[0]['reference'] + ")")
@@ -1253,7 +1249,7 @@ class EnergyCalHDTVInterface(object):
         for p in Match:  # builds pairs
             fitter.AddPair(p[0], p[1])
         fitter.FitCal(degree, ignore_errors=True)
-        print(fitter.ResultStr())
+        hdtv.ui.msg(html=fitter.ResultStr())
         cal = fitter.calib
         for ID in spectrumID:
             self.spectra.ApplyCalibration(ID, cal)  # do the calibration

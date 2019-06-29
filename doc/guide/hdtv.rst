@@ -53,7 +53,7 @@ HDTV commands, it is possible to use special prefixes:
 %
     Execute a single shell command.
 
-The command line is implemented using ``readline``\(3). Common features,
+The command line is implemented using ``prompt_toolkit``. Common features,
 such as tab-completion, history and history-search (using ``Ctrl-R``) are
 available.
 
@@ -273,9 +273,6 @@ $HOME/.config/hdtv/startup.hdtv, $HOME/.config/hdtv/startup.hdtv.d/\*.hdtv
 
 $HOME/.config/hdtv/plugins/
    Put plugins here.
-
-$HOME/.config/hdtv/inputrc
-    HDTV specific customizations of the Readline command line interface.
 
 $HOME/.local/share/hdtv/hdtv_history
     History of commands executed in HDTV.

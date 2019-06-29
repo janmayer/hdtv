@@ -29,6 +29,13 @@ import os
 import pydoc
 import sys
 import signal
+from html import escape
+
+from prompt_toolkit.application import Application
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.layout.containers import HSplit
+from prompt_toolkit.layout.layout import Layout
+from prompt_toolkit.widgets import SearchToolbar, TextArea
 
 
 class TextInterface(hdtv.ui.SimpleUI):
@@ -43,6 +50,8 @@ class TextInterface(hdtv.ui.SimpleUI):
             default="less")  # default pager
         self.opt["ui.pager.args"] = hdtv.options.Option(
             default="-F -X -R -S")  # default pager cmd line options
+        self.opt["ui.pager.builtin"] = hdtv.options.Option(
+            default=True, parse=hdtv.options.parse_bool)  # use built-in pager instead of external program
 
         for (key, opt) in list(self.opt.items()):
             hdtv.options.RegisterOption(key, opt)
@@ -53,34 +62,69 @@ class TextInterface(hdtv.ui.SimpleUI):
 
         signal.signal(signal.SIGWINCH, self._updateTerminalSize)
 
-# TODO: this does not work(?)
-#    def __del__(self):
-# signal.signal(signal.SIGWINCH, signal.SIG_IGN) # Restore default signal
-# handler
-
-    def page(self, text):
+    def page(self, html):
         """
         Print text by pages
         """
+        # TODO: Convert HTML to ANSI?
+        if not hdtv.options.Get("ui.pager.builtin"):
+            cmd = hdtv.options.Get("ui.pager.cmd")
+            args = hdtv.options.Get("ui.pager.args")
 
-        cmd = hdtv.options.Get("ui.pager.cmd")
-        args = hdtv.options.Get("ui.pager.args")
+            pydoc.tempfilepager(html, str(cmd) + " " + str(args))
+        else:
+            self.pager(html)
 
-        pydoc.tempfilepager(text, str(cmd) + " " + str(args))
+    def pager(self, text):
+        """
+        Construct pager using prompt_toolkit
+        """
+        search_field = SearchToolbar(text_if_not_searching=[
+            ('class:not-searching', "Press '/' to start searching.")])
 
-    def msg(self, text, newline=True):
+        text_area = TextArea(
+            text=text,
+            read_only=True,
+            wrap_lines=False,
+            search_field=search_field)
+        
+        root_container = HSplit([
+            text_area,
+            search_field,
+        ])
+
+        bindings = KeyBindings()
+        @bindings.add('c-c')
+        @bindings.add('q')
+        def _(event):
+            " Quit. "
+            event.app.exit()
+
+        application = Application(
+            layout=Layout(
+                root_container,
+                focused_element=text_area,
+            ),
+            key_bindings=bindings,
+            enable_page_navigation_bindings=True,
+            mouse_support=True,
+            full_screen=True)
+
+        application.run()
+        super().msg(text)
+
+    def msg(self, text=None, *, html=None, end='\n'):
         """
         Message output
         """
-        lines = len(text.splitlines())
+        if not html:
+            html = escape(text)
+        lines = len(html.splitlines())
 
         if lines > self.canvasheight:
-            self.page(text)
+            self.page(html)
         else:
-            self.stdout.write(text)
-
-        if newline:
-            self.stdout.write(self.linesep)
+            super().msg(html=html, end=end)
 
     # TODO: Make this work under windows
     def _updateTerminalSize(self, signal, frame):
@@ -109,6 +153,6 @@ class TextInterface(hdtv.ui.SimpleUI):
         self.canvasheight = cr[0]
         self.canvaswidth = cr[1]
 
-
 # initialization
 hdtv.ui.ui = TextInterface()
+hdtv.ui.msg = hdtv.ui.ui.msg

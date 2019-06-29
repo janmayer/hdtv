@@ -65,7 +65,7 @@ def TableOfNuclide(data):
         sortBy=None,
         ignoreEmptyCols=False)
 
-    hdtv.ui.msg(str(table))
+    hdtv.ui.msg(html=str(table))
 
 
 def MatchPeaksAndEnergies(peaks, energies, sigma):

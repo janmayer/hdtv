@@ -97,7 +97,6 @@ def test_cmd_cal_pos_enter():
 
 def test_cmd_cal_pos_enter_underdefined():
     f, ferr = hdtvcmd("calibration position enter -d 2 1543 1173.228(3) 1747 1332.492(4)")
-    assert "usage" in f
     assert "You must specify at least" in ferr
 
 def test_cmd_cal_pos_enter_deg2():

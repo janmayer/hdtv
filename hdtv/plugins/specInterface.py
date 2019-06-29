@@ -208,7 +208,7 @@ class SpecInterface(object):
             spectra.append(thisspec)
 
         table = hdtv.util.Table(spectra, params, sortBy="ID")
-        hdtv.ui.msg(str(table), newline=False)
+        hdtv.ui.msg(str(table), end='')
 
     def CopySpectrum(self, ID, copyTo=None):
         """
@@ -331,6 +331,8 @@ class TvSpecInterface(object):
             nargs='?',
             default=None,
             help='id of spectrum to write')
+        parser.add_argument("-F", "--force", action="store_true", default=False,
+            help="overwrite existing files without asking")
         hdtv.cmdline.AddCommand(prog, self.SpectrumWrite, parser=parser)
 
         prog = "spectrum normalize"
@@ -714,7 +716,7 @@ class TvSpecInterface(object):
                 continue
             s += "Spectrum %s:\n" % ID
             s += hdtv.util.Indent(spec.info, "  ")
-        hdtv.ui.msg(s, newline=False)
+        hdtv.ui.msg(s, end='')
 
     def SpectrumUpdate(self, args):
         """
@@ -745,6 +747,9 @@ class TvSpecInterface(object):
                 raise ValueError("There is just one index possible here.")
             ID = ids[0]
         try:
+            fname = hdtv.util.user_save_file(args.filename, args.force)
+            if not fname:
+                return
             self.spectra.dict[ID].WriteSpectrum(filename, fmt)
             hdtv.ui.msg("Wrote spectrum with id %s to file %s" %
                         (ID, filename))

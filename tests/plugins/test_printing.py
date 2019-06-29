@@ -45,7 +45,7 @@ import hdtv.plugins.printing
 
 @pytest.fixture(autouse=True)
 def prepare():
-    hdtv.options.Set("debuglevel", "3")
+    hdtv.options.Set("ui.out.level", "3")
 
 
 def test_cmd_printing():

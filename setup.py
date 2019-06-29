@@ -54,7 +54,11 @@ setup(
     license='GPL',
     classifiers=CLASSIFIERS.strip().split('\n'),
     keywords=KEYWORDS.strip().replace('\n', ' '),
-    install_requires=['scipy', 'matplotlib', 'uncertainties'],
+    install_requires=[
+        'scipy',
+        'matplotlib',
+        'prompt_toolkit',
+        'uncertainties'],
     extras_require={
         'dev': ['docutils'],
         'test': ['pytest', 'pytest-cov'],

@@ -24,7 +24,7 @@
 # ----------------------------------------------------------------------
 
 from collections import OrderedDict
-from hdtv.color import tcolors
+from html import escape
 
 class Option(object):
     """
@@ -121,8 +121,8 @@ class _OptionManager(dict):
         """
         Shows the value of the variable varname
         """
-        return "%s: %s" % (tcolors.bold(varname),
-                           str(self.__dict__[varname]))
+        return "<b>{}</b>: {}".format(
+            escape(varname), escape(str(self.__dict__[varname])))
 
     def Str(self):
         """
@@ -130,7 +130,8 @@ class _OptionManager(dict):
         """
         string = ""
         for (k, v) in sorted(self.__dict__.items()):
-            string += "%s: %s\n" % (tcolors.bold(k), str(v))
+            string += "<b>{}</b>: {}\n".format(
+                escape(k), escape(str(v)))
         return string
 
 
