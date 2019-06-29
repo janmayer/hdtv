@@ -24,13 +24,13 @@
 #-------------------------------------------------------------------------
 
 import re
+from html import escape
 
 import hdtv.plugins
 import hdtv.cmdline
 import hdtv.options
 import hdtv.database
 import hdtv.ui
-from hdtv.color import tcolors
 
 import hdtv.fit
 
@@ -181,9 +181,9 @@ class Database(object):
             db = hdtv.database.databases[dbs.lower()]()
             try:
                 hdtv.ui.msg(
-                    tcolors.bold("Database") + ": " + db.name)
+                    html=f"<b>Database</b>: {escape(db.name)}")
                 hdtv.ui.msg(
-                    tcolors.bold("Description") + ": " + db.description)
+                    html=f"<b>Description</b>: {escape(db.description)}")
                 self.showDBfields(db)
 
             except KeyError:
@@ -204,21 +204,19 @@ class Database(object):
         List available databases
         """
         for (name, db) in list(hdtv.database.databases.items()):
-            hdtv.ui.msg(tcolors.bold(name) + ": " + db().description)
+            hdtv.ui.msg(
+                html=f"<b>{escape(name)}</b>: {escape(db().description)}")
 
     def showDBfields(self, db=None):
         """
         Show fields of database db. If db is None show field of current database
         """
 
-        text = tcolors.bold("Valid fields") + ": "
+        html = "<b>Valid fields</b>: "
         if db is None:
             db = self.database
-        for key in db.fOrderedParamKeys[:-1]:
-            text += "\'" + str(key) + "\', "
-
-        text += "\'" + str(db.fOrderedParamKeys[-1]) + "\'"
-        hdtv.ui.msg(text)
+        html += ", ".join([f"'{str(s)}'" for s in db.fOrderedParamKeys])
+        hdtv.ui.msg(html=html)
 
     def Lookup(self, args, defaults=False):
         """
@@ -276,7 +274,7 @@ class Database(object):
                 results,
                 header=self.database.fOrderedHeader,
                 keys=self.database.fOrderedParamKeys)
-            hdtv.ui.msg(str(table))
+            hdtv.ui.msg(html=str(table))
 
         hdtv.ui.msg("Found " + str(len(results)) + " results")
 

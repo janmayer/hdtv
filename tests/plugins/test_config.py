@@ -63,7 +63,7 @@ def test_cmd_config_show_variable(variable, value):
     f, ferr = hdtvcmd("config show " + variable)
     out = f.split("\n")
     assert len(out) == 1
-    res_variable, res_value = re.search('(.*): (.*)', out[0]).groups()
+    res_variable, res_value = re.search('<b>(.*)</b>: (.*)', out[0]).groups()
     assert variable in res_variable
     assert res_value == value
     assert ferr == ""

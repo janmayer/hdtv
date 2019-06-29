@@ -196,7 +196,7 @@ class FitlistHDTVInterface(object):
                     fname = self.FitlistIf.list[name]
                 except KeyError:
                     (base, ext) = os.path.splitext(name)
-                    fname = base + "." + hdtv.options.Get("default_fitlist_extension")
+                    fname = base + "." + hdtv.options.Get("fit.list.default_extension")
             else:
                 fname = os.path.expanduser(args.filename)
                 # Try to replace placeholder "%s" in filename with specid
@@ -256,7 +256,7 @@ class FitlistHDTVInterface(object):
             raise hdtv.cmdline.HDTVCommandError("No such file %s" % fname)
         self.FitlistIf.ReadList(fname)
 
-hdtv.options.RegisterOption('default_fitlist_extension',
+hdtv.options.RegisterOption('fit.list.default_extension',
                             hdtv.options.Option(default="xfl"))
 
 import __main__

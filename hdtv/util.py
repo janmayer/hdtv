@@ -19,13 +19,17 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-from __future__ import print_function
-
 import re
 import os
+from itertools import count
+from html import escape
+
+from prompt_toolkit.key_binding.key_bindings import KeyBindings
+from prompt_toolkit.shortcuts import PromptSession
+from prompt_toolkit.keys import Keys
+
 import hdtv.options
 import hdtv.ui
-from hdtv.color import tcolors
 import hdtv.dummy
 
 def Indent(s, indent=" "):
@@ -78,7 +82,7 @@ class TxtFile(object):
                         line = prev_line + " " + line
                     prev_line = ""
                 if verbose:
-                    hdtv.ui.msg(get_prompt('file', inputable=False) + str(line))
+                    hdtv.ui.msg('file> ' + str(line))
 
                 # Strip comments
                 line = remove_comments(line)
@@ -152,7 +156,7 @@ class Pairs(list):
             try:
                 self.add(pair[0], pair[1])
             except (ValueError, IndexError):
-                print("Invalid Line in", fname, ":", line)
+                hdtv.ui.error("Invalid Line in", fname, ":", line)
 
     def fromLists(self, list1, list2):
         """
@@ -324,10 +328,10 @@ class Table(object):
         headerline = str()
         for col in range(0, len(self.header)):
             if not self._ignore_col[col]:
-                headerline += tcolors.bold(str(" " + self.header[col] +
-                                  " ").center(self._col_width[col]))
+                headerline += "<b>" + escape(str(" " + self.header[col] +
+                                  " ").center(self._col_width[col])) + "</b>"
             if not self._ignore_col[col + 1]:
-                headerline += self.col_sep_char
+                headerline += escape(self.col_sep_char)
         return headerline
 
     def build_sep(self):
@@ -367,10 +371,10 @@ class Table(object):
                 if not self._ignore_col[col + 1]:
                     line_str += self.col_sep_char
 
-            text += line_str + os.linesep
+            text += escape(line_str) + os.linesep
 
         if self.extra_footer is not None:
-            text += str(self.extra_footer) + os.linesep
+            text += escape(str(self.extra_footer)) + os.linesep
 
         return text
 
@@ -680,15 +684,6 @@ def split_line(line):
     split_pattern = re.compile(r'''((?:[^;"']|"[^"]*"|'[^']*')+)''')
     return split_pattern.split(line)[1::2]
 
-def get_prompt(prompt, sep='>', inputable=True):
-    if inputable:
-        return (tcolors.RL_PROMPT_START_IGNORE + tcolors.PROMPT +
-            tcolors.RL_PROMPT_END_IGNORE + prompt + sep + " " +
-            tcolors.RL_PROMPT_START_IGNORE  + tcolors.ENDC +
-            tcolors.RL_PROMPT_END_IGNORE)
-    else:
-        return tcolors.PROMPT + prompt + sep + " " + tcolors.ENDC
-
 def user_save_file(filename, force=False):
     """
     Make sure filename is not in use. Offer to backup existing file
@@ -697,15 +692,37 @@ def user_save_file(filename, force=False):
     """
     filename = os.path.expanduser(filename)
     if not force and os.path.exists(filename):
-        hdtv.ui.warn('This file already exists:')
-        overwrite = None
-        while overwrite not in ['Y', 'y', 'N', 'n', 'B', 'b', '']:
-            question = "Replace [y/n] or backup [B] file? "
-            overwrite = hdtv.cmdline.get_input(question)
-        if overwrite in ['b', 'B', '']:
+        hdtv.ui.warn(f'This file already exists: {filename}')
+
+        bindings = KeyBindings()
+
+        @bindings.add('y')
+        @bindings.add('Y')
+        def yes(event):
+            session.default_buffer.text = 'y'
+            event.app.exit(result=filename)
+
+        @bindings.add('n')
+        @bindings.add('N')
+        def no(event):
+            session.default_buffer.text = 'n'
+            event.app.exit(result=False)
+        
+        @bindings.add('b')
+        @bindings.add('B')
+        @bindings.add(Keys.Enter)
+        def backup(event):
+            session.default_buffer.text = 'b'
             backup_file(filename)
-        elif overwrite in ['n', 'N']:
-            return False
+            event.app.exit(result=filename)
+
+        @bindings.add(Keys.Any)
+        def _(event):
+            pass
+
+        session = PromptSession("Replace [y/n] or backup [B] existing file? ",
+            key_bindings=bindings)
+        filename = session.prompt()
     return filename
 
 def backup_file(filename, bak_ext='bak'):
@@ -717,16 +734,8 @@ def backup_file(filename, bak_ext='bak'):
         if not os.path.isfile(backup_name):
             break
         backup_name = backup_name_stem + '.' + str(i)
+    hdtv.ui.msg(f"Renamed file {filename} to {backup_name}")
     os.rename(filename, backup_name)
-
-def count(index=0):
-    """
-    Count to infinity
-    """
-    while True:
-        yield index
-        index += 1
-
 
 def open_compressed(fname, mode='rb', **kwargs):
     """
@@ -739,11 +748,9 @@ def open_compressed(fname, mode='rb', **kwargs):
             import gzip
             return gzip.open(fname, mode, **kwargs)
         elif ext == 'xz':
-            hdtv.ui.warn("hdtv with python2 does not support xz files.")
             import lzma
             return lzma.open(fname, mode, **kwargs)
         elif ext == 'bz2':
-            hdtv.ui.warn("hdtv with python2 does not support bz2 files.")
             import bz2
             return bz2.open(fname, mode, **kwargs)
         return open(fname, mode, **kwargs)

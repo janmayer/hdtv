@@ -18,15 +18,17 @@
 # You should have received a copy of the GNU General Public License
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+
+import copy
+import sys
+from html import escape
+
 import ROOT
 import hdtv.cmdline
 import hdtv.options
 import hdtv.util
 import hdtv.ui
 import hdtv.fit
-
-import copy
-import sys
 
 
 class FitInterface(object):
@@ -160,7 +162,7 @@ class FitInterface(object):
             if fit.fitter.bgdeg == -1:
                 raise RuntimeError("background degree of -1")
             fit.FitBgFunc(spec)
-        hdtv.ui.msg(str(fit))
+        hdtv.ui.msg(html=str(fit))
         fit.Draw(self.window.viewport)
     
     def ExecuteReintegrate(self, specID, fitID, print_result=True):
@@ -199,7 +201,7 @@ class FitInterface(object):
 
         fit.integral = hdtv.integral.Integrate(spec, bg, region)
         if print_result:
-            hdtv.ui.msg(fit.print_integral())
+            hdtv.ui.msg(html=fit.print_integral())
         fit.Draw(self.window.viewport)
 
     def QuickFit(self, pos=None):
@@ -250,7 +252,7 @@ class FitInterface(object):
                 reverseSort=reverseSort,
                 extra_header=result_header,
                 extra_footer=result_footer)
-            hdtv.ui.msg(str(table), newline=False)
+            hdtv.ui.msg(html=str(table), end='')
         except KeyError as e:
             raise hdtv.cmdline.HDTVCommandError(
                 "Spectrum " + str(sid) + ": No such attribute: " + str(e) + '\n'
@@ -286,7 +288,7 @@ class FitInterface(object):
                 sortBy=sortBy,
                 reverseSort=reverseSort,
                 extra_header=result_header)
-            hdtv.ui.msg(str(table), newline=False)
+            hdtv.ui.msg(html=str(table), end='')
         except KeyError as e:
             raise hdtv.cmdline.HDTVCommandError(
                 "Spectrum " + str(sid) + ": No such attribute: " + str(e) + '\n'
@@ -298,7 +300,7 @@ class FitInterface(object):
         """
         fit = self.spectra.workFit
         if fit.spec is not None:
-            hdtv.ui.msg(str(fit))
+            hdtv.ui.msg(html=str(fit))
     
     def PrintWorkFitIntegral(self):
         """
@@ -307,7 +309,7 @@ class FitInterface(object):
         # TODO
         fit = self.spectra.workFit
         if fit.spec is not None:
-            hdtv.ui.msg(fit.print_integral())
+            hdtv.ui.msg(html=fit.print_integral())
 
     def ExtractFits(self, fits):
         """
@@ -381,14 +383,14 @@ class FitInterface(object):
                 fitter = spec.dict[ID].fitter
                 statstr += "fitter status of fit id %d: \n" % ID
             if fitter.backgroundModel.name == "polynomial":
-                statstr += "Background model: %s, deg=%i\n" % fitter.backgroundModel.name, fitter.backgroundModel.bgdeg
+                statstr += "<b>Background model:</b> %s, deg=%i\n" % escape(fitter.backgroundModel.name), fitter.backgroundModel.bgdeg
             else:
-                statstr += "Background model: %s\n" % fitter.backgroundModel.name
-            statstr += "Peak model: %s\n" % fitter.peakModel.name
+                statstr += "<b>Background model:</b> %s\n" % escape(fitter.backgroundModel.name)
+            statstr += "<b>Peak model:</b> %s\n" % fitter.peakModel.name
             statstr += "\n"
             statstr += fitter.OptionsStr()
             statstr += "\n\n"
-        hdtv.ui.msg(statstr)
+        hdtv.ui.msg(html=statstr)
 
     def SetFitterParameter(self, parname, status, ids=None):
         """
@@ -1273,7 +1275,7 @@ class TvFitInterface(object):
         else:
             states = list()
             param = args[0]
-            if params == "background":
+            if param == "background":
                 return hdtv.util.GetCompleteOptions(text, states)
             else:
                 activePM = self.spectra.workFit.fitter.peakModel

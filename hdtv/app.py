@@ -70,8 +70,7 @@ class App:
         import hdtv.ui
 
 
-        hdtv.cmdline.ReadReadlineInit(self.configpath/"inputrc")
-        hdtv.cmdline.SetReadlineHistory(self.datapath/"hdtv_history")
+        hdtv.cmdline.SetHistory(self.datapath/"hdtv_history")
         hdtv.cmdline.SetInteractiveDict(locals())
         spectra = hdtv.session.Session()
         import __main__

@@ -25,9 +25,14 @@
 
 import sys
 import os
+from html import escape
+from typing import cast, TextIO
 
 import hdtv.options
-from hdtv.color import tcolors
+
+from prompt_toolkit.patch_stdout import StdoutProxy, patch_stdout
+from prompt_toolkit import print_formatted_text
+from prompt_toolkit.formatted_text import HTML, ANSI
 
 
 class SimpleUI(object):
@@ -36,84 +41,84 @@ class SimpleUI(object):
     """
 
     def __init__(self):
-        #
-        self.stdout = sys.stdout
-        self.stderr = sys.stderr
-        self.stdin = sys.stdin
-        self.debugout = self.stderr
+        self.stdout = None
+        self.stderr = None
 
-        self.linesep = os.linesep
+    def print(self, html, end='\n', err=False):
+        # Currently, patch_stdout and print_formatted_text don’t work
+        # together. Therefore, we clear the current line manually
+        # first, print the formatted text, and finally call print to 
+        # force a redraw of the prompt. This causes problems when the
+        # prompt is multiple lines long (the prompt will overwrite
+        # the last lines that were just drawn).
+        if self.stderr and err:
+            self.stderr.write(html)
+            return
+        if self.stdout:
+            self.stdout.write(html)
+            return
+        sys.stdout.write('\r')
+        with patch_stdout(raw=False):
+            print_formatted_text(HTML(html), end=end)
+            print('', end='\r')
 
-    def msg(self, text, newline=True):
-        self.stdout.write(text)
+    def msg(self, text=None, *, html=None, end='\n'):
+        """
+        Print message
+        """
+        if not html:
+            html = escape(text)
+        self.print(html, end=end)
 
-        if newline and text and text[-1] != self.linesep:
-            self.stdout.write(self.linesep)
-
-    def info(self, text, newline=True):
+    def info(self, text=None, *, html=None, end='\n'):
         """
         Print informational message
         """
-        text = "INFO: " + text
-        self.stdout.write(text)
+        if not html:
+            html = escape(text)
+        html = "INFO: " + html
+        self.print(text, end=end)
 
-        if newline:
-            self.stdout.write(self.linesep)
-
-    def warn(self, text, newline=True):
+    def warn(self, text=None, *, html=None, end='\n'):
         """
         Print warning message
         """
-        self.stderr.write(tcolors.WARNING + "WARNING: " + text + tcolors.ENDC)
+        if not html:
+            html = escape(text)
+        self.print(f"<ansiyellow>WARNING: {html}</ansiyellow>", end=end, err=True)
 
-        if newline:
-            self.stderr.write(self.linesep)
 
-    def error(self, text, newline=True):
+    def error(self, text=None, *, html=None, end='\n'):
         """
         Print error message
         """
-        self.stderr.write(tcolors.FAIL + "ERROR: " + text + tcolors.ENDC)
+        if not html:
+            html = escape(text)
+        self.print(f"<ansired>ERROR: {html}</ansired>", end=end, err=True)
 
-        if newline:
-            self.stderr.write(self.linesep)
-
-    def debug(self, text, level=1, newline=True):
+    def debug(self, text=None, *, html=None, end='\n', level=1):
         """
         Debugging output. The higher the level, the more specific is
         the debug message.
         """
-        self.debugout.write(tcolors.DEBUG + "DEBUG: " + text + tcolors.ENDC)
-
-        if newline:
-            self.debugout.write(self.linesep)
+        if not html:
+            html = escape(text)
+        self.print(f"<ansiblue>DEBUG: {html}</ansiblue>", end=end, err=True)
 
 
 # Initialization
 ui = SimpleUI()
 
+msg = ui.msg
+info = ui.info
+warn = ui.warn
+error = ui.error
 
-def msg(text, newline=True):
-    ui.msg(text, newline=newline)
-
-
-def info(text, newline=True):
-    ui.info(text, newline=newline)
-
-
-def warn(text, newline=True):
-    ui.warn(text, newline=newline)
-
-
-def error(text, newline=True):
-    ui.error(text, newline=newline)
-
-
-def debug(text, level=1, newline=True):
+def debug(text, end='\n', level=1):
     if level > hdtv.options.Get('ui.out.level'):
         return
     else:
-        ui.debug(text, level=level, newline=newline)
+        ui.debug(text, end=end, level=level)
 
 
 opt = hdtv.options.Option(

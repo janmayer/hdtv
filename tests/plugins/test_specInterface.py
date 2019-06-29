@@ -220,7 +220,6 @@ def test_cmd_spectrum_activate_multi(numspecs):
     f, ferr = hdtvcmd("spectrum activate all")
     if numspecs > 1:
         assert "Can only activate one spectrum" in ferr
-        assert "usage" in f
     else:
         assert "" == ferr
         assert "" == f
@@ -246,7 +245,7 @@ def test_cmd_spectrum_name(name):
     print(ferr)
     print(f)
     assert ferr == ""
-    assert "Renamed spectrum 0 to '{}'".format(name) in f
+    assert "Renamed spectrum 0 to &#x27;{}&#x27;".format(name) in f
 
     f, ferr = hdtvcmd("spectrum list")
     assert name in f

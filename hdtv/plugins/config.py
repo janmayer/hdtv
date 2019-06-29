@@ -24,12 +24,11 @@ from __future__ import print_function
 import hdtv.options
 import hdtv.cmdline
 import hdtv.util
-from hdtv.color import tcolors
 
 
 def ConfigVarCompleter(text, args=None):
     return hdtv.util.GetCompleteOptions(
-        text, hdtv.options.OptionManager.keys())
+        text, hdtv.options.OptionManager.__dict__.keys())
 
 
 def ConfigSet(args):
@@ -44,11 +43,11 @@ def ConfigSet(args):
 def ConfigShow(args):
     if args.variable:
         try:
-            hdtv.ui.msg(hdtv.options.Show(args.variable))
+            hdtv.ui.msg(html=hdtv.options.Show(args.variable))
         except KeyError:
             hdtv.ui.warn(args.variable + ": no such option")
     else:
-        print(hdtv.options.Str(), end='')
+        hdtv.ui.msg(html=hdtv.options.Str(), end='')
 
 
 def ConfigReset(args):
@@ -63,7 +62,7 @@ def ConfigReset(args):
             except KeyError:
                 hdtv.ui.warn(args.variable + ": no such option")
     else:
-        hdtv.ui.msg(hdtv.options.Str(), newline=False)
+        hdtv.ui.msg(hdtv.options.Str(), end='')
 
 prog = "config set"
 description = "Set a configuration variable"
