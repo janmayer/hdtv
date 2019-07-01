@@ -104,7 +104,7 @@ public:
     }
   }
 
-  virtual int GetZIndex() { return Z_INDEX_SPEC; }
+  int GetZIndex() const override { return Z_INDEX_SPEC; }
 
 private:
   std::unique_ptr<TH1> fHist;

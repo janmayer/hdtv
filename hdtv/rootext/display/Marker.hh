@@ -93,7 +93,7 @@ public:
   }
 
   std::string GetID() const { return fID; }
-  virtual int GetZIndex() { return Z_INDEX_MARKER; }
+  int GetZIndex() const override { return Z_INDEX_MARKER; }
 
 protected:
   void InitGC(int col);
