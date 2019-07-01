@@ -19,8 +19,6 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-from __future__ import print_function
-
 import xml.etree.ElementTree as ET
 from uncertainties import ufloat
 
@@ -356,7 +354,7 @@ class FitXml(object):
                         input("Please press enter to continue...\n")
                     count = self.RestoreFromXml_v0(root, True)
         except SyntaxError as e:
-            print("Error reading " + fname + ":\n\t", e)
+            hdtv.ui.error("Error reading " + fname + ":\n\t", e)
         else:
             msg = "%s loaded: " % (fname)
             if count == 1:

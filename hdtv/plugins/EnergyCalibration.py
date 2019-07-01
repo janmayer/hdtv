@@ -23,11 +23,10 @@
 Function for energy calibration
 """
 
-from __future__ import print_function
-
 from uncertainties import ufloat
 
 import hdtv.util
+import hdtv.ui
 from hdtv.database import IAEALibraries, DDEPLibraries
 
 
@@ -107,14 +106,14 @@ def MatchPeaksAndEnergies(peaks, energies, sigma):
                 sigma and gradient[i] < bestAccordance + sigma:
             for a in accordance:
                 if a[0] == pair[i][0] or a[1] == pair[i][1]:  # Warning
-                    print(a, pair[i])
+                    hdtv.ui.msg(f"{a} {pair[i]}")
                     hdtv.ui.warn(
                         "Some peaks/energies are used more than one time.")
             accordance.append(pair[i])
 
     # warning when only few pairs are found
     if len(accordance) < 4:
-        print(accordance)
+        hdtv.ui.msg(accordance)
         hdtv.ui.warn("Only a few (peak,energy) pairs are found.")
 
     return(accordance)

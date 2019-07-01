@@ -23,8 +23,6 @@
 HDTV command line
 """
 
-from __future__ import print_function
-
 import os
 import sys
 import signal
@@ -496,10 +494,6 @@ class CommandLine(object):
         from IPython import start_ipython
         start_ipython([], config=c, user_ns=self.cmds)
 
-    def ExitPython(self):
-        print("")
-        self.fPyMode = False
-
     def EnterShell(self, args=None):
         "Execute a subshell"
 
@@ -519,7 +513,6 @@ class CommandLine(object):
         os.kill(os.getpid(), signal.SIGINT)
 
     def EOFHandler(self):
-        print("")
         self.Exit()
 
     def GetCompleteOptions(self, text):
@@ -557,7 +550,6 @@ class CommandLine(object):
             if self.fPyMore:
                 self.fPyMore = self._py_console.push("")
             if not self.fKeepRunning:
-                print("")
                 break
 
     def ExecShell(self, cmd):
@@ -642,12 +634,8 @@ class CommandLine(object):
             try:
                 line = session.prompt()
             except EOFError:
-                # Ctrl-D exits in command mode, and switches back to command mode
-                #  from Python mode
-                if self.fPyMode:
-                    self.ExitPython()
-                else:
-                    self.EOFHandler()
+                # Ctrl-D exits in command mode
+                self.EOFHandler()
                 continue
             except KeyboardInterrupt:
                 # The SIGINT signal (which Python turns into a
@@ -655,7 +643,6 @@ class CommandLine(object):
                 # exit, i.e. if another thread (e.g. the GUI thread)
                 # wants to exit the application.
                 if not self.fKeepRunning:
-                    print("")
                     break
 
                 # If we get here, we assume the KeyboardInterrupt is
@@ -667,9 +654,8 @@ class CommandLine(object):
                 if self.fPyMore:
                     self._py_console.resetbuffer()
                     self.fPyMore = False
-                    print("")
                 else:
-                    print("\nKeyboardInterrupt: Use \'Ctrl-D\' to exit")
+                    hdtv.ui.msg(r"KeyboardInterrupt: Use 'Ctrl-D' to exit")
                 continue
 
             # Execute the command

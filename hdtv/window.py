@@ -19,12 +19,11 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-from __future__ import print_function
-
 import ROOT
 import hdtv.options
 import hdtv.color
 import hdtv.cmdline
+import hdtv.ui
 from hdtv.marker import MarkerCollection
 import hdtv.rootext.display
 
@@ -419,7 +418,7 @@ class Window(KeyHandler):
         """
         # check the input
         if xytype not in ["X", "Y"]:
-            print(
+            hdtv.ui.error(
                 "invalid parameter %s to the private function _Expand" %
                 xytype)
             return

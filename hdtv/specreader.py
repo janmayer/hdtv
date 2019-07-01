@@ -19,11 +19,10 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-from __future__ import print_function
-
 import array
 import os
 import ROOT
+import hdtv.ui
 import hdtv.rootext.mfile
 
 
@@ -263,7 +262,7 @@ class SpecReader(object):
             if len(fmt.split(".")) == 3:
                 line = int(fmt.split(".")[0]) - 1
                 level = 0
-                print("Using spectra in line " + str(line))
+                hdtv.ui.msg("Using spectra in line " + str(line))
 
             hist = mhist.ToTH1D(histname, histtitle, level, line)
             if not hist:
