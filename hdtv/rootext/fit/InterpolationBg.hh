@@ -64,6 +64,7 @@ struct BgReg{
 	std::pair<double, double> limit;
 	double center;
 	double weighted_mean;
+	double weighted_mean_uncertainty;
 };
 
 // Auxiliary class to be able to hand over a ROOT::Math::Interpolator
@@ -130,7 +131,6 @@ public:
                  : std::numeric_limits<double>::quiet_NaN();
   }
 
-  int GetDegree() { return fBgDeg; }
   double GetChisquare() { return fChisquare; }
   double GetMin() const override {
     return (*fBgRegions.begin()).limit.first;
@@ -138,6 +138,7 @@ public:
   double GetMax() const override {
     return (*(--fBgRegions.end())).limit.second;
   }
+  unsigned int GetNparams() const override { return 2*fBgDeg; }
 
   void Fit(TH1 &hist);
   bool Restore(const TArrayD &values, const TArrayD &errors, double ChiSquare);

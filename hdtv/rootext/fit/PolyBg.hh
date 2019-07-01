@@ -57,7 +57,6 @@ public:
                  : std::numeric_limits<double>::quiet_NaN();
   }
 
-  int GetDegree() { return fBgDeg; }
   double GetChisquare() { return fChisquare; }
   double GetMin() const override {
     return fBgRegions.empty() ? std::numeric_limits<double>::quiet_NaN()
@@ -67,6 +66,7 @@ public:
     return fBgRegions.empty() ? std::numeric_limits<double>::quiet_NaN()
                               : *(fBgRegions.rbegin());
   }
+  unsigned int GetNparams() const override { return fBgDeg; };
 
   void Fit(TH1 &hist);
   bool Restore(const TArrayD &values, const TArrayD &errors, double ChiSquare);

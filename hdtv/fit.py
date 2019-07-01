@@ -63,7 +63,7 @@ class Fit(Drawable):
         self.peaks = []
         self.chi = None
         self.bgChi = None
-        self.bgCoeffs = []
+        self.bgParams = []
         self._showDecomp = Fit.showDecomp
         self.dispPeakFunc = None
         self.dispBgFunc = None
@@ -397,10 +397,10 @@ class Fit(Drawable):
                     func, hdtv.color.bg)
                 self.dispBgFunc.SetCal(self.cal)
                 self.bgChi = self.fitter.bgFitter.GetChisquare()
-                self.bgCoeffs = []
-                deg = self.fitter.bgFitter.GetDegree()
-                for i in range(0, deg + 1):
-                    self.bgCoeffs.append(ufloat(
+                self.bgParams = []
+                nparams = self.fitter.bgFitter.GetNparams()
+                for i in range(0, nparams):
+                    self.bgParams.append(ufloat(
                         self.fitter.bgFitter.GetCoeff(i),
                         self.fitter.bgFitter.GetCoeffError(i)))
             except ValueError:
@@ -434,18 +434,18 @@ class Fit(Drawable):
             peaks = sorted([m.p1.pos_uncal for m in self.peakMarkers])
             self.fitter.FitPeaks(spec=self.spec, region=region, peaklist=peaks)
             # get background function
-            self.bgCoeffs = []
+            self.bgParams = []
             deg = self.fitter.backgroundModel.fParStatus['bgdeg']
             if not self.fitter.bgFitter:
                 for i in range(deg + 1):
-                    self.bgCoeffs.append(ufloat(
+                    self.bgParams.append(ufloat(
                         self.fitter.peakFitter.GetIntBgCoeff(i),
                         self.fitter.peakFitter.GetIntBgCoeffError(i)))
             else:
                 # external background
                 self.bgChi = self.fitter.bgFitter.GetChisquare()
                 for i in range(deg + 1):
-                    self.bgCoeffs.append(ufloat(
+                    self.bgParams.append(ufloat(
                         self.fitter.bgFitter.GetCoeff(i),
                         self.fitter.bgFitter.GetCoeffError(i)))
             func = self.fitter.peakFitter.GetBgFunc()
@@ -488,13 +488,14 @@ class Fit(Drawable):
                 backgrounds.add(m.p1.pos_uncal, m.p2.pos_uncal)
             self.fitter.RestoreBackground(
                 backgrounds=backgrounds,
-                coeffs=self.bgCoeffs,
+                params=self.bgParams,
                 chisquare=self.bgChi)
         region = sorted([self.regionMarkers[0].p1.pos_uncal,
                          self.regionMarkers[0].p2.pos_uncal])
+        print(self.bgParams)
         if self.peaks:
             self.fitter.RestorePeaks(cal=self.cal, region=region, peaks=self.peaks,
-                                     chisquare=self.chi, coeffs=self.bgCoeffs)
+                                     chisquare=self.chi, coeffs=self.bgParams)
             # get background function
             func = self.fitter.peakFitter.GetBgFunc()
             self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, self.color)
@@ -586,7 +587,7 @@ class Fit(Drawable):
         # remove bg fit
         self.dispBgFunc = None
         self.fitter.bgFitter = None
-        self.bgCoeffs = []
+        self.bgParams = []
         self.bgChi = None
         if not bg_only:
             # remove peak fit

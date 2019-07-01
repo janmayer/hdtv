@@ -67,18 +67,18 @@ class Fitter(object):
             self.bgFitter.Fit(spec.hist.hist)
 
     def RestoreBackground(self, backgrounds=Pairs(),
-                          coeffs=list(), chisquare=0.0):
+                          params=list(), chisquare=0.0):
         """
         Create Background Fitter object and
         restore the background polynom from coeffs
         """
         self.bgFitter = self.backgroundModel.GetFitter()
         # restore the fitter
-        valueArray = ROOT.TArrayD(len(coeffs))
-        errorArray = ROOT.TArrayD(len(coeffs))
-        for i, coeff in enumerate(coeffs):
-            valueArray[i] = coeff.nominal_value
-            errorArray[i] = coeff.std_dev
+        valueArray = ROOT.TArrayD(len(params))
+        errorArray = ROOT.TArrayD(len(params))
+        for i, param in enumerate(params):
+            valueArray[i] = param.nominal_value
+            errorArray[i] = param.std_dev
         self.bgFitter.Restore(valueArray, errorArray, chisquare)
 
     def FitPeaks(self, spec, region=Pairs(), peaklist=list()):

@@ -154,6 +154,7 @@ bool PolyBg::Restore(const TArrayD &values, const TArrayD &errors,
                                  "PolyBg", "_Eval");
 
   for (int i = 0; i <= fBgDeg; i++) {
+    std::cout << i << " : " << values[i] << " +- " << errors[i] << std::endl;
     fFunc->SetParameter(i, values[i]);
     fFunc->SetParError(i, errors[i]);
   }
