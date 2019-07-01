@@ -57,7 +57,9 @@ setup(
     install_requires=[
         'scipy',
         'matplotlib',
+        'ipython'
         'prompt_toolkit',
+        'traitlets',
         'uncertainties'],
     extras_require={
         'dev': ['docutils'],

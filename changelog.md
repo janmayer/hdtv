@@ -1,4 +1,26 @@
-# HDTV Change Log
+# HDTV Changelog
+
+## Unreleased
+- Add GUI-dummy for usage with unittests (@opapst)
+- Add background model using spline interpolation (@ugayer)
+- Add coverage to unittests (@opapst)
+- Add keywords and classifiers to setup.py (@opapst)
+- Add object-oriented background models (@ugayer)
+- Add travis.yml build and tests (@opapst)
+- Fix autocomplete of pathes with spaces (@opapst)
+- Fix hdtv.rootext import order (@opapst)
+- Fix negative uncertainties from ROOT fits (@opapst)
+- Fix typedef (@jmayer)
+- Fix wrong cut axis from mfile matrices (@mweinert)
+- Move Calibration.hh into separate module (@opapst)
+- Remove Python2.7 support due to upcoming EOL (@opapst)
+- Remove dead code (@opapst)
+- Remove usage of global variables and usage of `__main__` namespace (@opapst)
+- Replace Compat.hh by ROOT/RMakeUnique.hh (@opapst)
+- Replace bin/hdtv by hdtv.app:App() entrypoint (@opapst)
+- Replace code.InteractiveConsole with IPython for Python REPL (@opapst)
+- Replace readline with prompt_toolkit (@opapst)
+- Other small fixes
 
 ## 18.04
 - Use uncertainties library (@opapst)
@@ -17,7 +39,7 @@
 + Switch from optparse to argparse (@opapst) (Closes #15)
 + Switch from own implementation of error values to uncertainties libary (@opapst) (Closes #14)
 + pytest based testing (@opapst)
-- Changes to diplay of tables and uncertainties, see `config set table help`, and `config set uncertainties help` (@opapst)
+- Changes to display of tables and uncertainties, see `config set table help`, and `config set uncertainties help` (@opapst)
 - Improvements to calibration fitting procedure (@opapst)
 - Improvements to tab completion and command line interface (@opapst)
 - A bit of documentation (#6)

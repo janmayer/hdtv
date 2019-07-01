@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # HDTV - A ROOT-based spectrum analysis software
-#  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+#  Copyright (C) 2006-2019  The HDTV development team (see file AUTHORS)
 #
 # This file is part of HDTV.
 #
@@ -317,7 +317,7 @@ class FitXml(object):
                 raise SyntaxError(e)
             # current version
             if root.get("version") == self.version:
-                count = self.RestoreFromXml(root, sid, refit=refit)
+                count, fits = self.RestoreFromXml(root, sid, refit=refit)
             else:
                 # old versions
                 oldversion = root.get("version")
@@ -327,15 +327,15 @@ class FitXml(object):
                 if oldversion == "1.3":
                     hdtv.ui.msg(
                         "But this version should be fully compatible with the new version.")
-                    count = self.RestoreFromXml_v1_3(root, sid, refit=refit)
+                    count, fits = self.RestoreFromXml_v1_3(root, sid, refit=refit)
                 if oldversion == "1.2":
                     hdtv.ui.msg(
                         "But this version should be fully compatible with the new version.")
-                    count = self.RestoreFromXml_v1_2(root, sid, refit=refit)
+                    count, fits = self.RestoreFromXml_v1_2(root, sid, refit=refit)
                 if oldversion == "1.1":
                     hdtv.ui.msg(
                         "But this version should be fully compatible with the new version.")
-                    count = self.RestoreFromXml_v1_1(root, sid, refit=refit)
+                    count, fits = self.RestoreFromXml_v1_1(root, sid, refit=refit)
                 if oldversion == "1.0":
                     hdtv.ui.msg(
                         "Restoring only fits belonging to spectrum %s" % sid)
@@ -343,16 +343,16 @@ class FitXml(object):
                         "There may be fits belonging to other spectra in this file.")
                     if interactive:
                         input("Please press enter to continue...\n")
-                    count = self.RestoreFromXml_v1_0(
+                    count, fits = self.RestoreFromXml_v1_0(
                         root, [sid], calibrate=False, refit=refit)
                 if oldversion.startswith("0"):
                     hdtv.ui.msg(
                         "Only the fit markers have been saved in this file.")
-                    hdtv.ui.msg("All the fits therefor have to be repeated.")
+                    hdtv.ui.msg("All the fits therefore have to be repeated.")
                     hdtv.ui.msg("This will take some time...")
                     if interactive:
                         input("Please press enter to continue...\n")
-                    count = self.RestoreFromXml_v0(root, True)
+                    count, fits = self.RestoreFromXml_v0(root, True)
         except SyntaxError as e:
             hdtv.ui.error("Error reading " + fname + ":\n\t", e)
         else:
@@ -362,6 +362,7 @@ class FitXml(object):
             else:
                 msg += "%d fits restored." % count
             hdtv.ui.msg(msg)
+            return count, fits
         finally:
             if self.spectra.viewport:
                 self.spectra.viewport.UnlockUpdate()
@@ -410,7 +411,7 @@ class FitXml(object):
             count += 1
             if sid not in self.spectra.visible:
                 fit.Hide()
-        return count
+        return count, fits
 
     def RestoreFromXml_v1_3(self, root, sid, refit=False):
         """
@@ -471,6 +472,7 @@ class FitXml(object):
             name = specElement.get("name")
             index[name] = specElement
         # <spectrum>
+        all_fits = list()
         for sid in sids:
             spec = self.spectra.dict[sid]
             try:
@@ -518,7 +520,9 @@ class FitXml(object):
                 ID = spec.Insert(fit)
                 if sid not in self.spectra.visible:
                     fit.Hide()
-        return count
+                fits.append(fit)
+                all_fits.append(fit)
+        return count, all_fits
 
     def Xml2Fit_v1(self, fitElement, calibration=None):
         """
@@ -749,4 +753,4 @@ class FitXml(object):
                 if do_fit:
                     fit.FitPeakFunc(spec)
                 spec.Insert(fit)
-            return count
+            return count, [fit]

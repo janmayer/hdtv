@@ -378,12 +378,13 @@ class Fit(Drawable):
                 hdtv.ui.warn("Background region at {:.2f} without second marker was ignored".format(pos))
         return backgrounds
 
-    def FitBgFunc(self, spec):
+    def FitBgFunc(self, spec=None):
         """
         Do the background fit and extract the function for display
         Note: You still need to call Draw afterwards.
         """
-        self.spec = spec
+        if spec is not None:
+            self.spec = spec
         self.Erase()
         hdtv.ui.debug("Fitting background")
         # fit background
@@ -406,7 +407,7 @@ class Fit(Drawable):
             except ValueError:
                 raise hdtv.cmdline.HDTVCommandAbort("Background fit failed.")
 
-    def FitPeakFunc(self, spec):
+    def FitPeakFunc(self, spec=None):
         """
         Do the actual peak fit and extract the functions for display
         Note: You still need to call Draw afterwards.
@@ -415,7 +416,8 @@ class Fit(Drawable):
         for func in Fit.FitPeakPreHooks:
             func(self)
 
-        self.spec = spec
+        if spec is not None:
+            self.spec = spec
         self.Erase()
         # fit background
         if len(self.bgMarkers) > 0:
