@@ -19,9 +19,10 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------
-# Peak finding and fitting plugin for HDTV
-#-------------------------------------------------------------------------
+"""
+Peak finding and fitting plugin for HDTV
+"""
+
 import copy
 
 import hdtv.cmdline

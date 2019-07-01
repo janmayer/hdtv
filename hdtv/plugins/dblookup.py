@@ -19,9 +19,9 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------
-# Gamma database integration for HDTV
-#-------------------------------------------------------------------------
+"""
+Gamma database integration for HDTV
+"""
 
 import re
 from html import escape

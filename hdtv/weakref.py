@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 #
-# This file contains a wrapper for weakref that the weak reference can
-# be used the same way the real object would be used.
-#
-# -----------------------------------------------------------------------------
 # Copyright (C) 2006-2009 Dirk Meyer, Jason Tackaberry
 #
 # This library is free software; you can redistribute it and/or modify
@@ -21,6 +17,11 @@
 # 02110-1301 USA
 #
 # -----------------------------------------------------------------------------
+
+"""
+This file contains a wrapper for weakref that the weak reference can
+be used the same way the real object would be used.
+"""
 
 __all__ = ['weakref']
 
