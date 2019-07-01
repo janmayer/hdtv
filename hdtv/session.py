@@ -142,7 +142,7 @@ class Session(DrawableManager):
 
         fit.integral = Integrate(spec, bg, region)
         fit.Draw(self.viewport)
-        hdtv.ui.msg(fit.print_integral())
+        hdtv.ui.msg(html=fit.print_integral())
 
     # Functions to handle workFit
     def ExecuteFit(self, peaks=True):
@@ -165,7 +165,7 @@ class Session(DrawableManager):
                 # full fit
                 fit.FitPeakFunc(spec)
             # show fit result
-            hdtv.ui.msg(str(fit), end='')
+            hdtv.ui.msg(html=str(fit), end='')
             fit.Draw(self.viewport)
         except OverflowError as msg:
             hdtv.ui.error("Fit failed: %s" % msg)

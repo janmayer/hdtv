@@ -39,7 +39,7 @@ import shlex
 import itertools
 import errno
 
-from prompt_toolkit.shortcuts import PromptSession, CompleteStyle
+from prompt_toolkit.shortcuts import PromptSession, CompleteStyle, clear
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.enums import EditingMode
@@ -361,8 +361,11 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             (node, args) = self.FindNode(path)
         except (RuntimeError, HDTVCommandError):
             # Command is ambiguous
-            yield
+            yield from []
         options = []
+
+        default_style = "fg:#000000"
+        default_selected_style = "bg:white fg:ansired"
 
         # If the node found has children, and no parts of the part had to
         # be interpreted as arguments, we suggest suitable child nodes...
@@ -371,13 +374,18 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             for child in node.childs:
                 if child.title[0:l] == word_before_cursor:
                     yield Completion(child.title + " ",
-                        -len(word_before_cursor))
+                        -len(word_before_cursor),
+                        style=default_style,
+                        selected_style=default_selected_style)
         # ... if not, we use the nodes registered autocomplete handler ...
         elif not hasattr(node, 'options'):
-            yield
+            yield from []
         elif "completer" in node.options and callable(node.options["completer"]):
             for option in node.options["completer"](last_path, args):
-                yield Completion(option, -len(word_before_cursor))
+                yield Completion(option,
+                    -len(word_before_cursor),
+                    style=default_style,
+                    selected_style=default_selected_style)
         # ... if that fails as well, we suggest files, but only if the command will
         # take files or directories as arguments.
         elif ("fileargs" in node.options and node.options["fileargs"]) or \
@@ -400,9 +408,12 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             options = self.GetFileCompleteOptions(
                 filepath or ".", word_before_cursor, dirs_only)
             for option in options:
-                yield Completion(option, -len(word_before_cursor))
+                yield Completion(option,
+                    -len(word_before_cursor),
+                    style=default_style,
+                    selected_style=default_selected_style)
         else:
-            yield
+            yield from []
 
 
 class CommandLine(object):
@@ -457,6 +468,10 @@ class CommandLine(object):
             return ("CMDFILE", s[1:])
         else:
             return ("HDTV", s)
+
+    def Clear(self, args):
+        """Clear the screen"""
+        clear()
 
     def EnterPython(self, args=None):
         if os.sep == '\\':
@@ -695,3 +710,4 @@ AddCommand("python", command_line.EnterPython)
 AddCommand("shell", command_line.EnterShell, level=2)
 AddCommand("exit", command_line.Exit)
 AddCommand("quit", command_line.Exit)
+AddCommand("clear", command_line.Clear)
