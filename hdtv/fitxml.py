@@ -147,20 +147,20 @@ class FitXml(object):
             uncalElement.text = str(marker.p1.pos_uncal)
         # <background>
         bgElement = ET.SubElement(fitElement, "background")
-        deg = len(fit.bgCoeffs) - 1
-        bgElement.set("deg", str(deg))
+        nparams = len(fit.bgParams) 
+        bgElement.set("nparams", str(nparams))
         bgElement.set("chisquare", str(fit.bgChi))
         bgElement.set("backgroundModel", fit.fitter.backgroundModel.name)
         # <coeff>
-        for i in range(0, deg + 1):
-            coeffElement = ET.SubElement(bgElement, "coeff")
-            coeffElement.set("deg", str(i))
+        for i in range(0, nparams):
+            paramElement = ET.SubElement(bgElement, "param")
+            paramElement.set("deg", str(i))
             # <value>
-            valueElement = ET.SubElement(coeffElement, "value")
-            valueElement.text = str(fit.bgCoeffs[i].nominal_value)
+            valueElement = ET.SubElement(paramElement, "value")
+            valueElement.text = str(fit.bgParams[i].nominal_value)
             # <error>
-            errorElement = ET.SubElement(coeffElement, "error")
-            errorElement.text = str(fit.bgCoeffs[i].std_dev)
+            errorElement = ET.SubElement(paramElement, "error")
+            errorElement.text = str(fit.bgParams[i].std_dev)
         # <peak>
         for peak in fit.peaks:
             peakElement = ET.SubElement(fitElement, "peak")
@@ -577,19 +577,19 @@ class FitXml(object):
                 fit.bgChi = float(bgElement.get("chisquare"))
             except ValueError:
                 pass
-            coeffs = list()
-            for coeffElement in bgElement.findall("coeff"):
-                deg = int(coeffElement.get("deg"))
+            params = list()
+            for paramElement in bgElement.findall("param"):
+                deg = int(paramElement.get("deg"))
                 # <value>
-                valueElement = coeffElement.find("value")
+                valueElement = paramElement.find("value")
                 value = float(valueElement.text)
                 # <error>
-                errorElement = coeffElement.find("error")
+                errorElement = paramElement.find("error")
                 error = float(errorElement.text)
-                coeff = ufloat(value, error)
-                coeffs.append([deg, coeff])
-            coeffs.sort()
-            fit.bgCoeffs = [c[1] for c in coeffs]
+                param = ufloat(value, error)
+                params.append([deg, param])
+            params.sort()
+            fit.bgParams = [p[1] for p in params]
         # <peak>
         statusdict = dict()
         for peakElement in fitElement.findall("peak"):

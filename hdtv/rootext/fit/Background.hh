@@ -43,6 +43,7 @@ public:
   virtual double GetMax() const {
     return std::numeric_limits<double>::quiet_NaN();
   }
+  virtual unsigned int GetNparams() const { return 0; };
   virtual double Eval(double /*x*/) const {
     return std::numeric_limits<double>::quiet_NaN();
   }
