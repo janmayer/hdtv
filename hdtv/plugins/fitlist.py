@@ -19,10 +19,10 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------
-# Write and Read Fitlist saved in xml format
-#
-#-------------------------------------------------------------------------
+"""
+Write and Read Fitlist saved in xml format
+"""
+
 import os
 import glob
 import hdtv.cmdline

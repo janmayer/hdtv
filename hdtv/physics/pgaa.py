@@ -19,8 +19,9 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-
-# PGAA specific functions
+"""
+PGAA specific functions
+"""
 
 def Mass(volume, eff, k0, nflux=1, absorption=1):
     """

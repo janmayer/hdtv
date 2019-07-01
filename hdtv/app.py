@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#-------------------------------------------------------------------------
-# This is the main HDTV application.
-#-------------------------------------------------------------------------
+"""
+This is the main HDTV application.
+"""
 
 from __future__ import print_function
 

@@ -19,9 +19,9 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-# ------------------------------------------------------------------------
-# HDTV dynamic (C++) library manager
-# ------------------------------------------------------------------------
+"""
+HDTV dynamic (C++) library manager
+"""
 
 import os
 import sys

@@ -19,10 +19,10 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------
-# Plugin implementing some useful hdtv commands for navigation the file system
-# this includes a ls-like command, by special request from R. Schulze :)
-#-------------------------------------------------------------------------
+"""
+Plugin implementing some useful hdtv commands for navigation the file system
+his includes a ls-like command, by special request from R. Schulze :)
+"""
 
 from __future__ import print_function
 

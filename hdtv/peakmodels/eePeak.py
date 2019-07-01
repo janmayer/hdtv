@@ -19,10 +19,10 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------
-# Peak Model for electron-electron scattering
-# Implementation requested by Oleksiy Burda <burda@ikp.tu-darmstadt.de>
-#-------------------------------------------------------------------------
+"""
+Peak Model for electron-electron scattering
+Implementation requested by Oleksiy Burda <burda@ikp.tu-darmstadt.de>
+"""
 
 from uncertainties import ufloat
 

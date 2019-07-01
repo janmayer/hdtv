@@ -19,9 +19,9 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-# ----------------------------------------------------------------------
-# Infrastructure for configuration variables
-# ----------------------------------------------------------------------
+"""
+Infrastructure for configuration variables
+"""
 
 from collections import OrderedDict
 from html import escape
