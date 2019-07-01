@@ -57,7 +57,7 @@ public:
     }
   }
 
-  virtual int GetZIndex() { return Z_INDEX_FUNC; }
+  int GetZIndex() const override { return Z_INDEX_FUNC; }
 
 private:
   TF1 *fFunc;
