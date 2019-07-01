@@ -108,16 +108,16 @@ class EEPeak(Drawable):
         """
         text = str()
         if verbose:
-            text += ("Pos:         {.pos_cal:S}\n"
-                     "Channel:     {.pos:S}\n"
-                     "Amp:         {.amp:S}\n"
-                     "Sigma1:      {.sigma1:S}\n"
-                     "Sigma2:      {.sigma2:S}\n"
-                     "Eta:         {.eta:S}\n"
-                     "Gamma:       {.gamma:S}\n"
-                     "Volume:      {.vol:S}\n").format(self)
+            text += ("Pos:         {0.pos_cal:S}\n"
+                     "Channel:     {0.pos:S}\n"
+                     "Amp:         {0.amp:S}\n"
+                     "Sigma1:      {0.sigma1:S}\n"
+                     "Sigma2:      {0.sigma2:S}\n"
+                     "Eta:         {0.eta:S}\n"
+                     "Gamma:       {0.gamma:S}\n"
+                     "Volume:      {0.vol:S}").format(self)
         else:
-            text += "Peak@ {.pos_cal:S}\n".format(self)
+            text += "Peak@ {0.pos_cal:S}".format(self)
         return text
 
     def __eq__(self, other):

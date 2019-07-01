@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # HDTV - A ROOT-based spectrum analysis software
-#  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+#  Copyright (C) 2006-2019  The HDTV development team (see file AUTHORS)
 #
 # This file is part of HDTV.
 #
@@ -310,21 +310,21 @@ class Session(DrawableManager):
         self.workCut.Draw(self.viewport)
 
     # Overwrite some functions of DrawableManager to do some extra work
-    def ActivateObject(self, ID):
+    def ActivateObject(self, obj):
         """
         Activate Object and reset workFit when activating another spectrum
         """
         # for interactive use of this function
-        if isinstance(ID, (str, int, float)):
-            ID = hdtv.util.ID.ParseIds(ID, self)[0]
-        if ID is not self.activeID:
+        if isinstance(obj, (str, int, float)):
+            obj = hdtv.util.ID.ParseIds(obj, self)[0]
+        if obj is not self.activeID:
             # reset workFit
             self.workFit.spec = None
             # deactivate a possible active fit
             spec = self.GetActiveObject()
             if spec is not None:
                 spec.ActivateObject(None)
-        super(Session, self).ActivateObject(ID)
+        super(Session, self).ActivateObject(obj)
 
     def Pop(self, ID):
         """

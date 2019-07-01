@@ -120,12 +120,15 @@ class SpecInterface(object):
 
         If ID is specified, the spectrum is stored with id ID, possibly
         replacing a spectrum that was there before.
+
+        Returns:
+            A list of the loaded spectra
         """
         # Avoid multiple updates
         if self.window:
             self.window.viewport.LockUpdate()
         # only one filename is given
-        if isinstance(patterns, str) or isinstance(patterns, str):
+        if isinstance(patterns, str):
             patterns = [patterns]
 
         if ID is not None and len(patterns) > 1:
@@ -165,15 +168,15 @@ class SpecInterface(object):
                     spec.color = hdtv.color.ColorForID(sid.major)
                     if spec.name in list(self.spectra.caldict.keys()):
                         spec.cal = self.spectra.caldict[spec.name]
-                    loaded.append(sid)
+                    loaded.append(spec)
                     if fmt is None:
                         hdtv.ui.msg("Loaded %s into %s" % (fname, sid))
                     else:
                         hdtv.ui.msg("Loaded %s'%s into %s" % (fname, fmt, sid))
 
-        if len(loaded) > 0:
+        if loaded:
             # activate last loaded spectrum
-            self.spectra.ActivateObject(loaded[-1])
+            self.spectra.ActivateObject(loaded[-1].ID)
         # Expand window if it is the only spectrum
         if len(self.spectra) == 1:
             if self.window:
@@ -208,7 +211,7 @@ class SpecInterface(object):
             spectra.append(thisspec)
 
         table = hdtv.util.Table(spectra, params, sortBy="ID")
-        hdtv.ui.msg(str(table), end='')
+        hdtv.ui.msg(html=str(table), end='')
 
     def CopySpectrum(self, ID, copyTo=None):
         """

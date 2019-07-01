@@ -102,25 +102,25 @@ class TheuerkaufPeak(Drawable):
         """
         text = str()
         if verbose:
-            text += "Pos:         {.pos_cal:S}\n"
-            text += "Channel:     {.pos:S}\n"
-            text += "Volume:      {.vol:S}\n"
-            text += "FWHM:        {.width_cal:S}\n"
+            text += "Pos:         {0.pos_cal:S}\n"
+            text += "Channel:     {0.pos:S}\n"
+            text += "Volume:      {0.vol:S}\n"
+            text += "FWHM:        {0.width_cal:S}\n"
             if self.tl is not None:
-                text += "Left Tail:   {.tl:S}\n"
+                text += "Left Tail:   {0.tl:S}\n"
             else:
                 text += "Left Tail:   None\n"
             if self.tr is not None:
-                text += "Right Tail:  {.tr:S}\n"
+                text += "Right Tail:  {0.tr:S}\n"
             else:
                 text += "Right Tail:  None\n"
             if self.sh is not None:
-                text += "Step height: {.sh:S}\n"
-                text += "Step width:  {.sw:S}\n"
+                text += "Step height: {0.sh:S}\n"
+                text += "Step width:  {0.sw:S}\n"
             else:
-                text += "Step:        None\n"
+                text += "Step:        None"
         else:
-            text += "Peak@ {.pos_cal}\n"
+            text += "Peak@ {0.pos_cal}"
         return text.format(self)
 
     def __eq__(self, other):

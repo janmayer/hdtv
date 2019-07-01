@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # HDTV - A ROOT-based spectrum analysis software
-#  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
+#  Copyright (C) 2006-2019  The HDTV development team (see file AUTHORS)
 #
 # This file is part of HDTV.
 #
@@ -538,6 +538,9 @@ class ID(object):
         if self.minor is None:
             return str(self.major)
         return str(self.major) + "." + str(self.minor)
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__}: {self.__str__()}>"
 
     def __int__(self):
         return int(self.major)
