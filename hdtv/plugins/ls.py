@@ -24,13 +24,13 @@ Plugin implementing some useful hdtv commands for navigation the file system
 his includes a ls-like command, by special request from R. Schulze :)
 """
 
-from __future__ import print_function
-
-import hdtv.tabformat
-import hdtv.cmdline
 import os
 import stat
 import glob
+
+import hdtv.tabformat
+import hdtv.cmdline
+import hdtv.ui
 
 
 def ls(args):
@@ -73,16 +73,16 @@ def cd(args):
     try:
         os.environ["OLDPWD"] = os.getcwd()
         os.chdir(path)
-        print(path)
+        hdtv.ui.msg(path)
     except OSError as msg:
-        print(msg)
+        hdtv.ui.msg(msg)
 
 
 def pwd(args):
     """
     print name of current/working directory
     """
-    print(os.getcwd())
+    hdtv.ui.msg(os.getcwd())
 
 
 hdtv.cmdline.AddCommand("ls", ls, level=2, maxargs=1, dirargs=True)

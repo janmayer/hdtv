@@ -23,8 +23,6 @@
 Matrix interface for hdtv
 """
 
-from __future__ import print_function
-
 import os
 
 import ROOT
@@ -498,7 +496,7 @@ class TvMatInterface(object):
             # delete also cut spectrum
             if cut.spec is not None:
                 sid = self.spectra.Index(cut.spec)
-                print("remove spec %s" % sid)
+                hdtv.ui.msg("Remove spec %s" % sid)
                 self.spectra.Pop(sid)
 
 

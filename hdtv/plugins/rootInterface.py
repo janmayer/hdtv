@@ -23,8 +23,6 @@
 Preliminary ROOT file interface for hdtv
 """
 
-from __future__ import print_function
-
 import os
 import fnmatch
 import readline
@@ -35,6 +33,7 @@ import hdtv.cmdline
 import hdtv.tabformat
 import hdtv.rfile_utils
 import hdtv.util
+import hdtv.ui
 
 from hdtv.spectrum import Spectrum
 from hdtv.histogram import Histogram, RHisto2D, THnSparseWrapper
@@ -186,7 +185,7 @@ class RootFileInterface(object):
         (posix_path, rfile, root_dir) = hdtv.rfile_utils.GetRelDirectory(
             os.getcwd(), cur_root_dir, target)
         if (posix_path, rfile, root_dir) == (None, None, None):
-            print("Error: invalid path specified.")
+            hdtv.ui.error("Invalid path specified.")
             return
 
         os.environ["OLDPWD"] = os.getcwd()
@@ -196,12 +195,12 @@ class RootFileInterface(object):
         # a POSIX directory. If rfile is not None, we *changed* the ROOT file.
         if root_dir is None or rfile is not None:
             if self.rootfile is not None:
-                print("Info: closing old root file %s" %
+                hdtv.ui.info("Closing old root file %s" %
                       self.rootfile.GetName())
                 self.rootfile.Close()
             self.rootfile = rfile
             if self.rootfile is not None:
-                print("Info: opened new root file %s" %
+                hdtv.ui.info("Opened new root file %s" %
                       self.rootfile.GetName())
 
         if root_dir is not None:
@@ -211,14 +210,14 @@ class RootFileInterface(object):
         if self.rootfile is not None:
             ROOT.gDirectory.pwd()
         else:
-            print(os.getcwd())
+            hdtv.ui.msg(os.getcwd())
 
     def RootOpen(self, args):
         return self.RootCd(args)
 
     def RootClose(self, args):
         if self.rootfile is None:
-            print("Info: no root file open, no action taken")
+            hdtv.ui.info("No root file open, no action taken")
         else:
             self.rootfile.Close()
             self.rootfile = None
@@ -293,7 +292,7 @@ class RootFileInterface(object):
         cut = self.GetObj(path)
 
         if cut is None or not isinstance(cut, ROOT.TCutG):
-            print("Error: %s is not a ROOT cut (TCutG)" % path)
+            hdtv.ui.error("%s is not a ROOT cut (TCutG)" % path)
             return None
 
         return cut
@@ -314,7 +313,7 @@ class RootFileInterface(object):
             isinstance(hist, ROOT.TH2) or (
                 isinstance(hist, ROOT.THnSparse) and
                 hist.GetNdimensions() == 2)):
-            print("Error: %s is not a 2d histogram" % path)
+            hdtv.ui.error("%s is not a 2d histogram" % path)
             return None
 
         return hist
@@ -423,7 +422,7 @@ class RootFileInterface(object):
                             if spec.name in self.spectra.caldict:
                                 spec.cal = self.caldict[spec.name]
                             else:
-                                print("Warning: no calibration found for %s" %
+                                hdtv.ui.warn("No calibration found for %s" %
                                       spec.name)
                 else:
                     hdtv.ui.warn("%s is not a 1D histogram object" %

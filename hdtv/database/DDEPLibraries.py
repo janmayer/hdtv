@@ -23,18 +23,11 @@ def SearchNuclide(nuclide):
     if nuclide == "Ra-226":
         nuclide = "Ra-226D"
 
-    try: # Python3+
+    try:
         with urllib.request.urlopen("http://www.nucleide.org/DDEP_WG/Nuclides/" + str(nuclide) + ".lara.txt") as resource:
             data = resource.read().decode("utf-8")
-    except: # Python2
-        try:
-            resource = urllib.urlopen("http://www.nucleide.org/DDEP_WG/Nuclides/" + str(nuclide) + ".lara.txt")
-            data = resource.read().decode("utf-8")
-            resource.close()
-        except:
-            raise hdtv.cmdline.HDTVCommandError("Error looking up nuclide {}".format(nuclide))
-
-
+    except:
+        raise hdtv.cmdline.HDTVCommandError("Error looking up nuclide {}".format(nuclide))
 
     for line in data.split("\r\n"):
         sep = line.split(" ; ")

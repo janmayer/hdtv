@@ -4,8 +4,6 @@
 This is the main HDTV application.
 """
 
-from __future__ import print_function
-
 import sys
 import os
 import glob
