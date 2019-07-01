@@ -87,7 +87,7 @@ public:
 	{
 		std::vector<double> xx;
 		std::vector<double> yy;
-		for(int i = 0; i < iw.GetX().size(); ++i){
+		for(unsigned int i = 0; i < iw.GetX().size(); ++i){
 			xx.push_back(iw.GetX()[i]);
 			yy.push_back(iw.GetY()[i]);
 		}
