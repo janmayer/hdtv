@@ -368,14 +368,14 @@ class Fit(Drawable):
 
     def _get_background_pairs(self):
         if self.bgMarkers.IsPending():
-            hdtv.ui.warn("Not all background regions are closed.")
+            hdtv.ui.warning("Not all background regions are closed.")
         backgrounds = Pairs()
         for m in self.bgMarkers:
             try:
                 backgrounds.add(m.p1.pos_uncal, m.p2.pos_uncal)
             except AttributeError:
                 pos = m.p1.pos_cal if m.p1.pos_cal else m.p2.pos_cal
-                hdtv.ui.warn("Background region at {:.2f} without second marker was ignored".format(pos))
+                hdtv.ui.warning("Background region at {:.2f} without second marker was ignored".format(pos))
         return backgrounds
 
     def FitBgFunc(self, spec=None):

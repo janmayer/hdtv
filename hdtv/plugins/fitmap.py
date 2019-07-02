@@ -112,7 +112,7 @@ class FitMap(object):
         If no number is given, the first peak in the fit is used.
         """
         if self.spectra.activeID is None:
-            hdtv.ui.warn("No active spectrum, no action taken.")
+            hdtv.ui.warning("No active spectrum, no action taken.")
             return False
         spec = self.spectra.GetActiveObject()
         if len(args.args) % 2 != 0:
@@ -132,7 +132,7 @@ class FitMap(object):
                 except ValueError:
                     continue
                 except (KeyError, IndexError):
-                    hdtv.ui.warn("no peak with id %s" % args.args[i])
+                    hdtv.ui.warning("no peak with id %s" % args.args[i])
 
     def FitPosErase(self, args):
         """
@@ -143,7 +143,7 @@ class FitMap(object):
         If no number is given, the all peaks in that fit are used.
         """
         if self.spectra.activeID is None:
-            hdtv.ui.warn("No active spectrum, no action taken.")
+            hdtv.ui.warning("No active spectrum, no action taken.")
             return False
         spec = self.spectra.GetActiveObject()
         # use set, to prevent duplicates
@@ -158,7 +158,7 @@ class FitMap(object):
                     pids.update(
                         set(hdtv.util.ID.ParseIds("all", spec.dict[i])))
                 except KeyError:
-                    hdtv.ui.warn("no peak with id %s" % i.major)
+                    hdtv.ui.warning("no peak with id %s" % i.major)
                     continue
         for i in pids:
             pid = i.minor
@@ -167,7 +167,7 @@ class FitMap(object):
                 peak = spec.dict[i].peaks[pid]
             except (KeyError, IndexError):
                 # ignore invalid peaks, but give a warning
-                hdtv.ui.warn("no peak with id %s.%s" % (i.major, pid))
+                hdtv.ui.warning("no peak with id %s.%s" % (i.major, pid))
                 continue
             try:
                 peak.extras.pop("pos_lit")
@@ -187,10 +187,10 @@ class FitMap(object):
         for line in f.lines:
             energies.append(ufloat_fromstr(line.split(",")[0]))
         if self.spectra.activeID is None:
-            hdtv.ui.warn("No active spectrum, no action taken.")
+            hdtv.ui.warning("No active spectrum, no action taken.")
             return False
         if len(energies) == 0:
-            hdtv.ui.warn("No energies found in file {}.".format(args.filename))
+            hdtv.ui.warning("No energies found in file {}.".format(args.filename))
             return False
         spec = self.spectra.GetActiveObject()
         count = 0
@@ -214,7 +214,7 @@ class FitMap(object):
 
     def CalPosRecalibrate(self, args):
         if self.spectra.activeID is None:
-            hdtv.ui.warn("No active spectrum, no action taken.")
+            hdtv.ui.warning("No active spectrum, no action taken.")
             return False
         spec = self.spectra.GetActiveObject()
         # parsing of command line

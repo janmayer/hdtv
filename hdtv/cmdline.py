@@ -579,7 +579,7 @@ class CommandLine(object):
             elif cmd_type == "CMDFILE":
                 self.ExecCmdfile(cmd)
         except KeyboardInterrupt:
-            hdtv.ui.warn("Aborted")
+            hdtv.ui.warning("Aborted")
         except HDTVCommandError as msg:
             hdtv.ui.error("%s" % str(msg))
         except SystemExit:

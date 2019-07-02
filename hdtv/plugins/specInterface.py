@@ -149,7 +149,7 @@ class SpecInterface(object):
             files = glob.glob(os.path.expanduser(fpat))
 
             if len(files) == 0:
-                hdtv.ui.warn("%s: no such file" % fpat)
+                hdtv.ui.warning("%s: no such file" % fpat)
             elif ID is not None and len(files) > 1:
                 raise hdtv.cmdline.HDTVCommandAbort(
                     "pattern %s is ambiguous and you specified an ID" % fpat)
@@ -162,7 +162,7 @@ class SpecInterface(object):
                     # Create spectrum object
                     spec = Spectrum(FileHistogram(fname, fmt))
                 except (OSError, SpecReaderError):
-                    hdtv.ui.warn("Could not load %s'%s" % (fname, fmt))
+                    hdtv.ui.warning("Could not load %s'%s" % (fname, fmt))
                 else:
                     sid = self.spectra.Insert(spec, ID)
                     spec.color = hdtv.color.ColorForID(sid.major)
@@ -492,7 +492,7 @@ class TvSpecInterface(object):
         ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
 
         if len(ids) == 0:
-            hdtv.ui.warn("Nothing to do")
+            hdtv.ui.warning("Nothing to do")
             return
         for ID in ids:
             self.spectra.Pop(ID)
@@ -517,7 +517,7 @@ class TvSpecInterface(object):
         ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
 
         if len(ids) == 0:
-            hdtv.ui.warn("Nothing to do")
+            hdtv.ui.warning("Nothing to do")
             return
         targetids = list()
         if args.spectrum is not None:
@@ -549,7 +549,7 @@ class TvSpecInterface(object):
             [args.targetid] + args.specid, self.spectra, only_existent=False)
 
         if len(ids) == 0:
-            hdtv.ui.warn("Nothing to do")
+            hdtv.ui.warning("Nothing to do")
             return
 
         addTo = ids[0]
@@ -581,7 +581,7 @@ class TvSpecInterface(object):
             [args.targetid] + args.specid, self.spectra, only_existent=False)
 
         if len(ids) == 0:
-            hdtv.ui.warn("Nothing to do")
+            hdtv.ui.warning("Nothing to do")
             return
 
         subFrom = ids[0]
@@ -612,7 +612,7 @@ class TvSpecInterface(object):
             ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
 
         if len(ids) == 0:
-            hdtv.ui.warn("Nothing to do")
+            hdtv.ui.warning("Nothing to do")
             return
 
         for i in ids:
@@ -639,7 +639,7 @@ class TvSpecInterface(object):
             ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
 
         if len(ids) == 0:
-            hdtv.ui.warn("Nothing to do")
+            hdtv.ui.warning("Nothing to do")
             return
 
         for i in ids:
@@ -667,7 +667,7 @@ class TvSpecInterface(object):
             ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
 
         if len(ids) == 0:
-            hdtv.ui.warn("Nothing to do")
+            hdtv.ui.warning("Nothing to do")
             return
 
         for i in ids:
@@ -731,7 +731,7 @@ class TvSpecInterface(object):
             specids = args.specid
         ids = hdtv.util.ID.ParseIds(specids, self.spectra)
         if len(ids) == 0:
-            hdtv.ui.warn("Nothing to do")
+            hdtv.ui.warning("Nothing to do")
             return
         self.spectra.RefreshObjects(ids)
 
@@ -757,7 +757,7 @@ class TvSpecInterface(object):
             hdtv.ui.msg("Wrote spectrum with id %s to file %s" %
                         (ID, filename))
         except KeyError:
-            hdtv.ui.warn("There is no spectrum with id: %s" % ID)
+            hdtv.ui.warning("There is no spectrum with id: %s" % ID)
 
     def SpectrumName(self, args):
         """
@@ -769,10 +769,10 @@ class TvSpecInterface(object):
             ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
 
             if len(ids) == 0:
-                hdtv.ui.warn("Nothing to do")
+                hdtv.ui.warning("Nothing to do")
                 return
             elif len(ids) > 1:
-                hdtv.ui.warn("Can only rename one spectrum at a time")
+                hdtv.ui.warning("Can only rename one spectrum at a time")
                 return
 
             ID = ids[0]
@@ -790,7 +790,7 @@ class TvSpecInterface(object):
         else:
             ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
             if len(ids) == 0:
-                hdtv.ui.warn("Nothing to do")
+                hdtv.ui.warning("Nothing to do")
                 return
 
         for ID in ids:

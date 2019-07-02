@@ -828,7 +828,7 @@ class EnergyCalIf(object):
                 peak = fits[fid].peaks[pid]
             except (IndexError, KeyError):
                 fid.minor = pid
-                hdtv.ui.warn("Ignoring invalid peak id %s" % fid)
+                hdtv.ui.warning("Ignoring invalid peak id %s" % fid)
                 continue
             peak.extras["pos_lit"] = p[1]
             valid_pairs.add(peak.pos, p[1])
@@ -851,7 +851,7 @@ class EnergyCalIf(object):
                 coeff = [float(s) for s in v.split()]
                 calDict[name] = hdtv.cal.MakeCalibration(coeff)
             except ValueError:
-                hdtv.ui.warn(
+                hdtv.ui.warning(
                     "Could not parse line %d of file %s: ignored." %
                     (n, fname))
         return calDict
@@ -1121,7 +1121,7 @@ class EnergyCalHDTVInterface(object):
         cal = [args.p0] + args.prest
         ids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
         if not ids:
-            hdtv.ui.warn("Nothing to do")
+            hdtv.ui.warning("Nothing to do")
             return
         # do the work
         self.spectra.ApplyCalibration(ids, cal)
@@ -1134,7 +1134,7 @@ class EnergyCalHDTVInterface(object):
         # parsing command
         ids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
         if not ids:
-            hdtv.ui.warn("Nothing to do")
+            hdtv.ui.warning("Nothing to do")
             return
         self.spectra.ApplyCalibration(ids, None)
         return True
@@ -1262,7 +1262,7 @@ class EnergyCalHDTVInterface(object):
         filename = args.filename
 
         if not sids:
-            hdtv.ui.warn("Nothing to do")
+            hdtv.ui.warning("Nothing to do")
             return
         # do the work
         try:
@@ -1282,7 +1282,7 @@ class EnergyCalHDTVInterface(object):
         If no number is given, the first peak in the fit is used.
         """
         if self.spectra.activeID is None:
-            hdtv.ui.warn("No active spectrum, no action taken.")
+            hdtv.ui.warning("No active spectrum, no action taken.")
             return False
         spec = self.spectra.GetActiveObject()
         # parsing of command

@@ -441,8 +441,8 @@ class GammaLib(list):
                 results.sort(key=lambda x: getattr(
                     x, sort_key), reverse=sort_reverse)
         except AttributeError:
-            hdtv.ui.warn("Could not sort by \'" +
-                         str(sort_key) + "\': No such key")
+            hdtv.ui.warning("Could not sort by \'" +
+                            str(sort_key) + "\': No such key")
             raise AttributeError
 
         return results

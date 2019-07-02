@@ -660,7 +660,7 @@ class ID(object):
                         break  # break out of for mID in manager.ids loop
 
                 if ID not in valid_ids:  # This only works because we appended IDs above, not mIDs, because they are different instances of the ID object
-                    hdtv.ui.warn("Non-existent id %s" % ID)
+                    hdtv.ui.warning("Non-existent id %s" % ID)
 
         else:
             valid_ids = ids
@@ -695,7 +695,7 @@ def user_save_file(filename, force=False):
     """
     filename = os.path.expanduser(filename)
     if not force and os.path.exists(filename):
-        hdtv.ui.warn(f'This file already exists: {filename}')
+        hdtv.ui.warning(f'This file already exists: {filename}')
 
         bindings = KeyBindings()
 

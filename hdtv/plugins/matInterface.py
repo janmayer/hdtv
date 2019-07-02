@@ -143,14 +143,14 @@ class MatInterface(object):
                 # show y proj
                 ID = self.spectra.Index(mat.yproj)
             if ID is None:
-                hdtv.ui.warn("Projection is not loaded.")
+                hdtv.ui.warning("Projection is not loaded.")
                 return
         # for a projection, cut to last shown cut
         else:
             ID = self.oldcut
             if ID is None:
                 # FIXME
-                hdtv.ui.warn("No old cut")
+                hdtv.ui.warning("No old cut")
                 return
         self.spectra.ShowObjects(ID)
 
@@ -159,7 +159,7 @@ class MatInterface(object):
         try:
             histo = MHisto2D(fname, sym)
         except (OSError, SpecReaderError):
-            hdtv.ui.warn("Could not load %s" % fname)
+            hdtv.ui.warning("Could not load %s" % fname)
             return
 
         matrix = Matrix(histo, sym, self.spectra.viewport)
@@ -464,10 +464,10 @@ class TvMatInterface(object):
         """
         spec = self.spectra.GetActiveObject()
         if spec is None:
-            hdtv.ui.warn("No active spectrum")
+            hdtv.ui.warning("No active spectrum")
             return
         if not hasattr(spec, "matrix") or spec.matrix is None:
-            hdtv.ui.warn("Active spectrum does not belong to a matrix")
+            hdtv.ui.warning("Active spectrum does not belong to a matrix")
             return
         ids = hdtv.util.ID.ParseIds(args.cutid, spec.matrix)
         if len(ids) == 1:
@@ -485,10 +485,10 @@ class TvMatInterface(object):
         """
         spec = self.spectra.GetActiveObject()
         if spec is None:
-            hdtv.ui.warn("No active spectrum")
+            hdtv.ui.warning("No active spectrum")
             return
         if not hasattr(spec, "matrix") or spec.matrix is None:
-            hdtv.ui.warn("Active spectrum does not belong to a matrix")
+            hdtv.ui.warning("Active spectrum does not belong to a matrix")
             return
         ids = hdtv.util.ID.ParseIds(args.cutid, spec.matrix)
         for ID in ids:

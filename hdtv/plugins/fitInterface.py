@@ -417,7 +417,7 @@ class FitInterface(object):
             return
         spec = self.spectra.GetActiveObject()
         if spec is None:
-            hdtv.ui.warn("No active spectrum")
+            hdtv.ui.warning("No active spectrum")
         try:
             iter(ids)
         except TypeError:
@@ -446,7 +446,7 @@ class FitInterface(object):
             return
         spec = self.spectra.GetActiveObject()
         if spec is None:
-            hdtv.ui.warn("No active spectrum")
+            hdtv.ui.warning("No active spectrum")
         try:
             iter(ids)
         except TypeError:
@@ -473,7 +473,7 @@ class FitInterface(object):
             return
         spec = self.spectra.GetActiveObject()
         if spec is None:
-            hdtv.ui.warn("No active spectrum")
+            hdtv.ui.warning("No active spectrum")
         try:
             iter(ids)
         except TypeError:
@@ -500,7 +500,7 @@ class FitInterface(object):
             return
         spec = self.spectra.GetActiveObject()
         if spec is None:
-            hdtv.ui.warn("No active spectrum")
+            hdtv.ui.warning("No active spectrum")
         try:
             iter(ids)
         except TypeError:
@@ -907,7 +907,7 @@ class TvFitInterface(object):
         """
         specIDs = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
         if len(specIDs) == 0:
-            hdtv.ui.warn("No spectrum to work on")
+            hdtv.ui.warning("No spectrum to work on")
             return
         if args.background:
             doPeaks = False
@@ -940,7 +940,7 @@ class TvFitInterface(object):
                     self.fitIf.ExecuteRefit(
                         specID=specID, fitID=fitID, peaks=doPeaks)
                 except (KeyError, RuntimeError) as e:
-                    hdtv.ui.warn(e)
+                    hdtv.ui.warning(e)
                     continue
 
         if oldActiveID is not None:  # Reactivate spectrum that was active in the beginning
@@ -953,7 +953,7 @@ class TvFitInterface(object):
         """
         specIDs = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
         if not specIDs:
-            hdtv.ui.warn("No spectrum to work on")
+            hdtv.ui.warning("No spectrum to work on")
             return
 
         # Store active spec ID before activation of other spectra
@@ -977,7 +977,7 @@ class TvFitInterface(object):
                     self.fitIf.ExecuteReintegrate(
                         specID=specID, fitID=fitID)
                 except (KeyError, RuntimeError) as e:
-                    hdtv.ui.warn(e)
+                    hdtv.ui.warning(e)
                     continue
 
         if oldActiveID is not None:  # Reactivate spectrum that was active in the beginning
@@ -1007,7 +1007,7 @@ class TvFitInterface(object):
         """
         sid = self.spectra.activeID
         if sid is None:
-            hdtv.ui.warn("No active spectrum")
+            hdtv.ui.warning("No active spectrum")
             return
         spec = self.spectra.dict[sid]
         ids = hdtv.util.ID.ParseIds(args.fitids, spec)
@@ -1026,7 +1026,7 @@ class TvFitInterface(object):
         """
         sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
         if not sids:
-            hdtv.ui.warn("No spectra chosen or active")
+            hdtv.ui.warning("No spectra chosen or active")
             return
         else:
             for s in sids:
@@ -1042,7 +1042,7 @@ class TvFitInterface(object):
                         else:
                             msg = "It is not possible to remove single peaks, "
                             msg += "removing whole fit with id %s instead." % fitid.major
-                            hdtv.ui.warn(msg)
+                            hdtv.ui.warning(msg)
                             fitid.minor = None
                             already_removed.add(fitid.major)
                     # do the work
@@ -1117,7 +1117,7 @@ class TvFitInterface(object):
                 fits.extend([spec.dict[ID] for ID in ids])
                 spec.ShowObjects(ids, clear=False)
                 if not fits:
-                    hdtv.ui.warn("Nothing to focus in spectrum %s" % sid)
+                    hdtv.ui.warning("Nothing to focus in spectrum %s" % sid)
                     return
         self.spectra.window.FocusObjects(fits)
 
@@ -1130,7 +1130,7 @@ class TvFitInterface(object):
         self.fitIf.PrintWorkFit()
         sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
         if not sids:
-            hdtv.ui.warn("No spectra chosen or active")
+            hdtv.ui.warning("No spectra chosen or active")
             return
         # parse sort_key
         if args.key_sort is None:
@@ -1155,7 +1155,7 @@ class TvFitInterface(object):
         self.fitIf.PrintWorkFitIntegral()
         sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
         if not sids:
-            hdtv.ui.warn("No spectra chosen or active")
+            hdtv.ui.warning("No spectra chosen or active")
             return
         # parse sort_key
         key_sort = args.key_sort.lower()
@@ -1188,7 +1188,7 @@ class TvFitInterface(object):
             if args.fit:
                 spec = self.spectra.GetActiveObject()
                 if spec is None:
-                    hdtv.ui.warn("No active spectrum, no action taken.")
+                    hdtv.ui.warning("No active spectrum, no action taken.")
                     return
                 ids = hdtv.util.ID.ParseIds(args.fit, spec)
             self.fitIf.SetPeakModel(name, ids)
@@ -1211,7 +1211,7 @@ class TvFitInterface(object):
             if args.fit:
                 spec = self.spectra.GetActiveObject()
                 if spec is None:
-                    hdtv.ui.warn("No active spectrum, no action taken.")
+                    hdtv.ui.warning("No active spectrum, no action taken.")
                     return
                 ids = hdtv.util.ID.ParseIds(args.fit, spec)
             self.fitIf.SetBackgroundModel(name, ids)
@@ -1248,7 +1248,7 @@ class TvFitInterface(object):
         if args.fit:
             spec = self.spectra.GetActiveObject()
             if spec is None:
-                hdtv.ui.warn("No active spectrum, no action taken.")
+                hdtv.ui.warning("No active spectrum, no action taken.")
                 return
             ids = hdtv.util.ID.ParseIds(args.fit, spec)
         if param == "status":
@@ -1301,7 +1301,7 @@ class TvFitInterface(object):
         for specID in specIDs:
             fitIDs = hdtv.util.ID.ParseIds(args.fitids, self.spectra.dict[specID])
             if not fitIDs:
-                hdtv.ui.warn("No fit for spectrum %d to work on", specID)
+                hdtv.ui.warning("No fit for spectrum %d to work on", specID)
                 continue
             for fitID in fitIDs:
                 self.fitIf.FitReset(specID=specID, fitID=fitID,

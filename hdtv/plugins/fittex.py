@@ -184,7 +184,7 @@ class fitTex:
         fits = list()
         sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
         if len(sids) == 0:
-            hdtv.ui.warn("No spectra chosen or active")
+            hdtv.ui.warning("No spectra chosen or active")
             return
         for sid in sids:
             spec = self.spectra.dict[sid]
@@ -216,7 +216,7 @@ class fitTex:
         else:
             msg = "Invalid specifier for horizontal alignment. "
             msg += "Valid values are c,l,r. "
-            hdtv.ui.warn(msg)
+            hdtv.ui.warning(msg)
             ha = "c"
 
         # do the work

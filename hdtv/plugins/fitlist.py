@@ -86,7 +86,7 @@ class FitlistManager(object):
                     # create valid path from relative pathnames
                     xmlfile = os.path.join(dirname, xmlfile)
                     if not os.path.exists(xmlfile):
-                        hdtv.ui.warn("No such file %s" % xmlfile)
+                        hdtv.ui.warning("No such file %s" % xmlfile)
                         continue
                     sid = None
                     for ID in self.spectra.ids:
@@ -96,9 +96,9 @@ class FitlistManager(object):
                     if sid is not None:
                         self.ReadXML(sid, xmlfile)
                     else:
-                        hdtv.ui.warn("Spectrum %s is not loaded. " % name)
+                        hdtv.ui.warning("Spectrum %s is not loaded. " % name)
                 except ValueError:
-                    hdtv.ui.warn(
+                    hdtv.ui.warning(
                         "Could not parse line %d of file %s: ignored." %
                         (linenum + 1, fname))
 
@@ -234,7 +234,7 @@ class FitlistHDTVInterface(object):
                 fname = os.path.expanduser(fname)
                 more = glob.glob(fname)
                 if len(more) == 0:
-                    hdtv.ui.warn("No such file %s" % fname)
+                    hdtv.ui.warning("No such file %s" % fname)
                 fnames[sid].extend(more)
 
         # Load files

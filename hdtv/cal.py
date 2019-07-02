@@ -170,7 +170,7 @@ class CalibrationFitter:
         if not ignore_errors and not all_have_error:
             ignore_errors = True
             if any_has_error:
-                hdtv.ui.warn(
+                hdtv.ui.warning(
                     "Some values specified without error, ignoring all errors in fit")
 
         if ignore_errors:
