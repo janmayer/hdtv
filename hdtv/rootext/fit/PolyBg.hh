@@ -66,7 +66,7 @@ public:
     return fBgRegions.empty() ? std::numeric_limits<double>::quiet_NaN()
                               : *(fBgRegions.rbegin());
   }
-  unsigned int GetNparams() const override { return fBgDeg; };
+  unsigned int GetNparams() const override { return fBgDeg+1; };
 
   void Fit(TH1 &hist);
   bool Restore(const TArrayD &values, const TArrayD &errors, double ChiSquare);
