@@ -56,7 +56,8 @@ class FitlistManager(object):
         fname = os.path.abspath(fname)
         self.list[spec.name] = fname
         with hdtv.util.open_compressed(fname, mode='rb') as f:
-            self.xml.ReadFitlist(f, sid, refit, interactive, fname=fname)
+            self.xml.ReadFitlist(f, sid,
+                 refit=refit, interactive=interactive, fname=fname)
 
     def WriteList(self, fname):
         lines = list()
