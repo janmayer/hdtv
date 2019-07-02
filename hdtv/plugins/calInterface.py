@@ -866,8 +866,7 @@ class EnergyCalIf(object):
         for name in names:
             cal = calDict[name]
             lines.append(name + ": " + hdtv.cal.PrintCal(cal))
-        text = "\n".join(lines)
-        return text
+        return "\n".join(lines)
 
     def CopyCal(self, source_id, ids):
         """
