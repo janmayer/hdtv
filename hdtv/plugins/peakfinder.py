@@ -140,8 +140,8 @@ class PeakFinder(object):
                         continue
                 else:
                     if result:
-                        text = "Warning: adding invalid fit:" + result
-                        hdtv.ui.msg(text)
+                        text = "Adding invalid fit:" + result
+                        hdtv.ui.warning(text)
             # Integrate. TODO: Might use this for additional checks
             if fit.regionMarkers.IsFull():
                 region = [fit.regionMarkers[0].p1.pos_uncal,
@@ -224,7 +224,7 @@ hdtv.cmdline.RegisterInteractive("peakfinder", peakfinder)
 def PeakSearch(args):
     try:
         if __main__.spectra.activeID not in __main__.spectra.visible:
-            hdtv.ui.warn("Active spectrum is not visible, no action taken")
+            hdtv.ui.warning("Active spectrum is not visible, no action taken")
             return True
     except KeyError:
         raise hdtv.cmdline.HDTVCommandAbort("No active spectrum")

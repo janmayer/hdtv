@@ -26,6 +26,7 @@ import hdtv.ui
 from hdtv.util import Position
 from hdtv.fitter import Fitter
 from hdtv.fit import Fit
+from hdtv.cmdline import HDTVCommandError
 
 # Increase the version number if you changed something related to the xml output.
 # If your change affect the reading, you should increase the major number
@@ -59,7 +60,7 @@ class FitXml(object):
         try:
             fits = self.spectra.dict[sid].dict
         except KeyError:
-            raise hdtv.cmdline.HDTVCommandError("No spectrum with id %s loaded." % sid)
+            raise HDTVCommandError("No spectrum with id %s loaded." % sid)
         root = self.CreateXml(fits)
         # save to file
         tree = ET.ElementTree(root)
@@ -303,7 +304,7 @@ class FitXml(object):
         if sid is None:
             sid = self.spectra.activeID
         if sid not in self.spectra.ids:
-            raise hdtv.cmdline.HDTVCommandError("No spectrum with id %s loaded." % sid)
+            raise HDTVCommandError("No spectrum with id %s loaded." % sid)
         count = 0
         try:
             fname = "'{}'".format(fname or file_object.name)
@@ -321,7 +322,7 @@ class FitXml(object):
             else:
                 # old versions
                 oldversion = root.get("version")
-                hdtv.ui.warn(
+                hdtv.ui.warning(
                     "The XML version of this file (%s) is outdated." %
                     oldversion)
                 if oldversion == "1.3":
@@ -354,7 +355,7 @@ class FitXml(object):
                         input("Please press enter to continue...\n")
                     count, fits = self.RestoreFromXml_v0(root, True)
         except SyntaxError as e:
-            hdtv.ui.error("Error reading " + fname + ":\n\t", e)
+            raise HDTVCommandError(f"Error reading fits from {fname}.")
         else:
             msg = "%s loaded: " % (fname)
             if count == 1:
@@ -479,7 +480,7 @@ class FitXml(object):
                 specElement = index[spec.name]
             except KeyError:
                 #    msg ="No informations for spectrum %s (id=%d) in file" %(spec, sid)
-                #    hdtv.ui.warn(msg)
+                #    hdtv.ui.warning(msg)
                 continue
             # load the calibration from file
             if calibrate:
@@ -491,7 +492,7 @@ class FitXml(object):
                     # No calibration was saved
                     msg = "Could not read calibration for spectrum %s (id=%d)" % (
                         spec, sid)
-                    hdtv.ui.warn(msg)
+                    hdtv.ui.warning(msg)
             # <fits>
             fits = list()
             for fitElement in specElement.findall("fit"):

@@ -296,7 +296,7 @@ class MarkerCollection(list):
         both are removed
         """
         if len(self) == 0:
-            hdtv.ui.warn("No marker available, no action taken")
+            hdtv.ui.warning("No marker available, no action taken")
             return
         index = dict()
         for m in self:

@@ -351,14 +351,14 @@ class FileHistogram(Histogram):
         try:
             os.path.exists(self.filename)
         except OSError:
-            hdtv.ui.warn("File %s not found, keeping previous data" %
-                         self.filename)
+            hdtv.ui.warning("File %s not found, keeping previous data" %
+                            self.filename)
             return
         # call to SpecReader to get the hist
         try:
             hist = SpecReader().GetSpectrum(self.filename, self.fmt)
         except SpecReaderError as msg:
-            hdtv.ui.warn(
+            hdtv.ui.warning(
                 "Failed to load spectrum: %s (file: %s), keeping previous data" %
                 (msg, self.filename))
             return

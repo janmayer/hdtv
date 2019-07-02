@@ -79,7 +79,7 @@ class SimpleUI(object):
         html = "INFO: " + html
         self.print(text, end=end)
 
-    def warn(self, text=None, *, html=None, end='\n'):
+    def warning(self, text=None, *, html=None, end='\n'):
         """
         Print warning message
         """
@@ -111,7 +111,7 @@ ui = SimpleUI()
 
 msg = ui.msg
 info = ui.info
-warn = ui.warn
+warning = ui.warning
 error = ui.error
 
 def debug(text, end='\n', level=1):

@@ -70,7 +70,7 @@ class Session(DrawableManager):
             try:
                 spec = self.dict[ID]
             except KeyError:
-                hdtv.ui.warn("There is no spectrum with id: %s" % ID)
+                hdtv.ui.warning("There is no spectrum with id: %s" % ID)
             else:
                 if cal is None:
                     hdtv.ui.msg(
@@ -208,7 +208,7 @@ class Session(DrawableManager):
         if sid is None:
             sid = self.activeID
         if sid is None:
-            hdtv.ui.warn("There is no active spectrum")
+            hdtv.ui.warning("There is no active spectrum")
             return
         spec = self.dict[sid]
         spec.ActivateObject(ID)
@@ -234,7 +234,7 @@ class Session(DrawableManager):
                 raise hdtv.cmdline.HDTVCommandError("More than one ID given")
             ID = ids[0]
         if spec is None:
-            hdtv.ui.warn("No fit available to store")
+            hdtv.ui.warning("No fit available to store")
             return
         if ID is None:
             ID = spec.activeID

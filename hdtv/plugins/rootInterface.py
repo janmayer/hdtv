@@ -422,11 +422,11 @@ class RootFileInterface(object):
                             if spec.name in self.spectra.caldict:
                                 spec.cal = self.caldict[spec.name]
                             else:
-                                hdtv.ui.warn("No calibration found for %s" %
-                                      spec.name)
+                                hdtv.ui.warning("No calibration found for %s" %
+                                    spec.name)
                 else:
-                    hdtv.ui.warn("%s is not a 1D histogram object" %
-                                 obj.GetName())
+                    hdtv.ui.warning("%s is not a 1D histogram object" %
+                                    obj.GetName())
             hdtv.ui.msg("%d spectra loaded" % len(loaded))
             if args.invisible:
                 self.spectra.HideObjects(loaded)

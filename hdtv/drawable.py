@@ -264,7 +264,7 @@ class DrawableManager(object):
             obj.ID = None
             return obj
         except KeyError:
-            hdtv.ui.warn("ID %s not found." % ID)
+            hdtv.ui.warning("ID %s not found." % ID)
 
     def Clear(self):
         """
@@ -331,9 +331,9 @@ class DrawableManager(object):
             ids = [ids]
         for ID in ids:
             try:
-                self.dict[ID].Refresh
+                self.dict[ID].Refresh()
             except KeyError:
-                hdtv.ui.error("ID %d not found" % ID)
+                hdtv.ui.warning("ID %d not found" % ID)
         if self.viewport:
             self.viewport.UnlockUpdate()
         return ids
@@ -371,7 +371,7 @@ class DrawableManager(object):
                 self.dict[ID].Hide()
                 self.visible.discard(ID)
             except KeyError:
-                hdtv.ui.warn("ID %d not found" % ID)
+                hdtv.ui.warning("ID %d not found" % ID)
         self.viewport.UnlockUpdate()
         return ids
 
@@ -417,7 +417,7 @@ class DrawableManager(object):
                 self.dict[ID].Show()
                 self.visible.add(ID)
             except KeyError:
-                hdtv.ui.warn("ID %s not found" % ID)
+                hdtv.ui.warning("ID %s not found" % ID)
         self.viewport.UnlockUpdate()
         return ids
 

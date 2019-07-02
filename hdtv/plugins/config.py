@@ -43,7 +43,7 @@ def ConfigShow(args):
         try:
             hdtv.ui.msg(html=hdtv.options.Show(args.variable))
         except KeyError:
-            hdtv.ui.warn(args.variable + ": no such option")
+            hdtv.ui.warning(args.variable + ": no such option")
     else:
         hdtv.ui.msg(html=hdtv.options.Str(), end='')
 
@@ -58,7 +58,7 @@ def ConfigReset(args):
                 hdtv.options.Reset(args.variable)
                 hdtv.ui.debug("Reset configuration variable " + args.variable)
             except KeyError:
-                hdtv.ui.warn(args.variable + ": no such option")
+                hdtv.ui.warning(args.variable + ": no such option")
     else:
         hdtv.ui.msg(hdtv.options.Str(), end='')
 

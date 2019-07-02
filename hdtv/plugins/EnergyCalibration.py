@@ -105,16 +105,15 @@ def MatchPeaksAndEnergies(peaks, energies, sigma):
         if gradient[i] > bestAccordance - \
                 sigma and gradient[i] < bestAccordance + sigma:
             for a in accordance:
-                if a[0] == pair[i][0] or a[1] == pair[i][1]:  # Warning
+                if a[0] == pair[i][0] or a[1] == pair[i][1]:
                     hdtv.ui.msg(f"{a} {pair[i]}")
-                    hdtv.ui.warn(
+                    hdtv.ui.warning(
                         "Some peaks/energies are used more than one time.")
             accordance.append(pair[i])
 
-    # warning when only few pairs are found
     if len(accordance) < 4:
         hdtv.ui.msg(accordance)
-        hdtv.ui.warn("Only a few (peak,energy) pairs are found.")
+        hdtv.ui.warning("Only a few (peak,energy) pairs are found.")
 
     return(accordance)
 
