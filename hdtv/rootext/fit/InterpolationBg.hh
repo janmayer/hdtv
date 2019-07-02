@@ -151,6 +151,8 @@ public:
   TF1 *GetFunc() override { return fFunc.get(); }
 
   double Eval(double x) const override {
+    if(x <= fFunc->GetXmin() || x >= fFunc->GetXmax())
+		return 0.;
     return fInter(x);
   }
 

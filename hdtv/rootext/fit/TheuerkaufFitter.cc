@@ -305,7 +305,7 @@ void TheuerkaufFitter::Fit(TH1 &hist, const Background &bg) {
   }
 
   fBackground.reset(bg.Clone());
-  fIntBgDeg = fBackground->GetNparams();
+  fIntBgDeg = -1;
   _Fit(hist);
 }
 
