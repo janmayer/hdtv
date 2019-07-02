@@ -295,7 +295,8 @@ class FitXml(object):
         error = float(errorElement.text)
         return ufloat(value, error, tag=free)
 
-    def ReadFitlist(self, file_object, sid=None, refit=False, interactive=True, fname=None):
+    def ReadFitlist(self, file_object, sid=None, calibrate=False,
+            refit=False, interactive=True, fname=None):
         """
         Reads fitlist from xml files
         """
@@ -318,7 +319,8 @@ class FitXml(object):
                 raise SyntaxError(e)
             # current version
             if root.get("version") == self.version:
-                count, fits = self.RestoreFromXml(root, sid, refit=refit)
+                count, fits = self.RestoreFromXml(
+                    root, sid, calibrate=calibrate, refit=refit)
             else:
                 # old versions
                 oldversion = root.get("version")
@@ -328,15 +330,18 @@ class FitXml(object):
                 if oldversion == "1.3":
                     hdtv.ui.msg(
                         "But this version should be fully compatible with the new version.")
-                    count, fits = self.RestoreFromXml_v1_3(root, sid, refit=refit)
+                    count, fits = self.RestoreFromXml_v1_3(
+                        root, sid, calibrate=calibrate, refit=refit)
                 if oldversion == "1.2":
                     hdtv.ui.msg(
                         "But this version should be fully compatible with the new version.")
-                    count, fits = self.RestoreFromXml_v1_2(root, sid, refit=refit)
+                    count, fits = self.RestoreFromXml_v1_2(
+                        root, sid, calibrate=calibrate, refit=refit)
                 if oldversion == "1.1":
                     hdtv.ui.msg(
                         "But this version should be fully compatible with the new version.")
-                    count, fits = self.RestoreFromXml_v1_1(root, sid, refit=refit)
+                    count, fits = self.RestoreFromXml_v1_1(
+                        root, sid, calibrate=calibrate, refit=refit)
                 if oldversion == "1.0":
                     hdtv.ui.msg(
                         "Restoring only fits belonging to spectrum %s" % sid)
@@ -369,7 +374,7 @@ class FitXml(object):
                 self.spectra.viewport.UnlockUpdate()
 
 #### version 1* ###############################################################
-    def RestoreFromXml_v1_4(self, root, sid, refit=False):
+    def RestoreFromXml_v1_4(self, root, sid, calibrate=False, refit=False):
         """
         Restores fits from xml file (version = 1.4)
 
@@ -381,7 +386,21 @@ class FitXml(object):
         count = 0
         do_fit = ""
         fits = list()
+        spec_name_last = ""
         for fitElement in root.findall("fit"):
+            if calibrate:
+                spectrum = fitElement.find("spectrum")
+                spec_name = spectrum.get("name")
+                if spec_name != spec_name_last or not spec_name:
+                    if spec_name != spec.name:
+                        hdtv.ui.warning(
+                            f"Applying calibration for '{spec_name}' to '{spec.name}'.")
+                    spec_name_last = spec_name
+                    spec_cal = spectrum.get("calibration")
+                    cal = [float(c) for c in spec_cal.split()]
+                    self.spectra.ApplyCalibration([sid], cal)
+                    hdtv.ui.debug(f"Applying calibration {spec_cal}.")
+
             (fit, success) = self.Xml2Fit_v1(fitElement, calibration=spec.cal)
             # restore fit
             if success and not refit:
@@ -414,7 +433,7 @@ class FitXml(object):
                 fit.Hide()
         return count, fits
 
-    def RestoreFromXml_v1_3(self, root, sid, refit=False):
+    def RestoreFromXml_v1_3(self, root, sid, calibrate=False, refit=False):
         """
         Restores fits from xml file (version = 1.3)
 
@@ -422,9 +441,9 @@ class FitXml(object):
         Now it is possible to store additional user supplied parameter for
         each peak. No big change!
         """
-        return self.RestoreFromXml_v1_4(root, sid, refit)
+        return self.RestoreFromXml_v1_4(root, sid, calibrate, refit)
     
-    def RestoreFromXml_v1_2(self, root, sid, refit=False):
+    def RestoreFromXml_v1_2(self, root, sid, calibrate=False, refit=False):
         """
         Restores fits from xml file (version = 1.2)
 
@@ -432,9 +451,9 @@ class FitXml(object):
         Calibrated AND Uncalibrated marker positions are saved in version 1.2,
         where as in version 1.1 only one of both has been saved. No big change!
         """
-        return self.RestoreFromXml_v1_3(root, sid, refit)
+        return self.RestoreFromXml_v1_3(root, sid, calibrate, refit)
 
-    def RestoreFromXml_v1_1(self, root, sid, refit=False):
+    def RestoreFromXml_v1_1(self, root, sid, calibrate=False, refit=False):
         """
         Restores fits from xml file (version = 1.1)
 
@@ -444,7 +463,7 @@ class FitXml(object):
         childs of the root element. The spectrum element is still there, but now
         a child of each fit element and not longer used in hdtv for anything
         """
-        return self.RestoreFromXml_v1_2(root, sid, refit)
+        return self.RestoreFromXml_v1_2(root, sid, calibrate, refit)
 
     def RestoreFromXml_v1_0(self, root, sids=None,
                             calibrate=False, refit=False):
