@@ -327,7 +327,7 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
   // Allocate additional parameters for internal polynomial background
   // Note that a polynomial of degree n has n+1 parameters!
   if (fIntBgDeg >= 0) {
-    fNumParams += fIntBgDeg;
+    fNumParams += (fIntBgDeg + 1);
   }
 
   // Create fit function
