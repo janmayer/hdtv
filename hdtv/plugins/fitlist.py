@@ -50,14 +50,15 @@ class FitlistManager(object):
         with hdtv.util.open_compressed(fname, mode='wb') as f:
             self.xml.WriteFitlist(f, sid)
 
-    def ReadXML(self, sid, fname, refit=False, interactive=True):
+    def ReadXML(self, sid, fname, calibrate=False, refit=False, interactive=True):
         spec = self.spectra.dict[sid]
         # remember absolut pathname for later use
         fname = os.path.abspath(fname)
         self.list[spec.name] = fname
         with hdtv.util.open_compressed(fname, mode='rb') as f:
             self.xml.ReadFitlist(f, sid,
-                 refit=refit, interactive=interactive, fname=fname)
+                 calibrate=calibrate, refit=refit,
+                 interactive=interactive, fname=fname)
 
     def WriteList(self, fname):
         lines = list()
@@ -142,6 +143,12 @@ class FitlistHDTVInterface(object):
             help="spectra to which the fits should be added (default=active)")
         parser.add_argument("-r", "--refit", action="store_true", default=False,
             help="Force refitting during load")
+        parser.add_argument(
+            "-c",
+            "--calibrate",
+            action="store_true",
+            default=False,
+            help="Apply the stored calibration to the loaded spectrum")
         parser.add_argument(
             "filename",
             nargs='+',
@@ -242,7 +249,7 @@ class FitlistHDTVInterface(object):
         for sid in sids:
             for fname in fnames[sid]:
                 hdtv.ui.msg("Reading fitlist %s to spectrum %s" % (fname, sid))
-                self.FitlistIf.ReadXML(sid, fname, refit=args.refit)
+                self.FitlistIf.ReadXML(sid, fname, calibrate=args.calibrate, refit=args.refit)
 
     def FitSavelists(self, args):
         if hdtv.util.user_save_file(args.filename, args.force):

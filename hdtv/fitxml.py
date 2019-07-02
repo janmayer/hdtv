@@ -391,12 +391,12 @@ class FitXml(object):
             if calibrate:
                 spectrum = fitElement.find("spectrum")
                 spec_name = spectrum.get("name")
-                if spec_name != spec_name_last or not spec_name:
+                spec_cal = spectrum.get("calibration")
+                if spec_cal and spec_name != spec_name_last and spec_name:
                     if spec_name != spec.name:
                         hdtv.ui.warning(
                             f"Applying calibration for '{spec_name}' to '{spec.name}'.")
                     spec_name_last = spec_name
-                    spec_cal = spectrum.get("calibration")
                     cal = [float(c) for c in spec_cal.split()]
                     self.spectra.ApplyCalibration([sid], cal)
                     hdtv.ui.debug(f"Applying calibration {spec_cal}.")

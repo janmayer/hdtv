@@ -46,21 +46,14 @@ def GetCoeffs(cal):
     """
     Get the list of calibration coeffs from the ROOT.HDTV.Calibration object
     """
-    polynom = list()
-    for p in cal.GetCoeffs():
-        polynom.append(p)
-    return polynom
+    return list(cal.GetCoeffs())
 
 
 def PrintCal(cal):
     """
     Get the calibration as string
     """
-    polynom = GetCoeffs(cal)
-    line = str()
-    for p in polynom:
-        line += str(p) + "   "
-    return line
+    return "   ".join([str(c) for c in GetCoeffs(cal)])
 
 
 class CalibrationFitter:

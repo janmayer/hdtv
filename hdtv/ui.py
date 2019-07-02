@@ -67,7 +67,7 @@ class SimpleUI(object):
         Print message
         """
         if not html:
-            html = escape(text)
+            html = escape(text or "")
         self.print(html, end=end)
 
     def info(self, text=None, *, html=None, end='\n'):
