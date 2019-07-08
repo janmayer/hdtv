@@ -85,7 +85,7 @@ class FitXml(object):
         # <fit>
         fitElement = ET.Element("fit")
         fitElement.set("peakModel", fit.fitter.peakModel.name)
-        fitElement.set("bgDegree", str(fit.fitter.backgroundModel.bgdeg))
+        fitElement.set("bgDegree", str(fit.fitter.backgroundModel.fParStatus['bgdeg']))
         fitElement.set("chi", str(fit.chi))
         # <spectrum>
         spec = fit.spec
@@ -153,7 +153,7 @@ class FitXml(object):
         # <coeff>
         for i in range(0, nparams):
             paramElement = ET.SubElement(bgElement, "param")
-            paramElement.set("deg", str(i))
+            paramElement.set("npar", str(i))
             # <value>
             valueElement = ET.SubElement(paramElement, "value")
             valueElement.text = str(fit.bgParams[i].nominal_value)
@@ -395,7 +395,7 @@ class FitXml(object):
                 if spec_cal and spec_name != spec_name_last and spec_name:
                     if spec_name != spec.name:
                         hdtv.ui.warning(
-                            f"Applying calibration for '{spec_name}' to '{spec.name}'.")
+                            "Applying calibration for '{spec_name}' to '{spec.name}'.")
                     spec_name_last = spec_name
                     cal = [float(c) for c in spec_cal.split()]
                     self.spectra.ApplyCalibration([sid], cal)
@@ -601,7 +601,7 @@ class FitXml(object):
                 pass
             params = list()
             for paramElement in bgElement.findall("param"):
-                deg = int(paramElement.get("deg"))
+                npar = int(paramElement.get("npar"))
                 # <value>
                 valueElement = paramElement.find("value")
                 value = float(valueElement.text)
@@ -609,7 +609,7 @@ class FitXml(object):
                 errorElement = paramElement.find("error")
                 error = float(errorElement.text)
                 param = ufloat(value, error)
-                params.append([deg, param])
+                params.append([npar, param])
             params.sort()
             fit.bgParams = [p[1] for p in params]
         # <peak>

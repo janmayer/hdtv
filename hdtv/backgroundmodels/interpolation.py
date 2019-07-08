@@ -30,8 +30,8 @@ class BackgroundModelInterpolation(BackgroundModel):
     def __init__(self):
         super(BackgroundModelInterpolation, self).__init__()
         self.fOrderedParamKeys = ["bgdeg"]
-        self.fParStatus = {"bgdeg": 1}
-        self.fValidParStatus = {"bgdeg": [int, "free"]}
+        self.fParStatus = {"bgdeg": 1, "nparams": 1}
+        self.fValidParStatus = {"bgdeg": [int, "free"], "nparams": [int]}
 
         self.ResetParamStatus()
         self.name = "interpolation"
@@ -50,8 +50,10 @@ class BackgroundModelInterpolation(BackgroundModel):
        
         if nBgRegions < self.requiredBgRegions:
             return None
+
         self.fFitter = ROOT.HDTV.Fit.InterpolationBg(nBgRegions)
         self.ResetGlobalParams()
+        self.fParStatus['bgdeg'] = 2*nBgRegions
+        self.fParStatus['nparams'] = 2*nBgRegions
 
         return self.fFitter
-
