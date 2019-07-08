@@ -92,15 +92,6 @@ def test_cmd_fit_various():
     assert ferr == ""
     assert f == ""
 
-def test_cmd_fit_background_model():
-    spec_interface.LoadSpectra(testspectrum)
-    f, ferr = setup_interpolation_incomplete() 
-    assert "needs at least" in ferr
-
-    spec_interface.LoadSpectra(testspectrum)
-    f, ferr = setup_interpolation_incomplete() 
-    assert ferr==""
-
 def test_cmd_fit_peakfind():
     spec_interface.LoadSpectra(testspectrum)
     assert len(spec_interface.spectra.dict) == 1
@@ -122,17 +113,6 @@ def setup_interpolation_incomplete():
             "fit marker background set 650",
             "fit execute")
 
-def setup_interpolation_complete():
-    return hdtvcmd(
-            "fit function background activate interpolation",
-            "fit marker background set 520",
-            "fit marker background set 550",
-            "fit marker background set 620",
-            "fit marker background set 650",
-            "fit marker background set 670",
-            "fit marker background set 690",
-            "fit execute")
-
 def setup_fit():
     return hdtvcmd(
         "fit function background activate polynomial",
@@ -145,7 +125,6 @@ def setup_fit():
         "fit marker background set 650",
         "fit marker region set 570",
         "fit marker region set 615")
-
 
 # More tests are still needed for:
 #

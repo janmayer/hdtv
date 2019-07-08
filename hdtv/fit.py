@@ -437,16 +437,16 @@ class Fit(Drawable):
             self.fitter.FitPeaks(spec=self.spec, region=region, peaklist=peaks)
             # get background function
             self.bgParams = []
-            deg = self.fitter.backgroundModel.fParStatus['bgdeg']
+            nparams = self.fitter.backgroundModel.fParStatus['nparams']
             if not self.fitter.bgFitter:
-                for i in range(deg + 1):
+                for i in range(nparams):
                     self.bgParams.append(ufloat(
                         self.fitter.peakFitter.GetIntBgCoeff(i),
                         self.fitter.peakFitter.GetIntBgCoeffError(i)))
             else:
                 # external background
                 self.bgChi = self.fitter.bgFitter.GetChisquare()
-                for i in range(deg + 1):
+                for i in range(nparams):
                     self.bgParams.append(ufloat(
                         self.fitter.bgFitter.GetCoeff(i),
                         self.fitter.bgFitter.GetCoeffError(i)))

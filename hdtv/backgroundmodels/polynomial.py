@@ -29,9 +29,9 @@ class BackgroundModelPolynomial(BackgroundModel):
 
     def __init__(self):
         super(BackgroundModelPolynomial, self).__init__()
-        self.fOrderedParamKeys = ["bgdeg"]
-        self.fParStatus = {"bgdeg": 1}
-        self.fValidParStatus = {"bgdeg": [int, "free"]}
+        self.fOrderedParamKeys = ["bgdeg", "nparams"]
+        self.fParStatus = {"bgdeg": 1, "nparams": 2}
+        self.fValidParStatus = {"bgdeg": [int, "free"], "nparams": [int]}
 
         self.ResetParamStatus()
         self.name = "polynomial"
@@ -49,10 +49,10 @@ class BackgroundModelPolynomial(BackgroundModel):
         """
         if isinstance(self.fParStatus['bgdeg'], int):
             self.fFitter = ROOT.HDTV.Fit.PolyBg(self.fParStatus['bgdeg'])
-            self.bgdeg = self.fParStatus['bgdeg']
         elif self.fParStatus['bgdeg'] == "free":
             self.fFitter = ROOT.HDTV.Fit.PolyBg(bgdeg)
-            self.bgdeg = bgdeg
+            self.fParStatus['bgdeg'] = bgdeg
+            self.fParStatus['nparams'] = bgdeg+1
         else:
             msg = "Status specifier %s of background fitter is invalid." % fParStatus['bgdeg']
             raise ValueError(msg)
