@@ -960,7 +960,7 @@ class TvFitInterface(object):
         oldActiveID = self.spectra.activeID
 
         for specID in specIDs:
-            self.spectra.ActivateObject(ID=specID)
+            self.spectra.ActivateObject(specID)
             fitIDs = hdtv.util.ID.ParseIds(
                 args.fitids, self.spectra.dict[specID])
             if not fitIDs:
@@ -981,7 +981,7 @@ class TvFitInterface(object):
                     continue
 
         if oldActiveID is not None:  # Reactivate spectrum that was active in the beginning
-            self.spectra.ActivateObject(ID=oldActiveID)
+            self.spectra.ActivateObject(oldActiveID)
         return None
 
     def FitClear(self, args):
