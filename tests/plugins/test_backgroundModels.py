@@ -1,6 +1,7 @@
 """
 Test the different implemented background models with an artificial spectrum.
 The test spectrum is a sequence of step functions with increasing step height. On each step, a normal-distributed peak is located. No artificial fluctuations have been introduced to give simple verifiable results.
+The step on which the exponential background is tested has an exponentially decaying background on top of the step.
 """
 
 import os
@@ -11,7 +12,7 @@ import xml.etree.ElementTree as ET
 from test.helpers.utils import hdtvcmd
 from test.helpers.fixtures import temp_file
 
-from numpy import arange, ones, savetxt
+from numpy import arange, exp, ones, savetxt
 from scipy.stats import norm
 
 from hdtv.util import monkey_patch_ui
@@ -55,12 +56,15 @@ def prepare():
         spectrum[i*NBINS_PER_STEP:(i+1)*NBINS_PER_STEP] = (i+1)*BG_PER_BIN*ones(NBINS_PER_STEP)
         # The peaks are located exactly in the centers of the steps
         spectrum = spectrum + PEAK_VOLUME*norm.pdf(bins, loc=i*NBINS_PER_STEP+0.5*NBINS_PER_STEP, scale=PEAK_WIDTH)
+    
+    # Add exponential background to the 3rd step
+    spectrum[2*NBINS_PER_STEP:3*NBINS_PER_STEP] = spectrum[2*NBINS_PER_STEP:3*NBINS_PER_STEP] + BG_PER_BIN*exp((bins[2*NBINS_PER_STEP:3*NBINS_PER_STEP]-bins[2*NBINS_PER_STEP])/NBINS_PER_STEP)
 
     savetxt(testspectrum, spectrum) 
 
 def test_backgroundRegions(temp_file):
     if not os.path.isfile(testspectrum):
-        raise IOError('Test spectrum for interpolation was not generated!')
+        raise IOError('Test spectrum was not generated!')
 
     spec_interface.LoadSpectra(testspectrum)
     # Fit the first peak using an interpolated background
@@ -114,6 +118,26 @@ def test_backgroundRegions(temp_file):
             )
     assert ferr == '' 
 
+    # Fit the third peak using an exponential background
+    # with 'free' option for the number of background
+    # parameters
+    f, ferr = hdtvcmd(
+            'fit function background activate exponential',
+            'fit parameter background 3',
+            'fit marker background set 650',
+            'fit marker background set 700',
+            'fit marker background set 800',
+            'fit marker background set 825',
+            'fit marker background set 825',
+            'fit marker background set 850',
+            'fit marker region set 720',
+            'fit marker region set 780',
+            'fit marker peak set 750',
+            'fit execute',
+            'fit store'
+            )
+    assert ferr == '' 
+
     fitxml.WriteXML(spectra.Get("0").ID, temp_file)
     fitxml.ReadXML(spectra.Get("0").ID, temp_file, refit=True, interactive=False)
 
@@ -121,7 +145,7 @@ def test_backgroundRegions(temp_file):
     tree = ET.parse(temp_file)
     root = tree.getroot()
     fits = root.findall('fit')
-    assert len(fits) == 2
+    assert len(fits) == 3
 
     # Check the first fit (interpolation)
     # Check positions of background markers
@@ -222,3 +246,13 @@ def test_backgroundRegions(temp_file):
         float(integrals[1].find('uncal').find('vol').find('value').text) - 2.*60.*BG_PER_BIN) < 
         float(integrals[0].find('uncal').find('vol').find('error').text)
         )
+
+    # Check the third fit (exponential, fixed number of parameters)
+    # The area of the peak should be PEAK_VOLUME
+    # The area of the background should be BG_PER_BIN times the width of the fit region
+    assert (abs(
+            float(fits[2].find('peak').find('cal').find('vol').find('value').text) - PEAK_VOLUME) < 
+            float(fits[2].find('peak').find('cal').find('vol').find('error').text
+        )
+    )
+
