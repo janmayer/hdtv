@@ -58,7 +58,7 @@ setup(
         'scipy',
         'matplotlib',
         'numpy',
-        'ipython'
+        'ipython',
         'prompt_toolkit',
         'traitlets',
         'uncertainties',

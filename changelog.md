@@ -1,9 +1,11 @@
 # HDTV Changelog
 
 ## Unreleased
-- Add GUI-dummy for usage with unittests (@opapst)
-- Add background model using spline interpolation (@ugayer)
+- Add GUI-dummy for usage with unit tests (@opapst)
+- Add spline interpolation background model (@ugayer)
 - Add coverage to unittests (@opapst)
+- Add exponential background model (@ugayer)
+- Add hdtv.app:App() entrypoint instead of script (@opapst)
 - Add keywords and classifiers to setup.py (@opapst)
 - Add object-oriented background models (@ugayer)
 - Add travis.yml build and tests (@opapst)
@@ -17,7 +19,6 @@
 - Remove dead code (@opapst)
 - Remove usage of global variables and usage of `__main__` namespace (@opapst)
 - Replace Compat.hh by ROOT/RMakeUnique.hh (@opapst)
-- Replace bin/hdtv by hdtv.app:App() entrypoint (@opapst)
 - Replace code.InteractiveConsole with IPython for Python REPL (@opapst)
 - Replace readline with prompt_toolkit (@opapst)
 - Other small fixes
