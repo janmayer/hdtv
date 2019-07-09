@@ -62,7 +62,7 @@ to HDTV and its basic features is also available.
 ```
 git clone https://gitlab.ikp.uni-koeln.de/staging/hdtv.git
 cd hdtv
-./hdtv/app.py
+./bin/hdtv
 ```
 
 Generate man pages:
