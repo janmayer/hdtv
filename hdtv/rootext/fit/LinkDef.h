@@ -11,6 +11,7 @@
 #pragma link C++ class HDTV::Fit::BgIntegral+;
 #pragma link C++ class HDTV::Fit::TH1BgsubIntegral+;
 #pragma link C++ class HDTV::Fit::Background+;
+#pragma link C++ class HDTV::Fit::ExpBg+;
 #pragma link C++ class HDTV::Fit::PolyBg+;
 #pragma link C++ class HDTV::Fit::InterpolationBg+;
 #pragma link C++ class HDTV::Fit::Param+;
