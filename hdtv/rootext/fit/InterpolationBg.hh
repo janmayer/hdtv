@@ -120,7 +120,7 @@ private:
 
 class InterpolationBg : public Background {
 public:
-  explicit InterpolationBg(int bgDeg = 0);
+  explicit InterpolationBg(int nParams = 0);
   InterpolationBg(const InterpolationBg &src);
   InterpolationBg &operator=(const InterpolationBg &src);
 
@@ -141,7 +141,7 @@ public:
   double GetMax() const override {
     return (*(--fBgRegions.end())).limit.second;
   }
-  unsigned int GetNparams() const override { return 2*fBgDeg; }
+  unsigned int GetNparams() const override { return fnParams; }
 
   void Fit(TH1 &hist);
   bool Restore(const TArrayD &values, const TArrayD &errors, double ChiSquare);
@@ -162,7 +162,7 @@ private:
   double _Eval(double *x, double *p);
 
   std::list<BgReg> fBgRegions;
-  int fBgDeg;
+  int fnParams;
 
   std::unique_ptr<TF1> fFunc;
   InterpolationWrapper fInter;

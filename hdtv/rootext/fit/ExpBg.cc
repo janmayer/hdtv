@@ -37,25 +37,25 @@
 namespace HDTV {
 namespace Fit {
 
-ExpBg::ExpBg(int bgdeg) {
+ExpBg::ExpBg(int nParams) {
   //! Constructor
 
-  fBgDeg = bgdeg;
+  fnParams = nParams;
   fChisquare = std::numeric_limits<double>::quiet_NaN();
 }
 
 ExpBg::ExpBg(const ExpBg &src)
-    : fBgRegions(src.fBgRegions), fBgDeg(src.fBgDeg),
+    : fBgRegions(src.fBgRegions), fnParams(src.fnParams),
       fChisquare(src.fChisquare), fCovar(src.fCovar) {
   //! Copy constructor
 
   if (src.fFunc != nullptr) {
     fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
                                    &ExpBg::_Eval, src.fFunc->GetXmin(),
-                                   src.fFunc->GetXmax(), fBgDeg + 1, "ExpBg",
+                                   src.fFunc->GetXmax(), fnParams, "ExpBg",
                                    "_Eval");
 
-    for (int i = 0; i <= fBgDeg; i++) {
+    for (int i = 0; i < fnParams; ++i) {
       fFunc->SetParameter(i, src.fFunc->GetParameter(i));
       fFunc->SetParError(i, src.fFunc->GetParError(i));
     }
@@ -71,16 +71,16 @@ ExpBg &ExpBg::operator=(const ExpBg &src) {
   }
 
   fBgRegions = src.fBgRegions;
-  fBgDeg = src.fBgDeg;
+  fnParams = src.fnParams;
   fChisquare = src.fChisquare;
   fCovar = src.fCovar;
 
   fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
                                  &ExpBg::_Eval, src.fFunc->GetXmin(),
-                                 src.fFunc->GetXmax(), fBgDeg + 1, "ExpBg",
+                                 src.fFunc->GetXmax(), fnParams, "ExpBg",
                                  "_Eval");
 
-  for (int i = 0; i <= fBgDeg; i++) {
+  for (int i = 0; i < fnParams; ++i) {
     fFunc->SetParameter(i, src.fFunc->GetParameter(i));
     fFunc->SetParError(i, src.fFunc->GetParError(i));
   }
@@ -91,17 +91,16 @@ ExpBg &ExpBg::operator=(const ExpBg &src) {
 void ExpBg::Fit(TH1 &hist) {
   //! Fit the background function to the histogram hist
 
-  if (fBgDeg < 0) { // Degenerate case, no free parameters in fit
+  if (fnParams < 0) { // Degenerate case, no free parameters in fit
     return;
   }
-
   // Create function to be used for fitting
   // Note that a polynomial of degree N has N+1 parameters
   TF1 fitFunc(GetFuncUniqueName("b_fit", this).c_str(), this,
-              &ExpBg::_EvalRegion, GetMin(), GetMax(), fBgDeg + 1, "ExpBg",
+              &ExpBg::_EvalRegion, GetMin(), GetMax(), fnParams, "ExpBg",
               "_EvalRegion");
 
-  for (int i = 0; i <= fBgDeg; i++) {
+  for (int i = 0; i < fnParams; ++i) {
     fitFunc.SetParameter(i, 0.0);
   }
 
@@ -116,10 +115,10 @@ void ExpBg::Fit(TH1 &hist) {
   if (fitter == nullptr) {
     Error("ExpBg::Fit", "No existing fitter after fit");
   } else {
-    fCovar = std::vector<std::vector<double>>(fBgDeg + 1,
-                                              std::vector<double>(fBgDeg + 1));
-    for (int i = 0; i <= fBgDeg; i++) {
-      for (int j = 0; j <= fBgDeg; j++) {
+    fCovar = std::vector<std::vector<double>>(fnParams,
+                                              std::vector<double>(fnParams));
+    for (int i = 0; i < fnParams; ++i) {
+      for (int j = 0; j < fnParams; ++j) {
         fCovar[i][j] = fitter->GetCovarianceMatrixElement(i, j);
       }
     }
@@ -127,10 +126,10 @@ void ExpBg::Fit(TH1 &hist) {
 
   // Copy parameters to new function
   fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
-                                 &ExpBg::_Eval, GetMin(), GetMax(), fBgDeg + 1,
+                                 &ExpBg::_Eval, GetMin(), GetMax(), fnParams,
                                  "ExpBg", "_Eval");
 
-  for (int i = 0; i <= fBgDeg; i++) {
+  for (int i = 0; i < fnParams; ++i) {
     fFunc->SetParameter(i, fitFunc.GetParameter(i));
     fFunc->SetParError(i, fitFunc.GetParError(i));
   }
@@ -142,7 +141,7 @@ bool ExpBg::Restore(const TArrayD &values, const TArrayD &errors,
   //! NOTE: The covariance matrix is currently NOT restored, so EvalError()
   //! will always return NaN.
 
-  if (values.GetSize() != fBgDeg + 1 || errors.GetSize() != fBgDeg + 1) {
+  if (values.GetSize() != fnParams || errors.GetSize() != fnParams) {
     Warning("HDTV::ExpBg::Restore",
             "size of vector does not match degree of background.");
     return false;
@@ -150,10 +149,10 @@ bool ExpBg::Restore(const TArrayD &values, const TArrayD &errors,
 
   // Copy parameters to new function
   fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
-                                 &ExpBg::_Eval, GetMin(), GetMax(), fBgDeg + 1,
+                                 &ExpBg::_Eval, GetMin(), GetMax(), fnParams,
                                  "ExpBg", "_Eval");
 
-  for (int i = 0; i <= fBgDeg; i++) {
+  for (int i = 0; i < fnParams; ++i) {
     fFunc->SetParameter(i, values[i]);
     fFunc->SetParError(i, errors[i]);
   }
@@ -221,23 +220,23 @@ double ExpBg::_EvalRegion(double *x, double *p) {
     return 0.0;
   } else {
     double bg;
-    bg = p[fBgDeg];
-    for (int i = fBgDeg - 1; i >= 0; i--) {
+    bg = p[fnParams-1];
+    for (int i = fnParams - 2; i >= 1; i--) {
       bg = bg * x[0] + p[i];
     }
-    return exp(bg);
+    return exp(bg) + p[0];
   }
 }
 
 double ExpBg::_Eval(double *x, double *p) {
   //! Evaluate background function at position x
 
-  double bg = p[fBgDeg];
-  for (int i = fBgDeg - 1; i >= 0; i--) {
+  double bg = p[fnParams-1];
+  for (int i = fnParams - 2; i >= 1; i--) {
     bg = bg * x[0] + p[i];
   }
 
-  return exp(bg);
+  return exp(bg) + p[0];
 }
 
 double ExpBg::EvalError(double x) const {
@@ -247,7 +246,7 @@ double ExpBg::EvalError(double x) const {
     return std::numeric_limits<double>::quiet_NaN();
   }
 
-  // Evaluate \sum_{i=0}^{fBgDeg} \sum_{j=0}^{fBgDeg} cov(c_i, c_j) x^i x^j
+  // Evaluate \sum_{i=0}^{fnParams} \sum_{j=0}^{fnParams} cov(c_i, c_j) x^i x^j
   // via a dual Horner scheme
   std::vector<std::vector<double>>::const_reverse_iterator cov_i;
   double errsq = 0.0;

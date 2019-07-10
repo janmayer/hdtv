@@ -29,9 +29,9 @@ class BackgroundModelPolynomial(BackgroundModel):
 
     def __init__(self):
         super(BackgroundModelPolynomial, self).__init__()
-        self.fOrderedParamKeys = ["bgdeg", "nparams"]
-        self.fParStatus = {"bgdeg": 1, "nparams": 2}
-        self.fValidParStatus = {"bgdeg": [int, "free"], "nparams": [int]}
+        self.fOrderedParamKeys = ["nparams"]
+        self.fParStatus = {"nparams": 2}
+        self.fValidParStatus = {"nparams": [int, "free"]}
 
         self.ResetParamStatus()
         self.name = "polynomial"
@@ -41,20 +41,19 @@ class BackgroundModelPolynomial(BackgroundModel):
         """
         Reset parameter status to defaults
         """
-        self.fParStatus["bgdeg"] = 1
+        self.fParStatus["nparams"] = 2
 
-    def GetFitter(self, bgdeg=1):
+    def GetFitter(self, nparams=None, nbg=None):
         """
         Creates a C++ Fitter object, which can then do the real work
         """
-        if isinstance(self.fParStatus['bgdeg'], int):
-            self.fFitter = ROOT.HDTV.Fit.PolyBg(self.fParStatus['bgdeg'])
-        elif self.fParStatus['bgdeg'] == "free":
-            self.fFitter = ROOT.HDTV.Fit.PolyBg(bgdeg)
-            self.fParStatus['bgdeg'] = bgdeg
-            self.fParStatus['nparams'] = bgdeg+1
+        if nparams is not None:
+            self.fFitter = ROOT.HDTV.Fit.PolyBg(nparams)
+            self.fParStatus['nparams'] = nparams
+        elif isinstance(self.fParStatus['nparams'], int):
+            self.fFitter = ROOT.HDTV.Fit.PolyBg(self.fParStatus['nparams'])
         else:
-            msg = "Status specifier %s of background fitter is invalid." % fParStatus['bgdeg']
+            msg = "Status specifier %s of background fitter is invalid." % fParStatus['nparams']
             raise ValueError(msg)
 
         self.ResetGlobalParams()
