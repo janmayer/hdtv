@@ -85,7 +85,7 @@ class FitXml(object):
         # <fit>
         fitElement = ET.Element("fit")
         fitElement.set("peakModel", fit.fitter.peakModel.name)
-        fitElement.set("bgDegree", str(fit.fitter.backgroundModel.fParStatus['bgdeg']))
+        fitElement.set("nParams", str(fit.fitter.backgroundModel.fParStatus['nparams']))
         fitElement.set("chi", str(fit.chi))
         # <spectrum>
         spec = fit.spec
@@ -716,7 +716,7 @@ class FitXml(object):
             for fitElement in specElement:
                 count = count + 1
                 peakModel = fitElement.get("peakModel")
-                bgdeg = int(fitElement.get("bgDegree"))
+                bgdeg = int(fitElement.get("nParams"))
                 # Simple fix for older xml file versions, where the only background
                 # model was a polynomial, and therefore it did not have to be stored
                 fitter = Fitter(peakModel, "polynomial")

@@ -43,7 +43,7 @@ namespace Fit {
 
 class ExpBg : public Background {
 public:
-  explicit ExpBg(int bgDeg = 0);
+  explicit ExpBg(int nParams = 2);
   ExpBg(const ExpBg &src);
   ExpBg &operator=(const ExpBg &src);
 
@@ -66,7 +66,7 @@ public:
     return fBgRegions.empty() ? std::numeric_limits<double>::quiet_NaN()
                               : *(fBgRegions.rbegin());
   }
-  unsigned int GetNparams() const override { return fBgDeg+1; };
+  unsigned int GetNparams() const override { return fnParams; };
 
   void Fit(TH1 &hist);
   bool Restore(const TArrayD &values, const TArrayD &errors, double ChiSquare);
@@ -86,7 +86,7 @@ private:
   double _Eval(double *x, double *p);
 
   std::list<double> fBgRegions;
-  int fBgDeg;
+  int fnParams;
 
   std::unique_ptr<TF1> fFunc;
   double fChisquare;

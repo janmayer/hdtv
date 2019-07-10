@@ -35,7 +35,7 @@ from hdtv.plugins.fitlist import fitxml
 spectra = __main__.spectra
 
 testspectrum = os.path.join(
-    os.path.curdir, "test", "share", "test_spectrum_interpolation.tv")
+    os.path.curdir, "test", "share", "test_spectrum_background.tv")
 
 # At the moment, the test spectrum has three steps with an 
 # arbitrarily chosen length of 300 channels per step
@@ -58,7 +58,7 @@ def prepare():
         spectrum = spectrum + PEAK_VOLUME*norm.pdf(bins, loc=i*NBINS_PER_STEP+0.5*NBINS_PER_STEP, scale=PEAK_WIDTH)
     
     # Add exponential background to the 3rd step
-    spectrum[2*NBINS_PER_STEP:3*NBINS_PER_STEP] = spectrum[2*NBINS_PER_STEP:3*NBINS_PER_STEP] + BG_PER_BIN*exp((bins[2*NBINS_PER_STEP:3*NBINS_PER_STEP]-bins[2*NBINS_PER_STEP])/NBINS_PER_STEP)
+    spectrum[2*NBINS_PER_STEP:3*NBINS_PER_STEP] = (spectrum[2*NBINS_PER_STEP:3*NBINS_PER_STEP] + exp((bins[2*NBINS_PER_STEP:3*NBINS_PER_STEP]-bins[2*NBINS_PER_STEP])/NBINS_PER_STEP))
 
     savetxt(testspectrum, spectrum) 
 
@@ -103,7 +103,7 @@ def test_backgroundRegions(temp_file):
     # parameters
     f, ferr = hdtvcmd(
             'fit function background activate polynomial',
-            'fit parameter background free',
+            'fit parameter background 2',
             'fit marker background set 350',
             'fit marker background set 400',
             'fit marker background set 500',
@@ -114,13 +114,15 @@ def test_backgroundRegions(temp_file):
             'fit marker region set 480',
             'fit marker peak set 450',
             'fit execute',
-            'fit store'
+            'fit store',
+            'fit marker background delete 0',
+            'fit marker background delete 1',
+            'fit marker background delete 2',
+            'fit marker region delete 0'
             )
     assert ferr == '' 
 
     # Fit the third peak using an exponential background
-    # with 'free' option for the number of background
-    # parameters
     f, ferr = hdtvcmd(
             'fit function background activate exponential',
             'fit parameter background 3',
@@ -213,7 +215,7 @@ def test_backgroundRegions(temp_file):
     # since we are fitting a constant background with 
     # a third-order polynomial
     assert float(background.get('chisquare')) < 1.
-    assert int(background.get('nparams')) == 4
+    assert int(background.get('nparams')) == 2
 
     params = background.findall('param')
     assert (
@@ -221,7 +223,7 @@ def test_backgroundRegions(temp_file):
                 float(params[0].find('value').text) - 20.) < 
             float(params[0].find('error').text)
             )
-    for i in range(1,4):
+    for i in range(1,2):
         assert abs(float(params[i].find('value').text)) < 0.1
 
     # Check peak and background areas 
@@ -256,3 +258,25 @@ def test_backgroundRegions(temp_file):
         )
     )
 
+    integrals = fits[2].findall('integral')
+    # Assert that the integrals are stored in the correct order.
+    # Since the background integral has no uncertainty, the uncertainty
+    # of the background integral is taken to be the uncertainty of the total 
+    # integral.
+    assert integrals[0].get('integraltype') == 'tot'
+    assert integrals[1].get('integraltype') == 'bg'
+    assert integrals[2].get('integraltype') == 'sub'
+    assert len(integrals) == 3
+    assert (abs(
+        float(integrals[1].find('uncal').find('vol').find('value').text) - 3.*60.*BG_PER_BIN - NBINS_PER_STEP*(exp(180./NBINS_PER_STEP)-exp(120./NBINS_PER_STEP))) < 
+        float(integrals[0].find('uncal').find('vol').find('error').text)
+        )
+
+    # Check background model and fit parameters 
+    background = fits[2].find('background')
+    assert background.get('backgroundModel') == 'exponential'
+    # The following should be fulfilled for sure,
+    # since we are fitting an exponential background with 
+    # a function p[0]+exp(p[1]+p[2]*x) 
+    assert float(background.get('chisquare')) < 1.
+    assert int(background.get('nparams')) == 3
