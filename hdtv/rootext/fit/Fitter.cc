@@ -31,7 +31,8 @@ namespace Fit {
 
 Fitter::Fitter(double r1, double r2) noexcept
     : fNumParams{0}, fFinal{false}, fMin{std::min(r1, r2)},
-      fMax{std::max(r1, r2)}, fNumPeaks{0}, fIntBgDeg{-1},
+      fMax{std::max(r1, r2)}, fNumPeaks{0}, fIntBgDeg{0},
+      fIntNParams{-1},
       fChisquare{std::numeric_limits<double>::quiet_NaN()} {}
 
 Param Fitter::AllocParam() { return Param::Free(fNumParams++); }
