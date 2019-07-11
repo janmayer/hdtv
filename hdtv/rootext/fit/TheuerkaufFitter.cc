@@ -232,7 +232,7 @@ double TheuerkaufFitter::Eval(const double *x, const double *p) const {
   // Evaluate internal background
   sum += std::accumulate(
       std::reverse_iterator<const double *>(p + fNumParams),
-      std::reverse_iterator<const double *>(p + fNumParams - fIntBgDeg - 1),
+      std::reverse_iterator<const double *>(p + fNumParams - fIntNParams),
       0.0, [&x](double bg, double param) { return bg * *x + param; });
 
   // Evaluate peaks
@@ -251,7 +251,7 @@ double TheuerkaufFitter::EvalBg(const double *x, const double *p) const {
   // Evaluate internal background
   sum += std::accumulate(
       std::reverse_iterator<const double *>(p + fNumParams),
-      std::reverse_iterator<const double *>(p + fNumParams - fIntBgDeg - 1),
+      std::reverse_iterator<const double *>(p + fNumParams - fIntNParams),
       0.0, [&x](double bg, double param) { return bg * *x + param; });
 
   // Evaluate steps in peaks
@@ -305,20 +305,20 @@ void TheuerkaufFitter::Fit(TH1 &hist, const Background &bg) {
   }
 
   fBackground.reset(bg.Clone());
-  fIntBgDeg = -1;
+  fIntNParams = 0;
   _Fit(hist);
 }
 
 //! Do the fit, fitting a polynomial of degree intBgDeg for the background at
-//! the same time. Set intBgDeg to -1 to disable background completely.
-void TheuerkaufFitter::Fit(TH1 &hist, int intBgDeg) {
+//! the same time. Set intNParams to 0 to disable background completely.
+void TheuerkaufFitter::Fit(TH1 &hist, int intNParams) {
   // Refuse to fit twice
   if (IsFinal()) {
     return;
   }
 
   fBackground.reset();
-  fIntBgDeg = intBgDeg;
+  fIntNParams = intNParams;
   _Fit(hist);
 }
 
@@ -326,14 +326,12 @@ void TheuerkaufFitter::Fit(TH1 &hist, int intBgDeg) {
 void TheuerkaufFitter::_Fit(TH1 &hist) {
   // Allocate additional parameters for internal polynomial background
   // Note that a polynomial of degree n has n+1 parameters!
-  if (fIntBgDeg >= 0) {
-    fNumParams += (fIntBgDeg + 1);
+  if (fIntNParams >= 1) {
+    fNumParams += fIntNParams;
   }
 
   // Create fit function
-  fSumFunc = std::make_unique<TF1>(GetFuncUniqueName("f", this).c_str(), this,
-                                    &TheuerkaufFitter::Eval, fMin, fMax,
-                                    fNumParams, "TheuerkaufFitter", "Eval");
+  fSumFunc = std::make_unique<TF1>(GetFuncUniqueName("f", this).c_str(), this, &TheuerkaufFitter::Eval, fMin, fMax, fNumParams, "TheuerkaufFitter", "Eval");
 
   // *** Initial parameter estimation ***
   int b1 = hist.FindBin(fMin);
@@ -355,7 +353,7 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
   // reasonable, as the step width is usually fixed at 1.0.
 
   double intBg0 = 0.0;
-  if (fIntBgDeg >= 0) {
+  if (fIntNParams >= 1) {
     if (steps) {
       intBg0 = hist.GetBinContent(b1);
       if (fBackground != nullptr) {
@@ -383,9 +381,9 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
     }
 
     // Set background parameters of sum function
-    fSumFunc->SetParameter(fNumParams - fIntBgDeg - 1, intBg0);
-    if (fIntBgDeg >= 1) {
-      for (int i = fNumParams - fIntBgDeg; i < fNumParams; ++i) {
+    fSumFunc->SetParameter(fNumParams - fIntNParams, intBg0);
+    if (fIntNParams >= 2) {
+      for (int i = fNumParams - fIntNParams + 1; i < fNumParams; ++i) {
         fSumFunc->SetParameter(i, 0.0);
       }
     }
@@ -559,7 +557,7 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
 //! Restore the fit, using the given background function
 bool TheuerkaufFitter::Restore(const Background &bg, double ChiSquare) {
   fBackground.reset(bg.Clone());
-  fIntBgDeg = -1;
+  fIntNParams = 0;
   _Restore(ChiSquare);
   return true;
 }
@@ -576,19 +574,19 @@ bool TheuerkaufFitter::Restore(const TArrayD &bgPolValues,
     return false;
   }
 
-  fIntBgDeg = bgPolValues.GetSize() - 1;
+  fIntNParams = bgPolValues.GetSize();
 
   // Allocate additional parameters for internal polynomial background
   // Note that a polynomial of degree n has n+1 parameters!
-  if (fIntBgDeg >= 0) {
-    fNumParams += (fIntBgDeg + 1);
+  if (fIntNParams >= 1) {
+    fNumParams += fIntNParams;
   }
 
   _Restore(ChiSquare);
 
-  int bgOffset = fNumParams - fIntBgDeg - 1;
+  int bgOffset = fNumParams - fIntNParams;
   // Set background parameters of sum function
-  for (int i = 0; i <= fIntBgDeg; ++i) {
+  for (int i = 0; i < fIntNParams; ++i) {
     fSumFunc->SetParameter(i + bgOffset, bgPolValues[i]);
     fSumFunc->SetParError(i + bgOffset, bgPolErrors[i]);
   }

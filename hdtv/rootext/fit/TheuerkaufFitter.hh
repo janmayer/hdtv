@@ -183,7 +183,7 @@ public:
 
   void AddPeak(const TheuerkaufPeak &peak);
   void Fit(TH1 &hist, const Background &bg);
-  void Fit(TH1 &hist, int intBgDeg = -1);
+  void Fit(TH1 &hist, int intNParams = -1);
 
   int GetNumPeaks() { return fNumPeaks; }
   const TheuerkaufPeak &GetPeak(int i) { return fPeaks[i]; }
