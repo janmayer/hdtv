@@ -716,7 +716,6 @@ class FitXml(object):
             for fitElement in specElement:
                 count = count + 1
                 peakModel = fitElement.get("peakModel")
-                bgdeg = int(fitElement.get("bgDegree"))
                 # Simple fix for older xml file versions, where the only background
                 # model was a polynomial, and therefore it did not have to be stored
                 fitter = Fitter(peakModel, "polynomial")
