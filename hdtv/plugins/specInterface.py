@@ -353,7 +353,8 @@ class TvSpecInterface(object):
             prog, self.SpectrumNormalization, parser=parser)
 
         prog = "spectrum rebin"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        description = "Rebin the spectrum by grouping neighboring bins. The calibration of the spectrum is updated accordingly."
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "specid",
             nargs='*',
@@ -371,12 +372,41 @@ class TvSpecInterface(object):
             parser=parser)
 
         prog = "spectrum calbin"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        description = "Align binning to energy calibration of spectrum."
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "specid",
             nargs='*',
             default=None,
-            help='id of spectrum to rebin')
+            help='id of spectrum to calbin')
+        parser.add_argument(
+            "--spline-order",
+            "-k",
+            type=int,
+            default=3,
+            metavar="[1-5]",
+            help='Order of the spline interpolation (default: %(default)s)')
+        parser.add_argument(
+            "-d",
+            "--deterministic",
+            action="store_true",
+            help='Rebin deterministically')
+        parser.add_argument(
+            "--conserve-integral",
+            "-i",
+            help="Conserve sum over h[i]*dx[i] instead of sum over h[i]",
+            action="store_true")
+        parser.add_argument(
+            "--seed",
+            "-s",
+            type=int,
+            help="Set random number seed")
+        parser.add_argument(
+            "--binsize",
+            "-b",
+            type=float,
+            default=1.,
+            help='Size of each bin after rebinning (default: %(default)s)')
         hdtv.cmdline.AddCommand(
             prog,
             self.SpectrumCalbin,
@@ -670,12 +700,18 @@ class TvSpecInterface(object):
             hdtv.ui.warning("Nothing to do")
             return
 
-        for i in ids:
-            if i in list(self.spectra.dict.keys()):
-                self.spectra.dict[i].Calbin()
-            else:
-                raise hdtv.cmdline.HDTVCommandError(
-                    "Cannot rebin spectrum " + str(i) + " (Does not exist)")
+        with hdtv.util.temp_seed(args.seed):
+            for i in ids:
+                if i in list(self.spectra.dict.keys()):
+                    self.spectra.dict[i].Calbin(
+                       binsize=args.binsize,
+                       conserve_integral=args.conserve_integral,
+                       spline_order=args.spline_order)
+                    if not args.deterministic:
+                        self.spectra.dict[i].Poisson()
+                else:
+                    raise hdtv.cmdline.HDTVCommandError(
+                        "Cannot rebin spectrum " + str(i) + " (Does not exist)")
 
     def SpectrumHide(self, args):
         """
