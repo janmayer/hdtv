@@ -72,12 +72,16 @@ class App:
 
         args = self.parse_args(hdtv_args)
 
-        if args.rebuildusr:
+        if args.rebuildusr is not None:
             import hdtv.rootext.dlmgr
-            hdtv.rootext.dlmgr.RebuildLibraries(hdtv.rootext.dlmgr.usrlibdir)
-        if args.rebuildsys:
+            hdtv.rootext.dlmgr.RebuildLibraries(
+                hdtv.rootext.dlmgr.usrlibdir,
+                libraries=args.rebuildusr or None)
+        if args.rebuildsys is not None:
             import hdtv.rootext.dlmgr
-            hdtv.rootext.dlmgr.RebuildLibraries(hdtv.rootext.dlmgr.syslibdir)
+            hdtv.rootext.dlmgr.RebuildLibraries(
+                hdtv.rootext.dlmgr.syslibdir,
+                libraries=args.rebuildsys or None)
 
         if args.rebuildusr or args.rebuildsys:
             sys.exit(0)
@@ -150,9 +154,15 @@ class App:
         parser.add_argument("-v", "--version", action="version",
             help="Show HDTV Version",
             version="HDTV {}".format(hdtv.version.__version__))
-        parser.add_argument("--rebuild-usr", action='store_true', dest='rebuildusr',
+        parser.add_argument(
+            "--rebuild-usr",
+            nargs='*',
+            dest='rebuildusr',
             help='Rebuild ROOT-loadable libraries for the current user')
-        parser.add_argument("--rebuild-sys", action='store_true', dest='rebuildsys',
+        parser.add_argument(
+            "--rebuild-sys",
+            nargs='*',
+            dest='rebuildsys',
             help='Rebuild ROOT-loadable libraries for all users')
         return parser.parse_args(args)
 
