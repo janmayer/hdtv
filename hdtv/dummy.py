@@ -32,6 +32,9 @@ def _get_float(self, *args, **kwargs):
     self.i += 0.1
     return self.i
 
+def _get_bool(self, *args, **kwargs):
+    return True
+
 class Viewer(object):
     Connect = _noop
 
@@ -47,12 +50,14 @@ class Viewer(object):
 class View1D(object):
     GetCursorX = _get_float
     GetCursorY = _get_float
+    GetDarkMode = _get_bool
     GetXOffset = _get_float
     GetXVisibleRegion = _get_float
     GetYMinVisibleRegion = _get_float
     GetYOffset = _get_float
     GetYVisibleRegion = _get_float
     LockUpdate = _noop
+    SetDarkMode = _noop
     SetStatusText = _noop
     SetXCenter = _noop
     SetXVisibleRegion = _noop

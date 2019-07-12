@@ -52,7 +52,6 @@ View1D::View1D(const TGWindow *p, UInt_t w, UInt_t h)
     : View(p, w, h), fCurrentCal(), fDisplayStack(this), fPainter() {
   // Constructor
 
-  TGFrame::SetBackgroundColor(GetBlackPixel());
   fXVisibleRegion = DEFAULT_MAX_ENERGY;
   fYMinVisibleRegion = 20.0;
   fYVisibleRegion = fYMinVisibleRegion;
@@ -77,8 +76,6 @@ View1D::View1D(const TGWindow *p, UInt_t w, UInt_t h)
   fStatusBar = nullptr;
 
   fPainter.SetDrawable(GetId());
-  fPainter.SetAxisGC(GetHilightGC().GetGC());
-  fPainter.SetClearGC(GetBlackGC().GetGC());
   fPainter.SetLogScale(false);
   fPainter.SetXVisibleRegion(fXVisibleRegion);
   fPainter.SetYVisibleRegion(fYVisibleRegion);
@@ -86,6 +83,8 @@ View1D::View1D(const TGWindow *p, UInt_t w, UInt_t h)
   fUpdateLocked = 0;
   fNeedsUpdate = false;
   fForceRedraw = false;
+
+  SetDarkMode();
 }
 
 View1D::~View1D() {
@@ -157,22 +156,29 @@ void View1D::ShiftOffset(int dO) {
     DrawCursor();
   }
 
+  const TGGC* gc;
+  if (fDarkMode) {
+    gc = &GetBlackGC();
+  } else {
+    gc = &GetWhiteGC();
+  }
+
   if (static_cast<unsigned int>(std::abs(dO)) > w) {
     // entire area needs updating
-    gVirtualX->FillRectangle(GetId(), GetBlackGC()(), x, y, w + 1, h + 1);
+    gVirtualX->FillRectangle(GetId(), (*gc)(), x, y, w + 1, h + 1);
     fDisplayStack.PaintRegion(x, x + w, fPainter);
   } else if (dO < 0) {
     // move right (note that dO ist negative)
-    gVirtualX->CopyArea(GetId(), GetId(), GetWhiteGC()(), x, y, w + dO + 1,
+    gVirtualX->CopyArea(GetId(), GetId(), (*gc)(), x, y, w + dO + 1,
                         h + 1, x - dO, y);
     // Note that the area filled by FillRectangle() will not include
     // the border drawn by DrawRectangle() on the right and the bottom
-    gVirtualX->FillRectangle(GetId(), GetBlackGC()(), x, y, -dO, h + 1);
+    gVirtualX->FillRectangle(GetId(), (*gc)(), x, y, -dO, h + 1);
     fDisplayStack.PaintRegion(x, x - dO, fPainter);
   } else { // if(dO > 0) : move left (we caught dO == 0 above)
-    gVirtualX->CopyArea(GetId(), GetId(), GetWhiteGC()(), x + dO, y, w - dO + 1,
+    gVirtualX->CopyArea(GetId(), GetId(), (*gc)(), x + dO, y, w - dO + 1,
                         h + 1, x, y);
-    gVirtualX->FillRectangle(GetId(), GetBlackGC()(), x + w - dO + 1, y, dO,
+    gVirtualX->FillRectangle(GetId(), (*gc)(), x + w - dO + 1, y, dO,
                              h + 1);
     fDisplayStack.PaintRegion(x + w - dO + 1, x + w, fPainter);
   }
@@ -662,11 +668,19 @@ void View1D::DoRedraw() {
   if (fNeedClear) {
     // Note that the area filled by FillRectangle() will not include
     // the border drawn by DrawRectangle() on the right and the bottom
-    gVirtualX->FillRectangle(GetId(), GetBlackGC()(), 0, 0, fWidth, fHeight);
+    if (fDarkMode) {
+      gVirtualX->FillRectangle(GetId(), GetBlackGC()(), 0, 0, fWidth, fHeight);
+    } else {
+      gVirtualX->FillRectangle(GetId(), GetWhiteGC()(), 0, 0, fWidth, fHeight);
+    }
     fNeedClear = false;
   }
 
-  gVirtualX->DrawRectangle(GetId(), GetHilightGC()(), x, y, w, h);
+  if (fDarkMode) {
+    gVirtualX->DrawRectangle(GetId(), GetHilightGC()(), x, y, w, h);
+  } else {
+    gVirtualX->DrawRectangle(GetId(), GetShadowGC()(), x, y, w, h);
+  }
 
   fDisplayStack.PaintRegion(x + 2, x + w - 2, fPainter);
   DrawXScales(x + 2, x + w - 2);
@@ -676,6 +690,22 @@ void View1D::DoRedraw() {
   if (cv) {
     DrawCursor();
   }
+}
+
+void View1D::SetDarkMode(bool dark) {
+  fDarkMode = dark;
+  if (dark) {
+    TGFrame::SetBackgroundColor(GetBlackPixel());
+    fPainter.SetAxisGC(GetHilightGC().GetGC());
+    fPainter.SetClearGC(GetBlackGC().GetGC());
+  } else {
+    TGFrame::SetBackgroundColor(GetWhitePixel());
+    fPainter.SetAxisGC(GetShadowGC().GetGC());
+    fPainter.SetClearGC(GetWhiteGC().GetGC());
+  }
+
+  fNeedClear = true;
+  gClient->NeedRedraw(this, true);
 }
 
 } // end namespace Display

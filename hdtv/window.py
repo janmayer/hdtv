@@ -74,7 +74,7 @@ class HotkeyList(object):
                     parser.print_usage()
                 hdtv.ui.debug(traceback.format_exc())
         
-        curNode[key] = cmd
+        curNode[key] = _wrapper
 
     def HandleHotkey(self, key):
         """
@@ -289,8 +289,12 @@ class Window(KeyHandler):
         opt = hdtv.options.Option(default=self.viewport.GetYMinVisibleRegion(),
                                   parse=lambda x: float(x),
                                   changeCallback=self.YMinVisibleRegionChanged)
-
         hdtv.options.RegisterOption("display.YMinVisibleRegion", opt)
+
+        opt = hdtv.options.Option(default=self.viewport.GetDarkMode(),
+                                  parse=hdtv.options.parse_bool,
+                                  changeCallback=self.SetDarkMode)
+        hdtv.options.RegisterOption("display.mode.dark", opt)
 
         prog = "window view center"
         description = "center window to position"
@@ -315,6 +319,18 @@ class Window(KeyHandler):
 
     def YMinVisibleRegionChanged(self, opt):
         self.viewport.SetYMinVisibleRegion(opt.Get())
+
+    def SetDarkMode(self, opt):
+        """
+        Switch between dark and light mode.
+        """
+        self.viewport.SetDarkMode(opt.Get())
+        try:
+            from hdtv.plugins.matInterface import matrix_interface
+            for viewport in matrix_interface.matviews:
+                viewport.SetDarkMode(opt.Get())
+        except:
+            pass
 
     def ViewRegion(self, args):
         """
