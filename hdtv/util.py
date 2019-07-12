@@ -22,8 +22,11 @@
 import re
 import os
 from itertools import count
+import contextlib
 from html import escape
+from typing import Optional
 
+import numpy as np
 from prompt_toolkit.key_binding.key_bindings import KeyBindings
 from prompt_toolkit.shortcuts import PromptSession
 from prompt_toolkit.keys import Keys
@@ -794,3 +797,20 @@ class monkey_patch_ui():
     def __exit__(self, *args, **kws):
         import ROOT
         ROOT.HDTV.Display = self._orig
+
+@contextlib.contextmanager
+def temp_seed(seed: Optional[int] = None):
+    """
+    Temporarily set numpy seed. Restore old state of random
+    number generator afterwards.
+    
+    Args:
+        seed: Temporary seed for numpy
+    """
+    state = np.random.get_state() if seed else None
+    np.random.seed(seed)
+    try:
+        yield
+    finally:
+        if state:
+            np.random.set_state(state)
