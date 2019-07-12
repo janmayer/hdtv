@@ -2,12 +2,13 @@
 
 ## Unreleased
 - Add GUI-dummy for usage with unit tests (@opapst)
-- Add spline interpolation background model (@ugayer)
 - Add coverage to unittests (@opapst)
 - Add exponential background model (@ugayer)
 - Add hdtv.app:App() entrypoint instead of script (@opapst)
 - Add keywords and classifiers to setup.py (@opapst)
+- Add light mode (@opapst)
 - Add object-oriented background models (@ugayer)
+- Add spline interpolation background model (@ugayer)
 - Add travis.yml build and tests (@opapst)
 - Fix autocomplete of pathes with spaces (@opapst)
 - Fix hdtv.rootext import order (@opapst)

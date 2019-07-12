@@ -63,10 +63,13 @@ public:
   void ShiftYOffset(double f, bool update = true);
   void SetStatusText(const char *text);
 
+  void SetDarkMode(bool dark = true);
+
   double GetXOffset() { return fXOffset; }
   double GetXVisibleRegion() { return fXVisibleRegion; }
   double GetYOffset() { return fYOffset; }
   double GetYVisibleRegion() { return fYVisibleRegion; }
+  bool GetDarkMode() { return fDarkMode; }
 
   void HandleScrollbar(Long_t parm);
   void SetXVisibleRegion(double region, bool update = true);
@@ -144,6 +147,7 @@ protected:
   double fYMinVisibleRegion;
   double fXOffset, fYOffset;
   double fMinEnergy, fMaxEnergy;
+  bool fDarkMode;
 
   Calibration fCurrentCal;
   DisplayStack fDisplayStack;

@@ -36,8 +36,6 @@ namespace Display {
 View2D::View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
     : View(p, w, h), fXEOffset{0.0}, fYEOffset{0.0}, fXTileOffset{0},
       fYTileOffset{0}, fVPHeight{0}, fVPWidth{0} {
-  TGFrame::SetBackgroundColor(GetBlackPixel());
-
   fMatrix = mat;
   fMatrixMax = fMatrix->GetMaximum();
 
@@ -54,10 +52,10 @@ View2D::View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
   fLogScale = true;
 
   fPainter.SetDrawable(GetId());
-  fPainter.SetAxisGC(GetHilightGC().GetGC());
-  fPainter.SetClearGC(GetBlackGC().GetGC());
 
   AddInput(kKeyPressMask);
+  
+  SetDarkMode();
 }
 
 View2D::~View2D() { FlushTiles(); }
@@ -365,8 +363,13 @@ Pixmap_t View2D::RenderTile(int xoff, int yoff) {
   }
 
   pixmap = gVirtualX->CreatePixmap(GetId(), cTileSize, cTileSize);
-  gVirtualX->PutImage(pixmap, GetWhiteGC()(), img, 0, 0, 0, 0, cTileSize,
-                      cTileSize);
+  if (fDarkMode) {
+    gVirtualX->PutImage(pixmap, GetWhiteGC()(), img, 0, 0, 0, 0, cTileSize,
+                        cTileSize);
+  } else {
+    gVirtualX->PutImage(pixmap, GetBlackGC()(), img, 0, 0, 0, 0, cTileSize,
+                        cTileSize);
+  }
   gVirtualX->DeleteImage(img);
 
   RenderCuts(xoff, yoff, pixmap);
@@ -401,7 +404,11 @@ void View2D::RenderCut(const DisplayCut &cut, int xoff, int yoff,
   points[2 * N] = points[0];
   points[2 * N + 1] = points[1];
 
-  DrawPolyLine(pixmap, GetWhiteGC()(), N + 1, points.GetArray());
+  if (fDarkMode) {
+    DrawPolyLine(pixmap, GetWhiteGC()(), N + 1, points.GetArray());
+  } else {
+    DrawPolyLine(pixmap, GetBlackGC()(), N + 1, points.GetArray());
+  }
 
   /* double x1 = EToXTile(cut.BB_x1()) - xoff*cTileSize;
   double y1 = -EToYTile(cut.BB_y1()) - yoff*cTileSize;
@@ -541,8 +548,13 @@ void View2D::DoRedraw() {
         dest_y = fTopBorder;
       }
 
-      gVirtualX->CopyArea(tile, GetId(), GetWhiteGC()(), src_x, src_y, width,
-                          height, dest_x, dest_y);
+      if (fDarkMode) {
+        gVirtualX->CopyArea(tile, GetId(), GetWhiteGC()(), src_x, src_y, width,
+                            height, dest_x, dest_y);
+      } else {
+        gVirtualX->CopyArea(tile, GetId(), GetBlackGC()(), src_x, src_y, width,
+                            height, dest_x, dest_y);
+      }
     }
   }
 
@@ -551,7 +563,11 @@ void View2D::DoRedraw() {
 
   fPainter.ClearBottomXScale();
   fPainter.DrawXScale(fLeftBorder, fWidth - fRightBorder);
-  gVirtualX->FillRectangle(GetId(), GetBlackGC()(), 0, 0, fLeftBorder, fHeight);
+  if (fDarkMode) {
+    gVirtualX->FillRectangle(GetId(), GetBlackGC()(), 0, 0, fLeftBorder, fHeight);
+  } else {
+    gVirtualX->FillRectangle(GetId(), GetWhiteGC()(), 0, 0, fLeftBorder, fHeight);
+  }
   // fPainter.ClearYScale();
   fPainter.DrawYScale();
 
@@ -564,6 +580,21 @@ void View2D::DoRedraw() {
     // cout << "Weeding..." << endl;
     WeedTiles();
   }
+}
+
+void View2D::SetDarkMode(bool dark) {
+  fDarkMode = dark;
+  if (dark) {
+    TGFrame::SetBackgroundColor(GetBlackPixel());
+    fPainter.SetAxisGC(GetHilightGC().GetGC());
+    fPainter.SetClearGC(GetBlackGC().GetGC());
+  } else {
+    TGFrame::SetBackgroundColor(GetWhitePixel());
+    fPainter.SetAxisGC(GetShadowGC().GetGC());
+    fPainter.SetClearGC(GetWhiteGC().GetGC());
+  }
+
+  gClient->NeedRedraw(this, true);
 }
 
 } // end namespace Display

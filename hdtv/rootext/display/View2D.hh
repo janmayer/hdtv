@@ -66,6 +66,7 @@ public:
   double Log(double x);
 
   void SetStatusBar(TGStatusBar *sb) { fStatusBar = sb; }
+  void SetDarkMode(bool dark = true);
 
   void AddCut(const TCutG &cut, bool invertAxes = false);
   void DeleteAllCuts();
@@ -110,6 +111,7 @@ public:
 
   void ZtoRGB(int z, int &r, int &g, int &b);
   int GetValueAtPixel(int xs, int ys);
+  bool GetDarkMode() { return fDarkMode; }
 
 protected:
   std::list<DisplayCut> fCuts;
@@ -123,6 +125,7 @@ protected:
 
   double fXEOffset, fYEOffset;
   int fXTileOffset, fYTileOffset;
+  bool fDarkMode;
 
   TGStatusBar *fStatusBar;
 

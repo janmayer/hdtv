@@ -502,4 +502,5 @@ class TvMatInterface(object):
 
 # plugin initialisation
 import __main__
-hdtv.cmdline.RegisterInteractive("mat", MatInterface(__main__.spectra))
+matrix_interface = MatInterface(__main__.spectra)
+hdtv.cmdline.RegisterInteractive("mat", matrix_interface)
