@@ -118,7 +118,9 @@ void InterpolationBg::Fit(TH1 &hist) {
 	// However, since the background regions are determined elsewhere
 	// in the code using a TH1 histogram, the following code assumes
 	// that this has been taken care of.
-	for(int i = floor(bgReg.limit.first); i < ceil(bgReg.limit.second); ++i){
+	//
+	// The additional factor of +2 has to be added to the value returned by TH1::GetBin() to be consistent with the displayed spectrum of HDTV
+	for(int i = hist.GetBin(bgReg.limit.first) + 2; i < hist.GetBin(bgReg.limit.second) + 2; ++i){
 		weight = 1./pow(hist.GetBinError(i), 2);
 		numerator += hist.GetBinContent(i)*weight;
 		denominator += weight;
