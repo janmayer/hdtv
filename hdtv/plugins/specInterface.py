@@ -247,7 +247,8 @@ class TvSpecInterface(object):
 
         # spectrum commands
         prog = "spectrum get"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        description = "Load a spectrum from a file (using libmfile)"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument("-s", "--spectrum", action="store", default=None,
             help="id for loaded spectrum")
         parser.add_argument(
@@ -261,7 +262,8 @@ class TvSpecInterface(object):
         # priority
 
         prog = "spectrum list"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        description = "List all spectra"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "-v",
             "--visible",
@@ -271,7 +273,8 @@ class TvSpecInterface(object):
         hdtv.cmdline.AddCommand(prog, self.SpectrumList, parser=parser)
 
         prog = "spectrum delete"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        description = "Delete one or multiple spectra"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "specid",
             nargs='*',
@@ -280,7 +283,8 @@ class TvSpecInterface(object):
             prog, self.SpectrumDelete, parser=parser)
 
         prog = "spectrum activate"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        description = "Activate a single spetrum. If hidden, the spectrum is set to visible."
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "specid",
             nargs='*',
@@ -289,7 +293,8 @@ class TvSpecInterface(object):
             prog, self.SpectrumActivate, parser=parser)
 
         prog = "spectrum show"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        description = "Set one or multiple spectra to visible"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "specid",
             nargs='*',
@@ -297,7 +302,8 @@ class TvSpecInterface(object):
         hdtv.cmdline.AddCommand(prog, self.SpectrumShow, parser=parser)
 
         prog = "spectrum hide"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        description = "Set one or multiple spectra to hidden"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "specid",
             nargs='*',
@@ -306,7 +312,8 @@ class TvSpecInterface(object):
                                 level=2, parser=parser)
 
         prog = "spectrum info"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        description = "Display information associated with one or multiple spectra"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "specid",
             nargs='*',
@@ -322,7 +329,8 @@ class TvSpecInterface(object):
         hdtv.cmdline.AddCommand(prog, self.SpectrumUpdate, parser=parser)
 
         prog = "spectrum write"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        description = "Write a single spectrum to the filesystem (using libmfile)"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             'filename',
             help="filename of output file")
