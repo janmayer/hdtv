@@ -414,6 +414,33 @@ class TvSpecInterface(object):
             fileargs=False,
             parser=parser)
 
+        prog = "spectrum resample"
+        description = "Vary the content of each bin within its uncertainty, creating a new random sample of the underlying probability distribution."
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
+        parser.add_argument(
+            "specid",
+            nargs='*',
+            default=None,
+            help='id of spectrum to resample')
+        parser.add_argument(
+            "--distribution",
+            "-d",
+            type=str,
+            default='poisson',
+            help='Specify a random distribution function (default: %(default)s)')
+        parser.add_argument(
+            "--seed",
+            "-s",
+            type=int,
+            help="Set random number seed")
+        hdtv.cmdline.AddCommand(
+            prog,
+            self.SpectrumResample,
+            level=2,
+            fileargs=False,
+            completer=self.RandomModelCompleter,
+            parser=parser)
+
         prog = "spectrum add"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
         parser.add_argument(
@@ -713,6 +740,37 @@ class TvSpecInterface(object):
                     raise hdtv.cmdline.HDTVCommandError(
                         "Cannot rebin spectrum " + str(i) + " (Does not exist)")
 
+    def SpectrumResample(self, args):
+        """
+        Rebin spectrum
+        """
+        if args.specid is None:
+            if self.spectra.activeID is not None:
+                msg = "Using active spectrum %s for resampling" % self.spectra.activeID
+                hdtv.ui.msg(msg)
+                ids = [self.spectra.activeID]
+            else:
+                hdtv.ui.msg("No active spectrum")
+                ids = list()
+        else:
+            ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
+
+        if len(ids) == 0:
+            hdtv.ui.warning("Nothing to do")
+            return
+
+        with hdtv.util.temp_seed(args.seed):
+            for i in ids:
+                if i in list(self.spectra.dict.keys()):
+                    if args.distribution == 'poisson':
+                        self.spectra.dict[i].Poisson()
+                    else:
+                        HDTVCommandError(
+                            f"Unknown probability distribution: {args.distribution}")
+                else:
+                    raise hdtv.cmdline.HDTVCommandError(
+                        f"Cannot resample spectrum {i} (Does not exist)")
+
     def SpectrumHide(self, args):
         """
         Hides spectra
@@ -834,6 +892,13 @@ class TvSpecInterface(object):
                 self.spectra.dict[ID].norm = args.norm
             except KeyError:
                 raise hdtv.cmdline.HDTVCommandError("There is no spectrum with id: %s" % ID)
+    
+    def RandomModelCompleter(self, text, args=None):
+        """
+        Helper function for SpectrumResample
+        """
+        return hdtv.util.GetCompleteOptions(
+            text, iter(['poisson']))
 
 
 # plugin initialisation
