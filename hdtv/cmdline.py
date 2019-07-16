@@ -442,14 +442,10 @@ class CommandLine(object):
             eof = 'Ctrl-D (i.e. EOF)'
 
     def SetHistory(self, path):
-        try:
-            if not os.path.isfile(path):
-                raise FileNotFoundError(
-                    errno.ENOENT, os.strerror(errno.ENOENT), path)
-            self.history = FileHistory(path)
-        except FileNotFoundError:
-            hdtv.ui.error(r"Could not read history file '{path}', " \
-                "history will be discarded.")
+        if not os.access(path, os.W_OK):
+            hdtv.ui.error(
+                f"History file '{path}' is read-only, will be discarded")
+        self.history = FileHistory(path)
 
     def RegisterInteractive(self, name, ref):
         self.cmds[name] = ref
