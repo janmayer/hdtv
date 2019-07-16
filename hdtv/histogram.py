@@ -299,9 +299,15 @@ class Histogram(Drawable):
 
     def Poisson(self):
         """
-        Randomize each bin content assuming a Poissonian distribution
+        Randomize each bin content assuming a Poissonian distribution.
         """
-        pass
+        for i in range(0, self._hist.GetNbinsX() + 1):
+            counts = self._hist.GetBinContent(i)
+            #error = self._hist.GetBinError(i)
+            varied = np.random.poisson(counts)
+            self._hist.SetBinContent(i, varied)
+        if self.displayObj:
+            self.displayObj.SetHist(self._hist)
 
     def Draw(self, viewport):
         """

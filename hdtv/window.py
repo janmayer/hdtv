@@ -61,10 +61,10 @@ class HotkeyList(object):
         def _wrapper():
             try:
                 cmd()
-            except HDTVCommandAbort as msg:
+            except hdtv.cmdline.HDTVCommandAbort as msg:
                 if msg.value:
                     hdtv.ui.error(msg.value)
-            except (HDTVCommandError, BaseException) as msg:
+            except (hdtv.cmdline.HDTVCommandError, BaseException) as msg:
                 try:
                     if msg.value:
                         hdtv.ui.error(msg.value)
