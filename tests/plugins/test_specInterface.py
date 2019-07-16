@@ -24,6 +24,7 @@ import os
 import sys
 import warnings
 import shutil
+from math import ceil
 
 import pytest
 
@@ -273,6 +274,46 @@ def test_cmd_spectrum_rebin(ngroup):
         assert "Rebinning 0 with {} bins per new bin".format(ngroup) in f
         assert get_spec(0).hist.hist.GetNbinsX() == 8192//ngroup
 
+@pytest.mark.parametrize("binsize", [1, 0.5, 1.1])
+def test_cmd_spectrum_calbin_binsize(binsize):
+    assert len(s.spectra.dict) == 0
+    hdtvcmd("spectrum get {}".format(testspectrum))
+    assert len(s.spectra.dict) == 1
+
+    with warnings.catch_warnings(record=True) as w:
+        f, ferr = hdtvcmd("spectrum calbin -b {} 0".format(binsize))
+        assert "Calbinning 0 with binsize={}".format(binsize) in f
+        assert get_spec(0).hist.hist.GetNbinsX() == int(ceil(8192/binsize))
+
+@pytest.mark.parametrize("spline_order", [1, 3, 5])
+def test_cmd_spectrum_calbin_spline_order(spline_order):
+    assert len(s.spectra.dict) == 0
+    hdtvcmd("spectrum get {}".format(testspectrum))
+    assert len(s.spectra.dict) == 1
+
+    with warnings.catch_warnings(record=True) as w:
+        f, ferr = hdtvcmd("spectrum calbin -k {} 0".format(spline_order))
+        assert "Calbinning 0 with" in f
+
+def test_cmd_spectrum_calbin_calibrated():
+    assert len(s.spectra.dict) == 0
+    hdtvcmd("spectrum get {}".format(testspectrum))
+    assert len(s.spectra.dict) == 1
+    hdtvcmd("calibration position set 5 2.2".format(testspectrum))
+
+    with warnings.catch_warnings(record=True) as w:
+        f, ferr = hdtvcmd("spectrum calbin -d 0")
+        assert "Calbinning 0 with" in f
+
+def test_cmd_spectrum_resample():
+    assert len(s.spectra.dict) == 0
+    hdtvcmd("spectrum get {}".format(testspectrum))
+    assert len(s.spectra.dict) == 1
+
+    with warnings.catch_warnings(record=True) as w:
+        f, ferr = hdtvcmd("spectrum resample 0")
+        assert "Resampled assuming poisson distribution" in f
+
 @pytest.mark.parametrize("copy, matches", [
     ('0', ["0 to 3"]),
     ('0 1', ["0 to 3", "1 to 4"]),
@@ -386,10 +427,6 @@ def test_cmd_spectrum_subtract(specfile0, specfile1):
 @pytest.mark.skip(reason="What is spectrum update supposed to do?")
 def test_cmd_spectrum_update():
     pass
-
-@pytest.mark.skip(reason="Implement in test_cal...")
-def test_cmd_spectrum_calbin():
-    raise NotImplementedError()
 
 def get_spec(specid):
     return s.spectra.dict.get(

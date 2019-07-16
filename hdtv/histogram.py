@@ -64,19 +64,7 @@ class Histogram(Drawable):
         self.effCal = None
         self.typeStr = "spectrum"
         self.cal = cal
-        if HasPrimitiveBinning(hist):
-            self._hist = hist
-        else:
-            hdtv.ui.info(hist.GetName() + " unconventional binning detected. Converting and creating calibration ...")
-            self._hist = ROOT.TH1D(hist.GetName(), hist.GetTitle(), hist.GetNbinsX(), 0, hist.GetNbinsX())
-            cf = CalibrationFitter()
-            # TODO: Slow
-            for bin in range(0, hist.GetNbinsX()):
-                cf.AddPair(bin, hist.GetXaxis().GetBinUpEdge(bin))
-                self._hist.SetBinContent(bin, hist.GetBinContent(bin))
-                # TODO: Copy Errors?
-            cf.FitCal(4)
-            self.cal = cf.calib
+        self.SetHistWithPrimitiveBinning(hist)
 
     def __str__(self):
         return self.name
@@ -288,12 +276,12 @@ class Histogram(Drawable):
             # Note: Can't use Fill due to bin errors?
             newhist.SetBinContent(i + 1, output_hist[i])
 
-        self._hist = newhist
+        self.cal.SetCal(0, 1)
+        self.SetHistWithPrimitiveBinning(newhist, caldegree=1, silent=True)
         # update display
         if self.displayObj:
             self.displayObj.SetHist(self._hist)
         # update calibration
-        self.cal.SetCal(0, 1)
         self.displayObj.SetCal(self.cal)
         hdtv.ui.info(f"Rebinned to calibration unit (binsize={binsize}).")
 
@@ -301,6 +289,7 @@ class Histogram(Drawable):
         """
         Randomize each bin content assuming a Poissonian distribution.
         """
+        sum_before = self._hist.Integral()
         for i in range(0, self._hist.GetNbinsX() + 1):
             counts = self._hist.GetBinContent(i)
             #error = self._hist.GetBinError(i)
@@ -308,6 +297,10 @@ class Histogram(Drawable):
             self._hist.SetBinContent(i, varied)
         if self.displayObj:
             self.displayObj.SetHist(self._hist)
+        sum_after = self._hist.Integral()
+        change = 100*(1 - sum_after/sum_before)
+        hdtv.ui.debug(f"Resampling: Area before = {sum_before}. Area after = {sum_after}")
+        hdtv.ui.info(f"Resampled assuming poisson distribution. Total area changed by {change:f}%")
 
     def Draw(self, viewport):
         """
@@ -353,6 +346,23 @@ class Histogram(Drawable):
                           (msg, fname))
             return False
         return True
+
+    def SetHistWithPrimitiveBinning(self, hist, caldegree=4, silent=False):
+        if HasPrimitiveBinning(hist):
+            self._hist = hist
+        else:
+            if not silent:
+                hdtv.ui.info(
+                    hist.GetName() + " unconventional binning detected. Converting and creating calibration ...")
+            self._hist = ROOT.TH1D(hist.GetName(), hist.GetTitle(), hist.GetNbinsX(), 0, hist.GetNbinsX())
+            cf = CalibrationFitter()
+            # TODO: Slow
+            for bin in range(0, hist.GetNbinsX()):
+                cf.AddPair(bin, hist.GetXaxis().GetBinUpEdge(bin))
+                self._hist.SetBinContent(bin, hist.GetBinContent(bin))
+                # TODO: Copy Errors?
+            cf.FitCal(caldegree)
+            self.cal = cf.calib
 
 
 class FileHistogram(Histogram):
