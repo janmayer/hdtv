@@ -889,7 +889,7 @@ class EnergyCalHDTVInterface(object):
         prog = "calibration position set"
         description = "Create calibration from the coefficients p of a polynomial"
         usage = "%(prog)s [-h] [-s SPECTRUM] p0 p1 [p2 ...]"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, usage=usage)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
         parser.add_argument("-s", "--spectrum", action="store", default="active",
                           help="spectrum ids to apply calibration to")
         parser.add_argument("p0", type=float,
@@ -899,7 +899,8 @@ class EnergyCalHDTVInterface(object):
         hdtv.cmdline.AddCommand(prog, self.CalPosSet, parser=parser)
 
         prog = "calibration position unset"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        description = "Unset the calibration of spectra"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument("-s", "--spectrum", action="store", default="active",
                           help="spectrum ids to unset calibration")
         hdtv.cmdline.AddCommand(prog, self.CalPosUnset, parser=parser)
@@ -1017,7 +1018,10 @@ class EnergyCalHDTVInterface(object):
         hdtv.cmdline.AddCommand(prog, self.Nuc, parser=parser)
 
         prog = "calibration position read"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        description = """Read the energy calibration from a file containing a single calibration.
+        This corresponds to the energy calibration format used by tv:
+        The calibration coefficients are all placed in separate lines."""
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument("-s", "--spectrum", action="store", default="active",
                           help="spectrum ids to apply calibration to")
         parser.add_argument(
@@ -1027,9 +1031,9 @@ class EnergyCalHDTVInterface(object):
                                 fileargs=True)
 
         prog = "calibration position assign"
-        description = "Calibrate the active spectrum by asigning energies to fitted peaks. "
-        description += "peaks are specified by their index and the peak number within the peak "
-        description += "(if number is ommitted the first (and only?) peak is taken)."
+        description = """Calibrate the active spectrum by asigning energies to fitted peaks.
+        peaks are specified by their index and the peak number within the peak
+        (if number is ommitted the first (and only?) peak is taken)."""
         usage = "%(prog)s [OPTIONS] id0 energy0 [id1 energy1 ...]"
         parser = hdtv.cmdline.HDTVOptionParser(
             prog=prog, description=description, usage=usage)
@@ -1076,11 +1080,13 @@ class EnergyCalHDTVInterface(object):
             parser=parser)
 
         prog = "calibration position list"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        description = "List all energy calibrations that are currently loaded."
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         hdtv.cmdline.AddCommand(prog, self.CalPosList, parser=parser)
 
         prog = "calibration position list write"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        description = "Write all loaded energy calibrations to a file."
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument("-F", "--force", action="store_true", default=False,
             help="overwrite existing files without asking")
         parser.add_argument(
@@ -1091,7 +1097,8 @@ class EnergyCalHDTVInterface(object):
                                 fileargs=True)
 
         prog = "calibration position list read"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        description = "Read several energy calibrations from a file."
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             'filename',
             metavar='input-file',
@@ -1100,7 +1107,8 @@ class EnergyCalHDTVInterface(object):
                                 fileargs=True)
 
         prog = "calibration position list clear"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
+        description = "Clear all energy calibrations"
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         hdtv.cmdline.AddCommand(
             prog, self.CalPosListClear, parser=parser)
 
