@@ -730,12 +730,16 @@ class TvSpecInterface(object):
         with hdtv.util.temp_seed(args.seed):
             for i in ids:
                 if i in list(self.spectra.dict.keys()):
-                    self.spectra.dict[i].Calbin(
+                    spec = self.spectra.dict[i]
+                    spec.Calbin(
                        binsize=args.binsize,
                        conserve_integral=args.conserve_integral,
                        spline_order=args.spline_order)
+                    if spec.cal:
+                        self.spectra.caldict[spec.name] = spec.cal
                     if not args.deterministic:
-                        self.spectra.dict[i].Poisson()
+                        spec.Poisson()
+                    hdtv.ui.msg(f"Calbinning {i} with binsize={args.binsize}")
                 else:
                     raise hdtv.cmdline.HDTVCommandError(
                         "Cannot rebin spectrum " + str(i) + " (Does not exist)")

@@ -147,10 +147,10 @@ class CalibrationFitter:
         hdtv.ui.debug("any_has_error: " + str(any_has_error), level=2)
         hdtv.ui.debug("any_has_xerror: " + str(any_has_xerror), level=2)
 
-        hdtv.ui.debug("channels: " + str(channels), level=3)
-        hdtv.ui.debug("channels err: " + str(channels_err), level=3)
-        hdtv.ui.debug("energies: " + str(energies), level=3)
-        hdtv.ui.debug("energies err: " + str(energies_err), level=3)
+        hdtv.ui.debug("channels: " + str(channels), level=5)
+        hdtv.ui.debug("channels err: " + str(channels_err), level=5)
+        hdtv.ui.debug("energies: " + str(energies), level=5)
+        hdtv.ui.debug("energies err: " + str(energies_err), level=5)
 
         self.__TF1.SetRange(0, max(energies) * 1.1)
         self.TGraph = ROOT.TGraphErrors(
