@@ -376,7 +376,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
                         style=default_style,
                         selected_style=default_selected_style)
         # ... if not, we use the nodes registered autocomplete handler ...
-        elif not hasattr(node, 'options'):
+        elif not hasattr(node, 'options') or node.options is None:
             yield from []
         elif "completer" in node.options and callable(node.options["completer"]):
             for option in node.options["completer"](last_path, args):
