@@ -422,7 +422,10 @@ class Fit(Drawable):
         # fit background
         if len(self.bgMarkers) > 0:
             backgrounds = self._get_background_pairs()
-            self.fitter.FitBackground(spec=self.spec, backgrounds=backgrounds)
+            try: 
+                self.fitter.FitBackground(spec=self.spec, backgrounds=backgrounds)
+            except ValueError:
+                raise hdtv.cmdline.HDTVCommandAbort("Background fit failed.")
         # fit peaks
         if len(self.peakMarkers) > 0 and self.regionMarkers.IsFull():
             region = sorted([self.regionMarkers[0].p1.pos_uncal,

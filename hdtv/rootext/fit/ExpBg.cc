@@ -100,7 +100,24 @@ void ExpBg::Fit(TH1 &hist) {
               &ExpBg::_EvalRegion, GetMin(), GetMax(), fnParams, "ExpBg",
               "_EvalRegion");
 
-  for (int i = 0; i < fnParams; ++i) {
+  // Estimate start parameters p[0] and p[1]
+  std::list<double>::iterator iter;
+  
+  iter = fBgRegions.begin();
+  double bg_bin_start = *iter; 
+  iter = --fBgRegions.end();
+  double bg_bin_stop = *iter; 
+
+  double bg_start = hist.GetBinContent(hist.GetBin(bg_bin_start));
+  double bg_stop = hist.GetBinContent(hist.GetBin(bg_bin_stop));
+
+  // p[0], the scaling factor, and p[1], the decay constant, are set to fulfil the equation
+  // exp(p[0]+p[1]*bg_bin_start) = bg_start
+  // exp(p[0]+p[1]*bg_bin_stop) = bg_stop 
+  fitFunc.SetParameter(1, (log(bg_stop) - log(bg_start))/(bg_bin_stop - bg_bin_start));
+  fitFunc.SetParameter(0, log(bg_start) - fitFunc.GetParameter(1)*bg_bin_start);
+
+  for (int i = 2; i < fnParams; ++i) {
     fitFunc.SetParameter(i, 0.0);
   }
 
@@ -221,10 +238,10 @@ double ExpBg::_EvalRegion(double *x, double *p) {
   } else {
     double bg;
     bg = p[fnParams-1];
-    for (int i = fnParams - 2; i >= 1; i--) {
+    for (int i = fnParams - 2; i >= 0; i--) {
       bg = bg * x[0] + p[i];
     }
-    return exp(bg) + p[0];
+    return exp(bg);
   }
 }
 
@@ -232,11 +249,11 @@ double ExpBg::_Eval(double *x, double *p) {
   //! Evaluate background function at position x
 
   double bg = p[fnParams-1];
-  for (int i = fnParams - 2; i >= 1; i--) {
+  for (int i = fnParams - 2; i >= 0; i--) {
     bg = bg * x[0] + p[i];
   }
 
-  return exp(bg) + p[0];
+  return exp(bg);
 }
 
 double ExpBg::EvalError(double x) const {
