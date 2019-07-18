@@ -129,7 +129,7 @@ class Session(DrawableManager):
             return
 
         if len(fit.bgMarkers) > 0:
-            if fit.fitter.backgroundModel.fParStatus['bgdeg'] == -1:
+            if fit.fitter.backgroundModel.fParStatus['nparams'] == -1:
                 hdtv.ui.error(
                     "Background degree of -1 contradicts background fit.")
                 return
