@@ -26,6 +26,7 @@ import hdtv.cmdline
 import hdtv.ui
 from hdtv.marker import MarkerCollection
 import hdtv.rootext.display
+from hdtv.cmdline import HDTVCommandAbort, HDTVCommandError
 
 class HotkeyList(object):
     "Class to handle multi-key hotkeys."
