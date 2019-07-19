@@ -48,10 +48,20 @@ class BackgroundModelPolynomial(BackgroundModel):
         Creates a C++ Fitter object, which can then do the real work
         """
         if nparams is not None:
-            self.fFitter = ROOT.HDTV.Fit.PolyBg(nparams)
-            self.fParStatus['nparams'] = nparams
+            if nparams is 'free':
+                if nbg is None:
+                    raise ValueError('Free number of background parameters specified, but no number of background regions given.')
+                self.fFitter = ROOT.HDTV.Fit.PolyBg(nbg)
+                self.fParStatus['nparams'] = nbg
+            else:
+                self.fFitter = ROOT.HDTV.Fit.PolyBg(nparams)
+                self.fParStatus['nparams'] = nparams
         elif isinstance(self.fParStatus['nparams'], int):
             self.fFitter = ROOT.HDTV.Fit.PolyBg(self.fParStatus['nparams'])
+        elif self.fParStatus['nparams'] is 'free':
+            if nbg is None:
+                raise ValueError('Free number of background parameters specified, but no number of background regions given.')
+            self.fFitter = ROOT.HDTV.Fit.PolyBg(nbg)
         else:
             msg = "Status specifier %s of background fitter is invalid." % fParStatus['nparams']
             raise ValueError(msg)
