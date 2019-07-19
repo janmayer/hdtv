@@ -40,7 +40,7 @@ testspectrum = os.path.join(
 
 # Set properties of the background spectrum
 NSTEPS = 3
-BG_REGIONS = [[0.1, 0.35], [0.65, 0.775], [0.775, 0.9]]
+BG_REGIONS = [[0.1, 0.35], [0.65, 0.775], [0.775, 0.9], [0.9, 0.95]]
 PEAK_WIDTH = 0.03
 NBINS_PER_STEP = 300
 BG_PER_BIN = 10.
@@ -78,10 +78,20 @@ def prepare():
     savetxt(testspectrum, spectrum) 
 
 @pytest.mark.parametrize(
+        # nparams is the true number of parameters. The length n of the list bgparams
+        # only determines that the first n parameters will be checked.
+        # This is useful, for example, when a cubic or even quartic model is fit
+        # to a constant background. Since Chi2 of the fit depends very strongly on the
+        # values of the higher-order parameters (and even oscillates: third order cancels second order, ...), 
+        # the algorithm will terminate at some arbitrary
+        # low value, and give a false estimate of the uncertainty.
         "model, nparams, step, nregions, settings, errormessage, bgparams, bg_volume",
     [
-        ("polynomial", 2, 0, 3, "fit parameter background 2", "", [10., 0.], 0.),
+#        ("polynomial", 2, 0, 3, "", "", [10., 0.], 0.),
+#        ("polynomial", 2, 0, 3, "fit parameter background 2", "", [10., 0.], 0.),
         ("polynomial", 3, 0, 3, "fit parameter background 3", "", [10., 0., 0.], 0.),
+        ("polynomial", 3, 0, 3, "fit parameter background free", "", [10., 0.], 0.),
+        ("polynomial", 4, 0, 4, "fit parameter background free", "", [10., 0.], 0.),
         ("interpolation", 6, 0, 2, "", "Background fit failed.", [], 0.),
         ("interpolation", 6, 0, 3, "", "", [
             0.5*(BG_REGIONS[0][0]+BG_REGIONS[0][1])*NBINS_PER_STEP, BG_PER_BIN,
@@ -117,6 +127,7 @@ def test_backgroundRegions(model, nparams, step, nregions, settings, errormessag
     for i in range(nregions):
         command.append('fit marker background delete %i' % (i))
     command.append('fit marker region delete 0')
+    command.append('fit marker peak delete 0')
     f, ferr = hdtvcmd(*command)
 
     batchfile = os.path.join(os.path.curdir, 'test', 'share', model + '_' + str(nparams) + '_' + str(step) + '_background.bat')
@@ -159,7 +170,8 @@ def test_backgroundRegions(model, nparams, step, nregions, settings, errormessag
         if len(bgparams) > 0:
             params = background.findall('param')
             for i in range(len(params)):
-                assert isclose(float(params[i].find('value').text), bgparams[i], abs_tol=N_SIGMA*float(params[i].find('error').text))
+                if i < len(bgparams):
+                    assert isclose(float(params[i].find('value').text), bgparams[i], abs_tol=N_SIGMA*float(params[i].find('error').text))
 
         # Check the fit result
         # All results will be compared 
