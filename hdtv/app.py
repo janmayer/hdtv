@@ -67,8 +67,8 @@ class App:
             print("ERROR: Could not access config path " + configpath, file=sys.stderr)
 
         os.environ["HDTV_USER_PATH"] = str(self.configpath)
-        sys.path.append(self.configpath)
-        sys.path.append(self.configpath/"plugins")
+        sys.path.append(str(self.configpath))
+        sys.path.append(str(self.configpath/"plugins"))
 
         args = self.parse_args(hdtv_args)
 
