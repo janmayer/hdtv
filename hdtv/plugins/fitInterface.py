@@ -159,7 +159,7 @@ class FitInterface(object):
         if peaks:
             fit.FitPeakFunc(spec)
         else:
-            if fit.fitter.bgdeg == -1:
+            if fit.fitter.backgroundModel.fParStatus['nparams'] == -1:
                 raise RuntimeError("background degree of -1")
             fit.FitBgFunc(spec)
         hdtv.ui.msg(html=str(fit))
@@ -169,6 +169,7 @@ class FitInterface(object):
         """
         Re-Execute Fit on store fits
         """
+        print('Reintegrating')
         try:
             spec = self.spectra.dict[specID]
         except KeyError:
@@ -177,18 +178,12 @@ class FitInterface(object):
             fit = spec.dict[fitID]
         except KeyError:
             raise KeyError("invalid fit ID")
-#        if peaks:
-#            fit.FitPeakFunc(spec)
-#        else:
-#            if fit.fitter.bgdeg == -1:
-#                raise RuntimeError("background degree of -1")
-#            fit.FitBgFunc(spec)
         if not fit.regionMarkers.IsFull():
             raise hdtv.cmdline.HDTVCommandAbort("Region not set.")
             return
 
         if fit.bgMarkers:
-            if fit.fitter.bgdeg == -1:
+            if fit.fitter.backgroundModel.fParStatus['nparams'] == -1:
                 raise hdtv.cmdline.HDTVCommandAbort(
                     "Background degree of -1 contradicts background fit.")
                 return
@@ -203,6 +198,7 @@ class FitInterface(object):
         if print_result:
             hdtv.ui.msg(html=fit.print_integral())
         fit.Draw(self.window.viewport)
+        print('Successfully reintegrated')
 
     def QuickFit(self, pos=None):
         """
@@ -383,7 +379,7 @@ class FitInterface(object):
                 fitter = spec.dict[ID].fitter
                 statstr += "fitter status of fit id %d: \n" % ID
             if fitter.backgroundModel.name == "polynomial":
-                statstr += "<b>Background model:</b> %s, deg=%i\n" % escape(fitter.backgroundModel.name), fitter.backgroundModel.bgdeg
+                statstr += "<b>Background model:</b> %s, deg=%i\n" % escape(fitter.backgroundModel.name), fitter.backgroundModel.fParStatus['nparams']
             else:
                 statstr += "<b>Background model:</b> %s\n" % escape(fitter.backgroundModel.name)
             statstr += "<b>Peak model:</b> %s\n" % fitter.peakModel.name
