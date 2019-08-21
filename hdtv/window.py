@@ -19,6 +19,7 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
+import traceback
 import ROOT
 import hdtv.options
 import hdtv.color
@@ -71,8 +72,6 @@ class HotkeyList(object):
                         hdtv.ui.error(msg.value)
                 except AttributeError:
                     hdtv.ui.error(str(msg))
-                if parser:
-                    parser.print_usage()
                 hdtv.ui.debug(traceback.format_exc())
         
         curNode[key] = _wrapper
