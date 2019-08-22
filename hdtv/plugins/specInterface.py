@@ -400,11 +400,6 @@ class TvSpecInterface(object):
             action="store_true",
             help='Rebin deterministically')
         parser.add_argument(
-            "--conserve-integral",
-            "-i",
-            help="Conserve sum over h[i]*dx[i] instead of sum over h[i]",
-            action="store_true")
-        parser.add_argument(
             "--seed",
             "-s",
             type=int,
@@ -741,7 +736,6 @@ class TvSpecInterface(object):
                     spec = self.spectra.dict[i]
                     spec.Calbin(
                        binsize=args.binsize,
-                       conserve_integral=args.conserve_integral,
                        spline_order=args.spline_order)
                     if spec.cal:
                         self.spectra.caldict[spec.name] = spec.cal
