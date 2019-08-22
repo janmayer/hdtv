@@ -219,65 +219,46 @@ class Histogram(Drawable):
 
     def Calbin(self,
                binsize: float = 1,
-               conserve_integral: bool = False,
                spline_order: int = 3):
         """
         Rebin spectrum to match calibration unit
         
         Args:
             binsize: Size of calibrated bins
-            converse_integral: Conserve sum over h[i]*dx[i] instead
-                of sum over h[i]
             spline_order: Order of the spline interpolation (default: 3)
         """
+
         nbins = self._hist.GetNbinsX()
-        lower = int(self.cal.Ch2E(0))
         upper = int(self.cal.Ch2E(nbins))
-        if lower > upper:
-            lower, upper = upper, lower
-        nbins = int(np.ceil((upper - lower) / binsize))
+        nbins = int(np.ceil(upper / binsize))
 
         # Create new histogram with number of bins equal
         # to the calibrated range of the old histogram
         newhist = ROOT.TH1D(self._hist.GetName(), self._hist.GetTitle(),
-            nbins, lower - 0.5, lower + (binsize * nbins) - 0.5)
+            nbins, -0.5, upper - 0.5)
 
         input_bins_center, input_hist = np.transpose([
-            [self._hist.GetBinCenter(n), self._hist.GetBinContent(n)]
+            [self.cal.Ch2E(n), 
+             self._hist.GetBinContent(n)/(self.cal.Ch2E(n)-self.cal.Ch2E(n-1))]
             for n in range(1, self._hist.GetNbinsX() + 1)])
-        output_bins_low, output_bins_high, output_bins_width = np.transpose([[
-                newhist.GetBinLowEdge(n),
-                newhist.GetBinLowEdge(n + 1),
-                newhist.GetBinWidth(n)
-            ] for n in range(1, newhist.GetNbinsX() + 1)])
-        if conserve_integral:
-            inter = InterpolatedUnivariateSpline(
-                input_bins_center,
-                input_hist,
-                k=spline_order)
-        else:
-            inter = InterpolatedUnivariateSpline(
-                np.arange(0., self._hist.GetNbinsX()),
-                input_hist,
-                k=spline_order)
+
+        inverse_binsize = 1./binsize
+        output_bins_low = (np.arange(nbins) - 0.5)*binsize
+        output_bins_high = output_bins_low + binsize
+
+        inter = InterpolatedUnivariateSpline(
+            input_bins_center,
+            input_hist,
+            k=spline_order)
 
         inter_integral_v = np.vectorize(inter.integral)
-        if conserve_integral:
-            output_hist = np.maximum(inter_integral_v(
-                output_bins_low, output_bins_high) /
-                output_bins_width, 0.)
-        else:
-            inter_bins = InterpolatedUnivariateSpline(
-                input_bins_center, np.arange(0., self._hist.GetNbinsX()), k=spline_order)
-            output_hist = np.maximum(inter_integral_v(inter_bins(
-                output_bins_low), inter_bins(output_bins_high)), 0.)
+        output_hist = np.maximum(inter_integral_v(output_bins_low, output_bins_high), 0.)
 
         for i in range(newhist.GetNbinsX()):
-            # Note: Can't use Fill due to bin errors?
             newhist.SetBinContent(i + 1, output_hist[i])
 
-        self.cal.SetCal(0, 1)
         self.SetHistWithPrimitiveBinning(newhist, caldegree=1, silent=True)
+        self.cal.SetCal(0, binsize)
         # update display
         if self.displayObj:
             self.displayObj.SetHist(self._hist)
