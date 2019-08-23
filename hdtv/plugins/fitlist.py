@@ -44,7 +44,7 @@ class FitlistManager(object):
 
     def WriteXML(self, sid, fname=None):
         name = self.spectra.dict[sid].name
-        # remember absolut pathname for later use
+        # remember absolute pathname for later use
         fname = os.path.abspath(fname)
         self.list[name] = fname
         with hdtv.util.open_compressed(fname, mode='wb') as f:
@@ -52,7 +52,7 @@ class FitlistManager(object):
 
     def ReadXML(self, sid, fname, calibrate=False, refit=False, interactive=True):
         spec = self.spectra.dict[sid]
-        # remember absolut pathname for later use
+        # remember absolute pathname for later use
         fname = os.path.abspath(fname)
         self.list[spec.name] = fname
         with hdtv.util.open_compressed(fname, mode='rb') as f:
