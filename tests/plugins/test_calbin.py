@@ -110,6 +110,8 @@ def test_calbin(temp_file):
     root = tree.getroot()
 
     fits = root.findall('fit')
+    # It is a little bit unsatisfactory to accumulate the fits multiple times in temp_file, but I found no way to erase the content of temp_file
+    # open(temp_file, 'w').close() wouldn't work
     assert len(fits) == 3
 
     pos_value_1 = float(fits[2].find('peak').find('cal').find('pos').find('value').text)
@@ -119,7 +121,8 @@ def test_calbin(temp_file):
     width_value_1 = float(fits[2].find('peak').find('cal').find('width').find('value').text)
     width_error_1 = abs(float(fits[2].find('peak').find('cal').find('width').find('error').text))
 
-    assert isclose(pos_value_init - pos_value_1, 0., abs_tol=N_SIGMA*sqrt(pos_error_init*pos_error_init + pos_error_1*pos_error_1))
+    # For the fit of the position, allow it to deviate by N_SIGMA times the combined standard deviations of the fitted positions PLUS the width of a single bin.
+    assert isclose(pos_value_init - pos_value_1, 0., abs_tol=N_SIGMA*sqrt(pos_error_init*pos_error_init + pos_error_1*pos_error_1)+1.)
     assert isclose(vol_value_init - vol_value_1, 0., abs_tol=N_SIGMA*sqrt(vol_error_init*vol_error_init + vol_error_1*vol_error_1))
     assert isclose(width_value_init - width_value_1, 0., abs_tol=N_SIGMA*sqrt(width_error_init*width_error_init + width_error_1*width_error_1))
 
@@ -154,7 +157,7 @@ def test_calbin(temp_file):
     width_value_2 = float(fits[6].find('peak').find('cal').find('width').find('value').text)
     width_error_2 = abs(float(fits[6].find('peak').find('cal').find('width').find('error').text))
 
-    assert isclose(pos_value_init - pos_value_2, 0., abs_tol=N_SIGMA*sqrt(pos_error_init*pos_error_init + pos_error_2*pos_error_2))
+    assert isclose(pos_value_init - pos_value_2, 0., abs_tol=N_SIGMA*sqrt(pos_error_init*pos_error_init + pos_error_2*pos_error_2) + 2.)
     assert isclose(vol_value_init - vol_value_2, 0., abs_tol=N_SIGMA*sqrt(vol_error_init*vol_error_init + vol_error_2*vol_error_2))
     assert isclose(width_value_init - width_value_2, 0., abs_tol=N_SIGMA*sqrt(width_error_init*width_error_init + width_error_2*width_error_2))
     
