@@ -200,7 +200,7 @@ class Histogram(Drawable):
             self.displayObj.SetHist(self._hist)
         self.typeStr = "spectrum, modified (multiplied)"
 
-    def Rebin(self, ngroup):
+    def Rebin(self, ngroup, calibrate=True):
         """
         Rebin spectrum by adding ngroup bins into one
         """
@@ -211,7 +211,9 @@ class Histogram(Drawable):
         if self.displayObj:
             self.displayObj.SetHist(self._hist)
         # update calibration
-        if self.cal:
+        if calibrate:
+            if not self.cal:
+                self.cal.SetCal(0., 1.)
             self.cal.Rebin(ngroup)
             self.displayObj.SetCal(self.cal)
             hdtv.ui.info("Calibration updated for rebinned spectrum")

@@ -372,6 +372,11 @@ class TvSpecInterface(object):
             "ngroup",
             type=int,
             help='group n bins for rebinning')
+        parser.add_argument(
+            "-c",
+            "--calibrate",
+            action="store_true",
+            help='Calibrate the spectrum after rebinning. If this switch is not used, peak positions will be shifted from pos to 1/ngroup*pos.')
         hdtv.cmdline.AddCommand(
             prog,
             self.SpectrumRebin,
@@ -706,7 +711,7 @@ class TvSpecInterface(object):
             if i in list(self.spectra.dict.keys()):
                 hdtv.ui.msg("Rebinning " + str(i) + " with " +
                             str(args.ngroup) + " bins per new bin")
-                self.spectra.dict[i].Rebin(args.ngroup)
+                self.spectra.dict[i].Rebin(args.ngroup, calibrate=args.calibrate)
             else:
                 raise hdtv.cmdline.HDTVCommandError(
                     "Cannot rebin spectrum " + str(i) + " (Does not exist)")
