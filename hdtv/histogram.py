@@ -235,7 +235,7 @@ class Histogram(Drawable):
         # Create new histogram with number of bins equal
         # to the calibrated range of the old histogram
         newhist = ROOT.TH1D(self._hist.GetName(), self._hist.GetTitle(),
-            nbins, -0.5, upper - 0.5)
+            nbins, -0.5*binsize, upper+0.5*binsize)
 
         input_bins_center, input_hist = np.transpose([
             [self.cal.Ch2E(n), 
@@ -243,7 +243,7 @@ class Histogram(Drawable):
             for n in range(1, self._hist.GetNbinsX() + 1)])
 
         inverse_binsize = 1./binsize
-        output_bins_low = (np.arange(nbins) - 0.5)*binsize
+        output_bins_low = (np.arange(nbins)-0.5)*binsize
         output_bins_high = output_bins_low + binsize
 
         inter = InterpolatedUnivariateSpline(
@@ -258,7 +258,7 @@ class Histogram(Drawable):
             newhist.SetBinContent(i + 1, output_hist[i])
 
         self.SetHistWithPrimitiveBinning(newhist, caldegree=1, silent=True)
-        self.cal.SetCal(0, binsize)
+        self.cal.SetCal(-0.5*binsize, binsize)
         # update display
         if self.displayObj:
             self.displayObj.SetHist(self._hist)
