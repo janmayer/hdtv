@@ -36,6 +36,9 @@
 
 #include "Util.hh"
 
+using std::cout;
+using std::endl;
+
 namespace HDTV {
 namespace Fit {
 
@@ -112,6 +115,8 @@ void InterpolationBg::Fit(TH1 &hist) {
 	double denominator = 0.;
 	double numerator = 0.;
 	double weight = 0.;
+	double bin_error = 1.;
+	unsigned int nonzero_neighboring_bins = 0;
 	
 	// TH1 bins start at 1. Bin 0 is reserved as an underflow bin.
 	// This is in contrast to the conventions of C++.
@@ -121,7 +126,32 @@ void InterpolationBg::Fit(TH1 &hist) {
 	//
 	// The additional factor of +2 has to be added to the value returned by TH1::GetBin() to be consistent with the displayed spectrum of HDTV
 	for(int i = hist.GetBin(bgReg.limit.first) + 2; i < hist.GetBin(bgReg.limit.second) + 2; ++i){
-		weight = 1./pow(hist.GetBinError(i), 2);
+		nonzero_neighboring_bins = 0;
+		bin_error = hist.GetBinError(i);
+		// Catch the special case when a bin content, and therefore also its uncertainty, is zero.
+		// If not caught, this would cause an infinitely high weight.
+		cout << i << " : " << bin_error << endl;
+		if(bin_error == 0.){
+			// Check whether the neighboring bins have a nonzero content. If yes, assume that the spectrum is smooth enough and take the mean value of both uncertainties of the neighboring bins as an approximation for the bin i. 
+			// If only one of them has a nonzero uncertainty, assume the uncertainty of bin i is equal to that one.
+			// If both of the neighboring bins have an uncertainty of zero, set the uncertainty of bin i to 1, which should be a good choice if the entire region contains very low statistics.
+			if(hist.GetBinError(i-1) > 0.){
+				bin_error += hist.GetBinError(i-1);
+				++nonzero_neighboring_bins;
+			}
+			if(hist.GetBinError(i+1) > 0.){
+				bin_error += hist.GetBinError(i+1);
+				++nonzero_neighboring_bins;
+			}
+
+			cout << "\t# Nonzero neighboring bins: " << nonzero_neighboring_bins << endl;
+			if(nonzero_neighboring_bins > 0){
+				bin_error = 1./nonzero_neighboring_bins*bin_error;
+			} else{
+				bin_error = 1.;
+			}
+		}
+		weight = 1./(bin_error*bin_error);
 		numerator += hist.GetBinContent(i)*weight;
 		denominator += weight;
 	}
