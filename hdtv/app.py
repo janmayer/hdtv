@@ -31,8 +31,10 @@ from pathlib import Path
 import argparse
 
 if __name__ == "__main__":
-    project_dir = Path(__file__).absolute().parents[1]
-    sys.path.remove(str(project_dir/"hdtv"))
+    project_dir = Path(__file__).absolute().parents[1].resolve()
+    project_path = str((project_dir/"hdtv").resolve())
+    if project_path in sys.path:
+        sys.path.remove(project_path)
     sys.path.insert(0, str(project_dir))
 
 
