@@ -47,6 +47,7 @@ from prompt_toolkit.formatted_text import HTML
 
 import hdtv.util
 import hdtv.options
+import __main__
 
 import ROOT
 
@@ -260,8 +261,12 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         return (node, path)
 
     def ExecCommand(self, cmdline):
+        viewport_locked = False
         try:
             fragments, last_suffix = self.SplitCmdlines(cmdline)
+            if len(fragments) > 1:
+                viewport_locked = True
+                __main__.spectra.viewport.LockUpdate()
             for path in fragments:
                 if not command_line.fKeepRunning:
                     break
@@ -300,6 +305,9 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         except BaseException as msg:
             hdtv.ui.error(str(msg))
             hdtv.ui.debug(traceback.format_exc())
+        finally:
+            if viewport_locked:
+                __main__.spectra.viewport.UnlockUpdate()
 
     def RemoveCommand(self, title):
         """
