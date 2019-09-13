@@ -50,11 +50,17 @@ class FitlistManager(object):
         with hdtv.util.open_compressed(fname, mode='wb') as f:
             self.xml.WriteFitlist(f, sid)
 
-    def ReadXML(self, sid, fname, calibrate=False, refit=False, interactive=True):
+    def ReadXML(self, sid, fname, calibrate=False, refit=False,
+                interactive=True, associate=True):
         spec = self.spectra.dict[sid]
         # remember absolute pathname for later use
         fname = os.path.abspath(fname)
-        self.list[spec.name] = fname
+        print(self.list)
+        if associate:
+            self.list[spec.name] = fname
+        else:
+            self.list.pop(spec.name, None)
+        print(self.list)
         with hdtv.util.open_compressed(fname, mode='rb') as f:
             self.xml.ReadFitlist(f, sid,
                  calibrate=calibrate, refit=refit,
@@ -149,6 +155,15 @@ class FitlistHDTVInterface(object):
             action="store_true",
             default=False,
             help="Apply the stored calibration to the loaded spectrum")
+        parser.add_argument(
+            "-n",
+            "--no-associate",
+            action="store_true",
+            default=False,
+            help="""Do not remeber the filename of the fitlist file,
+            i.e. `fit write` will not write to the original fitlist file,
+            but create a new one according to the name of the spectrum.
+            Useful for reusing fits from a different spectrum.""")
         parser.add_argument(
             "filename",
             nargs='+',
@@ -249,7 +264,9 @@ class FitlistHDTVInterface(object):
         for sid in sids:
             for fname in fnames[sid]:
                 hdtv.ui.msg("Reading fitlist %s to spectrum %s" % (fname, sid))
-                self.FitlistIf.ReadXML(sid, fname, calibrate=args.calibrate, refit=args.refit)
+                self.FitlistIf.ReadXML(
+                    sid, fname, calibrate=args.calibrate,
+                    refit=args.refit, associate=(not args.no_associate))
 
     def FitSavelists(self, args):
         if hdtv.util.user_save_file(args.filename, args.force):
