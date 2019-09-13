@@ -61,6 +61,18 @@ class FitMap(object):
             prog=prog, description=description)
         parser.add_argument(
             "filename")
+        parser.add_argument(
+            "-o",
+            "--overwrite",
+            action="store_true",
+            default=False,
+            help="Overwrite existing nominal peak positions")
+        parser.add_argument(
+            "-t",
+            "--tolerance",
+            default=12,
+            type=float,
+            help="Tolerance for associating peaks to positions [default:%(default)s]")
         hdtv.cmdline.AddCommand(prog, self.FitPosMap,
                                 fileargs=True, parser=parser)
 
@@ -196,13 +208,10 @@ class FitMap(object):
         count = 0
         for fit in spec.dict.values():
             for peak in fit.peaks:
-                # erase old values
-                try:
-                    peak.extras.pop("pos_lit")
-                except BaseException:
-                    pass
+                if args.overwrite:
+                    peak.extras.pop("pos_lit", None)
                 # pick best match within a certain tolerance (if it exists)
-                tol = 12
+                tol = args.tolerance
                 enlit = [e for e in energies
                          if abs(peak.pos_cal.std_score(e)) < tol]
                 if len(enlit) > 0:
