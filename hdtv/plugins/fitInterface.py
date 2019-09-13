@@ -1276,15 +1276,14 @@ class TvFitInterface(object):
             else:
                 activePM = self.spectra.workFit.fitter.peakModel
                 try:
-                    states = activePM.fValidParStatus[param]
+                    states = [s for s in activePM.fValidParStatus[param]
+                              if isinstance(s, str)]
                 except KeyError:
                     # param is not a parameter of the peak model of active
                     # fitter
                     msg = "Invalid parameter %s for active peak model %s" % (
                         param, activePM.name)
                     raise hdtv.cmdline.HDTVCommandAbort(msg)
-                # remove <type: float> option
-                states.remove(float)
                 return hdtv.util.GetCompleteOptions(text, states)
 
     def ResetFit(self, args):
