@@ -26,14 +26,18 @@ import shutil
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'helpers'))
 
-def pytest_configure():
+def pytest_addoption(parser):
+    parser.addoption("--force-rebuild", action="store_true", help="Force library rebuild.")
+
+def pytest_configure(config):
     print('Update Root Include Path ...')
     import hdtv.rootext
     hdtv.rootext.UpdateRootIncludePath()
-    print('Force Library Rebuild ...')
     os.environ["XDG_CACHE_HOME"] = tempfile.mkdtemp()
-    import hdtv.rootext.dlmgr
-    hdtv.rootext.dlmgr.RebuildLibraries(hdtv.rootext.dlmgr.usrdir)
+    if config.getoption("force_rebuild"):
+        print('Force Library Rebuild ...')
+        import hdtv.rootext.dlmgr
+        hdtv.rootext.dlmgr.RebuildLibraries(hdtv.rootext.dlmgr.usrlibdir)
 
 def pytest_sessionfinish(session, exitstatus):
     tmpdir = os.getenv("XDG_CACHE_HOME")
