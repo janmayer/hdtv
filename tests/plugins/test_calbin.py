@@ -56,6 +56,7 @@ N_SIGMA = 3 # Determines how many standard deviations (sigma) a fitted quantity
 # may deviate from the ideal value.
 # Sigma is provided by the fitting algorithm .
 UNCERTAINTY_RELATIVE_TOLERANCE = 0.2 # Determines how large the relative deviation, after calbinning, of the fit uncertainties from the original uncertainty may be.
+WRITE_BATCHFILE = False # Determines whether the batch files of the test fits should be written to file.
 
 @pytest.fixture
 def test_spectrum(tmp_path):
@@ -81,13 +82,13 @@ def test_calbin(temp_file, test_spectrum):
     command.append('fit store')
     f, ferr = hdtvcmd(*command)
 
-    # Write the commands to a batch file
-    batchfile = os.path.join(os.path.curdir, 'test', 'share', 'calbin.hdtv')
-    with open(batchfile, 'w') as bfile:
-        for c in command:
-            bfile.write(c + '\n')
+    if WRITE_BATCHFILE:
+        batchfile = os.path.join(os.path.curdir, 'test', 'share', 'calbin.hdtv')
+        with open(batchfile, 'w') as bfile:
+            for c in command:
+                bfile.write(c + '\n')
 
-    assert ferr == ''
+        assert ferr == ''
 
     # Write the fit result to a temporary XML file
     fitxml.WriteXML(spectra.Get("0").ID, temp_file)
