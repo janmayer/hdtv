@@ -1,5 +1,24 @@
+# HDTV - A ROOT-based spectrum analysis software
+#  Copyright (C) 2006-2019  The HDTV development team (see file AUTHORS)
+#
+# This file is part of HDTV.
+#
+# HDTV is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# HDTV is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with HDTV; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+
 """
-Artificial whether the calbin algorithm conserves the statistical properties of the spectrum by fitting a peak before and after calbinning.
+Test whether the calbin algorithm conserves the statistical properties of the spectrum by fitting a peak before and after calbinning.
 """
 
 import os
@@ -10,7 +29,7 @@ import pytest
 import xml.etree.ElementTree as ET
 
 from test.helpers.utils import hdtvcmd, isclose
-from test.helpers.create_test_spectrum import ArtificialSpec 
+from test.helpers.create_test_spectrum import ArtificialSpec, ArtificialSpecProp
 from test.helpers.fixtures import temp_file
 
 from hdtv.util import monkey_patch_ui
@@ -38,23 +57,25 @@ N_SIGMA = 3 # Determines how many standard deviations (sigma) a fitted quantity
 # Sigma is provided by the fitting algorithm .
 UNCERTAINTY_RELATIVE_TOLERANCE = 0.2 # Determines how large the relative deviation, after calbinning, of the fit uncertainties from the original uncertainty may be.
 
-# ts = 'test spectrum'
-ts = ArtificialSpec()
-ts.create()
+@pytest.fixture
+def test_spectrum(tmp_path):
+    ts = ArtificialSpec(path=tmp_path)
+    ts.create()
+    return ts
 
-def test_calbin(temp_file):
-    command = ['spectrum get ' + ts.filename]
+def test_calbin(temp_file, test_spectrum):
+    command = ['spectrum get ' + test_spectrum.filename]
 
     step = 2 # Use the third spectrum which has a constant background and Poissonian fluctuations
     # Fit the peak in step 2
-    command.append('fit marker background set %f' % ((step+ts.bg_regions[0][0])*ts.nbins_per_step))
-    command.append('fit marker background set %f' % ((step+ts.bg_regions[0][1])*ts.nbins_per_step))
-    command.append('fit marker background set %f' % ((step+ts.bg_regions[1][0])*ts.nbins_per_step))
-    command.append('fit marker background set %f' % ((step+ts.bg_regions[1][1])*ts.nbins_per_step))
+    command.append('fit marker background set %f' % ((step+test_spectrum.bg_regions[0][0])*test_spectrum.nbins_per_step))
+    command.append('fit marker background set %f' % ((step+test_spectrum.bg_regions[0][1])*test_spectrum.nbins_per_step))
+    command.append('fit marker background set %f' % ((step+test_spectrum.bg_regions[1][0])*test_spectrum.nbins_per_step))
+    command.append('fit marker background set %f' % ((step+test_spectrum.bg_regions[1][1])*test_spectrum.nbins_per_step))
 
-    command.append('fit marker region set %f' % ((step+0.5)*ts.nbins_per_step - 3.*ts.peak_width*ts.nbins_per_step))
-    command.append('fit marker region set %f' % ((step+0.5)*ts.nbins_per_step + 3.*ts.peak_width*ts.nbins_per_step))
-    command.append('fit marker peak set %f' % ((step+0.5)*ts.nbins_per_step))
+    command.append('fit marker region set %f' % ((step+0.5)*test_spectrum.nbins_per_step - 3.*test_spectrum.peak_width*test_spectrum.nbins_per_step))
+    command.append('fit marker region set %f' % ((step+0.5)*test_spectrum.nbins_per_step + 3.*test_spectrum.peak_width*test_spectrum.nbins_per_step))
+    command.append('fit marker peak set %f' % ((step+0.5)*test_spectrum.nbins_per_step))
 
     command.append('fit execute')
     command.append('fit store')
