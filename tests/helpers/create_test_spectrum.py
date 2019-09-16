@@ -23,6 +23,7 @@ import pytest
 
 from numpy import arange, exp, log, ones, savetxt, sqrt
 from numpy.random import poisson
+import numpy as np
 from scipy.stats import norm
 
 # Set properties of the background spectrum
@@ -56,6 +57,8 @@ class ArtificialSpec:
 
     def create(self):
         """Create the test spectrum (if not already done)"""
+
+        np.random.seed(0)
 
         if not os.path.isfile(self.filename):
             # Create an array for the bin centers

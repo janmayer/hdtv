@@ -117,13 +117,13 @@ def test_calbin(temp_file, test_spectrum):
     f, ferr = hdtvcmd(*command)
     assert ferr == ''
 
-    # Write the commands to the same batch file
-    batchfile = os.path.join(os.path.curdir, 'test', 'share', 'calbin.hdtv')
-    with open(batchfile, 'a') as bfile:
-        for c in command:
-            bfile.write(c + '\n')
+    if WRITE_BATCHFILE:
+        batchfile = os.path.join(os.path.curdir, 'test', 'share', 'calbin.hdtv')
+        with open(batchfile, 'a') as bfile:
+            for c in command:
+                bfile.write(c + '\n')
 
-    assert ferr == ''
+        assert ferr == ''
 
     fitxml.WriteXML(spectra.Get("0").ID, temp_file)
     fitxml.ReadXML(spectra.Get("0").ID, temp_file, refit=False, interactive=False)
@@ -155,13 +155,13 @@ def test_calbin(temp_file, test_spectrum):
     f, ferr = hdtvcmd(*command)
     assert ferr == ''
 
-    # Write the commands to the same batch file
-    batchfile = os.path.join(os.path.curdir, 'test', 'share', 'calbin.hdtv')
-    with open(batchfile, 'a') as bfile:
-        for c in command:
-            bfile.write(c + '\n')
+    if WRITE_BATCHFILE:
+        batchfile = os.path.join(os.path.curdir, 'test', 'share', 'calbin.hdtv')
+        with open(batchfile, 'a') as bfile:
+            for c in command:
+                bfile.write(c + '\n')
 
-    assert ferr == ''
+        assert ferr == ''
 
     fitxml.WriteXML(spectra.Get("0").ID, temp_file)
     fitxml.ReadXML(spectra.Get("0").ID, temp_file, refit=False, interactive=False)
