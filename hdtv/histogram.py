@@ -336,17 +336,32 @@ class Histogram(Drawable):
         else:
             if not silent:
                 hdtv.ui.info(
-                    hist.GetName() + " unconventional binning detected. Converting and creating calibration ...")
+                    hist.GetName() + " unconventional binning detected. Converting and trying to create calibration using a polynomial of order " + str(caldegree) + " ...")
             self._hist = ROOT.TH1D(hist.GetName(), hist.GetTitle(), hist.GetNbinsX(), 0, hist.GetNbinsX())
             cf = CalibrationFitter()
             # TODO: Slow
             for bin in range(0, hist.GetNbinsX()):
                 cf.AddPair(bin, hist.GetXaxis().GetBinUpEdge(bin))
                 self._hist.SetBinContent(bin, hist.GetBinContent(bin))
-                # TODO: Copy Errors?
+                # Original comment by JM in commit #dd438b7c44265072bf8b0528170cecc95780e38c: 
+                # "TODO: Copy Errors?"
+                # 
+                # Edit by UG: It makes sense to simply copy the uncertainties. There are two 
+                # possible cases:
+                # 1. The ROOT histogram contains user-defined uncertainties per bin that can
+                #    be retrieved by calling hist.GetBinError(). In this case, it can be
+                #    assumed that the user knew what he was doing when the uncertainties
+                #    were assigned.
+                # 2. The ROOT histogram contains no user-defined uncertainties. In this case,
+                #    a call of hist.GetBinError() will return the square root of the bin
+                #    content, which is a sensible assumption.
+                # 
+                # Since text spectra are loaded in a completely analogous way, implicitly 
+                # assuming that the uncertainties are Poissonian, there is no need to issue
+                # an additional warning.
+                self._hist.SetBinError(bin, hist.GetBinError(bin))
             cf.FitCal(caldegree)
             self.cal = cf.calib
-
 
 class FileHistogram(Histogram):
     """
