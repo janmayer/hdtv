@@ -46,14 +46,14 @@ class App:
 
         # Get config and data directory
         self.legacypath = Path.home()/".hdtv"
-        self.configpath = os.getenv("HDTV_USER_PATH",
+        self.configpath = Path(os.getenv("HDTV_USER_PATH",
             self.legacypath if self.legacypath.is_dir() else
             Path(os.getenv("XDG_CONFIG_HOME",
-                Path.home()/".config"))/"hdtv")
-        self.datapath = os.getenv("HDTV_USER_PATH",
+                Path.home()/".config"))/"hdtv"))
+        self.datapath = Path(os.getenv("HDTV_USER_PATH",
             self.legacypath if self.legacypath.is_dir() else
             Path(os.getenv("XDG_DATA_HOME",
-                Path.home()/".local/share"))/"hdtv")
+                Path.home()/".local/share"))/"hdtv"))
 
         for path in [self.datapath, self.configpath]:
             try:
@@ -66,7 +66,7 @@ class App:
                 self.datapath), file=sys.stderr)
 
         if not os.access(self.configpath, os.R_OK):
-            print("ERROR: Could not access config path " + configpath, file=sys.stderr)
+            print("ERROR: Could not access config path " + self.configpath, file=sys.stderr)
 
         os.environ["HDTV_USER_PATH"] = str(self.configpath)
         sys.path.append(str(self.configpath))
