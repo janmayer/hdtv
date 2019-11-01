@@ -392,13 +392,13 @@ class FitInterface(object):
                 fitter = spec.dict[ID].fitter
                 statstr += "fitter status of fit id %d: \n" % ID
             if fitter.backgroundModel.name == "polynomial":
-                statstr += "<b>Background model:</b> %s, deg=%i\n" % escape(fitter.backgroundModel.name), fitter.backgroundModel.fParStatus['nparams']
+                statstr += "<b>Background model:</b> %s" % escape(fitter.backgroundModel.name)
+                statstr += ", deg=%i" % fitter.backgroundModel.fParStatus['nparams']
+                statstr += "\n"
             else:
                 statstr += "<b>Background model:</b> %s\n" % escape(fitter.backgroundModel.name)
             statstr += "<b>Peak model:</b> %s\n" % fitter.peakModel.name
-            statstr += "\n"
             statstr += fitter.OptionsStr()
-            statstr += "\n\n"
         hdtv.ui.msg(html=statstr)
 
     def SetFitterParameter(self, parname, status, ids=None):
