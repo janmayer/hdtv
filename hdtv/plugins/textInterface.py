@@ -25,17 +25,29 @@ TextInterface functions
 
 import hdtv.options
 import hdtv.ui
-import os
 import pydoc
-import sys
-import signal
 from html import escape
+import fcntl
+import termios
+import struct
 
 from prompt_toolkit.application import Application
+from prompt_toolkit.buffer import Buffer
+from prompt_toolkit.filters import to_filter
+from prompt_toolkit.formatted_text import to_formatted_text, fragment_list_to_text, HTML
 from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.layout.containers import HSplit
+from prompt_toolkit.layout import BufferControl
+from prompt_toolkit.layout.containers import HSplit, Window
 from prompt_toolkit.layout.layout import Layout
-from prompt_toolkit.widgets import SearchToolbar, TextArea
+from prompt_toolkit.layout.processors import Transformation, Processor
+
+
+
+class FormatText(Processor):
+    def apply_transformation(self, ti):
+        fragments = to_formatted_text(HTML(fragment_list_to_text(ti.fragments)))
+        return Transformation(fragments)
+
 
 
 class TextInterface(hdtv.ui.SimpleUI):
@@ -58,11 +70,9 @@ class TextInterface(hdtv.ui.SimpleUI):
 
         self._fallback_canvasheight = height
         self._fallback_canvaswidth = width
-        self._updateTerminalSize(None, None)
+        self._updateTerminalSize()
 
-        signal.signal(signal.SIGWINCH, self._updateTerminalSize)
-
-    def page(self, html):
+    def page(self, html, end='\n'):
         """
         Print text by pages
         """
@@ -73,24 +83,28 @@ class TextInterface(hdtv.ui.SimpleUI):
 
             pydoc.tempfilepager(html, str(cmd) + " " + str(args))
         else:
-            self.pager(html)
+            self.pager(html, end)
 
-    def pager(self, text):
+    def pager(self, html, end='\n'):
         """
         Construct pager using prompt_toolkit
         """
-        search_field = SearchToolbar(text_if_not_searching=[
-            ('class:not-searching', "Press '/' to start searching.")])
 
-        text_area = TextArea(
-            text=text,
-            read_only=True,
-            wrap_lines=False,
-            search_field=search_field)
-        
+        my_buffer = Buffer()
+        my_window = Window(
+            BufferControl(
+                buffer=my_buffer,
+                focusable=True,
+                preview_search=True,
+                input_processors=[FormatText()]
+            )
+        )
+
+        my_buffer.text = html
+        my_buffer.read_only = to_filter(True)
+
         root_container = HSplit([
-            text_area,
-            search_field,
+            my_window,
         ])
 
         bindings = KeyBindings()
@@ -103,7 +117,7 @@ class TextInterface(hdtv.ui.SimpleUI):
         application = Application(
             layout=Layout(
                 root_container,
-                focused_element=text_area,
+                focused_element=my_window,
             ),
             key_bindings=bindings,
             enable_page_navigation_bindings=True,
@@ -111,47 +125,29 @@ class TextInterface(hdtv.ui.SimpleUI):
             full_screen=True)
 
         application.run()
-        super().msg(text)
+        super().msg(html=html, end=end)
 
     def msg(self, text=None, *, html=None, end='\n'):
         """
         Message output
         """
+        self._updateTerminalSize()
         if not html:
             html = escape(text)
         lines = len(html.splitlines())
 
         if lines > self.canvasheight:
-            self.page(html)
+            self.page(html, end)
         else:
             super().msg(html=html, end=end)
 
-    # TODO: Make this work under windows
-    def _updateTerminalSize(self, signal, frame):
-        env = os.environ
-        def ioctl_GWINSZ(fd):
-            try:
-                import fcntl
-                import termios
-                import struct
-                import os
-                cr = struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ,
-                                                     '1234'))
-            except BaseException:
-                return None
-            return cr
-        cr = ioctl_GWINSZ(0) or ioctl_GWINSZ(1) or ioctl_GWINSZ(2)
-        if not cr:
-            try:
-                fd = os.open(os.ctermid(), os.O_RDONLY)
-                cr = ioctl_GWINSZ(fd)
-                os.close(fd)
-            except BaseException:
-                pass
-        if not cr:
-            cr = (env.get('LINES', 25), env.get('COLUMNS', 80))
-        self.canvasheight = cr[0]
-        self.canvaswidth = cr[1]
+    def _updateTerminalSize(self):
+        h, w, hp, wp = struct.unpack('HHHH',
+            fcntl.ioctl(0, termios.TIOCGWINSZ,
+            struct.pack('HHHH', 0, 0, 0, 0)))
+
+        self.canvasheight = h
+        self.canvaswidth = w
 
 # initialization
 hdtv.ui.ui = TextInterface()
