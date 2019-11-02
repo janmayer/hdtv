@@ -573,6 +573,8 @@ class ID(object):
             return manager.ids
         elif string.upper() == "VISIBLE":
             return list(manager.visible)
+        elif string.upper() == "HIDDEN":
+            return [ID for ID in manager.ids if ID not in manager.visible]
         else:
             raise ValueError
 
