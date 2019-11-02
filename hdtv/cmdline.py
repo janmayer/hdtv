@@ -386,12 +386,15 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         # ... if not, we use the nodes registered autocomplete handler ...
         elif not hasattr(node, 'options') or node.options is None:
             yield from []
-        elif "completer" in node.options and callable(node.options["completer"]):
-            for option in node.options["completer"](last_path, args):
-                yield Completion(option,
-                    -len(word_before_cursor),
-                    style=default_style,
-                    selected_style=default_selected_style)
+        elif "completer" in node.options:
+            if isinstance(node.options["completer"], Completer):
+                yield from node.options["completer"].get_completions(document, complete_event)
+            elif callable(node.options["completer"]):
+                for option in node.options["completer"](last_path, args):
+                    yield Completion(option,
+                        -len(word_before_cursor),
+                        style=default_style,
+                        selected_style=default_selected_style)
         # ... if that fails as well, we suggest files, but only if the command will
         # take files or directories as arguments.
         elif ("fileargs" in node.options and node.options["fileargs"]) or \
