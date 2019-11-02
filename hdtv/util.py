@@ -58,7 +58,7 @@ class TxtFile(object):
         self.linos = list()
         self.mode = mode
         # TODO: this has to be handled properly (escaped whitespaces, etc...)
-        filename = filename.rstrip()
+        filename = str(filename).rstrip()
         self.filename = os.path.expanduser(filename)
         self.fd = None
 

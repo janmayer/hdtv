@@ -38,6 +38,7 @@ import itertools
 import errno
 from enum import Enum, auto
 import re
+import glob
 
 from prompt_toolkit.shortcuts import PromptSession, CompleteStyle, clear
 from prompt_toolkit.completion import Completer, Completion
@@ -567,14 +568,10 @@ class CommandLine(object):
         """
         Execute a command file with hdtv commands (aka batch file)
         """
-        hdtv.ui.msg("Execute file: " + str(fname))
+        hdtv.ui.msg(f"Execute file: {fname}")
 
         try:
-            # TODO: HACK: fname can be a pathlib.Path object (e.g. __init__ of app.py 
-            # executing the startup_hdtv file by calling ExecCmdfile(startup_hdtv) 
-            # with startup_hdtv being a pathlib.Path object), but hdtv.util.TxtFile
-            # requires a string, so just convert instead of changing hdtv.util.TxtFile
-            file = hdtv.util.TxtFile(str(fname))
+            file = hdtv.util.TxtFile(fname)
             file.read()
         except IOError as msg:
             hdtv.ui.error("%s" % msg)
@@ -587,6 +584,11 @@ class CommandLine(object):
                 self.fPyMore = self._py_console.push("")
             if not self.fKeepRunning:
                 break
+    
+    def ExecCmdfileCmd(self, args):
+        for path in args.batchfile:
+            for filename in glob.glob(path):
+                self.ExecCmdfile(filename)
 
     def ExecShell(self, cmd):
         subprocess.call(cmd, shell=True)
@@ -732,7 +734,24 @@ MainLoop = command_line.MainLoop
 RegisterInteractive("gCmd", command_tree)
 
 AddCommand("python", command_line.EnterPython)
-AddCommand("shell", command_line.EnterShell, level=2)
 AddCommand("exit", command_line.Exit)
 AddCommand("quit", command_line.Exit)
 AddCommand("clear", command_line.Clear)
+
+prog = "shell"
+description = "Start and enter a shell. To return to hdtv, exit the shell."
+parser = HDTVOptionParser(
+    prog=prog, description=description)
+AddCommand(prog, command_line.EnterShell, level=2, parser=parser)
+
+prog = "exec"
+description = "Execute batch file(s) with hdtv commands. Globbing is supported."
+parser = HDTVOptionParser(
+    prog=prog, description=description)
+parser.add_argument(
+    "batchfile",
+    nargs='+',
+    type=str,
+    default=None,
+    help='Path of a batch file')
+AddCommand(prog, command_line.ExecCmdfileCmd, level=2, parser=parser, fileargs=True)
