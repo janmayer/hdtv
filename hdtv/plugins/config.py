@@ -19,14 +19,13 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
+import re
+
+from prompt_toolkit.completion import WordCompleter
+
 import hdtv.options
 import hdtv.cmdline
 import hdtv.util
-
-
-def ConfigVarCompleter(text, args=None):
-    return hdtv.util.GetCompleteOptions(
-        text, hdtv.options.OptionManager.__dict__.keys())
 
 
 def ConfigSet(args):
@@ -62,6 +61,11 @@ def ConfigReset(args):
     else:
         hdtv.ui.msg(hdtv.options.Str(), end='')
 
+config_var_completer = WordCompleter(
+    hdtv.options.OptionManager.__dict__.keys(),
+    pattern=re.compile(r'^([^\s]+)'),
+)
+
 prog = "config set"
 description = "Set a configuration variable"
 parser = hdtv.cmdline.HDTVOptionParser(
@@ -69,7 +73,7 @@ parser = hdtv.cmdline.HDTVOptionParser(
 parser.add_argument("variable")
 parser.add_argument("value")
 hdtv.cmdline.AddCommand(prog, ConfigSet, level=2, parser=parser,
-    completer=ConfigVarCompleter)
+    completer=config_var_completer)
 
 prog = "config show"
 description = "Show the configuration or a single configuration variable"
@@ -77,7 +81,7 @@ parser = hdtv.cmdline.HDTVOptionParser(
     prog=prog, description=description)
 parser.add_argument("variable", nargs='?', default=None)
 hdtv.cmdline.AddCommand(prog, ConfigShow, level=1, parser=parser,
-    completer=ConfigVarCompleter)
+    completer=config_var_completer)
 
 prog = "config reset"
 description = "Reset a single configuration variable"
@@ -89,6 +93,6 @@ parser.add_argument(
     default=None,
     help='Name of the variable to reset. Use \'all\' to reset all configuration variables.')
 hdtv.cmdline.AddCommand(prog, ConfigReset, level=2, parser=parser,
-    completer=ConfigVarCompleter)
+    completer=config_var_completer)
 
 hdtv.ui.debug("Loaded user interface for configuration variables")
