@@ -48,9 +48,9 @@ HDTV commands, it is possible to use special prefixes:
     Execute a single Python command.
 
 @
-    Execute an HDTV batch files.
+    Execute an HDTV batch file (or use the ``exec`` command).
 
-%
+!
     Execute a single shell command.
 
 The command line is implemented using ``prompt_toolkit``. Common features,
