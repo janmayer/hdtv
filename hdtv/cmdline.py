@@ -31,11 +31,13 @@ import traceback
 import code
 import atexit
 import subprocess
-import pwd
+from pwd import getpwuid
 import argparse
 import shlex
 import itertools
 import errno
+from enum import Enum, auto
+import re
 
 from prompt_toolkit.shortcuts import PromptSession, CompleteStyle, clear
 from prompt_toolkit.completion import Completer, Completion
@@ -50,6 +52,14 @@ import hdtv.options
 import __main__
 
 import ROOT
+
+
+class CMDType(Enum):
+    python = auto()
+    shell = auto()
+    cmdfile = auto()
+    magic = auto()
+    hdtv = auto()
 
 
 class HDTVCommandError(Exception):
@@ -191,11 +201,14 @@ class HDTVCommandTree(HDTVCommandTreeNode):
     def SplitCmdlines(self, s):
         """
         Split line into multiple commands separated by ';'.
-        """ 
-        seg, last_suffix = self.SplitCmdline(s)
-        cmd_sep = [";"]
-        return [list(y) for x, y in itertools.groupby(seg, 
-            key=lambda x: x not in cmd_sep) if x], last_suffix
+        """
+        cmds = re.findall(r'(?:[^;"]|"(?:|[^"])*(?:"|$))+', s)
+        last_suffix = None
+        segs = []
+        for cmd in cmds:
+            seg, last_suffix = self.SplitCmdline(cmd)
+            segs.append(seg)
+        return segs, last_suffix
 
     def SetDefaultLevel(self, level):
         self.default_level = level
@@ -465,16 +478,18 @@ class CommandLine(object):
         "Recognize special command prefixes"
         s = s.lstrip()
         if len(s) == 0:
-            return ("HDTV", s)
+            return (CMDType.hdtv, s)
 
         if s[0] == ':':
-            return ("PYTHON", s[1:])
+            return (CMDType.python, s[1:])
         elif s[0] == "@":
-            return ("CMDFILE", s[1:])
+            return (CMDType.cmdfile, s[1:])
         elif s[0] == "!":
-            return ("SHELL", s[1:])
+            return (CMDType.shell, s[1:])
+        elif s[0] == "%":
+            return (CMDType.magic, s[1:])
         else:
-            return ("HDTV", s)
+            return (CMDType.hdtv, s)
 
     def Clear(self, args):
         """Clear the screen"""
@@ -509,7 +524,7 @@ class CommandLine(object):
         if "SHELL" in os.environ:
             shell = os.environ["SHELL"]
         else:
-            shell = pwd.getpwuid(os.getuid()).pw_shell
+            shell = getpwuid(os.getuid()).pw_shell
 
         subprocess.call(shell)
 
@@ -526,16 +541,16 @@ class CommandLine(object):
 
     def GetCompleteOptions(self, document, complete_event):
         if self.fPyMode or self.fPyMore:
-            cmd_type = "PYTHON"
+            cmd_type = CMDType.python
         else:
             (cmd_type, cmd) = self.Unescape(document.text)
 
         default_style = "fg:#000000"
         default_selected_style = "bg:white fg:ansired"
 
-        if cmd_type == "HDTV":
+        if cmd_type == CMDType.hdtv:
             yield from self.command_tree.GetCompleteOptions(document, complete_event)
-        elif cmd_type == "CMDFILE":
+        elif cmd_type == CMDType.cmdfile:
             (filepath, word_before_cursor) = os.path.split(cmd)
             options = self.command_tree.GetFileCompleteOptions(
                 filepath or '.', word_before_cursor)
@@ -583,24 +598,23 @@ class CommandLine(object):
         try:
             # In Python mode, all commands need to be Python commands ...
             if self.fPyMode or self.fPyMore:
-                cmd_type = "PYTHON"
+                cmd_type = CMDType.python
                 cmd = line
             # ... otherwise, the prefix decides.
             else:
                 (cmd_type, cmd) = self.Unescape(line)
 
             # Execute as appropriate type
-            if cmd_type == "HDTV":
+            if cmd_type == CMDType.hdtv:
                 self.command_tree.ExecCommand(cmd)
-            elif cmd_type == "PYTHON":
+            elif cmd_type == CMDType.python:
                 # The push() function returns a boolean indicating
                 #  whether further input from the user is required.
                 #  We set the python mode accordingly.
                 self.fPyMore = self._py_console.push(cmd)
-            elif cmd_type == "SHELL":
-                # TODO: Implement shell usage
-                pass
-            elif cmd_type == "CMDFILE":
+            elif cmd_type == CMDType.shell:
+                subprocess.run(cmd, shell=True)
+            elif cmd_type == CMDType.cmdfile:
                 self.ExecCmdfile(cmd)
         except KeyboardInterrupt:
             hdtv.ui.warning("Aborted")
@@ -637,8 +651,9 @@ class CommandLine(object):
                 event.app.editing_mode = EditingMode.VI
 
         session = PromptSession(message,
-            enable_system_prompt=True, history=self.history,
-            completer=completer, complete_while_typing=False,
+            history=self.history,
+            completer=completer,
+            complete_while_typing=False,
             complete_style=CompleteStyle.MULTI_COLUMN)
         
         def set_vi_mode(vi_mode):
