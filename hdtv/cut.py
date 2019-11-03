@@ -21,7 +21,7 @@
 
 import hdtv.color
 
-from hdtv.weakref import weakref
+from hdtv.weakref_proxy import weakref
 from hdtv.drawable import Drawable
 
 
