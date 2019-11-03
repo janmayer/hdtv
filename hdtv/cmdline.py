@@ -382,6 +382,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         except (RuntimeError, HDTVCommandError):
             # Command is ambiguous
             yield from []
+            return
         options = []
 
         default_style = "fg:#000000"
