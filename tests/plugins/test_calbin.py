@@ -111,7 +111,7 @@ def test_calbin(temp_file, test_spectrum):
     width_error_init = abs(float(fits[0].find('peak').find('cal').find('width').find('error').text))
 
     # Calbin the spectrum with standard settings, read in the fitted value again and check whether they have changed
-    command = ['spectrum calbin 0 -s 0']
+    command = ['spectrum calbin 0 -s 1']
     command.append('fit execute')
     command.append('fit store')
     f, ferr = hdtvcmd(*command)
