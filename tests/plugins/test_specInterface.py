@@ -283,7 +283,17 @@ def test_cmd_spectrum_calbin_binsize(binsize):
     with warnings.catch_warnings(record=True) as w:
         f, ferr = hdtvcmd("spectrum calbin -b {} 0".format(binsize))
         assert "Calbinning 0 with binsize={}".format(binsize) in f
-        assert get_spec(0).hist.hist.GetNbinsX() == int(ceil(8192/binsize))
+        assert get_spec(0).hist.hist.GetNbinsX() == int(ceil(8191 / binsize)) + 1
+
+@pytest.mark.parametrize("parameter", ["-t", "-r"])
+def test_cmd_spectrum_calbin_root_tv(parameter):
+    assert len(s.spectra.dict) == 0
+    hdtvcmd("spectrum get {}".format(testspectrum))
+    assert len(s.spectra.dict) == 1
+
+    with warnings.catch_warnings(record=True) as w:
+        f, ferr = hdtvcmd("spectrum calbin {} 0".format(parameter))
+        assert "Calbinning 0 with binsize=" in f
 
 @pytest.mark.parametrize("spline_order", [1, 3, 5])
 def test_cmd_spectrum_calbin_spline_order(spline_order):
@@ -312,7 +322,7 @@ def test_cmd_spectrum_resample():
 
     with warnings.catch_warnings(record=True) as w:
         f, ferr = hdtvcmd("spectrum resample 0")
-        assert "Resampled assuming poisson distribution" in f
+        assert "Total area changed by" in f
 
 @pytest.mark.parametrize("copy, matches", [
     ('0', ["0 to 3"]),

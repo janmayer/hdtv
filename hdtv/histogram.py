@@ -220,32 +220,43 @@ class Histogram(Drawable):
         self.typeStr = f"spectrum, modified (rebinned, ngroup={ngroup})"
 
     def Calbin(self,
-               binsize: float = 1,
-               spline_order: int = 3):
+               binsize: float = 1.,
+               spline_order: int = 3,
+               use_tv_binning: bool = True):
         """
         Rebin spectrum to match calibration unit
         
         Args:
             binsize: Size of calibrated bins
             spline_order: Order of the spline interpolation (default: 3)
+            use_tv_binning: Center first bin on 0. (True) or
+                lower edge of first bin on 0. (False).
         """
 
-        nbins = self._hist.GetNbinsX()
-        upper = int(self.cal.Ch2E(nbins))
-        nbins = int(np.ceil(upper / binsize))
+        nbins_old = self._hist.GetNbinsX()
+        lower_old = self.cal.Ch2E(0)
+        upper_old = self.cal.Ch2E(nbins_old - 1)
+
+        nbins = int(np.ceil(upper_old / binsize)) + 1
+        if use_tv_binning:
+            lower = -0.5 * binsize
+            upper = 0.5 * binsize + (upper_old//nbins) * (nbins - 1)
+        else:
+            lower = 0.
+            upper = binsize + (upper_old//nbins) * (nbins - 1)
 
         # Create new histogram with number of bins equal
         # to the calibrated range of the old histogram
+        # Always -0.5 to create standard tv-type histogram
         newhist = ROOT.TH1D(self._hist.GetName(), self._hist.GetTitle(),
-            nbins, -0.5*binsize, upper+0.5*binsize)
+            nbins, -0.5, nbins - 0.5)
 
         input_bins_center, input_hist = np.transpose([
             [self.cal.Ch2E(n), 
              self._hist.GetBinContent(n)/(self.cal.Ch2E(n)-self.cal.Ch2E(n-1))]
             for n in range(1, self._hist.GetNbinsX() + 1)])
 
-        inverse_binsize = 1./binsize
-        output_bins_low = (np.arange(nbins)-0.5)*binsize
+        output_bins_low = np.arange(nbins + 1) * binsize + lower
         output_bins_high = output_bins_low + binsize
 
         inter = InterpolatedUnivariateSpline(
@@ -256,11 +267,19 @@ class Histogram(Drawable):
         inter_integral_v = np.vectorize(inter.integral)
         output_hist = np.maximum(inter_integral_v(output_bins_low, output_bins_high), 0.)
 
-        for i in range(newhist.GetNbinsX()):
-            newhist.SetBinContent(i + 1, output_hist[i])
+        # Suppress bins outside of original histogram range
+        min_bin = int((lower_old - lower) / binsize)
+        output_hist[:min_bin] = np.zeros(min_bin)
 
-        self.SetHistWithPrimitiveBinning(newhist, caldegree=1, silent=True)
-        self.cal.SetCal(-0.5*binsize, binsize)
+        for i in range(0, nbins):
+            newhist.SetBinContent(i, output_hist[i])
+
+        self._hist = newhist
+        if use_tv_binning:
+            if binsize != 1. or self.cal:
+                self.cal.SetCal(0, binsize)
+        else:
+            self.cal.SetCal(binsize/2, binsize) 
         # update display
         if self.displayObj:
             self.displayObj.SetHist(self._hist)
@@ -272,7 +291,6 @@ class Histogram(Drawable):
         """
         Randomize each bin content assuming a Poissonian distribution.
         """
-        sum_before = self._hist.Integral()
         for i in range(0, self._hist.GetNbinsX() + 1):
             counts = self._hist.GetBinContent(i)
             #error = self._hist.GetBinError(i)
@@ -280,10 +298,6 @@ class Histogram(Drawable):
             self._hist.SetBinContent(i, varied)
         if self.displayObj:
             self.displayObj.SetHist(self._hist)
-        sum_after = self._hist.Integral()
-        change = 100*(1 - sum_after/sum_before)
-        hdtv.ui.debug(f"Resampling: Area before = {sum_before}. Area after = {sum_after}")
-        hdtv.ui.info(f"Resampled assuming poisson distribution. Total area changed by {change:f}%")
 
     def Draw(self, viewport):
         """
@@ -331,17 +345,18 @@ class Histogram(Drawable):
         return True
 
     def SetHistWithPrimitiveBinning(self, hist, caldegree=4, silent=False):
+        log = hdtv.ui.debug if silent else hdtv.ui.info
         if HasPrimitiveBinning(hist):
             self._hist = hist
         else:
-            if not silent:
-                hdtv.ui.info(
-                    hist.GetName() + " unconventional binning detected. Converting and trying to create calibration using a polynomial of order " + str(caldegree) + " ...")
+            log(hist.GetName() + " unconventional binning detected. Converting and trying to create calibration using a polynomial of order " + str(caldegree) + " ...")
             self._hist = ROOT.TH1D(hist.GetName(), hist.GetTitle(), hist.GetNbinsX(), 0, hist.GetNbinsX())
-            cf = CalibrationFitter()
+            if caldegree:
+                cf = CalibrationFitter()
             # TODO: Slow
             for bin in range(0, hist.GetNbinsX()):
-                cf.AddPair(bin, hist.GetXaxis().GetBinUpEdge(bin))
+                if caldegree:
+                    cf.AddPair(bin, hist.GetXaxis().GetBinUpEdge(bin))
                 self._hist.SetBinContent(bin, hist.GetBinContent(bin))
                 # Original comment by JM in commit #dd438b7c44265072bf8b0528170cecc95780e38c: 
                 # "TODO: Copy Errors?"
@@ -360,8 +375,9 @@ class Histogram(Drawable):
                 # assuming that the uncertainties are Poissonian, there is no need to issue
                 # an additional warning.
                 self._hist.SetBinError(bin, hist.GetBinError(bin))
-            cf.FitCal(caldegree)
-            self.cal = cf.calib
+            if caldegree:
+                cf.FitCal(caldegree)
+                self.cal = cf.calib
 
 class FileHistogram(Histogram):
     """
