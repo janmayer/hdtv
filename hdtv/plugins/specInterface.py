@@ -27,6 +27,7 @@ import copy
 import hdtv.cmdline
 import hdtv.color
 import hdtv.cal
+import hdtv.options
 import hdtv.util
 import hdtv.ui
 
@@ -242,6 +243,7 @@ class TvSpecInterface(object):
     """
 
     def __init__(self, specInterface):
+        self.opt = dict()
         self.specIf = specInterface
         self.spectra = self.specIf.spectra
 
@@ -383,6 +385,11 @@ class TvSpecInterface(object):
             level=2,
             fileargs=False,
             parser=parser)
+        
+        self.opt["binning"] = hdtv.options.Option(
+            default="tv",
+            parse=hdtv.options.parse_choices(["root", "tv"]))
+        hdtv.options.RegisterOption("spec.binning", self.opt["binning"])
 
         prog = "spectrum calbin"
         description = "Align binning to energy calibration of spectrum."
@@ -415,6 +422,17 @@ class TvSpecInterface(object):
             type=float,
             default=1.,
             help='Size of each bin after rebinning (default: %(default)s)')
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
+            "--root-binning",
+            "-r",
+            action="store_true",
+            help="Lower edge of first bin is aligned to 0.")
+        group.add_argument(
+            "--tv-binning",
+            "-t",
+            action="store_true",
+            help="Center of first bin is aligned to 0.")
         hdtv.cmdline.AddCommand(
             prog,
             self.SpectrumCalbin,
@@ -718,7 +736,7 @@ class TvSpecInterface(object):
 
     def SpectrumCalbin(self, args):
         """
-        Rebin spectrum
+        Calbin spectrum
         """
         if args.specid is None:
             if self.spectra.activeID is not None:
@@ -731,6 +749,15 @@ class TvSpecInterface(object):
         else:
             ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
 
+        use_tv_binning = hdtv.options.Get('spec.binning') == "tv" 
+        use_tv_binning |= args.tv_binning
+        use_tv_binning ^= args.root_binning
+        
+        if use_tv_binning:
+            hdtv.ui.debug(f"Calbinning using tv binning convention.")
+        else:
+            hdtv.ui.debug(f"Calbinning using ROOT binning convention.")
+
         if len(ids) == 0:
             hdtv.ui.warning("Nothing to do")
             return
@@ -739,14 +766,23 @@ class TvSpecInterface(object):
             for i in ids:
                 if i in list(self.spectra.dict.keys()):
                     spec = self.spectra.dict[i]
+                    sum_before = spec._hist.Integral()
                     spec.Calbin(
                        binsize=args.binsize,
-                       spline_order=args.spline_order)
+                       spline_order=args.spline_order,
+                       use_tv_binning=use_tv_binning)
                     if spec.cal:
                         self.spectra.caldict[spec.name] = spec.cal
                     if not args.deterministic:
                         spec.Poisson()
                     hdtv.ui.msg(f"Calbinning {i} with binsize={args.binsize}")
+                    sum_after = spec._hist.Integral()
+                    change = 100*(1 - sum_after/sum_before)
+                    hdtv.ui.debug(
+                        "Calbin: "
+                        f"Area before = {sum_before}. "
+                        f"Area after = {sum_after}.")
+                    hdtv.ui.info(f"Total area changed by {change:f}%")
                 else:
                     raise hdtv.cmdline.HDTVCommandError(
                         "Cannot rebin spectrum " + str(i) + " (Does not exist)")
@@ -773,11 +809,20 @@ class TvSpecInterface(object):
         with hdtv.util.temp_seed(args.seed):
             for i in ids:
                 if i in list(self.spectra.dict.keys()):
+                    spec = self.spectra.dict[i]
+                    sum_before = spec._hist.Integral()
                     if args.distribution == 'poisson':
-                        self.spectra.dict[i].Poisson()
+                        spec.Poisson()
                     else:
-                        HDTVCommandError(
+                        raise hdtv.cmdline.HDTVCommandError(
                             f"Unknown probability distribution: {args.distribution}")
+                    sum_after = spec._hist.Integral()
+                    change = 100*(1 - sum_after/sum_before)
+                    hdtv.ui.debug(
+                        f"Resample ({args.distribution}): "
+                        f"Area before = {sum_before}. "
+                        f"Area after = {sum_after}.")
+                    hdtv.ui.info(f"Total area changed by {change:f}%")
                 else:
                     raise hdtv.cmdline.HDTVCommandError(
                         f"Cannot resample spectrum {i} (Does not exist)")

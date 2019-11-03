@@ -60,21 +60,7 @@ class HotkeyList(object):
 
             key = key[-1]
 
-        def _wrapper():
-            try:
-                cmd()
-            except hdtv.cmdline.HDTVCommandAbort as msg:
-                if msg.value:
-                    hdtv.ui.error(msg.value)
-            except (hdtv.cmdline.HDTVCommandError, BaseException) as msg:
-                try:
-                    if msg.value:
-                        hdtv.ui.error(msg.value)
-                except AttributeError:
-                    hdtv.ui.error(str(msg))
-                hdtv.ui.debug(traceback.format_exc())
-        
-        curNode[key] = _wrapper
+        curNode[key] = wrap_cmd(cmd)
 
     def HandleHotkey(self, key):
         """
@@ -132,7 +118,7 @@ class KeyHandler(HotkeyList):
         self.fEditMode = True
         self.fEditStr = ""
         self.fEditPrompt = prompt
-        self.fEditHandler = handler
+        self.fEditHandler = wrap_cmd(handler)
         self.viewport.SetStatusText(self.fEditPrompt)
 
     def EditKeyHandler(self):
@@ -474,3 +460,20 @@ class Window(KeyHandler):
         if pos is None:
             pos = self.viewport.GetCursorY()
         self.YZoomMarkers.SetMarker(pos)
+
+
+def wrap_cmd(cmd):
+    def _wrapper(*args, **kwargs):
+        try:
+            cmd(*args, **kwargs)
+        except hdtv.cmdline.HDTVCommandAbort as msg:
+            if msg.value:
+                hdtv.ui.error(msg.value)
+        except (hdtv.cmdline.HDTVCommandError, Exception) as msg:
+            try:
+                if msg.value:
+                    hdtv.ui.error(msg.value)
+            except AttributeError:
+                hdtv.ui.error(str(msg))
+            hdtv.ui.debug(traceback.format_exc())
+    return _wrapper
