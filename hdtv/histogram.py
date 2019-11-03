@@ -252,11 +252,11 @@ class Histogram(Drawable):
             nbins, -0.5, nbins - 0.5)
 
         input_bins_center, input_hist = np.transpose([
-            [self.cal.Ch2E(n), 
+            [self.cal.Ch2E(n - 1),
              self._hist.GetBinContent(n)/(self.cal.Ch2E(n)-self.cal.Ch2E(n-1))]
             for n in range(1, self._hist.GetNbinsX() + 1)])
 
-        output_bins_low = np.arange(nbins + 1) * binsize + lower
+        output_bins_low = np.arange(nbins) * binsize + lower
         output_bins_high = output_bins_low + binsize
 
         inter = InterpolatedUnivariateSpline(
@@ -272,7 +272,7 @@ class Histogram(Drawable):
         output_hist[:min_bin] = np.zeros(min_bin)
 
         for i in range(0, nbins):
-            newhist.SetBinContent(i, output_hist[i])
+            newhist.SetBinContent(i+1, output_hist[i])
 
         self._hist = newhist
         if use_tv_binning:
