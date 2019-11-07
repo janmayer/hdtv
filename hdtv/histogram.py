@@ -64,7 +64,10 @@ class Histogram(Drawable):
         self.effCal = None
         self.typeStr = "spectrum"
         self.cal = cal
-        self.SetHistWithPrimitiveBinning(hist)
+        if self.cal is None:
+            self.SetHistWithPrimitiveBinning(hist)
+        else:
+            self._hist = hist
 
     def __str__(self):
         return self.name
