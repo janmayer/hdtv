@@ -460,7 +460,9 @@ class CommandLine(object):
         self.fPyMode = False
         self.fPyMore = False
 
+        self.session = None
         self.fKeepRunning = True
+        self.exit_handlers = []
 
         if os.sep == '\\':
             eof = 'Ctrl-Z plus Return'
@@ -532,11 +534,13 @@ class CommandLine(object):
 
     def Exit(self, args=None):
         self.fKeepRunning = False
+        for handler in self.exit_handlers:
+            handler()
 
     def AsyncExit(self):
         "Asynchronous exit; to be called from another thread"
-        self.fKeepRunning = False
-        os.kill(os.getpid(), signal.SIGINT)
+        self.Exit()
+        self.session.app.exit(style="class:exiting")
 
     def EOFHandler(self):
         self.Exit()
@@ -653,14 +657,14 @@ class CommandLine(object):
             else:
                 event.app.editing_mode = EditingMode.VI
 
-        session = PromptSession(message,
+        self.session = PromptSession(message,
             history=self.history,
             completer=completer,
             complete_while_typing=False,
             complete_style=CompleteStyle.MULTI_COLUMN)
         
         def set_vi_mode(vi_mode):
-            session.editing_mode = (EditingMode.VI
+            self.session.editing_mode = (EditingMode.VI
                 if vi_mode.value else EditingMode.EMACS)
 
         hdtv.options.RegisterOption(
@@ -674,7 +678,7 @@ class CommandLine(object):
 
             # Read the command
             try:
-                line = session.prompt()
+                line = self.session.prompt()
             except EOFError:
                 # Ctrl-D exits in command mode
                 self.EOFHandler()
@@ -701,7 +705,8 @@ class CommandLine(object):
                 continue
 
             # Execute the command
-            self.DoLine(line)
+            if line:
+                self.DoLine(line)
 
 
 class HDTVCompleter(Completer):
