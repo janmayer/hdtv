@@ -44,7 +44,8 @@ from hdtv.plugins.fitlist import fitxml
 testspectrum = os.path.join(
     os.path.curdir, "tests", "share", "osiris_bg.spc")
 
-test_versions = ['0.1', '1.0', '1.1', '1.3', '1.4']
+test_versions = ['0.1', '1.0', '1.1', '1.3', '1.4', '1.5']
+
 test_XMLs = [
     os.path.join(os.path.curdir, 'tests', 'share', 'osiris_bg_v' + ver + '.xml')
     for ver in test_versions]
@@ -61,8 +62,12 @@ def prepare():
 
 @pytest.mark.parametrize("xmlfile", test_XMLs)
 def test_old_xml(xmlfile):
+    # Check whether hdtv recognizes the format of the XML file at all
+    # by invoking the general ReadXML function.
+    # Note that this does not ensure the correct reading of the XML file.
     fitxml.ReadXML(spectra.Get("0").ID, xmlfile, refit=True, interactive=False)
-    fit_interface.ListFits()
+
+
 
 """
 print('Saving fits to file %s' % newXML)
