@@ -55,12 +55,10 @@ class FitlistManager(object):
         spec = self.spectra.dict[sid]
         # remember absolute pathname for later use
         fname = os.path.abspath(fname)
-        print(self.list)
         if associate:
             self.list[spec.name] = fname
         else:
             self.list.pop(spec.name, None)
-        print(self.list)
         with hdtv.util.open_compressed(fname, mode='rb') as f:
             self.xml.ReadFitlist(f, sid,
                  calibrate=calibrate, refit=refit,
