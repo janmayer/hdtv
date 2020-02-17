@@ -6,7 +6,7 @@ include ../Makefile.def
 CFLAGS   += $(LIBMFILE_CFLAGS)
 CXXFLAGS += $(LIBMFILE_CFLAGS)
 
-LDFLAGS  += $(MFILE_LDFLAGS)
+LDFLAGS  += $(LIBMFILE_LDFLAGS)
 
 LDLIBS   += $(ROOT_LIBS)
 LDLIBS   += -lmfile
