@@ -25,7 +25,7 @@ import pytest
 
 from tests.helpers.utils import setup_io, redirect_stdout, isclose
 
-from hdtv.util import monkey_patch_ui
+from hdtv.util import monkey_patch_ui, strip_tags
 monkey_patch_ui()
 
 import __main__
@@ -63,9 +63,9 @@ def get_list(no_err=True):
         spec_interface.ListSpectra()
     if no_err:
         assert ferr.getvalue().strip() == ''
-        return f.getvalue()
+        return strip_tags(f.getvalue())
     else:
-        return f.getvalue(), ferr.getvalue()
+        return strip_tags(f.getvalue()), ferr.getvalue()
 
 
 def test_spectra_loaded():

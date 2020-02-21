@@ -24,6 +24,7 @@ import os
 from itertools import count
 import contextlib
 from html import escape
+from html.parser import HTMLParser
 from typing import Optional
 
 import numpy as np
@@ -45,6 +46,22 @@ def Indent(s, indent=" "):
 def GetCompleteOptions(begin, options):
     l = len(begin)
     return [o + " " for o in options if o[0:l] == begin]
+
+
+class MLStripper(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.reset()
+        self.fed = []
+    def handle_data(self, d):
+        self.fed.append(d)
+    def get_data(self):
+        return ''.join(self.fed)
+
+def strip_tags(html):
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()
 
 
 class TxtFile(object):
@@ -199,6 +216,7 @@ class Table(object):
             ignoreEmptyCols=True,
             sortBy=None,
             reverseSort=False,
+            raw_columns=None,
             extra_header=None,
             extra_footer=None):
         self.extra_header = extra_header
@@ -237,6 +255,8 @@ class Table(object):
 
         self._width = 0  # Width of table
         self._col_width = list()  # width of columns
+
+        self.raw_columns = raw_columns
 
         # One additional "border column"
         self._ignore_col = [ignoreEmptyCols for i in range(0, len(keys) + 1)]
@@ -309,15 +329,22 @@ class Table(object):
                     line.append(value)
                     # TODO: len fails on unicode characters (e.g. σ) -> str.decode(encoding)
                     # Store maximum col width
-                    self._col_width[i] = max(
-                        self._col_width[i], len(value) + 2)
+                    if self.raw_columns and key in self.raw_columns:
+                        self._col_width[i] = max(
+                            self._col_width[i], len(strip_tags(value)) + 2)
+                    else:
+                        self._col_width[i] = max(
+                            self._col_width[i], len(value) + 2)
                 except KeyError:
                     line.append(self.empty_field)
             lines.append(line)
         return lines
 
     def sort_data(self, sortBy, reverseSort=False):
-        self.data.sort(key=lambda x: x[sortBy], reverse=reverseSort)
+        if self.raw_columns and sortBy in self.raw_columns:
+            self.data.sort(key=lambda x: strip_tags(x[sortBy]), reverse=reverseSort)
+        else:
+            self.data.sort(key=lambda x: x[sortBy], reverse=reverseSort)
 
     def calc_width(self):
         # Determine table widths
@@ -369,12 +396,17 @@ class Table(object):
             line_str = ""
             for col in range(0, len(line)):
                 if not self._ignore_col[col]:
-                    line_str += str(" " + line[col] +
-                                    " ").rjust(self._col_width[col])
+                    if self.raw_columns and self.keys[col] in self.raw_columns:
+                        line_str += str(" " + line[col] +
+                                        " ").rjust(self._col_width[col])
+                    else:
+                        line_str += str(" " + escape(line[col]) +
+                                        " ").rjust(self._col_width[col])
                 if not self._ignore_col[col + 1]:
                     line_str += self.col_sep_char
 
-            text += escape(line_str) + os.linesep
+
+            text += line_str + os.linesep
 
         if self.extra_footer is not None:
             text += escape(str(self.extra_footer)) + os.linesep
