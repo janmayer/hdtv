@@ -101,8 +101,11 @@ def GetRelDirectory(cur_posix_path, cur_root_dir, path):
                 if os.path.isdir(full_name):
                     cur_posix_path = full_name
                 elif IsROOTFile(full_name):
-                    # print "Info: Opening %s" % full_name
+                    # print("Info: Opening %s" % full_name)
+                    # Disable warnings when opening files
+                    ROOT.gErrorIgnoreLevel = ROOT.kError;
                     rfile = ROOT.TFile(full_name)
+                    ROOT.gErrorIgnoreLevel = ROOT.kInfo;
                     if rfile.IsZombie():
                         error = True
                         break

@@ -205,13 +205,19 @@ class SpecInterface(object):
             if ID in self.spectra.visible:
                 status += "V"
 
-            thisspec["ID"] = ID
+            if ID == self.spectra.activeID:
+                color = self.spectra.dict[ID]._activeColor
+            else:
+                color = self.spectra.dict[ID]._passiveColor
+            r, g, b = hdtv.color.GetRGB(color)
+            r, g, b = int(255 * r), int(255 * g), int(255 * b)
+            thisspec["ID"] = f'<style fg="#{r:02x}{g:02x}{b:02x}">{ID}</style>'
             thisspec["stat"] = status
             thisspec["name"] = self.spectra.dict[ID].name
             thisspec["fits"] = len(self.spectra.dict[ID].dict)
             spectra.append(thisspec)
 
-        table = hdtv.util.Table(spectra, params, sortBy="ID")
+        table = hdtv.util.Table(spectra, params, sortBy="ID", raw_columns=["ID"])
         hdtv.ui.msg(html=str(table), end='')
 
     def CopySpectrum(self, ID, copyTo=None):

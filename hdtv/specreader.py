@@ -207,10 +207,8 @@ class TextSpecReader(object):
 
 
 class SpecReader(object):
-    def __init__(self):
-        self.fDefaultFormat = "mfile"
-
-    def GetSpectrum(self, fname, fmt=None, histname=None, histtitle=None):
+    @staticmethod
+    def GetSpectrum(fname, fmt=None, histname=None, histtitle=None):
         """
         Reads a histogram from a non-ROOT file. fmt specifies the format.
         The following formats are recognized:
@@ -218,8 +216,10 @@ class SpecReader(object):
           * mfile   (use libmfile and attempt autodetection)
           * any format specifier understood by libmfile
         """
+        default_format = "mfile"
+
         if not fmt:
-            fmt = self.fDefaultFormat
+            fmt = default_format
         if histname is None:
             histname = os.path.basename(fname)
         if histtitle is None:
@@ -269,7 +269,8 @@ class SpecReader(object):
                 raise SpecReaderError(mhist.GetErrorMsg())
             return hist
 
-    def GetMatrix(self, fname, fmt=None, histname=None, histtitle=None):
+    @staticmethod
+    def GetMatrix(fname, fmt=None, histname=None, histtitle=None):
         if histname is None:
             histname = os.path.basename(fname)
         if histtitle is None:
@@ -289,7 +290,8 @@ class SpecReader(object):
             raise SpecReaderError(mhist.GetErrorMsg())
         return hist
 
-    def GetVMatrix(self, fname, fmt=None, histname=None, histtitle=None):
+    @staticmethod
+    def GetVMatrix(fname, fmt=None, histname=None, histtitle=None):
         """
         Load a ``virtual'' matrix, i.e. a matrix that is not completely loaded
         into memory.
@@ -310,7 +312,8 @@ class SpecReader(object):
         # FIXME: this ignores possibly specified bin errors
         return ROOT.MFMatrix(mhist, 0)
 
-    def WriteSpectrum(self, hist, fname, fmt):
+    @staticmethod
+    def WriteSpectrum(hist, fname, fmt):
         result = ROOT.MFileHist.WriteTH1(hist, fname, fmt)
         if result != ROOT.MFileHist.ERR_SUCCESS:
             raise SpecReaderError(ROOT.MFileHist.GetErrorMsg(result))

@@ -370,7 +370,7 @@ class TvMatInterface(object):
         """
         Load a matrix from file, then display it in 2d
         """
-        hist = SpecReader().GetMatrix(args.filename, args.format)
+        hist = SpecReader.GetMatrix(args.filename, args.format)
 
         title = hist.GetTitle()
         viewer = ROOT.HDTV.Display.MTViewer(400, 400, hist, title)

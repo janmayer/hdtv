@@ -341,7 +341,7 @@ class Histogram(Drawable):
         """
         fname = os.path.expanduser(fname)
         try:
-            SpecReader().WriteSpectrum(self._hist, fname, fmt)
+            SpecReader.WriteSpectrum(self._hist, fname, fmt)
         except SpecReaderError as msg:
             hdtv.ui.error("Failed to write spectrum: %s (file: %s)" %
                           (msg, fname))
@@ -402,7 +402,7 @@ class FileHistogram(Histogram):
             raise
         # call to SpecReader to get the hist
         try:
-            hist = SpecReader().GetSpectrum(fname, fmt)
+            hist = SpecReader.GetSpectrum(fname, fmt)
         except SpecReaderError as msg:
             hdtv.ui.error(str(msg))
             raise
@@ -434,7 +434,7 @@ class FileHistogram(Histogram):
             return
         # call to SpecReader to get the hist
         try:
-            hist = SpecReader().GetSpectrum(self.filename, self.fmt)
+            hist = SpecReader.GetSpectrum(self.filename, self.fmt)
         except SpecReaderError as msg:
             hdtv.ui.warning(
                 "Failed to load spectrum: %s (file: %s), keeping previous data" %
@@ -652,7 +652,7 @@ class MHisto2D(Histo2D):
 
         # call to SpecReader to get the hist
         try:
-            self.vmatrix = SpecReader().GetVMatrix(fname)
+            self.vmatrix = SpecReader.GetVMatrix(fname)
         except SpecReaderError as msg:
             hdtv.ui.error(str(msg))
             raise
@@ -668,7 +668,7 @@ class MHisto2D(Histo2D):
             self._yproj.typeStr = "Projection"
 
             try:
-                self.tvmatrix = SpecReader().GetVMatrix(basename + ".tmtx")
+                self.tvmatrix = SpecReader.GetVMatrix(basename + ".tmtx")
             except SpecReaderError as msg:
                 hdtv.ui.error(str(msg))
                 raise
