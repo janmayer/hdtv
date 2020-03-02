@@ -73,15 +73,6 @@ class PGAAlib_IKI2000(GammaLib):
 
         super(PGAAlib_IKI2000, self).__init__()
 
-        self.fOrderedParamKeys = [
-            "z",
-            "a",
-            "symbol",
-            "energy",
-            "intensity",
-            "sigma",
-            "k0",
-            "halflife"]
         # Header for table printout
         self.fOrderedHeader = [
             "Z",
@@ -91,17 +82,19 @@ class PGAAlib_IKI2000(GammaLib):
             "Intensity",
             "Sigma/(b)",
             "k0",
-            "Halflife/(s)"]
+            "Halflife/(s)",
+        ]
         # Conversion functions for parameter
         self.fParamConv = {
-            "symbol": str,
             "z": int,
             "a": int,
+            "symbol": str,
             "energy": float,
-            "sigma": float,
             "intensity": float,
+            "sigma": float,
+            "k0": float,
             "halflife": float,
-            "k0": float}
+        }
         self.name = "PGAAlib_IKI2000"
         self.description = "PGAA database, Inst. of Isotopes, Hungarian Academey of Science"
         self.csvfile = csvfile
@@ -170,13 +163,18 @@ class PromptGammas(GammaLib):
 
         super(PromptGammas, self).__init__()
 
-        self.fOrderedParamKeys = ["z", "a", "symbol", "energy", "sigma", "k0"]
         # Header for table printout
         self.fOrderedHeader = ["Z", "A", "El",
                                "Energy/(keV)", "Sigma/(b)", "k0"]
         # Conversion functions for parameter
-        self.fParamConv = {"symbol": str, "z": int, "a": int,
-                           "energy": float, "sigma": float, "k0": float}
+        self.fParamConv = {
+            "z": int,
+            "a": int,
+            "symbol": str,
+            "energy": float,
+            "sigma": float,
+            "k0": float
+        }
         self.name = "PromptGammas"
         self.description = "Extensive Prompt-Gamma library"
         self.csvfile = csvfile

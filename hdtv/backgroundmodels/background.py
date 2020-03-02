@@ -43,21 +43,13 @@ class BackgroundModel(object):
     def ResetGlobalParams(self):
         self.fGlobalParams.clear()
 
-    def OrderedParamKeys(self):
-        """
-        Return the names of all background parameters in the preferred ordering
-        """
-        return self.fOrderedParamKeys
-
     def OptionsStr(self):
         """
         Returns a string describing the currently set parameters of the model
         """
         statstr = ""
 
-        for name in self.OrderedParamKeys():
-            status = self.fParStatus[name]
-
+        for name, status in self.fParStatus.items():
             # Short format for multiple values...
             if isinstance(status, list):
                 statstr += "%s: " % name

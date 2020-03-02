@@ -215,7 +215,7 @@ class Database(object):
         html = "<b>Valid fields</b>: "
         if db is None:
             db = self.database
-        html += ", ".join([f"'{str(s)}'" for s in db.fOrderedParamKeys])
+        html += ", ".join([f"'{str(s)}'" for s in db.fParamConv.keys()])
         hdtv.ui.msg(html=html)
 
     def Lookup(self, args, defaults=False):
@@ -232,7 +232,7 @@ class Database(object):
 
         # Valid arguments
         vargs = list()
-        for v in self.database.fOrderedParamKeys:
+        for v in self.database.fParamConv.keys():
             vargs.append(v.lower())
 
         # parse arguments
@@ -273,7 +273,7 @@ class Database(object):
             table = hdtv.util.Table(
                 results,
                 header=self.database.fOrderedHeader,
-                keys=self.database.fOrderedParamKeys)
+                keys=self.database.fParamConv.keys())
             hdtv.ui.msg(html=str(table))
 
         hdtv.ui.msg("Found " + str(len(results)) + " results")

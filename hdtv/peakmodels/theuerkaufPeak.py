@@ -171,17 +171,17 @@ class PeakModelTheuerkauf(PeakModel):
 
     def __init__(self):
         super(PeakModelTheuerkauf, self).__init__()
-        self.fOrderedParamKeys = ["pos", "vol",
-                                  "width", "tl", "tr", "sh", "sw"]
-        self.fParStatus = {"pos": None, "vol": None, "width": None,
-                           "tl": None, "tr": None, "sh": None, "sw": None}
-        self.fValidParStatus = {"pos": [float, "free", "hold"],
-                                "vol": [float, "free", "hold"],
-                                "width": [float, "free", "equal"],
-                                "tl": [float, "free", "equal", "none"],
-                                "tr": [float, "free", "equal", "none"],
-                                "sh": [float, "free", "equal", "none"],
-                                "sw": [float, "free", "equal", "hold"]}
+        self.fParStatus = {
+            "pos": None, "vol": None, "width": None,
+            "tl": None, "tr": None, "sh": None, "sw": None}
+        self.fValidParStatus = {
+            "pos": [float, "free", "hold"],
+            "vol": [float, "free", "hold"],
+            "width": [float, "free", "equal"],
+            "tl": [float, "free", "equal", "none"],
+            "tr": [float, "free", "equal", "none"],
+            "sh": [float, "free", "equal", "none"],
+            "sw": [float, "free", "equal", "hold"]}
 
         self.ResetParamStatus()
         self.Peak = TheuerkaufPeak

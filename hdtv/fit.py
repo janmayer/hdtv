@@ -240,7 +240,7 @@ class Fit(Drawable):
             if self.ID in self.spec.visible or self.ID is None:   # ID of workFit is None
                 thispeak["stat"] += "V"
             # get parameter of this fit
-            for p in self.fitter.peakModel.fOrderedParamKeys:
+            for p in self.fitter.peakModel.fValidParStatus.keys():
                 if p == "pos":
                     # Store channel additionally to position
                     thispeak["channel"] = getattr(peak, "pos")
