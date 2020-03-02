@@ -41,8 +41,8 @@ class Fitter(object):
     @property
     def params(self):
         params = ["background"]
-        for param in self.peakModel.OrderedParamKeys():
-            if len(self.peakModel.fValidParStatus[param]) > 1:
+        for param, valid_status in self.peakModel.fValidParStatus.items():
+            if not "calculated" in valid_status:
                 params.append(param)
         return params
 

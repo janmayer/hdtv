@@ -164,8 +164,6 @@ class PeakModelEE(PeakModel):
 
     def __init__(self):
         super(PeakModelEE, self).__init__()
-        self.fOrderedParamKeys = ["pos", "amp",
-                                  "sigma1", "sigma2", "eta", "gamma", "vol"]
         self.fParStatus = {
             "pos": None,
             "amp": None,

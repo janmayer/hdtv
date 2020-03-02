@@ -29,7 +29,6 @@ class BackgroundModelInterpolation(BackgroundModel):
 
     def __init__(self):
         super(BackgroundModelInterpolation, self).__init__()
-        self.fOrderedParamKeys = ["nparams"]
         self.fParStatus = {"nparams": 3}
         self.fValidParStatus = {"nparams": [int]}
 

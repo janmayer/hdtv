@@ -29,7 +29,6 @@ class BackgroundModelExponential(BackgroundModel):
 
     def __init__(self):
         super(BackgroundModelExponential, self).__init__()
-        self.fOrderedParamKeys = ["nparams"]
         self.fParStatus = {"nparams": 2}
         self.fValidParStatus = {"nparams": [int, "free"]}
 

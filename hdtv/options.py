@@ -23,7 +23,6 @@
 Infrastructure for configuration variables
 """
 
-from collections import OrderedDict
 from html import escape
 
 class Option(object):
