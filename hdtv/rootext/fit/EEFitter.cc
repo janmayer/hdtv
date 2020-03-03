@@ -379,7 +379,11 @@ void EEFitter::_Fit(TH1 &hist) {
   }
 
   // Do the fit
-  hist.Fit(fSumFunc.get(), "RQNM");
+  char options[7];
+  sprintf(options, "RQNM%s%s",
+    fIntegrate.GetValue() ? "I" : "",
+    fLikelihood.GetValue() == "poisson" ? "L" : "");
+  hist.Fit(fSumFunc.get(), options);
 
   // Calculate the peak volumes while the covariance matrix is still available
   for (auto &peak : fPeaks) {

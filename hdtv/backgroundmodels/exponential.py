@@ -42,15 +42,15 @@ class BackgroundModelExponential(BackgroundModel):
         """
         self.fParStatus["nparams"] = 2
 
-    def GetFitter(self, nparams=None, nbg=None):
+    def GetFitter(self, integrate, likelihood, nparams=None, nbg=None):
         """
         Creates a C++ Fitter object, which can then do the real work
         """
         if nparams is not None:
-            self.fFitter = ROOT.HDTV.Fit.ExpBg(nparams)
+            self.fFitter = ROOT.HDTV.Fit.ExpBg(nparams, integrate, likelihood)
             self.fParStatus['nparams'] = nparams
         elif isinstance(self.fParStatus['nparams'], int):
-            self.fFitter = ROOT.HDTV.Fit.ExpBg(self.fParStatus['nparams'])
+            self.fFitter = ROOT.HDTV.Fit.ExpBg(self.fParStatus['nparams'], integrate, likelihood)
         else:
             msg = "Status specifier %s of background fitter is invalid." % fParStatus['nparams']
             raise ValueError(msg)

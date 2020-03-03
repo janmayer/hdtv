@@ -1,5 +1,7 @@
 #ifdef __CINT__
 
+#include <string>
+
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
@@ -15,6 +17,8 @@
 #pragma link C++ class HDTV::Fit::PolyBg+;
 #pragma link C++ class HDTV::Fit::InterpolationBg+;
 #pragma link C++ class HDTV::Fit::Param+;
+#pragma link C++ class HDTV::Fit::Option<bool>+;
+#pragma link C++ class HDTV::Fit::Option<std::string>+;
 #pragma link C++ class HDTV::Fit::Fitter+;
 #pragma link C++ class HDTV::Fit::TheuerkaufPeak+;
 #pragma link C++ class HDTV::Fit::TheuerkaufFitter+;

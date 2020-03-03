@@ -27,10 +27,12 @@
 #include <list>
 #include <memory>
 #include <vector>
+#include <string>
 
 #include <TF1.h>
 
 #include "Background.hh"
+#include "Option.hh"
 
 class TArrayD;
 class TH1;
@@ -43,7 +45,9 @@ namespace Fit {
 
 class ExpBg : public Background {
 public:
-  explicit ExpBg(int nParams = 2);
+  explicit ExpBg(int nParams = 2,
+                 Option<bool> integrate = Option<bool>{false},
+                 Option<std::string> likelihood = Option<std::string>{"normal"});
   ExpBg(const ExpBg &src);
   ExpBg &operator=(const ExpBg &src);
 
@@ -87,6 +91,8 @@ private:
 
   std::list<double> fBgRegions;
   int fnParams;
+  Option<bool> fIntegrate;
+  Option<std::string> fLikelihood;
 
   std::unique_ptr<TF1> fFunc;
   double fChisquare;

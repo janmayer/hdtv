@@ -42,7 +42,7 @@ class BackgroundModelPolynomial(BackgroundModel):
         """
         self.fParStatus["nparams"] = 2
 
-    def GetFitter(self, nparams=None, nbg=None):
+    def GetFitter(self, integrate, likelihood, nparams=None, nbg=None):
         """
         Creates a C++ Fitter object, which can then do the real work
         """
@@ -50,17 +50,17 @@ class BackgroundModelPolynomial(BackgroundModel):
             if nparams is 'free':
                 if nbg is None:
                     raise ValueError('Free number of background parameters specified, but no number of background regions given.')
-                self.fFitter = ROOT.HDTV.Fit.PolyBg(nbg)
+                self.fFitter = ROOT.HDTV.Fit.PolyBg(nbg, integrate, likelihood)
                 self.fParStatus['nparams'] = nbg
             else:
-                self.fFitter = ROOT.HDTV.Fit.PolyBg(nparams)
+                self.fFitter = ROOT.HDTV.Fit.PolyBg(nparams, integrate, likelihood)
                 self.fParStatus['nparams'] = nparams
         elif isinstance(self.fParStatus['nparams'], int):
-            self.fFitter = ROOT.HDTV.Fit.PolyBg(self.fParStatus['nparams'])
+            self.fFitter = ROOT.HDTV.Fit.PolyBg(self.fParStatus['nparams'], integrate, likelihood)
         elif self.fParStatus['nparams'] is 'free':
             if nbg is None:
                 raise ValueError('Free number of background parameters specified, but no number of background regions given.')
-            self.fFitter = ROOT.HDTV.Fit.PolyBg(nbg)
+            self.fFitter = ROOT.HDTV.Fit.PolyBg(nbg, integrate, likelihood)
         else:
             msg = "Status specifier %s of background fitter is invalid." % fParStatus['nparams']
             raise ValueError(msg)

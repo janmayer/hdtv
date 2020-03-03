@@ -25,9 +25,11 @@
 
 #include <memory>
 #include <vector>
+#include <string>
 
 #include "Fitter.hh"
 #include "Param.hh"
+#include "Option.hh"
 
 class TArrayD;
 class TF1;
@@ -121,7 +123,14 @@ private:
 //! Fitting multiple EEPeaks
 class EEFitter : public Fitter {
 public:
-  EEFitter(double r1, double r2) : Fitter(r1, r2) {}
+  EEFitter(double r1, double r2,
+           Option<bool> integrate,
+           Option<std::string> likelihood,
+           bool debugShowInipar = false)
+    : Fitter(r1, r2)
+    , fIntegrate(integrate)
+    , fLikelihood(likelihood)
+    , fDebugShowInipar(debugShowInipar) {}
 
   // Copying the fitter is not supported
   EEFitter(const EEFitter &) = delete;
@@ -152,6 +161,9 @@ private:
   void _Restore(double ChiSquare);
 
   std::vector<EEPeak> fPeaks;
+  Option<bool> fIntegrate;
+  Option<std::string> fLikelihood;
+  bool fDebugShowInipar;
 
   // For debugging only
   // double fInt, fIntError;

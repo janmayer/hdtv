@@ -181,7 +181,16 @@ class PeakModelTheuerkauf(PeakModel):
             "tl": [float, "free", "equal", "none"],
             "tr": [float, "free", "equal", "none"],
             "sh": [float, "free", "equal", "none"],
-            "sw": [float, "free", "equal", "hold"]}
+            "sw": [float, "free", "equal", "hold"],
+        }
+        self.fOptStatus = {
+            "integrate": False,
+            "likelihood": "normal",
+        }
+        self.fValidOptStatus = {
+            "integrate": [False, True],
+            "likelihood": ["normal", "poisson"],
+        }
 
         self.ResetParamStatus()
         self.Peak = TheuerkaufPeak
@@ -283,7 +292,10 @@ class PeakModelTheuerkauf(PeakModel):
         # FIXME: show_inipar seems to create a crash, see ticket #103 for trace
         #debug_show_inipar = hdtv.options.Get("__debug__.fit.show_inipar")
         #self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(region[0],region[1],debug_show_inipar)
-        self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(region[0], region[1])
+        integrate = self.GetOption("integrate")
+        likelihood = self.GetOption("likelihood")
+        self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(
+            region[0], region[1], integrate, likelihood)
         self.ResetGlobalParams()
         # Check if enough values are provided in case of per-peak parameters
         #  (the function raises a RuntimeError if the check fails)

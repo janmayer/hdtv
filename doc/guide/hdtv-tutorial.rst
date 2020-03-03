@@ -191,6 +191,52 @@ You can export fits to XML-files using
 
     hdtv> fit write <filename>
 
+HDTV includes several peak and background models. The default model is the
+so-called `theuerkauf` peak model, which is identical to the classical tv
+peak model. An alternate model is the `ee` peak model, which is used to
+describe the shape of lines in electron-scattering spectra. To explicitly
+activate a peak model, use
+
+.. code-block::
+
+    hdtv> fit function peak activate <peakmodel>
+
+Likewise, several background models are available: `polynomial` (default),
+`exponential` and `interpolation`. They can be activated using
+
+.. code-block::
+
+    hdtv> fit function background activate <backgroundmodel>
+
+The order of the polynomial and exponential background and the order of the
+interpolation spline of the interpolation background model can be adjusted
+using
+
+.. code-block::
+
+    hdtv> fit parameter background <order>
+
+The interpolation model works in a different way in comparison to the
+polynomial and exponential model: Instead of fitting a model
+to the selected background region, a spline is created. It does not
+consider every bin of the selected background region. Instead, for each
+background region, only the mean value of all bins is considered.
+
+It is possible to choose between `normal` (default) and `poisson`
+statistics:
+
+.. code-block::
+
+    hdtv> fit parameter likelihood <statistics>
+
+Also, the user can choose to integrate the model for each bin, instead
+of evaluating it at the bin center:
+
+.. code-block::
+
+    hdtv> fit parameter integrate true
+
+
 ENERGY CALIBRATION
 ==================
 

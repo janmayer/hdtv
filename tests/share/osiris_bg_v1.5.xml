@@ -1,5 +1,5 @@
 <hdtv version="1.5">
-  <fit chi="38.6180561611" nParams="2" peakModel="theuerkauf">
+  <fit chi="38.6180561611" integrate="False" likelihood="normal" nParams="2" peakModel="theuerkauf">
     <spectrum calibration="" name="osiris_bg.spc" />
     <bgMarker>
       <begin>
@@ -147,7 +147,7 @@
       </uncal>
     </integral>
   </fit>
-  <fit chi="5091.07084394" nParams="2" peakModel="theuerkauf">
+  <fit chi="5091.07084394" integrate="False" likelihood="normal" nParams="2" peakModel="theuerkauf">
     <spectrum calibration="" name="osiris_bg.spc" />
     <bgMarker>
       <begin>
@@ -340,7 +340,7 @@
       </uncal>
     </integral>
   </fit>
-  <fit chi="40.4431646706" nParams="2" peakModel="ee">
+  <fit chi="40.4431646706" integrate="False" likelihood="normal" nParams="2" peakModel="ee">
     <spectrum calibration="" name="osiris_bg.spc" />
     <regionMarker>
       <begin>
@@ -452,7 +452,7 @@
       </uncal>
     </integral>
   </fit>
-  <fit chi="32.4198411039" nParams="2" peakModel="theuerkauf">
+  <fit chi="32.4198411039" integrate="False" likelihood="normal" nParams="2" peakModel="theuerkauf">
     <spectrum calibration="" name="osiris_bg.spc" />
     <bgMarker>
       <begin>
@@ -645,7 +645,7 @@
       </uncal>
     </integral>
   </fit>
-  <fit chi="2889.25213636" nParams="2" peakModel="theuerkauf">
+  <fit chi="2889.25213636" integrate="False" likelihood="normal" nParams="2" peakModel="theuerkauf">
     <spectrum calibration="" name="osiris_bg.spc" />
     <regionMarker>
       <begin>
@@ -733,7 +733,7 @@
       </uncal>
     </integral>
   </fit>
-  <fit chi="4402.57646371" nParams="2" peakModel="theuerkauf">
+  <fit chi="4402.57646371" integrate="False" likelihood="normal" nParams="2" peakModel="theuerkauf">
     <spectrum calibration="" name="osiris_bg.spc" />
     <bgMarker>
       <begin>
@@ -922,6 +922,154 @@
         <skew>
           <value>-6.127096051304327</value>
           <error>nan</error>
+        </skew>
+      </uncal>
+    </integral>
+  </fit>
+  <fit chi="27.995714967091274" integrate="True" likelihood="poisson" nParams="2" peakModel="theuerkauf">
+    <spectrum calibration="" name="osiris_bg.spc" />
+    <bgMarker>
+      <begin>
+        <cal>3382.734855542919</cal>
+        <uncal>3382.734855542919</uncal>
+      </begin>
+      <end>
+        <cal>3431.7904874668484</cal>
+        <uncal>3431.7904874668484</uncal>
+      </end>
+    </bgMarker>
+    <bgMarker>
+      <begin>
+        <cal>3474.764842705993</cal>
+        <uncal>3474.764842705993</uncal>
+      </begin>
+      <end>
+        <cal>3533.145098879925</cal>
+        <uncal>3533.145098879925</uncal>
+      </end>
+    </bgMarker>
+    <regionMarker>
+      <begin>
+        <cal>3463.8185446733805</cal>
+        <uncal>3463.8185446733805</uncal>
+      </begin>
+      <end>
+        <cal>3437.4663457059805</cal>
+        <uncal>3437.4663457059805</uncal>
+      </end>
+    </regionMarker>
+    <peakMarker>
+      <position>
+        <cal>3452.9837235641085</cal>
+        <uncal>3452.9837235641085</uncal>
+      </position>
+    </peakMarker>
+    <background backgroundModel="polynomial" chisquare="109.61784766936981" nparams="2">
+      <param npar="0">
+        <value>2.1848378558592696</value>
+        <error>0.20151903628136608</error>
+      </param>
+      <param npar="1">
+        <value>0.0006125249263177596</value>
+        <error>5.826425747967262e-05</error>
+      </param>
+    </background>
+    <peak>
+      <uncal>
+        <pos status="free">
+          <value>3452.9837235641085</value>
+          <error>0.26160474592291094</error>
+        </pos>
+        <sh status="none" />
+        <sw status="hold" />
+        <tl status="none" />
+        <tr status="none" />
+        <vol status="free">
+          <value>110.24505908908611</value>
+          <error>12.563513823170352</error>
+        </vol>
+        <width status="equal">
+          <value>4.76228486074003</value>
+          <error>0.5305958509593334</error>
+        </width>
+      </uncal>
+      <cal>
+        <pos status="free">
+          <value>3452.9837235641085</value>
+          <error>0.26160474592291094</error>
+        </pos>
+        <sh status="none" />
+        <sw status="hold" />
+        <tl status="none" />
+        <tr status="none" />
+        <vol status="free">
+          <value>110.24505908908611</value>
+          <error>12.563513823170352</error>
+        </vol>
+        <width status="equal">
+          <value>4.762284860739783</value>
+          <error>0.5305958509593334</error>
+        </width>
+      </cal>
+      <extras />
+    </peak>
+    <integral integraltype="tot">
+      <uncal>
+        <pos>
+          <value>3451.206611570248</value>
+          <error>0.4171235224905822</error>
+        </pos>
+        <width>
+          <value>15.280236931162538</value>
+          <error>0.6616658416197634</error>
+        </width>
+        <vol>
+          <value>242.0</value>
+          <error>15.556349186104045</error>
+        </vol>
+        <skew>
+          <value>-97.33076535324896</value>
+          <error>24.18926950779265</error>
+        </skew>
+      </uncal>
+    </integral>
+    <integral integraltype="bg">
+      <uncal>
+        <pos>
+          <value>3450.5092982665187</value>
+          <error>0.1010938904929947</error>
+        </pos>
+        <width>
+          <value>19.021628448391834</value>
+          <error>0.10625862423650137</error>
+        </width>
+        <vol>
+          <value>120.35394319532358</value>
+          <error>1.506244183113452</error>
+        </vol>
+        <skew>
+          <value>-0.72991231393191</value>
+          <error>9.458055451948864</error>
+        </skew>
+      </uncal>
+    </integral>
+    <integral integraltype="sub">
+      <uncal>
+        <pos>
+          <value>3451.896518074009</value>
+          <error>0.8406391533335404</error>
+        </pos>
+        <width>
+          <value>10.060074087573788</value>
+          <error>2.2889196865402153</error>
+        </width>
+        <vol>
+          <value>121.64605680467642</value>
+          <error>15.629100151293521</error>
+        </vol>
+        <skew>
+          <value>-95.62389696844373</value>
+          <error>78.55245968079382</error>
         </skew>
       </uncal>
     </integral>
