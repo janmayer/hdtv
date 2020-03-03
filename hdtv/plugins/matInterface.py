@@ -446,6 +446,7 @@ class TvMatInterface(object):
         elif len(args) == 1:
             actions = ["set", "delete"]
             return hdtv.util.GetCompleteOptions(text, actions)
+        return []
 
     def CutExecute(self, args):
         return self.spectra.ExecuteCut()

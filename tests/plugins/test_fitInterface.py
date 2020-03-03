@@ -104,6 +104,48 @@ def test_cmd_fit_peakfind():
     # and internal background only, it works.
     assert "WARNING: Adding invalid fit" in ferr
 
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+@pytest.mark.parametrize("peak", [
+    "theuerkauf", "ee" ])
+@pytest.mark.parametrize("bg", [
+    "polynomial", "exponential", "interpolation" ])
+@pytest.mark.parametrize("integrate", [
+    "True", "False" ])
+@pytest.mark.parametrize("likelihood", [
+    "normal", "poisson" ])
+def test_cmd_fit_parameter(peak, bg, integrate, likelihood):
+    spec_interface.LoadSpectra(testspectrum)
+    f, ferr = setup_fit()
+    hdtvcmd(
+        "fit marker background set 415",
+        "fit marker background set 450")
+    f, ferr = hdtvcmd(
+        f"fit function peak activate {peak}",
+        f"fit function background activate {bg}",
+        f"fit parameter integrate {integrate}",
+        f"fit parameter likelihood {likelihood}")
+    assert f == ""
+    assert ferr == ""
+    f, ferr = hdtvcmd("fit execute")
+    assert "WorkFit on spectrum: 0" in f
+    assert ".0 |" in f
+    assert ".1 |" in f
+    assert "2 peaks in WorkFit" in f
+    f, ferr = hdtvcmd("fit store")
+    assert f == "Storing workFit with ID 0"
+    assert ferr == ""
+    f, ferr = hdtvcmd("fit clear", "fit list")
+    assert ferr == ""
+    assert "Fits in Spectrum 0" in f
+
+def test_interpolation_incomplete():
+    spec_interface.LoadSpectra(testspectrum)
+    assert len(spec_interface.spectra.dict) == 1
+    f, ferr = setup_interpolation_incomplete()
+    assert f == ""
+    assert "Background fit failed" in ferr
+
+
 def setup_interpolation_incomplete():
     return hdtvcmd(
             "fit function background activate interpolation",

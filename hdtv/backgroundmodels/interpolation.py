@@ -42,9 +42,10 @@ class BackgroundModelInterpolation(BackgroundModel):
         """
         self.fParStatus["nparams"] = 3
 
-    def GetFitter(self, nparams=None, nbg=None):
+    def GetFitter(self, integrate, likelihood, nparams=None, nbg=None):
         """
         Creates a C++ Fitter object, which can then do the real work
+        integrate and likelihood are ignored (do not make sense here)
         """
        
         if nbg is not None:

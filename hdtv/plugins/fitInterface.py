@@ -913,6 +913,7 @@ class TvFitInterface(object):
         elif len(args) == 1:
             actions = ["set", "delete"]
             return hdtv.util.GetCompleteOptions(text, actions)
+        return []
 
     def FitExecute(self, args):
         """
@@ -1282,8 +1283,7 @@ class TvFitInterface(object):
         if not args: # args is None or [] -> complete parameter names
             params = ["status", "reset"]
             # create a list of all possible parameter names
-            activeParams = self.spectra.workFit.fitter.params
-            params.extend(activeParams)
+            params.extend(self.spectra.workFit.fitter.params)
             return hdtv.util.GetCompleteOptions(text, params)
         else: # args[0] = parameter name -> complete its possible values
             states = list()
@@ -1293,8 +1293,12 @@ class TvFitInterface(object):
             else:
                 activePM = self.spectra.workFit.fitter.peakModel
                 try:
-                    states = [s for s in activePM.fValidParStatus[param]
-                              if isinstance(s, str)]
+                    if param in activePM.fValidParStatus:
+                        valid_status = activePM.fValidParStatus[param]
+                    else:
+                        valid_status = activePM.fValidOptStatus[param]
+                    states = [str(s).lower() for s in valid_status
+                              if isinstance(s, (str, bool))]
                 except KeyError:
                     # param is not a parameter of the peak model of active
                     # fitter

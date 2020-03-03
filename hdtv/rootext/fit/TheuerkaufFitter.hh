@@ -26,9 +26,11 @@
 #include <limits>
 #include <memory>
 #include <vector>
+#include <string>
 
 #include "Fitter.hh"
 #include "Param.hh"
+#include "Option.hh"
 
 class TArrayD;
 class TF1;
@@ -174,8 +176,14 @@ private:
 //! Fitting multiple TheuerkaufPeaks
 class TheuerkaufFitter : public Fitter {
 public:
-  TheuerkaufFitter(double r1, double r2, bool debugShowInipar = false)
-      : Fitter(r1, r2), fDebugShowInipar(debugShowInipar) {}
+  TheuerkaufFitter(double r1, double r2,
+                   Option<bool> integrate,
+                   Option<std::string> likelihood,
+                   bool debugShowInipar = false)
+      : Fitter(r1, r2)
+      , fIntegrate(integrate)
+      , fLikelihood(likelihood)
+      , fDebugShowInipar(debugShowInipar) {}
 
   // Copying the fitter is not supported
   TheuerkaufFitter(const TheuerkaufFitter &) = delete;
@@ -204,6 +212,8 @@ private:
   void _Restore(double ChiSquare);
 
   std::vector<TheuerkaufPeak> fPeaks;
+  Option<bool> fIntegrate;
+  Option<std::string> fLikelihood;
   bool fDebugShowInipar;
 };
 

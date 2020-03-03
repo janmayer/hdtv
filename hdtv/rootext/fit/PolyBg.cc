@@ -37,15 +37,20 @@
 namespace HDTV {
 namespace Fit {
 
-PolyBg::PolyBg(int nParams) {
+PolyBg::PolyBg(int nParams,
+               const Option<bool> integrate,
+               const Option<std::string> likelihood) {
   //! Constructor
 
   fnParams = nParams;
+  fIntegrate = integrate;
+  fLikelihood = likelihood;
   fChisquare = std::numeric_limits<double>::quiet_NaN();
 }
 
 PolyBg::PolyBg(const PolyBg &src)
     : fBgRegions(src.fBgRegions), fnParams(src.fnParams),
+      fIntegrate(src.fIntegrate), fLikelihood(src.fLikelihood),
       fChisquare(src.fChisquare), fCovar(src.fCovar) {
   //! Copy constructor
 
@@ -74,6 +79,8 @@ PolyBg &PolyBg::operator=(const PolyBg &src) {
   fnParams = src.fnParams;
   fChisquare = src.fChisquare;
   fCovar = src.fCovar;
+  fIntegrate = src.fIntegrate,
+  fLikelihood = src.fLikelihood;
 
   fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
                                  &PolyBg::_Eval, src.fFunc->GetXmin(),
@@ -106,7 +113,11 @@ void PolyBg::Fit(TH1 &hist) {
   }
 
   // Fit
-  hist.Fit(&fitFunc, "RQNM");
+  char options[7];
+  sprintf(options, "RQNM%s%s",
+    fIntegrate.GetValue() ? "I" : "",
+    fLikelihood.GetValue() == "poisson" ? "L" : "");
+  hist.Fit(&fitFunc, options);
 
   // Copy chisquare
   fChisquare = fitFunc.GetChisquare();

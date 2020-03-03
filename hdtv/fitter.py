@@ -44,6 +44,8 @@ class Fitter(object):
         for param, valid_status in self.peakModel.fValidParStatus.items():
             if not "calculated" in valid_status:
                 params.append(param)
+        for param in self.peakModel.fValidOptStatus.keys():
+            params.append(param)
         return params
 
     def __getattr__(self, name):
@@ -55,7 +57,11 @@ class Fitter(object):
         Create Background Fitter object and do the background fit
         """
         # create fitter
-        self.bgFitter = self.backgroundModel.GetFitter(nparams=self.backgroundModel.fParStatus['nparams'], nbg=len(backgrounds))
+        self.bgFitter = self.backgroundModel.GetFitter(
+            integrate=self.peakModel.GetOption("integrate"),
+            likelihood=self.peakModel.GetOption("likelihood"),
+            nparams=self.backgroundModel.fParStatus['nparams'],
+            nbg=len(backgrounds))
         if self.bgFitter is None:
             msg = ("Background model %s needs at least %i background regions to execute a fit. Found %i." % 
                     (self.backgroundModel.name, self.backgroundModel.requiredBgRegions, len(backgrounds)))
@@ -72,7 +78,11 @@ class Fitter(object):
         Create Background Fitter object and
         restore the background polynom from coeffs
         """
-        self.bgFitter = self.backgroundModel.GetFitter(nparams=len(params), nbg=len(backgrounds))
+        self.bgFitter = self.backgroundModel.GetFitter(
+            integrate=self.peakModel.GetOption("integrate"),
+            likelihood=self.peakModel.GetOption("likelihood"),
+            nparams=len(params),
+            nbg=len(backgrounds))
         # restore the fitter
         valueArray = ROOT.TArrayD(len(params))
         errorArray = ROOT.TArrayD(len(params))

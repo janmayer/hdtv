@@ -544,7 +544,11 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
 
   if (!fDebugShowInipar) {
     // Now, do the fit
-    hist.Fit(fSumFunc.get(), "RQNM");
+    char options[7];
+    sprintf(options, "RQNM%s%s",
+      fIntegrate.GetValue() ? "I" : "",
+      fLikelihood.GetValue() == "poisson" ? "L" : "");
+    hist.Fit(fSumFunc.get(), options);
 
     // Store Chi^2
     fChisquare = fSumFunc->GetChisquare();

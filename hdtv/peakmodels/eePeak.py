@@ -174,13 +174,24 @@ class PeakModelEE(PeakModel):
             "vol": None}
         # Note that volume is not a true fit parameter, but calculated from
         # the other parameters after the fit
-        self.fValidParStatus = {"pos": [float, "free", "hold"],
-                                "amp": [float, "free", "hold"],
-                                "sigma1": [float, "free", "equal"],
-                                "sigma2": [float, "free", "equal"],
-                                "eta": [float, "free", "equal"],
-                                "gamma": [float, "free", "equal"],
-                                "vol": ["calculated"]}
+        self.fValidParStatus = {
+            "pos": [float, "free", "hold"],
+            "amp": [float, "free", "hold"],
+            "sigma1": [float, "free", "equal"],
+            "sigma2": [float, "free", "equal"],
+            "eta": [float, "free", "equal"],
+            "gamma": [float, "free", "equal"],
+            "vol": ["calculated"],
+        }
+        self.fOptStatus = {
+            "integrate": False,
+            "likelihood": "normal",
+        }
+        self.fValidOptStatus = {
+            "integrate": [False, True],
+            "likelihood": ["normal", "poisson"],
+        }
+
         self.ResetParamStatus()
         self.name = "ee"
         self.Peak = EEPeak
@@ -255,7 +266,10 @@ class PeakModelEE(PeakModel):
         Creates a C++ Fitter object, which can then do the real work
         """
 
-        self.fFitter = ROOT.HDTV.Fit.EEFitter(region[0], region[1])
+        integrate = self.GetOption("integrate")
+        likelihood = self.GetOption("likelihood")
+        self.fFitter = ROOT.HDTV.Fit.EEFitter(
+            region[0], region[1], integrate, likelihood)
 
         self.ResetGlobalParams()
 
