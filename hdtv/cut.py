@@ -63,7 +63,7 @@ class Cut(Drawable):
     color = property(_get_color, _set_color)
 
     def SetMarker(self, mtype, pos):
-        if mtype is "":
+        if mtype == "":
             if self.regionMarkers.IsFull():
                 mtype = "bg"
             else:

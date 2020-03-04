@@ -323,7 +323,7 @@ class Table(object):
                                 value = "{:.4u}".format(value).replace("+/-", " ")
                         except BaseException:
                             value = str(value)
-                    if not value is "":  # We have values in this columns -> don't ignore it
+                    if value != "":  # We have values in this columns -> don't ignore it
                         self._ignore_col[i] = False
 
                     line.append(value)
