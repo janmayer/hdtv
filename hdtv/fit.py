@@ -347,9 +347,9 @@ class Fit(Drawable):
         """
         self.spec = None
         markers = getattr(self, "%sMarkers" % mtype)
-        if action is "set":
+        if action == "set":
             markers.SetMarker(pos)
-        if action is "remove":
+        if action == "remove":
             markers.RemoveNearest(pos)
 
     def FixMarkerInCal(self):

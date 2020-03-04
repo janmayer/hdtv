@@ -105,7 +105,7 @@ def test_backgroundRegions(model, nparams, step, nregions, settings, errormessag
 
     spec_interface.LoadSpectra(test_spectrum.filename)
     command  = ['fit function background activate ' + model]
-    if settings is not "":
+    if settings != "":
         command.append(settings)
     for i in range(nregions):
         command.append('fit marker background set %f' % ((step+test_spectrum.bg_regions[i][0])*test_spectrum.nbins_per_step))
@@ -130,7 +130,7 @@ def test_backgroundRegions(model, nparams, step, nregions, settings, errormessag
             bfile.write(c + '\n')
         bfile.close()
 
-    if errormessage is not '':
+    if errormessage != '':
         hdtvcmd('fit delete 0', 'spectrum delete 0')
         assert errormessage in ferr
     else:

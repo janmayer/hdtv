@@ -47,7 +47,7 @@ class BackgroundModelPolynomial(BackgroundModel):
         Creates a C++ Fitter object, which can then do the real work
         """
         if nparams is not None:
-            if nparams is 'free':
+            if nparams == 'free':
                 if nbg is None:
                     raise ValueError('Free number of background parameters specified, but no number of background regions given.')
                 self.fFitter = ROOT.HDTV.Fit.PolyBg(nbg, integrate, likelihood)
@@ -57,7 +57,7 @@ class BackgroundModelPolynomial(BackgroundModel):
                 self.fParStatus['nparams'] = nparams
         elif isinstance(self.fParStatus['nparams'], int):
             self.fFitter = ROOT.HDTV.Fit.PolyBg(self.fParStatus['nparams'], integrate, likelihood)
-        elif self.fParStatus['nparams'] is 'free':
+        elif self.fParStatus['nparams'] == 'free':
             if nbg is None:
                 raise ValueError('Free number of background parameters specified, but no number of background regions given.')
             self.fFitter = ROOT.HDTV.Fit.PolyBg(nbg, integrate, likelihood)
