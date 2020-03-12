@@ -799,6 +799,10 @@ def open_compressed(fname, mode='rb', **kwargs):
             "{} files are not supported. Manually use '{}' instead.".format(
                 ext, 'bzip2' if 'bz2' else ext))
 
+def natural_sort(l): 
+    convert = lambda text: int(text) if text.isdigit() else text.lower() 
+    alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ] 
+    return sorted(l, key = alphanum_key)
 
 class Singleton(type):
     """
