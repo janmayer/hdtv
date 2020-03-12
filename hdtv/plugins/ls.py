@@ -31,7 +31,7 @@ import glob
 import hdtv.tabformat
 import hdtv.cmdline
 import hdtv.ui
-
+import hdtv.util
 
 def ls(args):
     """
@@ -56,7 +56,7 @@ def ls(args):
         except OSError:
             dirlist.append(fname)
 
-    dirlist.sort()
+    dirlist = hdtv.util.natural_sort(dirlist)
     hdtv.tabformat.tabformat(dirlist)
 
 

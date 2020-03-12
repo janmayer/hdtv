@@ -39,6 +39,7 @@ import errno
 from enum import Enum, auto
 import re
 import glob
+import asyncio
 
 from prompt_toolkit.shortcuts import PromptSession, CompleteStyle, clear
 from prompt_toolkit.completion import Completer, Completion
@@ -431,7 +432,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 
             options = self.GetFileCompleteOptions(
                 filepath or ".", word_before_cursor, dirs_only)
-            for option in options:
+            for option in hdtv.util.natural_sort(options):
                 yield Completion(option,
                     -len(word_before_cursor),
                     style=default_style,
@@ -736,6 +737,7 @@ RemoveCommand = command_tree.RemoveCommand
 SetHistory = command_line.SetHistory
 AsyncExit = command_line.AsyncExit
 MainLoop = command_line.MainLoop
+session = command_line.session
 
 RegisterInteractive("gCmd", command_tree)
 
