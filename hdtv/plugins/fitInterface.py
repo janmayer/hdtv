@@ -635,6 +635,7 @@ class TvFitInterface(object):
             help='set or delete marker')
         parser.add_argument(
             "position",
+            nargs="+",
             type=float,
             help='position of marker')
         hdtv.cmdline.AddCommand(prog, self.FitMarkerChange,
@@ -890,18 +891,18 @@ class TvFitInterface(object):
         action = self.MarkerCompleter(args.action, args=[args.action,])
         if len(action) == 0:
             raise hdtv.cmdline.HDTVCommandError("Invalid action: %s" % args.action)
-        # parse position
-        pos = args.position
-        
-        mtype = mtype[0].strip()
         # replace "background" with "bg" which is internally used
         if mtype == "background":
             mtype = "bg"
+        mtype = mtype[0].strip()
         action = action[0].strip()
-        if action == "set":
-            self.spectra.SetMarker(mtype, pos)
-        if action == "delete":
-            self.spectra.RemoveMarker(mtype, pos)
+
+        # parse position
+        for pos in args.position:
+            if action == "set":
+                self.spectra.SetMarker(mtype, pos)
+            elif action == "delete":
+                self.spectra.RemoveMarker(mtype, pos)
 
     def MarkerCompleter(self, text, args=[]):
         """
