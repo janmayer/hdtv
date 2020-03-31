@@ -342,9 +342,13 @@ class Table(object):
 
     def sort_data(self, sortBy, reverseSort=False):
         if self.raw_columns and sortBy in self.raw_columns:
-            self.data.sort(key=lambda x: strip_tags(x[sortBy]), reverse=reverseSort)
+            self.data.sort(
+                key=lambda x: natural_sort_key(strip_tags(x[sortBy])),
+                reverse=reverseSort)
         else:
-            self.data.sort(key=lambda x: x[sortBy], reverse=reverseSort)
+            self.data.sort(
+                key=lambda x: natural_sort_key(str(x[sortBy])),
+                reverse=reverseSort)
 
     def calc_width(self):
         # Determine table widths
@@ -397,8 +401,8 @@ class Table(object):
             for col in range(0, len(line)):
                 if not self._ignore_col[col]:
                     if self.raw_columns and self.keys[col] in self.raw_columns:
-                        line_str += str(" " + line[col] +
-                                        " ").rjust(self._col_width[col])
+                        fill_len = self._col_width[col] - len(strip_tags(line[col])) - 1
+                        line_str += str(" "*fill_len + line[col] + " ")
                     else:
                         line_str += str(" " + escape(line[col]) +
                                         " ").rjust(self._col_width[col])
@@ -799,10 +803,9 @@ def open_compressed(fname, mode='rb', **kwargs):
             "{} files are not supported. Manually use '{}' instead.".format(
                 ext, 'bzip2' if 'bz2' else ext))
 
-def natural_sort(l): 
-    convert = lambda text: int(text) if text.isdigit() else text.lower() 
-    alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ] 
-    return sorted(l, key = alphanum_key)
+def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
+    return [int(text) if text.isdigit() else text.lower()
+            for text in _nsre.split(s)]
 
 class Singleton(type):
     """

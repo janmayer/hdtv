@@ -32,7 +32,7 @@ import hdtv.session
 
 import __main__
 try:
-    if not __main__.spectra:
+    if not hasattr(__main__, "spectra"):
         __main__.spectra = hdtv.session.Session()
 except RuntimeError:
     pass

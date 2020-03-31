@@ -431,7 +431,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
 
             options = self.GetFileCompleteOptions(
                 filepath or ".", word_before_cursor, dirs_only)
-            for option in hdtv.util.natural_sort(options):
+            for option in sorted(options, key=hdtv.util.natural_sort_key):
                 yield Completion(option,
                     -len(word_before_cursor),
                     style=default_style,

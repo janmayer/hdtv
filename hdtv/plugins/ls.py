@@ -56,7 +56,7 @@ def ls(args):
         except OSError:
             dirlist.append(fname)
 
-    dirlist = hdtv.util.natural_sort(dirlist)
+    dirlist = sorted(dirlist, key=hdtv.util.natural_sort_key)
     hdtv.tabformat.tabformat(dirlist)
 
 
