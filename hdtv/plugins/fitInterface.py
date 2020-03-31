@@ -892,9 +892,9 @@ class TvFitInterface(object):
         if len(action) == 0:
             raise hdtv.cmdline.HDTVCommandError("Invalid action: %s" % args.action)
         # replace "background" with "bg" which is internally used
+        mtype = mtype[0].strip()
         if mtype == "background":
             mtype = "bg"
-        mtype = mtype[0].strip()
         action = action[0].strip()
 
         # parse position
