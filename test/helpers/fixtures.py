@@ -48,7 +48,7 @@ def temp_file_compressed(request):
     """
     pytest fixture that provides a temporary file for writing
     """
-    filename = tempfile.mkstemp(prefix="hdtv_", suffix=request.param)[1]
+    filename = tempfile.mkstemp(prefix="hdtv_", suffix=str(request.param))[1]
     os.remove(filename)
     yield filename
     try:
