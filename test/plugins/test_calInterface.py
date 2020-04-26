@@ -215,6 +215,7 @@ def test_cmd_cal_eff_read_cov(parfile, covfile, efffunction):
     assert ferr == ""
     assert f == ""
 
+@pytest.mark.skipif(sys.version_info < (3, 0), reason="Floating Point differences in py2")
 @pytest.mark.parametrize("parfile, covfile, efffunction", [(
     "test/share/osiris_bg.par",
     "test/share/osiris_bg.cov",
@@ -231,6 +232,7 @@ def test_cmd_cal_eff_write_par(parfile, covfile, efffunction, temp_file):
     assert f == ""
     assert filecmp.cmp(parfile, temp_file)
 
+@pytest.mark.skipif(sys.version_info < (3, 0), reason="Floating Point differences in py2")
 @pytest.mark.parametrize("parfile, covfile, efffunction", [(
     "test/share/osiris_bg.par",
     "test/share/osiris_bg.cov",

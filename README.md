@@ -1,5 +1,7 @@
 # HDTV - Nuclear Spectrum Analysis Tool
 
+[![Build Status](https://travis-ci.org/janmayer/hdtv.svg?branch=master)](https://travis-ci.org/janmayer/hdtv)
+
 HDTV tries to provide functionality similar to the old TV program
 on top of the ROOT data analysis toolkit developed at CERN. The use
 of Python gives HDTV much better scripting capabilities than TV.

@@ -194,6 +194,9 @@ class PeakModelEE(PeakModel):
         sigma1 = ufloat(cpeak.GetSigma1(), cpeak.GetSigma1Error())
         sigma2 = ufloat(cpeak.GetSigma2(), cpeak.GetSigma2Error())
         eta = ufloat(cpeak.GetEta(), cpeak.GetEtaError())
+        # Triage a bug where error of eta is exceptionally small
+        if eta.std_dev / eta.nominal_value < 1e-10:
+            eta.std_dev = 0
         gamma = ufloat(cpeak.GetGamma(), cpeak.GetGammaError())
         vol = ufloat(cpeak.GetVol(), cpeak.GetVolError())
         # create the peak object
