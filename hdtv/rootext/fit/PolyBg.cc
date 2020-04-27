@@ -25,13 +25,13 @@
 #include <cmath>
 
 #include <iostream>
+#include <memory>
 
 #include <TError.h>
 #include <TF1.h>
 #include <TH1.h>
 #include <TVirtualFitter.h>
 
-#include "Compat.hh"
 #include "Util.hh"
 
 namespace HDTV {
@@ -50,7 +50,7 @@ PolyBg::PolyBg(const PolyBg &src)
   //! Copy constructor
 
   if (src.fFunc != nullptr) {
-    fFunc = Util::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
+    fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
                                    &PolyBg::_Eval, src.fFunc->GetXmin(),
                                    src.fFunc->GetXmax(), fBgDeg + 1, "PolyBg",
                                    "_Eval");
@@ -75,7 +75,7 @@ PolyBg &PolyBg::operator=(const PolyBg &src) {
   fChisquare = src.fChisquare;
   fCovar = src.fCovar;
 
-  fFunc = Util::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
+  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
                                  &PolyBg::_Eval, src.fFunc->GetXmin(),
                                  src.fFunc->GetXmax(), fBgDeg + 1, "PolyBg",
                                  "_Eval");
@@ -126,7 +126,7 @@ void PolyBg::Fit(TH1 &hist) {
   }
 
   // Copy parameters to new function
-  fFunc = Util::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
+  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
                                  &PolyBg::_Eval, GetMin(), GetMax(), fBgDeg + 1,
                                  "PolyBg", "_Eval");
 
@@ -149,7 +149,7 @@ bool PolyBg::Restore(const TArrayD &values, const TArrayD &errors,
   }
 
   // Copy parameters to new function
-  fFunc = Util::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
+  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
                                  &PolyBg::_Eval, GetMin(), GetMax(), fBgDeg + 1,
                                  "PolyBg", "_Eval");
 

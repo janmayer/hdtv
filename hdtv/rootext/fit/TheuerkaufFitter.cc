@@ -26,12 +26,12 @@
 
 #include <algorithm>
 #include <numeric>
+#include <memory>
 
 #include <TError.h>
 #include <TF1.h>
 #include <TH1.h>
 
-#include "Compat.hh"
 #include "Util.hh"
 
 namespace HDTV {
@@ -123,7 +123,7 @@ TF1 *TheuerkaufPeak::GetPeakFunc() {
   int numParams = fFunc->GetNpar();
 
   fPeakFunc =
-      Util::make_unique<TF1>(GetFuncUniqueName("peak", this).c_str(), this,
+      std::make_unique<TF1>(GetFuncUniqueName("peak", this).c_str(), this,
                              &TheuerkaufPeak::EvalNoStep, min, max, numParams,
                              "TheuerkaufPeak", "EvalNoStep");
 
@@ -285,7 +285,7 @@ TF1 *TheuerkaufFitter::GetBgFunc() {
     max = fMax;
   }
 
-  fBgFunc = Util::make_unique<TF1>(GetFuncUniqueName("fitbg", this).c_str(),
+  fBgFunc = std::make_unique<TF1>(GetFuncUniqueName("fitbg", this).c_str(),
                                    this, &TheuerkaufFitter::EvalBg, min, max,
                                    fNumParams, "TheuerkaufFitter", "EvalBg");
 
@@ -331,7 +331,7 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
   }
 
   // Create fit function
-  fSumFunc = Util::make_unique<TF1>(GetFuncUniqueName("f", this).c_str(), this,
+  fSumFunc = std::make_unique<TF1>(GetFuncUniqueName("f", this).c_str(), this,
                                     &TheuerkaufFitter::Eval, fMin, fMax,
                                     fNumParams, "TheuerkaufFitter", "Eval");
 
@@ -600,7 +600,7 @@ bool TheuerkaufFitter::Restore(const TArrayD &bgPolValues,
 //! Internal worker function to restore the fit
 void TheuerkaufFitter::_Restore(double ChiSquare) {
   // Create fit function
-  fSumFunc = Util::make_unique<TF1>(GetFuncUniqueName("f", this).c_str(), this,
+  fSumFunc = std::make_unique<TF1>(GetFuncUniqueName("f", this).c_str(), this,
                                     &TheuerkaufFitter::Eval, fMin, fMax,
                                     fNumParams, "TheuerkaufFitter", "Eval");
 
