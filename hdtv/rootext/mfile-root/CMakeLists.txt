@@ -44,10 +44,8 @@ target_include_directories(
                          ${CMAKE_CURRENT_SOURCE_DIR}/matop)
 target_link_libraries(${PROJECT_NAME} ROOT::Core ROOT::Hist hdtv::mfile)
 
-# Install
-include(GNUInstallDirs)
 install(
   TARGETS ${PROJECT_NAME}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  RESOURCE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RESOURCE DESTINATION lib)

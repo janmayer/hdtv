@@ -33,7 +33,7 @@ def pytest_configure():
     print('Force Library Rebuild ...')
     os.environ["XDG_CACHE_HOME"] = tempfile.mkdtemp()
     import hdtv.rootext.dlmgr
-    hdtv.rootext.dlmgr.RebuildLibraries(hdtv.rootext.dlmgr.usrlibdir)
+    hdtv.rootext.dlmgr.RebuildLibraries(hdtv.rootext.dlmgr.usrdir)
 
 def pytest_sessionfinish(session, exitstatus):
     tmpdir = os.getenv("XDG_CACHE_HOME")

@@ -74,10 +74,10 @@ args = parser.parse_args(hdtv_args)
 
 if args.rebuildusr:
     import hdtv.rootext.dlmgr
-    hdtv.rootext.dlmgr.RebuildLibraries(hdtv.rootext.dlmgr.usrlibdir)
+    hdtv.rootext.dlmgr.RebuildLibraries(hdtv.rootext.dlmgr.usrdir)
 if args.rebuildsys:
     import hdtv.rootext.dlmgr
-    hdtv.rootext.dlmgr.RebuildLibraries(hdtv.rootext.dlmgr.syslibdir)
+    hdtv.rootext.dlmgr.RebuildLibraries(hdtv.rootext.dlmgr.sysdir)
 
 if args.rebuildusr or args.rebuildsys:
     sys.exit(0)
