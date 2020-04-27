@@ -41,7 +41,7 @@ set(HEADERS
 
 find_package(X11 REQUIRED)
 
-find_package(ROOT REQUIRED COMPONENTS Core Hist Graf)
+find_package(ROOT REQUIRED COMPONENTS Core Hist Graf Gui)
 message(STATUS "ROOT Version ${ROOT_VERSION} found in ${ROOT_root_CMD}")
 include(${ROOT_DIR}/RootMacros.cmake)
 
@@ -58,12 +58,10 @@ set_target_properties(
     "${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_rdict.pcm"
 )
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${PROJECT_NAME} ROOT::Core ROOT::Hist ROOT::Graf X11)
+target_link_libraries(${PROJECT_NAME} ROOT::Core ROOT::Hist ROOT::Graf ROOT::Gui X11)
 
-# Install
-include(GNUInstallDirs)
 install(
   TARGETS ${PROJECT_NAME}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  RESOURCE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RESOURCE DESTINATION lib)
