@@ -31,8 +31,6 @@
 
 #include <TAxis.h>
 
-#include "Compat.hh"
-
 namespace HDTV {
 
 void Calibration::SetCal(const std::vector<double> &cal) {
@@ -157,7 +155,7 @@ double Calibration::E2Ch(double e) const {
 }
 
 void Calibration::Apply(TAxis *axis, int nbins) {
-  auto centers = Util::make_unique<double[]>(nbins);
+  auto centers = std::make_unique<double[]>(nbins);
 
   for (int i = 0; i < nbins; i++) {
     centers[i] = Ch2E(i);

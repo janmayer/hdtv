@@ -26,13 +26,13 @@
 
 #include <iterator>
 #include <numeric>
+#include <memory>
 
 #include <TError.h>
 #include <TF1.h>
 #include <TH1.h>
 #include <TVirtualFitter.h>
 
-#include "Compat.hh"
 #include "Util.hh"
 
 namespace HDTV {
@@ -126,7 +126,7 @@ TF1 *EEPeak::GetPeakFunc() {
   double max = fPos.Value(fFunc) + DECOMP_FUNC_WIDTH * fSigma2.Value(fFunc);
   int numParams = fFunc->GetNpar();
 
-  fPeakFunc = Util::make_unique<TF1>(GetFuncUniqueName("eepeak", this).c_str(),
+  fPeakFunc = std::make_unique<TF1>(GetFuncUniqueName("eepeak", this).c_str(),
                                      this, &EEPeak::Eval, min, max, numParams,
                                      "EEPeak", "Eval");
 
@@ -311,7 +311,7 @@ TF1 *EEFitter::GetBgFunc() {
     max = fMax;
   }
 
-  fBgFunc = Util::make_unique<TF1>(GetFuncUniqueName("fitbg_ee", this).c_str(),
+  fBgFunc = std::make_unique<TF1>(GetFuncUniqueName("fitbg_ee", this).c_str(),
                                    this, &EEFitter::EvalBg, min, max,
                                    fNumParams, "EEFitter", "EvalBg");
 
@@ -358,7 +358,7 @@ void EEFitter::_Fit(TH1 &hist) {
   }
 
   // Create fit function
-  fSumFunc = Util::make_unique<TF1>("f", this, &EEFitter::Eval, fMin, fMax,
+  fSumFunc = std::make_unique<TF1>("f", this, &EEFitter::Eval, fMin, fMax,
                                     fNumParams, "EEFitter", "Eval");
 
   // Init fit parameters
@@ -451,7 +451,7 @@ void EEFitter::_Restore(double ChiSquare) {
   // Internal worker function to restore the fit
 
   // Create fit function
-  fSumFunc = Util::make_unique<TF1>(GetFuncUniqueName("f", this).c_str(), this,
+  fSumFunc = std::make_unique<TF1>(GetFuncUniqueName("f", this).c_str(), this,
                                     &EEFitter::Eval, fMin, fMax, fNumParams,
                                     "EEFitter", "Eval");
 
