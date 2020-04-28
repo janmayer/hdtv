@@ -1,0 +1,9 @@
+recursive-include bin/ *
+recursive-include data/ *
+recursive-include doc/ *
+recursive-include hdtv/ *
+recursive-include test/ *
+global-exclude *.py[cod]
+exclude .git/
+exclude .gitignore
+exclude .python-version
