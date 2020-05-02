@@ -30,12 +30,15 @@ import subprocess
 import tempfile
 import ROOT
 import hdtv.ui
-import hdtv.version
 from hdtv.rootext import modules, libfmt
 
+from hdtv._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
+
 cachedir = os.path.join(os.getenv("XDG_CACHE_HOME", os.path.join(os.environ["HOME"], ".cache")), "hdtv")
-usrdir = os.path.join(cachedir, "%d-%d-%s" % (sys.hexversion, ROOT.gROOT.GetVersionInt(), hdtv.version.VERSION))
-sysdir = os.path.join(os.path.dirname(__file__), str(ROOT.gROOT.GetVersionInt()))
+usrdir = os.path.join(cachedir, "%d-%d-%s" % (sys.hexversion, ROOT.gROOT.GetVersionInt(), __version__))
+sysdir = os.path.join(os.path.dirname(__file__), "root-" + str(ROOT.gROOT.GetVersionInt()))
 
 
 def FindLibrary(name, libname):
@@ -43,7 +46,7 @@ def FindLibrary(name, libname):
     Find the path to a dynamic library in a subfolder.
     Returns the full filename.
     """
-    paths = [os.path.join(usrdir, 'lib'), os.path.join(sysdir, 'lib'), os.path.join(os.path.dirname(__file__), 'lib')]
+    paths = [os.path.join(usrdir, 'lib'), os.path.join(sysdir, 'lib')]
     for path in paths:
         fname = os.path.join(path, libname)
         if os.path.isfile(fname):
@@ -78,21 +81,21 @@ def _LoadLibrary(fname):
     return ROOT.gSystem.Load(fname)
 
 
-def RebuildLibraries(libdir):
-    if os.path.exists(libdir):
-        shutil.rmtree(libdir)
+def RebuildLibraries(dir):
+    if os.path.exists(dir):
+        shutil.rmtree(dir)
     for name in modules:
-        BuildLibrary(name, libdir)
+        BuildLibrary(name, dir)
 
 
-def BuildLibrary(name, libdir):
+def BuildLibrary(name, dir):
     srcdir = os.path.join(os.path.dirname(__file__), name)
     # with tempfile.TemporaryDirectory() as tmpdir: TOOD: Not available in python2
     tmpdir = tempfile.mkdtemp()
-    subprocess.check_call(['cmake', srcdir, '-DCMAKE_INSTALL_PREFIX=%s' % libdir, '-DCMAKE_BUILD_TYPE=Release'],
+    subprocess.check_call(['cmake', srcdir, '-DCMAKE_INSTALL_PREFIX=%s' % dir, '-DCMAKE_BUILD_TYPE=Release'],
                           cwd=tmpdir)
     subprocess.check_call(['make', '-j'], cwd=tmpdir)
     subprocess.check_call(['make', 'install'], cwd=tmpdir)
 
-    hdtv.ui.info("Rebuild library %s in %s" % ((libfmt % name), libdir))
-    return os.path.join(libdir, 'lib', libfmt % name)
+    hdtv.ui.info("Rebuild library %s in %s" % ((libfmt % name), dir))
+    return os.path.join(dir, 'lib', libfmt % name)

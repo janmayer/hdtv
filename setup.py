@@ -1,28 +1,13 @@
 #!/usr/bin/env python
 
-import hdtv.version
+import versioneer
 from setuptools import setup
-from distutils.command.build import build
-import subprocess
-import os
-
-class CustomBuild(build):
-    def run(self):
-        # run original install code
-        build.run(self)
-
-        # Build libraries for this system
-        # run hdtv --rebuild-sys after installation or any root version change
-        # or reinstall from scratch
-        for module in ['mfile-root', 'fit', 'display']:
-            dir = os.path.join(self.build_lib, 'hdtv/rootext/', module)
-            print("Building library in %s" % dir)
-            subprocess.check_call(['make', '-j'], cwd=dir)
 
 
 setup(
     name='hdtv',
-    version=hdtv.version.VERSION,
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description='HDTV - Nuclear Spectrum Analysis Tool',
     url='https://github.com/janmayer/hdtv',
     maintainer='Jan Mayer',
@@ -31,7 +16,7 @@ setup(
     install_requires=['scipy', 'matplotlib', 'uncertainties'],
     extras_require={
         'dev': ['docutils'],
-        'test': ['pytest'],
+        'test': ['pytest', 'pytest-cov'],
     },
     scripts=['bin/hdtv'],
     packages=[
@@ -43,12 +28,21 @@ setup(
         'hdtv.plugins',
         'hdtv.rootext',
     ],
+    package_data={
+        'hdtv': ['share/*'],
+        'hdtv.rootext': [
+            'display/*', 'fit/*', 'mfile-root/*', 'mfile-root/*/*', 'mfile-root/*/*/*'
+        ],
+    },
     data_files=[
         ('share/zsh/site-functions', ['data/completions/_hdtv']),
         ('share/bash-completion/completions', ['data/completions/hdtv']),
         ('share/applications', ['data/hdtv.desktop']),
     ],
-    # cmdclass={
-    #     'build': CustomBuild,
-    # }
+    classifiers=[
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+    ]
 )

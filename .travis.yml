@@ -18,23 +18,22 @@ install:
     fi
   - bash miniconda.sh -b -p $HOME/miniconda
   - source "$HOME/miniconda/etc/profile.d/conda.sh"
-
+  - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda config --add channels conda-forge
   - conda update -q conda
   - conda info -a
 
-  - conda create -q -n hdtv-environment python=$TRAVIS_PYTHON_VERSION root numpy scipy matplotlib uncertainties docutils pytest
+  - conda create -q -n hdtv-environment python=$TRAVIS_PYTHON_VERSION root numpy scipy matplotlib uncertainties docutils pytest conda-build anaconda-client
   - conda activate hdtv-environment
-
-  - cd ${TRAVIS_BUILD_DIR}/..
-  - git clone https://gitlab.ikp.uni-koeln.de/jmayer/libmfile.git
-  - cd ${TRAVIS_BUILD_DIR}/../libmfile
-  - mkdir build && cd build
-  - cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
-  - make -j8
-  - make install
+  - conda config --set auto_update_conda no
+  - conda build conda.recipe --no-test
+  - conda install --use-local hdtv
+  - conda info -a
 
 script:
-  - cd ${TRAVIS_BUILD_DIR}
-  - pytest
+  - pytest -v --color=yes --cov=hdtv test
+
+after_success:
+  - conda install -c conda-forge codecov
+  - codecov
