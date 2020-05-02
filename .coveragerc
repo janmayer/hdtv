@@ -1,0 +1,7 @@
+[report]
+omit =
+    setup.py
+    hdtv/__main__.py
+    hdtv/_version.py
+    versioneer.py
+    test/*

@@ -1,26 +1,74 @@
-# Compiled filed and build directories
-hdtv/clib
-dist
-build
-*.pyc
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
 *.so
-*.o
-*.d
 
-# pytest cache
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
 .cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+junit.xml
 
-# ROOT generated filed
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# pyenv python configuration file
+.python-version
+
+# ROOT-specific files
 *_rdict*
 *.pcm
 *.rootmap
 
-# Other
-hdtv_history
-.history
-.idea
-.python-version
-*.egg-info
-
 # man pages
 doc/guide/*.[1-8]
+
+# IDEs
+.idea/
