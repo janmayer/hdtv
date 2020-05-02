@@ -27,8 +27,8 @@ import shutil
 
 import pytest
 
-from test.helpers.utils import redirect_stdout, hdtvcmd
-from test.helpers.fixtures import temp_file
+from tests.helpers.utils import redirect_stdout, hdtvcmd
+from tests.helpers.fixtures import temp_file
 
 import hdtv.cmdline
 import hdtv.options
@@ -48,10 +48,10 @@ s = __main__.s
 spectra = __main__.spectra
 
 testspectrum = os.path.join(
-    os.path.curdir, "test", "share", "osiris_bg.spc")
+    os.path.curdir, "tests", "share", "osiris_bg.spc")
 
 @pytest.fixture(autouse=True)
-def prepare(): 
+def prepare():
     hdtv.options.Set("table", "classic")
     hdtv.options.Set("uncertainties", "short")
     spectra.Clear()
@@ -91,7 +91,7 @@ def test_cmd_spectrum_get_repeated(num):
     assert len(s.spectra.dict) == num
 
 @pytest.mark.parametrize("pattern", [
-    "test/share/osiris_[a-z][a-z].spc"])
+    "tests/share/osiris_[a-z][a-z].spc"])
 def test_cmd_spectrum_get_pattern(pattern):
     assert len(s.spectra.dict) == 0
     hdtvcmd("spectrum get {}".format(pattern))
@@ -99,7 +99,7 @@ def test_cmd_spectrum_get_pattern(pattern):
 
 # Loading cal as spec file. This is really stupid, but it works.
 @pytest.mark.parametrize("specfiles", [
-    ["test/share/osiris_bg.spc", "test/share/osiris_bg.cal"]])
+    ["tests/share/osiris_bg.spc", "tests/share/osiris_bg.cal"]])
 def test_cmd_spectrum_get_multi(specfiles):
     assert len(s.spectra.dict) == 0
     query = " ".join(specfiles)
@@ -120,7 +120,7 @@ def test_cmd_spectrum_delete():
     assert len(s.spectra.dict) == 0
     f, ferr = hdtvcmd("spectrum get {}".format(testspectrum))
     res_specfile, specid = re.search('Loaded (.*) into (\d+)', f).groups()
- 
+
     assert len(s.spectra.dict) == 1
 
     f, ferr = hdtvcmd("spectrum delete {}".format(specid))
@@ -205,7 +205,7 @@ def test_cmd_spectrum_activate(numspecs):
             if i == specid+2:
                 assert "|   AV |" in line
             elif i>2:
-                assert "|    V |" in line 
+                assert "|    V |" in line
 
 @pytest.mark.parametrize("numspecs", [
     0, 1, 2, 5])

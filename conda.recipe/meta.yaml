@@ -36,12 +36,12 @@ requirements:
 
 test:
   source_files:
-    - test
+    - tests
   requires:
     - pytest
     - pytest-cov
   commands:
-    - pytest
+    - pytest tests
 
 about:
   home: https://github.com/janmayer/hdtv

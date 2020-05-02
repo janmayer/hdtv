@@ -40,15 +40,15 @@ import hdtv.plugins.fitlist
 import hdtv.fitxml
 
 testspectrum = os.path.join(
-    os.path.curdir, "test", "share", "osiris_bg.spc")
+    os.path.curdir, "tests", "share", "osiris_bg.spc")
 
 test_versions = ['0.1', '1.0', '1.1', '1.3', '1.4']
 test_XMLs = [
-    os.path.join(os.path.curdir, 'test', 'share', 'osiris_bg_v' + ver + '.xml')
+    os.path.join(os.path.curdir, 'tests', 'share', 'osiris_bg_v' + ver + '.xml')
     for ver in test_versions]
 
 @pytest.fixture(autouse=True)
-def prepare(): 
+def prepare():
     __main__.f.ResetFitterParameters()
     hdtv.options.Set("table", "classic")
     hdtv.options.Set("uncertainties", "short")

@@ -1,8 +1,8 @@
 ---
 exclude_paths:
   - 'hdtv/_version.py'
-  - 'test/**/*'
-  - 'test/*'
+  - 'tests/**/*'
+  - 'tests/*'
   - 'benchmarks/**/*'
   - 'setup.py'
   - 'versioneer.py'

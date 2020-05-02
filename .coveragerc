@@ -4,4 +4,4 @@ omit =
     hdtv/__main__.py
     hdtv/_version.py
     versioneer.py
-    test/*
+    tests/*
