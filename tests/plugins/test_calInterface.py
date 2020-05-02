@@ -26,8 +26,8 @@ import filecmp
 
 import pytest
 
-from test.helpers.utils import redirect_stdout, hdtvcmd
-from test.helpers.fixtures import temp_file
+from tests.helpers.utils import redirect_stdout, hdtvcmd
+from tests.helpers.fixtures import temp_file
 
 import hdtv.cmdline
 import hdtv.options
@@ -52,10 +52,10 @@ spectra = __main__.spectra
 
 testspectrumfile = "osiris_bg.spc"
 testspectrum = os.path.join(
-    os.path.curdir, "test", "share", testspectrumfile)
+    os.path.curdir, "tests", "share", testspectrumfile)
 
 @pytest.fixture(autouse=True)
-def prepare(): 
+def prepare():
     __main__.f.ResetFitterParameters()
     hdtv.options.Set("table", "classic")
     hdtv.options.Set("uncertainties", "short")
@@ -123,14 +123,14 @@ def test_cmd_cal_pos_list():
     assert testspectrumfile + ": 1.0   2.0" in f
 
 @pytest.mark.parametrize("callistfile", [
-    "test/share/callist.cal"])
+    "tests/share/callist.cal"])
 def test_cmd_cal_pos_list_read(callistfile):
     f, ferr = hdtvcmd("cal position list read {}".format(callistfile))
     assert ferr == ""
     assert "Calibrated spectrum with id 0" in f
 
 @pytest.mark.parametrize("callistfile", [
-    "test/share/callist.cal"])
+    "tests/share/callist.cal"])
 def test_cmd_cal_pos_list_clear(callistfile):
     hdtvcmd("cal position list read {}".format(callistfile))
     f, ferr = hdtvcmd("cal position list clear")
@@ -138,7 +138,7 @@ def test_cmd_cal_pos_list_clear(callistfile):
     assert "Unsetting calibration of spectrum with id 0" in f
 
 @pytest.mark.parametrize("callistfile", [
-    "test/share/callist.cal"])
+    "tests/share/callist.cal"])
 def test_cmd_cal_pos_list_write(callistfile, temp_file):
     hdtvcmd("cal position list read {}".format(callistfile))
     f, ferr = hdtvcmd("cal position list write -F {}".format(temp_file))
@@ -155,7 +155,7 @@ def test_cmd_cal_pos_recalibrate():
     assert "Chi" in f
 
 @pytest.mark.parametrize("calfile", [
-    "test/share/osiris_bg.cal"])
+    "tests/share/osiris_bg.cal"])
 def test_cmd_cal_pos_read(calfile):
     f, ferr = hdtvcmd("calibration position read {}".format(calfile))
     assert ferr == ""
@@ -191,7 +191,7 @@ def test_cmd_cal_eff_list(args):
     assert "Parameter" in f
 
 @pytest.mark.parametrize("parfile, efffunction", [(
-    "test/share/osiris_bg.par",
+    "tests/share/osiris_bg.par",
     "wunder")])
 def test_cmd_cal_eff_read_par(parfile, efffunction):
     hdtvcmd(
@@ -202,8 +202,8 @@ def test_cmd_cal_eff_read_par(parfile, efffunction):
     assert f == ""
 
 @pytest.mark.parametrize("parfile, covfile, efffunction", [(
-    "test/share/osiris_bg.par",
-    "test/share/osiris_bg.cov",
+    "tests/share/osiris_bg.par",
+    "tests/share/osiris_bg.cov",
     "wunder")])
 def test_cmd_cal_eff_read_cov(parfile, covfile, efffunction):
     hdtvcmd(
@@ -217,8 +217,8 @@ def test_cmd_cal_eff_read_cov(parfile, covfile, efffunction):
 
 @pytest.mark.skipif(sys.version_info < (3, 0), reason="Floating Point differences in py2")
 @pytest.mark.parametrize("parfile, covfile, efffunction", [(
-    "test/share/osiris_bg.par",
-    "test/share/osiris_bg.cov",
+    "tests/share/osiris_bg.par",
+    "tests/share/osiris_bg.cov",
     "wunder")])
 def test_cmd_cal_eff_write_par(parfile, covfile, efffunction, temp_file):
     hdtvcmd(
@@ -234,8 +234,8 @@ def test_cmd_cal_eff_write_par(parfile, covfile, efffunction, temp_file):
 
 @pytest.mark.skipif(sys.version_info < (3, 0), reason="Floating Point differences in py2")
 @pytest.mark.parametrize("parfile, covfile, efffunction", [(
-    "test/share/osiris_bg.par",
-    "test/share/osiris_bg.cov",
+    "tests/share/osiris_bg.par",
+    "tests/share/osiris_bg.cov",
     "wunder")])
 def test_cmd_cal_eff_write_cov(parfile, covfile, efffunction, temp_file):
     hdtvcmd(

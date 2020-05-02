@@ -23,7 +23,7 @@ import os
 
 import pytest
 
-from test.helpers.utils import redirect_stdout, hdtvcmd
+from tests.helpers.utils import redirect_stdout, hdtvcmd
 
 import hdtv.cmdline
 import hdtv.options
@@ -47,10 +47,10 @@ s = __main__.s
 spectra = __main__.spectra
 
 testspectrum = os.path.join(
-    os.path.curdir, "test", "share", "osiris_bg.spc")
+    os.path.curdir, "tests", "share", "osiris_bg.spc")
 
 @pytest.fixture(autouse=True)
-def prepare(): 
+def prepare():
     spectra.Clear()
     yield
     spectra.Clear()
@@ -66,6 +66,6 @@ def test_cmd_fit_position():
 def test_cmd_fit_position_map():
     s.tv.specIf.LoadSpectra(testspectrum, None)
     hdtvcmd("fit peakfind -a -t 0.002")
-    f, ferr = hdtvcmd("fit position map test/share/osiris_bg.map")
+    f, ferr = hdtvcmd("fit position map tests/share/osiris_bg.map")
     assert ferr == ""
     assert "Mapped 3 energies to peaks" in f

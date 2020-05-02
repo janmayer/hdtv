@@ -23,7 +23,7 @@ import re
 
 import pytest
 
-from test.helpers.utils import redirect_stdout, hdtvcmd
+from tests.helpers.utils import redirect_stdout, hdtvcmd
 
 import hdtv.cmdline
 import hdtv.options
@@ -35,11 +35,11 @@ import hdtv.plugins.dblookup
 @pytest.fixture(autouse=True)
 def prepare():
     for variable in [
-        "table", 
-        "database.db", 
-        "database.auto_lookup", 
-        "database.fuzziness", 
-        "database.sort_key", 
+        "table",
+        "database.db",
+        "database.auto_lookup",
+        "database.fuzziness",
+        "database.sort_key",
         "database.sort_reverse"]:
         hdtv.options.Reset(variable)
     yield
@@ -49,7 +49,7 @@ def test_cmd_config_show():
     out = f.split("\n")
     assert len(out) > 2
     for line in out:
-        assert ': ' in line 
+        assert ': ' in line
     assert ferr == ""
 
 @pytest.mark.parametrize("variable, value", [

@@ -21,7 +21,7 @@
 
 import pytest
 
-from test.helpers.utils import redirect_stdout, hdtvcmd
+from tests.helpers.utils import redirect_stdout, hdtvcmd
 
 import hdtv.cmdline
 import hdtv.options
@@ -42,7 +42,7 @@ s = __main__.s
 spectra = __main__.spectra
 
 @pytest.fixture(autouse=True)
-def prepare(): 
+def prepare():
     hdtv.options.Set("table", "classic")
     hdtv.options.Set("uncertainties", "short")
     spectra.Clear()

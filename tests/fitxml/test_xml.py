@@ -31,8 +31,8 @@ import os
 
 import pytest
 
-from test.helpers.utils import setup_io, redirect_stdout
-from test.helpers.fixtures import temp_file_compressed
+from tests.helpers.utils import setup_io, redirect_stdout
+from tests.helpers.fixtures import temp_file_compressed
 
 import __main__
 
@@ -49,11 +49,11 @@ import hdtv.plugins.fitlist
 import hdtv.fitxml
 
 testspectrum = os.path.join(
-    os.path.curdir, "test", "share", "osiris_bg.spc")
+    os.path.curdir, "tests", "share", "osiris_bg.spc")
 
 
 @pytest.fixture(autouse=True)
-def prepare(): 
+def prepare():
     __main__.f.ResetFitterParameters()
     hdtv.options.Set("table", "classic")
     hdtv.options.Set("uncertainties", "short")

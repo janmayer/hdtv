@@ -22,7 +22,7 @@
 import os
 
 import pytest
-from test.helpers.utils import redirect_stdout, hdtvcmd, isclose, setup_io
+from tests.helpers.utils import redirect_stdout, hdtvcmd, isclose, setup_io
 
 import hdtv.session
 
@@ -84,7 +84,7 @@ def test_root_fit_volume_with_binning(region1, region2, peak, expected_volume, s
     # Mock parser so RootGet can be used
     # args = mock.Mock()
     args = type('Test', (object,), {})
-    args.pattern = [os.path.join("test", "share", "binning.root", spectrum)]
+    args.pattern = [os.path.join("tests", "share", "binning.root", spectrum)]
     args.replace = False
     args.load_cal = False
     args.invisible = False
@@ -110,9 +110,9 @@ def test_root_to_root_conversion_for_unconventional_binning():
     args.replace = False
     args.load_cal = False
     args.invisible = False
-    args.pattern = [os.path.join("test", "share", "binning.root", "h")]
+    args.pattern = [os.path.join("tests", "share", "binning.root", "h")]
     hdtv.plugins.rootInterface.r.RootGet(args)
-    args.pattern = [os.path.join("test", "share", "binning.root", "h2")]
+    args.pattern = [os.path.join("tests", "share", "binning.root", "h2")]
     hdtv.plugins.rootInterface.r.RootGet(args)
 
     assert not get_spec(0).cal

@@ -24,7 +24,7 @@ import tempfile
 
 import pytest
 
-from test.helpers.utils import redirect_stdout, hdtvcmd
+from tests.helpers.utils import redirect_stdout, hdtvcmd
 
 import hdtv.cmdline
 import hdtv.options
@@ -42,7 +42,7 @@ except RuntimeError:
 import hdtv.plugins.printing
 
 @pytest.fixture(autouse=True)
-def prepare(): 
+def prepare():
     hdtv.options.Set("debuglevel", "3")
 
 

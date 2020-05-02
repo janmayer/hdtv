@@ -25,7 +25,7 @@ import sys
 
 import pytest
 
-from test.helpers.utils import redirect_stdout, hdtvcmd
+from tests.helpers.utils import redirect_stdout, hdtvcmd
 
 import hdtv.cmdline
 import hdtv.options
@@ -46,10 +46,10 @@ s = __main__.s
 spectra = __main__.spectra
 
 testspectrum = os.path.join(
-    os.path.curdir, "test", "share", "osiris_bg.spc")
+    os.path.curdir, "tests", "share", "osiris_bg.spc")
 
 @pytest.fixture(autouse=True)
-def prepare(): 
+def prepare():
     __main__.f.ResetFitterParameters()
     hdtv.options.Set("table", "classic")
     hdtv.options.Set("uncertainties", "short")

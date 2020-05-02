@@ -27,8 +27,8 @@ import os
 
 import pytest
 
-from test.helpers.utils import setup_io, redirect_stdout, isclose
-from test.helpers.fixtures import temp_file
+from tests.helpers.utils import setup_io, redirect_stdout, isclose
+from tests.helpers.fixtures import temp_file
 
 import __main__
 
@@ -45,11 +45,11 @@ import hdtv.plugins.fitlist
 import hdtv.fitxml
 
 testspectrum = os.path.join(
-    os.path.curdir, "test", "share", "osiris_bg.spc")
+    os.path.curdir, "tests", "share", "osiris_bg.spc")
 
 
 @pytest.fixture(autouse=True)
-def prepare(): 
+def prepare():
     __main__.f.ResetFitterParameters()
     hdtv.options.Set("table", "classic")
     hdtv.options.Set("uncertainties", "short")
@@ -153,7 +153,7 @@ def test_fit_in_calibrated_spectrum(region1, region2, peak, calfactor):
 def test_mfile_fit_volume_with_binning(region1, region2, peak, expected_volume, spectrum, calfactor):
     spectra.Clear()
 
-    __main__.s.LoadSpectra(os.path.join("test", "share", "binning_root_" + spectrum + ".spc"))
+    __main__.s.LoadSpectra(os.path.join("tests", "share", "binning_root_" + spectrum + ".spc"))
     spectra.ApplyCalibration("0", [0, calfactor])
 
     spectra.SetMarker("region", region1)
@@ -265,7 +265,7 @@ def test_change_calibration_while_stored(region1, region2, peak,
     markers_initial = get_markers(fit)
     spectra.ApplyCalibration("0", [0, calfactor3])
     markers_final = get_markers(fit)
- 
+
     assert isclose(markers_initial[1], markers_final[1]/calfactor3*calfactor2)
     assert isclose(markers_initial[3], markers_final[3]/calfactor3*calfactor2)
     assert isclose(markers_initial[5], markers_final[5]/calfactor3*calfactor2)
@@ -319,9 +319,9 @@ def test_execute_reactivated_calibrated_fit(region1, region2, peak,
     spectra.ClearFit()
     spectra.ApplyCalibration("0", [0, calfactor3])
     spectra.ActivateFit("0")
-    
+
     spectra.ExecuteFit()
-    
+
     fit = list(spectra.Get("0").dict.items())[0][1]
     markers_work = get_markers(fit)
     markers_stored = get_markers()
@@ -347,7 +347,7 @@ def test_write_read_xml(temp_file, region1, region2, peak,
     spectra.ActivateFit(None)
 
     out_original = list_fit()
-    
+
     spectra.ClearFit()
     __main__.fitxml.WriteXML(spectra.Get("0").ID, temp_file)
     spectra.Get("0").Clear()
@@ -372,13 +372,13 @@ def test_write_read_xml_calibrate(temp_file, region1, region2, peak,
     """
     test_write_read_xml(temp_file, region1, region2, peak,
                         calfactor1, calfactor2)
- 
+
     fit = list(spectra.Get("0").dict.items())[0][1]
     markers_initial = get_markers(fit)
     integral_initial = fit.ExtractIntegralParams()[0][0]
 
     spectra.ApplyCalibration("0", [0, calfactor3])
-    
+
     fit = list(spectra.Get("0").dict.items())[0][1]
     markers_final = get_markers(fit)
     integral_final = fit.ExtractIntegralParams()[0][0]
