@@ -1,5 +1,6 @@
 # HDTV - Nuclear Spectrum Analysis Tool
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1bba990ab3b34be08a6e4f84db60ea3c)](https://app.codacy.com/manual/janmayer/hdtv?utm_source=github.com&utm_medium=referral&utm_content=janmayer/hdtv&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status](https://travis-ci.org/janmayer/hdtv.svg?branch=master)](https://travis-ci.org/janmayer/hdtv)
 
 HDTV tries to provide functionality similar to the old TV program
