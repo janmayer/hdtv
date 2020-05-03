@@ -1,5 +1,6 @@
 # HDTV - Nuclear Spectrum Analysis Tool
 
+[![PyPI version](https://badge.fury.io/py/hdtv.svg)](https://badge.fury.io/py/hdtv)
 [![Build Status](https://travis-ci.org/janmayer/hdtv.svg?branch=master)](https://travis-ci.org/janmayer/hdtv)
 [![codecov](https://codecov.io/gh/janmayer/hdtv/branch/master/graph/badge.svg)](https://codecov.io/gh/janmayer/hdtv)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d54b84b35f834cb9a73a89a5ea67a8bf)](https://app.codacy.com/manual/janmayer/hdtv/dashboard)
@@ -92,3 +93,23 @@ installation.
 
 Multiple Versions of ROOT can be used alongside, the correct library
 version will be chosen.
+
+
+
+### Example installation on Ubuntu 20.04
+
+Note that we use a precompiled ROOT, which unfortunately is linked against python2.
+For python2, python-pip is not available as package, thus we use an installer script.
+
+```sh
+sudo apt install -y python2 python2-dev python-is-python2 cmake make gcc g++ libx11-dev
+wget https://root.cern/download/root_v6.20.04.Linux-ubuntu19-x86_64-gcc9.2.tar.gz
+tar xf root_v6.20.04.Linux-ubuntu19-x86_64-gcc9.2.tar.gz
+echo 'source ~/root/bin/thisroot.sh' >> ~/.bashrc
+echo 'export PATH=~/.local/bin/:$PATH' >> ~/.bashrc
+source ~/.bashrc
+wget https://bootstrap.pypa.io/get-pip.py
+sudo python get-pip.py
+pip install hdtv
+hdtv --rebuild-usr
+```
