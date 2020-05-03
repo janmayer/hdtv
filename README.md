@@ -1,6 +1,8 @@
 # HDTV - Nuclear Spectrum Analysis Tool
 
 [![Build Status](https://travis-ci.org/janmayer/hdtv.svg?branch=master)](https://travis-ci.org/janmayer/hdtv)
+[![codecov](https://codecov.io/gh/janmayer/hdtv/branch/master/graph/badge.svg)](https://codecov.io/gh/janmayer/hdtv)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d54b84b35f834cb9a73a89a5ea67a8bf)](https://app.codacy.com/manual/janmayer/hdtv/dashboard)
 
 HDTV tries to provide functionality similar to the old TV program
 on top of the ROOT data analysis toolkit developed at CERN. The use
@@ -13,49 +15,46 @@ together using PyROOT.
 
 ## Installation
 
+```sh
+pip install hdtv
+```
+
+Please note that the python package (wheel) does currently not include the compiled libraries required to run, as these depend on the root version, the python version, the compiler, and the moon phases.
+Instead, these are compiled automatically at first start, which requires certain build tools (see below).
+
+Alternatively, the compilation can be triggered with
+```sh
+hdtv --rebuild-usr
+```
+for the current user; or with
+```sh
+hdtv --rebuild-sys
+```
+for all user (requires superuser privileges).
+
+
 ### Requirements
 To build and run HDTV, the following dependencies are required:
 
-* libx11 (*build*)
-* python2.7 *or* python3
-* python-scipy
-* python-matplotlib
-* python-uncertainties
-* python-docutils (*build, for the documentation*)
-* [ROOT](https://root.cern/) 6
+* Python
+	- Tested with 2.7, 3.6, 3.7, 3.8
+	- Packages: scipy matplotlib uncertainties (docutils)
+* [Cern ROOT](https://root.cern/) 6
     - Needs to be compiled against the correct python version.
-    - In python, `import ROOT` must succeed.
-    - System packages may be available, e.g. `root python2-root`
-* [libmfile](https://gitlab.ikp.uni-koeln.de/jmayer/libmfile)
+    - In python, **`import ROOT` must succeed.**
+    - System packages may be available on some systems, e.g. `<tool> install root python3-root`
+* cmake, gcc, g++ (or similar, in a somewhat modern version)
+* libx11-dev `<tool> install libx11-6 libx11-dev`
 
 
-### Installation via pip
-
-If you use pip to you manage your python packages (recommended):
-```
-pip install --egg https://gitlab.ikp.uni-koeln.de/staging/hdtv/repository/master/archive.zip
-```
-
-It is also possible to create a pip-installable package with 
-`python setup.py sdist`.
+## Documentation
+For more information, including an overview of the available key
+bindings, refer to the [documentation](doc/guide/hdtv.rst).
+A [tutorial](doc/guide/hdtv-tutorial.rst) giving an introduction
+to HDTV and its basic features is also available.
 
 
-### Installation without pip
-- Clone repository
-
-    ```
-    git clone https://gitlab.ikp.uni-koeln.de/staging/hdtv.git
-    cd hdtv
-    ```
-
-- Install into system for current user only
-
-    `python setup.py install --user`
-
--  Install into system (requires superuser's rights)
-
-	`python setup.py install`
-
+## Further installation topics
 
 ### Run locally from source directory without installation
 
@@ -81,22 +80,15 @@ version imported in python. HDTV will try to automatically recompile
 the libraries for the current ROOT if the available ones cannot
 be loaded. This can also be forced with:
 
-`hdtv --rebuild-usr`  
+`hdtv --rebuild-usr`
 
 When installed system-wide, the libraries can be recompiled once for
 all users with:
- 
+
 `hdtv --rebuild-sys`
 
 This eliminates the need to reinstall HDTV after changes to the root
-installation.  
+installation.
 
-Multiple Versions of ROOT can be used alongside, the correct library 
-version will be choosen.
-
-
-## Documentation
-For more information, including an overview of the available key
-bindings, refer to the [documentation](doc/guide/hdtv.rst).
-A [tutorial](doc/guide/hdtv-tutorial.rst) giving an introduction
-to HDTV and its basic features is also available.
+Multiple Versions of ROOT can be used alongside, the correct library
+version will be chosen.
