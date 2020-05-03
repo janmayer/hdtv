@@ -24,11 +24,11 @@ install:
   - conda update -q conda
   - conda info -a
 
-  - conda create -q -n hdtv-environment python=$TRAVIS_PYTHON_VERSION root numpy scipy matplotlib uncertainties docutils pytest conda-build anaconda-client
+  - conda create -q -n hdtv-environment python=$TRAVIS_PYTHON_VERSION root numpy scipy matplotlib uncertainties docutils pytest pytest-cov conda-build anaconda-client
   - conda activate hdtv-environment
-  - conda config --set auto_update_conda no
-  - conda build conda.recipe --no-test
-  - conda install --use-local hdtv
+  # - conda config --set auto_update_conda no
+  # - conda build conda.recipe --no-test
+  # - conda install --use-local hdtv
   - conda info -a
 
 script:

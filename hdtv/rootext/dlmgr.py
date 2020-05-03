@@ -96,6 +96,7 @@ def BuildLibrary(name, dir):
                           cwd=tmpdir)
     subprocess.check_call(['make', '-j'], cwd=tmpdir)
     subprocess.check_call(['make', 'install'], cwd=tmpdir)
+    shutil.rmtree(tmpdir)
 
     hdtv.ui.info("Rebuild library %s in %s" % ((libfmt % name), dir))
     return os.path.join(dir, 'lib', libfmt % name)

@@ -46,5 +46,5 @@ test:
 about:
   home: https://github.com/janmayer/hdtv
   summary: Nuclear Spectrum Analysis Tool
-  license: {{ setup_py.get('license') }}
+  license: {{ data['license'] }}
   license_file: license.md
