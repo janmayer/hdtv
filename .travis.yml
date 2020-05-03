@@ -22,10 +22,11 @@ install:
   - conda config --set always_yes yes --set changeps1 no
   - conda config --add channels conda-forge
   - conda update -q conda
-  - conda info -a
 
-  - conda create -q -n hdtv-environment python=$TRAVIS_PYTHON_VERSION root numpy scipy matplotlib uncertainties docutils pytest pytest-cov conda-build anaconda-client
+  - conda create -q -n hdtv-environment python=$TRAVIS_PYTHON_VERSION root numpy scipy matplotlib uncertainties
+    docutils conda-build anaconda-client pytest pytest-cov codecov
   - conda activate hdtv-environment
+
   # - conda config --set auto_update_conda no
   # - conda build conda.recipe --no-test
   # - conda install --use-local hdtv
@@ -35,5 +36,16 @@ script:
   - pytest -v --color=yes --cov=hdtv tests
 
 after_success:
-  - conda install -c conda-forge codecov
   - codecov
+
+deploy:
+  provider: pypi
+  distributions: "sdist bdist_wheel"
+  skip_existing: true
+  skip_cleanup: true
+  on:
+    tags: true
+  server: https://test.pypi.org/legacy/
+  user: __token__
+  password:
+    secure: cEUtDW89+ozmm+wPGkigzui+O09txGaTMSTv8twn1GgGqBqfZHuVR0LTd8emaU7CPg/EkqUQ3bUOJYiEVAPPzOPRqfz71XwsrjBgvYXcn47rtfCaxnSX1wv+sR+OB3SVKdBWv5+8mNpivfXV7syW4Ck+NH5ycgAS2dbl9B8/1F2b5+YG2T5mRyAZUIxBTo583D3b7nqqwMqFKnoXgliZc267SQOOYRqkKTlcuQVde4pMILt+b2bvxgpIqA6Gu+kE40mXawGR9PRd0S2ujN5eKcU6G1QPM+Yin0/xXSPfNzHJ7MqAwKAyeCFYtQIHXPtDo//Voh8osYqSRXImR1v6u6sETiHG32JgR+Fp15fxg6hP7+8TV+MCFnSef/x4RDBh2bXIN/VUQjvgDdXkj+2Z8b25uDS6HzPPYBBeIoT+L4tCSuLRsRkTnxcuscXVstra/ZUsZAJ0gLrBBLzMwTEeQcSy59wVxddPKkxygMNdz+Qgt4nMr7t2cw81zwLYnQ3HvxS3sI7rpoGgaQXDrPyZqEU40Hd8e0iAXf3bsyFOhynImGqP5mi1CTCjhDI0MWGb5d8vHQx3KIlLcKsaQ4IWMmM4iKUQbfEVgma8SvKwlGZC+uXuGSC9yUoLagTT0xQ4iGsOpZoPpbbvCfoghuUtHt4CT2c++T868uQNU71OmTE=
