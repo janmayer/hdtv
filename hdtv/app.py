@@ -77,12 +77,12 @@ class App:
         if args.rebuildusr is not None:
             import hdtv.rootext.dlmgr
             hdtv.rootext.dlmgr.RebuildLibraries(
-                hdtv.rootext.dlmgr.usrlibdir,
+                hdtv.rootext.dlmgr.usrdir,
                 libraries=args.rebuildusr or None)
         if args.rebuildsys is not None:
             import hdtv.rootext.dlmgr
             hdtv.rootext.dlmgr.RebuildLibraries(
-                hdtv.rootext.dlmgr.syslibdir,
+                hdtv.rootext.dlmgr.sysdir,
                 libraries=args.rebuildsys or None)
 
         if args.rebuildusr or args.rebuildsys:
@@ -147,7 +147,9 @@ class App:
         hdtv.cmdline.command_tree.SetDefaultLevel(1)
 
     def parse_args(self, args):
-        import hdtv.version
+        from hdtv._version import get_versions
+        __version__ = get_versions()['version']
+        del get_versions
         parser = argparse.ArgumentParser()
         parser.add_argument("-b", "--batch", dest="batchfile",
             help="Open and execute HDTV batchfile")
@@ -155,7 +157,7 @@ class App:
             help="Execute HDTV command(s)")
         parser.add_argument("-v", "--version", action="version",
             help="Show HDTV Version",
-            version="HDTV {}".format(hdtv.version.__version__))
+            version="HDTV {}".format(__version__))
         parser.add_argument(
             "--rebuild-usr",
             nargs='*',

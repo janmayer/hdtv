@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.6 FATAL_ERROR)
 project(display LANGUAGES CXX)
 
 set(SOURCES
-    Calibration.cc
     DisplayBlock.cc
     DisplayCut.cc
     DisplayFunc.cc
@@ -21,7 +20,6 @@ set(SOURCES
     YMarker.cc)
 
 set(HEADERS
-    Calibration.hh
     DisplayBlock.hh
     DisplayCut.hh
     DisplayFunc.hh
@@ -61,7 +59,7 @@ set_target_properties(
     RESOURCE
     "${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_rdict.pcm"
 )
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../calibration)
 target_link_libraries(${PROJECT_NAME} ROOT::Core ROOT::Hist ROOT::Graf
                       ROOT::Gui X11)
 

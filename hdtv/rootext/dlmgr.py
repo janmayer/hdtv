@@ -81,16 +81,11 @@ def _LoadLibrary(fname):
     return ROOT.gSystem.Load(fname)
 
 
-def RebuildLibraries(dir):
+def RebuildLibraries(dir, libraries=None):
     if os.path.exists(dir):
         shutil.rmtree(dir)
-    for name in modules:
+    for name in libraries or modules:
         BuildLibrary(name, dir)
-
-def PrepareBuild(libdir):
-    # Create base directory
-    if not os.path.exists(libdir):
-        os.makedirs(libdir)
 
 def BuildLibrary(name, dir):
     srcdir = os.path.join(os.path.dirname(__file__), name)
@@ -102,14 +97,5 @@ def BuildLibrary(name, dir):
     subprocess.check_call(['make', 'install'], cwd=tmpdir)
     shutil.rmtree(tmpdir)
 
-    srcdir = os.path.dirname(__file__)
-    shutil.copytree(os.path.join(srcdir, "util"), utildir)
-    shutil.copy(os.path.join(srcdir, "Makefile.def"), libdir)
-    shutil.copy(os.path.join(srcdir, "Makefile.body"), libdir)
-
-def BuildLibrary(name, libdir):
-    PrepareBuild(libdir)
-
-    dir = os.path.join(libdir, name)
     hdtv.ui.info("Rebuild library %s in %s" % ((libfmt % name), dir))
     return os.path.join(dir, 'lib', libfmt % name)
