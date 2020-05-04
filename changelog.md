@@ -2,7 +2,7 @@
 
 ## Unreleased
 - Add GUI-dummy for usage with unit tests (@opapst)
-- Add coverage to unittests (@opapst)
+- Add coverage to unittests (@jmayer, @opapst)
 - Add better fitting: Integration and poisson statistics (@opapst)
 - Add exponential background model (@ufrimangayer)
 - Add hdtv.app:App() entrypoint instead of script (@opapst)
@@ -11,7 +11,7 @@
 - Add magic word `hidden` to select objects (@opapst)
 - Add object-oriented background models (@ufrimangayer)
 - Add spline interpolation background model (@ufrimangayer)
-- Add travis.yml build and tests (@opapst)
+- Add travis.yml build and tests (@jmayer, @opapst)
 - Fix autocomplete of pathes with spaces (@opapst)
 - Fix hdtv.rootext import order (@opapst)
 - Fix negative uncertainties from ROOT fits (@opapst)
@@ -22,7 +22,6 @@
 - Remove dead code (@opapst)
 - Remove usage of global variables and usage of `__main__` namespace (@opapst)
 - Renamed `%` to `!` to execute batch files for compatibility reasons (@opapst)
-- Replace Compat.hh by ROOT/RMakeUnique.hh (@opapst)
 - Replace code.InteractiveConsole with IPython for Python REPL (@opapst)
 - Replace readline with prompt_toolkit (@opapst)
 - Other small fixes
