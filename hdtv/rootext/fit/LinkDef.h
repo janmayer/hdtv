@@ -4,8 +4,8 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ namespace HDTV;
-#pragma link C++ namespace HDTV::Fit;
+//#pragma link C++ namespace HDTV;
+//#pragma link C++ namespace HDTV::Fit;
 #pragma link C++ class HDTV::Fit::Integral+;
 #pragma link C++ class HDTV::Fit::TH1Integral+;
 #pragma link C++ class HDTV::Fit::BgIntegral+;

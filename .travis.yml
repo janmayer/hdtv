@@ -1,29 +1,56 @@
-language: python
+# Don't use language: python; this gives us an unnecessary installation + virtualenv
+language: cpp
 
-python:
-  # We don't actually use the Travis Python, but this keeps it organized.
-  - "2.7"
-  - "3.6"
-  - "3.7"
-  - "3.8"
+env:
+  #- PYTHON_VERSION=2.7 ROOT_VERSION=6.20.4
+  - PYTHON_VERSION=2.7 ROOT_VERSION=6.20.2
+  - PYTHON_VERSION=2.7 ROOT_VERSION=6.20.0
+  - PYTHON_VERSION=2.7 ROOT_VERSION=6.18.04
+  - PYTHON_VERSION=2.7 ROOT_VERSION=6.18.00
+
+  - PYTHON_VERSION=3.6 ROOT_VERSION=6.20.4
+  - PYTHON_VERSION=3.6 ROOT_VERSION=6.20.2
+  - PYTHON_VERSION=3.6 ROOT_VERSION=6.20.0
+  - PYTHON_VERSION=3.6 ROOT_VERSION=6.18.04
+  - PYTHON_VERSION=3.6 ROOT_VERSION=6.18.00
+
+  - PYTHON_VERSION=3.7 ROOT_VERSION=6.20.4
+  - PYTHON_VERSION=3.7 ROOT_VERSION=6.20.2
+  - PYTHON_VERSION=3.7 ROOT_VERSION=6.20.0
+  - PYTHON_VERSION=3.7 ROOT_VERSION=6.18.04
+  - PYTHON_VERSION=3.7 ROOT_VERSION=6.18.00
+
+  - PYTHON_VERSION=3.8 ROOT_VERSION=6.20.4
+  - PYTHON_VERSION=3.8 ROOT_VERSION=6.20.2
+  - PYTHON_VERSION=3.8 ROOT_VERSION=6.20.0
+  - PYTHON_VERSION=3.8 ROOT_VERSION=6.18.04
+  #- PYTHON_VERSION=3.8 ROOT_VERSION=6.18.00
+
+  #- ROOT_VERSION=6.16.00
+  #- ROOT_VERSION=6.14.06
+
+os:
+  - linux
+  # - osx
 
 services:
   - xvfb
 
 install:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then MINICONDA_OS=Linux; else MINICONDA_OS=MacOSX; fi
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+      wget https://repo.continuum.io/miniconda/Miniconda2-latest-$MINICONDA_OS-x86_64.sh -O miniconda.sh;
     else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-$MINICONDA_OS-x86_64.sh -O miniconda.sh;
     fi
   - bash miniconda.sh -b -p $HOME/miniconda
   - source "$HOME/miniconda/etc/profile.d/conda.sh"
-  - hash -r
+
   - conda config --set always_yes yes --set changeps1 no
   - conda config --add channels conda-forge
   - conda update -q conda
 
-  - conda create -q -n hdtv-environment python=$TRAVIS_PYTHON_VERSION root numpy scipy matplotlib uncertainties
+  - conda create -q -n hdtv-environment python=$TRAVIS_PYTHON_VERSION root=$ROOT_VERSION numpy scipy matplotlib uncertainties
     docutils conda-build anaconda-client pytest pytest-cov codecov
   - conda activate hdtv-environment
 

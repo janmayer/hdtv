@@ -43,7 +43,11 @@ find_package(X11 REQUIRED)
 
 find_package(ROOT REQUIRED COMPONENTS Core Hist Graf Gui)
 message(STATUS "ROOT Version ${ROOT_VERSION} found in ${ROOT_root_CMD}")
-include(${ROOT_DIR}/RootMacros.cmake)
+if(${ROOT_VERSION_MINOR} GREATER_EQUAL 20)
+  include(${ROOT_DIR}/RootMacros.cmake)
+else()
+  include(${ROOT_DIR}/modules/RootNewMacros.cmake)
+endif()
 
 root_generate_dictionary(G__${PROJECT_NAME} ${HEADERS} LINKDEF LinkDef.h)
 
@@ -58,7 +62,8 @@ set_target_properties(
     "${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_rdict.pcm"
 )
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${PROJECT_NAME} ROOT::Core ROOT::Hist ROOT::Graf ROOT::Gui X11)
+target_link_libraries(${PROJECT_NAME} ROOT::Core ROOT::Hist ROOT::Graf
+                      ROOT::Gui X11)
 
 install(
   TARGETS ${PROJECT_NAME}
