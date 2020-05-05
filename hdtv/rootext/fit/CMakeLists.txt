@@ -23,7 +23,11 @@ set(HEADERS
 
 find_package(ROOT REQUIRED COMPONENTS Core Hist)
 message(STATUS "ROOT Version ${ROOT_VERSION} found in ${ROOT_root_CMD}")
-include(${ROOT_DIR}/RootMacros.cmake)
+if(${ROOT_VERSION_MINOR} GREATER_EQUAL 20)
+  include(${ROOT_DIR}/RootMacros.cmake)
+else()
+  include(${ROOT_DIR}/modules/RootNewMacros.cmake)
+endif()
 
 root_generate_dictionary(G__${PROJECT_NAME} ${HEADERS} LINKDEF LinkDef.h)
 
