@@ -93,8 +93,8 @@ def BuildLibrary(name, dir):
     tmpdir = tempfile.mkdtemp()
     subprocess.check_call(['cmake', srcdir, '-DCMAKE_INSTALL_PREFIX=%s' % dir, '-DCMAKE_BUILD_TYPE=Release'],
                           cwd=tmpdir)
-    subprocess.check_call(['make', '-j'], cwd=tmpdir)
-    subprocess.check_call(['make', 'install'], cwd=tmpdir)
+    subprocess.check_call(['cmake', '--build', '.', '-j'], cwd=tmpdir)
+    subprocess.check_call(['cmake', '--build', '.', '--target', 'install'], cwd=tmpdir)
     shutil.rmtree(tmpdir)
 
     hdtv.ui.info("Rebuild library %s in %s" % ((libfmt % name), dir))
