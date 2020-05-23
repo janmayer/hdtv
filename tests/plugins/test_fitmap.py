@@ -83,14 +83,14 @@ def test_cmd_fit_position_map():
 def test_cmd_fit_position_map_tolerance():
     spec_interface.tv.specIf.LoadSpectra(testspectrum, None)
     hdtvcmd("fit peakfind -a -t 0.002")
-    f, ferr = hdtvcmd("fit position map -t 8 test/share/osiris_bg.map")
+    f, ferr = hdtvcmd("fit position map -t 8 tests/share/osiris_bg.map")
     assert ferr == ""
     assert "Mapped 2 energies to peaks" in f
 
 def test_cmd_fit_position_map_overwrite():
     test_cmd_fit_position_map()
     assert count_peak_positions() == 3
-    f, ferr = hdtvcmd("fit position map -t 2 -o test/share/osiris_bg.map")
+    f, ferr = hdtvcmd("fit position map -t 2 -o tests/share/osiris_bg.map")
     assert ferr == ""
     assert "Mapped 0 energies to peaks" in f
     assert count_peak_positions() == 0

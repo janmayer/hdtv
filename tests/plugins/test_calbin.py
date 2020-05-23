@@ -28,9 +28,9 @@ from math import sqrt
 import pytest
 import xml.etree.ElementTree as ET
 
-from test.helpers.utils import hdtvcmd, isclose
-from test.helpers.create_test_spectrum import ArtificialSpec, ArtificialSpecProp
-from test.helpers.fixtures import temp_file
+from tests.helpers.utils import hdtvcmd, isclose
+from tests.helpers.create_test_spectrum import ArtificialSpec, ArtificialSpecProp
+from tests.helpers.fixtures import temp_file
 
 from hdtv.util import monkey_patch_ui
 monkey_patch_ui()
