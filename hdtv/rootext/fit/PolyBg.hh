@@ -47,7 +47,7 @@ public:
   PolyBg(const PolyBg &src);
   PolyBg &operator=(const PolyBg &src);
 
-  double GetCoeff(int i) {
+  double GetCoeff(int i) const override {
     return fFunc ? fFunc->GetParameter(i)
                  : std::numeric_limits<double>::quiet_NaN();
   }

@@ -51,13 +51,23 @@ InterpolationBg::InterpolationBg(const InterpolationBg &src)
       	fChisquare(src.fChisquare), fCovar(src.fCovar)
 {
   //! Copy constructor
+  std::vector<double> x;
+  x.reserve(fBgRegions.size());
+  std::vector<double> y;
+  y.reserve(fBgRegions.size());
+  for (int i = 0; i < fBgDeg; ++i) {
+	x.push_back(src.GetCoeff(2*i));
+	y.push_back(src.GetCoeff(2*i+1));
+  }
+
+  fInter.SetData(x, y);
   if (src.fFunc != nullptr) {
     fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
                                    &InterpolationBg::_Eval, src.fFunc->GetXmin(),
-                                   src.fFunc->GetXmax(), fBgDeg + 1, "InterpolationBg",
+                                   src.fFunc->GetXmax(), 2*fBgDeg, "InterpolationBg",
                                    "_Eval");
 
-    for (int i = 0; i <= fBgDeg; i++) {
+    for (int i = 0; i < 2*fBgDeg; ++i) {
       fFunc->SetParameter(i, src.fFunc->GetParameter(i));
       fFunc->SetParError(i, src.fFunc->GetParError(i));
     }
@@ -97,7 +107,7 @@ void InterpolationBg::Fit(TH1 &hist) {
   // std::vector or array to be able to call ROOT::Math:Interpolator.
   // It would be more efficient to store the background regions like
   // this from the beginning, but it was decided to follow the convention
-  // of the PolyBg class.
+  // of the InterpolationBg class.
   std::vector<double> x;
   x.reserve(fBgRegions.size());
   std::vector<double> y;
@@ -144,6 +154,35 @@ void InterpolationBg::Fit(TH1 &hist) {
 
 bool InterpolationBg::Restore(const TArrayD &values, const TArrayD &errors,
                      double ChiSquare) {
+
+  // Restore state of an interpolation from saved values.
+  // The saved values are simply the interpolated points,
+  // so the interpolation has to be executed again.
+  int nParams = round(0.5*values.GetSize());
+  std::vector<double> x;
+  x.reserve(nParams);
+  std::vector<double> y;
+  y.reserve(nParams);
+
+  for(int i = 0; i < nParams; ++i){
+	x.push_back(values[2*i]);
+	y.push_back(values[2*i+1]);
+  }
+  fInter.SetData(x, y);
+  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
+				 &InterpolationBg::_Eval,
+				 x[0], x[fBgRegions.size()-1],
+				 2*fBgDeg, "InterpolationBg", "_Eval");
+
+  fChisquare = ChiSquare;
+  fFunc->SetChisquare(0.);
+  for(int i = 0; i < nParams; ++i){
+    fFunc->SetParameter(2*i, values[2*i]);
+    fFunc->SetParError(2*i, errors[2*i]);
+    fFunc->SetParameter(2*i+1, values[2*i+1]);
+    fFunc->SetParError(2*i+1, errors[2*i+1]);
+  }
+		
   return true;
 }
 

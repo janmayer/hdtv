@@ -101,6 +101,9 @@ public:
 		return *this;
 	}
 
+	double operator() (double v) const {
+		return inter.Eval(v);
+	}
 	// This is the call operator needed by TF1
 	double operator()(double *v, double *p){
 		return inter.Eval(v[0]);
@@ -121,7 +124,7 @@ public:
   InterpolationBg(const InterpolationBg &src);
   InterpolationBg &operator=(const InterpolationBg &src);
 
-  double GetCoeff(int i) {
+  double GetCoeff(int i) const override {
     return fFunc ? fFunc->GetParameter(i)
                  : std::numeric_limits<double>::quiet_NaN();
   }
@@ -148,7 +151,7 @@ public:
   TF1 *GetFunc() override { return fFunc.get(); }
 
   double Eval(double x) const override {
-    return fFunc ? fFunc->Eval(x) : std::numeric_limits<double>::quiet_NaN();
+    return fInter(x);
   }
 
   double EvalError(double x) const override;

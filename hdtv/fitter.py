@@ -87,7 +87,7 @@ class Fitter(object):
         """
         # create the fitter
         self.peakFitter = self.peakModel.GetFitter(region, peaklist, spec.cal)
-        # Do the fitpeak
+        # Do the peak fit 
         if self.bgFitter:
             # external background
             self.peakFitter.Fit(spec.hist.hist, self.bgFitter)
