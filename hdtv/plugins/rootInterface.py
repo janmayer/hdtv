@@ -26,6 +26,7 @@ Preliminary ROOT file interface for hdtv
 import os
 import fnmatch
 import readline
+
 import ROOT
 import hdtv.rootext.display
 
@@ -101,9 +102,9 @@ class RootFileInterface(object):
             parser=parser)
 
         prog = "root matrix get"
-        description = "load a matrix, i.e. the projections, from a ROOT file"
-        description += "if the matrix is symmetric it only loads one projection"
-        description += "if it is asymmetric both projections will be loaded."
+        description = "load a matrix, i.e. the projections, from a ROOT file.\n"
+        description += "If the matrix is symmetric it only loads one projection.\n"
+        description += "If it is asymmetric both projections will be loaded."
         parser = hdtv.cmdline.HDTVOptionParser(
             prog=prog, description=description)
         parser.add_argument("-s", "--spectrum", action="store", default=None,
