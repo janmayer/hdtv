@@ -464,6 +464,8 @@ class CommandLine(object):
             return ("PYTHON", s[1:])
         elif s[0] == "@":
             return ("CMDFILE", s[1:])
+        elif s[0] == "!":
+            return ("SHELL", s[1:])
         else:
             return ("HDTV", s)
 
@@ -515,18 +517,26 @@ class CommandLine(object):
     def EOFHandler(self):
         self.Exit()
 
-    def GetCompleteOptions(self, text):
+    def GetCompleteOptions(self, document, complete_event):
         if self.fPyMode or self.fPyMore:
             cmd_type = "PYTHON"
         else:
-            (cmd_type, cmd) = self.Unescape(text)
+            (cmd_type, cmd) = self.Unescape(document.text)
+
+        default_style = "fg:#000000"
+        default_selected_style = "bg:white fg:ansired"
 
         if cmd_type == "HDTV":
-            return self.command_tree.GetCompleteOptions(text)
+            yield from self.command_tree.GetCompleteOptions(document, complete_event)
         elif cmd_type == "CMDFILE":
-            filepath = os.path.split(cmd)[0]
-            return self.command_tree.GetFileCompleteOptions(
-                filepath or ".", text)
+            (filepath, word_before_cursor) = os.path.split(cmd)
+            options = self.command_tree.GetFileCompleteOptions(
+                filepath or '.', word_before_cursor)
+            for option in options:
+                yield Completion(option,
+                    -len(word_before_cursor),
+                    style=default_style,
+                    selected_style=default_selected_style)
         else:
             # No completion support for shell and python commands
             return []
@@ -576,6 +586,9 @@ class CommandLine(object):
                 #  whether further input from the user is required.
                 #  We set the python mode accordingly.
                 self.fPyMore = self._py_console.push(cmd)
+            elif cmd_type == "SHELL":
+                # TODO: Implement shell usage
+                pass
             elif cmd_type == "CMDFILE":
                 self.ExecCmdfile(cmd)
         except KeyboardInterrupt:
@@ -672,7 +685,7 @@ class HDTVCompleter(Completer):
         word_before_cursor = document.get_word_before_cursor()
         text_before_cursor = document.text_before_cursor
         start = document.current_line_before_cursor.lstrip()
-        yield from self.command_tree.GetCompleteOptions(
+        yield from self.cmdline.GetCompleteOptions(
             document, complete_event)
 
 
