@@ -50,7 +50,7 @@ install:
   - conda config --add channels conda-forge
   - conda update -q conda
 
-  - conda create -q -n hdtv-environment python=$TRAVIS_PYTHON_VERSION root=$ROOT_VERSION numpy scipy matplotlib uncertainties
+  - conda create -q -n hdtv-environment python=$TRAVIS_PYTHON_VERSION root=$ROOT_VERSION numpy scipy prompt_toolkit matplotlib uncertainties
     docutils conda-build anaconda-client pytest pytest-cov codecov
   - conda activate hdtv-environment
 
