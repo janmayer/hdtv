@@ -549,10 +549,14 @@ class CommandLine(object):
         """
         Execute a command file with hdtv commands (aka batch file)
         """
-        hdtv.ui.msg("Execute file: " + fname)
+        hdtv.ui.msg("Execute file: " + str(fname))
 
         try:
-            file = hdtv.util.TxtFile(fname)
+            # TODO: HACK: fname can be a pathlib.Path object (e.g. __init__ of app.py 
+            # executing the startup_hdtv file by calling ExecCmdfile(startup_hdtv) 
+            # with startup_hdtv being a pathlib.Path object), but hdtv.util.TxtFile
+            # requires a string, so just convert instead of changing hdtv.util.TxtFile
+            file = hdtv.util.TxtFile(str(fname))
             file.read()
         except IOError as msg:
             hdtv.ui.error("%s" % msg)
