@@ -48,7 +48,6 @@ from prompt_toolkit.enums import EditingMode
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.formatted_text import HTML
 
-
 import hdtv.util
 import hdtv.options
 import __main__
@@ -450,6 +449,9 @@ class CommandLine(object):
     cmds['__name__'] = 'hdtv'
 
     def __init__(self, command_tree):
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+
         self.command_tree = command_tree
 
         self.history = None
@@ -538,10 +540,17 @@ class CommandLine(object):
         for handler in self.exit_handlers:
             handler()
 
+        # Dirty hack to prevent segfaults because of root garbage collection
+        # trying to free the same memory from two threads (asyncio related)
+        __main__.spectra.viewport.LockUpdate()
+        __main__.spectra.Clear()
+
     def AsyncExit(self):
         "Asynchronous exit; to be called from another thread"
-        self.Exit()
-        self.session.app.exit(style="class:exiting")
+        #self.Exit()
+        #self.session.app.exit(style="class:exiting")
+        self.loop.call_soon_threadsafe(self.Exit)
+        self.loop.call_soon_threadsafe(lambda: self.session.app.exit(style="class:exiting"))
 
     def EOFHandler(self):
         self.Exit()

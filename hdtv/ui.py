@@ -28,7 +28,10 @@ import os
 from html import escape
 from typing import cast, TextIO
 
+import asyncio
+
 import hdtv.options
+import hdtv.cmdline
 
 from prompt_toolkit.patch_stdout import StdoutProxy, patch_stdout
 from prompt_toolkit import print_formatted_text
@@ -58,8 +61,13 @@ class SimpleUI(object):
             self.stdout.write(html)
             return
         sys.stdout.write('\r')
+        #asyncio.set_event_loop(hdtv.cmdline.command_line.loop)
+        #self.print_patched(HTML(html), end)
+        hdtv.cmdline.command_line.loop.call_soon_threadsafe(self.print_patched, HTML(html), end)
+    
+    def print_patched(self, text, end):
         with patch_stdout(raw=False):
-            print_formatted_text(HTML(html), end=end)
+            print_formatted_text(text, end=end)
             print('', end='\r')
 
     def msg(self, text=None, *, html=None, end='\n'):

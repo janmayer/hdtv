@@ -59,7 +59,7 @@ setup(
         'matplotlib',
         'numpy',
         'ipython',
-        'prompt_toolkit>=2.0.10',
+        'prompt_toolkit>=3.0.0',
         'traitlets',
         'uncertainties',
     ],
