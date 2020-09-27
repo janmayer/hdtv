@@ -37,6 +37,7 @@ public:
   virtual ~Background() = default;
   virtual Background *Clone() const { return new Background(); }
   virtual TF1 *GetFunc() { return nullptr; }
+  virtual double GetCoeff(int i) const { return 0.; }
   virtual double GetMin() const {
     return std::numeric_limits<double>::quiet_NaN();
   }
