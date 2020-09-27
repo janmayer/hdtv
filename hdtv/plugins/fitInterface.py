@@ -322,7 +322,20 @@ class FitInterface(object):
             # Get peaks
             (peaklist, fitparams) = fit.ExtractParams()
             if not peaklist:
-                continue
+                # If fit does not contain any peaks, fake an
+                # entry to show that the fit ID is taken
+                fakeID=hdtv.util.ID(fit.ID.major)
+                # HACK: ID.minor is not allowed to contain strings,
+                # but it will never be compared anyway and e.g. "0.-" 
+                # is nicer than just "0" in the table
+                fakeID.minor="-"
+                fakeStat="I" # no peaks -> basically an integral only
+                if fit.ID in fit.spec.visible :
+                    fakeStat=fakeStat+"V"
+                if fit.active :
+                    fakeStat="A"+fakeStat
+                peaklist = [{'id': fakeID, 'stat': fakeStat}]
+                fitparams = ['id', 'stat']
             # update list of valid params
             for p in fitparams:
                 # do not use set operations here to keep order of params
@@ -503,7 +516,7 @@ class FitInterface(object):
             ids = [ids]
         for ID in ids:
             fit = spec.dict[ID]
-            fit.fitter.SetBackgroundModel(peakmodel)
+            fit.fitter.SetBackgroundModel(backgroundModel)
             fit.Refresh()
 
     def SetDecomposition(self, default_enable):
@@ -576,12 +589,12 @@ class TvFitInterface(object):
             "--store",
             action="store_true",
             default=False,
-            help="store peak after fit")
+            help="store fit after fitting")
         parser.add_argument(
             "fitids",
             nargs='*',
             default=None,
-            help='id(s) of the fit(s) to (re)fit')
+            help="id(s) of the fit(s) to (re)fit. Use 'none' to execute the WorkFit (default)")
         hdtv.cmdline.AddCommand(
             prog, self.FitExecute, level=0, parser=parser)
         # the "fit execute" command is registered with level=0,
@@ -600,12 +613,12 @@ class TvFitInterface(object):
             "--store",
             action="store_true",
             default=False,
-            help="store peak after fit")
+            help="store integral (as fit without peaks) after integration")
         parser.add_argument(
             "fitids",
             nargs='*',
             default=None,
-            help='id(s) of the fit(s) to (re)fit')
+            help="id(s) of the fit(s) to (re)integrate. Use 'none' to integrate the WorkFit (default)")
         hdtv.cmdline.AddCommand(prog, self.FitIntegralExecute, parser=parser)
 
         prog = "fit marker"
@@ -658,7 +671,7 @@ class TvFitInterface(object):
             "fitids",
             default=[],
             nargs='?',
-            help="id(s) of fit(s) to reactivate. All other fits are deactivated.")
+            help="id of fit to reactivate. Use 'none' to activate the WorkFit, deactivating a fitlist fit, but keeping any fit markers (default)")
         hdtv.cmdline.AddCommand(prog, self.FitActivate, parser=parser)
 
         prog = "fit delete"
@@ -712,8 +725,9 @@ class TvFitInterface(object):
             help="select spectra to work on")
         parser.add_argument(
             "fitids",
+            nargs='*',
             default=None,
-            help="id(?) of fit(s) to show decomposition of",)
+            help="id(s) of fit(s) to show decomposition of. Use 'none' to show the decomposition of the WorkFit (default)",)
         hdtv.cmdline.AddCommand(prog, self.FitShowDecomp, parser=parser)
 
         prog = "fit hide decomposition"
@@ -724,12 +738,13 @@ class TvFitInterface(object):
             help="select spectra to work on")
         parser.add_argument(
             "fitids",
+            nargs='*',
             default=None,
-            help="id(s) of fit(s) to hide decomposition of",)
+            help="id(s) of fit(s) to hide decomposition of. Use 'none' to hide the decomposition of the WorkFit (default)",)
         hdtv.cmdline.AddCommand(prog, self.FitHideDecomp, parser=parser)
 
         prog = "fit focus"
-        description = "focus on fit with id"
+        description = "adjust viewport to include all fits with id(s)"
         parser = hdtv.cmdline.HDTVOptionParser(
             prog=prog, description=description)
         parser.add_argument("-s", "--spectrum", action="store", default="active",
@@ -818,14 +833,16 @@ class TvFitInterface(object):
         parser = hdtv.cmdline.HDTVOptionParser(
             prog=prog, description=description)
         parser.add_argument("-f", "--fit", action="store", default=None,
-            help="change parameter of selected fit and refit")
+            help="change parameter of selected fit and refit. 'none' refers to the WorkFit (default)")
         parser.add_argument(
             'action',
             help='{status,reset,background,tl,vol,pos,sh,sw,tr,width}')
         parser.add_argument(
             'value_peak',
-            metavar='value-peak',
-            help='value of the peak to use',
+            metavar='value',
+            help="fixed value to use for the parameter or instruction how to fit it \
+                (e.g. 'free', 'equal', 'hold', 'none',...). Comma separated values can \
+                be used to set values for each peak marker individually.",
             nargs='*')
         hdtv.cmdline.AddCommand(
             prog,
@@ -1262,17 +1279,17 @@ class TvFitInterface(object):
         Creates a completer for all possible parameter names
         or valid states for a parameter (args[0]: parameter name).
         """
-        if not args:
+        if not args: # args is None or [] -> complete parameter names
             params = ["status", "reset"]
             # create a list of all possible parameter names
             activeParams = self.spectra.workFit.fitter.params
             params.extend(activeParams)
             return hdtv.util.GetCompleteOptions(text, params)
-        else:
+        else: # args[0] = parameter name -> complete its possible values
             states = list()
             param = args[0]
-            if param == "background":
-                return hdtv.util.GetCompleteOptions(text, states)
+            if param in ["status", "reset", "background"]:
+                return [] # No further args to autocomplete
             else:
                 activePM = self.spectra.workFit.fitter.peakModel
                 try:
@@ -1296,7 +1313,7 @@ class TvFitInterface(object):
         for specID in specIDs:
             fitIDs = hdtv.util.ID.ParseIds(args.fitids, self.spectra.dict[specID])
             if not fitIDs:
-                hdtv.ui.warning("No fit for spectrum %d to work on", specID)
+                hdtv.ui.warning("No fit for spectrum %d to work on" % specID)
                 continue
             for fitID in fitIDs:
                 self.fitIf.FitReset(specID=specID, fitID=fitID,
