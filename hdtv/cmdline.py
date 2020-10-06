@@ -455,7 +455,7 @@ class CommandLine(object):
         self.command_tree = command_tree
 
         self.history = None
-        
+
         # TODO: Replace by IPython (call InteractiveShell.run_code or similar)
         self._py_console = code.InteractiveConsole(self.cmds)
 
@@ -599,7 +599,7 @@ class CommandLine(object):
                 self.fPyMore = self._py_console.push("")
             if not self.fKeepRunning:
                 break
-    
+
     def ExecCmdfileCmd(self, args):
         for path in args.batchfile:
             for filename in glob.glob(path):
@@ -657,20 +657,33 @@ class CommandLine(object):
                 return 'hdtv> '
 
         completer = HDTVCompleter(self.command_tree, self)
-       
+
         bindings = KeyBindings()
-        
-        @bindings.add(':')
+
+        #@bindings.add(':')
+        #def _(event):
+        #    if event.app.editing_mode == EditingMode.VI:
+        #        event.app.editing_mode = EditingMode.EMACS
+        #    else:
+        #        event.app.editing_mode = EditingMode.VI
+
+        @bindings.add('pageup')
         def _(event):
-            if event.app.editing_mode == EditingMode.VI:
-                event.app.editing_mode = EditingMode.EMACS
-            else:
-                event.app.editing_mode = EditingMode.VI
+            event.current_buffer.enable_history_search = lambda: True
+            event.current_buffer.history_backward(count=event.arg)
+            event.current_buffer.enable_history_search = lambda: False
+
+        @bindings.add('pagedown')
+        def _(event):
+            event.current_buffer.enable_history_search = lambda: True
+            event.current_buffer.history_forward(count=event.arg)
+            event.current_buffer.enable_history_search = lambda: False
 
         self.session = PromptSession(message,
             history=self.history,
             completer=completer,
             complete_while_typing=False,
+            key_bindings=bindings,
             complete_style=CompleteStyle.MULTI_COLUMN)
         
         def set_vi_mode(vi_mode):
