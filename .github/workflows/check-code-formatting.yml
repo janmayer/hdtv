@@ -1,0 +1,63 @@
+name: Check Code Formatting
+
+on: [push, pull_request]
+
+jobs:
+  cpp-formatting:
+    runs-on: ubuntu-latest
+    env: 
+      CLANG_FORMAT: clang-format-10
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends $CLANG_FORMAT && $CLANG_FORMAT --version
+      - name: Run clang-format
+        run: |
+          files=$(find . -iregex '.*\.\(h\|hh\|hpp\|c\|cc\|cpp\|cxx\)')
+          for f in $files; do
+            echo "Checking: ${f}"
+            d=$(diff -u "$f" <($CLANG_FORMAT -style=file "$f") || true)
+            if ! [ -z "$d" ]; then
+              echo "$d"
+              fail=1
+            fi
+          done
+          if [ "$fail" = 1 ]; then
+            echo -e "\033[1;31mYou must pass the clang-format checks before submitting a pull request.\033[0m"
+            exit 1
+          fi
+  cmake-formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x' 
+      - name: Install cmake-format
+        run: pip install cmakelang && cmake-format --version
+      - name: Run cmake-format
+        run: |
+          files=$(find . -name CMakeLists.txt)
+          for f in $files; do
+            echo "Checking: ${f}"
+            d=$(diff -u "$f" <(cmake-format "$f") || true)
+            if ! [ -z "$d" ]; then
+              echo "$d"
+              fail=1
+            fi
+          done
+          if [ "$fail" = 1 ]; then
+            echo -e "\033[1;31mYou must pass the cmake-format checks before submitting a pull request.\033[0m"
+            exit 1
+          fi
+  python-formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x' 
+      - name: Install black
+        run: pip install black && black --version
+      - name: Run black
+        run: black --check .
