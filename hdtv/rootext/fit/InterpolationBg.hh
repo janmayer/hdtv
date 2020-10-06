@@ -28,9 +28,9 @@
 #include <memory>
 #include <vector>
 
-#include <TF1.h>
-#include "Math/Polynomial.h"
 #include "Math/Interpolator.h"
+#include "Math/Polynomial.h"
+#include <TF1.h>
 
 #include "Background.hh"
 
@@ -42,7 +42,7 @@ namespace Fit {
 
 // Interpolating background fitter
 //
-// Given N_bg - potentially overlapping - unsorted background regions with 
+// Given N_bg - potentially overlapping - unsorted background regions with
 // lower and upper limits l_i and u_i (0 <= i < N_bg), the continous
 // background fit is determined in the following way:
 // 1. 	Determine the region centers c_i = 0.5*(l_i + u_i), i.e. the mean
@@ -56,66 +56,58 @@ namespace Fit {
 // four quantities:
 // - 	the lower limit l_i
 // - 	the upper limit u_i
-// - 	the center, defined as 0.5*(u_i + l_i) 
+// - 	the center, defined as 0.5*(u_i + l_i)
 // - 	the uncertainty-weighted mean value of the bin contents within the interval
 // 	[l_i, u_i]
 // The lower and upper limit are store in a std::pair container
-struct BgReg{
-	std::pair<double, double> limit;
-	double center;
-	double weighted_mean;
-	double weighted_mean_uncertainty;
+struct BgReg {
+  std::pair<double, double> limit;
+  double center;
+  double weighted_mean;
+  double weighted_mean_uncertainty;
 };
 
 // Auxiliary class to be able to hand over a ROOT::Math::Interpolator
 // to a TF1 object
-class InterpolationWrapper{
+class InterpolationWrapper {
 public:
-	InterpolationWrapper(ROOT::Math::Interpolation::Type type):
-		inter(0, ROOT::Math::Interpolation::kCSPLINE){}
-	InterpolationWrapper(std::vector<double> xx, std::vector<double> yy,
-			ROOT::Math::Interpolation::Type type):
-		inter(xx, yy, ROOT::Math::Interpolation::kCSPLINE){}
+  InterpolationWrapper(ROOT::Math::Interpolation::Type type) : inter(0, ROOT::Math::Interpolation::kCSPLINE) {}
+  InterpolationWrapper(std::vector<double> xx, std::vector<double> yy, ROOT::Math::Interpolation::Type type)
+      : inter(xx, yy, ROOT::Math::Interpolation::kCSPLINE) {}
 
-	void SetData(std::vector<double> xx, std::vector<double> yy){
-		x = xx;
-		y = yy;
-		inter.SetData(x, y);
-	}
+  void SetData(std::vector<double> xx, std::vector<double> yy) {
+    x = xx;
+    y = yy;
+    inter.SetData(x, y);
+  }
 
-	InterpolationWrapper(const InterpolationWrapper &iw):
-		inter(0, ROOT::Math::Interpolation::kCSPLINE)
-	{
-		std::vector<double> xx;
-		std::vector<double> yy;
-		for(unsigned int i = 0; i < iw.GetX().size(); ++i){
-			xx.push_back(iw.GetX()[i]);
-			yy.push_back(iw.GetY()[i]);
-		}
-		inter.SetData(xx, yy);
-	}
-	InterpolationWrapper &operator=(const InterpolationWrapper &iw){
-		if (this == &iw)
-			return *this;
-		inter.SetData(iw.GetX(), iw.GetY());
-		return *this;
-	}
+  InterpolationWrapper(const InterpolationWrapper &iw) : inter(0, ROOT::Math::Interpolation::kCSPLINE) {
+    std::vector<double> xx;
+    std::vector<double> yy;
+    for (unsigned int i = 0; i < iw.GetX().size(); ++i) {
+      xx.push_back(iw.GetX()[i]);
+      yy.push_back(iw.GetY()[i]);
+    }
+    inter.SetData(xx, yy);
+  }
+  InterpolationWrapper &operator=(const InterpolationWrapper &iw) {
+    if (this == &iw)
+      return *this;
+    inter.SetData(iw.GetX(), iw.GetY());
+    return *this;
+  }
 
-	double operator() (double v) const {
-		return inter.Eval(v);
-	}
-	// This is the call operator needed by TF1
-	double operator()(double *v, double *p){
-		return inter.Eval(v[0]);
-	}
+  double operator()(double v) const { return inter.Eval(v); }
+  // This is the call operator needed by TF1
+  double operator()(double *v, double *p) { return inter.Eval(v[0]); }
 
-	std::vector<double> GetX() const { return x; };
-	std::vector<double> GetY() const { return y; };
+  std::vector<double> GetX() const { return x; };
+  std::vector<double> GetY() const { return y; };
 
 private:
-	ROOT::Math::Interpolator inter;
-	std::vector<double> x;
-	std::vector<double> y;
+  ROOT::Math::Interpolator inter;
+  std::vector<double> x;
+  std::vector<double> y;
 };
 
 class InterpolationBg : public Background {
@@ -125,22 +117,14 @@ public:
   InterpolationBg &operator=(const InterpolationBg &src);
 
   double GetCoeff(int i) const override {
-    return fFunc ? fFunc->GetParameter(i)
-                 : std::numeric_limits<double>::quiet_NaN();
+    return fFunc ? fFunc->GetParameter(i) : std::numeric_limits<double>::quiet_NaN();
   }
 
-  double GetCoeffError(int i) {
-    return fFunc ? fFunc->GetParError(i)
-                 : std::numeric_limits<double>::quiet_NaN();
-  }
+  double GetCoeffError(int i) { return fFunc ? fFunc->GetParError(i) : std::numeric_limits<double>::quiet_NaN(); }
 
   double GetChisquare() { return fChisquare; }
-  double GetMin() const override {
-    return (*fBgRegions.begin()).limit.first;
-  }
-  double GetMax() const override {
-    return (*(--fBgRegions.end())).limit.second;
-  }
+  double GetMin() const override { return (*fBgRegions.begin()).limit.first; }
+  double GetMax() const override { return (*(--fBgRegions.end())).limit.second; }
   unsigned int GetNparams() const override { return fnParams; }
 
   void Fit(TH1 &hist);
@@ -151,8 +135,8 @@ public:
   TF1 *GetFunc() override { return fFunc.get(); }
 
   double Eval(double x) const override {
-    if(x <= fFunc->GetXmin() || x >= fFunc->GetXmax())
-		return 0.;
+    if (x <= fFunc->GetXmin() || x >= fFunc->GetXmax())
+      return 0.;
     return fInter(x);
   }
 

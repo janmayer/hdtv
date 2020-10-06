@@ -33,14 +33,11 @@ namespace HDTV {
 namespace Display {
 
 Painter::Painter()
-    : fWidth{1}, fHeight{1}, fXBase{0}, fYBase{0}, fXZoom{0.01}, fYZoom{0.01},
-      fXVisibleRegion{100.0}, fYVisibleRegion{100.0}, fXOffset{0.0},
-      fYOffset{0.0}, fLogScale{false}, fUseNorm{false}, fViewMode{kVMHollow},
-      fDrawable{static_cast<Drawable_t>(-1)},
-      fAxisGC{static_cast<GContext_t>(-1)},
-      fClearGC{static_cast<GContext_t>(-1)},
-      fFont{gClient->GetResourcePool()->GetDefaultFont()},
-      fFontStruct{fFont->GetFontStruct()} {}
+    : fWidth{1}, fHeight{1}, fXBase{0}, fYBase{0}, fXZoom{0.01}, fYZoom{0.01}, fXVisibleRegion{100.0},
+      fYVisibleRegion{100.0}, fXOffset{0.0}, fYOffset{0.0}, fLogScale{false}, fUseNorm{false}, fViewMode{kVMHollow},
+      fDrawable{static_cast<Drawable_t>(-1)}, fAxisGC{static_cast<GContext_t>(-1)}, fClearGC{static_cast<GContext_t>(
+                                                                                        -1)},
+      fFont{gClient->GetResourcePool()->GetDefaultFont()}, fFontStruct{fFont->GetFontStruct()} {}
 
 void Painter::DrawFunction(DisplayFunc *dFunc, int x1, int x2) {
   //! Function to draw a DisplayFunc object
@@ -114,8 +111,7 @@ void Painter::DrawSpectrum(DisplaySpec *dSpec, int x1, int x2) {
     for (x = x1; x <= x2; x++) {
       y = GetYAtPixel(dSpec, x);
       if (y >= hClip && y <= lClip) {
-        gVirtualX->DrawRectangle(fDrawable, dSpec->GetGC()->GetGC(), x, y, 0,
-                                 0);
+        gVirtualX->DrawRectangle(fDrawable, dSpec->GetGC()->GetGC(), x, y, 0, 0);
       }
     }
     break;
@@ -150,12 +146,10 @@ void Painter::DrawSpectrum(DisplaySpec *dSpec, int x1, int x2) {
             y2 = lClip;
           }
           if (x > fXBase) {
-            gVirtualX->DrawLine(fDrawable, dSpec->GetGC()->GetGC(), x - 1, y1,
-                                x - 1, y2);
+            gVirtualX->DrawLine(fDrawable, dSpec->GetGC()->GetGC(), x - 1, y1, x - 1, y2);
           }
           if (y <= lClip) {
-            gVirtualX->DrawRectangle(fDrawable, dSpec->GetGC()->GetGC(), x, y2,
-                                     0, 0);
+            gVirtualX->DrawRectangle(fDrawable, dSpec->GetGC()->GetGC(), x, y2, 0, 0);
           }
         }
       }
@@ -174,8 +168,7 @@ void Painter::DrawXMarker(XMarker *marker, int x1, int x2) {
   // Draw first marker of the pair
   xm1 = EtoX(marker->GetE1());
   if ((xm1 + marker->GetWidth(fFontStruct)) >= x1 && xm1 <= x2) {
-    gVirtualX->DrawLine(fDrawable, marker->GetGC_1()->GetGC(), xm1, fYBase, xm1,
-                        fYBase - fHeight);
+    gVirtualX->DrawLine(fDrawable, marker->GetGC_1()->GetGC(), xm1, fYBase, xm1, fYBase - fHeight);
 
     if (!marker->GetID().empty()) {
       Rectangle_t rect{};
@@ -184,8 +177,8 @@ void Painter::DrawXMarker(XMarker *marker, int x1, int x2) {
       rect.fWidth = x2 - x1 + 1;
       rect.fHeight = fHeight;
       gVirtualX->SetClipRectangles(marker->GetGC_1()->GetGC(), 0, 0, &rect, 1);
-      DrawString(marker->GetGC_1()->GetGC(), xm1 + 2, fYBase - fHeight + 2,
-                 marker->GetID().c_str(), marker->GetID().size(), kLeft, kTop);
+      DrawString(marker->GetGC_1()->GetGC(), xm1 + 2, fYBase - fHeight + 2, marker->GetID().c_str(),
+                 marker->GetID().size(), kLeft, kTop);
       marker->GetGC_1()->SetClipMask(kNone);
     }
   }
@@ -195,8 +188,7 @@ void Painter::DrawXMarker(XMarker *marker, int x1, int x2) {
     xm2 = EtoX(marker->GetE2());
 
     if (xm2 >= x1 && xm2 <= x2) {
-      gVirtualX->DrawLine(fDrawable, marker->GetGC_2()->GetGC(), xm2, fYBase,
-                          xm2, fYBase - fHeight);
+      gVirtualX->DrawLine(fDrawable, marker->GetGC_2()->GetGC(), xm2, fYBase, xm2, fYBase - fHeight);
     }
 
     // Draw connecting line
@@ -220,8 +212,7 @@ void Painter::DrawXMarker(XMarker *marker, int x1, int x2) {
       } else {
         h = fYBase;
       }
-      gVirtualX->DrawLine(fDrawable, marker->GetGC_C()->GetGC(), xm1, h, xm2,
-                          h);
+      gVirtualX->DrawLine(fDrawable, marker->GetGC_C()->GetGC(), xm1, h, xm2, h);
     }
   }
 }
@@ -258,8 +249,7 @@ void Painter::DrawIDList(const std::list<DisplayObj *> &objects) {
       }
       tmp = spec->GetID();
       tmp.push_back(' ');
-      gVirtualX->DrawString(fDrawable, spec->GetGC()->GetGC(), x,
-                            fYBase - fHeight - 5, tmp.c_str(), tmp.size());
+      gVirtualX->DrawString(fDrawable, spec->GetGC()->GetGC(), x, fYBase - fHeight - 5, tmp.c_str(), tmp.size());
       x += gVirtualX->TextWidth(fFontStruct, tmp.c_str(), tmp.size());
     }
   }
@@ -393,9 +383,7 @@ double Painter::YtoC(int y) {
   return c;
 }
 
-double Painter::GetXOffsetDelta(int x, double f) {
-  return dXtodE(x - fXBase) * (1.0 - 1.0 / f);
-}
+double Painter::GetXOffsetDelta(int x, double f) { return dXtodE(x - fXBase) * (1.0 - 1.0 / f); }
 
 double Painter::GetYOffsetDelta(int y, double f) {
   if (fLogScale) {
@@ -424,10 +412,8 @@ void Painter::ClearTopXScale() {
   //! bottom X scale so that it can be redrawn with a different
   //! offset. We need to be careful not to affect the y scale,
   //! since it is not necessarily redrawn as well.
-  gVirtualX->FillRectangle(fDrawable, fClearGC, fXBase - 2,
-                           fYBase - fHeight - 11, fWidth + 4, 9);
-  gVirtualX->FillRectangle(fDrawable, fClearGC, fXBase - 40,
-                           fYBase - fHeight - 32, fWidth + 60, 20);
+  gVirtualX->FillRectangle(fDrawable, fClearGC, fXBase - 2, fYBase - fHeight - 11, fWidth + 4, 9);
+  gVirtualX->FillRectangle(fDrawable, fClearGC, fXBase - 40, fYBase - fHeight - 32, fWidth + 60, 20);
 }
 
 void Painter::ClearBottomXScale() {
@@ -435,14 +421,11 @@ void Painter::ClearBottomXScale() {
   //! bottom X scale so that it can be redrawn with a different
   //! offset. We need to be careful not to affect the y scale,
   //! since it is not necessarily redrawn as well.
-  gVirtualX->FillRectangle(fDrawable, fClearGC, fXBase - 2, fYBase + 3,
-                           fWidth + 4, 9);
-  gVirtualX->FillRectangle(fDrawable, fClearGC, fXBase - 40, fYBase + 12,
-                           fWidth + 60, 20);
+  gVirtualX->FillRectangle(fDrawable, fClearGC, fXBase - 2, fYBase + 3, fWidth + 4, 9);
+  gVirtualX->FillRectangle(fDrawable, fClearGC, fXBase - 40, fYBase + 12, fWidth + 60, 20);
 }
 
-void Painter::GetTicDistance(double tic, double &major_tic, double &minor_tic,
-                             int &n) {
+void Painter::GetTicDistance(double tic, double &major_tic, double &minor_tic, int &n) {
   double exp;
 
   // limit tic distance to a sensible value
@@ -479,8 +462,7 @@ void Painter::GetTicDistance(double tic, double &major_tic, double &minor_tic,
   }
 }
 
-void Painter::DrawXNonlinearScale(Int_t x1, Int_t x2, bool top,
-                                  const Calibration &cal) {
+void Painter::DrawXNonlinearScale(Int_t x1, Int_t x2, bool top, const Calibration &cal) {
   int x;
   int y = top ? fYBase - fHeight - 2 : fYBase + 2;
   int sgn = top ? -1 : 1;
@@ -574,8 +556,8 @@ void Painter::DrawYScale() {
   }
 }
 
-void Painter::DrawString(GContext_t gc, int x, int y, const char *str,
-                         size_t len, HTextAlign hAlign, VTextAlign vAlign) {
+void Painter::DrawString(GContext_t gc, int x, int y, const char *str, size_t len, HTextAlign hAlign,
+                         VTextAlign vAlign) {
   int max_ascent, max_descent;
   int width;
 

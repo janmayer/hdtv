@@ -30,6 +30,7 @@ import hdtv.cmdline
 import hdtv.options
 import hdtv.plugins.dblookup
 
+
 @pytest.fixture(autouse=True)
 def prepare():
     hdtv.options.Set("table", "classic")
@@ -37,17 +38,20 @@ def prepare():
     hdtv.options.Set("database.db", "pgaalib_iki2000")
     yield
 
+
 def test_cmd_db_info():
     f, ferr = hdtvcmd("db info")
     assert "Database" in f
     assert "Valid fields" in f
     assert ferr == ""
 
+
 def test_cmd_db_list():
     f, ferr = hdtvcmd("db list")
     assert "promptgammas" in f
     assert "pgaalib_iki2000" in f
     assert ferr == ""
+
 
 def test_cmd_db_lookup_base():
     f, ferr = hdtvcmd("db lookup")
@@ -58,13 +62,13 @@ def test_cmd_db_lookup_base():
     assert ferr == ""
     assert "Found 0 results" in f
 
-@pytest.mark.parametrize("specs", [
-    "Intensity=0.1", "Sigma=0.03", "Energy=510"])
+
+@pytest.mark.parametrize("specs", ["Intensity=0.1", "Sigma=0.03", "Energy=510"])
 def test_cmd_db_lookup_specs(specs):
     assert count_results("db lookup {}".format(specs)) > 0
 
-@pytest.mark.parametrize("specs", [
-    "Intensity=0.3", "Sigma=0.04", "Energy=139.940"])
+
+@pytest.mark.parametrize("specs", ["Intensity=0.3", "Sigma=0.04", "Energy=139.940"])
 def test_cmd_db_lookup_fuzziness(specs):
     results_narrow = count_results("db lookup {} -f 0.005".format(specs))
     results_broad = count_results("db lookup {} --fuzziness 0.5".format(specs))
@@ -72,20 +76,20 @@ def test_cmd_db_lookup_fuzziness(specs):
     assert results_broad > 0
     assert results_broad > results_narrow
 
-@pytest.mark.parametrize("specs", [
-    "k0=2", "510", "a=40", "z=33"])
+
+@pytest.mark.parametrize("specs", ["k0=2", "510", "a=40", "z=33"])
 def test_cmd_db_lookup_sort_reverse(specs):
     test_cmd_db_lookup_sort_key(specs, reverse=True)
 
-@pytest.mark.parametrize("specs", [
-    "k0=3", "511", "a=20", "z=10"])
+
+@pytest.mark.parametrize("specs", ["k0=3", "511", "a=20", "z=10"])
 def test_cmd_db_lookup_sort_key(specs, reverse=False):
     if reverse:
         f, ferr = hdtvcmd("db lookup {} -k energy -r".format(specs))
     else:
         f, ferr = hdtvcmd("db lookup {} -k energy".format(specs))
     old_value = sys.float_info.max if reverse else sys.float_info.min
-    for line in f.split('\n')[2:-3]:
+    for line in f.split("\n")[2:-3]:
         new_value = float(line.split("|")[3].split("(")[0].strip())
         if reverse:
             assert new_value < old_value
@@ -93,13 +97,14 @@ def test_cmd_db_lookup_sort_key(specs, reverse=False):
             assert new_value > old_value
         old_value = new_value
 
-@pytest.mark.parametrize("db", [
-    "promptgammas", "pgaalib_iki2000"])
+
+@pytest.mark.parametrize("db", ["promptgammas", "pgaalib_iki2000"])
 def test_cmd_db_set(db):
     f, ferr = hdtvcmd("db set {}".format(db))
     assert "loaded" in f
     assert hdtv.options.Get("database.db") == db
 
+
 def count_results(query):
     f, ferr = hdtvcmd(query)
-    return int(re.search(r'Found (\d+) results', f).groups()[0])
+    return int(re.search(r"Found (\d+) results", f).groups()[0])

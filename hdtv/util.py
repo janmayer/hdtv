@@ -36,6 +36,7 @@ import hdtv.options
 import hdtv.ui
 import hdtv.dummy
 
+
 def Indent(s, indent=" "):
     """
     Re-format a (possibly multi-line) string such that each line is indented.
@@ -53,10 +54,13 @@ class MLStripper(HTMLParser):
         super().__init__()
         self.reset()
         self.fed = []
+
     def handle_data(self, d):
         self.fed.append(d)
+
     def get_data(self):
-        return ''.join(self.fed)
+        return "".join(self.fed)
+
 
 def strip_tags(html):
     s = MLStripper()
@@ -92,17 +96,17 @@ class TxtFile(object):
             number = 0
             for line in self.fd:
                 number += 1
-                line = line.rstrip('\r\n ')
+                line = line.rstrip("\r\n ")
                 # line is continued on next line
-                if len(line) > 0 and line[-1] == '\\':
-                    prev_line += line.rstrip('\\')
+                if len(line) > 0 and line[-1] == "\\":
+                    prev_line += line.rstrip("\\")
                     continue
                 else:
                     if prev_line != "":
                         line = prev_line + " " + line
                     prev_line = ""
                 if verbose:
-                    hdtv.ui.msg('file> ' + str(line))
+                    hdtv.ui.msg("file> " + str(line))
 
                 # Strip comments
                 line = remove_comments(line)
@@ -113,7 +117,7 @@ class TxtFile(object):
 
         except IOError as msg:
             raise IOError("Error opening file:" + str(msg))
-        #except BaseException:  # Let MainLoop handle other exceptions
+        # except BaseException:  # Let MainLoop handle other exceptions
         #    raise
         finally:
             if self.fd is not None:
@@ -128,7 +132,7 @@ class TxtFile(object):
         try:
             self.fd = open(self.filename, self.mode)
             for line in self.lines:
-                line.rstrip('\r\n ')
+                line.rstrip("\r\n ")
                 line += os.linesep
                 self.fd.write(line)
         except IOError as msg:
@@ -183,8 +187,7 @@ class Pairs(list):
         Create pairs from to lists by assigning corresponding indices
         """
         if len(list1) != len(list2):
-            hdtv.ui.error(
-                "Lists for Pairs.fromLists() are of different length")
+            hdtv.ui.error("Lists for Pairs.fromLists() are of different length")
             return False
 
         for item1, item2 in zip(list1, list2):
@@ -193,13 +196,15 @@ class Pairs(list):
 
 opt_table = hdtv.options.Option(
     default="modern",
-    parse=hdtv.options.parse_choices(["classic", "simple", "grid", "modern"]))
+    parse=hdtv.options.parse_choices(["classic", "simple", "grid", "modern"]),
+)
 hdtv.options.RegisterOption("table", opt_table)
 
 opt_uncertainties = hdtv.options.Option(
-    default="short",
-    parse=hdtv.options.parse_choices(["short", "pretty", "long"]))
+    default="short", parse=hdtv.options.parse_choices(["short", "pretty", "long"])
+)
 hdtv.options.RegisterOption("uncertainties", opt_uncertainties)
+
 
 class Table(object):
     """
@@ -209,16 +214,17 @@ class Table(object):
     """
 
     def __init__(
-            self,
-            data,
-            keys,
-            header=None,
-            ignoreEmptyCols=True,
-            sortBy=None,
-            reverseSort=False,
-            raw_columns=None,
-            extra_header=None,
-            extra_footer=None):
+        self,
+        data,
+        keys,
+        header=None,
+        ignoreEmptyCols=True,
+        sortBy=None,
+        reverseSort=False,
+        raw_columns=None,
+        extra_header=None,
+        extra_footer=None,
+    ):
         self.extra_header = extra_header
         self.extra_footer = extra_footer
         self.sortBy = sortBy
@@ -240,18 +246,17 @@ class Table(object):
             self.header_sep_char_sorted = ""
             self.crossing_char = ""
         elif style == "grid":
-            self.col_sep_char =   '│'  
-            self.empty_field = ''
-            self.header_sep_char =   '─'  
-            self.header_sep_char_sorted =   '╌'  
-            self.crossing_char =   '┼'  
-        else: # default style 'modern'
-            self.col_sep_char = ''
-            self.empty_field = ''
-            self.header_sep_char =   '─'  
-            self.header_sep_char_sorted =   '━'  
-            self.crossing_char = ''
-
+            self.col_sep_char = "│"
+            self.empty_field = ""
+            self.header_sep_char = "─"
+            self.header_sep_char_sorted = "╌"
+            self.crossing_char = "┼"
+        else:  # default style 'modern'
+            self.col_sep_char = ""
+            self.empty_field = ""
+            self.header_sep_char = "─"
+            self.header_sep_char_sorted = "━"
+            self.crossing_char = ""
 
         self._width = 0  # Width of table
         self._col_width = list()  # width of columns
@@ -331,10 +336,10 @@ class Table(object):
                     # Store maximum col width
                     if self.raw_columns and key in self.raw_columns:
                         self._col_width[i] = max(
-                            self._col_width[i], len(strip_tags(value)) + 2)
+                            self._col_width[i], len(strip_tags(value)) + 2
+                        )
                     else:
-                        self._col_width[i] = max(
-                            self._col_width[i], len(value) + 2)
+                        self._col_width[i] = max(self._col_width[i], len(value) + 2)
                 except KeyError:
                     line.append(self.empty_field)
             lines.append(line)
@@ -344,11 +349,12 @@ class Table(object):
         if self.raw_columns and sortBy in self.raw_columns:
             self.data.sort(
                 key=lambda x: natural_sort_key(strip_tags(x[sortBy])),
-                reverse=reverseSort)
+                reverse=reverseSort,
+            )
         else:
             self.data.sort(
-                key=lambda x: natural_sort_key(str(x[sortBy])),
-                reverse=reverseSort)
+                key=lambda x: natural_sort_key(str(x[sortBy])), reverse=reverseSort
+            )
 
     def calc_width(self):
         # Determine table widths
@@ -362,8 +368,13 @@ class Table(object):
         headerline = str()
         for col in range(0, len(self.header)):
             if not self._ignore_col[col]:
-                headerline += "<b>" + escape(str(" " + self.header[col] +
-                                  " ").center(self._col_width[col])) + "</b>"
+                headerline += (
+                    "<b>"
+                    + escape(
+                        str(" " + self.header[col] + " ").center(self._col_width[col])
+                    )
+                    + "</b>"
+                )
             if not self._ignore_col[col + 1]:
                 headerline += escape(self.col_sep_char)
         return headerline
@@ -402,13 +413,13 @@ class Table(object):
                 if not self._ignore_col[col]:
                     if self.raw_columns and self.keys[col] in self.raw_columns:
                         fill_len = self._col_width[col] - len(strip_tags(line[col])) - 1
-                        line_str += str(" "*fill_len + line[col] + " ")
+                        line_str += str(" " * fill_len + line[col] + " ")
                     else:
-                        line_str += str(" " + escape(line[col]) +
-                                        " ").rjust(self._col_width[col])
+                        line_str += str(" " + escape(line[col]) + " ").rjust(
+                            self._col_width[col]
+                        )
                 if not self._ignore_col[col + 1]:
                     line_str += self.col_sep_char
-
 
             text += line_str + os.linesep
 
@@ -536,7 +547,7 @@ class ID(object):
     def __eq__(self, other):
         if other is None:
             return False
-        return ((self.major, self.minor) == (other.major, other.minor))
+        return (self.major, self.minor) == (other.major, other.minor)
 
     def __ne__(self, other):
         if other is None:
@@ -545,7 +556,7 @@ class ID(object):
 
     def __gt__(self, other):
         try:
-            if (self.major == other.major):
+            if self.major == other.major:
                 return self.minor > other.minor
             return self.major > other.major
         except TypeError:
@@ -553,17 +564,17 @@ class ID(object):
 
     def __lt__(self, other):
         try:
-            if (self.major == other.major):
+            if self.major == other.major:
                 return self.minor < other.minor
             return self.major < other.major
         except TypeError:
             return False
 
     def __ge__(self, other):
-        return (self.__gt__(other) or self.__eq__(other))
+        return self.__gt__(other) or self.__eq__(other)
 
     def __le__(self, other):
-        return (self.__lt__(other) or self.__eq__(other))
+        return self.__lt__(other) or self.__eq__(other)
 
     def __hash__(self):
         # this is needed to use IDs as keys in dicts and in sets
@@ -586,10 +597,10 @@ class ID(object):
 
     def __float__(self):
         if self.major is None:
-            return int(self.minor) / 10.
+            return int(self.minor) / 10.0
         if self.minor is None:
             return int(self.major)
-        return int(self.major) + int(self.minor) / 10.
+        return int(self.major) + int(self.minor) / 10.0
 
     @classmethod
     def _parseSpecialID(cls, string, manager):
@@ -620,9 +631,9 @@ class ID(object):
             major_s, minor_s = [m for m in string.split(".")]
             major = int(major_s)
             # TODO
-#            if minor_s.lower() in ("x", "y", "c"):
-#                minor = minor_s
-#            else:
+            #            if minor_s.lower() in ("x", "y", "c"):
+            #                minor = minor_s
+            #            else:
             minor = int(minor_s)
         else:
             major = int(string)
@@ -674,8 +685,7 @@ class ID(object):
                         hdtv.ui.error("Invalid ID %s" % stop)
                         raise ValueError
                 # fill the range
-                ids.extend(
-                    [i for i in manager.ids if (i >= start and i <= stop)])
+                ids.extend([i for i in manager.ids if (i >= start and i <= stop)])
             else:
                 try:
                     special = cls._parseSpecialID(s, manager)
@@ -700,7 +710,9 @@ class ID(object):
                         valid_ids.append(ID)
                         break  # break out of for mID in manager.ids loop
 
-                if ID not in valid_ids:  # This only works because we appended IDs above, not mIDs, because they are different instances of the ID object
+                if (
+                    ID not in valid_ids
+                ):  # This only works because we appended IDs above, not mIDs, because they are different instances of the ID object
                     hdtv.ui.warning("Non-existent id %s" % ID)
 
         else:
@@ -708,25 +720,30 @@ class ID(object):
 
         return valid_ids
 
+
 def remove_comments(string):
     """
     Removes '#' comments at the end of a line
     """
     pattern = r"(\".*?\"|\'.*?\')|(#[^\r\n]*$)"
-    regex = re.compile(pattern, re.MULTILINE|re.DOTALL)
+    regex = re.compile(pattern, re.MULTILINE | re.DOTALL)
+
     def _replacer(match):
         if match.group(2) is not None:
             return ""
         else:
             return match.group(1)
+
     return regex.sub(_replacer, string)
+
 
 def split_line(line):
     """
     Splits multiple commands in a single line separated by ';'
     """
-    split_pattern = re.compile(r'''((?:[^;"']|"[^"]*"|'[^']*')+)''')
+    split_pattern = re.compile(r"""((?:[^;"']|"[^"]*"|'[^']*')+)""")
     return split_pattern.split(line)[1::2]
+
 
 def user_save_file(filename, force=False):
     """
@@ -736,27 +753,27 @@ def user_save_file(filename, force=False):
     """
     filename = os.path.expanduser(filename)
     if not force and os.path.exists(filename):
-        hdtv.ui.warning(f'This file already exists: {filename}')
+        hdtv.ui.warning(f"This file already exists: {filename}")
 
         bindings = KeyBindings()
 
-        @bindings.add('y')
-        @bindings.add('Y')
+        @bindings.add("y")
+        @bindings.add("Y")
         def yes(event):
-            session.default_buffer.text = 'y'
+            session.default_buffer.text = "y"
             event.app.exit(result=filename)
 
-        @bindings.add('n')
-        @bindings.add('N')
+        @bindings.add("n")
+        @bindings.add("N")
         def no(event):
-            session.default_buffer.text = 'n'
+            session.default_buffer.text = "n"
             event.app.exit(result=False)
-        
-        @bindings.add('b')
-        @bindings.add('B')
+
+        @bindings.add("b")
+        @bindings.add("B")
         @bindings.add(Keys.Enter)
         def backup(event):
-            session.default_buffer.text = 'b'
+            session.default_buffer.text = "b"
             backup_file(filename)
             event.app.exit(result=filename)
 
@@ -764,48 +781,57 @@ def user_save_file(filename, force=False):
         def _(event):
             pass
 
-        session = PromptSession("Replace [y/n] or backup [B] existing file? ",
-            key_bindings=bindings)
+        session = PromptSession(
+            "Replace [y/n] or backup [B] existing file? ", key_bindings=bindings
+        )
         filename = session.prompt()
     return filename
 
-def backup_file(filename, bak_ext='bak'):
+
+def backup_file(filename, bak_ext="bak"):
     """
     Safely backup a file, using a new filename
     """
-    backup_name_stem = backup_name = filename + '.' + bak_ext
+    backup_name_stem = backup_name = filename + "." + bak_ext
     for i in count():
         if not os.path.isfile(backup_name):
             break
-        backup_name = backup_name_stem + '.' + str(i)
+        backup_name = backup_name_stem + "." + str(i)
     hdtv.ui.msg(f"Renamed file {filename} to {backup_name}")
     os.rename(filename, backup_name)
 
-def open_compressed(fname, mode='rb', **kwargs):
+
+def open_compressed(fname, mode="rb", **kwargs):
     """
     Behaves like open(), but automatically handles compression,
     depending on the extension of the given filename.
     """
-    ext = fname.split('.')[-1]
+    ext = fname.split(".")[-1]
     try:
-        if ext == 'gz':
+        if ext == "gz":
             import gzip
+
             return gzip.open(fname, mode, **kwargs)
-        elif ext == 'xz':
+        elif ext == "xz":
             import lzma
+
             return lzma.open(fname, mode, **kwargs)
-        elif ext == 'bz2':
+        elif ext == "bz2":
             import bz2
+
             return bz2.open(fname, mode, **kwargs)
         return open(fname, mode, **kwargs)
     except (ImportError, AttributeError):
         raise NotImplementedError(
             "{} files are not supported. Manually use '{}' instead.".format(
-                ext, 'bzip2' if 'bz2' else ext))
+                ext, "bzip2" if "bz2" else ext
+            )
+        )
 
-def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
-    return [int(text) if text.isdigit() else text.lower()
-            for text in _nsre.split(s)]
+
+def natural_sort_key(s, _nsre=re.compile("([0-9]+)")):
+    return [int(text) if text.isdigit() else text.lower() for text in _nsre.split(s)]
+
 
 class Singleton(type):
     """
@@ -814,37 +840,42 @@ class Singleton(type):
 
         class MyClass(metaclass=Singleton)
     """
+
     _instances = {}
+
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
 
 
-class monkey_patch_ui():
+class monkey_patch_ui:
     """Replace ROOT.HDTV.Display by a noop dummy version"""
+
     def __init__(self):
         import hdtv
         import hdtv.rootext.display
         import ROOT
         import hdtv.dummy
-       
+
         self._orig = ROOT.HDTV.Display
         ROOT.HDTV.Display = hdtv.dummy
-    
+
     def __enter__(self):
         pass
 
     def __exit__(self, *args, **kws):
         import ROOT
+
         ROOT.HDTV.Display = self._orig
+
 
 @contextlib.contextmanager
 def temp_seed(seed: Optional[int] = None):
     """
     Temporarily set numpy seed. Restore old state of random
     number generator afterwards.
-    
+
     Args:
         seed: Temporary seed for numpy
     """

@@ -25,8 +25,7 @@
 
 class MatOp {
 public:
-  static int Project(const char *src_fname, const char *prx_fname,
-                     const char *pry_fname = nullptr);
+  static int Project(const char *src_fname, const char *prx_fname, const char *pry_fname = nullptr);
   static int Transpose(const char *src_fname, const char *dst_fname);
 
   static const char *GetErrorString(int error_nr);

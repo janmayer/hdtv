@@ -28,6 +28,7 @@ import pytest
 from tests.helpers.utils import redirect_stdout, hdtvcmd
 
 from hdtv.util import monkey_patch_ui
+
 monkey_patch_ui()
 
 import hdtv.cmdline
@@ -35,6 +36,7 @@ import hdtv.options
 import hdtv.session
 
 import __main__
+
 try:
     __main__.spectra = hdtv.session.Session()
 except RuntimeError:
@@ -46,8 +48,8 @@ import hdtv.plugins.peakfinder
 
 spectra = __main__.spectra
 
-testspectrum = os.path.join(
-    os.path.curdir, "tests", "share", "osiris_bg.spc")
+testspectrum = os.path.join(os.path.curdir, "tests", "share", "osiris_bg.spc")
+
 
 @pytest.fixture(autouse=True)
 def prepare():
@@ -58,6 +60,7 @@ def prepare():
     yield
     spectra.Clear()
     fit_interface.ResetFitterParameters()
+
 
 def test_cmd_fit_various():
     hdtvcmd("fit function peak activate theuerkauf")
@@ -81,16 +84,17 @@ def test_cmd_fit_various():
         "fit hide 0",
         "fit show 0",
         "fit show decomposition 0",
-        "fit hide decomposition 0")
+        "fit hide decomposition 0",
+    )
     assert ferr == ""
     assert f == ""
     f, ferr = hdtvcmd("fit activate 0")
     assert "Activating fit 0" in f
     assert ferr == ""
-    f, ferr = hdtvcmd("fit delete 0",
-                      "fit function peak activate ee")
+    f, ferr = hdtvcmd("fit delete 0", "fit function peak activate ee")
     assert ferr == ""
     assert f == ""
+
 
 def test_cmd_fit_peakfind():
     spec_interface.LoadSpectra(testspectrum)
@@ -99,31 +103,27 @@ def test_cmd_fit_peakfind():
     assert "Search Peaks in region" in f
     assert "Found 68 peaks" in f
     # This was not needed before commits around ~b41833c9c66f9ba5dbdcfc6fc4468b242360641f
-    # However, some small change has happened that prevents a correct fit of a single 
+    # However, some small change has happened that prevents a correct fit of a single
     # double peak at ~1540 keV. When I fit it manually, using a similar fit region
     # and internal background only, it works.
     assert "WARNING: Adding invalid fit" in ferr
 
+
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
-@pytest.mark.parametrize("peak", [
-    "theuerkauf", "ee" ])
-@pytest.mark.parametrize("bg", [
-    "polynomial", "exponential", "interpolation" ])
-@pytest.mark.parametrize("integrate", [
-    "True", "False" ])
-@pytest.mark.parametrize("likelihood", [
-    "normal", "poisson" ])
+@pytest.mark.parametrize("peak", ["theuerkauf", "ee"])
+@pytest.mark.parametrize("bg", ["polynomial", "exponential", "interpolation"])
+@pytest.mark.parametrize("integrate", ["True", "False"])
+@pytest.mark.parametrize("likelihood", ["normal", "poisson"])
 def test_cmd_fit_parameter(peak, bg, integrate, likelihood):
     spec_interface.LoadSpectra(testspectrum)
     f, ferr = setup_fit()
-    hdtvcmd(
-        "fit marker background set 415",
-        "fit marker background set 450")
+    hdtvcmd("fit marker background set 415", "fit marker background set 450")
     f, ferr = hdtvcmd(
         f"fit function peak activate {peak}",
         f"fit function background activate {bg}",
         f"fit parameter integrate {integrate}",
-        f"fit parameter likelihood {likelihood}")
+        f"fit parameter likelihood {likelihood}",
+    )
     assert f == ""
     assert ferr == ""
     f, ferr = hdtvcmd("fit execute")
@@ -138,6 +138,7 @@ def test_cmd_fit_parameter(peak, bg, integrate, likelihood):
     assert ferr == ""
     assert "Fits in Spectrum 0" in f
 
+
 def test_interpolation_incomplete():
     spec_interface.LoadSpectra(testspectrum)
     assert len(spec_interface.spectra.dict) == 1
@@ -148,12 +149,14 @@ def test_interpolation_incomplete():
 
 def setup_interpolation_incomplete():
     return hdtvcmd(
-            "fit function background activate interpolation",
-            "fit marker background set 520",
-            "fit marker background set 550",
-            "fit marker background set 620",
-            "fit marker background set 650",
-            "fit execute")
+        "fit function background activate interpolation",
+        "fit marker background set 520",
+        "fit marker background set 550",
+        "fit marker background set 620",
+        "fit marker background set 650",
+        "fit execute",
+    )
+
 
 def setup_fit():
     return hdtvcmd(
@@ -166,7 +169,9 @@ def setup_fit():
         "fit marker background set 620",
         "fit marker background set 650",
         "fit marker region set 570",
-        "fit marker region set 615")
+        "fit marker region set 615",
+    )
+
 
 # More tests are still needed for:
 #

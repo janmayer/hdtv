@@ -26,11 +26,13 @@ import os
 import pytest
 
 from hdtv.util import monkey_patch_ui
+
 monkey_patch_ui()
 
 import __main__
 
 import hdtv.session
+
 try:
     __main__.spectra = hdtv.session.Session()
 except RuntimeError:
@@ -41,14 +43,15 @@ from hdtv.plugins.specInterface import spec_interface
 from hdtv.plugins.fitInterface import fit_interface
 from hdtv.plugins.fitlist import fitxml
 
-testspectrum = os.path.join(
-    os.path.curdir, "tests", "share", "osiris_bg.spc")
+testspectrum = os.path.join(os.path.curdir, "tests", "share", "osiris_bg.spc")
 
-test_versions = ['0.1', '1.0', '1.1', '1.3', '1.4', '1.5']
+test_versions = ["0.1", "1.0", "1.1", "1.3", "1.4", "1.5"]
 
 test_XMLs = [
-    os.path.join(os.path.curdir, 'tests', 'share', 'osiris_bg_v' + ver + '.xml')
-    for ver in test_versions]
+    os.path.join(os.path.curdir, "tests", "share", "osiris_bg_v" + ver + ".xml")
+    for ver in test_versions
+]
+
 
 @pytest.fixture(autouse=True)
 def prepare():
@@ -66,7 +69,6 @@ def test_old_xml(xmlfile):
     # by invoking the general ReadXML function.
     # Note that this does not ensure the correct reading of the XML file.
     fitxml.ReadXML(spectra.Get("0").ID, xmlfile, refit=True, interactive=False)
-
 
 
 """

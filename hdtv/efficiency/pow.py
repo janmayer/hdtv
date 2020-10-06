@@ -19,7 +19,7 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-from . efficiency import _Efficiency
+from .efficiency import _Efficiency
 from ROOT import TF1
 import math
 
@@ -42,10 +42,17 @@ class PowEff(_Efficiency):
 
         # List of derivatives
         self._dEff_dP = [None, None, None, None, None]
-        self._dEff_dP[0] = lambda E, fPars: self.norm * \
-            fPars[1] + fPars[2] * pow(E, -fPars[3])  # dEff/dN
+        self._dEff_dP[0] = lambda E, fPars: self.norm * fPars[1] + fPars[2] * pow(
+            E, -fPars[3]
+        )  # dEff/dN
         self._dEff_dP[1] = lambda E, fPars: self.norm * fPars[0]  # dEff/da
-        self._dEff_dP[2] = lambda E, fPars: self.norm * \
-            fPars[0] * pow(E, -fPars[3])  # dEff/db
-        self._dEff_dP[3] = lambda E, fPars: self.norm * fPars[0] * \
-            fPars[2] * (-fPars[3]) * pow(E, (-fPars[3] - 1))  # dEff/dc
+        self._dEff_dP[2] = (
+            lambda E, fPars: self.norm * fPars[0] * pow(E, -fPars[3])
+        )  # dEff/db
+        self._dEff_dP[3] = (
+            lambda E, fPars: self.norm
+            * fPars[0]
+            * fPars[2]
+            * (-fPars[3])
+            * pow(E, (-fPars[3] - 1))
+        )  # dEff/dc

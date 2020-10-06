@@ -39,8 +39,7 @@ class EEPeak(Drawable):
     Peak object for the ee fitter
     """
 
-    def __init__(self, pos, amp, sigma1, sigma2, eta,
-                 gamma, vol, color=None, cal=None):
+    def __init__(self, pos, amp, sigma1, sigma2, eta, gamma, vol, color=None, cal=None):
         super(EEPeak, self).__init__(color, cal)
         self.pos = pos
         self.amp = amp
@@ -71,12 +70,14 @@ class EEPeak(Drawable):
             pos_uncal = self.pos.nominal_value
             sigma1_uncal = self.sigma1.nominal_value
             sigma1_err_uncal = self.sigma1.std_dev
-            sigma1_cal = self.cal.Ch2E(
-                pos_uncal) - self.cal.Ch2E(pos_uncal - sigma1_uncal)
+            sigma1_cal = self.cal.Ch2E(pos_uncal) - self.cal.Ch2E(
+                pos_uncal - sigma1_uncal
+            )
             # This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
             #  (which is true for Ch2E \approx linear)
-            sigma1_err_cal = abs(self.cal.dEdCh(
-                pos_uncal - sigma1_uncal) * sigma1_err_uncal)
+            sigma1_err_cal = abs(
+                self.cal.dEdCh(pos_uncal - sigma1_uncal) * sigma1_err_uncal
+            )
             return ufloat(sigma1_cal, sigma1_err_cal)
         elif name == "sigma2_cal":
             if self.cal is None:
@@ -84,15 +85,17 @@ class EEPeak(Drawable):
             pos_uncal = self.pos.nominal_value
             sigma2_uncal = self.sigma2.nominal_value
             sigma2_err_uncal = self.sigma2.std_dev
-            sigma2_cal = self.cal.Ch2E(
-                pos_uncal) - self.cal.Ch2E(pos_uncal - sigma2_uncal)
+            sigma2_cal = self.cal.Ch2E(pos_uncal) - self.cal.Ch2E(
+                pos_uncal - sigma2_uncal
+            )
             # This is only an approximation, valid as d(fwhm_cal)/d(pos_uncal) \approx 0
             #  (which is true for Ch2E \approx linear)
-            sigma2_err_cal = abs(self.cal.dEdCh(
-                pos_uncal - sigma2_uncal) * sigma2_err_uncal)
+            sigma2_err_cal = abs(
+                self.cal.dEdCh(pos_uncal - sigma2_uncal) * sigma2_err_uncal
+            )
             return ufloat(sigma2_cal, sigma2_err_cal)
         elif name in ["amp_cal", "eta_cal", "gamma_cal", "vol_cal"]:
-            name = name[0:name.rfind("_cal")]
+            name = name[0 : name.rfind("_cal")]
             return getattr(self, name)
         else:
             # DON'T FORGET THIS LINE! see
@@ -108,14 +111,16 @@ class EEPeak(Drawable):
         """
         text = str()
         if verbose:
-            text += ("Pos:         {0.pos_cal:S}\n"
-                     "Channel:     {0.pos:S}\n"
-                     "Amp:         {0.amp:S}\n"
-                     "Sigma1:      {0.sigma1:S}\n"
-                     "Sigma2:      {0.sigma2:S}\n"
-                     "Eta:         {0.eta:S}\n"
-                     "Gamma:       {0.gamma:S}\n"
-                     "Volume:      {0.vol:S}").format(self)
+            text += (
+                "Pos:         {0.pos_cal:S}\n"
+                "Channel:     {0.pos:S}\n"
+                "Amp:         {0.amp:S}\n"
+                "Sigma1:      {0.sigma1:S}\n"
+                "Sigma2:      {0.sigma2:S}\n"
+                "Eta:         {0.eta:S}\n"
+                "Gamma:       {0.gamma:S}\n"
+                "Volume:      {0.vol:S}"
+            ).format(self)
         else:
             text += "Peak@ {0.pos_cal:S}".format(self)
         return text
@@ -150,8 +155,7 @@ class EEPeak(Drawable):
             else:
                 # Unlike the Display object of the underlying implementation,
                 # python objects can only be drawn on a single viewport
-                raise RuntimeError(
-                    "Peak cannot be drawn on multiple viewports")
+                raise RuntimeError("Peak cannot be drawn on multiple viewports")
         self.viewport = viewport
         if self.displayObj:
             self.displayObj.Draw(self.viewport)
@@ -171,7 +175,8 @@ class PeakModelEE(PeakModel):
             "sigma2": None,
             "eta": None,
             "gamma": None,
-            "vol": None}
+            "vol": None,
+        }
         # Note that volume is not a true fit parameter, but calculated from
         # the other parameters after the fit
         self.fValidParStatus = {
@@ -269,7 +274,8 @@ class PeakModelEE(PeakModel):
         integrate = self.GetOption("integrate")
         likelihood = self.GetOption("likelihood")
         self.fFitter = ROOT.HDTV.Fit.EEFitter(
-            region[0], region[1], integrate, likelihood)
+            region[0], region[1], integrate, likelihood
+        )
 
         self.ResetGlobalParams()
 

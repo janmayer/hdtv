@@ -23,8 +23,7 @@
 #include "MFileRoot.hh"
 #include <iostream>
 
-MFile::MFile(const char *fname, const char *mode)
-    : fZombie(false), fFile(nullptr) {
+MFile::MFile(const char *fname, const char *mode) : fZombie(false), fFile(nullptr) {
   if (fname) {
     fFile = mopen(const_cast<char *>(fname), const_cast<char *>(mode));
     if (fFile == nullptr) {

@@ -3,6 +3,7 @@
 
 import json
 import hdtv.util
+
 try:
     import urllib.request
     import urllib.error
@@ -18,25 +19,29 @@ def SearchNuclide(nuclide):
     Opens table of nuclides with peak energies, gives back the peak energies of the nuclide and its intensities.
     """
 
-    out = {'nuclide': nuclide, 'transitions': []}
+    out = {"nuclide": nuclide, "transitions": []}
 
     if nuclide == "Ra-226":
         nuclide = "Ra-226D"
 
     try:
-        with urllib.request.urlopen("http://www.nucleide.org/DDEP_WG/Nuclides/" + str(nuclide) + ".lara.txt") as resource:
+        with urllib.request.urlopen(
+            "http://www.nucleide.org/DDEP_WG/Nuclides/" + str(nuclide) + ".lara.txt"
+        ) as resource:
             data = resource.read().decode("utf-8")
     except:
-        raise hdtv.cmdline.HDTVCommandError("Error looking up nuclide {}".format(nuclide))
+        raise hdtv.cmdline.HDTVCommandError(
+            "Error looking up nuclide {}".format(nuclide)
+        )
 
     for line in data.split("\r\n"):
         sep = line.split(" ; ")
 
         if str(sep[0]) == "Half-life (s)":
-            out['halflife'] = ufloat(float(sep[1]), float(sep[2]))
+            out["halflife"] = ufloat(float(sep[1]), float(sep[2]))
 
         if str(sep[0]) == "Reference":
-            out['reference'] = str(sep[1])
+            out["reference"] = str(sep[1])
 
         try:
             if str(sep[4]) == "g":
@@ -52,7 +57,7 @@ def SearchNuclide(nuclide):
                 except BaseException:
                     pass
 
-                out['transitions'].append({'energy': energy, 'intensity' : intensity})
+                out["transitions"].append({"energy": energy, "intensity": intensity})
         except:
             pass
 

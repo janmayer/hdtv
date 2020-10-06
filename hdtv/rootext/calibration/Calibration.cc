@@ -41,8 +41,7 @@ void Calibration::SetCal(const std::vector<double> &cal) {
 void Calibration::SetCal(const TArrayD &cal) {
   fCal.clear();
   fCal.reserve(cal.GetSize());
-  std::copy(cal.GetArray(), cal.GetArray() + cal.GetSize(),
-            std::back_inserter(fCal));
+  std::copy(cal.GetArray(), cal.GetArray() + cal.GetSize(), std::back_inserter(fCal));
   UpdateDerivative();
 }
 
@@ -99,9 +98,7 @@ double Calibration::Ch2E(double ch) const {
     return ch;
   }
 
-  return std::accumulate(
-      fCal.rbegin(), fCal.rend(), 0.0,
-      [ch](double E, double coeff) { return E * ch + coeff; });
+  return std::accumulate(fCal.rbegin(), fCal.rend(), 0.0, [ch](double E, double coeff) { return E * ch + coeff; });
 }
 
 //! Calculate the slope of the calibration function, \frac{dE}{dCh},
@@ -111,9 +108,8 @@ double Calibration::dEdCh(double ch) const {
   if (fCal.empty()) {
     return 1.0;
   }
-  return std::accumulate(
-      fCalDeriv.rbegin(), fCalDeriv.rend(), 0.0,
-      [ch](double slope, double coeff) { return slope * ch + coeff; });
+  return std::accumulate(fCalDeriv.rbegin(), fCalDeriv.rend(), 0.0,
+                         [ch](double slope, double coeff) { return slope * ch + coeff; });
 }
 
 double Calibration::E2Ch(double e) const {
@@ -138,17 +134,15 @@ double Calibration::E2Ch(double e) const {
 
   for (int i = 0; i < 10 && std::abs(de / _e) > 1e-10; i++) {
     // Calculate slope
-    slope = std::accumulate(
-        fCalDeriv.rbegin(), fCalDeriv.rend(), 0.0,
-        [ch](double slope, double coeff) { return slope * ch + coeff; });
+    slope = std::accumulate(fCalDeriv.rbegin(), fCalDeriv.rend(), 0.0,
+                            [ch](double slope, double coeff) { return slope * ch + coeff; });
 
     ch -= de / slope;
     de = Ch2E(ch) - e;
   }
 
   if (std::abs(de / _e) > 1e-10) {
-    std::cout << "Warning: Solver failed to converge in Calibration::E2Ch()."
-              << std::endl;
+    std::cout << "Warning: Solver failed to converge in Calibration::E2Ch()." << std::endl;
   }
 
   return ch;

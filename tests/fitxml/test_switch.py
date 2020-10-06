@@ -26,11 +26,13 @@ import pytest
 from tests.helpers.utils import setup_io, redirect_stdout, isclose
 
 from hdtv.util import monkey_patch_ui, strip_tags
+
 monkey_patch_ui()
 
 import __main__
 
 import hdtv.session
+
 try:
     __main__.spectra = hdtv.session.Session()
 except RuntimeError:
@@ -41,8 +43,8 @@ from hdtv.plugins.specInterface import spec_interface
 from hdtv.plugins.fitInterface import fit_interface
 import hdtv.plugins.fitlist
 
-testspectrum = os.path.join(
-    os.path.curdir, "tests", "share", "osiris_bg.spc")
+testspectrum = os.path.join(os.path.curdir, "tests", "share", "osiris_bg.spc")
+
 
 @pytest.fixture(autouse=True)
 def prepare():
@@ -62,7 +64,7 @@ def get_list(no_err=True):
     with redirect_stdout(f, ferr):
         spec_interface.ListSpectra()
     if no_err:
-        assert ferr.getvalue().strip() == ''
+        assert ferr.getvalue().strip() == ""
         return strip_tags(f.getvalue())
     else:
         return strip_tags(f.getvalue()), ferr.getvalue()
@@ -74,12 +76,14 @@ def test_spectra_loaded():
         assert str(i) + " |    V | osiris_bg.spc |    0" in res
     assert "5 |   AV | osiris_bg.spc |    0" in res
 
+
 def test_spectra_show_first():
     spectra.ShowFirst()
     res = get_list()
     assert "0 |   AV | osiris_bg.spc |    0" in res
     for i in range(1, 6):
         assert str(i) + " |      | osiris_bg.spc |    0" in res
+
 
 def test_spectra_show_next():
     spectra.ShowFirst()
@@ -88,18 +92,20 @@ def test_spectra_show_next():
         res = get_list()
         for j in range(6):
             if j == i:
-                assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+                assert str(j) + " |   AV | osiris_bg.spc |    0" in res
             else:
-                assert str(j) + ' |      | osiris_bg.spc |    0' in res
+                assert str(j) + " |      | osiris_bg.spc |    0" in res
+
 
 def test_spectra_show_last():
     spectra.ShowLast()
     res = get_list()
     for j in range(6):
         if j == 5:
-            assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+            assert str(j) + " |   AV | osiris_bg.spc |    0" in res
         else:
-            assert str(j) + ' |      | osiris_bg.spc |    0' in res
+            assert str(j) + " |      | osiris_bg.spc |    0" in res
+
 
 def test_spectra_show_prev():
     spectra.ShowLast()
@@ -108,20 +114,21 @@ def test_spectra_show_prev():
         res = get_list()
         for j in range(6):
             if j == i:
-                assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+                assert str(j) + " |   AV | osiris_bg.spc |    0" in res
             else:
-                assert str(j) + ' |      | osiris_bg.spc |    0' in res
+                assert str(j) + " |      | osiris_bg.spc |    0" in res
+
 
 def test_spectra_show_number():
     for i in range(6):
-        spectra.ShowObjects(
-            hdtv.util.ID.ParseIds(str(i), __main__.spectra))
+        spectra.ShowObjects(hdtv.util.ID.ParseIds(str(i), __main__.spectra))
         res = get_list()
         for j in range(6):
             if j == i:
-                assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+                assert str(j) + " |   AV | osiris_bg.spc |    0" in res
             else:
-                assert str(j) + ' |      | osiris_bg.spc |    0' in res
+                assert str(j) + " |      | osiris_bg.spc |    0" in res
+
 
 def test_spectra_show_all():
     spectra.ShowLast()
@@ -129,9 +136,10 @@ def test_spectra_show_all():
     res = get_list()
     for j in range(6):
         if j == 5:
-            assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+            assert str(j) + " |   AV | osiris_bg.spc |    0" in res
         else:
-            assert str(j) + ' |    V | osiris_bg.spc |    0' in res
+            assert str(j) + " |    V | osiris_bg.spc |    0" in res
+
 
 def test_spectra_activate_number():
     spectra.ShowAll()
@@ -140,9 +148,10 @@ def test_spectra_activate_number():
         res = get_list()
         for j in range(6):
             if j == i:
-                assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+                assert str(j) + " |   AV | osiris_bg.spc |    0" in res
             else:
-                assert str(j) + ' |    V | osiris_bg.spc |    0' in res
+                assert str(j) + " |    V | osiris_bg.spc |    0" in res
+
 
 def test_spectra_show_active():
     spectra.ShowAll()
@@ -151,9 +160,10 @@ def test_spectra_show_active():
     res = get_list()
     for j in range(6):
         if j == 5:
-            assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+            assert str(j) + " |   AV | osiris_bg.spc |    0" in res
         else:
-            assert str(j) + ' |      | osiris_bg.spc |    0' in res
+            assert str(j) + " |      | osiris_bg.spc |    0" in res
+
 
 def test_spectra_activate_hidden():
     spectra.ShowAll()
@@ -163,31 +173,33 @@ def test_spectra_activate_hidden():
     res = get_list()
     for j in range(6):
         if j == 5:
-            assert str(j) + ' |    V | osiris_bg.spc |    0' in res
+            assert str(j) + " |    V | osiris_bg.spc |    0" in res
         elif j == 4:
-            assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+            assert str(j) + " |   AV | osiris_bg.spc |    0" in res
         else:
-            assert str(j) + ' |      | osiris_bg.spc |    0' in res
+            assert str(j) + " |      | osiris_bg.spc |    0" in res
+
 
 def test_spectra_remove_one():
     spectra.Pop("3")
     res = get_list()
-    assert not '3 | ' in res
+    assert not "3 | " in res
+
 
 def test_spectra_reload_one():
     spectra.Pop("3")
     spec_interface.LoadSpectra(testspectrum)
     res = get_list()
-    assert '3 |   AV' in res
+    assert "3 |   AV" in res
+
 
 def test_spectra_show_next_overflow():
-    spectra.ShowObjects(
-        hdtv.util.ID.ParseIds(str(3), __main__.spectra))
+    spectra.ShowObjects(hdtv.util.ID.ParseIds(str(3), __main__.spectra))
     for i in range(3, 10):
         spectra.ShowNext()
         res = get_list()
         for j in range(6):
             if j == (i + 1) % 6:
-                assert str(j) + ' |   AV | osiris_bg.spc |    0' in res
+                assert str(j) + " |   AV | osiris_bg.spc |    0" in res
             else:
-                assert str(j) + ' |      | osiris_bg.spc |    0' in res
+                assert str(j) + " |      | osiris_bg.spc |    0" in res

@@ -29,9 +29,7 @@
 namespace HDTV {
 namespace Display {
 
-DisplayFunc::DisplayFunc(TF1 *func, int col) : DisplayBlock(col) {
-  fFunc = func;
-}
+DisplayFunc::DisplayFunc(TF1 *func, int col) : DisplayBlock(col) { fFunc = func; }
 
 } // end namespace Display
 } // end namespace HDTV

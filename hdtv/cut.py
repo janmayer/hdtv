@@ -28,9 +28,11 @@ from hdtv.drawable import Drawable
 class Cut(Drawable):
     def __init__(self, color=None, cal=None):
         self.regionMarkers = hdtv.marker.MarkerCollection(
-            "X", paired=True, maxnum=1, color=hdtv.color.cut)
+            "X", paired=True, maxnum=1, color=hdtv.color.cut
+        )
         self.bgMarkers = hdtv.marker.MarkerCollection(
-            "X", paired=True, color=hdtv.color.cut, connecttop=False)
+            "X", paired=True, color=hdtv.color.cut, connecttop=False
+        )
         Drawable.__init__(self, color, cal)
         self.spec = None
         self.axis = None  # <- keep this last (needed for __setattr__)

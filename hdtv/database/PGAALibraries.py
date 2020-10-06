@@ -16,18 +16,25 @@ class PGAAGamma(Gamma):
     k0_comp is the comparator element for k0 values which k0 should be normed to 1.0
         given as tuple (Z, A) (default: 1-H)
     """
-    k0_norm = None
-    __slots__ = ("ID", "nuclide", "energy", "sigma",
-                 "intensity", "halflife", "_k0")
 
-    def __init__(self, nuclide, energy, sigma=None, intensity=None,
-                 k0=None, halflife=None, k0_comp=(1, 1)):
+    k0_norm = None
+    __slots__ = ("ID", "nuclide", "energy", "sigma", "intensity", "halflife", "_k0")
+
+    def __init__(
+        self,
+        nuclide,
+        energy,
+        sigma=None,
+        intensity=None,
+        k0=None,
+        halflife=None,
+        k0_comp=(1, 1),
+    ):
 
         super(PGAAGamma, self).__init__(nuclide, energy, sigma, intensity)
         self.halflife = halflife
         self._k0 = k0  # TODO
-        if nuclide == Nuclides(k0_comp[0], k0_comp[1])[
-                0] and not PGAAGamma.k0_norm:
+        if nuclide == Nuclides(k0_comp[0], k0_comp[1])[0] and not PGAAGamma.k0_norm:
             # Normalize reference element to k0=1.0
             PGAAGamma.k0_norm = 1.0 / self.getk0(isNorm=True)
 
@@ -38,8 +45,7 @@ class PGAAGamma(Gamma):
                 k0 = self.sigma / self.nuclide.element.m
             else:
                 try:
-                    k0 = (self.sigma / self.nuclide.element.m) * \
-                        PGAAGamma.k0_norm
+                    k0 = (self.sigma / self.nuclide.element.m) * PGAAGamma.k0_norm
                 except TypeError:
                     k0 = None
             return k0
@@ -63,13 +69,10 @@ class PGAAlib_IKI2000(GammaLib):
 
     def __init__(
         self,
-        csvfile=os.path.join(
-            hdtv.datadir,
-            "PGAAlib-IKI2000.dat"),
+        csvfile=os.path.join(hdtv.datadir, "PGAAlib-IKI2000.dat"),
         has_header=True,
-        k0_comp=(
-            1,
-            1)):
+        k0_comp=(1, 1),
+    ):
 
         super(PGAAlib_IKI2000, self).__init__()
 
@@ -96,7 +99,9 @@ class PGAAlib_IKI2000(GammaLib):
             "halflife": float,
         }
         self.name = "PGAAlib_IKI2000"
-        self.description = "PGAA database, Inst. of Isotopes, Hungarian Academey of Science"
+        self.description = (
+            "PGAA database, Inst. of Isotopes, Hungarian Academey of Science"
+        )
         self.csvfile = csvfile
         self._has_header = has_header
         self.k0_comp = k0_comp
@@ -107,9 +112,9 @@ class PGAAlib_IKI2000(GammaLib):
             return True
 
         try:
-            datfile = open(self.csvfile, 'r', encoding='utf-8')
+            datfile = open(self.csvfile, "r", encoding="utf-8")
         except TypeError:
-            datfile = open(self.csvfile, 'rb')
+            datfile = open(self.csvfile, "rb")
 
         reader = csv.reader(datfile)
 
@@ -128,18 +133,18 @@ class PGAAlib_IKI2000(GammaLib):
                 except ValueError:
                     halflife = None
                 gamma = PGAAGamma(
-                    Nuclides(
-                        Z,
-                        A)[0],
+                    Nuclides(Z, A)[0],
                     energy,
                     sigma=sigma,
                     intensity=intensity,
                     halflife=halflife,
-                    k0_comp=self.k0_comp)
+                    k0_comp=self.k0_comp,
+                )
                 self.append(gamma)
         except csv.Error as e:
-            raise HDTVCommandAbort('file %s, line %d: %s' %
-                          (self.csvfile, reader.line_num, e))
+            raise HDTVCommandAbort(
+                "file %s, line %d: %s" % (self.csvfile, reader.line_num, e)
+            )
         else:
             self.opened = True
         finally:
@@ -153,19 +158,15 @@ class PromptGammas(GammaLib):
 
     def __init__(
         self,
-        csvfile=os.path.join(
-            hdtv.datadir,
-            "PromptGammas.dat"),
+        csvfile=os.path.join(hdtv.datadir, "PromptGammas.dat"),
         has_header=True,
-        k0_comp=(
-            1,
-            1)):
+        k0_comp=(1, 1),
+    ):
 
         super(PromptGammas, self).__init__()
 
         # Header for table printout
-        self.fOrderedHeader = ["Z", "A", "El",
-                               "Energy/(keV)", "Sigma/(b)", "k0"]
+        self.fOrderedHeader = ["Z", "A", "El", "Energy/(keV)", "Sigma/(b)", "k0"]
         # Conversion functions for parameter
         self.fParamConv = {
             "z": int,
@@ -173,7 +174,7 @@ class PromptGammas(GammaLib):
             "symbol": str,
             "energy": float,
             "sigma": float,
-            "k0": float
+            "k0": float,
         }
         self.name = "PromptGammas"
         self.description = "Extensive Prompt-Gamma library"
@@ -187,9 +188,9 @@ class PromptGammas(GammaLib):
             return True
 
         try:
-            datfile = open(self.csvfile, 'r', encoding='utf-8')
+            datfile = open(self.csvfile, "r", encoding="utf-8")
         except TypeError:
-            datfile = open(self.csvfile, 'rb')
+            datfile = open(self.csvfile, "rb")
 
         reader = csv.reader(datfile)
 
@@ -204,17 +205,11 @@ class PromptGammas(GammaLib):
                 sigma = ufloat_fromstr(line[3])
                 k0 = ufloat_fromstr(line[4])
                 gamma = PGAAGamma(
-                    Nuclides(
-                        Z,
-                        A)[0],
-                    energy,
-                    sigma=sigma,
-                    k0=k0,
-                    k0_comp=self.k0_comp)
+                    Nuclides(Z, A)[0], energy, sigma=sigma, k0=k0, k0_comp=self.k0_comp
+                )
                 self.append(gamma)
         except csv.Error as e:
-            hdtv.ui.error('file %s, line %d: %s' %
-                          (self.csvfile, reader.line_num, e))
+            hdtv.ui.error("file %s, line %d: %s" % (self.csvfile, reader.line_num, e))
         else:
             self.opened = True
         finally:

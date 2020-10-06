@@ -1,3 +1,3 @@
 import hdtv.rootext.dlmgr
 
-hdtv.rootext.dlmgr.LoadLibrary('mfile-root')
+hdtv.rootext.dlmgr.LoadLibrary("mfile-root")

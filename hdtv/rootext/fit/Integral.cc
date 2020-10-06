@@ -223,20 +223,16 @@ TH1Integral::TH1Integral(TH1 *hist, double r1, double r2)
   //! weight of 1.
 }
 
-BgIntegral::BgIntegral(const Background *background, double r1, double r2,
-                       TAxis *axis)
-    : Integral(axis->FindBin(r1), axis->FindBin(r2)), fBackground(background),
-      fAxis(axis) {
+BgIntegral::BgIntegral(const Background *background, double r1, double r2, TAxis *axis)
+    : Integral(axis->FindBin(r1), axis->FindBin(r2)), fBackground(background), fAxis(axis) {
   //! Integrate background in the region [r1, r2]. The integral is performed as
   //! a sum over histogram bins as specified by the axis parameter. The sum
   //! starts at the bin containing r1 and ends at the bin containing r2; these
   //! bins are included in the sum with a weight of 1.
 }
 
-TH1BgsubIntegral::TH1BgsubIntegral(TH1 *hist, const Background *background,
-                                   double r1, double r2)
-    : Integral(hist->FindBin(r1), hist->FindBin(r2)), fHist(hist),
-      fBackground(background) {
+TH1BgsubIntegral::TH1BgsubIntegral(TH1 *hist, const Background *background, double r1, double r2)
+    : Integral(hist->FindBin(r1), hist->FindBin(r2)), fHist(hist), fBackground(background) {
   //! Integrate difference between TH1 object and background  in the region
   //! [r1, r2]. The integral is performed as a sum over bins, with a binning
   //! as given by the histogram. The sum starts at the bin containing r1 and

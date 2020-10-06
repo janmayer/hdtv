@@ -37,9 +37,7 @@
 namespace HDTV {
 namespace Fit {
 
-PolyBg::PolyBg(int nParams,
-               const Option<bool> integrate,
-               const Option<std::string> likelihood) {
+PolyBg::PolyBg(int nParams, const Option<bool> integrate, const Option<std::string> likelihood) {
   //! Constructor
 
   fnParams = nParams;
@@ -49,16 +47,13 @@ PolyBg::PolyBg(int nParams,
 }
 
 PolyBg::PolyBg(const PolyBg &src)
-    : fBgRegions(src.fBgRegions), fnParams(src.fnParams),
-      fIntegrate(src.fIntegrate), fLikelihood(src.fLikelihood),
+    : fBgRegions(src.fBgRegions), fnParams(src.fnParams), fIntegrate(src.fIntegrate), fLikelihood(src.fLikelihood),
       fChisquare(src.fChisquare), fCovar(src.fCovar) {
   //! Copy constructor
 
   if (src.fFunc != nullptr) {
-    fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
-                                   &PolyBg::_Eval, src.fFunc->GetXmin(),
-                                   src.fFunc->GetXmax(), fnParams, "PolyBg",
-                                   "_Eval");
+    fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this, &PolyBg::_Eval, src.fFunc->GetXmin(),
+                                  src.fFunc->GetXmax(), fnParams, "PolyBg", "_Eval");
 
     for (int i = 0; i < fnParams; ++i) {
       fFunc->SetParameter(i, src.fFunc->GetParameter(i));
@@ -79,15 +74,12 @@ PolyBg &PolyBg::operator=(const PolyBg &src) {
   fnParams = src.fnParams;
   fChisquare = src.fChisquare;
   fCovar = src.fCovar;
-  fIntegrate = src.fIntegrate,
-  fLikelihood = src.fLikelihood;
+  fIntegrate = src.fIntegrate, fLikelihood = src.fLikelihood;
 
-  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
-                                 &PolyBg::_Eval, src.fFunc->GetXmin(),
-                                 src.fFunc->GetXmax(), fnParams + 1, "PolyBg",
-                                 "_Eval");
+  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this, &PolyBg::_Eval, src.fFunc->GetXmin(),
+                                src.fFunc->GetXmax(), fnParams + 1, "PolyBg", "_Eval");
 
-  for (int i = 0; i < fnParams; ++i){
+  for (int i = 0; i < fnParams; ++i) {
     fFunc->SetParameter(i, src.fFunc->GetParameter(i));
     fFunc->SetParError(i, src.fFunc->GetParError(i));
   }
@@ -104,9 +96,8 @@ void PolyBg::Fit(TH1 &hist) {
 
   // Create function to be used for fitting
   // Note that a polynomial of degree N has N+1 parameters
-  TF1 fitFunc(GetFuncUniqueName("b_fit", this).c_str(), this,
-              &PolyBg::_EvalRegion, GetMin(), GetMax(), fnParams + 1, "PolyBg",
-              "_EvalRegion");
+  TF1 fitFunc(GetFuncUniqueName("b_fit", this).c_str(), this, &PolyBg::_EvalRegion, GetMin(), GetMax(), fnParams + 1,
+              "PolyBg", "_EvalRegion");
 
   for (int i = 0; i < fnParams; ++i) {
     fitFunc.SetParameter(i, 0.0);
@@ -114,9 +105,7 @@ void PolyBg::Fit(TH1 &hist) {
 
   // Fit
   char options[7];
-  sprintf(options, "RQNM%s%s",
-    fIntegrate.GetValue() ? "I" : "",
-    fLikelihood.GetValue() == "poisson" ? "L" : "");
+  sprintf(options, "RQNM%s%s", fIntegrate.GetValue() ? "I" : "", fLikelihood.GetValue() == "poisson" ? "L" : "");
   hist.Fit(&fitFunc, options);
 
   // Copy chisquare
@@ -127,8 +116,7 @@ void PolyBg::Fit(TH1 &hist) {
   if (fitter == nullptr) {
     Error("PolyBg::Fit", "No existing fitter after fit");
   } else {
-    fCovar = std::vector<std::vector<double>>(fnParams,
-                                              std::vector<double>(fnParams + 1));
+    fCovar = std::vector<std::vector<double>>(fnParams, std::vector<double>(fnParams + 1));
     for (int i = 0; i < fnParams; ++i) {
       for (int j = 0; j < fnParams; ++j) {
         fCovar[i][j] = fitter->GetCovarianceMatrixElement(i, j);
@@ -137,9 +125,8 @@ void PolyBg::Fit(TH1 &hist) {
   }
 
   // Copy parameters to new function
-  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
-                                 &PolyBg::_Eval, GetMin(), GetMax(), fnParams,
-                                 "PolyBg", "_Eval");
+  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this, &PolyBg::_Eval, GetMin(), GetMax(),
+                                fnParams, "PolyBg", "_Eval");
 
   for (int i = 0; i < fnParams; ++i) {
     fFunc->SetParameter(i, fitFunc.GetParameter(i));
@@ -147,22 +134,19 @@ void PolyBg::Fit(TH1 &hist) {
   }
 }
 
-bool PolyBg::Restore(const TArrayD &values, const TArrayD &errors,
-                     double ChiSquare) {
+bool PolyBg::Restore(const TArrayD &values, const TArrayD &errors, double ChiSquare) {
   //! Restore state of a PolyBg object from saved values.
   //! NOTE: The covariance matrix is currently NOT restored, so EvalError()
   //! will always return NaN.
 
   if (values.GetSize() != fnParams || errors.GetSize() != fnParams) {
-    Warning("HDTV::PolyBg::Restore",
-            "size of vector does not match degree of background.");
+    Warning("HDTV::PolyBg::Restore", "size of vector does not match degree of background.");
     return false;
   }
 
   // Copy parameters to new function
-  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
-                                 &PolyBg::_Eval, GetMin(), GetMax(), fnParams,
-                                 "PolyBg", "_Eval");
+  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this, &PolyBg::_Eval, GetMin(), GetMax(),
+                                fnParams, "PolyBg", "_Eval");
 
   for (int i = 0; i < fnParams; ++i) {
     fFunc->SetParameter(i, values[i]);
@@ -222,8 +206,7 @@ double PolyBg::_EvalRegion(double *x, double *p) {
   std::list<double>::iterator iter;
 
   bool reject = true;
-  for (iter = fBgRegions.begin(); iter != fBgRegions.end() && *iter < x[0];
-       iter++) {
+  for (iter = fBgRegions.begin(); iter != fBgRegions.end() && *iter < x[0]; iter++) {
     reject = !reject;
   }
 
@@ -232,7 +215,7 @@ double PolyBg::_EvalRegion(double *x, double *p) {
     return 0.0;
   } else {
     double bg;
-    bg = p[fnParams-1];
+    bg = p[fnParams - 1];
     for (int i = fnParams - 2; i >= 0; i--) {
       bg = bg * x[0] + p[i];
     }
@@ -243,7 +226,7 @@ double PolyBg::_EvalRegion(double *x, double *p) {
 double PolyBg::_Eval(double *x, double *p) {
   //! Evaluate background function at position x
 
-  double bg = p[fnParams-1];
+  double bg = p[fnParams - 1];
   for (int i = fnParams - 2; i >= 0; i--) {
     bg = bg * x[0] + p[i];
   }

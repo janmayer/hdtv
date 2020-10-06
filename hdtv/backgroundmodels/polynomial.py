@@ -22,6 +22,7 @@
 import ROOT
 from .background import BackgroundModel
 
+
 class BackgroundModelPolynomial(BackgroundModel):
     """
     Polynomial background model
@@ -47,22 +48,31 @@ class BackgroundModelPolynomial(BackgroundModel):
         Creates a C++ Fitter object, which can then do the real work
         """
         if nparams is not None:
-            if nparams == 'free':
+            if nparams == "free":
                 if nbg is None:
-                    raise ValueError('Free number of background parameters specified, but no number of background regions given.')
+                    raise ValueError(
+                        "Free number of background parameters specified, but no number of background regions given."
+                    )
                 self.fFitter = ROOT.HDTV.Fit.PolyBg(nbg, integrate, likelihood)
-                self.fParStatus['nparams'] = nbg
+                self.fParStatus["nparams"] = nbg
             else:
                 self.fFitter = ROOT.HDTV.Fit.PolyBg(nparams, integrate, likelihood)
-                self.fParStatus['nparams'] = nparams
-        elif isinstance(self.fParStatus['nparams'], int):
-            self.fFitter = ROOT.HDTV.Fit.PolyBg(self.fParStatus['nparams'], integrate, likelihood)
-        elif self.fParStatus['nparams'] == 'free':
+                self.fParStatus["nparams"] = nparams
+        elif isinstance(self.fParStatus["nparams"], int):
+            self.fFitter = ROOT.HDTV.Fit.PolyBg(
+                self.fParStatus["nparams"], integrate, likelihood
+            )
+        elif self.fParStatus["nparams"] == "free":
             if nbg is None:
-                raise ValueError('Free number of background parameters specified, but no number of background regions given.')
+                raise ValueError(
+                    "Free number of background parameters specified, but no number of background regions given."
+                )
             self.fFitter = ROOT.HDTV.Fit.PolyBg(nbg, integrate, likelihood)
         else:
-            msg = "Status specifier %s of background fitter is invalid." % fParStatus['nparams']
+            msg = (
+                "Status specifier %s of background fitter is invalid."
+                % fParStatus["nparams"]
+            )
             raise ValueError(msg)
 
         self.ResetGlobalParams()

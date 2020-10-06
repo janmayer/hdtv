@@ -70,8 +70,7 @@ public:
   void ToTop();
   void ToBottom();
 
-  virtual void PaintRegion(UInt_t /*x1*/, UInt_t /*x2*/,
-                           Painter & /*painter*/) {}
+  virtual void PaintRegion(UInt_t /*x1*/, UInt_t /*x2*/, Painter & /*painter*/) {}
 
   virtual int GetZIndex() const { return Z_INDEX_MISC; }
 

@@ -38,19 +38,11 @@ public:
   virtual Background *Clone() const { return new Background(); }
   virtual TF1 *GetFunc() { return nullptr; }
   virtual double GetCoeff(int i) const { return 0.; }
-  virtual double GetMin() const {
-    return std::numeric_limits<double>::quiet_NaN();
-  }
-  virtual double GetMax() const {
-    return std::numeric_limits<double>::quiet_NaN();
-  }
+  virtual double GetMin() const { return std::numeric_limits<double>::quiet_NaN(); }
+  virtual double GetMax() const { return std::numeric_limits<double>::quiet_NaN(); }
   virtual unsigned int GetNparams() const { return 0; };
-  virtual double Eval(double /*x*/) const {
-    return std::numeric_limits<double>::quiet_NaN();
-  }
-  virtual double EvalError(double /*x*/) const {
-    return std::numeric_limits<double>::quiet_NaN();
-  }
+  virtual double Eval(double /*x*/) const { return std::numeric_limits<double>::quiet_NaN(); }
+  virtual double EvalError(double /*x*/) const { return std::numeric_limits<double>::quiet_NaN(); }
 
 private:
   Background(const Background & /*b*/) = default;

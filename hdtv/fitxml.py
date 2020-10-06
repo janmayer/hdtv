@@ -50,7 +50,7 @@ class FitXml(object):
         self.RestoreFromXml = self.RestoreFromXml_v1_5
         self.Xml2Fit = self.Xml2Fit_v1
 
-#### creating of xml #####################################################
+    #### creating of xml #####################################################
     def WriteFitlist(self, file_object, sid=None):
         """
         Write Fitlist to file
@@ -85,9 +85,9 @@ class FitXml(object):
         # <fit>
         fitElement = ET.Element("fit")
         fitElement.set("peakModel", fit.fitter.peakModel.name)
-        fitElement.set("integrate", str(fit.fitter.peakModel.fOptStatus['integrate']))
-        fitElement.set("likelihood", fit.fitter.peakModel.fOptStatus['likelihood'])
-        fitElement.set("nParams", str(fit.fitter.backgroundModel.fParStatus['nparams']))
+        fitElement.set("integrate", str(fit.fitter.peakModel.fOptStatus["integrate"]))
+        fitElement.set("likelihood", fit.fitter.peakModel.fOptStatus["likelihood"])
+        fitElement.set("nParams", str(fit.fitter.backgroundModel.fParStatus["nparams"]))
         fitElement.set("chi", str(fit.chi))
         # <spectrum>
         spec = fit.spec
@@ -148,7 +148,7 @@ class FitXml(object):
             uncalElement.text = str(marker.p1.pos_uncal)
         # <background>
         bgElement = ET.SubElement(fitElement, "background")
-        nparams = len(fit.bgParams) 
+        nparams = len(fit.bgParams)
         bgElement.set("nparams", str(nparams))
         bgElement.set("chisquare", str(fit.bgChi))
         bgElement.set("backgroundModel", fit.fitter.backgroundModel.name)
@@ -228,7 +228,7 @@ class FitXml(object):
                 for cal_type, cal_integral in integral.items():
                     calElement = ET.SubElement(integralElement, cal_type)
                     for name, param in cal_integral.items():
-                        if not name in ['id', 'stat', 'type']:
+                        if not name in ["id", "stat", "type"]:
                             paramElement = ET.SubElement(calElement, name)
                             if param.nominal_value is not None:
                                 valueElement = ET.SubElement(paramElement, "value")
@@ -258,7 +258,7 @@ class FitXml(object):
             if level and (not elem.tail or not elem.tail.strip()):
                 elem.tail = i
 
-##### Reading of xml #####################################################
+    ##### Reading of xml #####################################################
 
     def _getPosFromElement(self, markerElement, fit=None):
         """
@@ -297,8 +297,15 @@ class FitXml(object):
         error = float(errorElement.text)
         return ufloat(value, error, tag=free)
 
-    def ReadFitlist(self, file_object, sid=None, calibrate=False,
-            refit=False, interactive=True, fname=None):
+    def ReadFitlist(
+        self,
+        file_object,
+        sid=None,
+        calibrate=False,
+        refit=False,
+        interactive=True,
+        fname=None,
+    ):
         """
         Reads fitlist from xml files
         """
@@ -323,45 +330,54 @@ class FitXml(object):
             # current version
             if root.get("version") == self.version:
                 count, fits = self.RestoreFromXml(
-                    root, sid, calibrate=calibrate, refit=refit, interactive=interactive)
+                    root, sid, calibrate=calibrate, refit=refit, interactive=interactive
+                )
             else:
                 # old versions
                 oldversion = root.get("version")
                 hdtv.ui.warning(
-                    "The XML version of this file (%s) is outdated." %
-                    oldversion)
+                    "The XML version of this file (%s) is outdated." % oldversion
+                )
                 if oldversion == "1.4":
                     hdtv.ui.msg(
-                        "But this version should be fully compatible with the new version.")
+                        "But this version should be fully compatible with the new version."
+                    )
                     count, fits = self.RestoreFromXml_v1_4(
-                        root, sid, calibrate=calibrate, refit=refit)
+                        root, sid, calibrate=calibrate, refit=refit
+                    )
                 if oldversion == "1.3":
                     hdtv.ui.msg(
-                        "But this version should be fully compatible with the new version.")
+                        "But this version should be fully compatible with the new version."
+                    )
                     count, fits = self.RestoreFromXml_v1_3(
-                        root, sid, calibrate=calibrate, refit=refit)
+                        root, sid, calibrate=calibrate, refit=refit
+                    )
                 if oldversion == "1.2":
                     hdtv.ui.msg(
-                        "But this version should be fully compatible with the new version.")
+                        "But this version should be fully compatible with the new version."
+                    )
                     count, fits = self.RestoreFromXml_v1_2(
-                        root, sid, calibrate=calibrate, refit=refit)
+                        root, sid, calibrate=calibrate, refit=refit
+                    )
                 if oldversion == "1.1":
                     hdtv.ui.msg(
-                        "But this version should be fully compatible with the new version.")
+                        "But this version should be fully compatible with the new version."
+                    )
                     count, fits = self.RestoreFromXml_v1_1(
-                        root, sid, calibrate=calibrate, refit=refit)
+                        root, sid, calibrate=calibrate, refit=refit
+                    )
                 if oldversion == "1.0":
+                    hdtv.ui.msg("Restoring only fits belonging to spectrum %s" % sid)
                     hdtv.ui.msg(
-                        "Restoring only fits belonging to spectrum %s" % sid)
-                    hdtv.ui.msg(
-                        "There may be fits belonging to other spectra in this file.")
+                        "There may be fits belonging to other spectra in this file."
+                    )
                     if interactive:
                         input("Please press enter to continue...\n")
                     count, fits = self.RestoreFromXml_v1_0(
-                        root, [sid], calibrate=False, refit=refit)
+                        root, [sid], calibrate=False, refit=refit
+                    )
                 if oldversion.startswith("0"):
-                    hdtv.ui.msg(
-                        "Only the fit markers have been saved in this file.")
+                    hdtv.ui.msg("Only the fit markers have been saved in this file.")
                     hdtv.ui.msg("All the fits therefore have to be repeated.")
                     hdtv.ui.msg("This will take some time...")
                     if interactive:
@@ -381,8 +397,10 @@ class FitXml(object):
             if self.spectra.viewport:
                 self.spectra.viewport.UnlockUpdate()
 
-#### version 1* ###############################################################
-    def RestoreFromXml_v1_5(self, root, sid, calibrate=False, refit=False, interactive=True):
+    #### version 1* ###############################################################
+    def RestoreFromXml_v1_5(
+        self, root, sid, calibrate=False, refit=False, interactive=True
+    ):
         """
         Restores fits from xml file (version = 1.5)
 
@@ -391,9 +409,13 @@ class FitXml(object):
         allow for a more general interpretation as arbitrary fit parameters.
         No big change!
         """
-        return self.RestoreFromXml_v1_4(root, sid, calibrate, refit, interactive=interactive)
+        return self.RestoreFromXml_v1_4(
+            root, sid, calibrate, refit, interactive=interactive
+        )
 
-    def RestoreFromXml_v1_4(self, root, sid, calibrate=False, refit=False, interactive=True):
+    def RestoreFromXml_v1_4(
+        self, root, sid, calibrate=False, refit=False, interactive=True
+    ):
         """
         Restores fits from xml file (version = 1.4)
 
@@ -415,7 +437,8 @@ class FitXml(object):
                 if spec_cal and spec_name != spec_name_last and spec_name:
                     if spec_name != spec.name:
                         hdtv.ui.warning(
-                            "Applying calibration for '{spec_name}' to '{spec.name}'.")
+                            "Applying calibration for '{spec_name}' to '{spec.name}'."
+                        )
                     spec_name_last = spec_name
                     cal = [float(c) for c in spec_cal.split()]
                     self.spectra.ApplyCalibration([sid], cal)
@@ -437,8 +460,7 @@ class FitXml(object):
                 if do_fit not in ["V", "v"]:  # Ne(v)er
                     if do_fit not in ["A", "a"]:  # (A)lways
                         do_fit = None
-                    while do_fit not in ["Y", "y", "N",
-                                         "n", "", "A", "a", "V", "v"]:
+                    while do_fit not in ["Y", "y", "N", "n", "", "A", "a", "V", "v"]:
                         question = "Could not restore fit. Refit? [(Y)es/(n)o/(a)lways/ne(v)er]"
                         do_fit = input(question)
                     if do_fit in ["Y", "y", "", "A", "a"]:
@@ -453,7 +475,9 @@ class FitXml(object):
                 fit.Hide()
         return count, fits
 
-    def RestoreFromXml_v1_3(self, root, sid, calibrate=False, refit=False, interactive=True):
+    def RestoreFromXml_v1_3(
+        self, root, sid, calibrate=False, refit=False, interactive=True
+    ):
         """
         Restores fits from xml file (version = 1.3)
 
@@ -461,9 +485,13 @@ class FitXml(object):
         Now it is possible to store additional user supplied parameter for
         each peak. No big change!
         """
-        return self.RestoreFromXml_v1_4(root, sid, calibrate, refit, interactive=interactive)
-    
-    def RestoreFromXml_v1_2(self, root, sid, calibrate=False, refit=False, interactive=True):
+        return self.RestoreFromXml_v1_4(
+            root, sid, calibrate, refit, interactive=interactive
+        )
+
+    def RestoreFromXml_v1_2(
+        self, root, sid, calibrate=False, refit=False, interactive=True
+    ):
         """
         Restores fits from xml file (version = 1.2)
 
@@ -471,9 +499,13 @@ class FitXml(object):
         Calibrated AND Uncalibrated marker positions are saved in version 1.2,
         where as in version 1.1 only one of both has been saved. No big change!
         """
-        return self.RestoreFromXml_v1_3(root, sid, calibrate, refit, interactive=interactive)
+        return self.RestoreFromXml_v1_3(
+            root, sid, calibrate, refit, interactive=interactive
+        )
 
-    def RestoreFromXml_v1_1(self, root, sid, calibrate=False, refit=False, interactive=True):
+    def RestoreFromXml_v1_1(
+        self, root, sid, calibrate=False, refit=False, interactive=True
+    ):
         """
         Restores fits from xml file (version = 1.1)
 
@@ -483,10 +515,13 @@ class FitXml(object):
         childs of the root element. The spectrum element is still there, but now
         a child of each fit element and not longer used in hdtv for anything
         """
-        return self.RestoreFromXml_v1_2(root, sid, calibrate, refit, interactive=interactive)
+        return self.RestoreFromXml_v1_2(
+            root, sid, calibrate, refit, interactive=interactive
+        )
 
-    def RestoreFromXml_v1_0(self, root, sids=None,
-                            calibrate=False, refit=False, interactive=False):
+    def RestoreFromXml_v1_0(
+        self, root, sids=None, calibrate=False, refit=False, interactive=False
+    ):
         """
         Restores fits from xml file (version = 1.0)
 
@@ -525,12 +560,15 @@ class FitXml(object):
             if calibrate:
                 try:
                     calibration = list(
-                        map(float, specElement.get("calibration").split()))
+                        map(float, specElement.get("calibration").split())
+                    )
                     spec.cal = calibration
                 except AttributeError:
                     # No calibration was saved
                     msg = "Could not read calibration for spectrum %s (id=%d)" % (
-                        spec, sid)
+                        spec,
+                        sid,
+                    )
                     hdtv.ui.warning(msg)
             # <fits>
             fits = list()
@@ -550,8 +588,17 @@ class FitXml(object):
                     if do_fit not in ["V", "v"]:  # Ne(v)er
                         if do_fit not in ["A", "a"]:  # (A)lways
                             do_fit = None
-                        while do_fit not in ["Y", "y", "N",
-                                             "n", "", "A", "a", "V", "v"]:
+                        while do_fit not in [
+                            "Y",
+                            "y",
+                            "N",
+                            "n",
+                            "",
+                            "A",
+                            "a",
+                            "V",
+                            "v",
+                        ]:
                             question = "Could not restore fit. Refit? [(Y)es/(n)o/(a)lways/ne(v)er]"
                             do_fit = input(question)
                         if do_fit in ["Y", "y", "", "A", "a"]:
@@ -629,11 +676,11 @@ class FitXml(object):
             # Distinguish between old notation of background parameters (coeff, ncoeff),
             # which interprets the parameters as coefficients of a polynomial, and the
             # new notation (params, npar), which interprets them as arbitrary parameters.
-            paramCounterName = 'npar'
-            paramElements = bgElement.findall('param')
+            paramCounterName = "npar"
+            paramElements = bgElement.findall("param")
             if not paramElements:
-                paramElements = bgElement.findall('coeff')
-                paramCounterName = 'deg'
+                paramElements = bgElement.findall("coeff")
+                paramCounterName = "deg"
 
             for paramElement in paramElements:
                 npar = int(paramElement.get(paramCounterName))
@@ -684,8 +731,7 @@ class FitXml(object):
             try:
                 peak = fit.fitter.peakModel.Peak(cal=calibration, **parameter)
             except TypeError:
-                hdtv.ui.error(
-                    "Error reading peak with parameters: %s" % str(parameter))
+                hdtv.ui.error("Error reading peak with parameters: %s" % str(parameter))
                 success = False
                 continue
             peak.extras = extras
@@ -700,7 +746,7 @@ class FitXml(object):
                     status = statusdict[name]
                 fitter.SetParameter(name, status)
         integrals = dict()
-        for integral in fitElement.findall('integral'):
+        for integral in fitElement.findall("integral"):
             integral_type = integral.get("integraltype")
             integrals[integral_type] = dict()
             for calElement in integral:
@@ -717,13 +763,13 @@ class FitXml(object):
                     integrals[integral_type][cal_type][paramElement.tag] = coeff
         if not integrals:
             integrals = None
-        for integral_type in ['sub', 'bg']:
+        for integral_type in ["sub", "bg"]:
             if integrals and not integral_type in integrals:
                 integrals[integral_type] = None
         fit.integral = integrals
         return (fit, success)
 
-##### version 0.* ########################################################
+    ##### version 0.* ########################################################
 
     def RestoreFromXml_v0(self, root, do_fit=False):
         """

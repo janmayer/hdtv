@@ -22,19 +22,22 @@
 import sys
 import os
 import contextlib
-try: # Python2
+
+try:  # Python2
     from StringIO import StringIO
-except ImportError: # Python3
+except ImportError:  # Python3
     from io import StringIO
 
 from hdtv.ui import ui
 import hdtv.cmdline
+
 
 def setup_io(num=1):
     """
     Setup several StringIOs that can be used for stdout redirection.
     """
     return [StringIO() for _ in range(num)]
+
 
 @contextlib.contextmanager
 def redirect_stdout(target_out, target_err=None, target_debug=None):
@@ -59,11 +62,13 @@ def redirect_stdout(target_out, target_err=None, target_debug=None):
     if target_debug:
         ui.debugout = original_debug_hdtv
 
+
 def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
     """
     Determine if two floats are close to each other.
     """
-    return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+    return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+
 
 def hdtvcmd(*commands):
     """

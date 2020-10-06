@@ -38,8 +38,7 @@
 static int mprojint(MFILE *dstx, MFILE *dsty, unsigned int level, MFILE *src);
 static int mprojflt(MFILE *dstx, MFILE *dsty, unsigned int level, MFILE *src);
 static int mprojdbl(MFILE *dstx, MFILE *dsty, unsigned int level, MFILE *src);
-static int matop_proj_single(MFILE *dstx, MFILE *dsty, unsigned int level,
-                             MFILE *src);
+static int matop_proj_single(MFILE *dstx, MFILE *dsty, unsigned int level, MFILE *src);
 
 int matop_proj(MFILE *dstx, MFILE *dsty, MFILE *src) {
   int err;
@@ -60,8 +59,7 @@ int matop_proj(MFILE *dstx, MFILE *dsty, MFILE *src) {
   return err;
 }
 
-int matop_proj_single(MFILE *dstx, MFILE *dsty, unsigned int level,
-                      MFILE *src) {
+int matop_proj_single(MFILE *dstx, MFILE *dsty, unsigned int level, MFILE *src) {
 
   switch (src->filetype) {
   case MAT_LE2:

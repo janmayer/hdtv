@@ -52,7 +52,7 @@ protected:
 
   double fMin, fMax;
   int fNumPeaks;
-  int fIntBgDeg; // Deprecated. For compatibility with EEFitter 
+  int fIntBgDeg; // Deprecated. For compatibility with EEFitter
   int fIntNParams;
   std::unique_ptr<Background> fBackground;
   std::unique_ptr<TF1> fSumFunc;

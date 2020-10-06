@@ -51,13 +51,9 @@ public:
 
   Calibration(double cal0, double cal1) { SetCal(cal0, cal1); }
 
-  Calibration(double cal0, double cal1, double cal2) {
-    SetCal(cal0, cal1, cal2);
-  }
+  Calibration(double cal0, double cal1, double cal2) { SetCal(cal0, cal1, cal2); }
 
-  Calibration(double cal0, double cal1, double cal2, double cal3) {
-    SetCal(cal0, cal1, cal2, cal3);
-  }
+  Calibration(double cal0, double cal1, double cal2, double cal3) { SetCal(cal0, cal1, cal2, cal3); }
 
   explicit Calibration(const std::vector<double> &cal) { SetCal(cal); }
 

@@ -50,30 +50,42 @@ class MatInterface(object):
 
         # Register hotkeys
         if self.window:
+            self.window.AddHotkey(ROOT.kKey_g, lambda: self.spectra.SetMarker("cut"))
             self.window.AddHotkey(
-                ROOT.kKey_g, lambda: self.spectra.SetMarker("cut"))
-            self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_g],
-                                  lambda: self.spectra.SetMarker("cutregion"))
-            self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_b],
-                                  lambda: self.spectra.SetMarker("cutbg"))
-            self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_c, ROOT.kKey_g],
-                                  lambda: self.spectra.RemoveMarker("cutregion"))
-            self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_c, ROOT.kKey_b],
-                                  lambda: self.spectra.RemoveMarker("cutbg"))
+                [ROOT.kKey_c, ROOT.kKey_g], lambda: self.spectra.SetMarker("cutregion")
+            )
             self.window.AddHotkey(
-                [ROOT.kKey_Minus, ROOT.kKey_C], self.spectra.ClearCut)
+                [ROOT.kKey_c, ROOT.kKey_b], lambda: self.spectra.SetMarker("cutbg")
+            )
             self.window.AddHotkey(
-                [ROOT.kKey_Plus, ROOT.kKey_C], self.spectra.StoreCut)
+                [ROOT.kKey_Minus, ROOT.kKey_c, ROOT.kKey_g],
+                lambda: self.spectra.RemoveMarker("cutregion"),
+            )
+            self.window.AddHotkey(
+                [ROOT.kKey_Minus, ROOT.kKey_c, ROOT.kKey_b],
+                lambda: self.spectra.RemoveMarker("cutbg"),
+            )
+            self.window.AddHotkey([ROOT.kKey_Minus, ROOT.kKey_C], self.spectra.ClearCut)
+            self.window.AddHotkey([ROOT.kKey_Plus, ROOT.kKey_C], self.spectra.StoreCut)
             self.window.AddHotkey(ROOT.kKey_C, self.spectra.ExecuteCut)
-            self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_s],
-                                  lambda: self.window.EnterEditMode(prompt="Show Cut: ",
-                                                                    handler=self._HotkeyShow))
-            self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_a], lambda: self.window.EnterEditMode(
-                prompt="Activate Cut: ", handler=self._HotkeyActivate))
-            self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_p],
-                                  lambda: self._HotkeyShow("PREV"))
-            self.window.AddHotkey([ROOT.kKey_c, ROOT.kKey_n],
-                                  lambda: self._HotkeyShow("NEXT"))
+            self.window.AddHotkey(
+                [ROOT.kKey_c, ROOT.kKey_s],
+                lambda: self.window.EnterEditMode(
+                    prompt="Show Cut: ", handler=self._HotkeyShow
+                ),
+            )
+            self.window.AddHotkey(
+                [ROOT.kKey_c, ROOT.kKey_a],
+                lambda: self.window.EnterEditMode(
+                    prompt="Activate Cut: ", handler=self._HotkeyActivate
+                ),
+            )
+            self.window.AddHotkey(
+                [ROOT.kKey_c, ROOT.kKey_p], lambda: self._HotkeyShow("PREV")
+            )
+            self.window.AddHotkey(
+                [ROOT.kKey_c, ROOT.kKey_n], lambda: self._HotkeyShow("NEXT")
+            )
             self.window.AddHotkey(ROOT.kKey_Tab, self._HotkeySwitch)
 
     def _HotkeyShow(self, args):
@@ -91,8 +103,7 @@ class MatInterface(object):
             ids = hdtv.util.ID.ParseIds(args, spec.matrix)
         except ValueError:
             if self.window:
-                self.window.viewport.SetStatusText(
-                    "Invalid cut identifier: %s" % args)
+                self.window.viewport.SetStatusText("Invalid cut identifier: %s" % args)
             return
         spec.ShowObjects(ids)
 
@@ -111,8 +122,7 @@ class MatInterface(object):
             ids = hdtv.util.ID.ParseIds(args, spec.matrix)
         except ValueError:
             if self.window:
-                self.window.viewport.SetStatusText(
-                    "Invalid cut identifier: %s" % args)
+                self.window.viewport.SetStatusText("Invalid cut identifier: %s" % args)
             return
         if len(ids) == 1:
             if self.window:
@@ -132,7 +142,9 @@ class MatInterface(object):
         if spec is None:
             raise hdtv.cmdline.HDTVCommandError("There is no active spectrum")
         if not hasattr(spec, "matrix") or spec.matrix is None:
-            raise hdtv.cmdline.HDTVCommandError("Active spectrum does not belong to a matrix")
+            raise hdtv.cmdline.HDTVCommandError(
+                "Active spectrum does not belong to a matrix"
+            )
         mat = spec.matrix
         # for a cut, switch to projection
         if spec in mat.specs:
@@ -229,13 +241,18 @@ class MatInterface(object):
             sym = "symmetric"
         else:
             sym = "asymmetric"
-        header = "\nmatrix ID = " + matrix.ID + \
-            " \"" + matrix.name + "\" (" + sym + ")\n"
-        footer = "\n" + str(len(matrix.ids)) + " cuts, " + \
-            str(count) + " loaded cut spectra."
+        header = "\nmatrix ID = " + matrix.ID + ' "' + matrix.name + '" (' + sym + ")\n"
+        footer = (
+            "\n"
+            + str(len(matrix.ids))
+            + " cuts, "
+            + str(count)
+            + " loaded cut spectra."
+        )
 
-        table = hdtv.util.Table(cuts, params, sortBy="ID", extra_header=header,
-                                extra_footer=footer)
+        table = hdtv.util.Table(
+            cuts, params, sortBy="ID", extra_header=header, extra_footer=footer
+        )
         return str(table)
 
 
@@ -249,18 +266,20 @@ class TvMatInterface(object):
         description += "if the matrix is symmetric it only loads one projection"
         description += "if it is asymmetric both projections will be loaded."
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
-        parser.add_argument("-s", "--spectrum", action="store", default=None,
-            help="base id for loaded projections")
         parser.add_argument(
-            "matrix_type",
-            metavar='matrix-type',
-            help="{asym,sym}")
+            "-s",
+            "--spectrum",
+            action="store",
+            default=None,
+            help="base id for loaded projections",
+        )
+        parser.add_argument("matrix_type", metavar="matrix-type", help="{asym,sym}")
         parser.add_argument(
-            'filename',
-            metavar='matrix-file',
-            help="file with matrix to load")
-        hdtv.cmdline.AddCommand(prog, self.MatrixGet, level=0,
-                                fileargs=True, parser=parser)
+            "filename", metavar="matrix-file", help="file with matrix to load"
+        )
+        hdtv.cmdline.AddCommand(
+            prog, self.MatrixGet, level=0, fileargs=True, parser=parser
+        )
 
         # FIXME
         prog = "matrix list"
@@ -271,8 +290,13 @@ class TvMatInterface(object):
         #     help = "sort by key")
         # parser.add_argument("-r", "--reverse-sort", action = "store_true", default = False,
         #     help = "reverse the sort")
-        parser.add_argument("-m", "--matrix", action="store", default="all",
-              help="select matrix to work on")
+        parser.add_argument(
+            "-m",
+            "--matrix",
+            action="store",
+            default="all",
+            help="select matrix to work on",
+        )
         hdtv.cmdline.AddCommand(prog, self.MatrixList, parser=parser)
 
         # FIXME
@@ -283,16 +307,12 @@ class TvMatInterface(object):
         description = "show 2D view of the matrix"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
         parser.add_argument(
-            'filename',
-            metavar='matrix-file',
-            help="file with matrix to load")
-        parser.add_argument(
-            'format',
-            nargs='?',
-            default=None,
-            help="format of matrix")
-        hdtv.cmdline.AddCommand(prog, self.MatrixView, level=0,
-            fileargs=True, parser=parser)
+            "filename", metavar="matrix-file", help="file with matrix to load"
+        )
+        parser.add_argument("format", nargs="?", default=None, help="format of matrix")
+        hdtv.cmdline.AddCommand(
+            prog, self.MatrixView, level=0, fileargs=True, parser=parser
+        )
 
         # FIXME
         prog = "matrix delete"
@@ -300,59 +320,40 @@ class TvMatInterface(object):
 
         prog = "cut marker"
         description = "set/delete a marker for cutting"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
-        parser.add_argument(
-            'type',
-            help="{background,region}")
-        parser.add_argument(
-            'action',
-            help="{delete,set}")
-        parser.add_argument(
-            'position',
-            type=float,
-            help="position of marker")
-        hdtv.cmdline.AddCommand(prog, self.CutMarkerChange,
-            parser=parser, completer=self.MarkerCompleter)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
+        parser.add_argument("type", help="{background,region}")
+        parser.add_argument("action", help="{delete,set}")
+        parser.add_argument("position", type=float, help="position of marker")
+        hdtv.cmdline.AddCommand(
+            prog, self.CutMarkerChange, parser=parser, completer=self.MarkerCompleter
+        )
 
         # FIXME: this should accept --cut to reload cut spectra for a cut
         prog = "cut execute"
         description = "execute cut"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
-        hdtv.cmdline.AddCommand(prog, self.CutExecute,
-            level=0, parser=parser)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
+        hdtv.cmdline.AddCommand(prog, self.CutExecute, level=0, parser=parser)
 
         prog = "cut clear"
         description = "clear cut marker and remove last cut if it was not stored"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         hdtv.cmdline.AddCommand(prog, self.CutClear, parser=parser)
 
         prog = "cut store"
         description = "deactivates last cut (overwrite protection)"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         hdtv.cmdline.AddCommand(prog, self.CutStore, parser=parser)
 
         prog = "cut activate"
         description = "reactivates a cut from the cutlist"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
-        parser.add_argument(
-            'cutid',
-            nargs='+',
-            help="id of cut")
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
+        parser.add_argument("cutid", nargs="+", help="id of cut")
         hdtv.cmdline.AddCommand(prog, self.CutActivate, parser=parser)
 
         prog = "cut delete"
         description = "delete a cut (marker and spectrum)"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
-        parser.add_argument(
-            'cutid',
-            nargs='+',
-            help="id of cut")
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
+        parser.add_argument("cutid", nargs="+", help="id of cut")
         hdtv.cmdline.AddCommand(prog, self.CutDelete, minargs=1, parser=parser)
 
         # FIXME
@@ -390,7 +391,9 @@ class TvMatInterface(object):
             sym = False
         else:
             # FIXME: is there really no way to test that automatically????
-            raise hdtv.cmdline.HDTVCommandError("Please specify if matrix is of type asym or sym")
+            raise hdtv.cmdline.HDTVCommandError(
+                "Please specify if matrix is of type asym or sym"
+            )
         self.matIf.LoadMatrix(args.filename, sym, ID=ID)
 
     def MatrixList(self, args):
@@ -418,8 +421,15 @@ class TvMatInterface(object):
         # complete markertype if needed
         mtype = self.MarkerCompleter(args.type)
         if len(mtype) == 0:
-            raise hdtv.cmdline.HDTVCommandError("Marker type %s is not valid" % args.type)
-        action = self.MarkerCompleter(args.action, args=[args.action,])
+            raise hdtv.cmdline.HDTVCommandError(
+                "Marker type %s is not valid" % args.type
+            )
+        action = self.MarkerCompleter(
+            args.action,
+            args=[
+                args.action,
+            ],
+        )
         if len(action) == 0:
             raise hdtv.cmdline.HDTVCommandError("Invalid action: %s" % args.action)
 
@@ -503,5 +513,6 @@ class TvMatInterface(object):
 
 # plugin initialisation
 import __main__
+
 matrix_interface = MatInterface(__main__.spectra)
 hdtv.cmdline.RegisterInteractive("mat", matrix_interface)

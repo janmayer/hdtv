@@ -98,9 +98,7 @@ public:
   }
 
   int GetCutLowBin() override { return 1; }
-  int GetCutHighBin() override {
-    return (fProjAxis == PROJ_X) ? fHist->GetNbinsY() : fHist->GetNbinsX();
-  }
+  int GetCutHighBin() override { return (fProjAxis == PROJ_X) ? fHist->GetNbinsY() : fHist->GetNbinsX(); }
 
   double GetProjXmin() override {
     TAxis *a = (fProjAxis == PROJ_X) ? fHist->GetXaxis() : fHist->GetYaxis();
@@ -112,9 +110,7 @@ public:
     return a->GetXmax();
   }
 
-  int GetProjXbins() override {
-    return (fProjAxis == PROJ_X) ? fHist->GetNbinsX() : fHist->GetNbinsY();
-  }
+  int GetProjXbins() override { return (fProjAxis == PROJ_X) ? fHist->GetNbinsX() : fHist->GetNbinsY(); }
 
   void AddLine(TArrayD &dst, int l) override;
 

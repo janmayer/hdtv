@@ -23,6 +23,7 @@ import os
 import numpy
 import scipy
 import matplotlib
+
 matplotlib.use("agg")  # Must be before import pylab!
 import pylab
 
@@ -69,7 +70,7 @@ class PrintOut(object):
                 if self.spectra.window.IsInVisibleRegion(fit, part=True):
                     self.PrintFit(fit)
 
-         # viewport limits
+        # viewport limits
         x1 = self.spectra.viewport.GetXOffset()
         x2 = x1 + self.spectra.viewport.GetXVisibleRegion()
         y1 = self.spectra.viewport.GetYOffset()
@@ -159,10 +160,14 @@ class PrintOut(object):
         """
         x = peak.pos_cal.value
         ax = pylab.gca()
-        trans = transforms.blended_transform_factory(
-            ax.transData, ax.transAxes)
-        pylab.text(x, 0.94 - 0.06 * i, "{:S}".format(peak.pos_cal),
-                   transform=trans, size="small")
+        trans = transforms.blended_transform_factory(ax.transData, ax.transAxes)
+        pylab.text(
+            x,
+            0.94 - 0.06 * i,
+            "{:S}".format(peak.pos_cal),
+            transform=trans,
+            size="small",
+        )
 
     def PrintFunc(self, func, cal, color):
         """
@@ -199,35 +204,48 @@ class PrintInterface(object):
         # command line interface
         prog = "print"
         description = "Prints all visible items to file. The file format is specified by the filename extension."
-        description += "Supported formats are: emf, eps, pdf, png, ps, raw, rgba, svg, svgz. "
+        description += (
+            "Supported formats are: emf, eps, pdf, png, ps, raw, rgba, svg, svgz. "
+        )
         description += "If no filename is given, an interactive mode is entered and the plot can be manipulated using pylab."
-        description += "Change to the python prompt and import the pylab module for that to work."
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
-        parser.add_argument("-F", "--force", action="store_true", default=False,
-                          help="overwrite existing files without asking")
-        parser.add_argument("-y", "--ylabel", action="store", default=None,
-                          help="add label for y-axis")
-        parser.add_argument("-x", "--xlabel", action="store", default=None,
-                          help="add label for x-axis")
-        parser.add_argument("-t", "--title", action="store", default=None,
-                          help="add title for plot")
-        parser.add_argument("-l", "--legend", action="store_true", default=False,
-                          help="add legend")
+        description += (
+            "Change to the python prompt and import the pylab module for that to work."
+        )
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
+        parser.add_argument(
+            "-F",
+            "--force",
+            action="store_true",
+            default=False,
+            help="overwrite existing files without asking",
+        )
+        parser.add_argument(
+            "-y", "--ylabel", action="store", default=None, help="add label for y-axis"
+        )
+        parser.add_argument(
+            "-x", "--xlabel", action="store", default=None, help="add label for x-axis"
+        )
+        parser.add_argument(
+            "-t", "--title", action="store", default=None, help="add title for plot"
+        )
+        parser.add_argument(
+            "-l", "--legend", action="store_true", default=False, help="add legend"
+        )
         parser.add_argument(
             "-e",
             "--energies",
             action="store_true",
             default=False,
-            help="add energy labels to each fitted peak")
+            help="add energy labels to each fitted peak",
+        )
         parser.add_argument(
             "filename",
             metavar="output-file",
-            nargs='?',
+            nargs="?",
             default=None,
-            help="file to print to")
-        hdtv.cmdline.AddCommand(
-            prog, self.Print, fileargs=True, parser=parser)
+            help="file to print to",
+        )
+        hdtv.cmdline.AddCommand(prog, self.Print, fileargs=True, parser=parser)
 
     def Print(self, args):
         pylab.ioff()
@@ -262,6 +280,7 @@ class PrintInterface(object):
 
 # plugin initialisation
 import __main__
+
 print_interface = PrintInterface(__main__.spectra)
 hdtv.cmdline.RegisterInteractive("p", print_interface)
 hdtv.ui.debug("Loaded user interface for printing")

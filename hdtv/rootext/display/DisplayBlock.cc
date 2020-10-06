@@ -36,9 +36,7 @@ namespace HDTV {
 namespace Display {
 
 //! Constructor
-DisplayBlock::DisplayBlock(int col) : DisplayObj(), fGC{nullptr}, fNorm{1.0} {
-  InitGC(col);
-}
+DisplayBlock::DisplayBlock(int col) : DisplayObj(), fGC{nullptr}, fNorm{1.0} { InitGC(col); }
 
 //! Destructor
 DisplayBlock::~DisplayBlock() { gClient->GetGCPool()->FreeGC(fGC); }
@@ -63,19 +61,13 @@ void DisplayBlock::SetColor(int col) {
 }
 
 //! Return the spectrums lower endpoint in energy units
-double DisplayBlock::GetMinE() {
-  return std::min(Ch2E(GetMinCh()), Ch2E(GetMaxCh()));
-}
+double DisplayBlock::GetMinE() { return std::min(Ch2E(GetMinCh()), Ch2E(GetMaxCh())); }
 
 //! Return the spectrums upper endpoint in energy units
-double DisplayBlock::GetMaxE() {
-  return std::max(Ch2E(GetMinCh()), Ch2E(GetMaxCh()));
-}
+double DisplayBlock::GetMaxE() { return std::max(Ch2E(GetMinCh()), Ch2E(GetMaxCh())); }
 
 //! Returns the width of the spectrum in energy units
-double DisplayBlock::GetERange() {
-  return std::abs(Ch2E(GetMinCh()) - Ch2E(GetMaxCh()));
-}
+double DisplayBlock::GetERange() { return std::abs(Ch2E(GetMinCh()) - Ch2E(GetMaxCh())); }
 
 } // end namespace Display
 } // end namespace HDTV

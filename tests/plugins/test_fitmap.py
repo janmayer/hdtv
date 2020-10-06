@@ -26,6 +26,7 @@ import pytest
 from tests.helpers.utils import redirect_stdout, hdtvcmd
 
 from hdtv.util import monkey_patch_ui
+
 monkey_patch_ui()
 
 import hdtv.cmdline
@@ -33,6 +34,7 @@ import hdtv.options
 import hdtv.session
 
 import __main__
+
 try:
     __main__.spectra = hdtv.session.Session()
 except RuntimeError:
@@ -47,17 +49,18 @@ import hdtv.plugins.fitmap
 
 spectra = __main__.spectra
 
-testspectrum = os.path.join(
-    os.path.curdir, "tests", "share", "osiris_bg.spc")
+testspectrum = os.path.join(os.path.curdir, "tests", "share", "osiris_bg.spc")
+
 
 def count_peak_positions():
     count = 0
     spec = __main__.spectra.dict[__main__.spectra.activeID]
     for fit in spec.dict.values():
         for peak in fit.peaks:
-            if 'pos_lit' in peak.extras:
+            if "pos_lit" in peak.extras:
                 count += 1
     return count
+
 
 @pytest.fixture(autouse=True)
 def prepare():
@@ -65,13 +68,16 @@ def prepare():
     yield
     spectra.Clear()
 
+
 def test_cmd_fit_position():
     spec_interface.tv.specIf.LoadSpectra(testspectrum, None)
     hdtvcmd("fit peakfind -a -t 0.05")
     f, ferr = hdtvcmd(
         "fit position assign 10.0 1173.228(3) 12.0 1332.492(4)",
-        "fit position erase 10.0 12.0")
+        "fit position erase 10.0 12.0",
+    )
     assert ferr == ""
+
 
 def test_cmd_fit_position_map():
     spec_interface.tv.specIf.LoadSpectra(testspectrum, None)
@@ -80,12 +86,14 @@ def test_cmd_fit_position_map():
     assert ferr == ""
     assert "Mapped 3 energies to peaks" in f
 
+
 def test_cmd_fit_position_map_tolerance():
     spec_interface.tv.specIf.LoadSpectra(testspectrum, None)
     hdtvcmd("fit peakfind -a -t 0.002")
     f, ferr = hdtvcmd("fit position map -t 8 tests/share/osiris_bg.map")
     assert ferr == ""
     assert "Mapped 2 energies to peaks" in f
+
 
 def test_cmd_fit_position_map_overwrite():
     test_cmd_fit_position_map()

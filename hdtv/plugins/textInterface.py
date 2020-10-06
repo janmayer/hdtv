@@ -42,28 +42,26 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.processors import Transformation, Processor
 
 
-
 class FormatText(Processor):
     def apply_transformation(self, ti):
         fragments = to_formatted_text(HTML(fragment_list_to_text(ti.fragments)))
         return Transformation(fragments)
 
 
-
 class TextInterface(hdtv.ui.SimpleUI):
-
     def __init__(self, height=25, width=80):
         hdtv.ui.debug("Loaded TextInterface")
 
         super(TextInterface, self).__init__()
         # Set options
         self.opt = dict()
-        self.opt["ui.pager.cmd"] = hdtv.options.Option(
-            default="less")  # default pager
+        self.opt["ui.pager.cmd"] = hdtv.options.Option(default="less")  # default pager
         self.opt["ui.pager.args"] = hdtv.options.Option(
-            default="-F -X -R -S")  # default pager cmd line options
+            default="-F -X -R -S"
+        )  # default pager cmd line options
         self.opt["ui.pager.builtin"] = hdtv.options.Option(
-            default=True, parse=hdtv.options.parse_bool)  # use built-in pager instead of external program
+            default=True, parse=hdtv.options.parse_bool
+        )  # use built-in pager instead of external program
 
         for (key, opt) in list(self.opt.items()):
             hdtv.options.RegisterOption(key, opt)
@@ -72,7 +70,7 @@ class TextInterface(hdtv.ui.SimpleUI):
         self._fallback_canvaswidth = width
         self._updateTerminalSize()
 
-    def page(self, html, end='\n'):
+    def page(self, html, end="\n"):
         """
         Print text by pages
         """
@@ -85,7 +83,7 @@ class TextInterface(hdtv.ui.SimpleUI):
         else:
             self.pager(html, end)
 
-    def pager(self, html, end='\n'):
+    def pager(self, html, end="\n"):
         """
         Construct pager using prompt_toolkit
         """
@@ -96,20 +94,23 @@ class TextInterface(hdtv.ui.SimpleUI):
                 buffer=my_buffer,
                 focusable=True,
                 preview_search=True,
-                input_processors=[FormatText()]
+                input_processors=[FormatText()],
             )
         )
 
         my_buffer.text = html
         my_buffer.read_only = to_filter(True)
 
-        root_container = HSplit([
-            my_window,
-        ])
+        root_container = HSplit(
+            [
+                my_window,
+            ]
+        )
 
         bindings = KeyBindings()
-        @bindings.add('c-c')
-        @bindings.add('q')
+
+        @bindings.add("c-c")
+        @bindings.add("q")
         def _(event):
             " Quit. "
             event.app.exit()
@@ -122,12 +123,13 @@ class TextInterface(hdtv.ui.SimpleUI):
             key_bindings=bindings,
             enable_page_navigation_bindings=True,
             mouse_support=True,
-            full_screen=True)
+            full_screen=True,
+        )
 
         application.run()
         super().msg(html=html, end=end)
 
-    def msg(self, text=None, *, html=None, end='\n'):
+    def msg(self, text=None, *, html=None, end="\n"):
         """
         Message output
         """
@@ -142,12 +144,13 @@ class TextInterface(hdtv.ui.SimpleUI):
             super().msg(html=html, end=end)
 
     def _updateTerminalSize(self):
-        h, w, hp, wp = struct.unpack('HHHH',
-            fcntl.ioctl(0, termios.TIOCGWINSZ,
-            struct.pack('HHHH', 0, 0, 0, 0)))
+        h, w, hp, wp = struct.unpack(
+            "HHHH", fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack("HHHH", 0, 0, 0, 0))
+        )
 
         self.canvasheight = h
         self.canvaswidth = w
+
 
 # initialization
 hdtv.ui.ui = TextInterface()

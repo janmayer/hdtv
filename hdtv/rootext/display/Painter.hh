@@ -134,9 +134,7 @@ public:
 
   double XtoE(Int_t x) { return (x - fXBase) / fXZoom + fXOffset; }
 
-  int EtoX(double e) {
-    return std::ceil(((e - fXOffset) * fXZoom) + fXBase - 0.5);
-  }
+  int EtoX(double e) { return std::ceil(((e - fXOffset) * fXZoom) + fXBase - 0.5); }
 
   double XtoE(double x) { return (x - fXBase) / fXZoom + fXOffset; }
   double dXtodE(int dX) { return dX / fXZoom; }
@@ -147,8 +145,7 @@ public:
   double YtoC(int y);
 
   Bool_t IsWithin(Int_t x, Int_t y) {
-    return (x >= fXBase && x <= fXBase + fWidth && y >= fYBase - fHeight &&
-            y <= fYBase);
+    return (x >= fXBase && x <= fXBase + fWidth && y >= fYBase - fHeight && y <= fYBase);
   }
 
   void DrawSpectrum(DisplaySpec *dSpec, int x1, int x2);
@@ -157,8 +154,7 @@ public:
   void DrawYMarker(YMarker *marker, int x1, int x2);
   double GetYAutoZoom(DisplaySpec *dSpec);
   void DrawXScale(Int_t x1, Int_t x2);
-  void DrawXNonlinearScale(Int_t x1, Int_t x2, bool top,
-                           const Calibration &cal);
+  void DrawXNonlinearScale(Int_t x1, Int_t x2, bool top, const Calibration &cal);
   void ClearTopXScale();
   void ClearBottomXScale();
   void DrawYScale();
@@ -171,8 +167,7 @@ protected:
   void DrawYLogScale();
   void _DrawYLogScale(int minDist, int sgn, double cMin, double cMax);
   void DrawYMajorTic(double c, bool drawLine = true);
-  void DrawString(GContext_t gc, int x, int y, const char *str, size_t len,
-                  HTextAlign hAlign, VTextAlign vAlign);
+  void DrawString(GContext_t gc, int x, int y, const char *str, size_t len, HTextAlign hAlign, VTextAlign vAlign);
   inline void DrawYMinorTic(double c);
   double GetCountsAtPixel(DisplaySpec *dSpec, Int_t x);
   int GetYAtPixel(DisplaySpec *dSpec, Int_t x);

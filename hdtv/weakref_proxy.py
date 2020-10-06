@@ -21,7 +21,7 @@ This file contains a wrapper for weakref that the weak reference can
 be used the same way the real object would be used.
 """
 
-__all__ = ['weakref']
+__all__ = ["weakref"]
 
 # python imports
 from _weakref import ref
@@ -46,6 +46,7 @@ class weakref(object):
     None. Do not use a simple if, because an object still alive can also
     be False (e.g. an empty list).
     """
+
     def __new__(cls, object):
         # Make an instance of callable weakref if the object is callable.
         # This way callable(weakref) == False if the underlying object isn't

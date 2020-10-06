@@ -28,8 +28,10 @@ import hdtv.plugins.run
 import hdtv.plugins.ls
 
 
-@pytest.mark.parametrize("script, contains", [
-    ("tests/share/hdtvscript.py", ["Successfully loaded script.", "7625597484987"])])
+@pytest.mark.parametrize(
+    "script, contains",
+    [("tests/share/hdtvscript.py", ["Successfully loaded script.", "7625597484987"])],
+)
 def test_cmd_run(script, contains):
     f, ferr = hdtvcmd("run " + script)
     assert "Running script" in f
@@ -37,8 +39,8 @@ def test_cmd_run(script, contains):
     for fragment in contains:
         assert fragment in f
 
-@pytest.mark.parametrize("script", [
-    "tests/share/invalid.py"])
+
+@pytest.mark.parametrize("script", ["tests/share/invalid.py"])
 def test_cmd_run_fail(script):
     f, ferr = hdtvcmd("run " + script)
     assert "No such file" in ferr

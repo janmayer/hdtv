@@ -86,8 +86,7 @@ class PeakModel(object):
         """
         for (parname, status) in self.fParStatus.items():
             if isinstance(status, list) and len(status) < minlen:
-                raise ValueError(
-                    "Not enough values for status of %s" % parname)
+                raise ValueError("Not enough values for status of %s" % parname)
 
     def ParseParamStatus(self, parname, status):
         """
@@ -108,24 +107,30 @@ class PeakModel(object):
         elif parname in self.fValidOptStatus:
             valid_status = self.fValidOptStatus
         valid_strings = [p for p in valid_status[parname] if isinstance(p, (bool, str))]
-        
+
         for valid_string in valid_strings:
-            if str(valid_string).lower()[0:len(status)] == status:
+            if str(valid_string).lower()[0 : len(status)] == status:
                 stat = valid_string
-        
+
         # If status was a keyword, see if this setting is legal for the
         # parameter
         if stat is not None:
             if stat not in valid_status[parname]:
                 msg = "Status %s not allowed for parameter %s in peak model %s" % (
-                    stat, parname, self.name)
+                    stat,
+                    parname,
+                    self.name,
+                )
                 raise ValueError(msg)
             return stat
 
         # Check if a numeric value is legal for the parameter
         if float not in valid_status[parname]:
             msg = "Invalid status %s for parameter %s in peak model %s" % (
-                status, parname, self.name)
+                status,
+                parname,
+                self.name,
+            )
             raise ValueError(msg)
 
         try:
@@ -149,10 +154,12 @@ class PeakModel(object):
             if isinstance(status, list):
                 if parname in self.fParStatus:
                     self.fParStatus[parname] = [
-                        self.ParseParamStatus(parname, s) for s in status]
+                        self.ParseParamStatus(parname, s) for s in status
+                    ]
                 else:
                     self.fOptStatus[parname] = [
-                        self.ParseParamStatus(parname, s) for s in status]
+                        self.ParseParamStatus(parname, s) for s in status
+                    ]
             else:
                 if parname in self.fParStatus:
                     self.fParStatus[parname] = self.ParseParamStatus(parname, status)
@@ -160,8 +167,8 @@ class PeakModel(object):
                     self.fOptStatus[parname] = self.ParseParamStatus(parname, status)
         except KeyError:
             raise ValueError(
-                "Invalid parameter name %s for peak model %s" %
-                (parname, self.name))
+                "Invalid parameter name %s for peak model %s" % (parname, self.name)
+            )
 
     def GetParam(self, name, peak_id, pos_uncal, cal, ival=None):
         """
@@ -195,7 +202,8 @@ class PeakModel(object):
             return ROOT.HDTV.Fit.Param.Empty()
         elif isinstance(parStatus, float):
             return ROOT.HDTV.Fit.Param.Fixed(
-                self.Uncal(name, parStatus, pos_uncal, cal))
+                self.Uncal(name, parStatus, pos_uncal, cal)
+            )
         else:
             raise RuntimeError("Invalid parameter status")
 

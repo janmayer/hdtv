@@ -2,11 +2,13 @@
 from __future__ import print_function
 
 import sys
+
 sys.path.append("/home/braun/projects/hdtv")
 import hdtv.specreader
 from hdtv.errvalue import ErrValue
 import ROOT
 import math
+
 hdtv.rootext.fit
 
 
@@ -14,13 +16,12 @@ def test(bgdeg):
     int_tot = ROOT.HDTV.Fit.TH1Integral(h, 6, 12)
 
     bg = ROOT.HDTV.Fit.PolyBg(bgdeg)
-    bg.AddRegion(-.1, 5.1)
+    bg.AddRegion(-0.1, 5.1)
     bg.AddRegion(12.9, 18.1)
     bg.Fit(h)
 
     for i in range(0, bg.GetDegree() + 1):
-        par = ErrValue(bg.GetFunc().GetParameter(i),
-                       bg.GetFunc().GetParError(i))
+        par = ErrValue(bg.GetFunc().GetParameter(i), bg.GetFunc().GetParError(i))
         print("bg[%d]: %10s" % (i, par.fmt()))
 
     int_bac = ROOT.HDTV.Fit.BgIntegral(bg, 6, 12, h.GetXaxis())
@@ -28,16 +29,16 @@ def test(bgdeg):
 
     print("")
     print("type        position           width          volume        skewness")
-    for (integral, kind) in zip(
-            (int_tot, int_bac, int_sub), ("tot:", "bac:", "sub:")):
+    for (integral, kind) in zip((int_tot, int_bac, int_sub), ("tot:", "bac:", "sub:")):
         pos = ErrValue(integral.GetMean(), integral.GetMeanError())
         width = ErrValue(integral.GetWidth(), integral.GetWidthError())
         vol = ErrValue(integral.GetIntegral(), integral.GetIntegralError())
-        skew = ErrValue(integral.GetRawSkewness(),
-                        integral.GetRawSkewnessError())
+        skew = ErrValue(integral.GetRawSkewness(), integral.GetRawSkewnessError())
 
-        print("%s %15s %15s %15s %15s" %
-              (kind, pos.fmt(), width.fmt(), vol.fmt(), skew.fmt()))
+        print(
+            "%s %15s %15s %15s %15s"
+            % (kind, pos.fmt(), width.fmt(), vol.fmt(), skew.fmt())
+        )
 
 
 reader = hdtv.specreader.SpecReader()

@@ -32,8 +32,7 @@ namespace Fit {
 
 double Param::Value(TF1 *func) const {
   if (fFree) {
-    return func ? func->GetParameter(fId)
-                : std::numeric_limits<double>::quiet_NaN();
+    return func ? func->GetParameter(fId) : std::numeric_limits<double>::quiet_NaN();
   } else {
     return fValue;
   }
@@ -42,17 +41,15 @@ double Param::Value(TF1 *func) const {
 double Param::Error(TF1 *func) const {
   // Fixed parameters do not have a fit error
   if (fFree) {
-    return func ? func->GetParError(fId)
-                : std::numeric_limits<double>::quiet_NaN();
+    return func ? func->GetParError(fId) : std::numeric_limits<double>::quiet_NaN();
   } else {
     return 0.0;
   }
 }
 
-std::ostream &operator <<(std::ostream &lhs, const Param &rhs) {
-  lhs << "[Id=" << rhs._Id() << ", Free=" << rhs.IsFree()
-      << ", IVal=" << rhs.HasIVal() << ", Valid=" << static_cast<bool>(rhs)
-      << ", Value=" << rhs._Value() << ']';
+std::ostream &operator<<(std::ostream &lhs, const Param &rhs) {
+  lhs << "[Id=" << rhs._Id() << ", Free=" << rhs.IsFree() << ", IVal=" << rhs.HasIVal()
+      << ", Valid=" << static_cast<bool>(rhs) << ", Value=" << rhs._Value() << ']';
   return lhs;
 }
 

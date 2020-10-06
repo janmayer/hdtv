@@ -467,8 +467,7 @@ class DrawableManager(object):
             firstID = self.activeID
 
         self._iteratorID = firstID
-        hdtv.ui.debug("hdtv.drawable.DrawableManager: firstID=" +
-                      str(firstID), level=6)
+        hdtv.ui.debug("hdtv.drawable.DrawableManager: firstID=" + str(firstID), level=6)
         return firstID
 
     def _lastID(self, onlyVisible=False):
@@ -484,8 +483,7 @@ class DrawableManager(object):
             lastID = self.activeID
 
         self._iteratorID = lastID
-        hdtv.ui.debug("hdtv.drawable.DrawableManager: lastID=" +
-                      str(lastID), level=6)
+        hdtv.ui.debug("hdtv.drawable.DrawableManager: lastID=" + str(lastID), level=6)
         return lastID
 
     def _nextID(self, onlyVisible=False):
@@ -505,8 +503,7 @@ class DrawableManager(object):
         except ValueError:
             nextID = self.activeID if self.activeID is not None else self.firstID
 
-        hdtv.ui.debug("hdtv.drawable.DrawableManager: nextID=" +
-                      str(nextID), level=6)
+        hdtv.ui.debug("hdtv.drawable.DrawableManager: nextID=" + str(nextID), level=6)
         self._iteratorID = nextID
         return nextID
 
@@ -527,8 +524,7 @@ class DrawableManager(object):
             prevID = self.activeID if self.activeID is not None else self.lastID
 
         self._iteratorID = prevID
-        hdtv.ui.debug("hdtv.drawable.DrawableManager: prevID=" +
-                      str(prevID), level=6)
+        hdtv.ui.debug("hdtv.drawable.DrawableManager: prevID=" + str(prevID), level=6)
         return prevID
 
     def ShowNext(self, nb=1):
@@ -543,7 +539,7 @@ class DrawableManager(object):
             return
         ids = self.ids
         index = ids.index(self.nextID)
-        ids = ids[index:index + nb]
+        ids = ids[index : index + nb]
         self.ShowObjects(ids, clear=True)
         return ids
 
@@ -559,7 +555,7 @@ class DrawableManager(object):
             return
         ids = self.ids
         index = ids.index(self.prevID)
-        ids = ids[index:index + nb]
+        ids = ids[index : index + nb]
         self.ShowObjects(ids, clear=True)
         return ids
 
@@ -582,6 +578,6 @@ class DrawableManager(object):
             self.ShowAll()
             return
         ids = self.ids
-        ids = ids[len(ids) - nb:]
+        ids = ids[len(ids) - nb :]
         self.ShowObjects(ids, clear=True)
         return ids

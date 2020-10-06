@@ -51,19 +51,14 @@ public:
 
   double *FillBuf1D(double *buf, unsigned int level, unsigned int line);
 
-  template <class histType>
-  histType *ToTH1(const char *name, const char *title, unsigned int level,
-                  unsigned int line);
+  template <class histType> histType *ToTH1(const char *name, const char *title, unsigned int level, unsigned int line);
 
   TH1 *FillTH1(TH1 *hist, unsigned int level, unsigned int line);
 
-  TH1D *ToTH1D(const char *name, const char *title, unsigned int level,
-               unsigned int line);
-  TH1I *ToTH1I(const char *name, const char *title, unsigned int level,
-               unsigned int line);
+  TH1D *ToTH1D(const char *name, const char *title, unsigned int level, unsigned int line);
+  TH1I *ToTH1I(const char *name, const char *title, unsigned int level, unsigned int line);
 
-  template <class histType>
-  histType *ToTH2(const char *name, const char *title, unsigned int level);
+  template <class histType> histType *ToTH2(const char *name, const char *title, unsigned int level);
 
   TH2 *FillTH2(TH2 *hist, unsigned int level);
 

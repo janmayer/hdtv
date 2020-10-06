@@ -34,7 +34,9 @@ def ConfigSet(args):
     except KeyError:
         raise hdtv.cmdline.HDTVCommandAbort(args.variable + ": no such option")
     except ValueError as err:
-        raise hdtv.cmdline.HDTVCommandAbort("Invalid value (%s) for option %s. %s" % (args.value, args.variable, err))
+        raise hdtv.cmdline.HDTVCommandAbort(
+            "Invalid value (%s) for option %s. %s" % (args.value, args.variable, err)
+        )
 
 
 def ConfigShow(args):
@@ -44,12 +46,12 @@ def ConfigShow(args):
         except KeyError:
             hdtv.ui.warning(args.variable + ": no such option")
     else:
-        hdtv.ui.msg(html=hdtv.options.Str(), end='')
+        hdtv.ui.msg(html=hdtv.options.Str(), end="")
 
 
 def ConfigReset(args):
     if args.variable:
-        if args.variable == 'all':
+        if args.variable == "all":
             hdtv.options.ResetAll()
             hdtv.ui.debug("All configuration variables were reset.")
         else:
@@ -59,40 +61,42 @@ def ConfigReset(args):
             except KeyError:
                 hdtv.ui.warning(args.variable + ": no such option")
     else:
-        hdtv.ui.msg(hdtv.options.Str(), end='')
+        hdtv.ui.msg(hdtv.options.Str(), end="")
+
 
 config_var_completer = WordCompleter(
     hdtv.options.OptionManager.__dict__.keys(),
-    pattern=re.compile(r'^([^\s]+)'),
+    pattern=re.compile(r"^([^\s]+)"),
 )
 
 prog = "config set"
 description = "Set a configuration variable"
-parser = hdtv.cmdline.HDTVOptionParser(
-    prog=prog, description=description)
+parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
 parser.add_argument("variable")
 parser.add_argument("value")
-hdtv.cmdline.AddCommand(prog, ConfigSet, level=2, parser=parser,
-    completer=config_var_completer)
+hdtv.cmdline.AddCommand(
+    prog, ConfigSet, level=2, parser=parser, completer=config_var_completer
+)
 
 prog = "config show"
 description = "Show the configuration or a single configuration variable"
-parser = hdtv.cmdline.HDTVOptionParser(
-    prog=prog, description=description)
-parser.add_argument("variable", nargs='?', default=None)
-hdtv.cmdline.AddCommand(prog, ConfigShow, level=1, parser=parser,
-    completer=config_var_completer)
+parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
+parser.add_argument("variable", nargs="?", default=None)
+hdtv.cmdline.AddCommand(
+    prog, ConfigShow, level=1, parser=parser, completer=config_var_completer
+)
 
 prog = "config reset"
 description = "Reset a single configuration variable"
-parser = hdtv.cmdline.HDTVOptionParser(
-    prog=prog, description=description)
+parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
 parser.add_argument(
     "variable",
-    nargs='?',
+    nargs="?",
     default=None,
-    help='Name of the variable to reset. Use \'all\' to reset all configuration variables.')
-hdtv.cmdline.AddCommand(prog, ConfigReset, level=2, parser=parser,
-    completer=config_var_completer)
+    help="Name of the variable to reset. Use 'all' to reset all configuration variables.",
+)
+hdtv.cmdline.AddCommand(
+    prog, ConfigReset, level=2, parser=parser, completer=config_var_completer
+)
 
 hdtv.ui.debug("Loaded user interface for configuration variables")

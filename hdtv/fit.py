@@ -45,6 +45,7 @@ class Fit(Drawable):
     All internal values (fit parameters, fit region, peak list) are in
     uncalibrated units.
     """
+
     # List of hook functions to be called before/after FitPeakFunc()
     # These hook functions should accept a reference to the Fit class
     # that calls them as first argument
@@ -53,12 +54,15 @@ class Fit(Drawable):
     showDecomp = False  # Default value for decomposition status
 
     def __init__(self, fitter, color=None, cal=None):
-        self.regionMarkers = MarkerCollection("X", paired=True, maxnum=1,
-                                              color=hdtv.color.region, cal=cal)
-        self.peakMarkers = MarkerCollection("X", paired=False, maxnum=None,
-                                            color=hdtv.color.peak, cal=cal)
-        self.bgMarkers = MarkerCollection("X", paired=True, maxnum=None,
-                                          color=hdtv.color.bg, cal=cal)
+        self.regionMarkers = MarkerCollection(
+            "X", paired=True, maxnum=1, color=hdtv.color.region, cal=cal
+        )
+        self.peakMarkers = MarkerCollection(
+            "X", paired=False, maxnum=None, color=hdtv.color.peak, cal=cal
+        )
+        self.bgMarkers = MarkerCollection(
+            "X", paired=True, maxnum=None, color=hdtv.color.bg, cal=cal
+        )
         self.fitter = fitter
         self.peaks = []
         self.chi = None
@@ -180,20 +184,27 @@ class Fit(Drawable):
         show fit results in a nice table
         """
         (objects, params) = self.ExtractParams()
-        header = "WorkFit on spectrum: " + \
-            str(self.spec.ID) + " (" + self.spec.name + ")"
+        header = (
+            "WorkFit on spectrum: " + str(self.spec.ID) + " (" + self.spec.name + ")"
+        )
         footer = "\n" + str(len(objects)) + " peaks in WorkFit"
-        table = Table(objects, list(params), sortBy="id",
-                      extra_header=header, extra_footer=footer)
+        table = Table(
+            objects, list(params), sortBy="id", extra_header=header, extra_footer=footer
+        )
         return str(table)
-    
+
     def print_integral(self):
         """
         show integral of fit regions in a nice table
         """
-        (objects, params) = self.ExtractIntegralParams('all')
-        header = "Integrals of WorkFit regions on spectrum: " + \
-            str(self.spec.ID) + " (" + self.spec.name + ")"
+        (objects, params) = self.ExtractIntegralParams("all")
+        header = (
+            "Integrals of WorkFit regions on spectrum: "
+            + str(self.spec.ID)
+            + " ("
+            + self.spec.name
+            + ")"
+        )
         table = Table(objects, list(params), sortBy="id", extra_header=header)
         return str(table)
 
@@ -232,12 +243,11 @@ class Fit(Drawable):
             if self.ID is None:
                 thispeak["id"] = hdtv.util.ID(None, self.peaks.index(peak))
             else:
-                thispeak["id"] = hdtv.util.ID(
-                    self.ID.major, self.peaks.index(peak))
+                thispeak["id"] = hdtv.util.ID(self.ID.major, self.peaks.index(peak))
             thispeak["stat"] = str()
             if self.active:
                 thispeak["stat"] += "A"
-            if self.ID in self.spec.visible or self.ID is None:   # ID of workFit is None
+            if self.ID in self.spec.visible or self.ID is None:  # ID of workFit is None
                 thispeak["stat"] += "V"
             # get parameter of this fit
             for p in self.fitter.peakModel.fValidParStatus.keys():
@@ -269,8 +279,8 @@ class Fit(Drawable):
             #    thispeak[par] = norm_volume
             peaklist.append(thispeak)
         return (peaklist, params)
-    
-    def ExtractIntegralParams(self, integral_type='auto'):
+
+    def ExtractIntegralParams(self, integral_type="auto"):
         """
         Helper function for use for printing fit results in a nice table
 
@@ -280,24 +290,24 @@ class Fit(Drawable):
         """
         integrallist = list()
         params = ["id", "stat", "type"]
-        
-        #if not self.integral:
+
+        # if not self.integral:
         #    region = [self.regionMarkers[0].p1.pos_uncal,
         #              self.regionMarkers[0].p2.pos_uncal]
         #    self.integral = hdtv.integral.Integrate(
         #        self.spec, self.fitter.bgFitter, region)
         integrals = self.integral
 
-        if integral_type == 'all':
-            integral_types = ['tot', 'bg', 'sub']
-        elif integral_type == 'auto':
-            if integrals['sub']:
-                integral_types = ['sub']
+        if integral_type == "all":
+            integral_types = ["tot", "bg", "sub"]
+        elif integral_type == "auto":
+            if integrals["sub"]:
+                integral_types = ["sub"]
             else:
-                integral_types = ['tot']
+                integral_types = ["tot"]
         else:
             integral_types = [integral_type]
-            
+
         for int_type, integral in integrals.items():
             if not integral or not int_type in integral_types:
                 continue
@@ -310,10 +320,10 @@ class Fit(Drawable):
             else:
                 int_res["id"] = hdtv.util.ID(self.ID.major, None)
             int_res["stat"] = str()
-            
+
             if self.active:
                 int_res["stat"] += "A"
-            if self.ID in self.spec.visible or self.ID is None: # ID of workFit is None
+            if self.ID in self.spec.visible or self.ID is None:  # ID of workFit is None
                 int_res["stat"] += "V"
 
             for p in integral["uncal"].keys():
@@ -322,19 +332,20 @@ class Fit(Drawable):
 
             if self.spec.cal:
                 # rename pos to channel in uncal
-                int_res['channel'] = int_res.pop('pos')
-                integral.pop('cal', None)
+                int_res["channel"] = int_res.pop("pos")
+                integral.pop("cal", None)
                 # Make sure that calibration is up to date
                 integral["cal"] = hdtv.integral.calibrate_integral(
-                    integral, self.spec.cal)['cal']
+                    integral, self.spec.cal
+                )["cal"]
                 for key, value in integral["cal"].items():
-                    if key == 'vol':
+                    if key == "vol":
                         continue
-                    p = key if (key == 'pos') else key + '_cal'
+                    p = key if (key == "pos") else key + "_cal"
                     int_res[p] = value
                     if p not in params:
                         params.append(p)
-            
+
             integrallist.append(int_res)
         return (integrallist, params)
 
@@ -375,7 +386,11 @@ class Fit(Drawable):
                 backgrounds.add(m.p1.pos_uncal, m.p2.pos_uncal)
             except AttributeError:
                 pos = m.p1.pos_cal if m.p1.pos_cal else m.p2.pos_cal
-                hdtv.ui.warning("Background region at {:.2f} without second marker was ignored".format(pos))
+                hdtv.ui.warning(
+                    "Background region at {:.2f} without second marker was ignored".format(
+                        pos
+                    )
+                )
         return backgrounds
 
     def FitBgFunc(self, spec=None):
@@ -394,16 +409,18 @@ class Fit(Drawable):
             try:
                 self.fitter.FitBackground(spec=self.spec, backgrounds=backgrounds)
                 func = self.fitter.bgFitter.GetFunc()
-                self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(
-                    func, hdtv.color.bg)
+                self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
                 self.dispBgFunc.SetCal(self.cal)
                 self.bgChi = self.fitter.bgFitter.GetChisquare()
                 self.bgParams = []
                 nparams = self.fitter.bgFitter.GetNparams()
                 for i in range(0, nparams):
-                    self.bgParams.append(ufloat(
-                        self.fitter.bgFitter.GetCoeff(i),
-                        self.fitter.bgFitter.GetCoeffError(i)))
+                    self.bgParams.append(
+                        ufloat(
+                            self.fitter.bgFitter.GetCoeff(i),
+                            self.fitter.bgFitter.GetCoeffError(i),
+                        )
+                    )
             except ValueError:
                 raise hdtv.cmdline.HDTVCommandAbort("Background fit failed.")
 
@@ -422,14 +439,15 @@ class Fit(Drawable):
         # fit background
         if len(self.bgMarkers) > 0:
             backgrounds = self._get_background_pairs()
-            try: 
+            try:
                 self.fitter.FitBackground(spec=self.spec, backgrounds=backgrounds)
             except ValueError:
                 raise hdtv.cmdline.HDTVCommandAbort("Background fit failed.")
         # fit peaks
         if len(self.peakMarkers) > 0 and self.regionMarkers.IsFull():
-            region = sorted([self.regionMarkers[0].p1.pos_uncal,
-                             self.regionMarkers[0].p2.pos_uncal])
+            region = sorted(
+                [self.regionMarkers[0].p1.pos_uncal, self.regionMarkers[0].p2.pos_uncal]
+            )
             # remove peak marker that are outside of region
             for m in self.peakMarkers[:]:
                 # we need to loop over a copy here,
@@ -440,34 +458,37 @@ class Fit(Drawable):
             self.fitter.FitPeaks(spec=self.spec, region=region, peaklist=peaks)
             # get background function
             self.bgParams = []
-            nparams = self.fitter.backgroundModel.fParStatus['nparams']
+            nparams = self.fitter.backgroundModel.fParStatus["nparams"]
             if not self.fitter.bgFitter:
                 for i in range(nparams):
-                    self.bgParams.append(ufloat(
-                        self.fitter.peakFitter.GetIntBgCoeff(i),
-                        self.fitter.peakFitter.GetIntBgCoeffError(i)))
+                    self.bgParams.append(
+                        ufloat(
+                            self.fitter.peakFitter.GetIntBgCoeff(i),
+                            self.fitter.peakFitter.GetIntBgCoeffError(i),
+                        )
+                    )
             else:
                 # external background
                 self.bgChi = self.fitter.bgFitter.GetChisquare()
                 for i in range(nparams):
-                    self.bgParams.append(ufloat(
-                        self.fitter.bgFitter.GetCoeff(i),
-                        self.fitter.bgFitter.GetCoeffError(i)))
+                    self.bgParams.append(
+                        ufloat(
+                            self.fitter.bgFitter.GetCoeff(i),
+                            self.fitter.bgFitter.GetCoeffError(i),
+                        )
+                    )
             func = self.fitter.peakFitter.GetBgFunc()
-            self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(
-                func, hdtv.color.bg)
+            self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.bg)
             self.dispBgFunc.SetCal(self.cal)
             # get peak function
             func = self.fitter.peakFitter.GetSumFunc()
-            self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(
-                func, hdtv.color.region)
+            self.dispPeakFunc = ROOT.HDTV.Display.DisplayFunc(func, hdtv.color.region)
             self.dispPeakFunc.SetCal(self.cal)
             self.chi = self.fitter.peakFitter.GetChisquare()
             # create peak list
             for i in range(0, self.fitter.peakFitter.GetNumPeaks()):
                 cpeak = self.fitter.peakFitter.GetPeak(i)
-                peak = self.fitter.peakModel.CopyPeak(
-                    cpeak, hdtv.color.peak, self.cal)
+                peak = self.fitter.peakModel.CopyPeak(cpeak, hdtv.color.peak, self.cal)
                 self.peaks.append(peak)
             # in some rare cases it can happen that peaks change position
             # while doing the fit, thus we have to sort here
@@ -492,15 +513,20 @@ class Fit(Drawable):
             for m in self.bgMarkers:
                 backgrounds.add(m.p1.pos_uncal, m.p2.pos_uncal)
             self.fitter.RestoreBackground(
-                backgrounds=backgrounds,
-                params=self.bgParams,
-                chisquare=self.bgChi)
-        region = sorted([self.regionMarkers[0].p1.pos_uncal,
-                         self.regionMarkers[0].p2.pos_uncal])
+                backgrounds=backgrounds, params=self.bgParams, chisquare=self.bgChi
+            )
+        region = sorted(
+            [self.regionMarkers[0].p1.pos_uncal, self.regionMarkers[0].p2.pos_uncal]
+        )
         print(self.bgParams)
         if self.peaks:
-            self.fitter.RestorePeaks(cal=self.cal, region=region, peaks=self.peaks,
-                                     chisquare=self.chi, coeffs=self.bgParams)
+            self.fitter.RestorePeaks(
+                cal=self.cal,
+                region=region,
+                peaks=self.peaks,
+                chisquare=self.chi,
+                coeffs=self.bgParams,
+            )
             # get background function
             func = self.fitter.peakFitter.GetBgFunc()
             self.dispBgFunc = ROOT.HDTV.Display.DisplayFunc(func, self.color)
@@ -515,13 +541,15 @@ class Fit(Drawable):
                 cpeak = self.fitter.peakFitter.GetPeak(i)
                 func = cpeak.GetPeakFunc()
                 self.peaks[i].displayObj = ROOT.HDTV.Display.DisplayFunc(
-                    func, self.color)
+                    func, self.color
+                )
                 self.peaks[i].displayObj.SetCal(self.cal)
 
             # create non-existant integral
             if not self.integral:
                 self.integral = hdtv.integral.Integrate(
-                    self.spec, self.fitter.bgFitter, region)
+                    self.spec, self.fitter.bgFitter, region
+                )
 
     def Draw(self, viewport):
         """

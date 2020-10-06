@@ -24,6 +24,7 @@ import pytest
 from tests.helpers.utils import redirect_stdout, hdtvcmd
 
 from hdtv.util import monkey_patch_ui
+
 monkey_patch_ui()
 
 import hdtv.cmdline
@@ -31,6 +32,7 @@ import hdtv.options
 import hdtv.session
 
 import __main__
+
 try:
     if not hasattr(__main__, "spectra"):
         __main__.spectra = hdtv.session.Session()
@@ -42,6 +44,7 @@ import hdtv.plugins.matInterface
 
 spectra = __main__.spectra
 
+
 @pytest.fixture(autouse=True)
 def prepare():
     hdtv.options.Set("table", "classic")
@@ -50,41 +53,51 @@ def prepare():
     yield
     spectra.Clear()
 
+
 @pytest.mark.skip(reason="need example matrix")
 def test_cmd_matrix_get_sym(matrix):
     raise NotImplementedError
+
 
 @pytest.mark.skip(reason="need example matrix")
 def test_cmd_matrix_get_asym(matrix):
     raise NotImplementedError
 
+
 @pytest.mark.skip(reason="need example matrix")
 def test_cmd_matrix_list(matrix):
     raise NotImplementedError
+
 
 @pytest.mark.skip(reason="need example matrix; hard to test")
 def test_cmd_matrix_view(matrix):
     raise NotImplementedError
 
+
 @pytest.mark.skip(reason="need example matrix")
 def test_cmd_cut_marker(matrix):
     raise NotImplementedError
+
 
 @pytest.mark.skip(reason="need example matrix")
 def test_cmd_cut_execute(matrix):
     raise NotImplementedError
 
+
 @pytest.mark.skip(reason="need example matrix")
 def test_cmd_cut_activate(matrix):
     raise NotImplementedError
+
 
 @pytest.mark.skip(reason="need example matrix")
 def test_cmd_cut_clear(matrix):
     raise NotImplementedError
 
+
 @pytest.mark.skip(reason="need example matrix")
 def test_cmd_cut_store(matrix):
     raise NotImplementedError
+
 
 @pytest.mark.skip(reason="need example matrix")
 def test_cmd_cut_delete(matrix):

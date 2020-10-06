@@ -24,8 +24,8 @@
 
 #include <cmath>
 
-#include <limits>
 #include <iostream>
+#include <limits>
 
 #include <TGScrollBar.h>
 #include <TGStatusBar.h>
@@ -48,8 +48,7 @@ namespace Display {
 const double View1D::DEFAULT_MAX_ENERGY = 1000.0;
 const double View1D::MIN_ENERGY_REGION = 1e-2;
 
-View1D::View1D(const TGWindow *p, UInt_t w, UInt_t h)
-    : View(p, w, h), fCurrentCal(), fDisplayStack(this), fPainter() {
+View1D::View1D(const TGWindow *p, UInt_t w, UInt_t h) : View(p, w, h), fCurrentCal(), fDisplayStack(this), fPainter() {
   // Constructor
 
   fXVisibleRegion = DEFAULT_MAX_ENERGY;
@@ -124,8 +123,7 @@ void View1D::YAutoScaleOnce(bool update) {
   for (auto &obj : fDisplayStack.fObjects) {
     if (auto *spec = dynamic_cast<DisplaySpec *>(obj)) {
       if (spec->IsVisible()) {
-        fYVisibleRegion =
-            std::max(fYVisibleRegion, fPainter.GetYAutoZoom(spec));
+        fYVisibleRegion = std::max(fYVisibleRegion, fPainter.GetYAutoZoom(spec));
       }
     }
   }
@@ -156,7 +154,7 @@ void View1D::ShiftOffset(int dO) {
     DrawCursor();
   }
 
-  const TGGC* gc;
+  const TGGC *gc;
   if (fDarkMode) {
     gc = &GetBlackGC();
   } else {
@@ -169,17 +167,14 @@ void View1D::ShiftOffset(int dO) {
     fDisplayStack.PaintRegion(x, x + w, fPainter);
   } else if (dO < 0) {
     // move right (note that dO ist negative)
-    gVirtualX->CopyArea(GetId(), GetId(), (*gc)(), x, y, w + dO + 1,
-                        h + 1, x - dO, y);
+    gVirtualX->CopyArea(GetId(), GetId(), (*gc)(), x, y, w + dO + 1, h + 1, x - dO, y);
     // Note that the area filled by FillRectangle() will not include
     // the border drawn by DrawRectangle() on the right and the bottom
     gVirtualX->FillRectangle(GetId(), (*gc)(), x, y, -dO, h + 1);
     fDisplayStack.PaintRegion(x, x - dO, fPainter);
   } else { // if(dO > 0) : move left (we caught dO == 0 above)
-    gVirtualX->CopyArea(GetId(), GetId(), (*gc)(), x + dO, y, w - dO + 1,
-                        h + 1, x, y);
-    gVirtualX->FillRectangle(GetId(), (*gc)(), x + w - dO + 1, y, dO,
-                             h + 1);
+    gVirtualX->CopyArea(GetId(), GetId(), (*gc)(), x + dO, y, w - dO + 1, h + 1, x, y);
+    gVirtualX->FillRectangle(GetId(), (*gc)(), x + w - dO + 1, y, dO, h + 1);
     fDisplayStack.PaintRegion(x + w - dO + 1, x + w, fPainter);
   }
 
@@ -246,9 +241,7 @@ void View1D::SetViewMode(HDTV::Display::ViewMode vm) {
 }
 
 //! Returns the X position of the cursor, in energy units.
-double View1D::GetCursorX() {
-  return fPainter.XtoE(static_cast<Int_t>(fCursorX));
-}
+double View1D::GetCursorX() { return fPainter.XtoE(static_cast<Int_t>(fCursorX)); }
 
 //! Returns the Y position of the cursor, in units of counts.
 double View1D::GetCursorY() { return fPainter.YtoC(fCursorY); }
@@ -508,9 +501,7 @@ void View1D::UpdateStatusPos() {
 
   if (fStatusBar) {
     if (fPainter.IsWithin(fCursorX, fCursorY)) {
-      snprintf(temp, 32, "%.4g %.4g",
-               fPainter.XtoE(static_cast<Int_t>(fCursorX)),
-               fPainter.YtoC(fCursorY));
+      snprintf(temp, 32, "%.4g %.4g", fPainter.XtoE(static_cast<Int_t>(fCursorX)), fPainter.YtoC(fCursorY));
       fStatusBar->SetText(temp, 0);
     } else {
       fStatusBar->SetText("", 0);
@@ -635,8 +626,7 @@ void View1D::Layout() {
   //! Callback for changes in size of our screen area
 
   fPainter.SetBasePoint(fLeftBorder + 2, fHeight - fBottomBorder - 2);
-  fPainter.SetSize(fWidth - fLeftBorder - fRightBorder - 4,
-                   fHeight - fTopBorder - fBottomBorder - 4);
+  fPainter.SetSize(fWidth - fLeftBorder - fRightBorder - 4, fHeight - fTopBorder - fBottomBorder - 4);
 }
 
 void View1D::DoRedraw() {

@@ -47,10 +47,10 @@ class SimpleUI(object):
         self.stdout = None
         self.stderr = None
 
-    def print(self, html, end='\n', err=False):
+    def print(self, html, end="\n", err=False):
         # Currently, patch_stdout and print_formatted_text don’t work
         # together. Therefore, we clear the current line manually
-        # first, print the formatted text, and finally call print to 
+        # first, print the formatted text, and finally call print to
         # force a redraw of the prompt. This causes problems when the
         # prompt is multiple lines long (the prompt will overwrite
         # the last lines that were just drawn).
@@ -60,17 +60,19 @@ class SimpleUI(object):
         if self.stdout:
             self.stdout.write(html)
             return
-        sys.stdout.write('\r')
-        #asyncio.set_event_loop(hdtv.cmdline.command_line.loop)
-        #self.print_patched(HTML(html), end)
-        hdtv.cmdline.command_line.loop.call_soon_threadsafe(self.print_patched, HTML(html), end)
-    
+        sys.stdout.write("\r")
+        # asyncio.set_event_loop(hdtv.cmdline.command_line.loop)
+        # self.print_patched(HTML(html), end)
+        hdtv.cmdline.command_line.loop.call_soon_threadsafe(
+            self.print_patched, HTML(html), end
+        )
+
     def print_patched(self, text, end):
         with patch_stdout(raw=False):
             print_formatted_text(text, end=end)
-            print('', end='\r')
+            print("", end="\r")
 
-    def msg(self, text=None, *, html=None, end='\n'):
+    def msg(self, text=None, *, html=None, end="\n"):
         """
         Print message
         """
@@ -78,7 +80,7 @@ class SimpleUI(object):
             html = escape(text or "")
         self.print(html, end=end)
 
-    def info(self, text=None, *, html=None, end='\n'):
+    def info(self, text=None, *, html=None, end="\n"):
         """
         Print informational message
         """
@@ -87,7 +89,7 @@ class SimpleUI(object):
         html = "INFO: " + html
         self.print(text, end=end)
 
-    def warning(self, text=None, *, html=None, end='\n'):
+    def warning(self, text=None, *, html=None, end="\n"):
         """
         Print warning message
         """
@@ -95,8 +97,7 @@ class SimpleUI(object):
             html = escape(text)
         self.print(f"<ansiyellow>WARNING: {html}</ansiyellow>", end=end, err=True)
 
-
-    def error(self, text=None, *, html=None, end='\n'):
+    def error(self, text=None, *, html=None, end="\n"):
         """
         Print error message
         """
@@ -104,7 +105,7 @@ class SimpleUI(object):
             html = escape(text)
         self.print(f"<ansired>ERROR: {html}</ansired>", end=end, err=True)
 
-    def debug(self, text=None, *, html=None, end='\n', level=1):
+    def debug(self, text=None, *, html=None, end="\n", level=1):
         """
         Debugging output. The higher the level, the more specific is
         the debug message.
@@ -122,14 +123,13 @@ info = ui.info
 warning = ui.warning
 error = ui.error
 
-def debug(text, end='\n', level=1):
-    if level > hdtv.options.Get('ui.out.level'):
+
+def debug(text, end="\n", level=1):
+    if level > hdtv.options.Get("ui.out.level"):
         return
     else:
         ui.debug(text, end=end, level=level)
 
 
-opt = hdtv.options.Option(
-    default=0,
-    parse=lambda x: int(x))
-hdtv.options.RegisterOption('ui.out.level', opt)
+opt = hdtv.options.Option(default=0, parse=lambda x: int(x))
+hdtv.options.RegisterOption("ui.out.level", opt)

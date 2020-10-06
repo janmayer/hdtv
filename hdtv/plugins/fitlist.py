@@ -47,11 +47,12 @@ class FitlistManager(object):
         # remember absolute pathname for later use
         fname = os.path.abspath(fname)
         self.list[name] = fname
-        with hdtv.util.open_compressed(fname, mode='wb') as f:
+        with hdtv.util.open_compressed(fname, mode="wb") as f:
             self.xml.WriteFitlist(f, sid)
 
-    def ReadXML(self, sid, fname, calibrate=False, refit=False,
-                interactive=True, associate=True):
+    def ReadXML(
+        self, sid, fname, calibrate=False, refit=False, interactive=True, associate=True
+    ):
         spec = self.spectra.dict[sid]
         # remember absolute pathname for later use
         fname = os.path.abspath(fname)
@@ -59,10 +60,15 @@ class FitlistManager(object):
             self.list[spec.name] = fname
         else:
             self.list.pop(spec.name, None)
-        with hdtv.util.open_compressed(fname, mode='rb') as f:
-            self.xml.ReadFitlist(f, sid,
-                 calibrate=calibrate, refit=refit,
-                 interactive=interactive, fname=fname)
+        with hdtv.util.open_compressed(fname, mode="rb") as f:
+            self.xml.ReadFitlist(
+                f,
+                sid,
+                calibrate=calibrate,
+                refit=refit,
+                interactive=interactive,
+                fname=fname,
+            )
 
     def WriteList(self, fname):
         lines = list()
@@ -82,11 +88,11 @@ class FitlistManager(object):
             dirname = os.path.dirname(fname)
             for linenum, l in enumerate(f):
                 # Remove comments and whitespace; ignore empty lines
-                l = l.split('#', 1)[0].strip()
+                l = l.split("#", 1)[0].strip()
                 if l == "":
                     continue
                 try:
-                    (k, v) = l.split(':', 1)
+                    (k, v) = l.split(":", 1)
                     name = k.strip()
                     xmlfile = v.strip()
                     # create valid path from relative pathnames
@@ -105,8 +111,9 @@ class FitlistManager(object):
                         hdtv.ui.warning("Spectrum %s is not loaded. " % name)
                 except ValueError:
                     hdtv.ui.warning(
-                        "Could not parse line %d of file %s: ignored." %
-                        (linenum + 1, fname))
+                        "Could not parse line %d of file %s: ignored."
+                        % (linenum + 1, fname)
+                    )
 
 
 class FitlistHDTVInterface(object):
@@ -116,43 +123,54 @@ class FitlistHDTVInterface(object):
 
         prog = "fit write"
         description = "write fits to xml file"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "-s",
             "--spectrum",
             action="store",
             default="active",
-            help="for which the fits should be saved (default=active)")
-        parser.add_argument("-F", "--force", action="store_true", default=False,
-            help="overwrite existing files without asking")
+            help="for which the fits should be saved (default=active)",
+        )
+        parser.add_argument(
+            "-F",
+            "--force",
+            action="store_true",
+            default=False,
+            help="overwrite existing files without asking",
+        )
         parser.add_argument(
             "filename",
-            nargs='?',
+            nargs="?",
             default=None,
-            help='''may contain %%s, %%d, %%02d (or other python
-            format specifier) as placeholder for spectrum id''')
-        hdtv.cmdline.AddCommand(prog, self.FitWrite,
-                                fileargs=True, parser=parser)
+            help="""may contain %%s, %%d, %%02d (or other python
+            format specifier) as placeholder for spectrum id""",
+        )
+        hdtv.cmdline.AddCommand(prog, self.FitWrite, fileargs=True, parser=parser)
 
         prog = "fit read"
         description = "read fits from xml file"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "-s",
             "--spectrum",
             action="store",
             default="active",
-            help="spectra to which the fits should be added (default=active)")
-        parser.add_argument("-r", "--refit", action="store_true", default=False,
-            help="Force refitting during load")
+            help="spectra to which the fits should be added (default=active)",
+        )
+        parser.add_argument(
+            "-r",
+            "--refit",
+            action="store_true",
+            default=False,
+            help="Force refitting during load",
+        )
         parser.add_argument(
             "-c",
             "--calibrate",
             action="store_true",
             default=False,
-            help="Apply the stored calibration to the loaded spectrum")
+            help="Apply the stored calibration to the loaded spectrum",
+        )
         parser.add_argument(
             "-n",
             "--no-associate",
@@ -161,37 +179,36 @@ class FitlistHDTVInterface(object):
             help="""Do not remeber the filename of the fitlist file,
             i.e. `fit write` will not write to the original fitlist file,
             but create a new one according to the name of the spectrum.
-            Useful for reusing fits from a different spectrum.""")
+            Useful for reusing fits from a different spectrum.""",
+        )
         parser.add_argument(
             "filename",
-            nargs='+',
-            help='''may contain %%s, %%d, %%02d (or other python
-            format specifier) as placeholder for spectrum id''')
-        hdtv.cmdline.AddCommand(
-            prog, self.FitRead, fileargs=True, parser=parser)
+            nargs="+",
+            help="""may contain %%s, %%d, %%02d (or other python
+            format specifier) as placeholder for spectrum id""",
+        )
+        hdtv.cmdline.AddCommand(prog, self.FitRead, fileargs=True, parser=parser)
 
         prog = "fit getlists"
         description = "reads fitlists according to the list saved in a file"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
-        parser.add_argument(
-            "filename",
-            default=None)
-        hdtv.cmdline.AddCommand(prog, self.FitGetlists,
-                                fileargs=True, parser=parser)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
+        parser.add_argument("filename", default=None)
+        hdtv.cmdline.AddCommand(prog, self.FitGetlists, fileargs=True, parser=parser)
 
         prog = "fit savelists"
-        description = "saves a list of spectrum names and corresponding fitlist files to file"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
-        parser.add_argument("-F", "--force", action="store_true", default=False,
-            help="overwrite existing files without asking")
+        description = (
+            "saves a list of spectrum names and corresponding fitlist files to file"
+        )
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
-            "filename",
-            metavar='output-file',
-            default=None)
-        hdtv.cmdline.AddCommand(prog, self.FitSavelists,
-                                fileargs=True, parser=parser)
+            "-F",
+            "--force",
+            action="store_true",
+            default=False,
+            help="overwrite existing files without asking",
+        )
+        parser.add_argument("filename", metavar="output-file", default=None)
+        hdtv.cmdline.AddCommand(prog, self.FitSavelists, fileargs=True, parser=parser)
 
     def FitWrite(self, args):
         """
@@ -207,7 +224,7 @@ class FitlistHDTVInterface(object):
             # TODO: Check if placeholder character is present in filename and
             # warn if not
             pass
-#            raise hdtv.cmdline.HDTVCommandError("Can only save fitlist of one spectrum")
+        #            raise hdtv.cmdline.HDTVCommandError("Can only save fitlist of one spectrum")
         for sid in sids:
             #            sid = sids[0]
             # get filename
@@ -228,7 +245,7 @@ class FitlistHDTVInterface(object):
                     # overwrite spectra without asking...
                     pass
             hdtv.ui.msg("Saving fits of spectrum %d to %s" % (sid, fname))
-        
+
             if hdtv.util.user_save_file(fname, args.force):
                 self.FitlistIf.WriteXML(sid, fname)
 
@@ -263,8 +280,12 @@ class FitlistHDTVInterface(object):
             for fname in fnames[sid]:
                 hdtv.ui.msg("Reading fitlist %s to spectrum %s" % (fname, sid))
                 self.FitlistIf.ReadXML(
-                    sid, fname, calibrate=args.calibrate,
-                    refit=args.refit, associate=(not args.no_associate))
+                    sid,
+                    fname,
+                    calibrate=args.calibrate,
+                    refit=args.refit,
+                    associate=(not args.no_associate),
+                )
 
     def FitSavelists(self, args):
         if hdtv.util.user_save_file(args.filename, args.force):
@@ -279,9 +300,12 @@ class FitlistHDTVInterface(object):
             raise hdtv.cmdline.HDTVCommandError("No such file %s" % fname)
         self.FitlistIf.ReadList(fname)
 
-hdtv.options.RegisterOption('fit.list.default_extension',
-                            hdtv.options.Option(default="xfl"))
+
+hdtv.options.RegisterOption(
+    "fit.list.default_extension", hdtv.options.Option(default="xfl")
+)
 
 import __main__
+
 fitxml = FitlistManager(__main__.spectra)
 hdtv.cmdline.RegisterInteractive("fitxml", fitxml)

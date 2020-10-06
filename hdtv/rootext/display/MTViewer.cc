@@ -32,8 +32,7 @@ namespace HDTV {
 namespace Display {
 
 MTViewer::MTViewer(UInt_t w, UInt_t h, TH2 *mat, const char *title, bool copy)
-    : TGMainFrame(gClient->GetRoot(), w, h), fView(nullptr),
-      fStatusBar(nullptr) {
+    : TGMainFrame(gClient->GetRoot(), w, h), fView(nullptr), fStatusBar(nullptr) {
   if (copy) {
     fMatCopy.reset(dynamic_cast<TH2 *>(mat->Clone()));
     Init(w, h, fMatCopy.get(), title);
@@ -43,15 +42,13 @@ MTViewer::MTViewer(UInt_t w, UInt_t h, TH2 *mat, const char *title, bool copy)
 }
 
 MTViewer::MTViewer(UInt_t w, UInt_t h, THnSparse *mat, const char *title)
-    : TGMainFrame(gClient->GetRoot(), w, h), fView(nullptr),
-      fStatusBar(nullptr), fMatCopy(mat->Projection(0, 1, "A")) {
+    : TGMainFrame(gClient->GetRoot(), w, h), fView(nullptr), fStatusBar(nullptr), fMatCopy(mat->Projection(0, 1, "A")) {
   Init(w, h, fMatCopy.get(), title);
 }
 
 void MTViewer::Init(UInt_t w, UInt_t h, TH2 *mat, const char *title) {
   fView = new HDTV::Display::View2D(this, w - 4, h - 4, mat);
-  AddFrame(fView,
-           new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
+  AddFrame(fView, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
 
   fStatusBar = new TGStatusBar(this, 10, 16);
   AddFrame(fStatusBar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));

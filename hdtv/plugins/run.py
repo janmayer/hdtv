@@ -38,7 +38,7 @@ def run(args):
     try:
         with open(fname) as f:
             hdtv.ui.msg("Running script %s" % fname)
-            exec(compile(f.read(), fname, 'exec'))
+            exec(compile(f.read(), fname, "exec"))
             hdtv.ui.msg("Finished!")
     except IOError as err:
         hdtv.ui.error(str(err))

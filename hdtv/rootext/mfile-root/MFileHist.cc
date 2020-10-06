@@ -219,8 +219,7 @@ int MFileHist::Close() {
 }
 
 template <class histType>
-histType *MFileHist::ToTH1(const char *name, const char *title,
-                           unsigned int level, unsigned int line) {
+histType *MFileHist::ToTH1(const char *name, const char *title, unsigned int level, unsigned int line) {
   histType *hist;
 
   if (!fHist || !fInfo) {
@@ -271,18 +270,15 @@ TH1 *MFileHist::FillTH1(TH1 *hist, unsigned int level, unsigned int line) {
   return hist;
 }
 
-TH1D *MFileHist::ToTH1D(const char *name, const char *title, unsigned int level,
-                        unsigned int line) {
+TH1D *MFileHist::ToTH1D(const char *name, const char *title, unsigned int level, unsigned int line) {
   return ToTH1<TH1D>(name, title, level, line);
 }
 
-TH1I *MFileHist::ToTH1I(const char *name, const char *title, unsigned int level,
-                        unsigned int line) {
+TH1I *MFileHist::ToTH1I(const char *name, const char *title, unsigned int level, unsigned int line) {
   return ToTH1<TH1I>(name, title, level, line);
 }
 
-double *MFileHist::FillBuf1D(double *buf, unsigned int level,
-                             unsigned int line) {
+double *MFileHist::FillBuf1D(double *buf, unsigned int level, unsigned int line) {
   if (!fHist || !fInfo) {
     fErrno = ERR_READ_NOTOPEN;
     return nullptr;
@@ -338,9 +334,7 @@ TH2 *MFileHist::FillTH2(TH2 *hist, unsigned int level) {
   return hist;
 }
 
-template <class histType>
-histType *MFileHist::ToTH2(const char *name, const char *title,
-                           unsigned int level) {
+template <class histType> histType *MFileHist::ToTH2(const char *name, const char *title, unsigned int level) {
   histType *hist;
 
   if (!fHist || !fInfo) {
@@ -353,8 +347,7 @@ histType *MFileHist::ToTH2(const char *name, const char *title,
     return nullptr;
   }
 
-  hist = new histType(name, title, fInfo->columns, -0.5, fInfo->columns - 0.5,
-                      fInfo->lines, -0.5, fInfo->lines - 0.5);
+  hist = new histType(name, title, fInfo->columns, -0.5, fInfo->columns - 0.5, fInfo->lines, -0.5, fInfo->lines - 0.5);
 
   // FillTH2 will set fErrno
   if (!FillTH2(hist, level)) {
@@ -365,12 +358,10 @@ histType *MFileHist::ToTH2(const char *name, const char *title,
   return hist;
 }
 
-TH2D *MFileHist::ToTH2D(const char *name, const char *title,
-                        unsigned int level) {
+TH2D *MFileHist::ToTH2D(const char *name, const char *title, unsigned int level) {
   return ToTH2<TH2D>(name, title, level);
 }
 
-TH2I *MFileHist::ToTH2I(const char *name, const char *title,
-                        unsigned int level) {
+TH2I *MFileHist::ToTH2I(const char *name, const char *title, unsigned int level) {
   return ToTH2<TH2I>(name, title, level);
 }

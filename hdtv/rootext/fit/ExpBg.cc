@@ -26,20 +26,18 @@
 
 #include <iostream>
 
+#include <ROOT/RMakeUnique.hxx>
 #include <TError.h>
 #include <TF1.h>
 #include <TH1.h>
 #include <TVirtualFitter.h>
-#include <ROOT/RMakeUnique.hxx>
 
 #include "Util.hh"
 
 namespace HDTV {
 namespace Fit {
 
-ExpBg::ExpBg(int nParams,
-             const Option<bool> integrate,
-             const Option<std::string> likelihood) {
+ExpBg::ExpBg(int nParams, const Option<bool> integrate, const Option<std::string> likelihood) {
   //! Constructor
 
   fnParams = nParams;
@@ -49,16 +47,13 @@ ExpBg::ExpBg(int nParams,
 }
 
 ExpBg::ExpBg(const ExpBg &src)
-    : fBgRegions(src.fBgRegions), fnParams(src.fnParams),
-      fIntegrate(src.fIntegrate), fLikelihood(src.fLikelihood),
+    : fBgRegions(src.fBgRegions), fnParams(src.fnParams), fIntegrate(src.fIntegrate), fLikelihood(src.fLikelihood),
       fChisquare(src.fChisquare), fCovar(src.fCovar) {
   //! Copy constructor
 
   if (src.fFunc != nullptr) {
-    fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
-                                   &ExpBg::_Eval, src.fFunc->GetXmin(),
-                                   src.fFunc->GetXmax(), fnParams, "ExpBg",
-                                   "_Eval");
+    fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this, &ExpBg::_Eval, src.fFunc->GetXmin(),
+                                  src.fFunc->GetXmax(), fnParams, "ExpBg", "_Eval");
 
     for (int i = 0; i < fnParams; ++i) {
       fFunc->SetParameter(i, src.fFunc->GetParameter(i));
@@ -79,13 +74,10 @@ ExpBg &ExpBg::operator=(const ExpBg &src) {
   fnParams = src.fnParams;
   fChisquare = src.fChisquare;
   fCovar = src.fCovar;
-  fIntegrate = src.fIntegrate,
-  fLikelihood = src.fLikelihood;
+  fIntegrate = src.fIntegrate, fLikelihood = src.fLikelihood;
 
-  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
-                                 &ExpBg::_Eval, src.fFunc->GetXmin(),
-                                 src.fFunc->GetXmax(), fnParams, "ExpBg",
-                                 "_Eval");
+  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this, &ExpBg::_Eval, src.fFunc->GetXmin(),
+                                src.fFunc->GetXmax(), fnParams, "ExpBg", "_Eval");
 
   for (int i = 0; i < fnParams; ++i) {
     fFunc->SetParameter(i, src.fFunc->GetParameter(i));
@@ -103,26 +95,25 @@ void ExpBg::Fit(TH1 &hist) {
   }
   // Create function to be used for fitting
   // Note that a polynomial of degree N has N+1 parameters
-  TF1 fitFunc(GetFuncUniqueName("b_fit", this).c_str(), this,
-              &ExpBg::_EvalRegion, GetMin(), GetMax(), fnParams, "ExpBg",
-              "_EvalRegion");
+  TF1 fitFunc(GetFuncUniqueName("b_fit", this).c_str(), this, &ExpBg::_EvalRegion, GetMin(), GetMax(), fnParams,
+              "ExpBg", "_EvalRegion");
 
   // Estimate start parameters p[0] and p[1]
   std::list<double>::iterator iter;
-  
+
   iter = fBgRegions.begin();
-  double bg_bin_start = *iter; 
+  double bg_bin_start = *iter;
   iter = --fBgRegions.end();
-  double bg_bin_stop = *iter; 
+  double bg_bin_stop = *iter;
 
   double bg_start = hist.GetBinContent(hist.GetBin(bg_bin_start));
   double bg_stop = hist.GetBinContent(hist.GetBin(bg_bin_stop));
 
   // p[0], the scaling factor, and p[1], the decay constant, are set to fulfil the equation
   // exp(p[0]+p[1]*bg_bin_start) = bg_start
-  // exp(p[0]+p[1]*bg_bin_stop) = bg_stop 
-  fitFunc.SetParameter(1, (log(bg_stop) - log(bg_start))/(bg_bin_stop - bg_bin_start));
-  fitFunc.SetParameter(0, log(bg_start) - fitFunc.GetParameter(1)*bg_bin_start);
+  // exp(p[0]+p[1]*bg_bin_stop) = bg_stop
+  fitFunc.SetParameter(1, (log(bg_stop) - log(bg_start)) / (bg_bin_stop - bg_bin_start));
+  fitFunc.SetParameter(0, log(bg_start) - fitFunc.GetParameter(1) * bg_bin_start);
 
   for (int i = 2; i < fnParams; ++i) {
     fitFunc.SetParameter(i, 0.0);
@@ -130,9 +121,7 @@ void ExpBg::Fit(TH1 &hist) {
 
   // Fit
   char options[7];
-  sprintf(options, "RQNM%s%s",
-    fIntegrate.GetValue() ? "I" : "",
-    fLikelihood.GetValue() == "poisson" ? "L" : "");
+  sprintf(options, "RQNM%s%s", fIntegrate.GetValue() ? "I" : "", fLikelihood.GetValue() == "poisson" ? "L" : "");
   hist.Fit(&fitFunc, options);
 
   // Copy chisquare
@@ -143,8 +132,7 @@ void ExpBg::Fit(TH1 &hist) {
   if (fitter == nullptr) {
     Error("ExpBg::Fit", "No existing fitter after fit");
   } else {
-    fCovar = std::vector<std::vector<double>>(fnParams,
-                                              std::vector<double>(fnParams));
+    fCovar = std::vector<std::vector<double>>(fnParams, std::vector<double>(fnParams));
     for (int i = 0; i < fnParams; ++i) {
       for (int j = 0; j < fnParams; ++j) {
         fCovar[i][j] = fitter->GetCovarianceMatrixElement(i, j);
@@ -153,9 +141,8 @@ void ExpBg::Fit(TH1 &hist) {
   }
 
   // Copy parameters to new function
-  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
-                                 &ExpBg::_Eval, GetMin(), GetMax(), fnParams,
-                                 "ExpBg", "_Eval");
+  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this, &ExpBg::_Eval, GetMin(), GetMax(), fnParams,
+                                "ExpBg", "_Eval");
 
   for (int i = 0; i < fnParams; ++i) {
     fFunc->SetParameter(i, fitFunc.GetParameter(i));
@@ -163,22 +150,19 @@ void ExpBg::Fit(TH1 &hist) {
   }
 }
 
-bool ExpBg::Restore(const TArrayD &values, const TArrayD &errors,
-                     double ChiSquare) {
+bool ExpBg::Restore(const TArrayD &values, const TArrayD &errors, double ChiSquare) {
   //! Restore state of a ExpBg object from saved values.
   //! NOTE: The covariance matrix is currently NOT restored, so EvalError()
   //! will always return NaN.
 
   if (values.GetSize() != fnParams || errors.GetSize() != fnParams) {
-    Warning("HDTV::ExpBg::Restore",
-            "size of vector does not match degree of background.");
+    Warning("HDTV::ExpBg::Restore", "size of vector does not match degree of background.");
     return false;
   }
 
   // Copy parameters to new function
-  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this,
-                                 &ExpBg::_Eval, GetMin(), GetMax(), fnParams,
-                                 "ExpBg", "_Eval");
+  fFunc = std::make_unique<TF1>(GetFuncUniqueName("b", this).c_str(), this, &ExpBg::_Eval, GetMin(), GetMax(), fnParams,
+                                "ExpBg", "_Eval");
 
   for (int i = 0; i < fnParams; ++i) {
     fFunc->SetParameter(i, values[i]);
@@ -238,8 +222,7 @@ double ExpBg::_EvalRegion(double *x, double *p) {
   std::list<double>::iterator iter;
 
   bool reject = true;
-  for (iter = fBgRegions.begin(); iter != fBgRegions.end() && *iter < x[0];
-       iter++) {
+  for (iter = fBgRegions.begin(); iter != fBgRegions.end() && *iter < x[0]; iter++) {
     reject = !reject;
   }
 
@@ -248,7 +231,7 @@ double ExpBg::_EvalRegion(double *x, double *p) {
     return 0.0;
   } else {
     double bg;
-    bg = p[fnParams-1];
+    bg = p[fnParams - 1];
     for (int i = fnParams - 2; i >= 0; i--) {
       bg = bg * x[0] + p[i];
     }
@@ -259,7 +242,7 @@ double ExpBg::_EvalRegion(double *x, double *p) {
 double ExpBg::_Eval(double *x, double *p) {
   //! Evaluate background function at position x
 
-  double bg = p[fnParams-1];
+  double bg = p[fnParams - 1];
   for (int i = fnParams - 2; i >= 0; i--) {
     bg = bg * x[0] + p[i];
   }

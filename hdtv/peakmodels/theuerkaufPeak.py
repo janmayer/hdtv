@@ -70,23 +70,21 @@ class TheuerkaufPeak(Drawable):
             pos_uncal = self.pos.nominal_value
             hwhm_uncal = self.width.nominal_value / 2
             width_err_uncal = self.width.std_dev
-            width_cal = self.cal.Ch2E(
-                pos_uncal + hwhm_uncal) - self.cal.Ch2E(pos_uncal - hwhm_uncal)
+            width_cal = self.cal.Ch2E(pos_uncal + hwhm_uncal) - self.cal.Ch2E(
+                pos_uncal - hwhm_uncal
+            )
             # This is only an approximation, valid as d(width_cal)/d(pos_uncal) \approx 0
             #  (which is true for Ch2E \approx linear)
             width_err_cal = abs(
-                (self.cal.dEdCh(
-                    pos_uncal +
-                    hwhm_uncal) /
-                    2. +
-                    self.cal.dEdCh(
-                    pos_uncal -
-                    hwhm_uncal) /
-                    2.) *
-                width_err_uncal)
+                (
+                    self.cal.dEdCh(pos_uncal + hwhm_uncal) / 2.0
+                    + self.cal.dEdCh(pos_uncal - hwhm_uncal) / 2.0
+                )
+                * width_err_uncal
+            )
             return ufloat(width_cal, width_err_cal, self.width.tag)
         elif name in ["vol_cal", "tl_cal", "tr_cal", "sh_cal", "sw_cal"]:
-            name = name[0:name.rfind("_cal")]
+            name = name[0 : name.rfind("_cal")]
             return getattr(self, name)
         else:
             # DON'T FORGET THIS LINE! see
@@ -124,28 +122,32 @@ class TheuerkaufPeak(Drawable):
         return text.format(self)
 
     def __eq__(self, other):
-        return ((self.pos, self.vol, self.width, self.tl, self.tr, self.sh, self.sw) == (
-            other.pos, other.vol, other.width, other.tl, other.tr, other.sh, other.sw))
+        return (self.pos, self.vol, self.width, self.tl, self.tr, self.sh, self.sw) == (
+            other.pos,
+            other.vol,
+            other.width,
+            other.tl,
+            other.tr,
+            other.sh,
+            other.sw,
+        )
 
     def __ne__(self, other):
         return not (
-            (self.pos,
-             self.vol,
-             self.width,
-             self.tl,
-             self.tr,
-             self.sh,
-             self.sw) == (
+            (self.pos, self.vol, self.width, self.tl, self.tr, self.sh, self.sw)
+            == (
                 other.pos,
                 other.vol,
                 other.width,
                 other.tl,
                 other.tr,
                 other.sh,
-                other.sw))
+                other.sw,
+            )
+        )
 
     def __lt__(self, other):
-        return (self.pos.nominal_value < other.pos.nominal_value)
+        return self.pos.nominal_value < other.pos.nominal_value
 
     def Draw(self, viewport):
         """
@@ -157,8 +159,7 @@ class TheuerkaufPeak(Drawable):
             else:
                 # Unlike the Display object of the underlying implementation,
                 # python objects can only be drawn on a single viewport
-                raise RuntimeError(
-                    "Peak cannot be drawn on multiple viewports")
+                raise RuntimeError("Peak cannot be drawn on multiple viewports")
         self.viewport = viewport
         if self.displayObj:
             self.displayObj.Draw(self.viewport)
@@ -172,8 +173,14 @@ class PeakModelTheuerkauf(PeakModel):
     def __init__(self):
         super(PeakModelTheuerkauf, self).__init__()
         self.fParStatus = {
-            "pos": None, "vol": None, "width": None,
-            "tl": None, "tr": None, "sh": None, "sw": None}
+            "pos": None,
+            "vol": None,
+            "width": None,
+            "tl": None,
+            "tr": None,
+            "sh": None,
+            "sw": None,
+        }
         self.fValidParStatus = {
             "pos": [float, "free", "hold"],
             "vol": [float, "free", "hold"],
@@ -204,28 +211,34 @@ class PeakModelTheuerkauf(PeakModel):
         pos_uncal = cpeak.GetPos()
         pos_err_uncal = cpeak.GetPosError()
         # width==fwhm (internally the C++ fitter uses sigma)
-        width_uncal = cpeak.GetSigma() * 2. * math.sqrt(2. * math.log(2.))
-        width_err_uncal = cpeak.GetSigmaError() * 2. * math.sqrt(2. * math.log(2.))
+        width_uncal = cpeak.GetSigma() * 2.0 * math.sqrt(2.0 * math.log(2.0))
+        width_err_uncal = cpeak.GetSigmaError() * 2.0 * math.sqrt(2.0 * math.log(2.0))
         # create ufloats from this
         pos = ufloat(pos_uncal, pos_err_uncal, cpeak.PosIsFree())
         vol = ufloat(cpeak.GetVol(), cpeak.GetVolError(), cpeak.VolIsFree())
         width = ufloat(width_uncal, width_err_uncal, cpeak.SigmaIsFree())
         # optional parameters
         if cpeak.HasLeftTail():
-            tl = ufloat(cpeak.GetLeftTail(), cpeak.GetLeftTailError(),
-                          cpeak.LeftTailIsFree())
+            tl = ufloat(
+                cpeak.GetLeftTail(), cpeak.GetLeftTailError(), cpeak.LeftTailIsFree()
+            )
         else:
             tl = None
         if cpeak.HasRightTail():
-            tr = ufloat(cpeak.GetRightTail(), cpeak.GetRightTailError(),
-                          cpeak.RightTailIsFree())
+            tr = ufloat(
+                cpeak.GetRightTail(), cpeak.GetRightTailError(), cpeak.RightTailIsFree()
+            )
         else:
             tr = None
         if cpeak.HasStep():
-            sh = ufloat(cpeak.GetStepHeight(), cpeak.GetStepHeightError(),
-                          cpeak.StepHeightIsFree())
-            sw = ufloat(cpeak.GetStepWidth(), cpeak.GetStepWidthError(),
-                          cpeak.StepWidthIsFree())
+            sh = ufloat(
+                cpeak.GetStepHeight(),
+                cpeak.GetStepHeightError(),
+                cpeak.StepHeightIsFree(),
+            )
+            sw = ufloat(
+                cpeak.GetStepWidth(), cpeak.GetStepWidthError(), cpeak.StepWidthIsFree()
+            )
         else:
             sh = sw = None
         # create peak object
@@ -242,8 +255,8 @@ class PeakModelTheuerkauf(PeakModel):
         cpeak.RestorePos(peak.pos.nominal_value, peak.pos.std_dev)
         cpeak.RestoreVol(peak.vol.nominal_value, peak.vol.std_dev)
         # internally the C++ fitter uses sigma
-        sigma = peak.width.nominal_value / (2. * math.sqrt(2. * math.log(2.)))
-        sigma_err = peak.width.std_dev / (2. * math.sqrt(2. * math.log(2.)))
+        sigma = peak.width.nominal_value / (2.0 * math.sqrt(2.0 * math.log(2.0)))
+        sigma_err = peak.width.std_dev / (2.0 * math.sqrt(2.0 * math.log(2.0)))
         cpeak.RestoreSigma(sigma, sigma_err)
         if peak.tl:
             cpeak.RestoreLeftTail(peak.tl.nominal_value, peak.tl.std_dev)
@@ -274,11 +287,12 @@ class PeakModelTheuerkauf(PeakModel):
             return cal.E2Ch(value)
         elif parname == "width":
             pos_cal = cal.Ch2E(pos_uncal)
-            width_uncal = cal.E2Ch(pos_cal + value / 2.) - \
-                cal.E2Ch(pos_cal - value / 2.)
+            width_uncal = cal.E2Ch(pos_cal + value / 2.0) - cal.E2Ch(
+                pos_cal - value / 2.0
+            )
             # Note that the underlying fitter uses ``sigma'' as a parameter
             #  (see HDTV technical documentation in the wiki)
-            return width_uncal / (2. * math.sqrt(2. * math.log(2.)))
+            return width_uncal / (2.0 * math.sqrt(2.0 * math.log(2.0)))
         elif parname in ("vol", "tl", "tr", "sh", "sw"):
             return value
         else:
@@ -290,12 +304,13 @@ class PeakModelTheuerkauf(PeakModel):
         """
         # Define a fitter and a region
         # FIXME: show_inipar seems to create a crash, see ticket #103 for trace
-        #debug_show_inipar = hdtv.options.Get("__debug__.fit.show_inipar")
-        #self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(region[0],region[1],debug_show_inipar)
+        # debug_show_inipar = hdtv.options.Get("__debug__.fit.show_inipar")
+        # self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(region[0],region[1],debug_show_inipar)
         integrate = self.GetOption("integrate")
         likelihood = self.GetOption("likelihood")
         self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(
-            region[0], region[1], integrate, likelihood)
+            region[0], region[1], integrate, likelihood
+        )
         self.ResetGlobalParams()
         # Check if enough values are provided in case of per-peak parameters
         #  (the function raises a RuntimeError if the check fails)
@@ -313,8 +328,7 @@ class PeakModelTheuerkauf(PeakModel):
             sh = self.GetParam("sh", pid, pos_uncal, cal)
             sw = self.GetParam("sw", pid, pos_uncal, cal)
 
-            cpeak = ROOT.HDTV.Fit.TheuerkaufPeak(
-                pos, vol, sigma, tl, tr, sh, sw)
+            cpeak = ROOT.HDTV.Fit.TheuerkaufPeak(pos, vol, sigma, tl, tr, sh, sw)
             self.fFitter.AddPeak(cpeak)
 
         return self.fFitter

@@ -62,8 +62,7 @@ struct cache_int_t {
 };
 struct cache_int_t cache_int = {NULL};
 
-static int mgetint_col(MFILE *mat, int *buf, int level, int line, int col,
-                       int num) {
+static int mgetint_col(MFILE *mat, int *buf, int level, int line, int col, int num) {
   if (mat != cache_int.mat) {
     int size;
     int columns = mat->columns;
@@ -91,8 +90,7 @@ static int mgetint_col(MFILE *mat, int *buf, int level, int line, int col,
     cache_int.columns = columns;
   }
 
-  if (level != cache_int.level || col < cache_int.col ||
-      col >= cache_int.col + cache_int.cachecols) {
+  if (level != cache_int.level || col < cache_int.col || col >= cache_int.col + cache_int.cachecols) {
 
     int n;
     int l;
@@ -134,8 +132,7 @@ struct cache_flt_t {
 };
 struct cache_flt_t cache_flt = {NULL};
 
-static int mgetflt_col(MFILE *mat, float *buf, int level, int line, int col,
-                       int num) {
+static int mgetflt_col(MFILE *mat, float *buf, int level, int line, int col, int num) {
   if (mat != cache_flt.mat) {
     int size;
     int columns = mat->columns;
@@ -163,8 +160,7 @@ static int mgetflt_col(MFILE *mat, float *buf, int level, int line, int col,
     cache_flt.columns = columns;
   }
 
-  if (level != cache_flt.level || col < cache_flt.col ||
-      col >= cache_flt.col + cache_flt.cachecols) {
+  if (level != cache_flt.level || col < cache_flt.col || col >= cache_flt.col + cache_flt.cachecols) {
 
     int n;
     int l;
@@ -187,8 +183,7 @@ static int mgetflt_col(MFILE *mat, float *buf, int level, int line, int col,
   }
   {
     int i;
-    float *p =
-        cache_flt.buf + (line * cache_flt.cachecols + col - cache_flt.col);
+    float *p = cache_flt.buf + (line * cache_flt.cachecols + col - cache_flt.col);
 
     for (i = 0; i < num; i++) {
       *buf++ = *p;
@@ -207,8 +202,7 @@ struct cache_dbl_t {
 };
 struct cache_dbl_t cache_dbl = {NULL};
 
-static int mgetdbl_col(MFILE *mat, double *buf, int level, int line, int col,
-                       int num) {
+static int mgetdbl_col(MFILE *mat, double *buf, int level, int line, int col, int num) {
   if (mat != cache_dbl.mat) {
     int size;
     int columns = mat->columns;
@@ -236,8 +230,7 @@ static int mgetdbl_col(MFILE *mat, double *buf, int level, int line, int col,
     cache_dbl.columns = columns;
   }
 
-  if (level != cache_dbl.level || col < cache_dbl.col ||
-      col >= cache_dbl.col + cache_dbl.cachecols) {
+  if (level != cache_dbl.level || col < cache_dbl.col || col >= cache_dbl.col + cache_dbl.cachecols) {
 
     int n;
     int l;
@@ -260,8 +253,7 @@ static int mgetdbl_col(MFILE *mat, double *buf, int level, int line, int col,
   }
   {
     int i;
-    double *p =
-        cache_dbl.buf + (line * cache_dbl.cachecols + col - cache_dbl.col);
+    double *p = cache_dbl.buf + (line * cache_dbl.cachecols + col - cache_dbl.col);
 
     for (i = 0; i < num; i++) {
       *buf++ = *p;

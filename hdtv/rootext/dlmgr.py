@@ -33,12 +33,19 @@ import hdtv.ui
 from hdtv.rootext import modules, libfmt
 
 from hdtv._version import get_versions
-__version__ = get_versions()['version']
+
+__version__ = get_versions()["version"]
 del get_versions
 
-cachedir = os.path.join(os.getenv("XDG_CACHE_HOME", os.path.join(os.environ["HOME"], ".cache")), "hdtv")
-usrdir = os.path.join(cachedir, "%d-%d-%s" % (sys.hexversion, ROOT.gROOT.GetVersionInt(), __version__))
-sysdir = os.path.join(os.path.dirname(__file__), "root-" + str(ROOT.gROOT.GetVersionInt()))
+cachedir = os.path.join(
+    os.getenv("XDG_CACHE_HOME", os.path.join(os.environ["HOME"], ".cache")), "hdtv"
+)
+usrdir = os.path.join(
+    cachedir, "%d-%d-%s" % (sys.hexversion, ROOT.gROOT.GetVersionInt(), __version__)
+)
+sysdir = os.path.join(
+    os.path.dirname(__file__), "root-" + str(ROOT.gROOT.GetVersionInt())
+)
 
 
 def FindLibrary(name, libname):
@@ -46,7 +53,7 @@ def FindLibrary(name, libname):
     Find the path to a dynamic library in a subfolder.
     Returns the full filename.
     """
-    paths = [os.path.join(usrdir, 'lib'), os.path.join(sysdir, 'lib')]
+    paths = [os.path.join(usrdir, "lib"), os.path.join(sysdir, "lib")]
     for path in paths:
         fname = os.path.join(path, libname)
         if os.path.isfile(fname):
@@ -62,11 +69,11 @@ def LoadLibrary(name):
     libname = libfmt % name
     fname = FindLibrary(name, libname)
     if fname:
-        loaded = (_LoadLibrary(fname) >= 0)
+        loaded = _LoadLibrary(fname) >= 0
 
     if not loaded:
         fname = BuildLibrary(name, usrdir)
-        loaded = (_LoadLibrary(fname) >= 0)
+        loaded = _LoadLibrary(fname) >= 0
 
     if not loaded:
         hdtv.ui.error("Failed to load library %s" % libname)
@@ -74,10 +81,12 @@ def LoadLibrary(name):
 
 
 def _LoadLibrary(fname):
-    ROOT.gSystem.SetDynamicPath(os.path.dirname(fname) + os.pathsep +
-                                ROOT.gSystem.GetDynamicPath())
-    ROOT.gSystem.SetIncludePath(os.path.dirname(fname) + os.pathsep +
-                                ROOT.gSystem.GetDynamicPath())
+    ROOT.gSystem.SetDynamicPath(
+        os.path.dirname(fname) + os.pathsep + ROOT.gSystem.GetDynamicPath()
+    )
+    ROOT.gSystem.SetIncludePath(
+        os.path.dirname(fname) + os.pathsep + ROOT.gSystem.GetDynamicPath()
+    )
     return ROOT.gSystem.Load(fname)
 
 
@@ -87,15 +96,23 @@ def RebuildLibraries(dir, libraries=None):
     for name in libraries or modules:
         BuildLibrary(name, dir)
 
+
 def BuildLibrary(name, dir):
     srcdir = os.path.join(os.path.dirname(__file__), name)
     # with tempfile.TemporaryDirectory() as tmpdir: TOOD: Not available in python2
     tmpdir = tempfile.mkdtemp()
-    subprocess.check_call(['cmake', srcdir, '-DCMAKE_INSTALL_PREFIX=%s' % dir, '-DCMAKE_BUILD_TYPE=Release'],
-                          cwd=tmpdir)
-    subprocess.check_call(['cmake', '--build', '.', '-j'], cwd=tmpdir)
-    subprocess.check_call(['cmake', '--build', '.', '--target', 'install'], cwd=tmpdir)
+    subprocess.check_call(
+        [
+            "cmake",
+            srcdir,
+            "-DCMAKE_INSTALL_PREFIX=%s" % dir,
+            "-DCMAKE_BUILD_TYPE=Release",
+        ],
+        cwd=tmpdir,
+    )
+    subprocess.check_call(["cmake", "--build", ".", "-j"], cwd=tmpdir)
+    subprocess.check_call(["cmake", "--build", ".", "--target", "install"], cwd=tmpdir)
     shutil.rmtree(tmpdir)
 
     hdtv.ui.info("Rebuild library %s in %s" % ((libfmt % name), dir))
-    return os.path.join(dir, 'lib', libfmt % name)
+    return os.path.join(dir, "lib", libfmt % name)

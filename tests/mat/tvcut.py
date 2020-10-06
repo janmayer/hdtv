@@ -11,7 +11,7 @@ class Cut:
 
     def Cut(self, matfile, r1, r2):
         tempdir = "/home/braun/Diplom/temp"
-        fname = "%032X.asc" % random.randint(0, 2**128)
+        fname = "%032X.asc" % random.randint(0, 2 ** 128)
 
         tvcmds = "cut activate 0; "
         tvcmds += "cut attach matrix 1; "
@@ -35,11 +35,19 @@ class Cut:
 
         tvcmds += "exit; "
 
-        os.spawnl(os.P_WAIT, "/usr/bin/xvfb-run",
-                             "/usr/bin/xvfb-run",
-                             "-w", "0",
-                             "/ikp/bin/tv", "-src", "-rc", "-e", tvcmds)
+        os.spawnl(
+            os.P_WAIT,
+            "/usr/bin/xvfb-run",
+            "/usr/bin/xvfb-run",
+            "-w",
+            "0",
+            "/ikp/bin/tv",
+            "-src",
+            "-rc",
+            "-e",
+            tvcmds,
+        )
 
         time.sleep(0.5)
 
-        return (tempdir + "/" + fname)
+        return tempdir + "/" + fname

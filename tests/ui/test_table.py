@@ -12,18 +12,11 @@ output = db.find(energy=511, sort_key="k0", fuzziness=2)
 
 table = Table(
     output,
-    header=[
-        "ID",
-        "Energy / (keV)",
-        "Intensity / (%)",
-        "Sigma / (b)"],
-    attrs=[
-        "id",
-        "energy",
-        "intensity",
-        "sigma"],
+    header=["ID", "Energy / (keV)", "Intensity / (%)", "Sigma / (b)"],
+    attrs=["id", "energy", "intensity", "sigma"],
     sortBy="intensity",
-    reverseSort=True)
+    reverseSort=True,
+)
 
 table.out()
 
