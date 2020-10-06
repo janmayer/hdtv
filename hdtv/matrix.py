@@ -85,8 +85,7 @@ class Matrix(DrawableManager):
             return getattr(self, "_%sproj" % axis)
 
     def ExecuteCut(self, cut):
-        cutHisto = self.histo2D.ExecuteCut(cut.regionMarkers,
-                                           cut.bgMarkers, cut.axis)
+        cutHisto = self.histo2D.ExecuteCut(cut.regionMarkers, cut.bgMarkers, cut.axis)
         if cut.axis == "x":
             axis = "y"
         elif cut.axis == "y":

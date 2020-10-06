@@ -58,8 +58,12 @@ else()
 endif()
 
 root_generate_dictionary(
-  G__${PROJECT_NAME} ${HEADERS} OPTIONS
-  -I${CMAKE_CURRENT_SOURCE_DIR}/mfile/include/ LINKDEF LinkDef.h)
+  G__${PROJECT_NAME}
+  ${HEADERS}
+  OPTIONS
+  -I${CMAKE_CURRENT_SOURCE_DIR}/mfile/include/
+  LINKDEF
+  LinkDef.h)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} G__${PROJECT_NAME}.cxx)
 add_library(hdtv::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
@@ -73,7 +77,8 @@ set_target_properties(
 )
 target_include_directories(
   ${PROJECT_NAME}
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/matop
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+         ${CMAKE_CURRENT_SOURCE_DIR}/matop
          ${CMAKE_CURRENT_SOURCE_DIR}/mfile/include
          ${CMAKE_CURRENT_SOURCE_DIR}/mfile/src)
 target_link_libraries(${PROJECT_NAME} ROOT::Core ROOT::Hist)

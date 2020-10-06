@@ -34,6 +34,7 @@ try:
         except BaseException:
             return 80
 
+
 except ImportError:
     # On platforms where we cannot load the curses library, we assume a
     # terminal width of 80 characters
@@ -51,13 +52,13 @@ def tabformat(cells, **kwargs):
     cannot be read).
     """
     # Read keyword arguments, replace with defaults if required
-    if 'colsepwidth' in kwargs:
-        col_sep_width = kwargs['colsepwidth']
+    if "colsepwidth" in kwargs:
+        col_sep_width = kwargs["colsepwidth"]
     else:
         col_sep_width = 2
 
-    if 'tabwidth' in kwargs:
-        tabwidth = kwargs['tabwidth']
+    if "tabwidth" in kwargs:
+        tabwidth = kwargs["tabwidth"]
     else:
         tabwidth = get_term_width()
 
@@ -90,8 +91,7 @@ def tabformat(cells, **kwargs):
     else:
         # Calculate an upper bound for the number of columns. Note that the space
         # between two columns takes some width as well.
-        n_cols = (tabwidth - max_cell_width) // (min_cell_width +
-                                                 col_sep_width) + 1
+        n_cols = (tabwidth - max_cell_width) // (min_cell_width + col_sep_width) + 1
 
         # Calculate the corresponding number of rows as
         # n_rows = ceil(n_cells / n_cols), for integers
@@ -106,7 +106,7 @@ def tabformat(cells, **kwargs):
             tbl_width = 0
 
             for i in range(0, n_cols):
-                tbl_width += max(cell_widths[i * n_rows: (i + 1) * n_rows])
+                tbl_width += max(cell_widths[i * n_rows : (i + 1) * n_rows])
             # If the table is small enough, end the loop...
             if tbl_width + (n_cols - 1) * col_sep_width <= tabwidth:
                 break
@@ -117,7 +117,7 @@ def tabformat(cells, **kwargs):
     # Calculate the individual column widths
     col_widths = []
     for i in range(0, n_cols):
-        col_widths.append(max(cell_widths[i * n_rows: (i + 1) * n_rows]))
+        col_widths.append(max(cell_widths[i * n_rows : (i + 1) * n_rows]))
 
     # Distribute cells over rows, aloowing the table to be printed
     # row-by-row (note that successive cells go *below* each other)
@@ -131,7 +131,7 @@ def tabformat(cells, **kwargs):
             rows[i].append("")
 
     # Produce the appropriate format string for output
-    fmtstr = (' ' * col_sep_width).join(["%%-%ds" % w for w in col_widths])
+    fmtstr = (" " * col_sep_width).join(["%%-%ds" % w for w in col_widths])
 
     # Output the table, row by row
     for i in range(0, n_rows):

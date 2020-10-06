@@ -124,8 +124,7 @@ public:
 
   //! Cached version of CalcRawSkewnessError()
   double GetRawSkewnessError() {
-    return fCRawSkewnessError.get_or_eval(
-        [&]() { return CalcRawSkewnessError(); });
+    return fCRawSkewnessError.get_or_eval([&]() { return CalcRawSkewnessError(); });
   }
 
   //! Cached version of CalcSkewness()
@@ -197,9 +196,7 @@ public:
   BgIntegral(const Background *background, double r1, double r2, TAxis *axis);
 
 protected:
-  double GetBinContent(int bin) override {
-    return fBackground->Eval(GetBinCenter(bin));
-  }
+  double GetBinContent(int bin) override { return fBackground->Eval(GetBinCenter(bin)); }
 
   double GetBinError2(int bin) override {
     double e = fBackground->EvalError(GetBinCenter(bin));
@@ -215,8 +212,7 @@ protected:
 //! Calculate moments of a background-substracted TH1 histogram
 class TH1BgsubIntegral : public Integral {
 public:
-  TH1BgsubIntegral(TH1 *hist, const Background *background, double r1,
-                   double r2);
+  TH1BgsubIntegral(TH1 *hist, const Background *background, double r1, double r2);
 
 protected:
   double GetBinContent(int bin) override;

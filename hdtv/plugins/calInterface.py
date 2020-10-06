@@ -38,7 +38,6 @@ from . import EnergyCalibration
 
 
 class EffCalIf(object):
-
     def __init__(self, spectra):
 
         self.spectra = spectra
@@ -65,19 +64,24 @@ class EffCalIf(object):
             name = name.lower()
             if name == "wunder":
                 self.spectra.dict[spectrumID].effCal = hdtv.efficiency.WunderEff(
-                    pars=parameter)
+                    pars=parameter
+                )
             elif name == "wiedenhoever":
                 self.spectra.dict[spectrumID].effCal = hdtv.efficiency.WiedenhoeverEff(
-                    pars=parameter)
+                    pars=parameter
+                )
             elif name == "poly":
                 self.spectra.dict[spectrumID].effCal = hdtv.efficiency.PolyEff(
-                    pars=parameter)
+                    pars=parameter
+                )
             elif name == "exp":
                 self.spectra.dict[spectrumID].effCal = hdtv.efficiency.ExpEff(
-                    pars=parameter)
+                    pars=parameter
+                )
             elif name == "pow":
                 self.spectra.dict[spectrumID].effCal = hdtv.efficiency.PowEff(
-                    pars=parameter)
+                    pars=parameter
+                )
             # elif name == "orthogonal": #to calibrate with Exp
             #    self.spectra.dict[spectrumID].effCal = hdtv.efficiency.ExpEff(pars=parameter)
             #    self.fit = True
@@ -85,7 +89,9 @@ class EffCalIf(object):
             #    self.spectra.dict[spectrumID].effCal = hdtv.efficiency.OrthogonalEff(pars=parameter)
             #    self.fit = True
             else:
-                raise hdtv.cmdline.HDTVCommandError("No such efficiency function %s" % name)
+                raise hdtv.cmdline.HDTVCommandError(
+                    "No such efficiency function %s" % name
+                )
         except IndexError:
             raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d" % spectrumID)
 
@@ -98,7 +104,9 @@ class EffCalIf(object):
         except IndexError:
             raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d" % spectrumID)
         except AttributeError:
-            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set" % spectrumID)
+            raise hdtv.cmdline.HDTVCommandError(
+                "No efficiency for spectrum ID %d set" % spectrumID
+            )
 
     def Assign(self, todo):
         """
@@ -115,7 +123,9 @@ class EffCalIf(object):
         except IndexError:
             raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d" % spectrumID)
         except AttributeError:
-            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set" % spectrumID)
+            raise hdtv.cmdline.HDTVCommandError(
+                "No efficiency for spectrum ID %d set" % spectrumID
+            )
 
     def ReadCov(self, spectrumID, filename):
         """
@@ -126,7 +136,9 @@ class EffCalIf(object):
         except IndexError:
             raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d" % spectrumID)
         except AttributeError:
-            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set" % spectrumID)
+            raise hdtv.cmdline.HDTVCommandError(
+                "No efficiency for spectrum ID %d set" % spectrumID
+            )
 
     def WritePar(self, spectrumID, filename):
         """
@@ -137,7 +149,9 @@ class EffCalIf(object):
         except IndexError:
             raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d" % spectrumID)
         except AttributeError:
-            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set" % spectrumID)
+            raise hdtv.cmdline.HDTVCommandError(
+                "No efficiency for spectrum ID %d set" % spectrumID
+            )
 
     def WriteCov(self, spectrumID, filename):
         """
@@ -148,7 +162,9 @@ class EffCalIf(object):
         except IndexError:
             raise hdtv.cmdline.HDTVCommandError("Invalid spectrum ID %d" % spectrumID)
         except AttributeError:
-            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set" % spectrumID)
+            raise hdtv.cmdline.HDTVCommandError(
+                "No efficiency for spectrum ID %d set" % spectrumID
+            )
 
     def List(self, ids=None):
         """
@@ -164,8 +180,7 @@ class EffCalIf(object):
             try:
                 tableline["Name"] = self.spectra.dict[ID].effCal.name
                 # TODO: Decent formatting
-                tableline["Parameter"] = str(
-                    self.spectra.dict[ID].effCal.parameter)
+                tableline["Parameter"] = str(self.spectra.dict[ID].effCal.parameter)
             except AttributeError:
                 tableline["Name"] = "-"
                 tableline["Parameter"] = "-"
@@ -173,12 +188,10 @@ class EffCalIf(object):
 
         table = hdtv.util.Table(
             data=tabledata,
-            keys=[
-                "ID",
-                "Name",
-                "Parameter"],
+            keys=["ID", "Name", "Parameter"],
             sortBy="ID",
-            ignoreEmptyCols=False)
+            ignoreEmptyCols=False,
+        )
         hdtv.ui.msg(html=str(table))
 
     def Plot(self, spectrumID):
@@ -188,10 +201,22 @@ class EffCalIf(object):
         try:
             self.spectra.dict[spectrumID].effCal.TF1.Draw()
         except AttributeError:
-            raise hdtv.cmdline.HDTVCommandError("No efficiency for spectrum ID %d set" % spectrumID)
+            raise hdtv.cmdline.HDTVCommandError(
+                "No efficiency for spectrum ID %d set" % spectrumID
+            )
 
-    def Fit(self, spectrumIDs, filename, nuclides, coefficients, sigma,
-            show_graph=False, fit_panel=False, show_table=False, source=None):
+    def Fit(
+        self,
+        spectrumIDs,
+        filename,
+        nuclides,
+        coefficients,
+        sigma,
+        show_graph=False,
+        fit_panel=False,
+        show_table=False,
+        source=None,
+    ):
         """
         Plot efficiency
         """
@@ -199,7 +224,9 @@ class EffCalIf(object):
         for spectrumID in spectrumIDs:
             if not self.spectra.dict[spectrumID].effCal:
                 raise hdtv.cmdline.HDTVCommandError(
-                    "Efficiency function not set for spectrum %d, use calibration efficiency set" % spectrumID)
+                    "Efficiency function not set for spectrum %d, use calibration efficiency set"
+                    % spectrumID
+                )
 
         fitValues = hdtv.util.Pairs()
         tabledata = list()
@@ -213,7 +240,7 @@ class EffCalIf(object):
             # try:
             if coefficients[0] is None:
                 coefficients[0] = 1
-                #raise hdtv.cmdline.HDTVCommandError("You have to give a coefficient for the first spectrum.")
+                # raise hdtv.cmdline.HDTVCommandError("You have to give a coefficient for the first spectrum.")
 
             # the first spectrum/nuclide is used to calculate the factor of the
             # other ones
@@ -221,21 +248,23 @@ class EffCalIf(object):
             nuclide = nuclides[0]
             coefficient = coefficients[0]
 
-            matches = self.CalculateEff(
-                spectrumID, nuclide, coefficient, source, sigma)
+            matches = self.CalculateEff(spectrumID, nuclide, coefficient, source, sigma)
 
             # for table option values are saved
             for match in matches:
-                tabledata.append({
-                    "Peak": match['fit'].ExtractParams()[0][0]['pos'],
-                    "Efficiency": match['efficiency'],
-                    "ID": spectrumID,
-                    "Nuclide": nuclide,
-                    "Intensity": match['transition']['intensity'],
-                    "Vol": match['fit'].ExtractParams()[0][0]['vol']})
+                tabledata.append(
+                    {
+                        "Peak": match["fit"].ExtractParams()[0][0]["pos"],
+                        "Efficiency": match["efficiency"],
+                        "ID": spectrumID,
+                        "Nuclide": nuclide,
+                        "Intensity": match["transition"]["intensity"],
+                        "Vol": match["fit"].ExtractParams()[0][0]["vol"],
+                    }
+                )
 
-            energies = [match['fit'].ExtractParams()[0][0]['pos'] for match in matches]
-            efficiencies = [match['efficiency'] for match in matches]
+            energies = [match["fit"].ExtractParams()[0][0]["pos"] for match in matches]
+            efficiencies = [match["efficiency"] for match in matches]
             fitValues.fromLists(energies, efficiencies)
 
             # in the region [0;maxEnergy] the relative efficiency will be
@@ -254,24 +283,31 @@ class EffCalIf(object):
                             fitValues,
                             nuclides[j],
                             source,
-                            sigma)
+                            sigma,
+                        )
                     # if it has its own coefficient only the efficiency has to
                     # be calculated
                     else:
                         NewEff = self.CalculateEff(
-                            spectrumIDs[j], nuclides[j], coefficients[j], source, sigma)
+                            spectrumIDs[j], nuclides[j], coefficients[j], source, sigma
+                        )
 
                     # all new efficiencies are added to the first ones
-                    energies.extend([match['fit'].ExtractParams()[0][0]['pos'] for match in NewEff])
-                    efficiencies.extend([match['efficiency'] for match in NewEff])
+                    energies.extend(
+                        [match["fit"].ExtractParams()[0][0]["pos"] for match in NewEff]
+                    )
+                    efficiencies.extend([match["efficiency"] for match in NewEff])
                     for match in NewEff:
-                        tabledata.append({
-                            "Peak": match['fit'].ExtractParams()[0][0]['pos'],
-                            "Efficiency": match['efficiency'],
-                            "ID": spectrumIDs[j],
-                            "Nuclide": nuclides[j],
-                            "Intensity": match['transition']['intensity'],
-                            "Vol": match['fit'].ExtractParams()[0][0]['vol']})
+                        tabledata.append(
+                            {
+                                "Peak": match["fit"].ExtractParams()[0][0]["pos"],
+                                "Efficiency": match["efficiency"],
+                                "ID": spectrumIDs[j],
+                                "Nuclide": nuclides[j],
+                                "Intensity": match["transition"]["intensity"],
+                                "Vol": match["fit"].ExtractParams()[0][0]["vol"],
+                            }
+                        )
 
                     fitValues = hdtv.util.Pairs()
 
@@ -280,17 +316,16 @@ class EffCalIf(object):
         # Call function to do the fit
         if self.fit:
             self.SetFun(spectrumID, "orthogonal_fit")
-            self.spectra.dict[spectrumID].effCal.fit(
-                energies, efficiencies)
+            self.spectra.dict[spectrumID].effCal.fit(energies, efficiencies)
             # go back to the start condition
             self.SetFun(spectrumID, "orthogonal")
         else:
             try:
-                self.spectra.dict[spectrumID].effCal.fit(
-                    fitValues, quiet=False)
+                self.spectra.dict[spectrumID].effCal.fit(fitValues, quiet=False)
             except AttributeError:
                 raise hdtv.cmdline.HDTVCommandAbort(
-                    "No efficiency for spectrum ID %d set", spectrumID)
+                    "No efficiency for spectrum ID %d set", spectrumID
+                )
             if show_graph:
                 self.spectra.dict[spectrumID].effCal.TGraph.Draw("a*")
                 self.spectra.dict[spectrumID].effCal.TF1.Draw("same")
@@ -302,15 +337,10 @@ class EffCalIf(object):
         if show_table:
             table = hdtv.util.Table(
                 data=tabledata,
-                keys=[
-                    "ID",
-                    "Nuclide",
-                    "Peak",
-                    "Efficiency",
-                    "Intensity",
-                    "Vol"],
+                keys=["ID", "Nuclide", "Peak", "Efficiency", "Intensity", "Vol"],
                 sortBy="ID",
-                ignoreEmptyCols=False)
+                ignoreEmptyCols=False,
+            )
             hdtv.ui.msg(html=str(table))
 
     def CalculateEff(self, spectrumID, nuclide, coefficient, source, sigma):
@@ -321,20 +351,25 @@ class EffCalIf(object):
         data = EnergyCalibration.SearchNuclide(nuclide, source)
 
         # It matches the Peaks and the given energies
-        matches = EnergyCalibration.MatchFitsAndTransitions(fits, data['transitions'], sigma=sigma)
+        matches = EnergyCalibration.MatchFitsAndTransitions(
+            fits, data["transitions"], sigma=sigma
+        )
         if not matches:
             raise hdtv.cmdline.HDTVCommandError(
-                "There is no match between the fitted peaks and the energies of the nuclide.")
+                "There is no match between the fitted peaks and the energies of the nuclide."
+            )
 
         # Calculate efficiency
         for match in matches:
-            match['efficiency'] = match['fit'].ExtractParams()[0][0]['vol'] / \
-                                  (coefficient * match['transition']['intensity'])
+            match["efficiency"] = match["fit"].ExtractParams()[0][0]["vol"] / (
+                coefficient * match["transition"]["intensity"]
+            )
 
-        return(matches)
+        return matches
 
-    def EffCorrection(self, referenceID, maxEnergy, spectrumID,
-                      fitValues, nuclide, source, sigma):
+    def EffCorrection(
+        self, referenceID, maxEnergy, spectrumID, fitValues, nuclide, source, sigma
+    ):
         """
         If there is one spectrum given without coefficient, you have to correct
         it by calculation the missing factor that it fits to the other one.
@@ -354,15 +389,15 @@ class EffCalIf(object):
         # TODO: maybe a iterative function works better
         try:
             for match in matches:
-                energy = match['fit'].ExtractParams()[0][0]['pos']
+                energy = match["fit"].ExtractParams()[0][0]["pos"]
                 if energy <= maxEnergy:
-                    functionValue = self.spectra.dict[referenceID].effCal.value(
-                        energy)
+                    functionValue = self.spectra.dict[referenceID].effCal.value(energy)
 
-                    division = match['efficiency'].nominal_value / functionValue
-                    amountDivisionError = amountDivisionError + \
-                        division * (match['efficiency'].std_dev)**(-2)
-                    amountError = amountError + (match['efficiency'].std_dev)**(-2)
+                    division = match["efficiency"].nominal_value / functionValue
+                    amountDivisionError = amountDivisionError + division * (
+                        match["efficiency"].std_dev
+                    ) ** (-2)
+                    amountError = amountError + (match["efficiency"].std_dev) ** (-2)
 
         except BaseException:
             division = 0.0
@@ -370,12 +405,11 @@ class EffCalIf(object):
             amountError = 0.0
 
             for match in matches:
-                energy = match['fit'].ExtractParams()[0][0]['pos']
+                energy = match["fit"].ExtractParams()[0][0]["pos"]
                 if energy <= maxEnergy:
-                    functionValue = self.spectra.dict[referenceID].effCal.value(
-                        energy)
+                    functionValue = self.spectra.dict[referenceID].effCal.value(energy)
 
-                    division = match['efficiency'].nominal_value / functionValue
+                    division = match["efficiency"].nominal_value / functionValue
                     amountDivisionError = amountDivisionError + division
                     amountError = amountError + 1
 
@@ -385,11 +419,12 @@ class EffCalIf(object):
             amountError = 0.0
 
             for match in matches:
-                energy = match['fit'].ExtractParams()[0][0]['pos']
+                energy = match["fit"].ExtractParams()[0][0]["pos"]
                 functionValue = self.spectra.dict[referenceID].effCal.nominal_value(
-                    energy)
+                    energy
+                )
 
-                division = match['efficiency'].nominal_value / functionValue
+                division = match["efficiency"].nominal_value / functionValue
                 amountDivisionError = amountDivisionError + division
                 amountError = amountError + 1
 
@@ -399,13 +434,12 @@ class EffCalIf(object):
         # the corrected efficiency is calculated
         # Efficiency[1] = list(map(lambda x: x / factor, Efficiency[1]))
         for match in matches:
-            match['efficiency'] = match['efficiency'] / factor
+            match["efficiency"] = match["efficiency"] / factor
 
         return matches
 
 
 class EffCalHDTVInterface(object):
-
     def __init__(self, EffCalIf):
 
         self.effIf = EffCalIf
@@ -416,178 +450,199 @@ class EffCalHDTVInterface(object):
         self.opt["eff_fun"] = hdtv.options.Option(
             default="wunder",
             parse=hdtv.options.parse_choices(
-                ['wunder', 'wiedenhoever', 'poly', 'exp', 'pow'])) # +orthogonal
+                ["wunder", "wiedenhoever", "poly", "exp", "pow"]
+            ),
+        )  # +orthogonal
         hdtv.options.RegisterOption(
-            "calibration.efficiency.function", self.opt["eff_fun"])
+            "calibration.efficiency.function", self.opt["eff_fun"]
+        )
 
         prog = "calibration efficiency set"
         description = "Set efficiency function"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "-s",
             "--spectrum",
             help="Spectrum ID to set efficiency for",
             action="store",
-            default="active")
+            default="active",
+        )
         parser.add_argument(
             "-p",
             "--parameter",
             help="Parameters for efficiency function",
             action="store",
-            default=None)
+            default=None,
+        )
         parser.add_argument(
             "-f",
             "--file",
             help="Read efficiency from file",
             action="store",
-            default=None)
-        parser.add_argument("function",
-            help='efficiency function for calibration',
-            choices=['wunder', 'wiedenhoever', 'poly', 'exp', 'pow']) # +orthogonal
+            default=None,
+        )
+        parser.add_argument(
+            "function",
+            help="efficiency function for calibration",
+            choices=["wunder", "wiedenhoever", "poly", "exp", "pow"],
+        )  # +orthogonal
         hdtv.cmdline.AddCommand(prog, self.SetFun, parser=parser)
 
         prog = "calibration efficiency read parameter"
         description = "Read parameter for efficiency function from file"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "-s",
             "--spectrum",
             help="Spectrum IDs to read parameters for",
             action="store",
-            default="active")
+            default="active",
+        )
         parser.add_argument(
-            'filename',
-            metavar='parameter-file',
-            help="file with efficiency function parameters")
-        hdtv.cmdline.AddCommand(
-            prog, self.ReadPar, parser=parser, fileArgs=True)
+            "filename",
+            metavar="parameter-file",
+            help="file with efficiency function parameters",
+        )
+        hdtv.cmdline.AddCommand(prog, self.ReadPar, parser=parser, fileArgs=True)
 
         prog = "calibration efficiency read covariance"
         description = "Read covariance matrix of efficiency function from file"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "-s",
             "--spectrum",
             help="Spectrum IDs to read covariance for",
             action="store",
-            default="active")
+            default="active",
+        )
         parser.add_argument(
-            'filename',
-            metavar='covariance-file',
-            help="file with efficiency covariance matrix")
-        hdtv.cmdline.AddCommand(
-            prog, self.ReadCov, parser=parser, fileArgs=True)
+            "filename",
+            metavar="covariance-file",
+            help="file with efficiency covariance matrix",
+        )
+        hdtv.cmdline.AddCommand(prog, self.ReadCov, parser=parser, fileArgs=True)
 
         prog = "calibration efficiency write parameter"
         description = "Write parameters of efficiency function from file"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "-s",
             "--spectrum",
             help="Spectrum ID from which to save parameters",
             action="store",
-            default="active")
+            default="active",
+        )
         parser.add_argument(
-            'filename',
-            metavar='parameter-file',
-            help="output file for efficiency function parameters")
-        hdtv.cmdline.AddCommand(prog, self.WritePar,
-                                parser=parser, fileArgs=True)
+            "filename",
+            metavar="parameter-file",
+            help="output file for efficiency function parameters",
+        )
+        hdtv.cmdline.AddCommand(prog, self.WritePar, parser=parser, fileArgs=True)
 
         prog = "calibration efficiency write covariance"
         description = "Write covariance matrix of efficiency function from file"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "-s",
             "--spectrum",
             help="Spectrum ID from which to save covariance",
             action="store",
-            default="active")
+            default="active",
+        )
         parser.add_argument(
-            'filename',
-            metavar='covariance-file',
-            help="output file for efficiency covariance matrix")
-        hdtv.cmdline.AddCommand(prog, self.WriteCov,
-                                parser=parser, fileArgs=True)
+            "filename",
+            metavar="covariance-file",
+            help="output file for efficiency covariance matrix",
+        )
+        hdtv.cmdline.AddCommand(prog, self.WriteCov, parser=parser, fileArgs=True)
 
         prog = "calibration efficiency plot"
         description = "Plot efficiency of spectrum"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "spectrum",
             metavar="spectrum-id",
             help="Spectrum ID to plot efficiency from",
-            default="active")
-        hdtv.cmdline.AddCommand(
-            prog, self.PlotEff, parser=parser, fileArgs=False)
+            default="active",
+        )
+        hdtv.cmdline.AddCommand(prog, self.PlotEff, parser=parser, fileArgs=False)
 
         prog = "calibration efficiency fit"
         # TODO:better description
         description = "Fit efficiency. For each spectrum a nuclide is necessary and for the first a coefficient or a file."
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description,
-            epilog="Example: %(prog)s 4,Ra-226,1e7 3,Eu-152 1,Ba-133 -gpt")
+            prog=prog,
+            description=description,
+            epilog="Example: %(prog)s 4,Ra-226,1e7 3,Eu-152 1,Ba-133 -gpt",
+        )
         parser.add_argument(
             "-f",
             "--file",
             help="File with energy-efficiency pairs",
             action="store",
-            default=None)  # does not really make sense, see method "Fit"
-        parser.add_argument("-p", "--fit-panel", help="Show fit panel",
-            action="store_true", default=False)
-        parser.add_argument("-g", "--show-graph", help="Show fitted graph",
-            action="store_true", default=False)
+            default=None,
+        )  # does not really make sense, see method "Fit"
+        parser.add_argument(
+            "-p",
+            "--fit-panel",
+            help="Show fit panel",
+            action="store_true",
+            default=False,
+        )
+        parser.add_argument(
+            "-g",
+            "--show-graph",
+            help="Show fitted graph",
+            action="store_true",
+            default=False,
+        )
         parser.add_argument(
             "-t",
             "--show-table",
             help="Show table of fitted peaks",
             action="store_true",
-            default=False)
+            default=False,
+        )
         parser.add_argument(
             "-d",
             "--database",
             action="store",
             default="active",
-            help="Database from witch the data should be imported.")
+            help="Database from witch the data should be imported.",
+        )
         parser.add_argument(
             "-s",
             "--sigma",
             action="store",
             type=float,
             default=0.5,
-            help="allowed error of energy-position")
+            help="allowed error of energy-position",
+        )
         parser.add_argument(
-            'args',
-            metavar='spectrumID,nuclide[,factor]',
-            help='Spectrum with nuclide and optional factor',
-            nargs='+')
-        hdtv.cmdline.AddCommand(
-            prog, self.FitEff, parser=parser, fileArgs=False)
+            "args",
+            metavar="spectrumID,nuclide[,factor]",
+            help="Spectrum with nuclide and optional factor",
+            nargs="+",
+        )
+        hdtv.cmdline.AddCommand(prog, self.FitEff, parser=parser, fileArgs=False)
 
         prog = "calibration efficiency list"
         description = "List efficiencies"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "spectrum",
             metavar="spectrum-ids",
-            nargs='*',
+            nargs="*",
             help="Spectrum IDs to list",
-            default="active")
-        hdtv.cmdline.AddCommand(
-            prog, self.ListEff, parser=parser, fileArgs=False)
+            default="active",
+        )
+        hdtv.cmdline.AddCommand(prog, self.ListEff, parser=parser, fileArgs=False)
 
     def SetFun(self, args):
         """
         set efficiency function
         """
-        
+
         eff_fun = args.function
 
         if args.parameter is not None:
@@ -656,7 +711,8 @@ class EffCalHDTVInterface(object):
 
         if len(ids) > 1:
             raise hdtv.cmdline.HDTVCommandError(
-                "Can only write efficiency parameter of one spectrum")
+                "Can only write efficiency parameter of one spectrum"
+            )
 
         for ID in ids:
             self.effIf.WritePar(ID, filename)
@@ -674,7 +730,8 @@ class EffCalHDTVInterface(object):
 
         if len(ids) > 1:
             raise hdtv.cmdline.HDTVCommandError(
-                "Can only write efficiency covariance of one spectrum")
+                "Can only write efficiency covariance of one spectrum"
+            )
 
         for ID in ids:
             self.effIf.WriteCov(ID, filename)
@@ -690,7 +747,8 @@ class EffCalHDTVInterface(object):
 
         if len(ids) > 1:
             raise hdtv.cmdline.HDTVCommandError(
-                "Can only plot efficiency covariance of one spectrum")
+                "Can only plot efficiency covariance of one spectrum"
+            )
 
         for ID in ids:
             self.effIf.Plot(ID)
@@ -711,19 +769,21 @@ class EffCalHDTVInterface(object):
         if args.file is None:
             for argument in args.args:
                 try:
-                    argument = argument.split(',')
+                    argument = argument.split(",")
                     ID.append(argument[0])
                     nuclides.append(argument[1])
                 except BaseException:
                     raise hdtv.cmdline.HDTVCommandError(
-                        "You have to give at least a 'spectrumID,nuclide'.")
+                        "You have to give at least a 'spectrumID,nuclide'."
+                    )
 
                 if len(argument) > 2:
                     try:
                         coefficients.append(float(argument[2]))
                     except BaseException:
                         raise hdtv.cmdline.HDTVCommandError(
-                            "Invalid coefficient %s." % str(argument[2]))
+                            "Invalid coefficient %s." % str(argument[2])
+                        )
                 else:
                     coefficients.append(None)
             try:
@@ -741,7 +801,8 @@ class EffCalHDTVInterface(object):
             args.show_graph,
             args.fit_panel,
             args.show_table,
-            args.database)
+            args.database,
+        )
 
     def ListEff(self, args):
         """
@@ -794,8 +855,15 @@ class EnergyCalIf(object):
 
         return hdtv.cal.MakeCalibration(calpoly)
 
-    def CalFromPairs(self, pairs, degree=1, table=False,
-                     fit=False, residual=False, ignore_errors=False):
+    def CalFromPairs(
+        self,
+        pairs,
+        degree=1,
+        table=False,
+        fit=False,
+        residual=False,
+        ignore_errors=False,
+    ):
         """
         Create calibration from pairs of channel and energy
         """
@@ -812,8 +880,16 @@ class EnergyCalIf(object):
             fitter.DrawCalResidual()
         return fitter.calib
 
-    def CalFromFits(self, fits, pairs, degree=1, table=False, fit=False,
-                    residual=False, ignore_errors=False):
+    def CalFromFits(
+        self,
+        fits,
+        pairs,
+        degree=1,
+        table=False,
+        fit=False,
+        residual=False,
+        ignore_errors=False,
+    ):
         """
         Create a calibration from pairs of fits and energies
         """
@@ -832,8 +908,9 @@ class EnergyCalIf(object):
                 continue
             peak.extras["pos_lit"] = p[1]
             valid_pairs.add(peak.pos, p[1])
-        return self.CalFromPairs(valid_pairs, degree, table, fit, residual,
-                                 ignore_errors=ignore_errors)
+        return self.CalFromPairs(
+            valid_pairs, degree, table, fit, residual, ignore_errors=ignore_errors
+        )
 
     def CalsFromList(self, fname):
         """
@@ -846,14 +923,14 @@ class EnergyCalIf(object):
         f.read()
         for (l, n) in zip(f.lines, f.linos):
             try:
-                (k, v) = l.split(':', 1)
+                (k, v) = l.split(":", 1)
                 name = k.strip()
                 coeff = [float(s) for s in v.split()]
                 calDict[name] = hdtv.cal.MakeCalibration(coeff)
             except ValueError:
                 hdtv.ui.warning(
-                    "Could not parse line %d of file %s: ignored." %
-                    (n, fname))
+                    "Could not parse line %d of file %s: ignored." % (n, fname)
+                )
         return calDict
 
     def CreateCalList(self, calDict):
@@ -879,7 +956,6 @@ class EnergyCalIf(object):
 
 
 class EnergyCalHDTVInterface(object):
-
     def __init__(self, ECalIf):
 
         self.EnergyCalIf = ECalIf
@@ -889,132 +965,167 @@ class EnergyCalHDTVInterface(object):
         prog = "calibration position set"
         description = "Create calibration from the coefficients p of a polynomial"
         usage = "%(prog)s [-h] [-s SPECTRUM] p0 p1 [p2 ...]"
-        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description, usage=usage)
-        parser.add_argument("-s", "--spectrum", action="store", default="active",
-                          help="spectrum ids to apply calibration to")
-        parser.add_argument("p0", type=float,
-            help=argparse.SUPPRESS)
-        parser.add_argument("prest", metavar='p1, [p2 ...]', nargs='+', type=float,
-            help=argparse.SUPPRESS)
+        parser = hdtv.cmdline.HDTVOptionParser(
+            prog=prog, description=description, usage=usage
+        )
+        parser.add_argument(
+            "-s",
+            "--spectrum",
+            action="store",
+            default="active",
+            help="spectrum ids to apply calibration to",
+        )
+        parser.add_argument("p0", type=float, help=argparse.SUPPRESS)
+        parser.add_argument(
+            "prest",
+            metavar="p1, [p2 ...]",
+            nargs="+",
+            type=float,
+            help=argparse.SUPPRESS,
+        )
         hdtv.cmdline.AddCommand(prog, self.CalPosSet, parser=parser)
 
         prog = "calibration position unset"
         description = "Unset the calibration of spectra"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
-        parser.add_argument("-s", "--spectrum", action="store", default="active",
-                          help="spectrum ids to unset calibration")
+        parser.add_argument(
+            "-s",
+            "--spectrum",
+            action="store",
+            default="active",
+            help="spectrum ids to unset calibration",
+        )
         hdtv.cmdline.AddCommand(prog, self.CalPosUnset, parser=parser)
 
         prog = "calibration position copy"
         description = """apply the calibration that is used for the spectrum
                       selected by source-id to the spectra with dest-ids."""
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
-            "sourceid", metavar='source-id', action="store",
-            help="spectrum to copy calibration from")
+            "sourceid",
+            metavar="source-id",
+            action="store",
+            help="spectrum to copy calibration from",
+        )
         parser.add_argument(
-            "destids", metavar='dest-id', action="store",
-            help="spectrum to copy calibration to", nargs='+')
+            "destids",
+            metavar="dest-id",
+            action="store",
+            help="spectrum to copy calibration to",
+            nargs="+",
+        )
         hdtv.cmdline.AddCommand(prog, self.CalPosCopy, parser=parser)
 
         prog = "calibration position enter"
         description = "Fit a calibration polynomial to the energy/channel pairs given. "
         usage = "%(prog)s [OPTIONS] channel0 energy0 [channel1 energy1 ...]"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage,
+            prog=prog,
+            description=description,
+            usage=usage,
             epilog="""Hint: Specifying degree=0 will fix the linear term at 1.
-                   Specify spec=None to only fit the calibration.""")
+                   Specify spec=None to only fit the calibration.""",
+        )
         parser.add_argument(
             "-s",
             "--spectrum",
             action="store",
             default="active",
-            help="spectrum ids to apply calibration to")
+            help="spectrum ids to apply calibration to",
+        )
         parser.add_argument(
             "-d",
             "--degree",
             action="store",
             default=1,
             type=int,
-            help="degree of calibration polynomial fitted [default: %(default)s]")
+            help="degree of calibration polynomial fitted [default: %(default)s]",
+        )
         parser.add_argument(
             "-D",
             "--draw-fit",
             action="store_true",
             default=False,
-            help="draw fit used to obtain calibration")
+            help="draw fit used to obtain calibration",
+        )
         parser.add_argument(
             "-r",
             "--draw-residual",
             action="store_true",
             default=False,
-            help="show residual of calibration fit")
+            help="show residual of calibration fit",
+        )
         parser.add_argument(
             "-t",
             "--show-table",
             action="store_true",
             default=False,
-            help="print table of energies given and energies obtained from fit")
+            help="print table of energies given and energies obtained from fit",
+        )
         parser.add_argument(
             "-f",
             "--file",
             action="store",
             default=None,
-            help="get channel-energy pairs from file")
+            help="get channel-energy pairs from file",
+        )
         parser.add_argument(
             "-i",
             "--ignore-errors",
             action="store_true",
             default=False,
-            help="set all weights to 1 in fit (ignore error bars even if given)")
+            help="set all weights to 1 in fit (ignore error bars even if given)",
+        )
         parser.add_argument(
             "args",
             metavar="channelN energyN",
             help="channel-energy pairs used for fit",
-            nargs=argparse.REMAINDER)
+            nargs=argparse.REMAINDER,
+        )
         hdtv.cmdline.AddCommand(
-            prog,
-            self.CalPosEnter,
-            level=0,
-            parser=parser,
-            fileargs=True)
+            prog, self.CalPosEnter, level=0, parser=parser, fileargs=True
+        )
 
         prog = "calibration position nuclide"
         description = "Fit a calibration polynomial to a given nuclide."
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
-            "-S", "--sigma", action="store", default=0.0001, type=float,
-            help="allowed error by variation of energy/channel")
-        parser.add_argument("-s", "--spectrum", action="store", default=None,
-                          help="spectrum ids to apply calibration to", nargs=1)
+            "-S",
+            "--sigma",
+            action="store",
+            default=0.0001,
+            type=float,
+            help="allowed error by variation of energy/channel",
+        )
+        parser.add_argument(
+            "-s",
+            "--spectrum",
+            action="store",
+            default=None,
+            help="spectrum ids to apply calibration to",
+            nargs=1,
+        )
         parser.add_argument(
             "-d",
             "--database",
             action="store",
             default="active",
-            help="Database from witch the data should be imported.")
-        parser.add_argument(
-            "nuclide",
-            nargs='+',
-            help="nuclide to use for calibration")
+            help="Database from witch the data should be imported.",
+        )
+        parser.add_argument("nuclide", nargs="+", help="nuclide to use for calibration")
         hdtv.cmdline.AddCommand(prog, self.CalPosNuc, parser=parser)
 
         prog = "nuclide"
         description = "Prints out the Information of the nuclide."
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "-d",
             "--database",
             action="store",
             default="active",
-            help="Database from witch the data should be imported.")
-        parser.add_argument(
-            "nuclide",
-            nargs='+',
-            help="nuclide to query")
+            help="Database from witch the data should be imported.",
+        )
+        parser.add_argument("nuclide", nargs="+", help="nuclide to query")
         hdtv.cmdline.AddCommand(prog, self.Nuc, parser=parser)
 
         prog = "calibration position read"
@@ -1022,13 +1133,17 @@ class EnergyCalHDTVInterface(object):
         This corresponds to the energy calibration format used by tv:
         The calibration coefficients are all placed in separate lines."""
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
-        parser.add_argument("-s", "--spectrum", action="store", default="active",
-                          help="spectrum ids to apply calibration to")
         parser.add_argument(
-            'filename',
-            help="file with position calibration parameters")
-        hdtv.cmdline.AddCommand(prog, self.CalPosRead, parser=parser,
-                                fileargs=True)
+            "-s",
+            "--spectrum",
+            action="store",
+            default="active",
+            help="spectrum ids to apply calibration to",
+        )
+        parser.add_argument(
+            "filename", help="file with position calibration parameters"
+        )
+        hdtv.cmdline.AddCommand(prog, self.CalPosRead, parser=parser, fileargs=True)
 
         prog = "calibration position assign"
         description = """Calibrate the active spectrum by asigning energies to fitted peaks.
@@ -1036,48 +1151,59 @@ class EnergyCalHDTVInterface(object):
         (if number is ommitted the first (and only?) peak is taken)."""
         usage = "%(prog)s [OPTIONS] id0 energy0 [id1 energy1 ...]"
         parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description, usage=usage)
-        parser.add_argument("-s", "--spectrum", action="store", default="active",
-                          help="spectrum ids to apply calibration to")
+            prog=prog, description=description, usage=usage
+        )
+        parser.add_argument(
+            "-s",
+            "--spectrum",
+            action="store",
+            default="active",
+            help="spectrum ids to apply calibration to",
+        )
         parser.add_argument(
             "-d",
             "--degree",
             action="store",
             default="1",
-            help="degree of calibration polynomial fitted [default: %(default)s]")
+            help="degree of calibration polynomial fitted [default: %(default)s]",
+        )
         parser.add_argument(
             "-f",
             "--show-fit",
             action="store_true",
             default=False,
-            help="show fit used to obtain calibration")
+            help="show fit used to obtain calibration",
+        )
         parser.add_argument(
             "-r",
             "--show-residual",
             action="store_true",
             default=False,
-            help="show residual of calibration fit")
+            help="show residual of calibration fit",
+        )
         parser.add_argument(
             "-t",
             "--show-table",
             action="store_true",
             default=False,
-            help="print table of energies given and energies obtained from fit")
+            help="print table of energies given and energies obtained from fit",
+        )
         parser.add_argument(
             "-i",
             "--ignore-errors",
             action="store_true",
             default=False,
-            help="set all weights to 1 in fit (ignore error bars even if given)")
+            help="set all weights to 1 in fit (ignore error bars even if given)",
+        )
         parser.add_argument(
             "args",
             metavar="idN energyN",
             help="peak id-energy pair used for calibration",
-            nargs=argparse.REMAINDER)
+            nargs=argparse.REMAINDER,
+        )
         hdtv.cmdline.AddCommand(
-            "calibration position assign",
-            self.CalPosAssign,
-            parser=parser)
+            "calibration position assign", self.CalPosAssign, parser=parser
+        )
 
         prog = "calibration position list"
         description = "List all energy calibrations that are currently loaded."
@@ -1087,30 +1213,34 @@ class EnergyCalHDTVInterface(object):
         prog = "calibration position list write"
         description = "Write all loaded energy calibrations to a file."
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
-        parser.add_argument("-F", "--force", action="store_true", default=False,
-            help="overwrite existing files without asking")
         parser.add_argument(
-            'filename',
-            metavar='output-file',
-            help="output file for position list")
-        hdtv.cmdline.AddCommand(prog, self.CalPosListWrite, parser=parser,
-                                fileargs=True)
+            "-F",
+            "--force",
+            action="store_true",
+            default=False,
+            help="overwrite existing files without asking",
+        )
+        parser.add_argument(
+            "filename", metavar="output-file", help="output file for position list"
+        )
+        hdtv.cmdline.AddCommand(
+            prog, self.CalPosListWrite, parser=parser, fileargs=True
+        )
 
         prog = "calibration position list read"
         description = "Read several energy calibrations from a file."
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
-            'filename',
-            metavar='input-file',
-            help="input file for calibration position list")
-        hdtv.cmdline.AddCommand(prog, self.CalPosListRead, parser=parser,
-                                fileargs=True)
+            "filename",
+            metavar="input-file",
+            help="input file for calibration position list",
+        )
+        hdtv.cmdline.AddCommand(prog, self.CalPosListRead, parser=parser, fileargs=True)
 
         prog = "calibration position list clear"
         description = "Clear all energy calibrations"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
-        hdtv.cmdline.AddCommand(
-            prog, self.CalPosListClear, parser=parser)
+        hdtv.cmdline.AddCommand(prog, self.CalPosListClear, parser=parser)
 
     def Nuc(self, args):
         """
@@ -1152,7 +1282,8 @@ class EnergyCalHDTVInterface(object):
         """
         self.EnergyCalIf.CopyCal(
             hdtv.util.ID.ParseIds(args.sourceid, self.spectra)[0],
-            hdtv.util.ID.ParseIds(args.destids, self.spectra))
+            hdtv.util.ID.ParseIds(args.destids, self.spectra),
+        )
 
     def CalPosEnter(self, args):
         """
@@ -1166,7 +1297,7 @@ class EnergyCalHDTVInterface(object):
         else:  # Read from command line
             if len(args.args) % 2 != 0:
                 raise hdtv.cmdline.HDTVCommandError("Number of parameters must be even")
-            for channel, energy in zip(*[iter(args.args)]*2):
+            for channel, energy in zip(*[iter(args.args)] * 2):
                 pairs.add(channel, energy)
         sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
         # do the work
@@ -1176,7 +1307,8 @@ class EnergyCalHDTVInterface(object):
             args.show_table,
             args.draw_fit,
             args.draw_residual,
-            ignore_errors=args.ignore_errors)
+            ignore_errors=args.ignore_errors,
+        )
 
         if not sids:
             hdtv.ui.msg("calibration: %s" % hdtv.cal.PrintCal(cal))
@@ -1201,22 +1333,26 @@ class EnergyCalHDTVInterface(object):
             if len(spectrumIDList) > 1:
                 # check if string is like '1,2,3 ...'
                 for i in range(1, len(spectrumIDList) - 1, 2):
-                    if spectrumIDList[i] != ',':
+                    if spectrumIDList[i] != ",":
                         raise hdtv.cmdline.HDTVCommandError(
-                            "Invalid spectrumID, it has to look like '0,1'")
-            for i in range(0, len(spectrumIDList),
-                           2):  # makes a list of all spectrum IDs
+                            "Invalid spectrumID, it has to look like '0,1'"
+                        )
+            for i in range(
+                0, len(spectrumIDList), 2
+            ):  # makes a list of all spectrum IDs
                 try:
                     # check if spectrumIDs are integers and save them
                     spectrumID.append(int(spectrumIDList[i]))
                 except BaseException:
                     raise hdtv.cmdline.HDTVCommandError(
-                        "Invalid spectrumID, it has to look like '0,1'")
+                        "Invalid spectrumID, it has to look like '0,1'"
+                    )
         else:
             # check if active spectrum is visible
             if not __main__.spectra.activeID in __main__.spectra.visible:
                 raise hdtv.cmdline.HDTVCommandError(
-                    "Active spectrum is not visible, no action taken")
+                    "Active spectrum is not visible, no action taken"
+                )
             # when no option is called the active spectrum is used
             spectrumID.append(int(self.spectra.activeID))
 
@@ -1227,27 +1363,38 @@ class EnergyCalHDTVInterface(object):
             try:
                 fits = self.spectra.dict[hdtv.util.ID(ID)].dict
                 for fit in list(fits.values()):
-                    Peaks.append(fit.ExtractParams()[0][0]['channel'])
+                    Peaks.append(fit.ExtractParams()[0][0]["channel"])
             except BaseException:  # errormessage if there is no spectrum with the given ID
                 raise hdtv.cmdline.HDTVCommandError(
-                    "Spectrum with ID " + str(ID) + " is not visible, no action taken")
+                    "Spectrum with ID " + str(ID) + " is not visible, no action taken"
+                )
 
         # finds the right transitions for the given nuclide(s) from table
-        nuclei = [EnergyCalibration.SearchNuclide(nucl, args.database) for nucl in args.nuclide]
-        transitions = [transition for n in nuclei for transition in n['transitions']]
-        energies = [t['energy'] for t in transitions]
+        nuclei = [
+            EnergyCalibration.SearchNuclide(nucl, args.database)
+            for nucl in args.nuclide
+        ]
+        transitions = [transition for n in nuclei for transition in n["transitions"]]
+        energies = [t["energy"] for t in transitions]
 
         # matches the right peaks with the right energy
         Match = EnergyCalibration.MatchPeaksAndEnergies(Peaks, energies, args.sigma)
 
         # prints all important values
-        nuclideStr = ' '.join(args.nuclide)
-        spectrumIDStr = ' '.join([str(i) for i in spectrumID])
+        nuclideStr = " ".join(args.nuclide)
+        spectrumIDStr = " ".join([str(i) for i in spectrumID])
 
-        hdtv.ui.msg("Create a calibration for nuclide " + nuclideStr +
-             " (sigma: " + str(args.sigma) +
-             ", spectrum" + spectrumIDStr +
-             ", database " + nuclei[0]['reference'] + ")")
+        hdtv.ui.msg(
+            "Create a calibration for nuclide "
+            + nuclideStr
+            + " (sigma: "
+            + str(args.sigma)
+            + ", spectrum"
+            + spectrumIDStr
+            + ", database "
+            + nuclei[0]["reference"]
+            + ")"
+        )
 
         # calibration
         degree = 1
@@ -1277,7 +1424,8 @@ class EnergyCalHDTVInterface(object):
             self.spectra.ApplyCalibration(sids, cal)
         except ValueError:
             raise hdtv.cmdline.HDTVCommandError(
-                "Malformed calibration parameter file \'%s\'." % filename)
+                "Malformed calibration parameter file '%s'." % filename
+            )
         return True
 
     def CalPosAssign(self, args):
@@ -1297,9 +1445,8 @@ class EnergyCalHDTVInterface(object):
             raise hdtv.cmdline.HDTVCommandError("Number of arguments must be even")
         else:
             pairs = hdtv.util.Pairs()
-            for peak_id, energy in zip(*[iter(args.args)]*2):
-                ID = hdtv.util.ID.ParseIds(
-                    peak_id, spec, only_existent=False)[0]
+            for peak_id, energy in zip(*[iter(args.args)] * 2):
+                ID = hdtv.util.ID.ParseIds(peak_id, spec, only_existent=False)[0]
                 value = ufloat_fromstr(energy)
                 pairs.add(ID, value)
         sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
@@ -1314,7 +1461,8 @@ class EnergyCalHDTVInterface(object):
             table=args.show_table,
             fit=args.show_fit,
             residual=args.show_residual,
-            ignore_errors=args.ignore_errors)
+            ignore_errors=args.ignore_errors,
+        )
         self.spectra.ApplyCalibration(sids, cal)
         return True
 
@@ -1363,6 +1511,7 @@ class EnergyCalHDTVInterface(object):
 
 
 import __main__
+
 eff_cal_interface = EffCalIf(__main__.spectra)
 energy_cal_interface = EnergyCalIf(__main__.spectra)
 hdtv.cmdline.RegisterInteractive("eff", eff_cal_interface)

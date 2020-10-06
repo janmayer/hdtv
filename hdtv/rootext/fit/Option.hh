@@ -27,12 +27,10 @@ namespace HDTV {
 namespace Fit {
 
 //! Description of a fit option
-template <typename T>
-class Option {
+template <typename T> class Option {
 public:
   Option() = default;
-  Option(T val)
-    : val_(val) {}
+  Option(T val) : val_(val) {}
 
   T GetValue() const { return val_; }
   void SetValue(T val) { val_ = val; }
@@ -41,10 +39,9 @@ private:
   T val_;
 };
 
-//std::ostream &operator <<(std::ostream &lhs, const Option &rhs);
+// std::ostream &operator <<(std::ostream &lhs, const Option &rhs);
 
 } // end namespace Fit
 } // end namespace HDTV
 
 #endif
-

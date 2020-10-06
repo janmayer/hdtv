@@ -49,8 +49,7 @@ class Session(DrawableManager):
         self.window = Window()
         super(Session, self).__init__(viewport=self.window.viewport)
         # TODO: make peakModel and bgdeg configurable
-        self.workFit = Fit(Fitter(peakModel="theuerkauf",
-                                  backgroundModel="polynomial"))
+        self.workFit = Fit(Fitter(peakModel="theuerkauf", backgroundModel="polynomial"))
         self.workFit.active = True
         self.workFit.Draw(self.viewport)
         self.workCut = Cut()
@@ -73,8 +72,7 @@ class Session(DrawableManager):
                 hdtv.ui.warning("There is no spectrum with id: %s" % ID)
             else:
                 if cal is None:
-                    hdtv.ui.msg(
-                        "Unsetting calibration of spectrum with id %s" % ID)
+                    hdtv.ui.msg("Unsetting calibration of spectrum with id %s" % ID)
                     try:
                         self.caldict.pop(spec.name)
                     except KeyError:
@@ -129,15 +127,13 @@ class Session(DrawableManager):
             return
 
         if len(fit.bgMarkers) > 0:
-            if fit.fitter.backgroundModel.fParStatus['nparams'] == -1:
-                hdtv.ui.error(
-                    "Background degree of -1 contradicts background fit.")
+            if fit.fitter.backgroundModel.fParStatus["nparams"] == -1:
+                hdtv.ui.error("Background degree of -1 contradicts background fit.")
                 return
             # pure background fit
             fit.FitBgFunc(spec)
 
-        region = [fit.regionMarkers[0].p1.pos_uncal,
-                  fit.regionMarkers[0].p2.pos_uncal]
+        region = [fit.regionMarkers[0].p1.pos_uncal, fit.regionMarkers[0].p2.pos_uncal]
         bg = fit.fitter.bgFitter
 
         fit.integral = Integrate(spec, bg, region)
@@ -156,7 +152,7 @@ class Session(DrawableManager):
         if spec is None:
             hdtv.ui.error("There is no active spectrum.")
             return
-        
+
         fit = self.workFit
         try:
             if not peaks and len(fit.bgMarkers) > 0:
@@ -165,15 +161,16 @@ class Session(DrawableManager):
                 # full fit
                 fit.FitPeakFunc(spec)
             # show fit result
-            hdtv.ui.msg(html=str(fit), end='')
+            hdtv.ui.msg(html=str(fit), end="")
             fit.Draw(self.viewport)
         except OverflowError as msg:
             hdtv.ui.error("Fit failed: %s" % msg)
         if fit.regionMarkers.IsFull():
-            region = [fit.regionMarkers[0].p1.pos_uncal,
-                      fit.regionMarkers[0].p2.pos_uncal]
-            fit.integral = Integrate(
-                spec, fit.fitter.bgFitter, region)
+            region = [
+                fit.regionMarkers[0].p1.pos_uncal,
+                fit.regionMarkers[0].p2.pos_uncal,
+            ]
+            fit.integral = Integrate(spec, fit.fitter.bgFitter, region)
 
     def ClearFit(self, bg_only=False):
         """
@@ -193,7 +190,7 @@ class Session(DrawableManager):
             # Keeping positions on hold for a new fit is not really sensible
             if "pos" in self.workFit.fitter.params:
                 self.workFit.fitter.SetParameter("pos", "free")
-                hdtv.ui.msg("\'pos\' fit parameter reset to \'free\'")
+                hdtv.ui.msg("'pos' fit parameter reset to 'free'")
             self.workFit.spec = None
 
     def ActivateFit(self, ID, sid=None):
@@ -229,7 +226,8 @@ class Session(DrawableManager):
         # for interactive use of this function
         if isinstance(ID, (str, int, float)):
             ids = hdtv.util.ID.ParseIds(
-                ID, self.dict[self.activeID], only_existent=False)
+                ID, self.dict[self.activeID], only_existent=False
+            )
             if len(ids) > 1:
                 raise hdtv.cmdline.HDTVCommandError("More than one ID given")
             ID = ids[0]
@@ -365,8 +363,7 @@ class Session(DrawableManager):
         """
         Clear everything
         """
-        self.workFit = Fit(Fitter(peakModel="theuerkauf",
-                                  backgroundModel="polynomial"))
+        self.workFit = Fit(Fitter(peakModel="theuerkauf", backgroundModel="polynomial"))
         self.workFit.active = True
         self.workFit.Draw(self.viewport)
         self.caldict = dict()

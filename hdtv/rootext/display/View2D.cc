@@ -34,8 +34,7 @@ namespace HDTV {
 namespace Display {
 
 View2D::View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
-    : View(p, w, h), fXEOffset{0.0}, fYEOffset{0.0}, fXTileOffset{0},
-      fYTileOffset{0}, fVPHeight{0}, fVPWidth{0} {
+    : View(p, w, h), fXEOffset{0.0}, fYEOffset{0.0}, fXTileOffset{0}, fYTileOffset{0}, fVPHeight{0}, fVPWidth{0} {
   fMatrix = mat;
   fMatrixMax = fMatrix->GetMaximum();
 
@@ -54,7 +53,7 @@ View2D::View2D(const TGWindow *p, UInt_t w, UInt_t h, TH2 *mat)
   fPainter.SetDrawable(GetId());
 
   AddInput(kKeyPressMask);
-  
+
   SetDarkMode();
 }
 
@@ -364,11 +363,9 @@ Pixmap_t View2D::RenderTile(int xoff, int yoff) {
 
   pixmap = gVirtualX->CreatePixmap(GetId(), cTileSize, cTileSize);
   if (fDarkMode) {
-    gVirtualX->PutImage(pixmap, GetWhiteGC()(), img, 0, 0, 0, 0, cTileSize,
-                        cTileSize);
+    gVirtualX->PutImage(pixmap, GetWhiteGC()(), img, 0, 0, 0, 0, cTileSize, cTileSize);
   } else {
-    gVirtualX->PutImage(pixmap, GetBlackGC()(), img, 0, 0, 0, 0, cTileSize,
-                        cTileSize);
+    gVirtualX->PutImage(pixmap, GetBlackGC()(), img, 0, 0, 0, 0, cTileSize, cTileSize);
   }
   gVirtualX->DeleteImage(img);
 
@@ -383,15 +380,13 @@ void View2D::RenderCuts(int xoff, int yoff, Pixmap_t pixmap) {
   }
 }
 
-void View2D::RenderCut(const DisplayCut &cut, int xoff, int yoff,
-                       Pixmap_t pixmap) {
+void View2D::RenderCut(const DisplayCut &cut, int xoff, int yoff, Pixmap_t pixmap) {
   const double x1 = XTileToE(xoff * cTileSize);
   const double y1 = YTileToE(-(yoff + 1) * cTileSize + 1);
   const double x2 = XTileToE((xoff + 1) * cTileSize - 1);
   const double y2 = YTileToE(-yoff * cTileSize);
 
-  if (x2 < cut.BB_x1() || x1 > cut.BB_x2() || y2 < cut.BB_y1() ||
-      y1 > cut.BB_y2()) {
+  if (x2 < cut.BB_x1() || x1 > cut.BB_x2() || y2 < cut.BB_y1() || y1 > cut.BB_y2()) {
     return;
   }
 
@@ -418,15 +413,12 @@ void View2D::RenderCut(const DisplayCut &cut, int xoff, int yoff,
                            x1, y2, x2-x1, y1-y2); */
 }
 
-void View2D::DrawPolyLine(Drawable_t id, GContext_t gc, Int_t n,
-                          short *points) {
-  XDrawLines(reinterpret_cast<::Display *>(gVirtualX->GetDisplay()),
-             static_cast<Drawable>(id), reinterpret_cast<GC>(gc),
-             reinterpret_cast<XPoint *>(points), n, CoordModeOrigin);
+void View2D::DrawPolyLine(Drawable_t id, GContext_t gc, Int_t n, short *points) {
+  XDrawLines(reinterpret_cast<::Display *>(gVirtualX->GetDisplay()), static_cast<Drawable>(id),
+             reinterpret_cast<GC>(gc), reinterpret_cast<XPoint *>(points), n, CoordModeOrigin);
 }
 
-template <typename ContainerT, typename Cond>
-void erase_if(ContainerT &container, Cond cond) {
+template <typename ContainerT, typename Cond> void erase_if(ContainerT &container, Cond cond) {
   auto it = container.begin();
   while (it != container.end()) {
     if (cond(*it)) {
@@ -444,8 +436,8 @@ void View2D::WeedTiles() {
     int xpos = x * cTileSize + fXTileOffset;
     int ypos = y * cTileSize + fYTileOffset;
 
-    if (xpos < -2 * cTileSize || xpos > static_cast<int>(fWidth) + cTileSize ||
-        ypos < -2 * cTileSize || ypos > static_cast<int>(fHeight) + cTileSize) {
+    if (xpos < -2 * cTileSize || xpos > static_cast<int>(fWidth) + cTileSize || ypos < -2 * cTileSize ||
+        ypos > static_cast<int>(fHeight) + cTileSize) {
       // cout << "Deleting Tile " << x << " " << y << " " << xpos << " " << ypos
       // << endl;
       gVirtualX->DeletePixmap(tile.second);
@@ -549,11 +541,9 @@ void View2D::DoRedraw() {
       }
 
       if (fDarkMode) {
-        gVirtualX->CopyArea(tile, GetId(), GetWhiteGC()(), src_x, src_y, width,
-                            height, dest_x, dest_y);
+        gVirtualX->CopyArea(tile, GetId(), GetWhiteGC()(), src_x, src_y, width, height, dest_x, dest_y);
       } else {
-        gVirtualX->CopyArea(tile, GetId(), GetBlackGC()(), src_x, src_y, width,
-                            height, dest_x, dest_y);
+        gVirtualX->CopyArea(tile, GetId(), GetBlackGC()(), src_x, src_y, width, height, dest_x, dest_y);
       }
     }
   }

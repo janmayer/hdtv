@@ -25,6 +25,7 @@ import pytest
 from tests.helpers.utils import redirect_stdout, hdtvcmd, isclose, setup_io
 
 from hdtv.util import monkey_patch_ui
+
 monkey_patch_ui()
 
 import hdtv.session
@@ -61,32 +62,42 @@ def test_cmd_root_pwd():
     f, ferr = hdtvcmd("root pwd")
     assert f == os.getcwd()
 
-@pytest.mark.parametrize("start, cd, target", [
-    ('/', '/tmp', '/tmp'),
-    ('/tmp', '..', '/'),
-    ('/', 'tmp', '/tmp'),
-    ('/tmp', '', '/tmp')])
+
+@pytest.mark.parametrize(
+    "start, cd, target",
+    [
+        ("/", "/tmp", "/tmp"),
+        ("/tmp", "..", "/"),
+        ("/", "tmp", "/tmp"),
+        ("/tmp", "", "/tmp"),
+    ],
+)
 def test_cmd_root_cd(start, cd, target):
     os.chdir(start)
-    hdtvcmd('root cd ' + cd)
+    hdtvcmd("root cd " + cd)
     assert os.getcwd() == target
+
 
 @pytest.mark.skip(reason="opens TBrowser GUI")
 def test_cmd_root_browse():
-    hdtvcmd('root browse')
-    assert hdtv.plugins.rootInterface.r.browser.GetName() == 'Browser'
-    hdtv.plugins.rootInterface.r.browser.SetName('Test')
-    assert hdtv.plugins.rootInterface.r.browser.GetName() == 'Test'
+    hdtvcmd("root browse")
+    assert hdtv.plugins.rootInterface.r.browser.GetName() == "Browser"
+    hdtv.plugins.rootInterface.r.browser.SetName("Test")
+    assert hdtv.plugins.rootInterface.r.browser.GetName() == "Test"
     hdtv.plugins.rootInterface.r.browser = None
 
 
 # Check that bin sizes are handled in fitted peak volume (see also test_mfile_fit_volume_with_binning)
 @pytest.mark.parametrize("spectrum", ["h", "h2"])
-@pytest.mark.parametrize("region1, region2, peak, expected_volume", [(500., 1500., 1000., 1000000.)])
-def test_root_fit_volume_with_binning(region1, region2, peak, expected_volume, spectrum):
+@pytest.mark.parametrize(
+    "region1, region2, peak, expected_volume", [(500.0, 1500.0, 1000.0, 1000000.0)]
+)
+def test_root_fit_volume_with_binning(
+    region1, region2, peak, expected_volume, spectrum
+):
     # Mock parser so RootGet can be used
     # args = mock.Mock()
-    args = type('Test', (object,), {})
+    args = type("Test", (object,), {})
     args.pattern = [os.path.join("tests", "share", "binning.root", spectrum)]
     args.replace = False
     args.load_cal = False
@@ -109,7 +120,7 @@ def test_root_fit_volume_with_binning(region1, region2, peak, expected_volume, s
 def test_root_to_root_conversion_for_unconventional_binning():
     # Mock parser so RootGet can be used
     # args = mock.Mock()
-    args = type('Test', (object,), {})
+    args = type("Test", (object,), {})
     args.replace = False
     args.load_cal = False
     args.invisible = False
@@ -124,5 +135,4 @@ def test_root_to_root_conversion_for_unconventional_binning():
 
 def get_spec(specid):
     s = hdtv.plugins.specInterface.spec_interface
-    return s.spectra.dict.get(
-        [x for x in list(s.spectra.dict) if x.major == specid][0])
+    return s.spectra.dict.get([x for x in list(s.spectra.dict) if x.major == specid][0])

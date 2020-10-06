@@ -25,15 +25,19 @@ Infrastructure for configuration variables
 
 from html import escape
 
+
 class Option(object):
     """
     A configuration variable
     """
 
-    def __init__(self, default=None,
-                 parse=lambda x: x,
-                 toStr=lambda x: str(x),
-                 changeCallback=None):
+    def __init__(
+        self,
+        default=None,
+        parse=lambda x: x,
+        toStr=lambda x: str(x),
+        changeCallback=None,
+    ):
         self.defaultValue = default
         self.value = self.defaultValue
         self.parse = parse
@@ -81,13 +85,13 @@ class Option(object):
 
 class _OptionManager(dict):
     """Manages a set of options"""
- 
+
     def RegisterOption(self, varname, value):
         """
         Adds a configuration variable
         """
         if varname in self.__dict__:
-            msg = 'Option {!r} already exists with, refusing to overWrite'
+            msg = "Option {!r} already exists with, refusing to overWrite"
             raise RuntimeError(msg.format(varname))
         self.__dict__[varname] = value
 
@@ -121,7 +125,8 @@ class _OptionManager(dict):
         Shows the value of the variable varname
         """
         return "<b>{}</b>: {}".format(
-            escape(varname), escape(str(self.__dict__[varname])))
+            escape(varname), escape(str(self.__dict__[varname]))
+        )
 
     def Str(self):
         """
@@ -129,8 +134,7 @@ class _OptionManager(dict):
         """
         string = ""
         for (k, v) in sorted(self.__dict__.items()):
-            string += "<b>{}</b>: {}\n".format(
-                escape(k), escape(str(v)))
+            string += "<b>{}</b>: {}\n".format(escape(k), escape(str(v)))
         return string
 
 
@@ -145,12 +149,14 @@ def parse_bool(x):
     else:
         raise ValueError("Valid options: True, False.")
 
+
 def parse_choices(choices):
     def _parse_choices(x):
         if x in choices:
             return x
         else:
             raise ValueError("Valid options: " + ", ".join(choices) + ".")
+
     return _parse_choices
 
 

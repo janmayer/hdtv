@@ -22,6 +22,7 @@
 import ROOT
 from .background import BackgroundModel
 
+
 class BackgroundModelInterpolation(BackgroundModel):
     """
     Interpolation background model
@@ -47,17 +48,20 @@ class BackgroundModelInterpolation(BackgroundModel):
         Creates a C++ Fitter object, which can then do the real work
         integrate and likelihood are ignored (do not make sense here)
         """
-       
+
         if nbg is not None:
             if nbg < self.requiredBgRegions:
                 return None
-            self.fFitter = ROOT.HDTV.Fit.InterpolationBg(2*nbg)
-            self.fParStatus['nparams'] = 2*nbg
+            self.fFitter = ROOT.HDTV.Fit.InterpolationBg(2 * nbg)
+            self.fParStatus["nparams"] = 2 * nbg
         elif nparams is not None:
             self.fFitter = ROOT.HDTV.Fit.InterpolationBg(nparams)
-            self.fParStatus['nparams'] = nparams
+            self.fParStatus["nparams"] = nparams
         else:
-            msg = "Status specifier %s of background fitter is invalid." % fParStatus['nparams']
+            msg = (
+                "Status specifier %s of background fitter is invalid."
+                % fParStatus["nparams"]
+            )
             raise ValueError(msg)
 
         self.ResetGlobalParams()

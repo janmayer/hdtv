@@ -72,12 +72,12 @@ class TextSpecReader(object):
                         self.__dict__[c + "col"] = col
                     else:
                         raise SpecReaderError(
-                            "Invalid format string: %s appears more than once" % c)
+                            "Invalid format string: %s appears more than once" % c
+                        )
                 elif c == "i":
                     pass
                 else:
-                    raise SpecReaderError(
-                        "Invalid character %s in format string" % c)
+                    raise SpecReaderError("Invalid character %s in format string" % c)
 
             if self.ycol is None:
                 raise SpecReaderError("You must specify a column for y")
@@ -94,11 +94,11 @@ class TextSpecReader(object):
         # are fulfilled. Note that the problem is underdefined (n equations for
         # n+1 unknowns), so that there is a somewhat arbitrary choice being
         # made.
-        xbins = array.array('d')
-        w = (centers[1] - centers[0]) / 2.
+        xbins = array.array("d")
+        w = (centers[1] - centers[0]) / 2.0
         xbins.append(centers[0] - w)
         for i in range(1, len(centers)):
-            w = (centers[i] - centers[i - 1] - w)
+            w = centers[i] - centers[i - 1] - w
             xbins.append(centers[i] - w)
         xbins.append(centers[-1] + w)
 
@@ -157,14 +157,16 @@ class TextSpecReader(object):
                         self.ecol = 2
                     else:
                         raise SpecReaderError(
-                            "%s: %d: Failed to autodetect file format: found %d columns" %
-                            (fname, linenum, self.ncols))
+                            "%s: %d: Failed to autodetect file format: found %d columns"
+                            % (fname, linenum, self.ncols)
+                        )
 
                 # Check if number of columns is consistent
                 elif len(cols) != self.ncols:
                     raise SpecReaderError(
-                        "%s: %d: Invalid number of columns (found=%d, expected=%d)" %
-                        (fname, linenum, len(cols), self.ncols))
+                        "%s: %d: Invalid number of columns (found=%d, expected=%d)"
+                        % (fname, linenum, len(cols), self.ncols)
+                    )
 
                 # Parse specified columns into float values
                 linedata = []
@@ -174,8 +176,9 @@ class TextSpecReader(object):
                             linedata.append(float(cols[col]))
                         except ValueError:
                             raise SpecReaderError(
-                                "%s: %d: Failed to parse value \"%s\" into float" %
-                                (fname, linenum, cols[col]))
+                                '%s: %d: Failed to parse value "%s" into float'
+                                % (fname, linenum, cols[col])
+                            )
                     else:
                         linedata.append(None)
 
@@ -200,7 +203,7 @@ class TextSpecReader(object):
         # Fill ROOT histogram object
         for b in range(0, nbins):
             hist.SetBinContent(b + 1, data[b][1])
-            if(self.ecol is not None):
+            if self.ecol is not None:
                 hist.SetBinError(b + 1, data[b][2])
 
         return hist
@@ -225,7 +228,7 @@ class SpecReader(object):
         if histtitle is None:
             histtitle = os.path.basename(fname)
 
-        if fmt.lower() == 'cracow':
+        if fmt.lower() == "cracow":
             # hdtv.dlmgr.LoadLibrary("cracowio")
             # cio = ROOT.CracowIO()
             # hist = cio.GetCracowSpectrum(fname, histname, histtitle)
@@ -233,11 +236,11 @@ class SpecReader(object):
             #     raise SpecReaderError(cio.GetErrorMsg())
             # return hist
             raise SpecReaderError("Format not longer supported")
-        elif fmt.split(':')[0].lower() == 'col':
+        elif fmt.split(":")[0].lower() == "col":
             # Extract subformat specifier to pass on to TextSpecReader
-            pos = fmt.find(':')
+            pos = fmt.find(":")
             if pos > 0:
-                subfmt = fmt[pos + 1:]
+                subfmt = fmt[pos + 1 :]
             else:
                 subfmt = None
 
@@ -247,7 +250,7 @@ class SpecReader(object):
         else:
             mhist = ROOT.MFileHist()
 
-            if not fmt or fmt.lower() == 'mfile':
+            if not fmt or fmt.lower() == "mfile":
                 result = mhist.Open(fname)
             else:
                 result = mhist.Open(fname, fmt)

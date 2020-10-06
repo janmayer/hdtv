@@ -26,7 +26,7 @@ import sys
 import pytest
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def temp_file(request):
     """
     pytest fixture that provides a temporary file for writing
@@ -39,13 +39,26 @@ def temp_file(request):
     except OSError:
         pass
 
-@pytest.fixture(scope='function', params=[
-    '.gz',
-    pytest.param('.xz', marks=pytest.mark.skipif(sys.version_info < (3, 0),
-        reason='no module lzma in python2')),
-    pytest.param('.bz2', marks=pytest.mark.skipif(sys.version_info < (3, 0),
-        reason='no module bz2 in python2')),
-    ''])
+
+@pytest.fixture(
+    scope="function",
+    params=[
+        ".gz",
+        pytest.param(
+            ".xz",
+            marks=pytest.mark.skipif(
+                sys.version_info < (3, 0), reason="no module lzma in python2"
+            ),
+        ),
+        pytest.param(
+            ".bz2",
+            marks=pytest.mark.skipif(
+                sys.version_info < (3, 0), reason="no module bz2 in python2"
+            ),
+        ),
+        "",
+    ],
+)
 def temp_file_compressed(request):
     """
     pytest fixture that provides a temporary file for writing

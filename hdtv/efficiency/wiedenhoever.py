@@ -19,7 +19,7 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-from . efficiency import _Efficiency
+from .efficiency import _Efficiency
 from ROOT import TF1
 import math
 
@@ -38,20 +38,42 @@ class WiedenhoeverEff(_Efficiency):
         # originally, [4] was not the first coefficient, this version seems to work better
         #                       "( N * d *   (E- b + c *exp(- d *E))^- a  )"
         # [0] is fixed
-        self.TF1 = TF1(
-            self.id, "([0]*[4]*pow(x-[2]+[3]*exp(-[4]*x), -[1]))", 0, 0)
+        self.TF1 = TF1(self.id, "([0]*[4]*pow(x-[2]+[3]*exp(-[4]*x), -[1]))", 0, 0)
 
         _Efficiency.__init__(self, num_pars=5, pars=pars, norm=norm)
 
         # List of derivatives
         self._dEff_dP = [None, None, None, None, None]
-        self._dEff_dP[0] = lambda E, fPars: self.norm * \
-            self.value(E) / fPars[0]  # dEff/da
-        self._dEff_dP[1] = lambda E, fPars: self.norm * (-self.value(E)) * math.log(
-            E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E))  # dEff/db
-        self._dEff_dP[2] = lambda E, fPars: self.norm * self.value(E) * fPars[1] / (
-            E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E))  # dEff/dc
-        self._dEff_dP[3] = lambda E, fPars: self.norm * (-self.value(E)) * fPars[1] / (
-            E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E)) * math.exp(-fPars[4] * E)  # dEff/dd
-        self._dEff_dP[4] = lambda E, fPars: self.norm * self.value(E) * (1 / fPars[4] + fPars[1] / (
-            E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E)) * fPars[3] * math.exp(-fPars[4] * E) * E)  # dEff/de
+        self._dEff_dP[0] = (
+            lambda E, fPars: self.norm * self.value(E) / fPars[0]
+        )  # dEff/da
+        self._dEff_dP[1] = (
+            lambda E, fPars: self.norm
+            * (-self.value(E))
+            * math.log(E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E))
+        )  # dEff/db
+        self._dEff_dP[2] = (
+            lambda E, fPars: self.norm
+            * self.value(E)
+            * fPars[1]
+            / (E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E))
+        )  # dEff/dc
+        self._dEff_dP[3] = (
+            lambda E, fPars: self.norm
+            * (-self.value(E))
+            * fPars[1]
+            / (E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E))
+            * math.exp(-fPars[4] * E)
+        )  # dEff/dd
+        self._dEff_dP[4] = (
+            lambda E, fPars: self.norm
+            * self.value(E)
+            * (
+                1 / fPars[4]
+                + fPars[1]
+                / (E - fPars[2] + fPars[3] * math.exp(-fPars[4] * E))
+                * fPars[3]
+                * math.exp(-fPars[4] * E)
+                * E
+            )
+        )  # dEff/de

@@ -11,7 +11,7 @@ for y in range(0, 1024):
         if x >= 200 and y >= 200:
             z = 2
 
-        f.write(struct.pack('l', z))
+        f.write(struct.pack("l", z))
 
 f.close()
 

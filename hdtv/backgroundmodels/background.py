@@ -32,7 +32,7 @@ class BackgroundModel(object):
     """
     A background model is a function used to fit the quasi-continuous background
     of a spectrum. The user can choose how to fit its parameters (and whether to
-    include them at all). After everything has been configured, the background 
+    include them at all). After everything has been configured, the background
     model produces a C++ fitter object.
     """
 
@@ -93,7 +93,7 @@ class BackgroundModel(object):
         stat = None
         if len(status) < 1:
             raise ValueError
-        elif "free"[0:len(status)] == status:
+        elif "free"[0 : len(status)] == status:
             stat = "free"
 
         # If status was a keyword, see if this setting is legal for the
@@ -101,7 +101,10 @@ class BackgroundModel(object):
         if stat is not None:
             if stat not in self.fValidParStatus[parname]:
                 msg = "Status %s not allowed for parameter %s in peak model %s" % (
-                    stat, parname, self.name)
+                    stat,
+                    parname,
+                    self.name,
+                )
                 raise ValueError(msg)
             return stat
 
@@ -116,7 +119,10 @@ class BackgroundModel(object):
         # Check if a numeric value is legal for the parameter
         if int not in self.fValidParStatus[parname]:
             msg = "Invalid status %s for parameter %s in peak model %s" % (
-                status, parname, self.name)
+                status,
+                parname,
+                self.name,
+            )
             raise ValueError(msg)
         return val
 
@@ -131,7 +137,8 @@ class BackgroundModel(object):
 
         if parname not in list(self.fValidParStatus.keys()):
             raise ValueError(
-                "Invalid parameter name %s for background model %s" %
-                (parname, self.name))
+                "Invalid parameter name %s for background model %s"
+                % (parname, self.name)
+            )
 
         self.fParStatus[parname] = self.ParseParamStatus(parname, status)

@@ -44,16 +44,13 @@ std::string GetFuncUniqueName(const char *prefix, void *ptr) {
   return name.str();
 }
 
-double TH1IntegrateWithPartialBins(const TH1 *spec, const double xmin,
-                                  const double xmax) {
+double TH1IntegrateWithPartialBins(const TH1 *spec, const double xmin, const double xmax) {
   const TAxis *axis = spec->GetXaxis();
   const int bmin = axis->FindBin(xmin);
   const int bmax = axis->FindBin(xmax);
   double integral = spec->Integral(bmin, bmax);
-  integral -= spec->GetBinContent(bmin) * (xmin - axis->GetBinLowEdge(bmin)) /
-              axis->GetBinWidth(bmin);
-  integral -= spec->GetBinContent(bmax) * (axis->GetBinUpEdge(bmax) - xmax) /
-              axis->GetBinWidth(bmax);
+  integral -= spec->GetBinContent(bmin) * (xmin - axis->GetBinLowEdge(bmin)) / axis->GetBinWidth(bmin);
+  integral -= spec->GetBinContent(bmax) * (axis->GetBinUpEdge(bmax) - xmax) / axis->GetBinWidth(bmax);
   return integral;
 }
 

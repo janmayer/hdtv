@@ -56,8 +56,7 @@ const char *MatOp::ErrDesc[] = {
     "Transposition failed"                          // ERR_TRANS_FAIL
 };
 
-int MatOp::Project(const char *src_fname, const char *prx_fname,
-                   const char *pry_fname) {
+int MatOp::Project(const char *src_fname, const char *prx_fname, const char *pry_fname) {
   if (prx_fname && !(*prx_fname)) {
     prx_fname = nullptr;
   }
@@ -79,8 +78,7 @@ int MatOp::Project(const char *src_fname, const char *prx_fname,
   }
 
   if (!out_prx.IsNull()) {
-    if (matop_adjustfmts_prx(static_cast<MFILE *>(out_prx),
-                             static_cast<MFILE *>(in_matrix)) != 0) {
+    if (matop_adjustfmts_prx(static_cast<MFILE *>(out_prx), static_cast<MFILE *>(in_matrix)) != 0) {
       return ERR_PRX_FMT;
     }
   }
@@ -91,14 +89,12 @@ int MatOp::Project(const char *src_fname, const char *prx_fname,
   }
 
   if (!out_pry.IsNull()) {
-    if (matop_adjustfmts_pry(static_cast<MFILE *>(out_pry),
-                             static_cast<MFILE *>(in_matrix)) != 0) {
+    if (matop_adjustfmts_pry(static_cast<MFILE *>(out_pry), static_cast<MFILE *>(in_matrix)) != 0) {
       return ERR_PRY_FMT;
     }
   }
 
-  if (matop_proj(static_cast<MFILE *>(out_prx), static_cast<MFILE *>(out_pry),
-                 static_cast<MFILE *>(in_matrix)) != 0) {
+  if (matop_proj(static_cast<MFILE *>(out_prx), static_cast<MFILE *>(out_pry), static_cast<MFILE *>(in_matrix)) != 0) {
     return ERR_PROJ_FAIL;
   }
 
@@ -119,16 +115,14 @@ int MatOp::Transpose(const char *src_fname, const char *dst_fname) {
     return ERR_TRANS_OPEN;
   }
 
-  if (matop_adjustfmts_trans(static_cast<MFILE *>(out_matrix),
-                             static_cast<MFILE *>(in_matrix)) != 0) {
+  if (matop_adjustfmts_trans(static_cast<MFILE *>(out_matrix), static_cast<MFILE *>(in_matrix)) != 0) {
     return ERR_TRANS_FMT;
   }
 
   // std::cout << "Info: output format is " << mgetfmt(out_matrix, NULL) <<
   // std::endl;
 
-  if (matop_conv(static_cast<MFILE *>(out_matrix),
-                 static_cast<MFILE *>(in_matrix), MAT_TRANS) != 0) {
+  if (matop_conv(static_cast<MFILE *>(out_matrix), static_cast<MFILE *>(in_matrix), MAT_TRANS) != 0) {
     return ERR_TRANS_FAIL;
   }
 

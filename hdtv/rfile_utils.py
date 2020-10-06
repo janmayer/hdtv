@@ -67,7 +67,7 @@ def GetRelDirectory(cur_posix_path, cur_root_dir, path):
     # Saving the current directory turns out to be tricky; see
     # http://root.cern.ch/phpBB2/viewtopic.php?t=6382
 
-    prev_root_dir = ROOT.gDirectory.GetDirectory('')
+    prev_root_dir = ROOT.gDirectory.GetDirectory("")
 
     try:
         error = False
@@ -103,9 +103,9 @@ def GetRelDirectory(cur_posix_path, cur_root_dir, path):
                 elif IsROOTFile(full_name):
                     # print("Info: Opening %s" % full_name)
                     # Disable warnings when opening files
-                    ROOT.gErrorIgnoreLevel = ROOT.kError;
+                    ROOT.gErrorIgnoreLevel = ROOT.kError
                     rfile = ROOT.TFile(full_name)
-                    ROOT.gErrorIgnoreLevel = ROOT.kInfo;
+                    ROOT.gErrorIgnoreLevel = ROOT.kInfo
                     if rfile.IsZombie():
                         error = True
                         break
@@ -143,9 +143,8 @@ def PathComplete(cur_posix_path, cur_root_dir, path, pattern, dirs_only=False):
 
     dirs_only specifies whether to suggest directories only.
     """
-    (posix_path, rfile, root_dir) = GetRelDirectory(
-        cur_posix_path, cur_root_dir, path)
-    if(posix_path, rfile, root_dir) == (None, None, None):
+    (posix_path, rfile, root_dir) = GetRelDirectory(cur_posix_path, cur_root_dir, path)
+    if (posix_path, rfile, root_dir) == (None, None, None):
         return []
 
     # Suggest possible completions
@@ -167,8 +166,9 @@ def PathComplete(cur_posix_path, cur_root_dir, path, pattern, dirs_only=False):
     else:
         for name in os.listdir(posix_path):
             if name[0:l] == pattern:
-                if os.path.isdir(os.path.join(posix_path, name)) or \
-                        IsROOTFile(os.path.join(posix_path, name)):
+                if os.path.isdir(os.path.join(posix_path, name)) or IsROOTFile(
+                    os.path.join(posix_path, name)
+                ):
                     options.append(name + "/")
 
     if rfile:
@@ -198,7 +198,7 @@ def Get(cur_posix_path, cur_root_dir, pattern):
         cur_posix_path = "/"
 
     # Save the current ROOT directory (see comments in function PathComplete)
-    prev_root_dir = ROOT.gDirectory.GetDirectory('')
+    prev_root_dir = ROOT.gDirectory.GetDirectory("")
 
     if cur_root_dir is None:
         objs = RecursivePathMatch(cur_posix_path, pcomp)
@@ -215,8 +215,7 @@ def Get(cur_posix_path, cur_root_dir, pattern):
 def RecursivePathMatch(cur_path, pcomp):
     if pcomp[0] in (".", ".."):
         if len(pcomp) > 1:
-            return RecursivePathMatch(
-                os.path.join(cur_path, pcomp[0]), pcomp[1:])
+            return RecursivePathMatch(os.path.join(cur_path, pcomp[0]), pcomp[1:])
         else:
             return []
 
@@ -226,8 +225,7 @@ def RecursivePathMatch(cur_path, pcomp):
             full_name = os.path.join(cur_path, name)
             if os.path.isfile(full_name) and IsROOTFile(full_name):
                 rfile = ROOT.TFile(full_name)
-                matched_objects += RecursiveROOTMatch(
-                    cur_path, rfile, pcomp[1:])
+                matched_objects += RecursiveROOTMatch(cur_path, rfile, pcomp[1:])
                 rfile.Close()
             elif os.path.isdir(full_name):
                 matched_objects += RecursivePathMatch(full_name, pcomp[1:])
@@ -268,7 +266,8 @@ def RecursiveROOTMatch(rfile_path, rfile_dir, pcomp):
                     matched_objects.append(k.ReadObj())
                 elif k.GetClassName() == "TDirectoryFile":
                     matched_objects += RecursiveROOTMatch(
-                        rfile_path, k.ReadObj(), pcomp[1:])
+                        rfile_path, k.ReadObj(), pcomp[1:]
+                    )
 
     return matched_objects
 
@@ -287,6 +286,6 @@ def IsROOTFile(fname):
         f = open(fname, "rb")
         ident = f.read(4).decode()
         f.close()
-        return (ident == "root")
+        return ident == "root"
     except (OSError, IOError):
         return False

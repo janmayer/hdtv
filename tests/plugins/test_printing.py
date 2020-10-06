@@ -27,6 +27,7 @@ import pytest
 from tests.helpers.utils import redirect_stdout, hdtvcmd
 
 from hdtv.util import monkey_patch_ui
+
 monkey_patch_ui()
 
 import hdtv.cmdline
@@ -36,12 +37,14 @@ import hdtv.session
 
 
 import __main__
+
 try:
     __main__.spectra = hdtv.session.Session()
 except RuntimeError:
     pass
 
 import hdtv.plugins.printing
+
 
 @pytest.fixture(autouse=True)
 def prepare():
@@ -52,27 +55,29 @@ def test_cmd_printing():
     try:
         outfile = tempfile.mkstemp(".svg", "hdtv_ptest_")[1]
         f, ferr = hdtvcmd(
-                "print -y 'my_ylabel' -x 'my_xlabel' -t 'my_title' -F {}".format(outfile))
+            "print -y 'my_ylabel' -x 'my_xlabel' -t 'my_title' -F {}".format(outfile)
+        )
         print(f)
         print(ferr)
         assert f == ""
         assert ferr == ""
-        with open(outfile, 'r') as fout:
+        with open(outfile, "r") as fout:
             result = fout.read()
-        assert 'my_ylabel' in result
-        assert 'my_xlabel' in result
-        assert 'my_title' in result
+        assert "my_ylabel" in result
+        assert "my_xlabel" in result
+        assert "my_title" in result
     finally:
         os.remove(outfile)
 
-@pytest.mark.parametrize("fmt", [
-    "eps", "pdf", "png", "ps", "raw", "rgba", "svg"])
-    # "svgz", "jpeg", "tiff" <- fail for no good reason
+
+@pytest.mark.parametrize("fmt", ["eps", "pdf", "png", "ps", "raw", "rgba", "svg"])
+# "svgz", "jpeg", "tiff" <- fail for no good reason
 def test_cmd_printing_formats(fmt):
     try:
         outfile = tempfile.mkstemp("." + fmt, "hdtv_pftest_")[1]
         f, ferr = hdtvcmd(
-                "print -y 'my_ylabel' -x 'my_xlabel' -t 'my_title' -F {}".format(outfile))
+            "print -y 'my_ylabel' -x 'my_xlabel' -t 'my_title' -F {}".format(outfile)
+        )
         print(f)
         print(ferr)
         assert f == ""

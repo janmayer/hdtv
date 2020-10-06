@@ -56,11 +56,11 @@ class RootFileInterface(object):
         hdtv.cmdline.AddCommand("root ll", self.RootLL, maxargs=1, level=0)
         hdtv.cmdline.AddCommand("root pwd", self.RootPwd, nargs=0)
         hdtv.cmdline.AddCommand("root browse", self.RootBrowse, nargs=0)
-        hdtv.cmdline.AddCommand(
-            "root open", self.RootOpen, nargs=1, fileargs=True)
+        hdtv.cmdline.AddCommand("root open", self.RootOpen, nargs=1, fileargs=True)
         hdtv.cmdline.AddCommand("root close", self.RootClose, nargs=0)
-        hdtv.cmdline.AddCommand("root cd", self.RootCd, nargs=1,
-                                completer=self.RootCd_Completer)
+        hdtv.cmdline.AddCommand(
+            "root cd", self.RootCd, nargs=1, completer=self.RootCd_Completer
+        )
 
         prog = "root get"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog)
@@ -69,83 +69,76 @@ class RootFileInterface(object):
             "--replace",
             action="store_true",
             default=False,
-            help="replace existing histogram list")
+            help="replace existing histogram list",
+        )
         parser.add_argument(
             "-c",
             "--load-cal",
             action="store_true",
             default=False,
-            help="load calibration from calibration dictionary")
+            help="load calibration from calibration dictionary",
+        )
         parser.add_argument(
             "-v",
             "--invisible",
             action="store_true",
             default=False,
-            help="do not make histograms visible, only add to display list")
-        parser.add_argument("pattern", nargs='+')
+            help="do not make histograms visible, only add to display list",
+        )
+        parser.add_argument("pattern", nargs="+")
         hdtv.cmdline.AddCommand(
-            "root get",
-            self.RootGet,
-            completer=self.RootGet_Completer,
-            parser=parser)
+            "root get", self.RootGet, completer=self.RootGet_Completer, parser=parser
+        )
 
         # FIXME: make use of matrix ID possible for already loaded matrix
         prog = "root matrix view"
         description = "show a 2D view of the matrix"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
-        parser.add_argument("matname", nargs='+')
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
+        parser.add_argument("matname", nargs="+")
         hdtv.cmdline.AddCommand(
-            prog,
-            self.RootMatrixView,
-            completer=self.RootGet_Completer,
-            parser=parser)
+            prog, self.RootMatrixView, completer=self.RootGet_Completer, parser=parser
+        )
 
         prog = "root matrix get"
         description = "load a matrix, i.e. the projections, from a ROOT file.\n"
         description += "If the matrix is symmetric it only loads one projection.\n"
         description += "If it is asymmetric both projections will be loaded."
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
-        parser.add_argument("-s", "--spectrum", action="store", default=None,
-                          help="base id for loaded projections")
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
-            "matrix_type",
-            metavar='matrix-type',
-            help="{asym,sym}")
+            "-s",
+            "--spectrum",
+            action="store",
+            default=None,
+            help="base id for loaded projections",
+        )
+        parser.add_argument("matrix_type", metavar="matrix-type", help="{asym,sym}")
         parser.add_argument(
-            'filename',
-            metavar='matrix-file',
-            help="file with matrix to load")
-        hdtv.cmdline.AddCommand(prog, self.RootMatrixGet,
-                                completer=self.RootGet_Completer,
-                                parser=parser)
+            "filename", metavar="matrix-file", help="file with matrix to load"
+        )
+        hdtv.cmdline.AddCommand(
+            prog, self.RootMatrixGet, completer=self.RootGet_Completer, parser=parser
+        )
 
         prog = "root cut view"
         description = "load a cut (TCutG) from a ROOT file and display it"
         description += "overlaid on the current matrix view"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
             "-i",
             "--invert-axes",
             action="store_true",
             default=False,
-            help="Exchange coordinate axes of cut (x <-> y)")
-        parser.add_argument(
-            "path",
-            nargs='+',
-            help="path of root cut")
-        hdtv.cmdline.AddCommand(prog, self.RootCutView,
-                                completer=self.RootGet_Completer,
-                                parser=parser)
+            help="Exchange coordinate axes of cut (x <-> y)",
+        )
+        parser.add_argument("path", nargs="+", help="path of root cut")
+        hdtv.cmdline.AddCommand(
+            prog, self.RootCutView, completer=self.RootGet_Completer, parser=parser
+        )
 
         prog = "root cut delete"
         description = "delete all cuts currently shown"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
-        hdtv.cmdline.AddCommand(
-            prog, self.RootCutDelete, parser=parser)
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
+        hdtv.cmdline.AddCommand(prog, self.RootCutDelete, parser=parser)
 
         hdtv.cmdline.RegisterInteractive("gRootFile", self.rootfile)
 
@@ -184,7 +177,8 @@ class RootFileInterface(object):
             cur_root_dir = None
 
         (posix_path, rfile, root_dir) = hdtv.rfile_utils.GetRelDirectory(
-            os.getcwd(), cur_root_dir, target)
+            os.getcwd(), cur_root_dir, target
+        )
         if (posix_path, rfile, root_dir) == (None, None, None):
             hdtv.ui.error("Invalid path specified.")
             return
@@ -196,13 +190,11 @@ class RootFileInterface(object):
         # a POSIX directory. If rfile is not None, we *changed* the ROOT file.
         if root_dir is None or rfile is not None:
             if self.rootfile is not None:
-                hdtv.ui.info("Closing old root file %s" %
-                      self.rootfile.GetName())
+                hdtv.ui.info("Closing old root file %s" % self.rootfile.GetName())
                 self.rootfile.Close()
             self.rootfile = rfile
             if self.rootfile is not None:
-                hdtv.ui.info("Opened new root file %s" %
-                      self.rootfile.GetName())
+                hdtv.ui.info("Opened new root file %s" % self.rootfile.GetName())
 
         if root_dir is not None:
             root_dir.cd()
@@ -241,8 +233,7 @@ class RootFileInterface(object):
             cur_root_dir = None
 
         if buf[-1] == " ":
-            return hdtv.rfile_utils.PathComplete(
-                ".", cur_root_dir, "", text, dirs_only)
+            return hdtv.rfile_utils.PathComplete(".", cur_root_dir, "", text, dirs_only)
         else:
             path = buf.rsplit(None, 1)[-1]
             dirs = path.rsplit("/", 1)
@@ -253,10 +244,12 @@ class RootFileInterface(object):
 
             if len(dirs) == 1:
                 return hdtv.rfile_utils.PathComplete(
-                    ".", cur_root_dir, "", text, dirs_only)
+                    ".", cur_root_dir, "", text, dirs_only
+                )
             else:
                 return hdtv.rfile_utils.PathComplete(
-                    ".", cur_root_dir, dirs[0], text, dirs_only)
+                    ".", cur_root_dir, dirs[0], text, dirs_only
+                )
 
     def GetObj(self, path):
         """
@@ -274,7 +267,8 @@ class RootFileInterface(object):
                 cur_root_dir = None
 
             (posix_path, rfile, root_dir) = hdtv.rfile_utils.GetRelDirectory(
-                os.getcwd(), cur_root_dir, dirs[0])
+                os.getcwd(), cur_root_dir, dirs[0]
+            )
 
             if root_dir:
                 obj = root_dir.Get(dirs[1])
@@ -311,9 +305,9 @@ class RootFileInterface(object):
         hist = self.GetObj(path)
 
         if hist is None or not (
-            isinstance(hist, ROOT.TH2) or (
-                isinstance(hist, ROOT.THnSparse) and
-                hist.GetNdimensions() == 2)):
+            isinstance(hist, ROOT.TH2)
+            or (isinstance(hist, ROOT.THnSparse) and hist.GetNdimensions() == 2)
+        ):
             hdtv.ui.error("%s is not a 2d histogram" % path)
             return None
 
@@ -324,7 +318,9 @@ class RootFileInterface(object):
         Load a ROOT cut (TCutG) from a ROOT file and display it.
         """
         if len(self.matviews) == 0:
-            raise hdtv.cmdline.HDTVCommandError("Cannot display cut: no matrix view open")
+            raise hdtv.cmdline.HDTVCommandError(
+                "Cannot display cut: no matrix view open"
+            )
         for path in args.path:
             cut = self.GetCut(path)
             if cut:
@@ -365,7 +361,9 @@ class RootFileInterface(object):
             sym = False
         else:
             # FIXME: is there really no way to test that automatically????
-            raise hdtv.cmdline.HDTVCommandError("Please specify if matrix is of type asym or sym")
+            raise hdtv.cmdline.HDTVCommandError(
+                "Please specify if matrix is of type asym or sym"
+            )
         rhist = self.GetTH2(args.filename)
         if rhist is None:
             raise hdtv.cmdline.HDTVCommandError("Failed to open 2D histogram")
@@ -423,11 +421,11 @@ class RootFileInterface(object):
                             if spec.name in self.spectra.caldict:
                                 spec.cal = self.caldict[spec.name]
                             else:
-                                hdtv.ui.warning("No calibration found for %s" %
-                                    spec.name)
+                                hdtv.ui.warning(
+                                    "No calibration found for %s" % spec.name
+                                )
                 else:
-                    hdtv.ui.warning("%s is not a 1D histogram object" %
-                                    obj.GetName())
+                    hdtv.ui.warning("%s is not a 1D histogram object" % obj.GetName())
             hdtv.ui.msg("%d spectra loaded" % len(loaded))
             if args.invisible:
                 self.spectra.HideObjects(loaded)
@@ -444,4 +442,5 @@ class RootFileInterface(object):
 
 # plugin initialisation
 import __main__
+
 r = RootFileInterface(__main__.spectra)

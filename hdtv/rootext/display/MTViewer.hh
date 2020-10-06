@@ -45,9 +45,7 @@ public:
   MTViewer(UInt_t w, UInt_t h, THnSparse *mat, const char *title);
   ~MTViewer() override;
 
-  void AddCut(const TCutG &cut, bool invertAxes = false) {
-    fView->AddCut(cut, invertAxes);
-  }
+  void AddCut(const TCutG &cut, bool invertAxes = false) { fView->AddCut(cut, invertAxes); }
 
   void DeleteAllCuts() { fView->DeleteAllCuts(); }
 

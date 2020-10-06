@@ -25,8 +25,8 @@
 #include <cmath>
 
 #include <iterator>
-#include <numeric>
 #include <memory>
+#include <numeric>
 
 #include <TError.h>
 #include <TF1.h>
@@ -40,17 +40,15 @@ namespace Fit {
 
 const double EEPeak::DECOMP_FUNC_WIDTH = 4.0;
 
-EEPeak::EEPeak(const Param &pos, const Param &amp, const Param &sigma1,
-               const Param &sigma2, const Param &eta, const Param &gamma)
-    : fPos{pos}, fAmp{amp}, fSigma1{sigma1}, fSigma2{sigma2}, fEta{eta},
-      fGamma{gamma}, fVol{std::numeric_limits<double>::quiet_NaN()},
-      fVolError{std::numeric_limits<double>::quiet_NaN()}, fFunc{nullptr},
-      fPeakFunc{nullptr} {}
+EEPeak::EEPeak(const Param &pos, const Param &amp, const Param &sigma1, const Param &sigma2, const Param &eta,
+               const Param &gamma)
+    : fPos{pos}, fAmp{amp}, fSigma1{sigma1}, fSigma2{sigma2}, fEta{eta}, fGamma{gamma},
+      fVol{std::numeric_limits<double>::quiet_NaN()}, fVolError{std::numeric_limits<double>::quiet_NaN()},
+      fFunc{nullptr}, fPeakFunc{nullptr} {}
 
 EEPeak::EEPeak(const EEPeak &src)
-    : fPos{src.fPos}, fAmp{src.fAmp}, fSigma1{src.fSigma1},
-      fSigma2{src.fSigma2}, fEta{src.fEta}, fGamma{src.fGamma}, fVol{src.fVol},
-      fVolError{src.fVolError}, fFunc{src.fFunc}, fPeakFunc{nullptr}
+    : fPos{src.fPos}, fAmp{src.fAmp}, fSigma1{src.fSigma1}, fSigma2{src.fSigma2}, fEta{src.fEta}, fGamma{src.fGamma},
+      fVol{src.fVol}, fVolError{src.fVolError}, fFunc{src.fFunc}, fPeakFunc{nullptr}
 // Do not copy the fPeakFunc pointer, it will be
 // generated when needed.
 {}
@@ -103,10 +101,8 @@ double EEPeak::Eval(const double *x, const double *p) const {
   } else if (dx <= (eta * sigma2)) {
     _y = std::exp(-std::log(2.) * dx * dx / (sigma2 * sigma2));
   } else {
-    double B = (sigma2 * gamma - 2. * sigma2 * eta * eta * std::log(2)) /
-               (2. * eta * std::log(2));
-    double A = std::exp(-eta * eta * std::log(2.)) *
-               std::exp(gamma * std::log(sigma2 * eta + B));
+    double B = (sigma2 * gamma - 2. * sigma2 * eta * eta * std::log(2)) / (2. * eta * std::log(2));
+    double A = std::exp(-eta * eta * std::log(2.)) * std::exp(gamma * std::log(sigma2 * eta + B));
     _y = A / std::exp(gamma * std::log(B + dx));
   }
 
@@ -126,9 +122,8 @@ TF1 *EEPeak::GetPeakFunc() {
   double max = fPos.Value(fFunc) + DECOMP_FUNC_WIDTH * fSigma2.Value(fFunc);
   int numParams = fFunc->GetNpar();
 
-  fPeakFunc = std::make_unique<TF1>(GetFuncUniqueName("eepeak", this).c_str(),
-                                     this, &EEPeak::Eval, min, max, numParams,
-                                     "EEPeak", "Eval");
+  fPeakFunc = std::make_unique<TF1>(GetFuncUniqueName("eepeak", this).c_str(), this, &EEPeak::Eval, min, max, numParams,
+                                    "EEPeak", "Eval");
 
   for (int i = 0; i < numParams; i++) {
     fPeakFunc->SetParameter(i, fFunc->GetParameter(i));
@@ -164,39 +159,29 @@ void EEPeak::StoreIntegral() {
   // See if radiative tail needs to be included in integral
   if (5. * sigma1 > eta * sigma2) {
     // Contribution from tail
-    double B = (sigma2 * gamma - 2. * sigma2 * eta * eta * std::log(2.)) /
-               (2. * eta * std::log(2.));
-    double A = std::exp(-eta * eta * std::log(2.)) *
-               std::exp(gamma * std::log(sigma2 * eta + B));
+    double B = (sigma2 * gamma - 2. * sigma2 * eta * eta * std::log(2.)) / (2. * eta * std::log(2.));
+    double A = std::exp(-eta * eta * std::log(2.)) * std::exp(gamma * std::log(sigma2 * eta + B));
 
     double dBdSigma2 = B / sigma2;
     double dBdEta = -(2. * sigma2 + B / eta);
     double dBdGamma = sigma2 / (2. * eta * std::log(2));
 
-    double dAdSigma2 =
-        (gamma * gamma) / (2. * eta * std::log(2)) * A / (sigma2 * eta + B);
+    double dAdSigma2 = (gamma * gamma) / (2. * eta * std::log(2)) * A / (sigma2 * eta + B);
     double dAdEta = -(2. * std::log(2) * eta + gamma / eta) * A;
-    double dAdGamma = A * (std::log(sigma2 * eta + B) +
-                           gamma / (sigma2 * eta + B) * dBdGamma);
+    double dAdGamma = A * (std::log(sigma2 * eta + B) + gamma / (sigma2 * eta + B) * dBdGamma);
 
-    double Vt = A / (1. - gamma) * (std::pow(B + 5. * sigma1, 1. - gamma) -
-                                    std::pow(B + eta * sigma2, 1. - gamma));
+    double Vt = A / (1. - gamma) * (std::pow(B + 5. * sigma1, 1. - gamma) - std::pow(B + eta * sigma2, 1. - gamma));
 
     double dVtdA = Vt / A;
-    double dVtdB = A * (std::pow(B + 5. * sigma1, -gamma) -
-                        std::pow(B + eta * sigma2, -gamma));
+    double dVtdB = A * (std::pow(B + 5. * sigma1, -gamma) - std::pow(B + eta * sigma2, -gamma));
 
     double dVtdSigma1 = 5. * A * std::pow(B + 5. * sigma1, -gamma);
-    double dVtdSigma2 = dVtdA * dAdSigma2 + dVtdB * dBdSigma2 -
-                        A * std::pow(B + eta * sigma2, -gamma) * eta;
-    double dVtdEta = dVtdA * dAdEta + dVtdB * dBdEta -
-                     A * std::pow(B + eta * sigma2, -gamma) * sigma2;
-    double dVtdGamma =
-        dVtdA * dAdGamma + dVtdB * dBdGamma + Vt / (1. - gamma) -
-        A / (1. - gamma) *
-            (std::log(B + 5. * sigma1) * std::pow(B + 5. * sigma1, 1. - gamma) -
-             std::log(B + eta * sigma2) *
-                 std::pow(B + eta * sigma2, 1. - gamma));
+    double dVtdSigma2 = dVtdA * dAdSigma2 + dVtdB * dBdSigma2 - A * std::pow(B + eta * sigma2, -gamma) * eta;
+    double dVtdEta = dVtdA * dAdEta + dVtdB * dBdEta - A * std::pow(B + eta * sigma2, -gamma) * sigma2;
+    double dVtdGamma = dVtdA * dAdGamma + dVtdB * dBdGamma + Vt / (1. - gamma) -
+                       A / (1. - gamma) *
+                           (std::log(B + 5. * sigma1) * std::pow(B + 5. * sigma1, 1. - gamma) -
+                            std::log(B + eta * sigma2) * std::pow(B + eta * sigma2, 1. - gamma));
 
     vol += Vt;
 
@@ -206,8 +191,7 @@ void EEPeak::StoreIntegral() {
     dVdGamma += dVtdGamma;
 
     // Contribution from truncated right half
-    double Vr = 0.5 * std::sqrt(M_PI / std::log(2.)) * sigma2 *
-                std::erf(std::sqrt(std::log(2.)) * eta);
+    double Vr = 0.5 * std::sqrt(M_PI / std::log(2.)) * sigma2 * std::erf(std::sqrt(std::log(2.)) * eta);
     double dVrdSigma2 = Vr / sigma2;
     double dVrdEta = sigma2 * std::exp(-std::log(2) * eta * eta);
 
@@ -216,14 +200,11 @@ void EEPeak::StoreIntegral() {
     dVdEta += dVrdEta;
   } else {
     // Contribution from truncated right half
-    double Vr = 0.5 * std::sqrt(M_PI / std::log(2.)) * sigma2 *
-                std::erf(5. * std::sqrt(std::log(2.)) * sigma1 / sigma2);
-    double dVrdSigma1 = 5. * std::exp(-25. * std::log(2) * (sigma1 * sigma1) /
-                                      (sigma2 * sigma2));
-    double dVrdSigma2 = Vr / sigma2 -
-                        5. * std::exp(-25. * std::log(2) * (sigma1 * sigma1) /
-                                      (sigma2 * sigma2)) *
-                            sigma1 / sigma2;
+    double Vr =
+        0.5 * std::sqrt(M_PI / std::log(2.)) * sigma2 * std::erf(5. * std::sqrt(std::log(2.)) * sigma1 / sigma2);
+    double dVrdSigma1 = 5. * std::exp(-25. * std::log(2) * (sigma1 * sigma1) / (sigma2 * sigma2));
+    double dVrdSigma2 =
+        Vr / sigma2 - 5. * std::exp(-25. * std::log(2) * (sigma1 * sigma1) / (sigma2 * sigma2)) * sigma1 / sigma2;
 
     vol += Vr;
     dVdSigma1 += dVrdSigma1;
@@ -237,10 +218,8 @@ void EEPeak::StoreIntegral() {
   // Process covariance matrix
   // Note: V = amp * vol  =>  dVdAmp = vol
   double errsq = 0.0;
-  double deriv[5] = {vol, amp * dVdSigma1, amp * dVdSigma2, amp * dVdEta,
-                     amp * dVdGamma};
-  int id[5] = {fAmp._Id(), fSigma1._Id(), fSigma2._Id(), fEta._Id(),
-               fGamma._Id()};
+  double deriv[5] = {vol, amp * dVdSigma1, amp * dVdSigma2, amp * dVdEta, amp * dVdGamma};
+  int id[5] = {fAmp._Id(), fSigma1._Id(), fSigma2._Id(), fEta._Id(), fGamma._Id()};
 
   for (int i = 0; i < 5; i++) {
     for (int j = 0; j < 5; j++) {
@@ -269,9 +248,8 @@ void EEFitter::AddPeak(const EEPeak &peak) {
 
 double EEFitter::Eval(const double *x, const double *p) const {
   // Private: evaluation function for fit
-  return std::accumulate(
-      fPeaks.begin(), fPeaks.end(), EvalBg(x, p),
-      [x, p](double sum, const EEPeak &peak) { return sum + peak.Eval(x, p); });
+  return std::accumulate(fPeaks.begin(), fPeaks.end(), EvalBg(x, p),
+                         [x, p](double sum, const EEPeak &peak) { return sum + peak.Eval(x, p); });
 }
 
 double EEFitter::EvalBg(const double *x, const double *p) const {
@@ -283,10 +261,8 @@ double EEFitter::EvalBg(const double *x, const double *p) const {
   auto first = p + fNumParams;
   auto last = first - fIntBgDeg - 1;
   return sum + std::accumulate(std::reverse_iterator<const double *>(first),
-                               std::reverse_iterator<const double *>(last),
-                               0.0, [&x](double bg, double param) {
-                                 return std::fma(bg, *x, param);
-                               });
+                               std::reverse_iterator<const double *>(last), 0.0,
+                               [&x](double bg, double param) { return std::fma(bg, *x, param); });
 }
 
 TF1 *EEFitter::GetBgFunc() {
@@ -311,9 +287,8 @@ TF1 *EEFitter::GetBgFunc() {
     max = fMax;
   }
 
-  fBgFunc = std::make_unique<TF1>(GetFuncUniqueName("fitbg_ee", this).c_str(),
-                                   this, &EEFitter::EvalBg, min, max,
-                                   fNumParams, "EEFitter", "EvalBg");
+  fBgFunc = std::make_unique<TF1>(GetFuncUniqueName("fitbg_ee", this).c_str(), this, &EEFitter::EvalBg, min, max,
+                                  fNumParams, "EEFitter", "EvalBg");
 
   for (int i = 0; i < fNumParams; i++) {
     fBgFunc->SetParameter(i, fSumFunc->GetParameter(i));
@@ -358,8 +333,7 @@ void EEFitter::_Fit(TH1 &hist) {
   }
 
   // Create fit function
-  fSumFunc = std::make_unique<TF1>("f", this, &EEFitter::Eval, fMin, fMax,
-                                    fNumParams, "EEFitter", "Eval");
+  fSumFunc = std::make_unique<TF1>("f", this, &EEFitter::Eval, fMin, fMax, fNumParams, "EEFitter", "Eval");
 
   // Init fit parameters
   // Note: this may set parameters several times, but that should not matter
@@ -380,9 +354,7 @@ void EEFitter::_Fit(TH1 &hist) {
 
   // Do the fit
   char options[7];
-  sprintf(options, "RQNM%s%s",
-    fIntegrate.GetValue() ? "I" : "",
-    fLikelihood.GetValue() == "poisson" ? "L" : "");
+  sprintf(options, "RQNM%s%s", fIntegrate.GetValue() ? "I" : "", fLikelihood.GetValue() == "poisson" ? "L" : "");
   hist.Fit(fSumFunc.get(), options);
 
   // Calculate the peak volumes while the covariance matrix is still available
@@ -421,14 +393,11 @@ bool EEFitter::Restore(const Background &bg, double ChiSquare) {
 }
 
 //! Restore the fit, using the given internal background polynomial
-bool EEFitter::Restore(const TArrayD &bgPolValues, const TArrayD &bgPolErrors,
-                       double ChiSquare) {
+bool EEFitter::Restore(const TArrayD &bgPolValues, const TArrayD &bgPolErrors, double ChiSquare) {
   fBackground.reset();
 
   if (bgPolValues.GetSize() != bgPolErrors.GetSize()) {
-    Warning(
-        "HDTV::EEFitter::Restore",
-        "sizes of value and error arrays for internal background do no match.");
+    Warning("HDTV::EEFitter::Restore", "sizes of value and error arrays for internal background do no match.");
     return false;
   }
 
@@ -455,9 +424,8 @@ void EEFitter::_Restore(double ChiSquare) {
   // Internal worker function to restore the fit
 
   // Create fit function
-  fSumFunc = std::make_unique<TF1>(GetFuncUniqueName("f", this).c_str(), this,
-                                    &EEFitter::Eval, fMin, fMax, fNumParams,
-                                    "EEFitter", "Eval");
+  fSumFunc = std::make_unique<TF1>(GetFuncUniqueName("f", this).c_str(), this, &EEFitter::Eval, fMin, fMax, fNumParams,
+                                   "EEFitter", "Eval");
 
   for (auto &peak : fPeaks) {
     peak.SetSumFunc(fSumFunc.get());

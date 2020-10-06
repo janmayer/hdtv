@@ -39,7 +39,12 @@ set(HEADERS
 
 find_package(X11 REQUIRED)
 
-find_package(ROOT REQUIRED COMPONENTS Core Hist Graf Gui)
+find_package(
+  ROOT REQUIRED
+  COMPONENTS Core
+             Hist
+             Graf
+             Gui)
 message(STATUS "ROOT Version ${ROOT_VERSION} found in ${ROOT_root_CMD}")
 if(${ROOT_VERSION_MINOR} GREATER_EQUAL 20)
   include(${ROOT_DIR}/RootMacros.cmake)
@@ -47,7 +52,11 @@ else()
   include(${ROOT_DIR}/modules/RootNewMacros.cmake)
 endif()
 
-root_generate_dictionary(G__${PROJECT_NAME} ${HEADERS} LINKDEF LinkDef.h)
+root_generate_dictionary(
+  G__${PROJECT_NAME}
+  ${HEADERS}
+  LINKDEF
+  LinkDef.h)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} G__${PROJECT_NAME}.cxx)
 add_library(hdtv::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
@@ -59,9 +68,15 @@ set_target_properties(
     RESOURCE
     "${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_rdict.pcm"
 )
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../calibration)
-target_link_libraries(${PROJECT_NAME} ROOT::Core ROOT::Hist ROOT::Graf
-                      ROOT::Gui X11)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+                                                  ${CMAKE_CURRENT_SOURCE_DIR}/../calibration)
+target_link_libraries(
+  ${PROJECT_NAME}
+  ROOT::Core
+  ROOT::Hist
+  ROOT::Graf
+  ROOT::Gui
+  X11)
 
 install(
   TARGETS ${PROJECT_NAME}

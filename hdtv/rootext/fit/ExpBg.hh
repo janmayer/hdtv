@@ -26,8 +26,8 @@
 #include <limits>
 #include <list>
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include <TF1.h>
 
@@ -45,30 +45,23 @@ namespace Fit {
 
 class ExpBg : public Background {
 public:
-  explicit ExpBg(int nParams = 2,
-                 Option<bool> integrate = Option<bool>{false},
+  explicit ExpBg(int nParams = 2, Option<bool> integrate = Option<bool>{false},
                  Option<std::string> likelihood = Option<std::string>{"normal"});
   ExpBg(const ExpBg &src);
   ExpBg &operator=(const ExpBg &src);
 
   double GetCoeff(int i) const override {
-    return fFunc ? fFunc->GetParameter(i)
-                 : std::numeric_limits<double>::quiet_NaN();
+    return fFunc ? fFunc->GetParameter(i) : std::numeric_limits<double>::quiet_NaN();
   }
 
-  double GetCoeffError(int i) {
-    return fFunc ? fFunc->GetParError(i)
-                 : std::numeric_limits<double>::quiet_NaN();
-  }
+  double GetCoeffError(int i) { return fFunc ? fFunc->GetParError(i) : std::numeric_limits<double>::quiet_NaN(); }
 
   double GetChisquare() { return fChisquare; }
   double GetMin() const override {
-    return fBgRegions.empty() ? std::numeric_limits<double>::quiet_NaN()
-                              : *(fBgRegions.begin());
+    return fBgRegions.empty() ? std::numeric_limits<double>::quiet_NaN() : *(fBgRegions.begin());
   }
   double GetMax() const override {
-    return fBgRegions.empty() ? std::numeric_limits<double>::quiet_NaN()
-                              : *(fBgRegions.rbegin());
+    return fBgRegions.empty() ? std::numeric_limits<double>::quiet_NaN() : *(fBgRegions.rbegin());
   }
   unsigned int GetNparams() const override { return fnParams; };
 
@@ -79,9 +72,7 @@ public:
   ExpBg *Clone() const override { return new ExpBg(*this); }
   TF1 *GetFunc() override { return fFunc.get(); }
 
-  double Eval(double x) const override {
-    return fFunc ? fFunc->Eval(x) : std::numeric_limits<double>::quiet_NaN();
-  }
+  double Eval(double x) const override { return fFunc ? fFunc->Eval(x) : std::numeric_limits<double>::quiet_NaN(); }
 
   double EvalError(double x) const override;
 

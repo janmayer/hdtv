@@ -32,8 +32,7 @@ namespace HDTV {
 namespace Display {
 
 Marker::Marker(int n, double p1, double p2, int col)
-    : DisplayObj{}, fDash1{false}, fDash2{false}, fGC{nullptr},
-      fDashedGC{nullptr}, fP1{p1}, fP2{p2}, fN{n} {
+    : DisplayObj{}, fDash1{false}, fDash2{false}, fGC{nullptr}, fDashedGC{nullptr}, fP1{p1}, fP2{p2}, fN{n} {
   if (n > 1 && p1 > p2) {
     std::swap(fP1, fP2);
   }

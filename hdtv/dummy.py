@@ -25,15 +25,19 @@ without actually doing anything. In particular, no GUI windows
 are opened.
 """
 
+
 def _noop(*args, **kwargs):
     pass
+
 
 def _get_float(self, *args, **kwargs):
     self.i += 0.1
     return self.i
 
+
 def _get_bool(self, *args, **kwargs):
     return True
+
 
 class Viewer(object):
     Connect = _noop

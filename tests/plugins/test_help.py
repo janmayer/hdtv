@@ -24,6 +24,7 @@ import pytest
 from tests.helpers.utils import redirect_stdout, hdtvcmd
 
 from hdtv.util import monkey_patch_ui
+
 monkey_patch_ui()
 
 import hdtv.cmdline
@@ -32,6 +33,7 @@ import hdtv.window
 import hdtv.session
 
 import __main__
+
 try:
     __main__.spectra = hdtv.session.Session()
 except RuntimeError:
@@ -113,10 +115,10 @@ cmdlist = [
     "fit store",
     "fit tex",
     "fit write",
-    #"matrix delete",
+    # "matrix delete",
     "matrix get",
     "matrix list",
-    #"matrix project",
+    # "matrix project",
     "matrix view",
     "nuclide",
     "print",
@@ -146,12 +148,14 @@ cmdlist = [
     "window view region",
 ]
 
+
 @pytest.mark.parametrize("command", cmdlist)
 def test_cmd_help(command):
     f, ferr = hdtvcmd("{} --help".format(command))
     assert ferr == ""
     assert "usage" in f
     assert "--help" in f
+
 
 @pytest.mark.parametrize("command", cmdlist)
 def test_cmd_unrecognized_arg(command):

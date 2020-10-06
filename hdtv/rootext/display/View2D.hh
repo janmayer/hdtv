@@ -83,13 +83,9 @@ public:
   double XTileToE(int x) { return x / fPainter.GetXZoom() - fXEOffset; }
   double YTileToE(int y) { return y / fPainter.GetYZoom() + fYEOffset; }
 
-  int EToXTile(double e) {
-    return std::ceil((e + fXEOffset) * fPainter.GetXZoom() - 0.5);
-  }
+  int EToXTile(double e) { return std::ceil((e + fXEOffset) * fPainter.GetXZoom() - 0.5); }
 
-  int EToYTile(double e) {
-    return std::ceil((e - fYEOffset) * fPainter.GetYZoom() - 0.5);
-  }
+  int EToYTile(double e) { return std::ceil((e - fYEOffset) * fPainter.GetYZoom() - 0.5); }
 
   int XScrToTile(int x) { return x - fXTileOffset; }
   int YScrToTile(int y) { return -y + fYTileOffset; }
@@ -105,9 +101,7 @@ public:
   void ShiftOffset(int dX, int dY);
 
   // Calculate floor(pos / cTileSize)
-  int GetTileId(int pos) {
-    return pos < 0 ? (pos / cTileSize) - 1 : pos / cTileSize;
-  }
+  int GetTileId(int pos) { return pos < 0 ? (pos / cTileSize) - 1 : pos / cTileSize; }
 
   void ZtoRGB(int z, int &r, int &g, int &b);
   int GetValueAtPixel(int xs, int ys);

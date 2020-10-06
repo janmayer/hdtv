@@ -21,7 +21,7 @@
 
 from math import pow
 from uncertainties.umath import log, exp
-from . efficiency import _Efficiency
+from .efficiency import _Efficiency
 from ROOT import TF1, TF2
 from hdtv.util import Pairs
 
@@ -87,8 +87,12 @@ class PolyEff(_Efficiency):
         # Normalize the efficiency function
 
         try:
-            self.norm = 1.0 / exp(self.TF1.GetMaximum(
-                min([p[0] for p in self._fitInput]), max([p[0] for p in self._fitInput])))
+            self.norm = 1.0 / exp(
+                self.TF1.GetMaximum(
+                    min([p[0] for p in self._fitInput]),
+                    max([p[0] for p in self._fitInput]),
+                )
+            )
         except ZeroDivisionError:
             self.norm = 1.0
 
@@ -118,6 +122,6 @@ class PolyEff(_Efficiency):
         tmp1 = self.norm * exp(ln_eff + ln_err)
         tmp2 = self.norm * exp(ln_eff - ln_err)
 
-        error = abs(tmp1 - tmp2) / 2.
+        error = abs(tmp1 - tmp2) / 2.0
 
         return self.norm * error

@@ -26,8 +26,7 @@
 namespace HDTV {
 namespace Display {
 
-XMarker::XMarker(int n, double p1, double p2, int col)
-    : Marker(n, p1, p2, col), fCal1(), fCal2() {
+XMarker::XMarker(int n, double p1, double p2, int col) : Marker(n, p1, p2, col), fCal1(), fCal2() {
   fConnectTop = true;
 }
 

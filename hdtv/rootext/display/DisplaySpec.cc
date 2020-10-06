@@ -34,8 +34,7 @@ namespace Display {
 
 //! Constructor
 DisplaySpec::DisplaySpec(const TH1 *hist, int col)
-    : DisplayBlock(col), fCachedMaxBin{0}, fCachedMax{0.0},
-      fDrawUnderflowBin(false), fDrawOverflowBin(false) {
+    : DisplayBlock(col), fCachedMaxBin{0}, fCachedMax{0.0}, fDrawUnderflowBin(false), fDrawOverflowBin(false) {
 
   fHist.reset(dynamic_cast<TH1 *>(hist->Clone()));
 
@@ -137,8 +136,7 @@ double DisplaySpec::GetMax_Cached(int b1, int b2) {
       fCachedMaxBin = newBin;
       fCachedMax = newMax;
     } else if (fCachedMaxBin < b1 || fCachedMaxBin > b2) {
-      bin = GetRegionMaxBin(b1 > fCachedB1 ? b1 : fCachedB1,
-                            b2 < fCachedB2 ? b2 : fCachedB2);
+      bin = GetRegionMaxBin(b1 > fCachedB1 ? b1 : fCachedB1, b2 < fCachedB2 ? b2 : fCachedB2);
 
       max = GetBinContent(bin);
 

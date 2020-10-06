@@ -31,8 +31,7 @@ namespace Display {
 
 namespace {
 
-std::vector<DisplayCut::CutPoint>
-make_points(const double *x_begin, const double *x_end, const double *y_begin) {
+std::vector<DisplayCut::CutPoint> make_points(const double *x_begin, const double *x_end, const double *y_begin) {
   std::vector<DisplayCut::CutPoint> points;
   if (x_end > x_begin) {
     points.reserve(std::distance(x_begin, x_end));
@@ -46,16 +45,13 @@ make_points(const double *x_begin, const double *x_end, const double *y_begin) {
 } // namespace
 
 DisplayCut::DisplayCut(int n, const double *x, const double *y)
-    : fPoints{make_points(x, x + n, y)}, fX1{0.0}, fY1{0.0}, fX2{0.0},
-      fY2{0.0} {
+    : fPoints{make_points(x, x + n, y)}, fX1{0.0}, fY1{0.0}, fX2{0.0}, fY2{0.0} {
   UpdateBoundingBox();
 }
 
 DisplayCut::DisplayCut(const TCutG &cut, bool invertAxes)
-    : fPoints{invertAxes
-                  ? make_points(cut.GetY(), cut.GetY() + cut.GetN(), cut.GetX())
-                  : make_points(cut.GetX(), cut.GetX() + cut.GetN(),
-                                cut.GetY())},
+    : fPoints{invertAxes ? make_points(cut.GetY(), cut.GetY() + cut.GetN(), cut.GetX())
+                         : make_points(cut.GetX(), cut.GetX() + cut.GetN(), cut.GetY())},
       fX1{0.0}, fY1{0.0}, fX2{0.0}, fY2{0.0} {
   UpdateBoundingBox();
 }

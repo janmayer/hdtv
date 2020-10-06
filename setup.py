@@ -4,9 +4,9 @@ import versioneer
 from setuptools import setup
 import glob
 
-manpages = glob.glob('doc/guide/*.1')
+manpages = glob.glob("doc/guide/*.1")
 
-KEYWORDS = '''\
+KEYWORDS = """\
 analysis
 data-analysis
 gamma-spectroscopy
@@ -17,8 +17,8 @@ python
 root
 root-cern
 spectroscopy
-'''
-CLASSIFIERS = '''\
+"""
+CLASSIFIERS = """\
 Development Status :: 5 - Production/Stable
 Environment :: Console
 Environment :: X11 Applications
@@ -41,59 +41,61 @@ Topic :: Scientific/Engineering
 Topic :: Scientific/Engineering :: Information Analysis
 Topic :: Scientific/Engineering :: Physics
 Topic :: Scientific/Engineering :: Visualization
-'''
+"""
 
 setup(
-    name='hdtv',
+    name="hdtv",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    description='HDTV - Nuclear Spectrum Analysis Tool',
-    url='https://github.com/janmayer/hdtv',
-    maintainer='Jan Mayer',
-    maintainer_email='jan.mayer@ikp.uni-koeln.de',
-    license='GPL',
-    classifiers=CLASSIFIERS.strip().split('\n'),
-    keywords=KEYWORDS.strip().replace('\n', ' '),
+    description="HDTV - Nuclear Spectrum Analysis Tool",
+    url="https://github.com/janmayer/hdtv",
+    maintainer="Jan Mayer",
+    maintainer_email="jan.mayer@ikp.uni-koeln.de",
+    license="GPL",
+    classifiers=CLASSIFIERS.strip().split("\n"),
+    keywords=KEYWORDS.strip().replace("\n", " "),
     install_requires=[
-        'scipy',
-        'matplotlib',
-        'numpy',
-        'ipython',
-        'prompt_toolkit>=3.0.0',
-        'traitlets',
-        'uncertainties',
+        "scipy",
+        "matplotlib",
+        "numpy",
+        "ipython",
+        "prompt_toolkit>=3.0.0",
+        "traitlets",
+        "uncertainties",
     ],
     extras_require={
-        'dev': ['docutils'],
-        'test': [
-            'pytest',
-            'pytest-cov'
-        ],
+        "dev": ["docutils"],
+        "test": ["pytest", "pytest-cov"],
     },
     entry_points={
-        'console_scripts': [
-            'hdtv=hdtv.app:App',
+        "console_scripts": [
+            "hdtv=hdtv.app:App",
         ]
     },
     packages=[
-        'hdtv',
-        'hdtv.database',
-        'hdtv.backgroundmodels',
-        'hdtv.efficiency',
-        'hdtv.peakmodels',
-        'hdtv.plugins',
-        'hdtv.rootext',
+        "hdtv",
+        "hdtv.database",
+        "hdtv.backgroundmodels",
+        "hdtv.efficiency",
+        "hdtv.peakmodels",
+        "hdtv.plugins",
+        "hdtv.rootext",
     ],
     package_data={
-        'hdtv': ['share/*'],
-        'hdtv.rootext': [
-            'calibration/*', 'display/*', 'fit/*', 'mfile-root/*', 'mfile-root/*/*', 'mfile-root/*/*/*'
+        "hdtv": ["share/*"],
+        "hdtv.rootext": [
+            "calibration/*",
+            "display/*",
+            "fit/*",
+            "mfile-root/*",
+            "mfile-root/*/*",
+            "mfile-root/*/*/*",
         ],
     },
     data_files=[
-        ('share/man/man1', manpages),
-        ('share/zsh/site-functions', ['data/completions/_hdtv']),
-        ('share/bash-completion/completions', ['data/completions/hdtv']),
-        ('share/applications', ['data/hdtv.desktop']),
+        ("share/man/man1", manpages),
+        ("share/zsh/site-functions", ["data/completions/_hdtv"]),
+        ("share/bash-completion/completions", ["data/completions/hdtv"]),
+        ("share/applications", ["data/hdtv.desktop"]),
     ],
 )

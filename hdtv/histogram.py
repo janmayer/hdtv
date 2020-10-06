@@ -43,7 +43,7 @@ def HasPrimitiveBinning(hist):
     if hist.GetNbinsX() != (hist.GetXaxis().GetXmax() - hist.GetXaxis().GetXmin()):
         return False
     for bin in range(0, hist.GetNbinsX()):
-        if hist.GetBinWidth(bin) != 1.:
+        if hist.GetBinWidth(bin) != 1.0:
             return False
     return True
 
@@ -146,8 +146,7 @@ class Histogram(Drawable):
         """
         # If the spectra have the same calibration (~= have the same binning),
         # the root build-in add can be used
-        if self.cal == spec.cal or (
-                self.cal.IsTrivial() and spec.cal.IsTrivial()):
+        if self.cal == spec.cal or (self.cal.IsTrivial() and spec.cal.IsTrivial()):
             hdtv.ui.info("Adding binwise")
             self._hist.Add(spec._hist, 1.0)
         # If the binning is different, determine the amount to add to each bin
@@ -156,11 +155,15 @@ class Histogram(Drawable):
             hdtv.ui.info("Adding calibrated")
             nbins = self._hist.GetNbinsX()
             for n in range(0, nbins):
-                integral = ROOT.HDTV.TH1IntegrateWithPartialBins(spec._hist, spec.cal.E2Ch(
-                    self.cal.Ch2E(n - 0.5)), spec.cal.E2Ch(self.cal.Ch2E(n + 0.5)))
+                integral = ROOT.HDTV.TH1IntegrateWithPartialBins(
+                    spec._hist,
+                    spec.cal.E2Ch(self.cal.Ch2E(n - 0.5)),
+                    spec.cal.E2Ch(self.cal.Ch2E(n + 0.5)),
+                )
                 # Note: Can't use Fill due to bin errors?
                 self._hist.SetBinContent(
-                    n + 1, self._hist.GetBinContent(n + 1) + integral)
+                    n + 1, self._hist.GetBinContent(n + 1) + integral
+                )
 
         # update display
         if self.displayObj:
@@ -173,8 +176,7 @@ class Histogram(Drawable):
         """
         # If the spectra have the same calibration (~= have the same binning),
         # the root build-in add can be used
-        if self.cal == spec.cal or (
-                self.cal.IsTrivial() and spec.cal.IsTrivial()):
+        if self.cal == spec.cal or (self.cal.IsTrivial() and spec.cal.IsTrivial()):
             hdtv.ui.info("Adding binwise")
             self._hist.Add(spec._hist, -1.0)
         # If the binning is different, determine the amount to add to each bin
@@ -183,11 +185,15 @@ class Histogram(Drawable):
             hdtv.ui.info("Adding calibrated")
             nbins = self._hist.GetNbinsX()
             for n in range(0, nbins):
-                integral = ROOT.HDTV.TH1IntegrateWithPartialBins(spec._hist, spec.cal.E2Ch(
-                    self.cal.Ch2E(n - 0.5)), spec.cal.E2Ch(self.cal.Ch2E(n + 0.5)))
+                integral = ROOT.HDTV.TH1IntegrateWithPartialBins(
+                    spec._hist,
+                    spec.cal.E2Ch(self.cal.Ch2E(n - 0.5)),
+                    spec.cal.E2Ch(self.cal.Ch2E(n + 0.5)),
+                )
                 # Note: Can't use Fill due to bin errors?
                 self._hist.SetBinContent(
-                    n + 1, self._hist.GetBinContent(n + 1) - integral)
+                    n + 1, self._hist.GetBinContent(n + 1) - integral
+                )
 
         # update display
         if self.displayObj:
@@ -217,19 +223,18 @@ class Histogram(Drawable):
         # update calibration
         if calibrate:
             if not self.cal:
-                self.cal.SetCal(0., 1.)
+                self.cal.SetCal(0.0, 1.0)
             self.cal.Rebin(ngroup)
             self.displayObj.SetCal(self.cal)
             hdtv.ui.info("Calibration updated for rebinned spectrum")
         self.typeStr = f"spectrum, modified (rebinned, ngroup={ngroup})"
 
-    def Calbin(self,
-               binsize: float = 1.,
-               spline_order: int = 3,
-               use_tv_binning: bool = True):
+    def Calbin(
+        self, binsize: float = 1.0, spline_order: int = 3, use_tv_binning: bool = True
+    ):
         """
         Rebin spectrum to match calibration unit
-        
+
         Args:
             binsize: Size of calibrated bins
             spline_order: Order of the spline interpolation (default: 3)
@@ -244,46 +249,54 @@ class Histogram(Drawable):
         nbins = int(np.ceil(upper_old / binsize)) + 1
         if use_tv_binning:
             lower = -0.5 * binsize
-            upper = 0.5 * binsize + (upper_old//nbins) * (nbins - 1)
+            upper = 0.5 * binsize + (upper_old // nbins) * (nbins - 1)
         else:
-            lower = 0.
-            upper = binsize + (upper_old//nbins) * (nbins - 1)
+            lower = 0.0
+            upper = binsize + (upper_old // nbins) * (nbins - 1)
 
         # Create new histogram with number of bins equal
         # to the calibrated range of the old histogram
         # Always -0.5 to create standard tv-type histogram
-        newhist = ROOT.TH1D(self._hist.GetName(), self._hist.GetTitle(),
-            nbins, -0.5, nbins - 0.5)
+        newhist = ROOT.TH1D(
+            self._hist.GetName(), self._hist.GetTitle(), nbins, -0.5, nbins - 0.5
+        )
 
-        input_bins_center, input_hist = np.transpose([
-            [self.cal.Ch2E(n - 1),
-             self._hist.GetBinContent(n)/(self.cal.Ch2E(n)-self.cal.Ch2E(n-1))]
-            for n in range(1, self._hist.GetNbinsX() + 1)])
+        input_bins_center, input_hist = np.transpose(
+            [
+                [
+                    self.cal.Ch2E(n - 1),
+                    self._hist.GetBinContent(n)
+                    / (self.cal.Ch2E(n) - self.cal.Ch2E(n - 1)),
+                ]
+                for n in range(1, self._hist.GetNbinsX() + 1)
+            ]
+        )
 
         output_bins_low = np.arange(nbins) * binsize + lower
         output_bins_high = output_bins_low + binsize
 
         inter = InterpolatedUnivariateSpline(
-            input_bins_center,
-            input_hist,
-            k=spline_order)
+            input_bins_center, input_hist, k=spline_order
+        )
 
         inter_integral_v = np.vectorize(inter.integral)
-        output_hist = np.maximum(inter_integral_v(output_bins_low, output_bins_high), 0.)
+        output_hist = np.maximum(
+            inter_integral_v(output_bins_low, output_bins_high), 0.0
+        )
 
         # Suppress bins outside of original histogram range
         min_bin = int((lower_old - lower) / binsize)
         output_hist[:min_bin] = np.zeros(min_bin)
 
         for i in range(0, nbins):
-            newhist.SetBinContent(i+1, output_hist[i])
+            newhist.SetBinContent(i + 1, output_hist[i])
 
         self._hist = newhist
         if use_tv_binning:
-            if binsize != 1. or self.cal:
+            if binsize != 1.0 or self.cal:
                 self.cal.SetCal(0, binsize)
         else:
-            self.cal.SetCal(binsize/2, binsize) 
+            self.cal.SetCal(binsize / 2, binsize)
         # update display
         if self.displayObj:
             self.displayObj.SetHist(self._hist)
@@ -297,7 +310,7 @@ class Histogram(Drawable):
         """
         for i in range(0, self._hist.GetNbinsX() + 1):
             counts = self._hist.GetBinContent(i)
-            #error = self._hist.GetBinError(i)
+            # error = self._hist.GetBinError(i)
             varied = np.random.poisson(counts)
             self._hist.SetBinContent(i, varied)
         if self.displayObj:
@@ -311,8 +324,7 @@ class Histogram(Drawable):
         if self.viewport is not None and not self.viewport == viewport:
             # Unlike the DisplaySpec object of the underlying implementation,
             # Spectrum() objects can only be drawn on a single viewport
-            raise RuntimeError(
-                "Spectrum can only be drawn on a single viewport")
+            raise RuntimeError("Spectrum can only be drawn on a single viewport")
         self.viewport = viewport
         # Lock updates
         self.viewport.LockUpdate()
@@ -343,8 +355,7 @@ class Histogram(Drawable):
         try:
             SpecReader.WriteSpectrum(self._hist, fname, fmt)
         except SpecReaderError as msg:
-            hdtv.ui.error("Failed to write spectrum: %s (file: %s)" %
-                          (msg, fname))
+            hdtv.ui.error("Failed to write spectrum: %s (file: %s)" % (msg, fname))
             return False
         return True
 
@@ -353,8 +364,15 @@ class Histogram(Drawable):
         if HasPrimitiveBinning(hist):
             self._hist = hist
         else:
-            log(hist.GetName() + " unconventional binning detected. Converting and trying to create calibration using a polynomial of order " + str(caldegree) + " ...")
-            self._hist = ROOT.TH1D(hist.GetName(), hist.GetTitle(), hist.GetNbinsX(), 0, hist.GetNbinsX())
+            log(
+                hist.GetName()
+                + " unconventional binning detected. Converting and trying to create calibration using a polynomial of order "
+                + str(caldegree)
+                + " ..."
+            )
+            self._hist = ROOT.TH1D(
+                hist.GetName(), hist.GetTitle(), hist.GetNbinsX(), 0, hist.GetNbinsX()
+            )
             if caldegree:
                 cf = CalibrationFitter()
             # TODO: Slow
@@ -362,10 +380,10 @@ class Histogram(Drawable):
                 if caldegree:
                     cf.AddPair(bin, hist.GetXaxis().GetBinUpEdge(bin))
                 self._hist.SetBinContent(bin, hist.GetBinContent(bin))
-                # Original comment by JM in commit #dd438b7c44265072bf8b0528170cecc95780e38c: 
+                # Original comment by JM in commit #dd438b7c44265072bf8b0528170cecc95780e38c:
                 # "TODO: Copy Errors?"
-                # 
-                # Edit by UG: It makes sense to simply copy the uncertainties. There are two 
+                #
+                # Edit by UG: It makes sense to simply copy the uncertainties. There are two
                 # possible cases:
                 # 1. The ROOT histogram contains user-defined uncertainties per bin that can
                 #    be retrieved by calling hist.GetBinError(). In this case, it can be
@@ -374,14 +392,15 @@ class Histogram(Drawable):
                 # 2. The ROOT histogram contains no user-defined uncertainties. In this case,
                 #    a call of hist.GetBinError() will return the square root of the bin
                 #    content, which is a sensible assumption.
-                # 
-                # Since text spectra are loaded in a completely analogous way, implicitly 
+                #
+                # Since text spectra are loaded in a completely analogous way, implicitly
                 # assuming that the uncertainties are Poissonian, there is no need to issue
                 # an additional warning.
                 self._hist.SetBinError(bin, hist.GetBinError(bin))
             if caldegree:
                 cf.FitCal(caldegree)
                 self.cal = cf.calib
+
 
 class FileHistogram(Histogram):
     """
@@ -429,16 +448,16 @@ class FileHistogram(Histogram):
         try:
             os.path.exists(self.filename)
         except OSError:
-            hdtv.ui.warning("File %s not found, keeping previous data" %
-                            self.filename)
+            hdtv.ui.warning("File %s not found, keeping previous data" % self.filename)
             return
         # call to SpecReader to get the hist
         try:
             hist = SpecReader.GetSpectrum(self.filename, self.fmt)
         except SpecReaderError as msg:
             hdtv.ui.warning(
-                "Failed to load spectrum: %s (file: %s), keeping previous data" %
-                (msg, self.filename))
+                "Failed to load spectrum: %s (file: %s), keeping previous data"
+                % (msg, self.filename)
+            )
             return
         self.hist = hist
 
@@ -469,10 +488,8 @@ class THnSparseWrapper(object):
     """
 
     def __init__(self, hist):
-        if not (isinstance(hist, ROOT.THnSparse)
-                and hist.GetNdimensions() == 2):
-            raise RuntimeError(
-                "Class needs a THnSparse histogram of dimension 2")
+        if not (isinstance(hist, ROOT.THnSparse) and hist.GetNdimensions() == 2):
+            raise RuntimeError("Class needs a THnSparse histogram of dimension 2")
         self.__dict__["_hist"] = hist
 
     def __setattr__(self, name, value):
@@ -606,18 +623,18 @@ class RHisto2D(Histo2D):
         for r in regionMarkers[1:]:
             b1 = cutAxis.FindBin(r.p1.pos_uncal)
             b2 = cutAxis.FindBin(r.p2.pos_uncal)
-            numFgBins += (abs(b2 - b1) + 1)
+            numFgBins += abs(b2 - b1) + 1
 
             tmp = projector("proj_tmp", min(b1, b2), max(b1, b2), "e")
             ROOT.SetOwnership(tmp, True)
-            rhist.Add(tmp, 1.)
+            rhist.Add(tmp, 1.0)
 
         bgBins = []
         numBgBins = 0
         for b in bgMarkers:
             b1 = cutAxis.FindBin(b.p1.pos_uncal)
             b2 = cutAxis.FindBin(b.p2.pos_uncal)
-            numBgBins += (abs(b2 - b1) + 1)
+            numBgBins += abs(b2 - b1) + 1
             bgBins.append((min(b1, b2), max(b1, b2)))
 
         if numBgBins > 0:
@@ -764,8 +781,7 @@ class MHisto2D(Histo2D):
         if prx_fname or pry_fname:
             errno = ROOT.MatOp.Project(fname, prx_fname, pry_fname)
             if errno != ROOT.MatOp.ERR_SUCCESS:
-                raise RuntimeError(
-                    "Project: " + ROOT.MatOp.GetErrorString(errno))
+                raise RuntimeError("Project: " + ROOT.MatOp.GetErrorString(errno))
 
             if prx_fname:
                 hdtv.ui.info("Generated x projection: %s" % prx_fname)
@@ -780,6 +796,5 @@ class MHisto2D(Histo2D):
             else:
                 errno = ROOT.MatOp.Transpose(fname, trans_fname)
                 if errno != ROOT.MatOp.ERR_SUCCESS:
-                    raise RuntimeError(
-                        "Transpose: " + ROOT.MatOp.GetErrorString(errno))
+                    raise RuntimeError("Transpose: " + ROOT.MatOp.GetErrorString(errno))
                 hdtv.ui.info("Generated transpose: %s" % trans_fname)

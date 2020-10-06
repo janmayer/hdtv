@@ -74,9 +74,7 @@ public:
   // axis
   double GetBinContent(Int_t bin) { return fHist->GetBinContent(bin); }
 
-  double GetBinCenter(Int_t bin) {
-    return fHist->GetXaxis()->GetBinCenter(bin);
-  }
+  double GetBinCenter(Int_t bin) { return fHist->GetXaxis()->GetBinCenter(bin); }
 
   Int_t FindBin(double x) { return fHist->GetXaxis()->FindBin(x); }
   Int_t GetNbinsX() { return fHist->GetNbinsX(); }
@@ -90,8 +88,7 @@ public:
   double GetMaxCh() override { return fHist->GetXaxis()->GetXmax(); }
 
   Int_t ClipBin(Int_t bin) {
-    return std::min(std::max(bin, fDrawOverflowBin ? 0 : 1),
-                    fDrawOverflowBin ? GetNbinsX() + 1 : GetNbinsX());
+    return std::min(std::max(bin, fDrawOverflowBin ? 0 : 1), fDrawOverflowBin ? GetNbinsX() + 1 : GetNbinsX());
   }
 
   double GetClippedBinContent(Int_t bin) { return GetBinContent(ClipBin(bin)); }

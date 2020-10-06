@@ -16,8 +16,8 @@ class _Element(object):
     def __init__(self, Z, Symbol, Name=None, M=None):
 
         self.z = Z
-        self.symbol = Symbol    # Symbol of element (e.g. H)
-        self.name = Name        # Full name of element (e.g. Hydrogen)
+        self.symbol = Symbol  # Symbol of element (e.g. H)
+        self.name = Name  # Full name of element (e.g. Hydrogen)
         # Atomic weight, This is normalizes over nuclides of element and
         # abundancies
         self.m = M
@@ -30,6 +30,7 @@ class _Element(object):
 
     def _get_M(self):
         return self.m
+
     M = property(_get_M)
 
     def __str__(self):
@@ -54,9 +55,9 @@ class _Elements(list):
 
         try:
             try:
-                datfile = open(csvfile, 'r', encoding='utf-8')
+                datfile = open(csvfile, "r", encoding="utf-8")
             except TypeError:
-                datfile = open(csvfile, 'rb')
+                datfile = open(csvfile, "rb")
             reader = csv.reader(datfile)
             next(reader)  # Skip header
 
@@ -71,8 +72,7 @@ class _Elements(list):
                 element = _Element(Z, Symbol, Name, Mass)
                 tmp.append(element)
         except csv.Error as err:
-            hdtv.ui.error('file %s, line %d: %s' %
-                          (csvfile, reader.line_num, err))
+            hdtv.ui.error("file %s, line %d: %s" % (csvfile, reader.line_num, err))
         finally:
             datfile.close()
 
@@ -134,13 +134,9 @@ class _Nuclide(_Element):
     def __init__(self, element, A, abundance=None, sigma=None, M=None):
 
         self.element = element
-        super(
-            _Nuclide,
-            self).__init__(
-            element.z,
-            element.symbol,
-            element.name,
-            M=None)  # M is different for nuclides and elements
+        super(_Nuclide, self).__init__(
+            element.z, element.symbol, element.name, M=None
+        )  # M is different for nuclides and elements
         self.a = A
         self.m = M
         self.sigma = sigma
@@ -163,7 +159,7 @@ class _Nuclide(_Element):
         text += "atomic Mass:   " + str(self.m) + " u\n"
         try:
             abundance = str(self.abundance * 100.0) + " %"
-        except TypeError:   # Unstable nuclide -> no abundance
+        except TypeError:  # Unstable nuclide -> no abundance
             abundance = "---"
         text += "Abundance:     " + abundance + " \n"
         if self.sigma.nominal_value is None:
@@ -175,15 +171,14 @@ class _Nuclide(_Element):
 
 
 class _Nuclides(object):
-
     def __init__(self, csvfile=os.path.join(hdtv.datadir, "nuclides.dat")):
 
         self._storage = dict()
         try:
             try:
-                datfile = open(csvfile, 'r', encoding='utf-8')
+                datfile = open(csvfile, "r", encoding="utf-8")
             except TypeError:
-                datfile = open(csvfile, 'rb')
+                datfile = open(csvfile, "rb")
             reader = csv.reader(datfile)
             next(reader)  # Skip header
 
@@ -207,27 +202,29 @@ class _Nuclides(object):
                 if Z not in self._storage:
                     self._storage[Z] = dict()
                 self._storage[Z][A] = _Nuclide(
-                    element, A, abundance=abd, sigma=sigma, M=M)
+                    element, A, abundance=abd, sigma=sigma, M=M
+                )
         except csv.Error as e:
-            hdtv.ui.error('file %s, line %d: %s' %
-                          (csvfile, reader.line_num, e))
+            hdtv.ui.error("file %s, line %d: %s" % (csvfile, reader.line_num, e))
         finally:
             datfile.close()
 
     def __call__(self, Z=None, A=None, symbol=None, name=None):
-        '''
+        """
         Return a list of nuclides with given properties (Z, A, symbol, name)
 
         e.g.: Nuclides(A=197, symbol="Au") returns [Au-197]
               Nuclides(symbol="Au") or Nuclides(name="gold") or Nuclides(Z=79) return list of all gold nuclides
-        '''
+        """
 
         ret = list()
 
-        if Z is not None:  # Z is given, so it is faster if we start with nuclides of this Z
+        if (
+            Z is not None
+        ):  # Z is given, so it is faster if we start with nuclides of this Z
             if A is not None:  # Nuclide uniquely defined
                 ret.append(self._storage[Z][A])
-            else:   # All nuclides with given Z
+            else:  # All nuclides with given Z
                 for n in self._storage[Z].values():
                     ret.append(n)
 
@@ -429,20 +426,20 @@ class GammaLib(list):
             if isinstance(value, int):
                 results = [x for x in results if getattr(x, key) == value]
             elif isinstance(value, str):  # Do lowercase comparison for strings
-                results = [x for x in results
-                           if getattr(x, key).lower() == value.lower()]
+                results = [
+                    x for x in results if getattr(x, key).lower() == value.lower()
+                ]
             else:  # Do fuzzy compare
-                results = [x for x in results
-                           if abs(getattr(x, key) - value) <= fuzziness]
+                results = [
+                    x for x in results if abs(getattr(x, key) - value) <= fuzziness
+                ]
 
         # Sort
         try:
             if sort_key is not None:
-                results.sort(key=lambda x: getattr(
-                    x, sort_key), reverse=sort_reverse)
+                results.sort(key=lambda x: getattr(x, sort_key), reverse=sort_reverse)
         except AttributeError:
-            hdtv.ui.warning("Could not sort by \'" +
-                            str(sort_key) + "\': No such key")
+            hdtv.ui.warning("Could not sort by '" + str(sort_key) + "': No such key")
             raise AttributeError
 
         return results

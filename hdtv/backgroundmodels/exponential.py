@@ -22,6 +22,7 @@
 import ROOT
 from .background import BackgroundModel
 
+
 class BackgroundModelExponential(BackgroundModel):
     """
     Exponential background model
@@ -48,11 +49,16 @@ class BackgroundModelExponential(BackgroundModel):
         """
         if nparams is not None:
             self.fFitter = ROOT.HDTV.Fit.ExpBg(nparams, integrate, likelihood)
-            self.fParStatus['nparams'] = nparams
-        elif isinstance(self.fParStatus['nparams'], int):
-            self.fFitter = ROOT.HDTV.Fit.ExpBg(self.fParStatus['nparams'], integrate, likelihood)
+            self.fParStatus["nparams"] = nparams
+        elif isinstance(self.fParStatus["nparams"], int):
+            self.fFitter = ROOT.HDTV.Fit.ExpBg(
+                self.fParStatus["nparams"], integrate, likelihood
+            )
         else:
-            msg = "Status specifier %s of background fitter is invalid." % fParStatus['nparams']
+            msg = (
+                "Status specifier %s of background fitter is invalid."
+                % fParStatus["nparams"]
+            )
             raise ValueError(msg)
 
         self.ResetGlobalParams()

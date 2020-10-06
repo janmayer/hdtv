@@ -50,18 +50,28 @@ def TableOfNuclide(data):
     """
     Creates a table of the given data.
     """
-    result_header = ' '.join(["\n",
-        "Nuclide:", data['nuclide'], "\n",
-        "Halflife:", str(data['halflife']), "\n",
-        "Reference:", data['reference'], "\n",
-    ])
+    result_header = " ".join(
+        [
+            "\n",
+            "Nuclide:",
+            data["nuclide"],
+            "\n",
+            "Halflife:",
+            str(data["halflife"]),
+            "\n",
+            "Reference:",
+            data["reference"],
+            "\n",
+        ]
+    )
 
     table = hdtv.util.Table(
-        data=data['transitions'],
+        data=data["transitions"],
         keys=["energy", "intensity"],
         extra_header=result_header,
         sortBy=None,
-        ignoreEmptyCols=False)
+        ignoreEmptyCols=False,
+    )
 
     hdtv.ui.msg(html=str(table))
 
@@ -92,8 +102,7 @@ def MatchPeaksAndEnergies(peaks, energies, sigma):
     # (within sigma)
     for i in range(0, len(gradient)):
         for j in range(0, len(gradient)):
-            if gradient[j] > gradient[i] - \
-                    sigma and gradient[j] < gradient[i] + sigma:
+            if gradient[j] > gradient[i] - sigma and gradient[j] < gradient[i] + sigma:
                 accordanceCount[i] = accordanceCount[i] + 1
                 if accordanceCount[i] > NumberHighestAccordance:
                     NumberHighestAccordance = accordanceCount[i]
@@ -102,20 +111,21 @@ def MatchPeaksAndEnergies(peaks, energies, sigma):
     accordance = []  # all pairs with the right gradient will be saved in this list
 
     for i in range(0, len(gradient)):
-        if gradient[i] > bestAccordance - \
-                sigma and gradient[i] < bestAccordance + sigma:
+        if (
+            gradient[i] > bestAccordance - sigma
+            and gradient[i] < bestAccordance + sigma
+        ):
             for a in accordance:
                 if a[0] == pair[i][0] or a[1] == pair[i][1]:
                     hdtv.ui.msg(f"{a} {pair[i]}")
-                    hdtv.ui.warning(
-                        "Some peaks/energies are used more than one time.")
+                    hdtv.ui.warning("Some peaks/energies are used more than one time.")
             accordance.append(pair[i])
 
     if len(accordance) < 4:
         hdtv.ui.msg(accordance)
         hdtv.ui.warning("Only a few (peak,energy) pairs are found.")
 
-    return(accordance)
+    return accordance
 
 
 def MatchFitsAndTransitions(fits, transitions, sigma=0.5):
@@ -123,8 +133,8 @@ def MatchFitsAndTransitions(fits, transitions, sigma=0.5):
     Combines peaks with the right intensities.
     """
     return [
-        {'fit': fit, 'transition': transition}
+        {"fit": fit, "transition": transition}
         for fit in fits
         for transition in transitions
-        if abs(transition['energy'] - fit.ExtractParams()[0][0]['pos']) <= sigma
+        if abs(transition["energy"] - fit.ExtractParams()[0][0]["pos"]) <= sigma
     ]

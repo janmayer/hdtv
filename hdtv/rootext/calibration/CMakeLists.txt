@@ -2,11 +2,9 @@ cmake_minimum_required(VERSION 3.6 FATAL_ERROR)
 
 project(calibration LANGUAGES CXX)
 
-set(SOURCES
-    Calibration.cc)
+set(SOURCES Calibration.cc)
 
-set(HEADERS
-    Calibration.hh)
+set(HEADERS Calibration.hh)
 
 find_package(ROOT REQUIRED COMPONENTS Core Hist)
 message(STATUS "ROOT Version ${ROOT_VERSION} found in ${ROOT_root_CMD}")
@@ -16,7 +14,11 @@ else()
   include(${ROOT_DIR}/modules/RootNewMacros.cmake)
 endif()
 
-root_generate_dictionary(G__${PROJECT_NAME} ${HEADERS} LINKDEF LinkDef.h)
+root_generate_dictionary(
+  G__${PROJECT_NAME}
+  ${HEADERS}
+  LINKDEF
+  LinkDef.h)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} G__${PROJECT_NAME}.cxx)
 add_library(hdtv::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
@@ -29,7 +31,13 @@ set_target_properties(
     "${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_rdict.pcm"
 )
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${PROJECT_NAME} ROOT::Core ROOT::Hist ROOT::Graf ROOT::Gui X11)
+target_link_libraries(
+  ${PROJECT_NAME}
+  ROOT::Core
+  ROOT::Hist
+  ROOT::Graf
+  ROOT::Gui
+  X11)
 
 install(
   TARGETS ${PROJECT_NAME}

@@ -61,8 +61,7 @@ enddok = r"""\end{longtable}
 
 
 class TexTable(hdtv.util.Table):
-    def __init__(self, data, keys, header=None,
-                 sortBy=None, reverseSort=False, ha="c"):
+    def __init__(self, data, keys, header=None, sortBy=None, reverseSort=False, ha="c"):
         hdtv.util.Table.__init__(
             self,
             data,
@@ -72,7 +71,8 @@ class TexTable(hdtv.util.Table):
             sortBy=sortBy,
             reverseSort=reverseSort,
             extra_header=preamble,
-            extra_footer=enddok)
+            extra_footer=enddok,
+        )
         self.col_sep_char = "&"
         self.empty_field = " "
         self.ha = ha
@@ -82,8 +82,7 @@ class TexTable(hdtv.util.Table):
         for i in range(2):
             for string in self.header:
                 string = string.replace("_", "-")
-                header += r"\multicolumn{1}{%s}{\textbf{%s}} &" % (
-                    self.ha, string)
+                header += r"\multicolumn{1}{%s}{\textbf{%s}} &" % (self.ha, string)
             header = header.rstrip("&")
             header += r"\\ \hline" + os.linesep
             if i == 0:
@@ -93,8 +92,10 @@ class TexTable(hdtv.util.Table):
                 header += r"\endhead" + os.linesep + os.linesep
 
         header += r"\hline" + os.linesep
-        header += r"\multicolumn{%d}{r}{{wird fortgesetzt...}} \\\ " % len(
-            self.header) + os.linesep
+        header += (
+            r"\multicolumn{%d}{r}{{wird fortgesetzt...}} \\\ " % len(self.header)
+            + os.linesep
+        )
         header += r"\endfoot" + os.linesep + os.linesep
 
         header += r"\hline " + os.linesep
@@ -105,8 +106,13 @@ class TexTable(hdtv.util.Table):
     def __str__(self):
         text = str()
         if self.extra_header is not None:
-            text += str(self.extra_header) + \
-                "{" + len(self.keys) * self.ha + "}" + os.linesep
+            text += (
+                str(self.extra_header)
+                + "{"
+                + len(self.keys) * self.ha
+                + "}"
+                + os.linesep
+            )
 
         lines = self.build_lines()
 
@@ -118,8 +124,7 @@ class TexTable(hdtv.util.Table):
             line_str = ""
             for col in range(0, len(line)):
                 if not self._ignore_col[col]:
-                    line_str += str(" " + line[col] +
-                                    " ").rjust(self._col_width[col])
+                    line_str += str(" " + line[col] + " ").rjust(self._col_width[col])
                 if col != len(line) - 1:
                     line_str += self.col_sep_char
 
@@ -147,34 +152,45 @@ class fitTex:
 
         prog = "fit tex"
         description = "create a table in latex format"
-        parser = hdtv.cmdline.HDTVOptionParser(
-            prog=prog, description=description)
-        parser.add_argument("-c", "--columns", action="store", default=None,
-            help="values to include as columns of the table")
-        parser.add_argument("-H", "--header", action="store", default=None,
-            help="header of columns")
-        parser.add_argument("-k", "--key-sort", action="store", default=None,
-            help="sort by key")
+        parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
+        parser.add_argument(
+            "-c",
+            "--columns",
+            action="store",
+            default=None,
+            help="values to include as columns of the table",
+        )
+        parser.add_argument(
+            "-H", "--header", action="store", default=None, help="header of columns"
+        )
+        parser.add_argument(
+            "-k", "--key-sort", action="store", default=None, help="sort by key"
+        )
         parser.add_argument(
             "-r",
             "--reverse-sort",
             action="store_true",
             default=False,
-            help="reverse the sort")
+            help="reverse the sort",
+        )
         parser.add_argument(
             "-a",
             "--alignment",
             action="store",
             default="c",
-            help="horizontal alignment (c=center, l=left or r=right)")
-        parser.add_argument("-f", "--fit", action="store", default="all",
-            help="specify fits to include in table")
-        parser.add_argument("-s", "--spectrum", action="store",
-            default="active", help="specify spectra")
+            help="horizontal alignment (c=center, l=left or r=right)",
+        )
         parser.add_argument(
-            "filename",
-            metavar="output-file",
-            help="file to write to")
+            "-f",
+            "--fit",
+            action="store",
+            default="all",
+            help="specify fits to include in table",
+        )
+        parser.add_argument(
+            "-s", "--spectrum", action="store", default="active", help="specify spectra"
+        )
+        parser.add_argument("filename", metavar="output-file", help="file to write to")
         hdtv.cmdline.AddCommand(prog, self.WriteTex, parser=parser)
 
     def WriteTex(self, args):
@@ -220,8 +236,7 @@ class fitTex:
             ha = "c"
 
         # do the work
-        table = TexTable(peaklist, keys, header, sortBy,
-                         args.reverse_sort, ha)
+        table = TexTable(peaklist, keys, header, sortBy, args.reverse_sort, ha)
         with open(filename, "w") as out:
             out.write(str(table))
 
@@ -229,4 +244,5 @@ class fitTex:
 # plugin initialisation
 import __main__
 from hdtv.plugins.fitInterface import fit_interface
+
 hdtv.cmdline.RegisterInteractive("fittex", fitTex(__main__.spectra, fit_interface))

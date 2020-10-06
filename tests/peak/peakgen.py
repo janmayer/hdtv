@@ -19,9 +19,9 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-#-------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # Infrastructure for generation of artificial spectra
-#-------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 from __future__ import division
 
@@ -56,19 +56,31 @@ class TheuerkaufPeak:
         # Calculate normalization
         # Contribution from left tail and left half of truncated Gaussian
         if self.tl:
-            norm = self.sigma**2 / self.tl * \
-                math.exp(-self.tl**2 / (2 * self.sigma**2))
-            norm += math.sqrt(math.pi / 2) * self.sigma * \
-                ROOT.TMath.Erf(self.tl / (math.sqrt(2) * self.sigma))
+            norm = (
+                self.sigma ** 2
+                / self.tl
+                * math.exp(-self.tl ** 2 / (2 * self.sigma ** 2))
+            )
+            norm += (
+                math.sqrt(math.pi / 2)
+                * self.sigma
+                * ROOT.TMath.Erf(self.tl / (math.sqrt(2) * self.sigma))
+            )
         else:
             norm = math.sqrt(math.pi / 2) * self.sigma
 
         # Contribution from right tail and right half of truncated Gaussian
         if self.tr:
-            norm += self.sigma**2 / self.tr * \
-                math.exp(-self.tr**2 / (2 * self.sigma**2))
-            norm += math.sqrt(math.pi / 2) * self.sigma * \
-                ROOT.TMath.Erf(self.tr / (math.sqrt(2) * self.sigma))
+            norm += (
+                self.sigma ** 2
+                / self.tr
+                * math.exp(-self.tr ** 2 / (2 * self.sigma ** 2))
+            )
+            norm += (
+                math.sqrt(math.pi / 2)
+                * self.sigma
+                * ROOT.TMath.Erf(self.tr / (math.sqrt(2) * self.sigma))
+            )
         else:
             norm += math.sqrt(math.pi / 2) * self.sigma
 
@@ -78,8 +90,7 @@ class TheuerkaufPeak:
     def step(self, x):
         if self.sw is not None and self.sh is not None:
             dx = x - self.pos
-            _y = math.pi / 2. + \
-                math.atan(self.sw * dx / (math.sqrt(2) * self.sigma))
+            _y = math.pi / 2.0 + math.atan(self.sw * dx / (math.sqrt(2) * self.sigma))
             return self.sh * _y
         else:
             return 0.0
@@ -87,11 +98,11 @@ class TheuerkaufPeak:
     def value(self, x):
         dx = x - self.pos
         if self.tl is not None and dx < -self.tl:
-            _y = self.tl / (self.sigma**2) * (dx + self.tl / 2)
+            _y = self.tl / (self.sigma ** 2) * (dx + self.tl / 2)
         elif self.tr is not None and dx > self.tr:
-            _y = -self.tr / (self.sigma**2) * (dx - self.tr / 2)
+            _y = -self.tr / (self.sigma ** 2) * (dx - self.tr / 2)
         else:
-            _y = -(dx**2) / (2 * self.sigma**2)
+            _y = -(dx ** 2) / (2 * self.sigma ** 2)
 
         return self.amp * (math.exp(_y) + self.step(x))
 
@@ -110,15 +121,16 @@ class EEPeak:
     def value(self, x):
         dx = x - self.pos
         if dx <= 0:
-            _y = math.exp(-math.log(2) * dx**2 / self.sigma1**2)
+            _y = math.exp(-math.log(2) * dx ** 2 / self.sigma1 ** 2)
         elif dx <= self.eta * self.sigma2:
-            _y = math.exp(-math.log(2) * dx**2 / self.sigma2**2)
+            _y = math.exp(-math.log(2) * dx ** 2 / self.sigma2 ** 2)
         else:
-            B = (self.sigma2 * self.gamma - 2. *
-                 self.sigma2 * self.eta**2 * math.log(2))
-            B /= 2. * self.eta * math.log(2)
-            A = 2**(-self.eta**2) * (self.sigma2 * self.eta + B)**self.gamma
-            _y = A / (B + dx)**self.gamma
+            B = self.sigma2 * self.gamma - 2.0 * self.sigma2 * self.eta ** 2 * math.log(
+                2
+            )
+            B /= 2.0 * self.eta * math.log(2)
+            A = 2 ** (-self.eta ** 2) * (self.sigma2 * self.eta + B) ** self.gamma
+            _y = A / (B + dx) ** self.gamma
 
         return _y * self.amp
 
@@ -134,7 +146,7 @@ class SpecFunc:
         self.peaks = []
 
     def __call__(self, x):
-        y = 0.
+        y = 0.0
 
         if self.background:
             y += self.background.value(x[0])
@@ -195,7 +207,7 @@ class Spectrum:
 
 def write_hist(hist, fname, include_x=False, include_err=False):
     """
-    Dump a ROOT histogram object to a textfile.	We write the content of all
+    Dump a ROOT histogram object to a textfile. We write the content of all
     bins, exculding the under- and overflow bins, seperated by newlines. The
     parameters include_x and include_err control if the bin center and the bin
     error are to be included. If the resulting file should be readable by the

@@ -35,11 +35,13 @@ from tests.helpers.utils import setup_io, redirect_stdout
 from tests.helpers.fixtures import temp_file_compressed
 
 from hdtv.util import monkey_patch_ui
+
 monkey_patch_ui()
 
 import __main__
 
 import hdtv.session
+
 try:
     __main__.spectra = hdtv.session.Session()
 except RuntimeError:
@@ -50,8 +52,7 @@ from hdtv.plugins.specInterface import spec_interface
 from hdtv.plugins.fitInterface import fit_interface
 from hdtv.plugins.fitlist import fitxml
 
-testspectrum = os.path.join(
-    os.path.curdir, "tests", "share", "osiris_bg.spc")
+testspectrum = os.path.join(os.path.curdir, "tests", "share", "osiris_bg.spc")
 
 
 @pytest.fixture(autouse=True)
@@ -69,8 +70,9 @@ def list_fit():
     with redirect_stdout(f, ferr):
         fit_interface.ListFits()
         fit_interface.ListIntegrals()
-    assert ferr.getvalue().strip() == ''
+    assert ferr.getvalue().strip() == ""
     return f.getvalue().strip()
+
 
 def fit_write_and_save(filename):
     spectra.ExecuteFit()
@@ -79,11 +81,11 @@ def fit_write_and_save(filename):
 
     out_original = list_fit()
 
-    print('Saving fits to file %s' % filename)
+    print("Saving fits to file %s" % filename)
     fitxml.WriteXML(spectra.Get("0").ID, filename)
-    print('Deleting all fits')
+    print("Deleting all fits")
     spectra.Get("0").Clear()
-    print('Reading fits from file %s' % filename)
+    print("Reading fits from file %s" % filename)
     fitxml.ReadXML(spectra.Get("0").ID, filename)
 
     assert out_original == list_fit()

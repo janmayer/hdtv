@@ -26,12 +26,7 @@
 namespace HDTV {
 namespace Display {
 
-enum Z_INDEX {
-  Z_INDEX_MISC = 10,
-  Z_INDEX_SPEC = 20,
-  Z_INDEX_FUNC = 30,
-  Z_INDEX_MARKER = 40
-};
+enum Z_INDEX { Z_INDEX_MISC = 10, Z_INDEX_SPEC = 20, Z_INDEX_FUNC = 30, Z_INDEX_MARKER = 40 };
 
 } // end namespace Display
 } // end namespace HDTV

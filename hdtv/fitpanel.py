@@ -34,8 +34,7 @@ class FitPanel(object):
         self.fMainFrame = ROOT.TGMainFrame(ROOT.gClient.GetRoot(), 300, 500)
         self.fMainFrame.DontCallClose()
         disp = ROOT.TPyDispatcher(self.Hide)
-        self.fMainFrame.Connect(
-            "CloseWindow()", "TPyDispatcher", disp, "Dispatch()")
+        self.fMainFrame.Connect("CloseWindow()", "TPyDispatcher", disp, "Dispatch()")
         self._dispatchers.append(disp)
 
         ## Button frame ##
@@ -43,51 +42,45 @@ class FitPanel(object):
 
         self.fFitButton = ROOT.TGTextButton(self.fButtonFrame, "Fit")
         disp = ROOT.TPyDispatcher(self.FitClicked)
-        self.fFitButton.Connect(
-            "Clicked()", "TPyDispatcher", disp, "Dispatch()")
+        self.fFitButton.Connect("Clicked()", "TPyDispatcher", disp, "Dispatch()")
         self._dispatchers.append(disp)
         self.fButtonFrame.AddFrame(self.fFitButton)
 
         self.fClearButton = ROOT.TGTextButton(self.fButtonFrame, "Clear")
         disp = ROOT.TPyDispatcher(self.ClearClicked)
-        self.fClearButton.Connect(
-            "Clicked()", "TPyDispatcher", disp, "Dispatch()")
+        self.fClearButton.Connect("Clicked()", "TPyDispatcher", disp, "Dispatch()")
         self._dispatchers.append(disp)
         self.fButtonFrame.AddFrame(self.fClearButton)
 
         self.fResetButton = ROOT.TGTextButton(self.fButtonFrame, "Reset")
         disp = ROOT.TPyDispatcher(self.ResetClicked)
-        self.fResetButton.Connect(
-            "Clicked()", "TPyDispatcher", disp, "Dispatch()")
+        self.fResetButton.Connect("Clicked()", "TPyDispatcher", disp, "Dispatch()")
         self._dispatchers.append(disp)
         self.fButtonFrame.AddFrame(self.fResetButton)
 
         self.fHideButton = ROOT.TGTextButton(self.fButtonFrame, "Hide")
         disp = ROOT.TPyDispatcher(self.HideClicked)
-        self.fHideButton.Connect(
-            "Clicked()", "TPyDispatcher", disp, "Dispatch()")
+        self.fHideButton.Connect("Clicked()", "TPyDispatcher", disp, "Dispatch()")
         self._dispatchers.append(disp)
         self.fButtonFrame.AddFrame(self.fHideButton)
 
-        self.fDecompButton = ROOT.TGCheckButton(
-            self.fButtonFrame, "Show decomposition")
+        self.fDecompButton = ROOT.TGCheckButton(self.fButtonFrame, "Show decomposition")
         disp = ROOT.TPyDispatcher(self.DecompClicked)
-        self.fDecompButton.Connect(
-            "Clicked()", "TPyDispatcher", disp, "Dispatch()")
+        self.fDecompButton.Connect("Clicked()", "TPyDispatcher", disp, "Dispatch()")
         self._dispatchers.append(disp)
         self.fButtonFrame.AddFrame(
-            self.fDecompButton, ROOT.TGLayoutHints(
-                ROOT.kLHintsLeft, 10, 0, 0, 0))
+            self.fDecompButton, ROOT.TGLayoutHints(ROOT.kLHintsLeft, 10, 0, 0, 0)
+        )
 
         self.fMainFrame.AddFrame(
-            self.fButtonFrame, ROOT.TGLayoutHints(
-                ROOT.kLHintsExpandX, 10, 5, 10, 10))
+            self.fButtonFrame, ROOT.TGLayoutHints(ROOT.kLHintsExpandX, 10, 5, 10, 10)
+        )
 
         ## Fit info ##
         self.fFitInfo = ROOT.TGTab(self.fMainFrame)
         self.fMainFrame.AddFrame(
-            self.fFitInfo, ROOT.TGLayoutHints(
-                ROOT.kLHintsExpandX | ROOT.kLHintsExpandY))
+            self.fFitInfo, ROOT.TGLayoutHints(ROOT.kLHintsExpandX | ROOT.kLHintsExpandY)
+        )
 
         optionsFrame = self.fFitInfo.AddTab("Options")
         fitFrame = self.fFitInfo.AddTab("Fit")
@@ -95,13 +88,14 @@ class FitPanel(object):
 
         self.fOptionsText = ROOT.TGTextView(optionsFrame, 400, 500)
         optionsFrame.AddFrame(
-            self.fOptionsText, ROOT.TGLayoutHints(
-                ROOT.kLHintsExpandX | ROOT.kLHintsExpandY))
+            self.fOptionsText,
+            ROOT.TGLayoutHints(ROOT.kLHintsExpandX | ROOT.kLHintsExpandY),
+        )
 
         self.fFitText = ROOT.TGTextView(fitFrame, 400, 500)
         fitFrame.AddFrame(
-            self.fFitText, ROOT.TGLayoutHints(
-                ROOT.kLHintsExpandX | ROOT.kLHintsExpandY))
+            self.fFitText, ROOT.TGLayoutHints(ROOT.kLHintsExpandX | ROOT.kLHintsExpandY)
+        )
 
         self.fMainFrame.SetWindowName("Fit")
         self.fMainFrame.MapSubwindows()

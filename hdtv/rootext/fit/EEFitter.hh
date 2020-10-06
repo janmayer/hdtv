@@ -24,12 +24,12 @@
 #define __EEFitter_h__
 
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "Fitter.hh"
-#include "Param.hh"
 #include "Option.hh"
+#include "Param.hh"
 
 class TArrayD;
 class TF1;
@@ -46,8 +46,8 @@ class EEPeak {
 
 public:
   EEPeak() = default;
-  EEPeak(const Param &pos, const Param &amp, const Param &sigma1,
-         const Param &sigma2, const Param &eta, const Param &gamma);
+  EEPeak(const Param &pos, const Param &amp, const Param &sigma1, const Param &sigma2, const Param &eta,
+         const Param &gamma);
   EEPeak(const EEPeak &src);
   EEPeak &operator=(const EEPeak &src);
 
@@ -56,44 +56,32 @@ public:
   double GetPos() { return fPos.Value(fFunc); };
   double GetPosError() { return fPos.Error(fFunc); };
 
-  void RestorePos(double value, double error) {
-    RestoreParam(fPos, value, error);
-  };
+  void RestorePos(double value, double error) { RestoreParam(fPos, value, error); };
 
   double GetAmp() { return fAmp.Value(fFunc); };
   double GetAmpError() { return fAmp.Error(fFunc); };
 
-  void RestoreAmp(double value, double error) {
-    RestoreParam(fAmp, value, error);
-  };
+  void RestoreAmp(double value, double error) { RestoreParam(fAmp, value, error); };
 
   double GetSigma1() { return fSigma1.Value(fFunc); };
   double GetSigma1Error() { return fSigma1.Error(fFunc); };
 
-  void RestoreSigma1(double value, double error) {
-    RestoreParam(fSigma1, value, error);
-  };
+  void RestoreSigma1(double value, double error) { RestoreParam(fSigma1, value, error); };
 
   double GetSigma2() { return fSigma2.Value(fFunc); };
   double GetSigma2Error() { return fSigma2.Error(fFunc); };
 
-  void RestoreSigma2(double value, double error) {
-    RestoreParam(fSigma2, value, error);
-  };
+  void RestoreSigma2(double value, double error) { RestoreParam(fSigma2, value, error); };
 
   double GetEta() { return fEta.Value(fFunc); };
   double GetEtaError() { return fEta.Error(fFunc); };
 
-  void RestoreEta(double value, double error) {
-    RestoreParam(fEta, value, error);
-  };
+  void RestoreEta(double value, double error) { RestoreParam(fEta, value, error); };
 
   double GetGamma() { return fGamma.Value(fFunc); };
   double GetGammaError() { return fGamma.Error(fFunc); };
 
-  void RestoreGamma(double value, double error) {
-    RestoreParam(fGamma, value, error);
-  };
+  void RestoreGamma(double value, double error) { RestoreParam(fGamma, value, error); };
 
   double GetVol() { return fVol; }
   double GetVolError() { return fVolError; }
@@ -123,14 +111,8 @@ private:
 //! Fitting multiple EEPeaks
 class EEFitter : public Fitter {
 public:
-  EEFitter(double r1, double r2,
-           Option<bool> integrate,
-           Option<std::string> likelihood,
-           bool debugShowInipar = false)
-    : Fitter(r1, r2)
-    , fIntegrate(integrate)
-    , fLikelihood(likelihood)
-    , fDebugShowInipar(debugShowInipar) {}
+  EEFitter(double r1, double r2, Option<bool> integrate, Option<std::string> likelihood, bool debugShowInipar = false)
+      : Fitter(r1, r2), fIntegrate(integrate), fLikelihood(likelihood), fDebugShowInipar(debugShowInipar) {}
 
   // Copying the fitter is not supported
   EEFitter(const EEFitter &) = delete;
@@ -146,15 +128,13 @@ public:
 
   TF1 *GetBgFunc();
   bool Restore(const Background &bg, double ChiSquare);
-  bool Restore(const TArrayD &bgPolValues, const TArrayD &bgPolErrors,
-               double ChiSquare);
+  bool Restore(const TArrayD &bgPolValues, const TArrayD &bgPolErrors, double ChiSquare);
 
   // For debugging only
   // double GetVol() { return fInt; }
   // double GetVolError() { return fIntError; }
 
 private:
-
   double Eval(const double *x, const double *p) const;
   double EvalBg(const double *x, const double *p) const;
   void _Fit(TH1 &hist);

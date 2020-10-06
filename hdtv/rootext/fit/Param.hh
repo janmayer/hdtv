@@ -38,9 +38,7 @@ public:
   static Param Fixed(double val) { return Param(-1, val, false, true, true); }
   static Param Fixed() { return Param(-1, 0.0, false, false, true); }
   static Param Free(int id) { return Param(id, 0.0, true, false, true); }
-  static Param Free(int id, double ival) {
-    return Param(id, ival, true, true, true);
-  }
+  static Param Free(int id, double ival) { return Param(id, ival, true, true, true); }
   static Param Empty() { return Param(-1, 0.0, false, false, false); }
 
   bool IsFree() const { return fFree; }
@@ -63,7 +61,7 @@ private:
   double fValue;
 };
 
-std::ostream &operator <<(std::ostream &lhs, const Param &rhs);
+std::ostream &operator<<(std::ostream &lhs, const Param &rhs);
 
 } // end namespace Fit
 } // end namespace HDTV

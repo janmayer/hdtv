@@ -114,8 +114,7 @@ TH1 *VMatrix::Cut(const char *histname, const char *histtitle) {
   }
 
   double bgFac = (nBg == 0) ? 0.0 : static_cast<double>(nCut) / nBg;
-  auto hist = new TH1D(histname, histtitle, GetProjXbins(), GetProjXmin(),
-                        GetProjXmax());
+  auto hist = new TH1D(histname, histtitle, GetProjXbins(), GetProjXmin(), GetProjXmax());
   // cols, -0.5, (double) cols - 0.5);
   for (int c = 0; c < pbins; c++) {
     hist->SetBinContent(c + 1, sum[c] - bg[c] * bgFac);
@@ -124,8 +123,7 @@ TH1 *VMatrix::Cut(const char *histname, const char *histtitle) {
   return hist;
 }
 
-RMatrix::RMatrix(TH2 *hist, ProjAxis_t paxis)
-    : VMatrix(), fHist(hist), fProjAxis(paxis) {}
+RMatrix::RMatrix(TH2 *hist, ProjAxis_t paxis) : VMatrix(), fHist(hist), fProjAxis(paxis) {}
 
 void RMatrix::AddLine(TArrayD &dst, int l) {
   if (fProjAxis == PROJ_X) {
@@ -145,8 +143,7 @@ void RMatrix::AddLine(TArrayD &dst, int l) {
   }
 }
 
-MFMatrix::MFMatrix(MFileHist *mat, unsigned int level)
-    : VMatrix(), fMatrix(mat), fLevel(level), fBuf() {
+MFMatrix::MFMatrix(MFileHist *mat, unsigned int level) : VMatrix(), fMatrix(mat), fLevel(level), fBuf() {
   // Sanity checks
   if (fLevel >= fMatrix->GetNLevels()) {
     fFail = true;
