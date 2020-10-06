@@ -39,8 +39,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER include/mfile.h)
 
 target_include_directories(
   ${PROJECT_NAME}
-  PUBLIC $<INSTALL_INTERFACE:include>
-         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  PUBLIC $<INSTALL_INTERFACE:include> $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 target_compile_features(${PROJECT_NAME} PRIVATE c_std_99)
@@ -87,4 +86,8 @@ add_executable(check_mfile test/check_mfile.c)
 target_link_libraries(check_mfile hdtv::mfile)
 add_dependencies(check_mfile hdtv::mfile)
 add_test(run_check_mfile check_mfile)
-add_test(run_check_spectra md5sum -c ${CMAKE_CURRENT_SOURCE_DIR}/test/md5sums)
+add_test(
+  run_check_spectra
+  md5sum
+  -c
+  ${CMAKE_CURRENT_SOURCE_DIR}/test/md5sums)
