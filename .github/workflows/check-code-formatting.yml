@@ -34,7 +34,7 @@ jobs:
         with:
           python-version: '3.x' 
       - name: Install cmake-format
-        run: pip install cmakelang && cmake-format --version
+        run: pip install pyyaml cmakelang && cmake-format --version
       - name: Run cmake-format
         run: |
           files=$(find . -name CMakeLists.txt)
