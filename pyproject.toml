@@ -1,0 +1,19 @@
+[tool.black]
+target-version = ['py36', 'py37', 'py38']
+include = '\.pyi?$'
+exclude = '''
+(
+  /(
+      \.asv
+    | \.eggs
+    | \.git
+    | \.venv
+    | benchmarks
+    | build
+    | conda.recipe
+    | dist
+  )/
+  | _version.py
+  | versioneer.py
+)
+'''
