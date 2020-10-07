@@ -64,9 +64,8 @@ class Fitter(object):
             nbg=len(backgrounds),
         )
         if self.bgFitter is None:
-            msg = (
-                "Background model %s needs at least %i background regions to execute a fit. Found %i."
-                % self.backgroundModel.name,
+            msg = "Background model %s needs at least %i background regions to execute a fit. Found %i.".format(
+                self.backgroundModel.name,
                 self.backgroundModel.requiredBgRegions,
                 len(backgrounds),
             )
