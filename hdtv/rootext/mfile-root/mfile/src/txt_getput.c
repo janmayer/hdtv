@@ -26,12 +26,13 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "txt_getput.h"
-#include "maccess.h"
-#include "mfile.h"
-#include "txt_minfo.h"
+
 #include <stdlib.h>
 #include <string.h>
+
+#include "maccess.h"
+#include "txt_getput.h"
+#include "txt_minfo.h"
 
 int32_t txt_get(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num) {
 

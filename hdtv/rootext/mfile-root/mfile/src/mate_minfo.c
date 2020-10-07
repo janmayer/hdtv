@@ -34,7 +34,6 @@
 #include "maccess.h"
 #include "mate_getput.h"
 #include "mate_minfo.h"
-#include "mfile.h"
 #include "sys_endian.h"
 
 static int32_t match(const char *str, const char *pattern);

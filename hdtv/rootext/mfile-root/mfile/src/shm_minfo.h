@@ -27,6 +27,9 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "mfile.h"
+#include <stdint.h>
+
 void shm_probe(MFILE *mat);
 void shm_init(MFILE *mat);
 int32_t shm_putinfo(MFILE *mat, minfo *info);

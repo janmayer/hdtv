@@ -28,7 +28,6 @@
  */
 #include "maccess.h"
 #include "disk_access.h"
-#include "mfile.h"
 #include "sys_endian.h"
 #ifndef NO_SHM
 #include "shm_access.h"

@@ -27,6 +27,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "mfile.h"
 #include "sys_endian.h"
 #include <stdint.h>
 

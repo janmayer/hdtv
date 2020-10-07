@@ -27,5 +27,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "mfile.h"
 #include <stdint.h>
+
 int32_t mate_get(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num);

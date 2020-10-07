@@ -39,7 +39,6 @@
 #include <sys/types.h>
 
 #include "getputint.h"
-#include "mfile.h"
 #include "shm_getput.h"
 #include "shm_minfo.h"
 

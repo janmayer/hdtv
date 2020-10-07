@@ -27,8 +27,9 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "mfile.h"
 #include <stdint.h>
-/* oldmat_getput.c */
+
 extern int32_t le4_get(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num);
 extern int32_t le4_put(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num);
 extern int32_t le2_get(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num);

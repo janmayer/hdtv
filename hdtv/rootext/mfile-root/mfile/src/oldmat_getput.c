@@ -29,7 +29,6 @@
 #include <string.h>
 
 #include "getputint.h"
-#include "mfile.h"
 #include "oldmat_getput.h"
 
 #define fpos(s) (((level * mat->lines + line) * mat->columns + col) * (s))

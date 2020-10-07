@@ -41,7 +41,6 @@
 #include <sys/types.h>
 
 #include "maccess.h"
-#include "mfile.h"
 #include "shm_access.h"
 
 /* ------------------------------------------------------------------------- */

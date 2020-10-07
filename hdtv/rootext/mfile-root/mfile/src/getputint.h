@@ -27,6 +27,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "mfile.h"
 #include <stdint.h>
 
 /* signed low endian 8 byte matrix file */

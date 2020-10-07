@@ -26,6 +26,7 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #include <ctype.h>
 #include <memory.h>
 #include <stdlib.h>
@@ -33,7 +34,6 @@
 
 #include "getputint.h"
 #include "maccess.h"
-#include "mfile.h"
 #include "txt_getput.h"
 #include "txt_minfo.h"
 

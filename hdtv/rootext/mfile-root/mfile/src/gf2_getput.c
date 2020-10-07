@@ -35,7 +35,6 @@
 #include "gf2_getput.h"
 #include "gf2_minfo.h"
 #include "mat_types.h"
-#include "mfile.h"
 
 #define fpos(s) (36 + ((level * mat->lines + line) * mat->columns + col) * (s))
 

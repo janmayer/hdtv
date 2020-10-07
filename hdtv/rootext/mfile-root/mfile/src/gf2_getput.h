@@ -30,6 +30,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "mfile.h"
 #include <stdint.h>
 
 extern int32_t gf2_get(MFILE *mat, float *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num);

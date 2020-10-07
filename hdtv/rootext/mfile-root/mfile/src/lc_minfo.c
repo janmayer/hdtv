@@ -35,7 +35,6 @@
 #include "lc_getput.h"
 #include "lc_minfo.h"
 #include "maccess.h"
-#include "mfile.h"
 #include "sys_endian.h"
 
 static int32_t init_lci(MFILE *mat, uint32_t freepos, uint32_t freelistpos, uint32_t poslentablepos);

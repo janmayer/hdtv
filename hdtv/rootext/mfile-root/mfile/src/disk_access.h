@@ -27,6 +27,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "mfile.h"
 #include <stdint.h>
 
 int32_t disk_tryaccess(amp ap, const char *name, const char *mode);

@@ -39,7 +39,6 @@
 #include "lc_getput.h"
 #include "lc_minfo.h"
 #include "maccess.h"
-#include "mfile.h"
 
 /* static int32_t lc_alloc(MFILE *mat, int32_t n)); */
 static int32_t readline(MFILE *mat, int32_t *buffer, uint32_t line);

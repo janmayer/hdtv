@@ -29,7 +29,6 @@
 #ifndef NO_SHM
 
 #include "shm_getput.h"
-#include "mfile.h"
 #include "shm_minfo.h"
 #include <stdlib.h>
 #include <string.h>

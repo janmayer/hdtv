@@ -26,12 +26,12 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #include <stdlib.h>
 #include <string.h>
 
 #include "getputint.h"
 #include "maccess.h"
-#include "mfile.h"
 #include "sys_endian.h"
 #include "trixi_getput.h"
 #include "trixi_minfo.h"

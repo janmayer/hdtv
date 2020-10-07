@@ -32,7 +32,6 @@
 #include "lc_minfo.h"
 #include "mate_getput.h"
 #include "mate_minfo.h"
-#include "mfile.h"
 #include "oldmat_getput.h"
 #include "oldmat_minfo.h"
 #include "trixi_getput.h"

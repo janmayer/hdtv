@@ -27,6 +27,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "mfile.h"
 #include <stdint.h>
 
 extern int32_t mgetint(MFILE *mat, int32_t *buffer, int32_t level, int32_t line, int32_t col, int32_t num);

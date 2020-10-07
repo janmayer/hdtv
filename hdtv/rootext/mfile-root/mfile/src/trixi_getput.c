@@ -27,11 +27,9 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdint.h>
 #include <string.h>
 
 #include "getputint.h"
-#include "mfile.h"
 #include "trixi_getput.h"
 
 #define fpos(s) (((level * mat->lines + line) * mat->columns + col) * (s) + 512)
