@@ -23,18 +23,19 @@
 import colorsys
 import math
 import ROOT
+from hdtv.hsluv import hsluv_to_rgb, rgb_to_hsluv
 
 
 # some default colors
-default = ROOT.kRed
 zoom = ROOT.kWhite
 region = ROOT.kBlue - 4
 peak = ROOT.kViolet - 4
 bg = ROOT.kGreen - 4
 cut = ROOT.kYellow - 4
 
-activeSatur = 1.0
-nonactiveSatur = 0.5
+active_luminance = 76
+nonactive_luminance = 58
+golden_angle = 180 * (3 - math.sqrt(5))
 
 
 def ColorForID(ID, active=False):
@@ -43,33 +44,14 @@ def ColorForID(ID, active=False):
         ID = int(ID[0])
     except BaseException:
         pass
-    if active:
-        satur = activeSatur
-    else:
-        satur = nonactiveSatur
-    hue = HueForID(ID)
-    value = 1.0
-    (r, g, b) = colorsys.hsv_to_rgb(hue, satur, value)
+    hue = (ID * golden_angle) % 360
+    saturation = 100
+    luminance = active_luminance if active else nonactive_luminance
+    r, g, b = hsluv_to_rgb([hue, saturation, luminance])
     return ROOT.TColor.GetColor(r, g, b)
 
 
-def HueForID(ID):
-    """
-    Returns the hue corresponding to a certain spectrum ID. The idea is to
-    maximize the hue difference between the spectra shown, without knowing
-    beforehand how many spectra there will be and without being able to change
-    the color afterwards (that would confuse the user). The saturation and value
-    of the color can be set arbitrarily, for example to indicate which spectrum
-    is currently active.
-    """
-    # Special case
-    if ID == 0:
-        hue = 0.0
-    else:
-        p = math.floor(math.log(float(ID)) / math.log(2))
-        q = ID - 2 ** p
-        hue = 2 ** (-p - 1) + q * 2 ** (-p)
-    return hue
+default = ColorForID(0)
 
 
 def Highlight(color, active=True):
@@ -90,13 +72,13 @@ def Highlight(color, active=True):
     if not color:
         # FIXME
         raise RuntimeError
-    hue = ROOT.TColor.GetHue(color)
-    value = 1.0
-    if active:
-        satur = activeSatur
-    else:
-        satur = nonactiveSatur
-    (r, g, b) = colorsys.hsv_to_rgb(hue / 360, satur, value)
+    color_r = ROOT.TColor.GetRed(color)
+    color_g = ROOT.TColor.GetGreen(color)
+    color_b = ROOT.TColor.GetBlue(color)
+    hue, saturation, luminance = rgb_to_hsluv([color_r, color_g, color_b])
+    saturation = 100
+    luminance = active_luminance if active else nonactive_luminance
+    r, g, b = hsluv_to_rgb([hue, saturation, luminance])
     return ROOT.TColor.GetColor(r, g, b)
 
 
