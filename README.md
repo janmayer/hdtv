@@ -1,20 +1,20 @@
-# HDTV - Nuclear Spectrum Analysis Tool
+# HDTV - Nuclear Spectrum Analysis
 
 [![PyPI version](https://badge.fury.io/py/hdtv.svg)](https://badge.fury.io/py/hdtv)
-[![Build Status](https://travis-ci.org/janmayer/hdtv.svg?branch=master)](https://travis-ci.org/janmayer/hdtv)
 [![codecov](https://codecov.io/gh/janmayer/hdtv/branch/master/graph/badge.svg)](https://codecov.io/gh/janmayer/hdtv)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d54b84b35f834cb9a73a89a5ea67a8bf)](https://app.codacy.com/manual/janmayer/hdtv/dashboard)
 
-HDTV tries to provide functionality similar to the old TV program
-on top of the ROOT data analysis toolkit developed at CERN. The use
-of Python gives HDTV much better scripting capabilities than TV.
-Also, since HDTV consists of a number of modules that can in principle
-be used independently of each other, HDTV is much easier to extend and
-customize. HDTV is written in a mixture of C++ and Python, glued
-together using PyROOT.
+![hdtv-spectrum-load-fit](doc/assets/hdtv-spectrum-load-fit.gif)
+
+HDTV is a nuclear spectrum and coincidence matrix analysis tool.
+It can load uncompressed (text), compressed, and ROOT spectra and 2D-matrices.
+It calibrates spectra, fits peaks with background with different models, and cuts matrices.
+HDTV is written in a mixture of C++ and Python, glued together using PyROOT.
 
 
 ## Installation
+
+Note: HDTV requires [CERN ROOT](https://root.cern.ch/) with working Python bindings. We **recommend ROOT v6.18.04** as there are severe performance degradations with 6.20. ROOT 6.22 has (temporarily ?) [removed a critical component](https://root.cern.ch/doc/v622/release-notes.html#language-bindings) and is not compatible with HDTV.
 
 ```sh
 pip install hdtv
@@ -38,9 +38,9 @@ for all user (requires superuser privileges).
 To build and run HDTV, the following dependencies are required:
 
 * Python
-	- Tested with 2.7, 3.6, 3.7, 3.8
+	- Tested with 3.6, 3.7, 3.8
 	- Packages: scipy matplotlib prompt_toolkit uncertainties (docutils)
-* [Cern ROOT](https://root.cern/) 6
+* [Cern ROOT](https://root.cern/) 6 (**recommended: 6.18.04**)
     - Needs to be compiled against the correct python version.
     - In python, **`import ROOT` must succeed.**
     - System packages may be available on some systems, e.g. `<tool> install root python3-root`
@@ -60,7 +60,7 @@ to HDTV and its basic features is also available.
 ### Run locally from source directory without installation
 
 ```
-git clone https://gitlab.ikp.uni-koeln.de/staging/hdtv.git
+git clone https://github.com/janmayer/hdtv.git
 cd hdtv
 ./bin/hdtv
 ```
@@ -92,24 +92,4 @@ This eliminates the need to reinstall HDTV after changes to the root
 installation.
 
 Multiple Versions of ROOT can be used alongside, the correct library
-version will be chosen.
-
-
-
-### Example installation on Ubuntu 20.04
-
-Note that we use a precompiled ROOT, which unfortunately is linked against python2.
-For python2, python-pip is not available as package, thus we use an installer script.
-
-```sh
-sudo apt install -y python2 python2-dev python-is-python2 cmake make gcc g++ libx11-dev
-wget https://root.cern/download/root_v6.20.04.Linux-ubuntu19-x86_64-gcc9.2.tar.gz
-tar xf root_v6.20.04.Linux-ubuntu19-x86_64-gcc9.2.tar.gz
-echo 'source ~/root/bin/thisroot.sh' >> ~/.bashrc
-echo 'export PATH=~/.local/bin/:$PATH' >> ~/.bashrc
-source ~/.bashrc
-wget https://bootstrap.pypa.io/get-pip.py
-sudo python get-pip.py
-pip install hdtv
-hdtv --rebuild-usr
-```
+version will be chosen automatically.
