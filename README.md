@@ -14,7 +14,7 @@ HDTV is written in a mixture of C++ and Python, glued together using PyROOT.
 
 ## Installation
 
-Note: HDTV requires [CERN ROOT](https://root.cern.ch/) with working Python bindings. We **recommend ROOT v6.18.04** as there are severe performance degradations with 6.20. ROOT 6.22 has (temporarily ?) [removed a critical component](https://root.cern.ch/doc/v622/release-notes.html#language-bindings) and is not compatible with HDTV.
+Note: HDTV requires [CERN ROOT](https://root.cern.ch/) with working Python bindings. We **recommend ROOT v6.18.04** as there are severe performance degradations with 6.20. ROOT 6.22.00 and 6.22.02 are [not compatible](https://root.cern.ch/doc/v622/release-notes.html#language-bindings) with HDTV, but ROOT 6.22.04 is.
 
 ```sh
 pip install hdtv

@@ -38,6 +38,19 @@ if __name__ == "__main__":
     sys.path.insert(0, str(project_dir))
 
 
+def check_root_version():
+    import ROOT
+
+    if ROOT.__version__ in ["6.22/00", "6.22/02"]:
+        print(
+            f"Error: Unsupported ROOT version {ROOT.__version__} detected.\n"
+            "ROOT 6.22/00 and 6.22/02 are not compatible with HDTV.\n"
+            "Please upgrade to ROOT 6.22/04 or later "
+            "or use a different major version.\n See README.md for more information.",
+        )
+        exit(1)
+
+
 class App:
     def __init__(self):
         # Reset command line arguments so that ROOT does not stumble about them
@@ -104,6 +117,8 @@ class App:
 
         if args.rebuildusr or args.rebuildsys:
             sys.exit(0)
+
+        check_root_version()
 
         # Import core modules
         import hdtv.cmdline
