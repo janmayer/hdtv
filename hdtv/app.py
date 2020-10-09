@@ -41,9 +41,11 @@ if __name__ == "__main__":
 def check_root_version():
     import ROOT
 
-    if ROOT.__version__ in ["6.22/00", "6.22/02"]:
+    version = ROOT.gROOT.GetVersion()
+
+    if version in ["6.22/00", "6.22/02"]:
         print(
-            f"Error: Unsupported ROOT version {ROOT.__version__} detected.\n"
+            f"Error: Unsupported ROOT version {version} detected.\n"
             "ROOT 6.22/00 and 6.22/02 are not compatible with HDTV.\n"
             "Please upgrade to ROOT 6.22/04 or later "
             "or use a different major version.\n See README.md for more information.",
