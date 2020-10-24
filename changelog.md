@@ -1,22 +1,19 @@
 # HDTV Changelog
 
-## Unreleased
-- Add GUI-dummy for usage with unit tests (@opapst)
-- Add coverage to unittests (@jmayer, @opapst)
-- Add better fitting: Integration and poisson statistics (@opapst)
+## 20.10
+- Add better fitting: Integration and Poisson statistics (@opapst)
+- Add object-oriented background models (@ufrimangayer)
 - Add exponential background model (@ufrimangayer)
-- Add hdtv.app:App() entrypoint instead of script (@opapst)
-- Add keywords and classifiers to setup.py (@opapst)
+- Add spline interpolation background model (@ufrimangayer)
 - Add light mode (@opapst)
 - Add magic word `hidden` to select objects (@opapst)
-- Add object-oriented background models (@ufrimangayer)
-- Add spline interpolation background model (@ufrimangayer)
-- Add travis.yml build and tests (@jmayer, @opapst)
+- Add keywords and classifiers to setup.py (@opapst)
+- Add hdtv.app:App() entrypoint instead of script (@opapst)
+- Add github actions build and tests instead of travis (@jmayer, @opapst)
+- Add GUI-dummy for usage with unit tests (@opapst)
 - Fix autocomplete of pathes with spaces (@opapst)
 - Fix hdtv.rootext import order (@opapst)
 - Fix negative uncertainties from ROOT fits (@opapst)
-- Fix typedef (@jmayer)
-- Fix wrong cut axis from mfile matrices (@mweinert)
 - Move Calibration.hh into separate module (@opapst)
 - Remove Python2.7 support due to EOL (@opapst)
 - Remove dead code (@opapst)
@@ -24,6 +21,14 @@
 - Renamed `%` to `!` to execute batch files for compatibility reasons (@opapst)
 - Replace code.InteractiveConsole with IPython for Python REPL (@opapst)
 - Replace readline with prompt_toolkit (@opapst)
+- Other small fixes
+
+## 20.04
+- Release as pypi package (@jmayer)
+- Use cmake to build extensions (@jmayer)
+- Bundle libmfile (@jmayer)
+- Add coverage to unit tests (@jmayer, @opapst)
+- Fix wrong cut axis from mfile matrices (@mweinert)
 - Other small fixes
 
 ## 18.04

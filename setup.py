@@ -29,7 +29,6 @@ Natural Language :: English
 Operating System :: MacOS
 Operating System :: POSIX
 Operating System :: POSIX :: Linux
-Operating System :: UNIX
 Programming Language :: C
 Programming Language :: C++
 Programming Language :: Python
