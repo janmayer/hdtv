@@ -679,7 +679,7 @@ class MHisto2D(Histo2D):
 
         if sym:
             self._yproj = None
-            self.tvmatrix = None
+            self.tvmatrix = self.vmatrix  # Fixme
         else:
             self._yproj = FileHistogram(basename + ".pry")
             self._yproj.typeStr = "Projection"
