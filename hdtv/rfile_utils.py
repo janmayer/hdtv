@@ -24,13 +24,146 @@ Helper functions for access to ROOT files, treating them like POSIX
 directories
 """
 
-import os.path
+import os
 import fnmatch
 import ROOT
+from prompt_toolkit.completion import Completer, Completion
+from hdtv.util import SplitCmdlines
 
 # Required for Get() to work (otherwise, histogram objects are automatically
 # destroyed when the file containing them is closed).
 ROOT.TH1.AddDirectory(False)
+
+
+class Quiet:
+    def __init__(self, level=ROOT.kInfo + 1):
+        self.level = level
+
+    def __enter__(self):
+        self.oldlevel = ROOT.gErrorIgnoreLevel
+        ROOT.gErrorIgnoreLevel = self.level
+
+    def __exit__(self, type, value, traceback):
+        ROOT.gErrorIgnoreLevel = self.oldlevel
+
+
+class RootCdCompleter(Completer):
+    def get_completions(self, document, complete_event):
+        yield from GetSuggestions(document, True)
+
+
+class RootCompleter(Completer):
+    def get_completions(self, document, complete_event):
+        yield from GetSuggestions(document, False)
+
+
+def GetSuggestions(document, dirs_only=False):
+    word_before_cursor = document.get_word_before_cursor()
+    cmds, _ = SplitCmdlines(document.text_before_cursor)
+
+    if word_before_cursor:
+        last_path = cmds[-1][-1]
+    else:
+        last_path = ""
+
+    if last_path:
+        (_, word_before_cursor) = os.path.split(last_path)
+
+    default_style = "fg:#000000"
+    default_selected_style = "bg:white fg:ansired"
+
+    for opt in CombinedSuggestions(last_path):
+        yield Completion(
+            opt,
+            -len(word_before_cursor),
+            style=default_style,
+            selected_style=default_selected_style,
+        )
+
+
+def CombinedSuggestions(text, dirs_only=False):
+    if ".root" in text:
+        # User wants too look into unopened ROOT File
+        prev_root_dir = ROOT.gDirectory.GetDirectory("")
+        try:
+            rootfilebase, pattern = text.rsplit(".root", 1)
+            rootfilename = rootfilebase + ".root"
+            if IsROOTFile(rootfilename):
+                with Quiet(ROOT.kError):
+                    rf = ROOT.TFile.Open(rootfilename)
+                    options = RootSuggestions(pattern, dirs_only)
+                    rf.Close()
+                return options
+        except:
+            return []
+        finally:
+            # Restore the saved ROOT directory
+            if prev_root_dir:
+                prev_root_dir.cd()
+    else:
+        options = []
+        # Suggestions for the currently open ROOT file
+        options += RootSuggestions(text, dirs_only)
+        # Suggestions from the file system
+        options += FileSuggestions(text)
+        return options
+
+
+def RootSuggestions(text, dirs_only=False):
+    # Suggest completions from a ROOT directory
+    prev_root_dir = ROOT.gDirectory.GetDirectory("")
+    options = []
+
+    try:
+        # Descend to Subdirectories if required
+        path_segments = text.rsplit("/", 1)
+        if len(path_segments) == 2:
+            # TODO Handle case where path_segments[0]
+            # does not exist or is no directory
+            with Quiet(ROOT.kError + 1):
+                ROOT.gDirectory.cd(path_segments[0])
+            pattern = path_segments[1]
+        else:
+            pattern = path_segments[0]
+
+        # Get Contents of ROOT File
+        keys = ROOT.gDirectory.GetListOfKeys() or []
+        for k in keys:
+            name = k.GetName()
+            if name.startswith(pattern):
+                if k.GetClassName() == "TDirectoryFile":
+                    options.append(name + "/")
+                elif not dirs_only:
+                    options.append(name + " ")
+    finally:
+        # Restore the saved ROOT directory
+        if prev_root_dir:
+            prev_root_dir.cd()
+
+    return sorted(options)
+
+
+def FileSuggestions(text):
+    # Suggest directories and ROOT Files
+    try:
+        options = []
+        # Descend to Subdirectories if required
+        path_segments = text.rsplit("/", 1)
+        if len(path_segments) == 2:
+            path = path_segments[0]
+            pattern = path_segments[1]
+        else:
+            path = "."
+            pattern = path_segments[0]
+
+        for name in os.listdir(path or "."):
+            if name.startswith(pattern):
+                full_path = os.path.join(path, name)
+                if os.path.isdir(full_path) or IsROOTFile(full_path):
+                    options.append(name + "/")
+        return sorted(options)
+    except:
+        return []
 
 
 def GetRelDirectory(cur_posix_path, cur_root_dir, path):
@@ -45,7 +178,7 @@ def GetRelDirectory(cur_posix_path, cur_root_dir, path):
 
     Returns a triple (new_posix_path, new_root_file, new_root_dir).
     new_posix_path is the new posix path.
-    new_root_file is the ROOT file in wich new_root_dir resides, or None if
+    new_root_file is the ROOT file in which new_root_dir resides, or None if
     new_root_dir resides in the same file as cur_root_dir. If new_root_file is
     not None, the caller is expected to close the file after being done with it.
     (Note: a path moving out of a ROOT file and then back in
@@ -128,56 +261,6 @@ def GetRelDirectory(cur_posix_path, cur_root_dir, path):
             prev_root_dir.cd()
 
 
-def PathComplete(cur_posix_path, cur_root_dir, path, pattern, dirs_only=False):
-    """
-    Suggest completions for paths to objects inside ROOT files
-
-    cur_posix_path is a string specifying the current working directory. If
-    cur_root_dir is not None, it is taken as a TDirectoryFile object specifying
-    the working directory inside the ROOT file. The ROOT file is expected to
-    reside inside the directory specified by cur_posix_path.
-
-    path and pattern specify the path to be completed. path is taken as the
-    fixed part. pattern in taken as the beginning of the part for which to
-    suggest completions.
-
-    dirs_only specifies whether to suggest directories only.
-    """
-    (posix_path, rfile, root_dir) = GetRelDirectory(cur_posix_path, cur_root_dir, path)
-    if (posix_path, rfile, root_dir) == (None, None, None):
-        return []
-
-    # Suggest possible completions
-    options = []
-    l = len(pattern)
-
-    if root_dir is not None:
-        # Suggest completions from a ROOT directory
-        keys = root_dir.GetListOfKeys()
-        if keys is not None:
-            for k in keys:
-                name = k.GetName()
-                if name[0:l] == pattern:
-                    if k.GetClassName() == "TDirectoryFile":
-                        options.append(name + "/")
-                    elif not dirs_only:
-                        options.append(name + " ")
-
-    else:
-        for name in os.listdir(posix_path):
-            if name[0:l] == pattern:
-                if os.path.isdir(os.path.join(posix_path, name)) or IsROOTFile(
-                    os.path.join(posix_path, name)
-                ):
-                    options.append(name + "/")
-
-    if rfile:
-        # print "Info: closing %s" % str(rfile)
-        rfile.Close()
-
-    return options
-
-
 def Get(cur_posix_path, cur_root_dir, pattern):
     """
     Function to load objects from ROOT files, treating them like POSIX
@@ -197,7 +280,7 @@ def Get(cur_posix_path, cur_root_dir, pattern):
         cur_root_dir = None
         cur_posix_path = "/"
 
-    # Save the current ROOT directory (see comments in function PathComplete)
+    # Save the current ROOT directory
     prev_root_dir = ROOT.gDirectory.GetDirectory("")
 
     if cur_root_dir is None:
@@ -287,5 +370,5 @@ def IsROOTFile(fname):
         ident = f.read(4).decode()
         f.close()
         return ident == "root"
-    except (OSError, IOError):
+    except:
         return False

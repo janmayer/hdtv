@@ -25,7 +25,7 @@ Preliminary ROOT file interface for hdtv
 
 import os
 import fnmatch
-import readline
+import prompt_toolkit
 
 import ROOT
 import hdtv.rootext.display
@@ -59,7 +59,10 @@ class RootFileInterface(object):
         hdtv.cmdline.AddCommand("root open", self.RootOpen, nargs=1, fileargs=True)
         hdtv.cmdline.AddCommand("root close", self.RootClose, nargs=0)
         hdtv.cmdline.AddCommand(
-            "root cd", self.RootCd, nargs=1, completer=self.RootCd_Completer
+            "root cd",
+            self.RootCd,
+            nargs=1,
+            completer=hdtv.rfile_utils.RootCdCompleter(),
         )
 
         prog = "root get"
@@ -87,7 +90,10 @@ class RootFileInterface(object):
         )
         parser.add_argument("pattern", nargs="+")
         hdtv.cmdline.AddCommand(
-            "root get", self.RootGet, completer=self.RootGet_Completer, parser=parser
+            "root get",
+            self.RootGet,
+            completer=hdtv.rfile_utils.RootCompleter(),
+            parser=parser,
         )
 
         # FIXME: make use of matrix ID possible for already loaded matrix
@@ -96,7 +102,10 @@ class RootFileInterface(object):
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument("matname", nargs="+")
         hdtv.cmdline.AddCommand(
-            prog, self.RootMatrixView, completer=self.RootGet_Completer, parser=parser
+            prog,
+            self.RootMatrixView,
+            completer=hdtv.rfile_utils.RootCompleter(),
+            parser=parser,
         )
 
         prog = "root matrix get"
@@ -116,7 +125,10 @@ class RootFileInterface(object):
             "filename", metavar="matrix-file", help="file with matrix to load"
         )
         hdtv.cmdline.AddCommand(
-            prog, self.RootMatrixGet, completer=self.RootGet_Completer, parser=parser
+            prog,
+            self.RootMatrixGet,
+            completer=hdtv.rfile_utils.RootCompleter(),
+            parser=parser,
         )
 
         prog = "root cut view"
@@ -132,7 +144,10 @@ class RootFileInterface(object):
         )
         parser.add_argument("path", nargs="+", help="path of root cut")
         hdtv.cmdline.AddCommand(
-            prog, self.RootCutView, completer=self.RootGet_Completer, parser=parser
+            prog,
+            self.RootCutView,
+            completer=hdtv.rfile_utils.RootCompleter(),
+            parser=parser,
         )
 
         prog = "root cut delete"
@@ -214,42 +229,6 @@ class RootFileInterface(object):
         else:
             self.rootfile.Close()
             self.rootfile = None
-
-    def RootGet_Completer(self, text, args=None):
-        return self.Completer(text, dirs_only=False)
-
-    def RootCd_Completer(self, text, args=None):
-        return self.Completer(text, dirs_only=True)
-
-    def Completer(self, text, dirs_only):
-        buf = readline.get_line_buffer()
-        if buf == "":
-            # This should not happen...
-            return []
-
-        if self.rootfile:
-            cur_root_dir = ROOT.gDirectory
-        else:
-            cur_root_dir = None
-
-        if buf[-1] == " ":
-            return hdtv.rfile_utils.PathComplete(".", cur_root_dir, "", text, dirs_only)
-        else:
-            path = buf.rsplit(None, 1)[-1]
-            dirs = path.rsplit("/", 1)
-
-            # Handle absolute paths
-            if dirs[0] == "":
-                dirs[0] = "/"
-
-            if len(dirs) == 1:
-                return hdtv.rfile_utils.PathComplete(
-                    ".", cur_root_dir, "", text, dirs_only
-                )
-            else:
-                return hdtv.rfile_utils.PathComplete(
-                    ".", cur_root_dir, dirs[0], text, dirs_only
-                )
 
     def GetObj(self, path):
         """
