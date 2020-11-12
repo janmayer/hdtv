@@ -21,6 +21,7 @@
 
 import re
 import os
+import shlex
 from itertools import count
 import contextlib
 from html import escape
@@ -886,3 +887,43 @@ def temp_seed(seed: Optional[int] = None):
     finally:
         if state:
             np.random.set_state(state)
+
+
+def SplitCmdline(s):
+    """
+    Split a string, handling escaped whitespace.
+    Essentially our own version of shlex.split, but with only double
+    quotes accepted as quotes.
+
+    Returns:
+        List of command fragments
+        Suffix removed from last fragment (quotes)
+    """
+    try:
+        try:
+            lex = shlex.shlex(s, posix=True)
+            lex.quotes = r'"'
+            lex.commenters = "#"
+            lex.whitespace_split = True
+            return list(lex), ""
+        except ValueError:
+            lex = shlex.shlex(s + '"', posix=True)
+            lex.quotes = r'"'
+            lex.commenters = "#"
+            lex.whitespace_split = True
+            return list(lex), '"'
+    except ValueError:
+        return []
+
+
+def SplitCmdlines(s):
+    """
+    Split line into multiple commands separated by ';'.
+    """
+    cmds = re.findall(r'(?:[^;"]|"(?:|[^"])*(?:"|$))+', s)
+    last_suffix = None
+    segs = []
+    for cmd in cmds:
+        seg, last_suffix = SplitCmdline(cmd)
+        segs.append(seg)
+    return segs, last_suffix

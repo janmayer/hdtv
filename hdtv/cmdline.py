@@ -33,7 +33,6 @@ import atexit
 import subprocess
 from pwd import getpwuid
 import argparse
-import shlex
 import itertools
 import errno
 from enum import Enum, auto
@@ -177,44 +176,6 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         self.options = None
         self.default_level = 1
 
-    def SplitCmdline(self, s):
-        """
-        Split a string, handling escaped whitespace.
-        Essentially our own version of shlex.split, but with only double
-        quotes accepted as quotes.
-
-        Returns:
-            List of command fragments
-            Suffix removed from last fragment (quotes)
-        """
-        try:
-            try:
-                lex = shlex.shlex(s, posix=True)
-                lex.quotes = r'"'
-                lex.commenters = "#"
-                lex.whitespace_split = True
-                return list(lex), ""
-            except ValueError:
-                lex = shlex.shlex(s + '"', posix=True)
-                lex.quotes = r'"'
-                lex.commenters = "#"
-                lex.whitespace_split = True
-                return list(lex), '"'
-        except ValueError:
-            return []
-
-    def SplitCmdlines(self, s):
-        """
-        Split line into multiple commands separated by ';'.
-        """
-        cmds = re.findall(r'(?:[^;"]|"(?:|[^"])*(?:"|$))+', s)
-        last_suffix = None
-        segs = []
-        for cmd in cmds:
-            seg, last_suffix = self.SplitCmdline(cmd)
-            segs.append(seg)
-        return segs, last_suffix
-
     def SetDefaultLevel(self, level):
         self.default_level = level
 
@@ -280,7 +241,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
     def ExecCommand(self, cmdline):
         viewport_locked = False
         try:
-            fragments, last_suffix = self.SplitCmdlines(cmdline)
+            fragments, last_suffix = hdtv.util.SplitCmdlines(cmdline)
             if len(fragments) > 1:
                 viewport_locked = True
                 __main__.spectra.viewport.LockUpdate()
@@ -367,7 +328,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         """
         word_before_cursor = document.get_word_before_cursor()
         text_before_cursor = document.text_before_cursor
-        cmds, last_suffix = self.SplitCmdlines(text_before_cursor)
+        cmds, last_suffix = hdtv.util.SplitCmdlines(text_before_cursor)
 
         try:
             if not word_before_cursor:
@@ -442,6 +403,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             options = self.GetFileCompleteOptions(
                 filepath or ".", word_before_cursor, dirs_only
             )
+
             for option in sorted(options, key=hdtv.util.natural_sort_key):
                 yield Completion(
                     option,
