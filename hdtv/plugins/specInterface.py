@@ -34,6 +34,7 @@ import hdtv.ui
 from hdtv.spectrum import Spectrum
 from hdtv.histogram import FileHistogram
 from hdtv.specreader import SpecReaderError
+from hdtv.util import LockViewport
 
 
 class SpecInterface(object):
@@ -129,68 +130,62 @@ class SpecInterface(object):
         Returns:
             A list of the loaded spectra
         """
-        # Avoid multiple updates
-        if self.window:
-            self.window.viewport.LockUpdate()
-        # only one filename is given
-        if isinstance(patterns, str):
-            patterns = [patterns]
+        with LockViewport(self.window.viewport if self.window else None):
+            # only one filename is given
+            if isinstance(patterns, str):
+                patterns = [patterns]
 
-        if ID is not None and len(patterns) > 1:
-            if self.window:
-                self.window.viewport.UnlockUpdate()
-            raise hdtv.cmdline.HDTVCommandError(
-                "If you specify an ID, you can only give one pattern"
-            )
-
-        loaded = []
-        for p in patterns:
-            # put fmt if available
-            p = p.rsplit("'", 1)
-            if len(p) == 1 or not p[1]:
-                (fpat, fmt) = (p[0], None)
-            else:
-                (fpat, fmt) = p
-
-            files = glob.glob(os.path.expanduser(fpat))
-
-            if len(files) == 0:
-                hdtv.ui.warning("%s: no such file" % fpat)
-            elif ID is not None and len(files) > 1:
-                raise hdtv.cmdline.HDTVCommandAbort(
-                    "pattern %s is ambiguous and you specified an ID" % fpat
+            if ID is not None and len(patterns) > 1:
+                raise hdtv.cmdline.HDTVCommandError(
+                    "If you specify an ID, you can only give one pattern"
                 )
-                break
 
-            files.sort()
-
-            for fname in files:
-                try:
-                    # Create spectrum object
-                    spec = Spectrum(FileHistogram(fname, fmt))
-                except (OSError, SpecReaderError):
-                    hdtv.ui.warning("Could not load %s'%s" % (fname, fmt))
+            loaded = []
+            for p in patterns:
+                # put fmt if available
+                p = p.rsplit("'", 1)
+                if len(p) == 1 or not p[1]:
+                    (fpat, fmt) = (p[0], None)
                 else:
-                    sid = self.spectra.Insert(spec, ID)
-                    spec.color = hdtv.color.ColorForID(sid.major)
-                    if spec.name in list(self.spectra.caldict.keys()):
-                        spec.cal = self.spectra.caldict[spec.name]
-                    loaded.append(spec)
-                    if fmt is None:
-                        hdtv.ui.msg("Loaded %s into %s" % (fname, sid))
-                    else:
-                        hdtv.ui.msg("Loaded %s'%s into %s" % (fname, fmt, sid))
+                    (fpat, fmt) = p
 
-        if loaded:
-            # activate last loaded spectrum
-            self.spectra.ActivateObject(loaded[-1].ID)
-        # Expand window if it is the only spectrum
-        if len(self.spectra) == 1:
-            if self.window:
-                self.window.Expand()
-        if self.window:
-            self.window.viewport.UnlockUpdate()
-        return loaded
+                files = glob.glob(os.path.expanduser(fpat))
+
+                if len(files) == 0:
+                    hdtv.ui.warning("%s: no such file" % fpat)
+                elif ID is not None and len(files) > 1:
+                    raise hdtv.cmdline.HDTVCommandAbort(
+                        "pattern %s is ambiguous and you specified an ID" % fpat
+                    )
+                    break
+
+                files.sort()
+
+                for fname in files:
+                    try:
+                        # Create spectrum object
+                        spec = Spectrum(FileHistogram(fname, fmt))
+                    except (OSError, SpecReaderError):
+                        hdtv.ui.warning("Could not load %s'%s" % (fname, fmt))
+                    else:
+                        sid = self.spectra.Insert(spec, ID)
+                        spec.color = hdtv.color.ColorForID(sid.major)
+                        if spec.name in list(self.spectra.caldict.keys()):
+                            spec.cal = self.spectra.caldict[spec.name]
+                        loaded.append(spec)
+                        if fmt is None:
+                            hdtv.ui.msg("Loaded %s into %s" % (fname, sid))
+                        else:
+                            hdtv.ui.msg("Loaded %s'%s into %s" % (fname, fmt, sid))
+
+            if loaded:
+                # activate last loaded spectrum
+                self.spectra.ActivateObject(loaded[-1].ID)
+            # Expand window if it is the only spectrum
+            if len(self.spectra) == 1:
+                if self.window:
+                    self.window.Expand()
+            return loaded
 
     def ListSpectra(self, visible=False):
         """

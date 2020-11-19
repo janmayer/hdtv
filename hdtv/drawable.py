@@ -22,6 +22,7 @@
 import hdtv.cal
 import hdtv.color
 import hdtv.ui
+from hdtv.util import LockViewport
 
 
 class Drawable(object):
@@ -190,22 +191,19 @@ class DrawableManager(object):
         """
         if ID is not None and ID not in self.ids:
             raise KeyError
-        if self.viewport:
-            self.viewport.LockUpdate()
-        # change state of former active object
-        if self.activeID is not None:
-            self.GetActiveObject().active = False
-        # activate new object
-        self.activeID = ID
-        if self.activeID is not None:
-            # reset iterator
-            self._iteratorID = self.activeID
-            # change state of object
-            self.GetActiveObject().active = self.active
-            # call ShowObject, to make sure the new active object is visible
-            self.ShowObjects(ID, clear=False)
-        if self.viewport:
-            self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            # change state of former active object
+            if self.activeID is not None:
+                self.GetActiveObject().active = False
+            # activate new object
+            self.activeID = ID
+            if self.activeID is not None:
+                # reset iterator
+                self._iteratorID = self.activeID
+                # change state of object
+                self.GetActiveObject().active = self.active
+                # call ShowObject, to make sure the new active object is visible
+                self.ShowObjects(ID, clear=False)
 
     def GetActiveObject(self):
         """
@@ -294,11 +292,10 @@ class DrawableManager(object):
             # python objects can only be drawn on a single viewport
             raise RuntimeError("Object can only be drawn on a single viewport")
         self.viewport = viewport
-        self.viewport.LockUpdate()
-        for ID in self.dict.keys():
-            self.dict[ID].Draw(self.viewport)
-            self.visible.add(ID)
-        self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            for ID in self.dict.keys():
+                self.dict[ID].Draw(self.viewport)
+                self.visible.add(ID)
 
     # Refresh commands
     def Refresh(self):
@@ -323,20 +320,17 @@ class DrawableManager(object):
         """
         Refresh objects with ids
         """
-        if self.viewport:
-            self.viewport.LockUpdate()
-        try:
-            iter(ids)
-        except BaseException:
-            ids = [ids]
-        for ID in ids:
+        with LockViewport(self.viewport):
             try:
-                self.dict[ID].Refresh()
-            except KeyError:
-                hdtv.ui.warning("ID %d not found" % ID)
-        if self.viewport:
-            self.viewport.UnlockUpdate()
-        return ids
+                iter(ids)
+            except BaseException:
+                ids = [ids]
+            for ID in ids:
+                try:
+                    self.dict[ID].Refresh()
+                except KeyError:
+                    hdtv.ui.warning("ID %d not found" % ID)
+            return ids
 
     # Hide commands
     def Hide(self):
@@ -360,20 +354,19 @@ class DrawableManager(object):
         """
         if self.viewport is None:
             return
-        self.viewport.LockUpdate()
-        # check if just single id
-        try:
-            iter(ids)
-        except BaseException:
-            ids = [ids]
-        for ID in ids:
+        with LockViewport(self.viewport):
+            # check if just single id
             try:
-                self.dict[ID].Hide()
-                self.visible.discard(ID)
-            except KeyError:
-                hdtv.ui.warning("ID %d not found" % ID)
-        self.viewport.UnlockUpdate()
-        return ids
+                iter(ids)
+            except BaseException:
+                ids = [ids]
+            for ID in ids:
+                try:
+                    self.dict[ID].Hide()
+                    self.visible.discard(ID)
+                except KeyError:
+                    hdtv.ui.warning("ID %d not found" % ID)
+            return ids
 
     # Show commands:
     def Show(self):
@@ -400,26 +393,25 @@ class DrawableManager(object):
         """
         if self.viewport is None:
             return
-        self.viewport.LockUpdate()
-        # check if just single id
-        try:
-            iter(ids)
-        except BaseException:
-            ids = [ids]
-        if clear:
-            # hide all other objects except in ids
-            # do not use HideAll, because if the active objects is among
-            # the objects that should be shown, its state would be lost
-            others = set(self.dict.keys()) - set(ids)
-            self.HideObjects(others)
-        for ID in ids:
+        with LockViewport(self.viewport):
+            # check if just single id
             try:
-                self.dict[ID].Show()
-                self.visible.add(ID)
-            except KeyError:
-                hdtv.ui.warning("ID %s not found" % ID)
-        self.viewport.UnlockUpdate()
-        return ids
+                iter(ids)
+            except BaseException:
+                ids = [ids]
+            if clear:
+                # hide all other objects except in ids
+                # do not use HideAll, because if the active objects is among
+                # the objects that should be shown, its state would be lost
+                others = set(self.dict.keys()) - set(ids)
+                self.HideObjects(others)
+            for ID in ids:
+                try:
+                    self.dict[ID].Show()
+                    self.visible.add(ID)
+                except KeyError:
+                    hdtv.ui.warning("ID %s not found" % ID)
+            return ids
 
     # nextID/prevID/firstID/lastID getter
     @property

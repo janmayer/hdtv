@@ -20,6 +20,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 from hdtv.drawable import DrawableManager
+from hdtv.util import LockViewport
 
 
 class Spectrum(DrawableManager):
@@ -73,38 +74,34 @@ class Spectrum(DrawableManager):
 
     def Draw(self, viewport):
         self.viewport = viewport
-        self.viewport.LockUpdate()
-        DrawableManager.Draw(self, viewport)
-        if self.hist:
-            self.hist.Draw(viewport)
-        self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            DrawableManager.Draw(self, viewport)
+            if self.hist:
+                self.hist.Draw(viewport)
 
     def Show(self):
         if self.viewport is None:
             return
-        self.viewport.LockUpdate()
-        DrawableManager.Show(self)
-        if self.hist:
-            self.hist.Show()
-        self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            DrawableManager.Show(self)
+            if self.hist:
+                self.hist.Show()
 
     def Hide(self):
         if self.viewport is None:
             return
-        self.viewport.LockUpdate()
-        DrawableManager.Hide(self)
-        if self.hist:
-            self.hist.Hide()
-        self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            DrawableManager.Hide(self)
+            if self.hist:
+                self.hist.Hide()
 
     def Refresh(self):
         if self.viewport is None:
             return
-        self.viewport.LockUpdate()
-        DrawableManager.Refresh(self)
-        if self.hist:
-            self.hist.Refresh()
-        self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            DrawableManager.Refresh(self)
+            if self.hist:
+                self.hist.Refresh()
 
 
 class CutSpectrum(Spectrum):

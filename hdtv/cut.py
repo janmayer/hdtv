@@ -23,6 +23,7 @@ import hdtv.color
 
 from hdtv.weakref_proxy import weakref
 from hdtv.drawable import Drawable
+from hdtv.util import LockViewport
 
 
 class Cut(Drawable):
@@ -50,14 +51,11 @@ class Cut(Drawable):
     def _set_color(self, color):
         # we only need the passive color for fits
         self._passiveColor = hdtv.color.Highlight(color, active=False)
-        if self.viewport:
-            self.viewport.LockUpdate()
-        self.regionMarkers.color = color
-        self.bgMarkers.color = color
-        if hasattr(self, "spec") and self.spec is not None:
-            self.spec.color = color
-        if self.viewport:
-            self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            self.regionMarkers.color = color
+            self.bgMarkers.color = color
+            if hasattr(self, "spec") and self.spec is not None:
+                self.spec.color = color
 
     def _get_color(self):
         return self._passiveColor
@@ -111,18 +109,16 @@ class Cut(Drawable):
     def Hide(self):
         if not self.viewport:
             return
-        self.viewport.LockUpdate()
-        self.regionMarkers.Hide()
-        self.bgMarkers.Hide()
-        self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            self.regionMarkers.Hide()
+            self.bgMarkers.Hide()
 
     def Show(self):
         if not self.viewport:
             return
-        self.viewport.LockUpdate()
-        self.regionMarkers.Show()
-        self.bgMarkers.Show()
-        self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            self.regionMarkers.Show()
+            self.bgMarkers.Show()
 
     def Refresh(self):
         # FIXME

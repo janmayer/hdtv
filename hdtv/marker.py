@@ -26,7 +26,7 @@ import hdtv.cal
 import hdtv.color
 
 from hdtv.drawable import Drawable
-from hdtv.util import Position
+from hdtv.util import Position, LockViewport
 
 
 class Marker(Drawable):
@@ -282,12 +282,9 @@ class MarkerCollection(list):
         """
         Remove all markers from this collection
         """
-        if self.viewport is not None:
-            self.viewport.LockUpdate()
-        while self:
-            self.pop()
-        if self.viewport is not None:
-            self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            while self:
+                self.pop()
 
     def RemoveNearest(self, pos):
         """
