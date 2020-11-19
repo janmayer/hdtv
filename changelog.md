@@ -1,5 +1,9 @@
 # HDTV Changelog
 
+## 20.11
+- Fix broken root tab-completion
+- Triage issue when loading symmetric matrices
+
 ## 20.10
 - Add better fitting: Integration and Poisson statistics (@opapst)
 - Add object-oriented background models (@ufrimangayer)
