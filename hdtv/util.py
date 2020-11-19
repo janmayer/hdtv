@@ -927,3 +927,19 @@ def SplitCmdlines(s):
         seg, last_suffix = SplitCmdline(cmd)
         segs.append(seg)
     return segs, last_suffix
+
+
+class LockViewport:
+    def __init__(self, viewport):
+        """
+        Context manager to lock viewport
+        """
+        self.viewport = viewport
+
+    def __enter__(self):
+        if self.viewport:
+            self.viewport.LockUpdate()
+
+    def __exit__(self, *a):
+        if self.viewport:
+            self.viewport.UnlockUpdate()

@@ -34,6 +34,7 @@ import hdtv.rootext.fit
 from hdtv.drawable import Drawable
 from hdtv.specreader import SpecReader, SpecReaderError
 from hdtv.cal import CalibrationFitter
+from hdtv.util import LockViewport
 
 # Don't add created spectra to the ROOT directory
 ROOT.TH1.AddDirectory(ROOT.kFALSE)
@@ -327,25 +328,23 @@ class Histogram(Drawable):
             raise RuntimeError("Spectrum can only be drawn on a single viewport")
         self.viewport = viewport
         # Lock updates
-        self.viewport.LockUpdate()
-        # Show spectrum
-        if self.displayObj is None and self._hist is not None:
-            if self.active:
-                color = self._activeColor
-            else:
-                color = self._passiveColor
-            self.displayObj = ROOT.HDTV.Display.DisplaySpec(self._hist, color)
-            self.displayObj.SetNorm(self.norm)
-            self.displayObj.Draw(self.viewport)
-            # add calibration
-            if self.cal:
-                self.displayObj.SetCal(self.cal)
-            # and ID
-            if self.ID is not None:
-                ID = str(self.ID).strip(".")
-                self.displayObj.SetID(ID)
-        # finally unlock the viewport
-        self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            # Show spectrum
+            if self.displayObj is None and self._hist is not None:
+                if self.active:
+                    color = self._activeColor
+                else:
+                    color = self._passiveColor
+                self.displayObj = ROOT.HDTV.Display.DisplaySpec(self._hist, color)
+                self.displayObj.SetNorm(self.norm)
+                self.displayObj.Draw(self.viewport)
+                # add calibration
+                if self.cal:
+                    self.displayObj.SetCal(self.cal)
+                # and ID
+                if self.ID is not None:
+                    ID = str(self.ID).strip(".")
+                    self.displayObj.SetID(ID)
 
     def WriteSpectrum(self, fname, fmt):
         """

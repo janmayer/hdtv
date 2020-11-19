@@ -30,7 +30,7 @@ import hdtv.ui
 
 from hdtv.drawable import Drawable
 from hdtv.marker import MarkerCollection
-from hdtv.util import Pairs, ID, Table
+from hdtv.util import Pairs, ID, Table, LockViewport
 from hdtv.weakref_proxy import weakref
 
 
@@ -92,19 +92,16 @@ class Fit(Drawable):
     # cal property
     def _set_cal(self, cal):
         self._cal = hdtv.cal.MakeCalibration(cal)
-        if self.viewport:
-            self.viewport.LockUpdate()
-        self.peakMarkers.cal = self._cal
-        self.regionMarkers.cal = self._cal
-        self.bgMarkers.cal = self._cal
-        if self.dispPeakFunc:
-            self.dispPeakFunc.SetCal(self._cal)
-        if self.dispBgFunc:
-            self.dispBgFunc.SetCal(self._cal)
-        for peak in self.peaks:
-            peak.cal = self._cal
-        if self.viewport:
-            self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            self.peakMarkers.cal = self._cal
+            self.regionMarkers.cal = self._cal
+            self.bgMarkers.cal = self._cal
+            if self.dispPeakFunc:
+                self.dispPeakFunc.SetCal(self._cal)
+            if self.dispBgFunc:
+                self.dispBgFunc.SetCal(self._cal)
+            for peak in self.peaks:
+                peak.cal = self._cal
 
     def _get_cal(self):
         return self._cal
@@ -115,16 +112,13 @@ class Fit(Drawable):
     def _set_color(self, color):
         # we only need the passive color for fits
         self._passiveColor = hdtv.color.Highlight(color, active=False)
-        if self.viewport:
-            self.viewport.LockUpdate()
-        self.peakMarkers.color = color
-        self.regionMarkers.color = color
-        self.bgMarkers.color = color
-        for peak in self.peaks:
-            peak.color = color
-        self.Show()
-        if self.viewport:
-            self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            self.peakMarkers.color = color
+            self.regionMarkers.color = color
+            self.bgMarkers.color = color
+            for peak in self.peaks:
+                peak.color = color
+            self.Show()
 
     def _get_color(self):
         return self._passiveColor
@@ -133,17 +127,14 @@ class Fit(Drawable):
 
     # active property
     def _set_active(self, state):
-        if self.viewport:
-            self.viewport.LockUpdate()
-        self._active = state
-        self.peakMarkers.active = state
-        self.regionMarkers.active = state
-        self.bgMarkers.active = state
-        for peak in self.peaks:
-            peak.active = state
-        self.Show()
-        if self.viewport:
-            self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            self._active = state
+            self.peakMarkers.active = state
+            self.regionMarkers.active = state
+            self.bgMarkers.active = state
+            for peak in self.peaks:
+                peak.active = state
+            self.Show()
 
     def _get_active(self):
         return self._active
@@ -560,26 +551,22 @@ class Fit(Drawable):
             # python objects can only be drawn on a single viewport
             raise RuntimeError("Object can only be drawn on a single viewport")
         self.viewport = viewport
-        # Lock updates
-        if self.viewport:
-            self.viewport.LockUpdate()
-        # draw the markers (do this after the fit,
-        # because the fit updates the position of the peak markers)
-        self.peakMarkers.Draw(self.viewport)
-        self.regionMarkers.Draw(self.viewport)
-        self.bgMarkers.Draw(self.viewport)
-        # draw fit func, if available
-        if self.dispPeakFunc:
-            self.dispPeakFunc.Draw(self.viewport)
-        if self.dispBgFunc:
-            self.dispBgFunc.Draw(self.viewport)
-        # draw peaks
-        for peak in self.peaks:
-            peak.color = self.color
-            peak.Draw(self.viewport)
-        self.Show()
-        if self.viewport:
-            self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            # draw the markers (do this after the fit,
+            # because the fit updates the position of the peak markers)
+            self.peakMarkers.Draw(self.viewport)
+            self.regionMarkers.Draw(self.viewport)
+            self.bgMarkers.Draw(self.viewport)
+            # draw fit func, if available
+            if self.dispPeakFunc:
+                self.dispPeakFunc.Draw(self.viewport)
+            if self.dispBgFunc:
+                self.dispBgFunc.Draw(self.viewport)
+            # draw peaks
+            for peak in self.peaks:
+                peak.color = self.color
+                peak.Draw(self.viewport)
+            self.Show()
 
     def Refresh(self):
         """
@@ -596,22 +583,21 @@ class Fit(Drawable):
             self.FitBgFunc(self.spec)
         if not self.viewport:
             return
-        self.viewport.LockUpdate()
-        # draw fit func, if available
-        if self.dispPeakFunc:
-            self.dispPeakFunc.Draw(self.viewport)
-        if self.dispBgFunc:
-            self.dispBgFunc.Draw(self.viewport)
-        # draw peaks
-        for peak in self.peaks:
-            peak.Draw(self.viewport)
-        # draw the markers (do this after the fit,
-        # because the fit updates the position of the peak markers)
-        self.peakMarkers.Refresh()
-        self.regionMarkers.Refresh()
-        self.bgMarkers.Refresh()
-        self.Show()
-        self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            # draw fit func, if available
+            if self.dispPeakFunc:
+                self.dispPeakFunc.Draw(self.viewport)
+            if self.dispBgFunc:
+                self.dispBgFunc.Draw(self.viewport)
+            # draw peaks
+            for peak in self.peaks:
+                peak.Draw(self.viewport)
+            # draw the markers (do this after the fit,
+            # because the fit updates the position of the peak markers)
+            self.peakMarkers.Refresh()
+            self.regionMarkers.Refresh()
+            self.bgMarkers.Refresh()
+            self.Show()
 
     def Erase(self, bg_only=False):
         """
@@ -631,80 +617,77 @@ class Fit(Drawable):
     def ShowAsWorkFit(self):
         if not self.viewport:
             return
-        self.viewport.LockUpdate()
-        # all markers in active state and solid
-        for mc in [self.regionMarkers, self.peakMarkers, self.bgMarkers]:
-            mc.active = True
-            mc.dashed = False
-            mc.Show()
-        # coloring
-        if self.dispPeakFunc:
-            self.dispPeakFunc.SetColor(hdtv.color.region)
-            self.dispPeakFunc.Show()
-        if self.dispBgFunc:
-            self.dispBgFunc.SetColor(hdtv.color.bg)
-            self.dispBgFunc.Show()
-        # peak list
-        for peak in self.peaks:
-            peak.color = hdtv.color.peak
-            if self._showDecomp:
-                peak.Show()
-            else:
-                peak.Hide()
-        self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            # all markers in active state and solid
+            for mc in [self.regionMarkers, self.peakMarkers, self.bgMarkers]:
+                mc.active = True
+                mc.dashed = False
+                mc.Show()
+            # coloring
+            if self.dispPeakFunc:
+                self.dispPeakFunc.SetColor(hdtv.color.region)
+                self.dispPeakFunc.Show()
+            if self.dispBgFunc:
+                self.dispBgFunc.SetColor(hdtv.color.bg)
+                self.dispBgFunc.Show()
+            # peak list
+            for peak in self.peaks:
+                peak.color = hdtv.color.peak
+                if self._showDecomp:
+                    peak.Show()
+                else:
+                    peak.Hide()
 
     def ShowAsPending(self):
         if not self.viewport:
             return
-        self.viewport.LockUpdate()
-        # all markers in passive state and dashed
-        for mc in [self.regionMarkers, self.peakMarkers, self.bgMarkers]:
-            mc.active = False
-            mc.dashed = True
-            mc.Show()
-        # coloring
-        if self.dispPeakFunc:
-            self.dispPeakFunc.SetColor(self.color)
-            self.dispPeakFunc.Show()
-        if self.dispBgFunc:
-            self.dispBgFunc.SetColor(self.color)
-            self.dispBgFunc.Show()
-        # peak list
-        for peak in self.peaks:
-            peak.color = self.color
-            if self._showDecomp:
-                peak.Show()
-            else:
-                peak.Hide()
-        self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            # all markers in passive state and dashed
+            for mc in [self.regionMarkers, self.peakMarkers, self.bgMarkers]:
+                mc.active = False
+                mc.dashed = True
+                mc.Show()
+            # coloring
+            if self.dispPeakFunc:
+                self.dispPeakFunc.SetColor(self.color)
+                self.dispPeakFunc.Show()
+            if self.dispBgFunc:
+                self.dispBgFunc.SetColor(self.color)
+                self.dispBgFunc.Show()
+            # peak list
+            for peak in self.peaks:
+                peak.color = self.color
+                if self._showDecomp:
+                    peak.Show()
+                else:
+                    peak.Hide()
 
     def ShowAsPassive(self):
         if not self.viewport:
             return
-        self.viewport.LockUpdate()
-        # marker in passive State and not dashed
-        for mc in [self.regionMarkers, self.peakMarkers, self.bgMarkers]:
-            mc.active = False
-            mc.dashed = False
-        # only show peakMarkers
-        self.regionMarkers.Hide()
-        self.peakMarkers.Show()
-        self.bgMarkers.Hide()
-        # coloring
-        if self.dispPeakFunc:
-            self.dispPeakFunc.SetColor(self.color)
-            self.dispPeakFunc.Show()
-        if self.dispBgFunc:
-            self.dispBgFunc.SetColor(self.color)
-            self.dispBgFunc.Show()
-        # peak list
-        for peak in self.peaks:
-            peak.color = self.color
-            if self._showDecomp:
-                peak.Show()
-            else:
-                peak.Hide()
-        self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            # marker in passive State and not dashed
+            for mc in [self.regionMarkers, self.peakMarkers, self.bgMarkers]:
+                mc.active = False
+                mc.dashed = False
+            # only show peakMarkers
+            self.regionMarkers.Hide()
+            self.peakMarkers.Show()
+            self.bgMarkers.Hide()
+            # coloring
+            if self.dispPeakFunc:
+                self.dispPeakFunc.SetColor(self.color)
+                self.dispPeakFunc.Show()
+            if self.dispBgFunc:
+                self.dispBgFunc.SetColor(self.color)
+                self.dispBgFunc.Show()
+            # peak list
+            for peak in self.peaks:
+                peak.color = self.color
+                if self._showDecomp:
+                    peak.Show()
+                else:
+                    peak.Hide()
 
     def Show(self):
         if not self.viewport:
@@ -720,17 +703,16 @@ class Fit(Drawable):
     def Hide(self):
         if not self.viewport:
             return
-        self.viewport.LockUpdate()
-        self.peakMarkers.Hide()
-        self.regionMarkers.Hide()
-        self.bgMarkers.Hide()
-        if self.dispPeakFunc:
-            self.dispPeakFunc.Hide()
-        if self.dispBgFunc:
-            self.dispBgFunc.Hide()
-        for peak in self.peaks:
-            peak.Hide()
-        self.viewport.UnlockUpdate()
+        with LockViewport(self.viewport):
+            self.peakMarkers.Hide()
+            self.regionMarkers.Hide()
+            self.bgMarkers.Hide()
+            if self.dispPeakFunc:
+                self.dispPeakFunc.Hide()
+            if self.dispBgFunc:
+                self.dispBgFunc.Hide()
+            for peak in self.peaks:
+                peak.Hide()
 
     def __copy__(self):
         """

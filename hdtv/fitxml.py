@@ -23,7 +23,7 @@ import xml.etree.ElementTree as ET
 from uncertainties import ufloat
 
 import hdtv.ui
-from hdtv.util import Position
+from hdtv.util import Position, LockViewport
 from hdtv.fitter import Fitter
 from hdtv.fit import Fit
 from hdtv.cmdline import HDTVCommandError
@@ -310,92 +310,96 @@ class FitXml(object):
         Reads fitlist from xml files
         """
 
-        if self.spectra.viewport:
-            self.spectra.viewport.LockUpdate()
-        if sid is None:
-            sid = self.spectra.activeID
-        if sid not in self.spectra.ids:
-            raise HDTVCommandError("No spectrum with id %s loaded." % sid)
-        count = 0
-        try:
-            fname = "'{}'".format(fname or file_object.name)
-        except AttributeError:
-            fname = "fitlist"
-        try:
-            tree = ET.parse(file_object)
-            root = tree.getroot()
-            if not root.tag == "hdtv" or root.get("version") is None:
-                e = "this is not a valid hdtv file"
-                raise SyntaxError(e)
-            # current version
-            if root.get("version") == self.version:
-                count, fits = self.RestoreFromXml(
-                    root, sid, calibrate=calibrate, refit=refit, interactive=interactive
-                )
+        with LockViewport(self.spectra.viewport):
+            if sid is None:
+                sid = self.spectra.activeID
+            if sid not in self.spectra.ids:
+                raise HDTVCommandError("No spectrum with id %s loaded." % sid)
+            count = 0
+            try:
+                fname = "'{}'".format(fname or file_object.name)
+            except AttributeError:
+                fname = "fitlist"
+            try:
+                tree = ET.parse(file_object)
+                root = tree.getroot()
+                if not root.tag == "hdtv" or root.get("version") is None:
+                    e = "this is not a valid hdtv file"
+                    raise SyntaxError(e)
+                # current version
+                if root.get("version") == self.version:
+                    count, fits = self.RestoreFromXml(
+                        root,
+                        sid,
+                        calibrate=calibrate,
+                        refit=refit,
+                        interactive=interactive,
+                    )
+                else:
+                    # old versions
+                    oldversion = root.get("version")
+                    hdtv.ui.warning(
+                        "The XML version of this file (%s) is outdated." % oldversion
+                    )
+                    if oldversion == "1.4":
+                        hdtv.ui.msg(
+                            "But this version should be fully compatible with the new version."
+                        )
+                        count, fits = self.RestoreFromXml_v1_4(
+                            root, sid, calibrate=calibrate, refit=refit
+                        )
+                    if oldversion == "1.3":
+                        hdtv.ui.msg(
+                            "But this version should be fully compatible with the new version."
+                        )
+                        count, fits = self.RestoreFromXml_v1_3(
+                            root, sid, calibrate=calibrate, refit=refit
+                        )
+                    if oldversion == "1.2":
+                        hdtv.ui.msg(
+                            "But this version should be fully compatible with the new version."
+                        )
+                        count, fits = self.RestoreFromXml_v1_2(
+                            root, sid, calibrate=calibrate, refit=refit
+                        )
+                    if oldversion == "1.1":
+                        hdtv.ui.msg(
+                            "But this version should be fully compatible with the new version."
+                        )
+                        count, fits = self.RestoreFromXml_v1_1(
+                            root, sid, calibrate=calibrate, refit=refit
+                        )
+                    if oldversion == "1.0":
+                        hdtv.ui.msg(
+                            "Restoring only fits belonging to spectrum %s" % sid
+                        )
+                        hdtv.ui.msg(
+                            "There may be fits belonging to other spectra in this file."
+                        )
+                        if interactive:
+                            input("Please press enter to continue...\n")
+                        count, fits = self.RestoreFromXml_v1_0(
+                            root, [sid], calibrate=False, refit=refit
+                        )
+                    if oldversion.startswith("0"):
+                        hdtv.ui.msg(
+                            "Only the fit markers have been saved in this file."
+                        )
+                        hdtv.ui.msg("All the fits therefore have to be repeated.")
+                        hdtv.ui.msg("This will take some time...")
+                        if interactive:
+                            input("Please press enter to continue...\n")
+                        count, fits = self.RestoreFromXml_v0(root, True)
+            except SyntaxError as e:
+                raise HDTVCommandError(f"Error reading fits from {fname}.")
             else:
-                # old versions
-                oldversion = root.get("version")
-                hdtv.ui.warning(
-                    "The XML version of this file (%s) is outdated." % oldversion
-                )
-                if oldversion == "1.4":
-                    hdtv.ui.msg(
-                        "But this version should be fully compatible with the new version."
-                    )
-                    count, fits = self.RestoreFromXml_v1_4(
-                        root, sid, calibrate=calibrate, refit=refit
-                    )
-                if oldversion == "1.3":
-                    hdtv.ui.msg(
-                        "But this version should be fully compatible with the new version."
-                    )
-                    count, fits = self.RestoreFromXml_v1_3(
-                        root, sid, calibrate=calibrate, refit=refit
-                    )
-                if oldversion == "1.2":
-                    hdtv.ui.msg(
-                        "But this version should be fully compatible with the new version."
-                    )
-                    count, fits = self.RestoreFromXml_v1_2(
-                        root, sid, calibrate=calibrate, refit=refit
-                    )
-                if oldversion == "1.1":
-                    hdtv.ui.msg(
-                        "But this version should be fully compatible with the new version."
-                    )
-                    count, fits = self.RestoreFromXml_v1_1(
-                        root, sid, calibrate=calibrate, refit=refit
-                    )
-                if oldversion == "1.0":
-                    hdtv.ui.msg("Restoring only fits belonging to spectrum %s" % sid)
-                    hdtv.ui.msg(
-                        "There may be fits belonging to other spectra in this file."
-                    )
-                    if interactive:
-                        input("Please press enter to continue...\n")
-                    count, fits = self.RestoreFromXml_v1_0(
-                        root, [sid], calibrate=False, refit=refit
-                    )
-                if oldversion.startswith("0"):
-                    hdtv.ui.msg("Only the fit markers have been saved in this file.")
-                    hdtv.ui.msg("All the fits therefore have to be repeated.")
-                    hdtv.ui.msg("This will take some time...")
-                    if interactive:
-                        input("Please press enter to continue...\n")
-                    count, fits = self.RestoreFromXml_v0(root, True)
-        except SyntaxError as e:
-            raise HDTVCommandError(f"Error reading fits from {fname}.")
-        else:
-            msg = "%s loaded: " % (fname)
-            if count == 1:
-                msg += "1 fit restored."
-            else:
-                msg += "%d fits restored." % count
-            hdtv.ui.msg(msg)
-            return count, fits
-        finally:
-            if self.spectra.viewport:
-                self.spectra.viewport.UnlockUpdate()
+                msg = "%s loaded: " % (fname)
+                if count == 1:
+                    msg += "1 fit restored."
+                else:
+                    msg += "%d fits restored." % count
+                hdtv.ui.msg(msg)
+                return count, fits
 
     #### version 1* ###############################################################
     def RestoreFromXml_v1_5(
