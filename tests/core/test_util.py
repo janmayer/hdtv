@@ -23,6 +23,7 @@ import pytest
 
 import hdtv.util
 
+
 @pytest.mark.parametrize(
     "cmdline, segs, last_suffix",
     [
@@ -35,12 +36,12 @@ import hdtv.util
         ("a ; b", [["a"], ["b"]], ""),
         (" a ; b", [["a"], ["b"]], ""),
         ("a;b c", [["a"], ["b", "c"]], ""),
-        ("a;b \"c d\"", [["a"], ["b", "c d"]], ""),
-        ("a \"b", [["a", "b"]], "\""),
-        ("a \";", [["a", ";"]], "\""),
+        ('a;b "c d"', [["a"], ["b", "c d"]], ""),
+        ('a "b', [["a", "b"]], '"'),
+        ('a ";', [["a", ";"]], '"'),
         ("a#b", [["a"]], ""),
-        ("a \"\" a", [["a", "", "a"]], "")
-    ]
+        ('a "" a', [["a", "", "a"]], ""),
+    ],
 )
 def test_SplitCmdlines(cmdline, segs, last_suffix):
     res_segs, res_last_suffix = hdtv.util.SplitCmdlines(cmdline)
