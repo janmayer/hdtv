@@ -25,7 +25,6 @@ Preliminary ROOT file interface for hdtv
 
 import os
 import fnmatch
-import prompt_toolkit
 
 import ROOT
 import hdtv.rootext.display

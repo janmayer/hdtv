@@ -921,7 +921,7 @@ def SplitCmdlines(s):
     Split line into multiple commands separated by ';'.
     """
     cmds = re.findall(r'(?:[^;"]|"(?:|[^"])*(?:"|$))+', s)
-    last_suffix = None
+    last_suffix = ""
     segs = []
     for cmd in cmds:
         seg, last_suffix = SplitCmdline(cmd)

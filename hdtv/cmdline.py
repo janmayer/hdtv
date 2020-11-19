@@ -241,7 +241,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
     def ExecCommand(self, cmdline):
         viewport_locked = False
         try:
-            fragments, last_suffix = hdtv.util.SplitCmdlines(cmdline)
+            fragments, _ = hdtv.util.SplitCmdlines(cmdline)
             if len(fragments) > 1:
                 viewport_locked = True
                 __main__.spectra.viewport.LockUpdate()
@@ -328,7 +328,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         """
         word_before_cursor = document.get_word_before_cursor()
         text_before_cursor = document.text_before_cursor
-        cmds, last_suffix = hdtv.util.SplitCmdlines(text_before_cursor)
+        cmds, _ = hdtv.util.SplitCmdlines(text_before_cursor)
 
         try:
             if not word_before_cursor:
