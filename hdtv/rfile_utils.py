@@ -37,13 +37,16 @@ ROOT.TH1.AddDirectory(False)
 
 class Quiet:
     def __init__(self, level=ROOT.kInfo + 1):
+        """
+        Context manager to suppress ROOT output
+        """
         self.level = level
 
     def __enter__(self):
         self.oldlevel = ROOT.gErrorIgnoreLevel
         ROOT.gErrorIgnoreLevel = self.level
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, *a):
         ROOT.gErrorIgnoreLevel = self.oldlevel
 
 
@@ -94,7 +97,7 @@ def CombinedSuggestions(text, dirs_only=False):
                     options = RootSuggestions(pattern, dirs_only)
                     rf.Close()
                 return options
-        except:
+        except Exception:
             return []
         finally:
             # Restore the saved ROOT directory
@@ -162,7 +165,7 @@ def FileSuggestions(text):
                 if os.path.isdir(full_path) or IsROOTFile(full_path):
                     options.append(name + "/")
         return sorted(options)
-    except:
+    except Exception:
         return []
 
 
@@ -366,9 +369,8 @@ def IsROOTFile(fname):
     try:
         if not os.path.isfile(fname):
             return False
-        f = open(fname, "rb")
-        ident = f.read(4).decode()
-        f.close()
-        return ident == "root"
-    except:
+        with open(fname, "rb") as f:
+            ident = f.read(4).decode()
+            return ident == "root"
+    except Exception:
         return False
