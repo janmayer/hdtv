@@ -56,7 +56,9 @@ root_generate_dictionary(
   G__${PROJECT_NAME}
   ${HEADERS}
   LINKDEF
-  LinkDef.h)
+  LinkDef.h
+  OPTIONS
+  -I${CMAKE_CURRENT_SOURCE_DIR}/../calibration)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} G__${PROJECT_NAME}.cxx)
 add_library(hdtv::${PROJECT_NAME} ALIAS ${PROJECT_NAME})

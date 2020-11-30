@@ -24,6 +24,7 @@
 #define __Integral_h__
 
 #include <TH1.h>
+#include <stdexcept>
 
 #include "Background.hh"
 
