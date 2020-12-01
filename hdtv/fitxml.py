@@ -441,7 +441,7 @@ class FitXml(object):
                 if spec_cal and spec_name != spec_name_last and spec_name:
                     if spec_name != spec.name:
                         hdtv.ui.warning(
-                            "Applying calibration for '{spec_name}' to '{spec.name}'."
+                            f"Applying calibration for '{spec_name}' to '{spec.name}'."
                         )
                     spec_name_last = spec_name
                     cal = [float(c) for c in spec_cal.split()]
