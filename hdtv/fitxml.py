@@ -93,10 +93,8 @@ class FitXml(object):
         spec = fit.spec
         specElement = ET.SubElement(fitElement, "spectrum")
         specElement.set("name", str(spec.name))
-        polynom = str()
-        for p in spec.cal.GetCoeffs():
-            polynom += " %f " % p
-        specElement.set("calibration", polynom.strip())
+        polynom = " ".join([f"{c:e}" for c in spec.cal.GetCoeffs()])
+        specElement.set("calibration", polynom)
         # <bgMarker>
         for marker in fit.bgMarkers:
             markerElement = ET.SubElement(fitElement, "bgMarker")
