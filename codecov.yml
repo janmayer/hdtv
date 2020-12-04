@@ -1,0 +1,12 @@
+coverage:
+  status:
+    project:
+      default:
+        threshold: 1.0%
+ignore:
+  - "hdtv/_version.py"
+  - "tests/**/*"
+  - "tests/*"
+  - "benchmarks/**/*"
+  - "setup.py"
+  - "versioneer.py"
