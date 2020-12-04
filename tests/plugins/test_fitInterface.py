@@ -22,6 +22,7 @@
 import re
 import os
 import sys
+import copy
 
 import pytest
 
@@ -131,12 +132,42 @@ def test_cmd_fit_parameter(peak, bg, integrate, likelihood):
     assert ".0 |" in f
     assert ".1 |" in f
     assert "2 peaks in WorkFit" in f
+
+    f, ferr = hdtvcmd("fit parameter status")
+    assert re.search(f"Peak model.*{peak}", f, re.M)
+    assert re.search(f"Background model.*{bg}", f, re.M)
+    assert f"likelihood: {likelihood}" in f
+    assert f"integrate: {integrate}" in f
+    assert ferr == ""
+
     f, ferr = hdtvcmd("fit store")
     assert f == "Storing workFit with ID 0"
     assert ferr == ""
+
     f, ferr = hdtvcmd("fit clear", "fit list")
     assert ferr == ""
     assert "Fits in Spectrum 0" in f
+
+    f, ferr = hdtvcmd("fit parameter reset")
+    assert ferr == ""
+
+
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+def test_cmd_fit_copy():
+    spec_interface.LoadSpectra(testspectrum)
+    f, ferr = setup_fit()
+    hdtvcmd("fit marker background set 415", "fit marker background set 450")
+    f, ferr = hdtvcmd(
+        "fit function peak activate theuerkauf",
+        "fit function background activate polynomial",
+        "fit parameter integrate True",
+        "fit parameter likelihood poisson",
+        "fit execute",
+    )
+    workFit = spec_interface.spectra.workFit
+    newFit = copy.copy(workFit)
+    assert workFit == newFit
+    assert workFit.fitter == newFit.fitter
 
 
 def test_interpolation_incomplete():

@@ -174,9 +174,20 @@ class Fitter(object):
         """
         Create a copy of this fitter
         This also copies the status of the corresponding peakModel,
-        and hence the status of the fit parameters.
+        and hence the status of the fit parameters and options.
         """
         new = Fitter(self.peakModel.name, self.backgroundModel.name)
         new.peakModel.fParStatus = self.peakModel.fParStatus.copy()
+        new.peakModel.fOptStatus = self.peakModel.fOptStatus.copy()
         new.backgroundModel.fParStatus = self.backgroundModel.fParStatus.copy()
         return new
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, Fitter)
+            and self.peakModel.name == other.peakModel.name
+            and self.backgroundModel.name == other.backgroundModel.name
+            and self.peakModel.fParStatus == other.peakModel.fParStatus
+            and self.peakModel.fOptStatus == other.peakModel.fOptStatus
+            and self.backgroundModel.fParStatus == other.backgroundModel.fParStatus
+        )

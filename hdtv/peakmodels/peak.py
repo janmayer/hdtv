@@ -76,6 +76,9 @@ class PeakModel(object):
                 else:
                     statstr += "%s: fixed at %.3f\n" % (name, status)
 
+        for name, status in self.fOptStatus.items():
+            statstr += f"{name}: {status}\n"
+
         return statstr
 
     def CheckParStatusLen(self, minlen):

@@ -277,6 +277,8 @@ class PeakModelTheuerkauf(PeakModel):
         self.fParStatus["tr"] = "none"
         self.fParStatus["sh"] = "none"
         self.fParStatus["sw"] = "hold"
+        self.fOptStatus["integrate"] = False
+        self.fOptStatus["likelihood"] = "normal"
 
     def Uncal(self, parname, value, pos_uncal, cal):
         """

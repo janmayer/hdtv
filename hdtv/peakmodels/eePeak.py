@@ -245,6 +245,8 @@ class PeakModelEE(PeakModel):
         self.fParStatus["eta"] = "equal"
         self.fParStatus["gamma"] = "equal"
         self.fParStatus["vol"] = "calculated"
+        self.fOptStatus["integrate"] = False
+        self.fOptStatus["likelihood"] = "normal"
 
     def Uncal(self, parname, value, pos_uncal, cal):
         """
