@@ -231,5 +231,9 @@ class App:
             hdtv.ui.msg("Error reading %s: %s" % (args.batchfile, msg))
 
 
-if __name__ == "__main__":
+def run():
     App()
+
+
+if __name__ == "__main__":
+    run()

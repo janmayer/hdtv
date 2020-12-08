@@ -68,7 +68,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "hdtv=hdtv.app:App",
+            "hdtv=hdtv.app:run",
         ]
     },
     packages=[
