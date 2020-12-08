@@ -47,6 +47,11 @@ sysdir = os.path.join(
     os.path.dirname(__file__), "root-" + str(ROOT.gROOT.GetVersionInt())
 )
 
+# Fix performance degradation in ROOT 6.19.02 and higher, caused by
+# https://github.com/root-project/root/commit/75161283352217c156c435ba8bac870cd5a125fb
+ROOT.gEnv.IgnoreDuplicates(True)
+ROOT.gEnv.SetValue("X11.UseXft", 0)
+
 
 def FindLibrary(name, libname):
     """
