@@ -624,7 +624,7 @@ class CommandLine(object):
             hdtv.ui.error("Unhandled exception:")
             traceback.print_exc()
 
-    def MainLoop(self):
+    def CreateSession(self):
         # self.fPyMode = False
         # self.fPyMore = False
 
@@ -668,6 +668,18 @@ class CommandLine(object):
             key_bindings=bindings,
             complete_style=CompleteStyle.MULTI_COLUMN,
         )
+
+    def MainLoop(self):
+        try:
+            self.CreateSession()
+        except UnicodeDecodeError:
+            hdtv.ui.debug("Rewriting malformed history file")
+            with open(self.history.filename, "r+", errors="replace") as history:
+                history_fixed = history.read()
+                history.seek(0)
+                history.write(history_fixed)
+            self.SetHistory(self.history.filename)
+            self.CreateSession()
 
         def set_vi_mode(vi_mode):
             self.session.editing_mode = (
