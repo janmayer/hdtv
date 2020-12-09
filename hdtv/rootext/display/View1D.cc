@@ -588,6 +588,20 @@ Bool_t View1D::HandleButton(Event_t *ev) {
         XZoomAroundCursor(M_SQRT1_2);
       }
       break;
+    case 6:
+      if (ev->fState & kKeyShiftMask) {
+        ShiftYOffset(-0.1, true);
+      } else {
+        ShiftXOffset(-0.1, true);
+      }
+      break;
+    case 7:
+      if (ev->fState & kKeyShiftMask) {
+        ShiftYOffset(0.1, true);
+      } else {
+        ShiftXOffset(0.1, true);
+      }
+      break;
     }
   } else if (ev->fType == kButtonRelease) {
     if (ev->fCode == 1) {
