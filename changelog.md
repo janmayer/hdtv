@@ -1,5 +1,14 @@
 # HDTV Changelog
 
+## 20.12
+- Fix performance degradation with ROOT 6.20. and higher (fixes #6) (@jmayer)
+- Fix compatibility with unreleased ROOT Versions 6.19.x (@jmayer)
+- Note: HDTV will never be compatible with 6.22.00 and 6.22.02
+- Fix crash on malformed history files (fixes #19) (@opapst)
+- Fix compilation without helper functions (@jmayer)
+- Other small fixes and refactoring (@opapst)
+- Add horizontal mouse wheel for scrolling (@opapst)
+
 ## 20.11
 - Fix broken root tab-completion
 - Triage issue when loading symmetric matrices
