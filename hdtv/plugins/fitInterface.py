@@ -1409,11 +1409,7 @@ class TvFitInterface(object):
                 except KeyError:
                     # param is not a parameter of the peak model of active
                     # fitter
-                    msg = "Invalid parameter %s for active peak model %s" % (
-                        param,
-                        activePM.name,
-                    )
-                    raise hdtv.cmdline.HDTVCommandAbort(msg)
+                    return []
                 return hdtv.util.GetCompleteOptions(text, states)
 
     def ResetFit(self, args):
