@@ -122,8 +122,8 @@ def MatchPeaksAndEnergies(peaks, energies, sigma):
             accordance.append(pair[i])
 
     if len(accordance) < 4:
-        hdtv.ui.msg(accordance)
-        hdtv.ui.warning("Only a few (peak,energy) pairs are found.")
+        # hdtv.ui.msg(accordance)
+        hdtv.ui.warning("Only few (peak,energy) pairs found. Try with a larger --sigma")
 
     return accordance
 
