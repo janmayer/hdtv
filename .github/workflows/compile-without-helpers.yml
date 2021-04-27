@@ -19,7 +19,7 @@ jobs:
 
     - name: Install dependencies
       shell: bash -l {0}
-      run: conda install root='6.18.04'
+      run: conda install root='6.24.0'
 
     - name: Build
       shell: bash -l {0}

@@ -476,7 +476,7 @@ class CutHistogram(Histogram):
             g = self.gates[i]
             s += "%d - %d " % (g.p1.pos_cal, g.p2.pos_cal)
             if not i == len(self.gates):
-                "and "
+                "and"
         return s
 
 

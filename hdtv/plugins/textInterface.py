@@ -112,7 +112,7 @@ class TextInterface(hdtv.ui.SimpleUI):
         @bindings.add("c-c")
         @bindings.add("q")
         def _(event):
-            " Quit. "
+            "Quit."
             event.app.exit()
 
         application = Application(

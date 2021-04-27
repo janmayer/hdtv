@@ -1,5 +1,10 @@
 # HDTV Changelog
 
+## 21.04
+- Fix error with errormessage in cal pos nuc (@jmayer)
+- Test more ROOT versions
+- Test Python 3.9
+
 ## 20.12
 - Fix performance degradation with ROOT 6.20. and higher (fixes #6) (@jmayer)
 - Fix compatibility with unreleased ROOT Versions 6.19.x (@jmayer)
