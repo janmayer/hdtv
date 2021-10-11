@@ -49,6 +49,18 @@ To build and run HDTV, the following dependencies are required:
 * cmake, gcc, g++ (or similar, in a somewhat modern version)
 * libx11-dev `<tool> install libx11-6 libx11-dev`
 
+### Usage with docker
+
+just execute
+```sh
+docker build --tag hdtv . && docker run -ti -p 8080:8080 hdtv
+```
+then no further installation is required and you will be able to use HDTV with a Jupyter notebook server.
+
+A usage without notebook server - with X forwarding - is also possible. For that case execute
+```
+docker build --tag hdtv . && docker run -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix --rm -it --user $(id -u) hdtv hdtv
+```
 
 ## Documentation
 For more information, including an overview of the available key
