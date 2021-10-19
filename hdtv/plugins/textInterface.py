@@ -144,12 +144,16 @@ class TextInterface(hdtv.ui.SimpleUI):
             super().msg(html=html, end=end)
 
     def _updateTerminalSize(self):
-        h, w, hp, wp = struct.unpack(
-            "HHHH", fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack("HHHH", 0, 0, 0, 0))
-        )
-
-        self.canvasheight = h
-        self.canvaswidth = w
+        try:
+            h, w, hp, wp = struct.unpack(
+                "HHHH",
+                fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack("HHHH", 0, 0, 0, 0)),
+            )
+            self.canvasheight = h
+            self.canvaswidth = w
+        except:
+            self.canvasheight = 30
+            self.canvaswidth = 1050
 
 
 # initialization

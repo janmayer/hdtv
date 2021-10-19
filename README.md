@@ -51,16 +51,29 @@ To build and run HDTV, the following dependencies are required:
 
 ### Usage with docker
 
-just execute
-```sh
-docker build --tag hdtv . && docker run -ti -p 8080:8080 hdtv
-```
-then no further installation is required and you will be able to use HDTV with a Jupyter notebook server.
+With docker installed, build the image with:
 
-A usage without notebook server - with X forwarding - is also possible. For that case execute
+```sh
+git clone https://github.com/janmayer/hdtv.git
+cd hdtv
+docker build --tag hdtv .
 ```
-docker build --tag hdtv . && docker run -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix --rm -it --user $(id -u) hdtv hdtv
+
+On Linux and MacOs, no further installation is required and in the directory with your project you will be able to use HDTV with:
+
+```sh
+docker run -e DISPLAY=${DISPLAY} -v $(pwd):/work -it hdtv
 ```
+
+On Windows, you will need to have an X-Server installed, for example with MobaXTerm, and be a bit more specific:
+
+```sh
+docker run -e DISPLAY=<your ip>:0.0 -v <full path to your files>:/work -it hdtv
+```
+
+e.g. `docker run -e DISPLAY=192.168.178.21:0.0 -v D:\Project\Spectra:/work -it hdtv`.
+
+See also [https://hub.docker.com/r/rootproject/root](https://hub.docker.com/r/rootproject/root).
 
 ## Documentation
 For more information, including an overview of the available key
