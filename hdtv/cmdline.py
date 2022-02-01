@@ -46,6 +46,9 @@ from prompt_toolkit.history import FileHistory
 from prompt_toolkit.enums import EditingMode
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.formatted_text import HTML
+from prompt_toolkit.key_binding.key_processor import KeyPressEvent
+from prompt_toolkit.filters import Condition, emacs_mode
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 import hdtv.util
 import hdtv.options
@@ -660,11 +663,36 @@ class CommandLine(object):
             event.current_buffer.history_forward(count=event.arg)
             event.current_buffer.enable_history_search = lambda: False
 
+        # Code based on prompt_toolkit.key_binding.bindings.auto_suggest.py
+        @Condition
+        def suggestion_available() -> bool:
+            return (
+                self.session.app.current_buffer.suggestion is not None
+                and len(self.session.app.current_buffer.suggestion.text) > 0
+                and self.session.app.current_buffer.document.is_cursor_at_the_end
+            )
+
+        # ctrl+right key-binding for partially accepting an auto_suggest.
+        # Code based on prompt_toolkit.key_binding.bindings.auto_suggest.py
+        @bindings.add("c-right", filter=suggestion_available & emacs_mode)
+        def _fill(event: KeyPressEvent) -> None:
+            """
+            Fill partial suggestion.
+            """
+            b = event.current_buffer
+            suggestion = b.suggestion
+
+            if suggestion:
+                t = re.split(r"(\S+\s+)", suggestion.text)
+                b.insert_text(next(x for x in t if x))
+
         self.session = PromptSession(
             message,
             history=self.history,
             completer=completer,
             complete_while_typing=False,
+            auto_suggest=AutoSuggestFromHistory(),
+            enable_history_search=True,
             key_bindings=bindings,
             complete_style=CompleteStyle.MULTI_COLUMN,
         )
