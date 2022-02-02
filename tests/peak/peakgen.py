@@ -57,9 +57,9 @@ class TheuerkaufPeak:
         # Contribution from left tail and left half of truncated Gaussian
         if self.tl:
             norm = (
-                self.sigma ** 2
+                self.sigma**2
                 / self.tl
-                * math.exp(-self.tl ** 2 / (2 * self.sigma ** 2))
+                * math.exp(-self.tl**2 / (2 * self.sigma**2))
             )
             norm += (
                 math.sqrt(math.pi / 2)
@@ -72,9 +72,9 @@ class TheuerkaufPeak:
         # Contribution from right tail and right half of truncated Gaussian
         if self.tr:
             norm += (
-                self.sigma ** 2
+                self.sigma**2
                 / self.tr
-                * math.exp(-self.tr ** 2 / (2 * self.sigma ** 2))
+                * math.exp(-self.tr**2 / (2 * self.sigma**2))
             )
             norm += (
                 math.sqrt(math.pi / 2)
@@ -98,11 +98,11 @@ class TheuerkaufPeak:
     def value(self, x):
         dx = x - self.pos
         if self.tl is not None and dx < -self.tl:
-            _y = self.tl / (self.sigma ** 2) * (dx + self.tl / 2)
+            _y = self.tl / (self.sigma**2) * (dx + self.tl / 2)
         elif self.tr is not None and dx > self.tr:
-            _y = -self.tr / (self.sigma ** 2) * (dx - self.tr / 2)
+            _y = -self.tr / (self.sigma**2) * (dx - self.tr / 2)
         else:
-            _y = -(dx ** 2) / (2 * self.sigma ** 2)
+            _y = -(dx**2) / (2 * self.sigma**2)
 
         return self.amp * (math.exp(_y) + self.step(x))
 
@@ -121,15 +121,15 @@ class EEPeak:
     def value(self, x):
         dx = x - self.pos
         if dx <= 0:
-            _y = math.exp(-math.log(2) * dx ** 2 / self.sigma1 ** 2)
+            _y = math.exp(-math.log(2) * dx**2 / self.sigma1**2)
         elif dx <= self.eta * self.sigma2:
-            _y = math.exp(-math.log(2) * dx ** 2 / self.sigma2 ** 2)
+            _y = math.exp(-math.log(2) * dx**2 / self.sigma2**2)
         else:
-            B = self.sigma2 * self.gamma - 2.0 * self.sigma2 * self.eta ** 2 * math.log(
+            B = self.sigma2 * self.gamma - 2.0 * self.sigma2 * self.eta**2 * math.log(
                 2
             )
             B /= 2.0 * self.eta * math.log(2)
-            A = 2 ** (-self.eta ** 2) * (self.sigma2 * self.eta + B) ** self.gamma
+            A = 2 ** (-self.eta**2) * (self.sigma2 * self.eta + B) ** self.gamma
             _y = A / (B + dx) ** self.gamma
 
         return _y * self.amp

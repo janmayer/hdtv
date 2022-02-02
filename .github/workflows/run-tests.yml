@@ -12,7 +12,7 @@ jobs:
         # - '6.22.00', '6.22.02' are incompatible
         # - 6.22.4 missing from https://anaconda.org/conda-forge/root/files
         python-version: [3.6, 3.7, 3.8]
-        root-version: ['6.16.00', '6.20.2', '6.20.4', '6.20.6', '6.22.6', '6.22.8', '6.24.0']
+        root-version: ['6.16.00', '6.20.2', '6.20.4', '6.20.6', '6.22.6', '6.22.8', '6.24.0', '6.24.2', '6.24.4', '6.24.6']
         exclude:
           - python-version: 3.8
             root-version: '6.16.00'
@@ -25,6 +25,14 @@ jobs:
             root-version: '6.22.8'
           - python-version: 3.9
             root-version: '6.24.0'
+          - python-version: 3.9
+            root-version: '6.24.2'
+          - python-version: 3.9
+            root-version: '6.24.4'
+          - python-version: 3.9
+            root-version: '6.24.6'
+          - python-version: 3.10
+            root-version: '6.24.6'
       fail-fast: false
 
     steps:

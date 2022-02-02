@@ -34,7 +34,6 @@ try:
         except BaseException:
             return 80
 
-
 except ImportError:
     # On platforms where we cannot load the curses library, we assume a
     # terminal width of 80 characters
