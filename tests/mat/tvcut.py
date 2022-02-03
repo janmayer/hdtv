@@ -11,7 +11,7 @@ class Cut:
 
     def Cut(self, matfile, r1, r2):
         tempdir = "/home/braun/Diplom/temp"
-        fname = "%032X.asc" % random.randint(0, 2 ** 128)
+        fname = "%032X.asc" % random.randint(0, 2**128)
 
         tvcmds = "cut activate 0; "
         tvcmds += "cut attach matrix 1; "

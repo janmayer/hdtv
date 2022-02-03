@@ -1,5 +1,11 @@
 # HDTV Changelog
 
+## 22.01
+- Added support for running hdtv from a Docker container (@lindt)
+- Enabled command line suggestions and history (@j-kleemann)
+- Test more ROOT versions
+- Test Python 3.10
+
 ## 21.04
 - Fix error with errormessage in cal pos nuc (@jmayer)
 - Test more ROOT versions
