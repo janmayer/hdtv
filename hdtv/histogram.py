@@ -293,7 +293,9 @@ class Histogram(Drawable):
             # If 'lower_old' is already lower than 'lower', nothing needs to be done.
             # In both binning types, this would mean that 'lower_old' is outside of the
             # range of the new bins.
-            hdtv.ui.warning("Bins with negative energies in original spectrum were discarded.")
+            hdtv.ui.warning(
+                "Bins with negative energies in original spectrum were discarded."
+            )
 
         for i in range(0, nbins):
             newhist.SetBinContent(i + 1, output_hist[i])
