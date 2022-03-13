@@ -509,7 +509,6 @@ class Fit(Drawable):
         region = sorted(
             [self.regionMarkers[0].p1.pos_uncal, self.regionMarkers[0].p2.pos_uncal]
         )
-        print(self.bgParams)
         if self.peaks:
             self.fitter.RestorePeaks(
                 cal=self.cal,
