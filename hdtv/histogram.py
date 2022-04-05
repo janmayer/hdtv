@@ -146,8 +146,11 @@ class Histogram(Drawable):
         Add other spectrum to this one
         """
         # If the spectra have the same calibration (~= have the same binning),
+        # and if they have the same number of bins
         # the root build-in add can be used
-        if self.cal == spec.cal or (self.cal.IsTrivial() and spec.cal.IsTrivial()):
+        if (
+            self.cal == spec.cal or (self.cal.IsTrivial() and spec.cal.IsTrivial())
+        ) and self._hist.GetNbinsX() == spec._hist.GetNbinsX():
             hdtv.ui.info("Adding binwise")
             self._hist.Add(spec._hist, 1.0)
         # If the binning is different, determine the amount to add to each bin
@@ -173,17 +176,20 @@ class Histogram(Drawable):
 
     def Minus(self, spec):
         """
-        Substract other spectrum from this one
+        Subtract other spectrum from this one
         """
         # If the spectra have the same calibration (~= have the same binning),
+        # and if they have the same number of bins
         # the root build-in add can be used
-        if self.cal == spec.cal or (self.cal.IsTrivial() and spec.cal.IsTrivial()):
-            hdtv.ui.info("Adding binwise")
+        if (
+            self.cal == spec.cal or (self.cal.IsTrivial() and spec.cal.IsTrivial())
+        ) and self._hist.GetNbinsX() == spec._hist.GetNbinsX():
+            hdtv.ui.info("Subtracting binwise")
             self._hist.Add(spec._hist, -1.0)
         # If the binning is different, determine the amount to add to each bin
         # by integrating the other spectrum
         else:
-            hdtv.ui.info("Adding calibrated")
+            hdtv.ui.info("Subtracting calibrated")
             nbins = self._hist.GetNbinsX()
             for n in range(0, nbins):
                 integral = ROOT.HDTV.TH1IntegrateWithPartialBins(
@@ -257,7 +263,7 @@ class Histogram(Drawable):
 
         # Create new histogram with number of bins equal
         # to the calibrated range of the old histogram
-        # Always -0.5 to create standard tv-type histogram
+        # Always subtract -0.5 from the integer bin centers to create standard tv-type histogram
         newhist = ROOT.TH1D(
             self._hist.GetName(), self._hist.GetTitle(), nbins, -0.5, nbins - 0.5
         )
