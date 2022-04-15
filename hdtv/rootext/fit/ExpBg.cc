@@ -26,7 +26,6 @@
 
 #include <iostream>
 
-#include <ROOT/RMakeUnique.hxx>
 #include <TError.h>
 #include <TF1.h>
 #include <TH1.h>
