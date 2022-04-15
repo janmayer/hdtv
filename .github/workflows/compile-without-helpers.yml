@@ -15,11 +15,11 @@ jobs:
         auto-update-conda: true
         miniconda-version: "latest"
         channels: conda-forge
-        python-version: '3.8'
+        python-version: '3.10'
 
     - name: Install dependencies
       shell: bash -l {0}
-      run: conda install root='6.24.0'
+      run: conda install root='6.26.2'
 
     - name: Build
       shell: bash -l {0}

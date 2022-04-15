@@ -39,12 +39,13 @@ for all user (requires superuser privileges).
 To build and run HDTV, the following dependencies are required:
 
 * Python
-	- Tested with 3.6, 3.7, 3.8
+	- Tested with 3.7, 3.8, 3.9 and 3.10
 	- Packages: numpy scipy matplotlib prompt_toolkit uncertainties traitlets
     - Packages for development & testing: docutils pytest pytest-cov
-* [Cern ROOT](https://root.cern/) 6 (version 6.16.00 or higher, **except** 6.22.00 and 6.22.02)
-    - Needs to be compiled against the correct python version.
-    - In python, **`import ROOT` must succeed.**
+* [Cern ROOT](https://root.cern/) 6
+    - Version 6.16.00 or higher, **except** 6.22.00 and 6.22.02.
+    - Needs to be compiled against the correct python version and with support for C++14 or higher.
+    - In python, **`import ROOT` must succeed**.
     - System packages may be available on some systems, e.g. `<tool> install root python3-root`
 * cmake, gcc, g++ (or similar, in a somewhat modern version)
 * libx11-dev `<tool> install libx11-6 libx11-dev`

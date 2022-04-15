@@ -10,29 +10,39 @@ jobs:
         # Notes:
         # - '6.18.00', '6.18.04', '6.20.0' take too long to install via conda (>1h instead of ~5min)
         # - '6.22.00', '6.22.02' are incompatible
-        # - 6.22.4 missing from https://anaconda.org/conda-forge/root/files
-        python-version: [3.6, 3.7, 3.8]
-        root-version: ['6.16.00', '6.20.2', '6.20.4', '6.20.6', '6.22.6', '6.22.8', '6.24.0', '6.24.2', '6.24.4', '6.24.6']
+        # - '6.22.4' was a broken release
+        python-version: ['3.7', '3.8', '3.9', '3.10']
+        root-version: ['6.24.0', '6.24.2', '6.24.4', '6.24.6', '6.26.0', '6.26.2']
         exclude:
-          - python-version: 3.8
-            root-version: '6.16.00'
-          - python-version: 3.8
-            root-version: '6.18.00'
-        include:
-          - python-version: 3.9
-            root-version: '6.22.6'
-          - python-version: 3.9
-            root-version: '6.22.8'
-          - python-version: 3.9
-            root-version: '6.24.0'
-          - python-version: 3.9
-            root-version: '6.24.2'
-          - python-version: 3.9
-            root-version: '6.24.4'
-          - python-version: 3.9
-            root-version: '6.24.6'
           - python-version: '3.10'
-            root-version: '6.24.6'
+            root-version: '6.24.0'
+          - python-version: '3.10'
+            root-version: '6.24.2'
+          - python-version: '3.10'
+            root-version: '6.24.4'
+        include:
+          - python-version: '3.7'
+            root-version: '6.16.00'
+          - python-version: '3.7'
+            root-version: '6.20.2'
+          - python-version: '3.7'
+            root-version: '6.20.4'
+          - python-version: '3.7'
+            root-version: '6.20.6'
+          - python-version: '3.7'
+            root-version: '6.22.6'
+          - python-version: '3.7'
+            root-version: '6.22.8'
+          - python-version: '3.8'
+            root-version: '6.20.2'
+          - python-version: '3.8'
+            root-version: '6.20.4'
+          - python-version: '3.8'
+            root-version: '6.20.6'
+          - python-version: '3.8'
+            root-version: '6.22.6'
+          - python-version: '3.8'
+            root-version: '6.22.8'
       fail-fast: false
 
     steps:
@@ -56,4 +66,4 @@ jobs:
 
     - name: Post Coverage
       uses: codecov/codecov-action@v1
-      if: matrix.python-version == 3.8 && matrix.root-version == '6.24.0'
+      if: matrix.python-version == 3.10 && matrix.root-version == '6.26.2'
