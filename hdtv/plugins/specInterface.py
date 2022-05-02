@@ -21,6 +21,7 @@
 
 import ROOT
 import os
+import re
 import glob
 import copy
 
@@ -74,6 +75,15 @@ class SpecInterface(object):
                     prompt="Activate spectrum: ", handler=self._HotkeyActivate
                 ),
             )
+
+        # Register configuration variables
+        self.LoadSpectraNaturalSort = hdtv.options.Option(
+            default=True,
+            parse=hdtv.options.parse_bool,
+        )
+        hdtv.options.RegisterOption(
+            "spec.get.sort_natural", self.LoadSpectraNaturalSort
+        )
 
     def _HotkeyShow(self, arg):
         """
@@ -159,7 +169,10 @@ class SpecInterface(object):
                     )
                     break
 
-                files.sort()
+                if self.LoadSpectraNaturalSort.Get():
+                    files.sort(key=hdtv.util.natural_sort_key)
+                else:
+                    files.sort()
 
                 for fname in files:
                     try:
