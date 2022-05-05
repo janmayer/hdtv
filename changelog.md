@@ -1,5 +1,11 @@
 # HDTV Changelog
 
+## 22.04
+- Natural sorting of spectra for `spectrum get` (@jkleemann)
+- calbin for negative-energy bins and related improvements (@ufrimangayer)
+- Support for ROOT 6.26 (@opapst)
+- General build system and tooling improvements (@opapst)
+
 ## 22.01
 - Added support for running hdtv from a Docker container (@lindt)
 - Enabled command line suggestions and history (@j-kleemann)
