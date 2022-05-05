@@ -6,7 +6,7 @@ jobs:
   cpp-formatting:
     runs-on: ubuntu-latest
     env:
-      CLANG_FORMAT: clang-format-10
+      CLANG_FORMAT: clang-format-12
     steps:
       - uses: actions/checkout@v2
       - name: Install clang-format
