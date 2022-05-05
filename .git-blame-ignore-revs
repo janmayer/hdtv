@@ -1,0 +1,13 @@
+# This file lists commits that should be ignored by `git blame`.
+# Usually, these are automated mass-changes that fix code style,
+# white space or formatting in general.
+#
+# To use it, pass `--ignore-revs-file .git-blame-ignore-revs` as a flag
+# to `git blame`. You can make this a default for your repo:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+#
+# By default, `git blame` will not use this file; the filename is
+# just a convention.
+
+# Addition of pre-commit hooks
+306f48ff265c4fdd46d43f9e21cb69921a6d9d7f
