@@ -344,7 +344,7 @@ class _Efficiency(object):
             line = ""
             for j in range(0, self._numPars):
                 line += str(self.fCov[i][j]) + " "
-            file.lines.append(line)
+            file.lines.append(line.strip())
 
         file.write()
 
