@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -35,7 +33,7 @@ import hdtv.ui
 import hdtv.fit
 
 
-class Database(object):
+class Database:
     def __init__(self):
         hdtv.ui.debug("Loaded Database Lookup plugin")
 

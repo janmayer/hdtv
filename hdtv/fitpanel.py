@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -22,7 +20,7 @@
 import ROOT
 
 
-class FitPanel(object):
+class FitPanel:
     def __init__(self):
         self._dispatchers = []
         self.fFitHandler = None

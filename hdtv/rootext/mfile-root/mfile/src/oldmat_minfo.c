@@ -109,20 +109,24 @@ uint32_t pos;
   lim8 = lim4 >> 1;
 
   mat->filetype = n1 > n4 << 3 /* looks like low endian ? */
-                      ? n3 > n2 << 3 ? MAT_LE2 : n1 > n4 << 12 && n2 >= n3 << 2 ? MAT_LE4 : MAT_UNKNOWN
+                      ? n3 > n2 << 3                     ? MAT_LE2
+                        : n1 > n4 << 12 && n2 >= n3 << 2 ? MAT_LE4
+                                                         : MAT_UNKNOWN
                       : n4 > n1 << 3 /* looks like high endian ? */
-                            ? n2 > n3 << 3 ? MAT_HE2 : n4 > n1 << 12 && n3 >= n2 << 2 ? MAT_HE4 : MAT_UNKNOWN
+                            ? n2 > n3 << 3                     ? MAT_HE2
+                              : n4 > n1 << 12 && n3 >= n2 << 2 ? MAT_HE4
+                                                               : MAT_UNKNOWN
                             : MAT_UNKNOWN;
 
   if (mat->filetype == MAT_UNKNOWN &&
       (lf4 > lim4) + (hf4 > lim4) + (vaxf > lim4) + (lf8 > lim8) + (hf8 > lim8) + (vaxg > lim8) == 1) {
-    mat->filetype =
-        lf4 > lim4
-            ? MAT_LF4
-            : hf4 > lim4
-                  ? MAT_HF4
-                  : vaxf > lim4 ? MAT_VAXF
-                                : lf8 > lim8 ? MAT_LF8 : hf8 > lim8 ? MAT_HF8 : vaxg > lim8 ? MAT_VAXG : MAT_UNKNOWN;
+    mat->filetype = lf4 > lim4    ? MAT_LF4
+                    : hf4 > lim4  ? MAT_HF4
+                    : vaxf > lim4 ? MAT_VAXF
+                    : lf8 > lim8  ? MAT_LF8
+                    : hf8 > lim8  ? MAT_HF8
+                    : vaxg > lim8 ? MAT_VAXG
+                                  : MAT_UNKNOWN;
   }
 }
 

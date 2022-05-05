@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -39,7 +37,7 @@ class TheuerkaufPeak(Drawable):
     """
 
     def __init__(self, pos, vol, width, tl, tr, sh, sw, color=None, cal=None):
-        super(TheuerkaufPeak, self).__init__(color, cal)
+        super().__init__(color, cal)
         # values are uncalibrated!
         self.pos = pos
         self.vol = vol
@@ -98,7 +96,7 @@ class TheuerkaufPeak(Drawable):
         """
         print the properties of this peak in a nicely formatted way
         """
-        text = str()
+        text = ""
         if verbose:
             text += "Pos:         {0.pos_cal:S}\n"
             text += "Channel:     {0.pos:S}\n"
@@ -171,7 +169,7 @@ class PeakModelTheuerkauf(PeakModel):
     """
 
     def __init__(self):
-        super(PeakModelTheuerkauf, self).__init__()
+        super().__init__()
         self.fParStatus = {
             "pos": None,
             "vol": None,

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -28,7 +26,7 @@ import ROOT
 import hdtv.rootext.fit
 
 # Base class for all peak models
-class PeakModel(object):
+class PeakModel:
     """
     A peak model is a function used to fit peaks. The user can choose how to fit
     its parameters (and whether to include them at all, i.e. for tails). After
@@ -74,7 +72,7 @@ class PeakModel(object):
                 elif status == "calculated":
                     statstr += "%s: calculated from fit result\n" % name
                 else:
-                    statstr += "%s: fixed at %.3f\n" % (name, status)
+                    statstr += f"{name}: fixed at {status:.3f}\n"
 
         for name, status in self.fOptStatus.items():
             statstr += f"{name}: {status}\n"
@@ -119,7 +117,7 @@ class PeakModel(object):
         # parameter
         if stat is not None:
             if stat not in valid_status[parname]:
-                msg = "Status %s not allowed for parameter %s in peak model %s" % (
+                msg = "Status {} not allowed for parameter {} in peak model {}".format(
                     stat,
                     parname,
                     self.name,
@@ -129,7 +127,7 @@ class PeakModel(object):
 
         # Check if a numeric value is legal for the parameter
         if float not in valid_status[parname]:
-            msg = "Invalid status %s for parameter %s in peak model %s" % (
+            msg = "Invalid status {} for parameter {} in peak model {}".format(
                 status,
                 parname,
                 self.name,
@@ -170,7 +168,7 @@ class PeakModel(object):
                     self.fOptStatus[parname] = self.ParseParamStatus(parname, status)
         except KeyError:
             raise ValueError(
-                "Invalid parameter name %s for peak model %s" % (parname, self.name)
+                f"Invalid parameter name {parname} for peak model {self.name}"
             )
 
     def GetParam(self, name, peak_id, pos_uncal, cal, ival=None):

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -29,7 +27,7 @@ import hdtv.ui
 from ROOT import TF1, TF2, TGraphErrors, TVirtualFitter
 
 
-class _Efficiency(object):
+class _Efficiency:
     def __init__(self, num_pars=0, pars=None, norm=True):
         pars = pars or []
 

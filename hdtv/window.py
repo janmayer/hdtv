@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -30,7 +28,7 @@ import hdtv.rootext.display
 from hdtv.cmdline import HDTVCommandAbort, HDTVCommandError
 
 
-class HotkeyList(object):
+class HotkeyList:
     "Class to handle multi-key hotkeys."
 
     def __init__(self):
@@ -97,7 +95,7 @@ class KeyHandler(HotkeyList):
     """
 
     def __init__(self):
-        super(KeyHandler, self).__init__()
+        super().__init__()
 
         self.fEditMode = False  # Status bar currently used as text entry
         # Modifier keys
@@ -208,7 +206,7 @@ class Window(KeyHandler):
     """
 
     def __init__(self):
-        super(Window, self).__init__()
+        super().__init__()
 
         self.viewer = ROOT.HDTV.Display.Viewer()
         self.viewport = self.viewer.GetViewport()

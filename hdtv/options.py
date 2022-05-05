@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -26,7 +24,7 @@ Infrastructure for configuration variables
 from html import escape
 
 
-class Option(object):
+class Option:
     """
     A configuration variable
     """
@@ -134,7 +132,7 @@ class _OptionManager(dict):
         """
         string = ""
         for (k, v) in sorted(self.__dict__.items()):
-            string += "<b>{}</b>: {}\n".format(escape(k), escape(str(v)))
+            string += f"<b>{escape(k)}</b>: {escape(str(v))}\n"
         return string
 
 

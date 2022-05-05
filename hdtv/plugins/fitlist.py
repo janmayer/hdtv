@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -32,7 +30,7 @@ import hdtv.ui
 import hdtv.util
 
 
-class FitlistManager(object):
+class FitlistManager:
     def __init__(self, spectra):
         hdtv.ui.debug("Loaded fitlist plugin")
 
@@ -84,7 +82,7 @@ class FitlistManager(object):
             f.write(text)
 
     def ReadList(self, fname):
-        with open(fname, "r") as f:
+        with open(fname) as f:
             dirname = os.path.dirname(fname)
             for linenum, l in enumerate(f):
                 # Remove comments and whitespace; ignore empty lines
@@ -116,7 +114,7 @@ class FitlistManager(object):
                     )
 
 
-class FitlistHDTVInterface(object):
+class FitlistHDTVInterface:
     def __init__(self, FitlistIf):
         self.FitlistIf = FitlistIf
         self.spectra = FitlistIf.spectra
@@ -278,7 +276,7 @@ class FitlistHDTVInterface(object):
         # Load files
         for sid in sids:
             for fname in fnames[sid]:
-                hdtv.ui.msg("Reading fitlist %s to spectrum %s" % (fname, sid))
+                hdtv.ui.msg(f"Reading fitlist {fname} to spectrum {sid}")
                 self.FitlistIf.ReadXML(
                     sid,
                     fname,

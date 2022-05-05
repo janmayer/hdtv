@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -151,7 +149,7 @@ cmdlist = [
 
 @pytest.mark.parametrize("command", cmdlist)
 def test_cmd_help(command):
-    f, ferr = hdtvcmd("{} --help".format(command))
+    f, ferr = hdtvcmd(f"{command} --help")
     assert ferr == ""
     assert "usage" in f
     assert "--help" in f
@@ -159,6 +157,6 @@ def test_cmd_help(command):
 
 @pytest.mark.parametrize("command", cmdlist)
 def test_cmd_unrecognized_arg(command):
-    f, ferr = hdtvcmd("{} --invalidarg".format(command))
+    f, ferr = hdtvcmd(f"{command} --invalidarg")
     assert "ERROR" in ferr
     assert "usage" in f

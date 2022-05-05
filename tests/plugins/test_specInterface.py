@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -66,7 +64,7 @@ def prepare():
 
 def test_cmd_spectrum_get():
     assert len(s.spectra.dict) == 0
-    f, ferr = hdtvcmd("spectrum get {}".format(testspectrum))
+    f, ferr = hdtvcmd(f"spectrum get {testspectrum}")
     res_specfile, specid = re.search(r"Loaded (.*) into (\d+)", f).groups()
     assert len(s.spectra.dict) == 1
     assert res_specfile == testspectrum
@@ -78,7 +76,7 @@ def test_cmd_spectrum_get():
 @pytest.mark.parametrize("slot", [3, 1000000])
 def test_cmd_spectrum_get_slot(slot):
     assert len(s.spectra.dict) == 0
-    f, ferr = hdtvcmd("spectrum get -s {} {}".format(slot, testspectrum))
+    f, ferr = hdtvcmd(f"spectrum get -s {slot} {testspectrum}")
     res_specfile, specid = re.search(r"Loaded (.*) into (\d+)", f).groups()
     assert len(s.spectra.dict) == 1
     assert res_specfile == testspectrum
@@ -92,14 +90,14 @@ def test_cmd_spectrum_get_slot(slot):
 def test_cmd_spectrum_get_repeated(num):
     assert len(s.spectra.dict) == 0
     query = " ".join([testspectrum] * num)
-    hdtvcmd("spectrum get {}".format(query))
+    hdtvcmd(f"spectrum get {query}")
     assert len(s.spectra.dict) == num
 
 
 @pytest.mark.parametrize("pattern", ["tests/share/osiris_[a-z][a-z].spc"])
 def test_cmd_spectrum_get_pattern(pattern):
     assert len(s.spectra.dict) == 0
-    hdtvcmd("spectrum get {}".format(pattern))
+    hdtvcmd(f"spectrum get {pattern}")
     assert len(s.spectra.dict) == 1
 
 
@@ -110,7 +108,7 @@ def test_cmd_spectrum_get_pattern(pattern):
 def test_cmd_spectrum_get_multi(specfiles):
     assert len(s.spectra.dict) == 0
     query = " ".join(specfiles)
-    hdtvcmd("spectrum get {}".format(query))
+    hdtvcmd(f"spectrum get {query}")
     assert len(s.spectra.dict) == len(specfiles)
 
 
@@ -118,7 +116,7 @@ def test_cmd_spectrum_get_multi(specfiles):
 def test_cmd_spectrum_list(numspecs):
     assert len(s.spectra.dict) == 0
     for _ in range(numspecs):
-        hdtvcmd("spectrum get {}".format(testspectrum))
+        hdtvcmd(f"spectrum get {testspectrum}")
     f, ferr = hdtvcmd("spectrum list")
     assert len(s.spectra.dict) == numspecs
     assert len(f.split("\n")) == numspecs + 2
@@ -126,18 +124,18 @@ def test_cmd_spectrum_list(numspecs):
 
 def test_cmd_spectrum_delete():
     assert len(s.spectra.dict) == 0
-    f, ferr = hdtvcmd("spectrum get {}".format(testspectrum))
+    f, ferr = hdtvcmd(f"spectrum get {testspectrum}")
     res_specfile, specid = re.search(r"Loaded (.*) into (\d+)", f).groups()
 
     assert len(s.spectra.dict) == 1
 
-    f, ferr = hdtvcmd("spectrum delete {}".format(specid))
+    f, ferr = hdtvcmd(f"spectrum delete {specid}")
     assert len(s.spectra.dict) == 0
 
 
 def test_cmd_spectrum_delete_none():
     assert len(s.spectra.dict) == 0
-    hdtvcmd("spectrum get {}".format(testspectrum))
+    hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 1
 
     f, ferr = hdtvcmd("spectrum delete")
@@ -149,7 +147,7 @@ def test_cmd_spectrum_delete_none():
 def test_cmd_spectrum_delete_all(numspecs):
     assert len(s.spectra.dict) == 0
     for _ in range(numspecs):
-        hdtvcmd("spectrum get {}".format(testspectrum))
+        hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == numspecs
 
     hdtvcmd("spectrum delete all")
@@ -160,11 +158,11 @@ def test_cmd_spectrum_delete_all(numspecs):
 def test_cmd_spectrum_delete_several(numspecs):
     assert len(s.spectra.dict) == 0
     for _ in range(numspecs):
-        hdtvcmd("spectrum get {}".format(testspectrum))
+        hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == numspecs
 
     specs = " ".join(str(e) for e in range(numspecs))
-    hdtvcmd("spectrum delete {}".format(specs))
+    hdtvcmd(f"spectrum delete {specs}")
     assert len(s.spectra.dict) == 0
 
 
@@ -173,11 +171,11 @@ def test_cmd_spectrum_hide(numspecs):
     numhidespecs = max(1, numspecs // 2)
     assert len(s.spectra.dict) == 0
     for _ in range(numspecs):
-        hdtvcmd("spectrum get {}".format(testspectrum))
+        hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == numspecs
 
     specs = " ".join(str(e) for e in range(numhidespecs))
-    hdtvcmd("spectrum hide {}".format(specs))
+    hdtvcmd(f"spectrum hide {specs}")
 
     f, ferr = hdtvcmd("spectrum list -v")
     assert len(s.spectra.dict) == numspecs
@@ -189,11 +187,11 @@ def test_cmd_spectrum_show(numspecs):
     numshowspecs = max(1, numspecs // 2)
     assert len(s.spectra.dict) == 0
     for _ in range(numspecs):
-        hdtvcmd("spectrum get {}".format(testspectrum))
+        hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == numspecs
 
     specs = " ".join(str(e) for e in range(numshowspecs))
-    hdtvcmd("spectrum show {}".format(specs))
+    hdtvcmd(f"spectrum show {specs}")
 
     f, ferr = hdtvcmd("spectrum list -v")
     assert len(s.spectra.dict) == numspecs
@@ -204,11 +202,11 @@ def test_cmd_spectrum_show(numspecs):
 def test_cmd_spectrum_activate(numspecs):
     assert len(s.spectra.dict) == 0
     for _ in range(numspecs):
-        hdtvcmd("spectrum get {}".format(testspectrum))
+        hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == numspecs
 
     for specid in range(numspecs):
-        hdtvcmd("spectrum activate {}".format(specid))
+        hdtvcmd(f"spectrum activate {specid}")
         f, ferr = hdtvcmd("spectrum list")
         for i, line in enumerate(f.split("\n")):
             if i == specid + 2:
@@ -221,7 +219,7 @@ def test_cmd_spectrum_activate(numspecs):
 def test_cmd_spectrum_activate_multi(numspecs):
     assert len(s.spectra.dict) == 0
     for _ in range(numspecs):
-        hdtvcmd("spectrum get {}".format(testspectrum))
+        hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == numspecs
 
     f, ferr = hdtvcmd("spectrum activate all")
@@ -234,7 +232,7 @@ def test_cmd_spectrum_activate_multi(numspecs):
 
 def test_cmd_spectrum_info():
     assert len(s.spectra.dict) == 0
-    hdtvcmd("spectrum get {}".format(testspectrum))
+    hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 1
 
     f, ferr = hdtvcmd("spectrum info")
@@ -246,14 +244,14 @@ def test_cmd_spectrum_info():
 @pytest.mark.parametrize("name", ["myname"])
 def test_cmd_spectrum_name(name):
     assert len(s.spectra.dict) == 0
-    hdtvcmd("spectrum get {}".format(testspectrum))
+    hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 1
 
-    f, ferr = hdtvcmd("spectrum name {}".format(name))
+    f, ferr = hdtvcmd(f"spectrum name {name}")
     print(ferr)
     print(f)
     assert ferr == ""
-    assert "Renamed spectrum 0 to &#x27;{}&#x27;".format(name) in f
+    assert f"Renamed spectrum 0 to &#x27;{name}&#x27;" in f
 
     f, ferr = hdtvcmd("spectrum list")
     assert name in f
@@ -262,10 +260,10 @@ def test_cmd_spectrum_name(name):
 def test_cmd_spectrum_normalize():
     assert len(s.spectra.dict) == 0
     for _ in range(3):
-        hdtvcmd("spectrum get {}".format(testspectrum))
+        hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 3
     for specids, norm in [("0", 0.3), ("0 1 2", 0.2)]:
-        hdtvcmd("spectrum normalize {} {}".format(specids, norm))
+        hdtvcmd(f"spectrum normalize {specids} {norm}")
         assert get_spec(0).norm == norm
     assert get_spec(2).norm == 0.2
     # TODO: Is there anything else supposed to happen when normalizing?
@@ -274,54 +272,54 @@ def test_cmd_spectrum_normalize():
 @pytest.mark.parametrize("ngroup", [2, 20])
 def test_cmd_spectrum_rebin(ngroup):
     assert len(s.spectra.dict) == 0
-    hdtvcmd("spectrum get {}".format(testspectrum))
+    hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 1
 
     with warnings.catch_warnings(record=True) as w:
-        f, ferr = hdtvcmd("spectrum rebin 0 {}".format(ngroup))
-        assert "Rebinning 0 with {} bins per new bin".format(ngroup) in f
+        f, ferr = hdtvcmd(f"spectrum rebin 0 {ngroup}")
+        assert f"Rebinning 0 with {ngroup} bins per new bin" in f
         assert get_spec(0).hist.hist.GetNbinsX() == 8192 // ngroup
 
 
 @pytest.mark.parametrize("binsize", [1, 0.5, 1.1])
 def test_cmd_spectrum_calbin_binsize(binsize):
     assert len(s.spectra.dict) == 0
-    hdtvcmd("spectrum get {}".format(testspectrum))
+    hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 1
 
     with warnings.catch_warnings(record=True) as w:
-        f, ferr = hdtvcmd("spectrum calbin -b {} 0".format(binsize))
-        assert "Calbinning 0 with binsize={}".format(binsize) in f
+        f, ferr = hdtvcmd(f"spectrum calbin -b {binsize} 0")
+        assert f"Calbinning 0 with binsize={binsize}" in f
         assert get_spec(0).hist.hist.GetNbinsX() == int(ceil(8191 / binsize)) + 1
 
 
 @pytest.mark.parametrize("parameter", ["-t", "-r"])
 def test_cmd_spectrum_calbin_root_tv(parameter):
     assert len(s.spectra.dict) == 0
-    hdtvcmd("spectrum get {}".format(testspectrum))
+    hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 1
 
     with warnings.catch_warnings(record=True) as w:
-        f, ferr = hdtvcmd("spectrum calbin {} 0".format(parameter))
+        f, ferr = hdtvcmd(f"spectrum calbin {parameter} 0")
         assert "Calbinning 0 with binsize=" in f
 
 
 @pytest.mark.parametrize("spline_order", [1, 3, 5])
 def test_cmd_spectrum_calbin_spline_order(spline_order):
     assert len(s.spectra.dict) == 0
-    hdtvcmd("spectrum get {}".format(testspectrum))
+    hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 1
 
     with warnings.catch_warnings(record=True) as w:
-        f, ferr = hdtvcmd("spectrum calbin -k {} 0".format(spline_order))
+        f, ferr = hdtvcmd(f"spectrum calbin -k {spline_order} 0")
         assert "Calbinning 0 with" in f
 
 
 def test_cmd_spectrum_calbin_calibrated():
     assert len(s.spectra.dict) == 0
-    hdtvcmd("spectrum get {}".format(testspectrum))
+    hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 1
-    hdtvcmd("calibration position set 5 2.2".format(testspectrum))
+    hdtvcmd(f"calibration position set 5 2.2")
 
     with warnings.catch_warnings(record=True) as w:
         f, ferr = hdtvcmd("spectrum calbin -d 0")
@@ -330,7 +328,7 @@ def test_cmd_spectrum_calbin_calibrated():
 
 def test_cmd_spectrum_resample():
     assert len(s.spectra.dict) == 0
-    hdtvcmd("spectrum get {}".format(testspectrum))
+    hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 1
 
     with warnings.catch_warnings(record=True) as w:
@@ -352,11 +350,11 @@ def test_cmd_spectrum_resample():
 def test_cmd_spectrum_copy(copy, matches):
     assert len(s.spectra.dict) == 0
     for _ in range(3):
-        hdtvcmd("spectrum get {}".format(testspectrum))
+        hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 3
-    f, ferr = hdtvcmd("spectrum copy {}".format(copy))
+    f, ferr = hdtvcmd(f"spectrum copy {copy}")
     for match in matches:
-        assert "Copied spectrum {}".format(match) in f
+        assert f"Copied spectrum {match}" in f
 
 
 def test_cmd_spectrum_copy_nonexistant():
@@ -369,10 +367,10 @@ def test_cmd_spectrum_copy_nonexistant():
 @pytest.mark.parametrize("fmt", ["lc", "txt"])
 def test_cmd_spectrum_write(fmt, temp_file, suffix=""):
     assert len(s.spectra.dict) == 0
-    hdtvcmd("spectrum get {}".format(testspectrum))
+    hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 1
-    f, ferr = hdtvcmd("spectrum write {} {}{}".format(temp_file, fmt, suffix))
-    assert "Wrote spectrum with id 0 to file {}".format(temp_file) in f
+    f, ferr = hdtvcmd(f"spectrum write {temp_file} {fmt}{suffix}")
+    assert f"Wrote spectrum with id 0 to file {temp_file}" in f
     assert os.path.getsize(temp_file) > 0
 
 
@@ -383,9 +381,9 @@ def test_cmd_spectrum_write_withid(fmt, temp_file):
 
 def test_cmd_spectrum_write_invalid_format(temp_file):
     assert len(s.spectra.dict) == 0
-    hdtvcmd("spectrum get {}".format(testspectrum))
+    hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 1
-    f, ferr = hdtvcmd("spectrum write {} invalid 0".format(temp_file))
+    f, ferr = hdtvcmd(f"spectrum write {temp_file} invalid 0")
     assert os.path.getsize(temp_file) == 0
     assert "Failed to write spectrum: Invalid format specified" in ferr
 
@@ -403,12 +401,12 @@ def test_cmd_spectrum_write_invalid_format(temp_file):
 def test_cmd_spectrum_multiply(factor, specids, response):
     assert len(s.spectra.dict) == 0
     for _ in range(3):
-        hdtvcmd("spectrum get {}".format(testspectrum))
+        hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 3
     orig_count = get_spec(0).hist.hist.GetSum()
-    f, ferr = hdtvcmd("spectrum multiply {} {}".format(specids, factor))
+    f, ferr = hdtvcmd(f"spectrum multiply {specids} {factor}")
     for spec in response:
-        assert "Multiplying {} with {}".format(spec, factor) in f
+        assert f"Multiplying {spec} with {factor}" in f
     new_count = get_spec(0).hist.hist.GetSum()
     assert orig_count * factor - new_count < 0.00001 * new_count
 
@@ -416,8 +414,8 @@ def test_cmd_spectrum_multiply(factor, specids, response):
 @pytest.mark.parametrize("specfile0, specfile1", [(testspectrum, testspectrum)])
 def test_cmd_spectrum_add(specfile0, specfile1):
     assert len(s.spectra.dict) == 0
-    hdtvcmd("spectrum get {}".format(specfile0))
-    hdtvcmd("spectrum get {}".format(specfile1))
+    hdtvcmd(f"spectrum get {specfile0}")
+    hdtvcmd(f"spectrum get {specfile1}")
     assert len(s.spectra.dict) == 2
     spec0_count = get_spec(0).hist.hist.GetSum()
     spec1_count = get_spec(1).hist.hist.GetSum()
@@ -430,8 +428,8 @@ def test_cmd_spectrum_add(specfile0, specfile1):
 @pytest.mark.parametrize("specfile0, specfile1", [(testspectrum, testspectrum)])
 def test_cmd_spectrum_add_normalize(specfile0, specfile1):
     assert len(s.spectra.dict) == 0
-    hdtvcmd("spectrum get {}".format(specfile0))
-    hdtvcmd("spectrum get {}".format(specfile1))
+    hdtvcmd(f"spectrum get {specfile0}")
+    hdtvcmd(f"spectrum get {specfile1}")
     assert len(s.spectra.dict) == 2
     spec0_count = get_spec(0).hist.hist.GetSum()
     spec1_count = get_spec(1).hist.hist.GetSum()
@@ -444,8 +442,8 @@ def test_cmd_spectrum_add_normalize(specfile0, specfile1):
 @pytest.mark.parametrize("specfile0, specfile1", [(testspectrum, testspectrum)])
 def test_cmd_spectrum_subtract(specfile0, specfile1):
     assert len(s.spectra.dict) == 0
-    hdtvcmd("spectrum get {}".format(specfile0))
-    hdtvcmd("spectrum get {}".format(specfile1))
+    hdtvcmd(f"spectrum get {specfile0}")
+    hdtvcmd(f"spectrum get {specfile1}")
     assert len(s.spectra.dict) == 2
     spec0_count = get_spec(0).hist.hist.GetSum()
     spec1_count = get_spec(1).hist.hist.GetSum()

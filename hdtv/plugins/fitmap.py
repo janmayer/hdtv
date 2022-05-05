@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2010  The HDTV development team (see file AUTHORS)
 #
@@ -26,7 +24,7 @@ import hdtv.cmdline
 import hdtv.ui
 
 
-class FitMap(object):
+class FitMap:
     def __init__(self, spectra, ecal):
         hdtv.ui.debug("Loaded plugin for setting nominal positions to peaks")
 
@@ -184,7 +182,7 @@ class FitMap(object):
                 peak = spec.dict[i].peaks[pid]
             except (KeyError, IndexError):
                 # ignore invalid peaks, but give a warning
-                hdtv.ui.warning("no peak with id %s.%s" % (i.major, pid))
+                hdtv.ui.warning(f"no peak with id {i.major}.{pid}")
                 continue
             try:
                 peak.extras.pop("pos_lit")
@@ -207,7 +205,7 @@ class FitMap(object):
             hdtv.ui.warning("No active spectrum, no action taken.")
             return False
         if len(energies) == 0:
-            hdtv.ui.warning("No energies found in file {}.".format(args.filename))
+            hdtv.ui.warning(f"No energies found in file {args.filename}.")
             return False
         spec = self.spectra.GetActiveObject()
         count = 0

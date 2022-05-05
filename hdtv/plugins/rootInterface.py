@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -40,7 +38,7 @@ from hdtv.histogram import Histogram, RHisto2D, THnSparseWrapper
 from hdtv.matrix import Matrix
 
 
-class RootFileInterface(object):
+class RootFileInterface:
     def __init__(self, spectra):
         hdtv.ui.debug("Loaded user interface for working with root files")
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2019  The HDTV development team (see file AUTHORS)
@@ -88,7 +87,7 @@ class App:
 
         if not os.access(self.datapath, os.W_OK):
             print(
-                "ERROR: data path {} is not writable".format(self.datapath),
+                f"ERROR: data path {self.datapath} is not writable",
                 file=sys.stderr,
             )
 
@@ -169,8 +168,8 @@ class App:
             try:
                 if os.path.exists(startup_hdtv):
                     hdtv.cmdline.command_line.ExecCmdfile(startup_hdtv)
-            except IOError as msg:
-                hdtv.ui.error("Error reading %s: %s" % (startup_hdtv, msg))
+            except OSError as msg:
+                hdtv.ui.error(f"Error reading {startup_hdtv}: {msg}")
 
         self.run_batchfile(args)
         self.run_commands(args)
@@ -196,7 +195,7 @@ class App:
             "--version",
             action="version",
             help="Show HDTV Version",
-            version="HDTV {}".format(__version__),
+            version=f"HDTV {__version__}",
         )
         parser.add_argument(
             "--rebuild-usr",
@@ -227,8 +226,8 @@ class App:
         try:
             if args.batchfile is not None:
                 hdtv.cmdline.command_line.ExecCmdfile(args.batchfile)
-        except IOError as msg:
-            hdtv.ui.msg("Error reading %s: %s" % (args.batchfile, msg))
+        except OSError as msg:
+            hdtv.ui.msg(f"Error reading {args.batchfile}: {msg}")
 
 
 def run():

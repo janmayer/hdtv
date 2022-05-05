@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -31,7 +29,7 @@ import hdtv.ui
 import hdtv.fit
 
 
-class FitInterface(object):
+class FitInterface:
     """
     User interface for fitting 1-d spectra
     """
@@ -394,7 +392,7 @@ class FitInterface(object):
         if ids is None:
             ids = list()
         ids.extend("a")
-        statstr = str()
+        statstr = ""
         for ID in ids:
             if ID == "a":
                 fitter = self.spectra.workFit.fitter
@@ -576,7 +574,7 @@ class FitInterface(object):
             fit.SetDecomp(enable)
 
 
-class TvFitInterface(object):
+class TvFitInterface:
     """
     TV style interface for fitting
     """
@@ -1031,7 +1029,7 @@ class TvFitInterface(object):
 
             for fitID in fitIDs:
                 try:
-                    hdtv.ui.msg("Executing fit %s in spectrum %s" % (fitID, specID))
+                    hdtv.ui.msg(f"Executing fit {fitID} in spectrum {specID}")
                     self.fitIf.ExecuteReintegrate(
                         specID=specID, fitID=fitID, print_result=False
                     )

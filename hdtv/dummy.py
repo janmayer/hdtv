@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2019  The HDTV development team (see file AUTHORS)
 #
@@ -39,7 +37,7 @@ def _get_bool(self, *args, **kwargs):
     return True
 
 
-class Viewer(object):
+class Viewer:
     Connect = _noop
 
     def __init__(self, *args, **kwargs):
@@ -51,7 +49,7 @@ class Viewer(object):
         return self.fView
 
 
-class View1D(object):
+class View1D:
     GetCursorX = _get_float
     GetCursorY = _get_float
     GetDarkMode = _get_bool
@@ -83,7 +81,7 @@ class View1D(object):
         self.i = 0.1
 
 
-class DisplayObj(object):
+class DisplayObj:
     Draw = _noop
     Hide = _noop
     Show = _noop

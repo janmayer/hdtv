@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -29,7 +27,7 @@ class BackgroundModelPolynomial(BackgroundModel):
     """
 
     def __init__(self):
-        super(BackgroundModelPolynomial, self).__init__()
+        super().__init__()
         self.fParStatus = {"nparams": 2}
         self.fValidParStatus = {"nparams": [int, "free"]}
 

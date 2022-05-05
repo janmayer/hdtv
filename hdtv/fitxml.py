@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2019  The HDTV development team (see file AUTHORS)
 #
@@ -38,7 +36,7 @@ from hdtv.cmdline import HDTVCommandError
 VERSION = "1.5"
 
 
-class FitXml(object):
+class FitXml:
     """
     Class to save and read fit lists to and from xml file
     """
@@ -315,7 +313,7 @@ class FitXml(object):
                 raise HDTVCommandError("No spectrum with id %s loaded." % sid)
             count = 0
             try:
-                fname = "'{}'".format(fname or file_object.name)
+                fname = f"'{fname or file_object.name}'"
             except AttributeError:
                 fname = "fitlist"
             try:

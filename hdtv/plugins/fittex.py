@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -82,7 +80,9 @@ class TexTable(hdtv.util.Table):
         for i in range(2):
             for string in self.header:
                 string = string.replace("_", "-")
-                header += r"\multicolumn{1}{%s}{\textbf{%s}} &" % (self.ha, string)
+                header += r"\multicolumn{{1}}{{{}}}{{\textbf{{{}}}}} &".format(
+                    self.ha, string
+                )
             header = header.rstrip("&")
             header += r"\\ \hline" + os.linesep
             if i == 0:
@@ -104,7 +104,7 @@ class TexTable(hdtv.util.Table):
         return header
 
     def __str__(self):
-        text = str()
+        text = ""
         if self.extra_header is not None:
             text += (
                 str(self.extra_header)

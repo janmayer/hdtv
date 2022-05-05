@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -65,13 +63,13 @@ def test_cmd_db_lookup_base():
 
 @pytest.mark.parametrize("specs", ["Intensity=0.1", "Sigma=0.03", "Energy=510"])
 def test_cmd_db_lookup_specs(specs):
-    assert count_results("db lookup {}".format(specs)) > 0
+    assert count_results(f"db lookup {specs}") > 0
 
 
 @pytest.mark.parametrize("specs", ["Intensity=0.3", "Sigma=0.04", "Energy=139.940"])
 def test_cmd_db_lookup_fuzziness(specs):
-    results_narrow = count_results("db lookup {} -f 0.005".format(specs))
-    results_broad = count_results("db lookup {} --fuzziness 0.5".format(specs))
+    results_narrow = count_results(f"db lookup {specs} -f 0.005")
+    results_broad = count_results(f"db lookup {specs} --fuzziness 0.5")
     assert results_narrow > 0
     assert results_broad > 0
     assert results_broad > results_narrow
@@ -85,9 +83,9 @@ def test_cmd_db_lookup_sort_reverse(specs):
 @pytest.mark.parametrize("specs", ["k0=3", "511", "a=20", "z=10"])
 def test_cmd_db_lookup_sort_key(specs, reverse=False):
     if reverse:
-        f, ferr = hdtvcmd("db lookup {} -k energy -r".format(specs))
+        f, ferr = hdtvcmd(f"db lookup {specs} -k energy -r")
     else:
-        f, ferr = hdtvcmd("db lookup {} -k energy".format(specs))
+        f, ferr = hdtvcmd(f"db lookup {specs} -k energy")
     old_value = sys.float_info.max if reverse else sys.float_info.min
     for line in f.split("\n")[2:-3]:
         new_value = float(line.split("|")[3].split("(")[0].strip())
@@ -100,7 +98,7 @@ def test_cmd_db_lookup_sort_key(specs, reverse=False):
 
 @pytest.mark.parametrize("db", ["promptgammas", "pgaalib_iki2000"])
 def test_cmd_db_set(db):
-    f, ferr = hdtvcmd("db set {}".format(db))
+    f, ferr = hdtvcmd(f"db set {db}")
     assert "loaded" in f
     assert hdtv.options.Get("database.db") == db
 

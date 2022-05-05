@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import csv
 import os
 from uncertainties import ufloat_fromstr
@@ -6,7 +5,7 @@ import hdtv.cmdline
 import hdtv.ui
 
 
-class _Element(object):
+class _Element:
     """
     Store info about elements
     """
@@ -34,7 +33,7 @@ class _Element(object):
     M = property(_get_M)
 
     def __str__(self):
-        text = str()
+        text = ""
         text += "Name:          " + str(self.name) + "\n"
         text += "Z:             " + str(self.z) + " \n"
         text += "Symbol:        " + self.symbol + " \n"
@@ -49,13 +48,13 @@ class _Elements(list):
 
     def __init__(self, csvfile=os.path.join(hdtv.datadir, "elements.dat")):
 
-        super(_Elements, self).__init__()
+        super().__init__()
 
         tmp = list()
 
         try:
             try:
-                datfile = open(csvfile, "r", encoding="utf-8")
+                datfile = open(csvfile, encoding="utf-8")
             except TypeError:
                 datfile = open(csvfile, "rb")
             reader = csv.reader(datfile)
@@ -115,7 +114,7 @@ class _Elements(list):
         if index > 0:
             index = index - 1
 
-        return super(_Elements, self).__setitem__(index, value)
+        return super().__setitem__(index, value)
 
     def __getitem__(self, index):
         if index == 0:
@@ -124,7 +123,7 @@ class _Elements(list):
         if index > 0:
             index = index - 1
 
-        return super(_Elements, self).__getitem__(index)
+        return super().__getitem__(index)
 
 
 class _Nuclide(_Element):
@@ -134,7 +133,7 @@ class _Nuclide(_Element):
     def __init__(self, element, A, abundance=None, sigma=None, M=None):
 
         self.element = element
-        super(_Nuclide, self).__init__(
+        super().__init__(
             element.z, element.symbol, element.name, M=None
         )  # M is different for nuclides and elements
         self.a = A
@@ -152,7 +151,7 @@ class _Nuclide(_Element):
     symbol = property(_get_symbol, _set_symbol)  # def _Z(self):
 
     def __str__(self):
-        text = str()
+        text = ""
         text += "ID:            " + self.ID + "\n"
         text += "Z:             " + str(self.z) + " \n"
         text += "A:             " + str(self.a) + "\n"
@@ -170,13 +169,13 @@ class _Nuclide(_Element):
         return text
 
 
-class _Nuclides(object):
+class _Nuclides:
     def __init__(self, csvfile=os.path.join(hdtv.datadir, "nuclides.dat")):
 
         self._storage = dict()
         try:
             try:
-                datfile = open(csvfile, "r", encoding="utf-8")
+                datfile = open(csvfile, encoding="utf-8")
             except TypeError:
                 datfile = open(csvfile, "rb")
             reader = csv.reader(datfile)
@@ -264,7 +263,7 @@ class _Nuclides(object):
         return ret
 
 
-class Gamma(object):
+class Gamma:
     """Class for storing information about gammas"""
 
     __slots__ = ("ID", "nuclide", "energy", "sigma", "intensity")
@@ -277,7 +276,7 @@ class Gamma(object):
         self.intensity = intensity
 
     def __str__(self):
-        text = str()
+        text = ""
         text += "ID:        " + str(self.ID) + "\n"
         text += "Energy:    " + str(self.energy) + " keV\n"
         if self.sigma is not None:

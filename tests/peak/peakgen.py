@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -23,7 +21,6 @@
 # Infrastructure for generation of artificial spectra
 # -------------------------------------------------------------------------
 
-from __future__ import division
 
 import math
 import ROOT

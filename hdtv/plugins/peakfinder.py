@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -33,7 +31,7 @@ import hdtv.plugins
 import ROOT
 
 
-class PeakFinder(object):
+class PeakFinder:
     """
     Automatic peak finder - using ROOTS peak search function
     """
@@ -169,7 +167,7 @@ class PeakFinder(object):
         Check if the fit is sensible
         """
         bad = False
-        text = str()
+        text = ""
         for peak in fit.peaks:
             reason = None
             if peak.vol.nominal_value <= 0.0:

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -206,7 +204,7 @@ class Fit(Drawable):
         TODO: Since we do not use this any longer, we may as well remove it.
         """
         i = 0
-        text = str()
+        text = ""
         for peak in self.peaks:
             text += ("\nPeak %d:" % i).ljust(10)
             peakstr = peak.formatted_str(verbose).strip()
@@ -235,7 +233,7 @@ class Fit(Drawable):
                 thispeak["id"] = hdtv.util.ID(None, self.peaks.index(peak))
             else:
                 thispeak["id"] = hdtv.util.ID(self.ID.major, self.peaks.index(peak))
-            thispeak["stat"] = str()
+            thispeak["stat"] = ""
             if self.active:
                 thispeak["stat"] += "A"
             if self.ID in self.spec.visible or self.ID is None:  # ID of workFit is None
@@ -310,7 +308,7 @@ class Fit(Drawable):
                 int_res["id"] = hdtv.util.ID(None, None)
             else:
                 int_res["id"] = hdtv.util.ID(self.ID.major, None)
-            int_res["stat"] = str()
+            int_res["stat"] = ""
 
             if self.active:
                 int_res["stat"] += "A"
@@ -445,7 +443,7 @@ class Fit(Drawable):
                 # otherwise we get out of sync after deleting items
                 if m.p1.pos_uncal < region[0] or m.p1.pos_uncal > region[1]:
                     self.peakMarkers.remove(m)
-            peaks = sorted([m.p1.pos_uncal for m in self.peakMarkers])
+            peaks = sorted(m.p1.pos_uncal for m in self.peakMarkers)
             self.fitter.FitPeaks(spec=self.spec, region=region, peaklist=peaks)
             # get background function
             self.bgParams = []

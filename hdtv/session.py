@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2019  The HDTV development team (see file AUTHORS)
 #
@@ -47,7 +45,7 @@ class Session(DrawableManager):
 
     def __init__(self):
         self.window = Window()
-        super(Session, self).__init__(viewport=self.window.viewport)
+        super().__init__(viewport=self.window.viewport)
         # TODO: make peakModel and bgdeg configurable
         self.workFit = Fit(Fitter(peakModel="theuerkauf", backgroundModel="polynomial"))
         self.workFit.active = True
@@ -322,7 +320,7 @@ class Session(DrawableManager):
             spec = self.GetActiveObject()
             if spec is not None:
                 spec.ActivateObject(None)
-        super(Session, self).ActivateObject(obj)
+        super().ActivateObject(obj)
 
     def Pop(self, ID):
         """
@@ -333,13 +331,13 @@ class Session(DrawableManager):
             ID = hdtv.util.ID.ParseIds(ID, self)[0]
         if self.activeID is ID:
             self.ActivateObject(self.prevID)
-        return super(Session, self).Pop(ID)
+        return super().Pop(ID)
 
     def ShowObjects(self, ids, clear=True):
         """
         Show spectra and make sure one of the visible objects is active
         """
-        ids = super(Session, self).ShowObjects(ids, clear)
+        ids = super().ShowObjects(ids, clear)
         if self.activeID not in self.visible:
             if len(self.visible) > 0:
                 self.ActivateObject(max(self.visible))
@@ -351,7 +349,7 @@ class Session(DrawableManager):
         """
         Hide spectra and make sure one of the visible objects is active
         """
-        ids = super(Session, self).HideObjects(ids)
+        ids = super().HideObjects(ids)
         if self.activeID not in self.visible:
             if len(self.visible) > 0:
                 self.ActivateObject(max(self.visible))
@@ -367,4 +365,4 @@ class Session(DrawableManager):
         self.workFit.active = True
         self.workFit.Draw(self.viewport)
         self.caldict = dict()
-        return super(Session, self).Clear()
+        return super().Clear()

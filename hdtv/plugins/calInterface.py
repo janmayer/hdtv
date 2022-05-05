@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -37,7 +35,7 @@ from hdtv.fitxml import FitXml
 from . import EnergyCalibration
 
 
-class EffCalIf(object):
+class EffCalIf:
     def __init__(self, spectra):
 
         self.spectra = spectra
@@ -439,7 +437,7 @@ class EffCalIf(object):
         return matches
 
 
-class EffCalHDTVInterface(object):
+class EffCalHDTVInterface:
     def __init__(self, EffCalIf):
 
         self.effIf = EffCalIf
@@ -816,7 +814,7 @@ class EffCalHDTVInterface(object):
         self.effIf.List(ids)
 
 
-class EnergyCalIf(object):
+class EnergyCalIf:
     """
     Interface for energy calibrations
     """
@@ -955,7 +953,7 @@ class EnergyCalIf(object):
         self.spectra.ApplyCalibration(ids, cal)
 
 
-class EnergyCalHDTVInterface(object):
+class EnergyCalHDTVInterface:
     def __init__(self, ECalIf):
 
         self.EnergyCalIf = ECalIf

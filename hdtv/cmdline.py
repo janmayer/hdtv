@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2019  The HDTV development team (see file AUTHORS)
 #
@@ -96,7 +94,7 @@ class HDTVOptionParser(argparse.ArgumentParser):
             raise HDTVCommandError(message)
 
 
-class HDTVCommandTreeNode(object):
+class HDTVCommandTreeNode:
     def __init__(self, parent, title, level):
         self.parent = parent
         self.title = title
@@ -418,7 +416,7 @@ class HDTVCommandTree(HDTVCommandTreeNode):
             yield from []
 
 
-class CommandLine(object):
+class CommandLine:
     """
     Class implementing the HDTV command line, including switching between
     command and Python mode.
@@ -485,7 +483,7 @@ class CommandLine(object):
         else:
             eof = "Ctrl-D (i.e. EOF)"
         hdtv.ui.msg(
-            "Python {}. Return to hdtv with {}.".format(platform.python_version(), eof),
+            f"Python {platform.python_version()}. Return to hdtv with {eof}.",
             end="",
         )
         # self.fPyMode = True
@@ -572,7 +570,7 @@ class CommandLine(object):
         try:
             file = hdtv.util.TxtFile(fname)
             file.read()
-        except IOError as msg:
+        except OSError as msg:
             hdtv.ui.error("%s" % msg)
         for line in file.lines:
             hdtv.ui.msg("file> " + line)

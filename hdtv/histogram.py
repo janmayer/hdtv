@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -125,8 +123,12 @@ class Histogram(Drawable):
         xmin = self._hist.GetXaxis().GetXmin()
         xmax = self._hist.GetXaxis().GetXmax()
         if self.cal and not self.cal.IsTrivial():
-            s += "Xmin: %.2f (cal)  %.2f (uncal)\n" % (self.cal.Ch2E(xmin), xmin)
-            s += "Xmax: %.2f (cal)  %.2f (uncal)\n" % (self.cal.Ch2E(xmax), xmax)
+            s += "Xmin: {:.2f} (cal)  {:.2f} (uncal)\n".format(
+                self.cal.Ch2E(xmin), xmin
+            )
+            s += "Xmax: {:.2f} (cal)  {:.2f} (uncal)\n".format(
+                self.cal.Ch2E(xmax), xmax
+            )
         else:
             s += "Xmin: %.2f\n" % xmin
             s += "Xmax: %.2f\n" % xmax
@@ -368,7 +370,7 @@ class Histogram(Drawable):
         try:
             SpecReader.WriteSpectrum(self._hist, fname, fmt)
         except SpecReaderError as msg:
-            hdtv.ui.error("Failed to write spectrum: %s (file: %s)" % (msg, fname))
+            hdtv.ui.error(f"Failed to write spectrum: {msg} (file: {fname})")
             return False
         return True
 
@@ -446,7 +448,7 @@ class FileHistogram(Histogram):
     @property
     def info(self):
         # get the info property of the baseclass
-        s = super(FileHistogram, self).info
+        s = super().info
         s += "Filename: %s\n" % self.filename
         if self.fmt:
             s += "File format: %s\n" % self.fmt
@@ -483,7 +485,7 @@ class CutHistogram(Histogram):
 
     @property
     def info(self):
-        s = super(CutHistogram, self).info
+        s = super().info
         s += "cut "
         s += "on %s axis gate: " % self.axis
         for i in range(len(self.gates)):
@@ -494,7 +496,7 @@ class CutHistogram(Histogram):
         return s
 
 
-class THnSparseWrapper(object):
+class THnSparseWrapper:
     """
     Wrapper around a 2d THnSparse object, providing ProjectionX and
     ProjectionY.
@@ -544,7 +546,7 @@ class THnSparseWrapper(object):
         return proj
 
 
-class Histo2D(object):
+class Histo2D:
     def __init__(self):
         pass
 

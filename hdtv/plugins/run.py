@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -40,7 +38,7 @@ def run(args):
             hdtv.ui.msg("Running script %s" % fname)
             exec(compile(f.read(), fname, "exec"))
             hdtv.ui.msg("Finished!")
-    except IOError as err:
+    except OSError as err:
         hdtv.ui.error(str(err))
 
 

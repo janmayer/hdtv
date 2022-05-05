@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -139,14 +137,14 @@ def test_cmd_cal_pos_list():
 
 @pytest.mark.parametrize("callistfile", ["tests/share/callist.cal"])
 def test_cmd_cal_pos_list_read(callistfile):
-    f, ferr = hdtvcmd("cal position list read {}".format(callistfile))
+    f, ferr = hdtvcmd(f"cal position list read {callistfile}")
     assert ferr == ""
     assert "Calibrated spectrum with id 0" in f
 
 
 @pytest.mark.parametrize("callistfile", ["tests/share/callist.cal"])
 def test_cmd_cal_pos_list_clear(callistfile):
-    hdtvcmd("cal position list read {}".format(callistfile))
+    hdtvcmd(f"cal position list read {callistfile}")
     f, ferr = hdtvcmd("cal position list clear")
     assert ferr == ""
     assert "Unsetting calibration of spectrum with id 0" in f
@@ -154,8 +152,8 @@ def test_cmd_cal_pos_list_clear(callistfile):
 
 @pytest.mark.parametrize("callistfile", ["tests/share/callist.cal"])
 def test_cmd_cal_pos_list_write(callistfile, temp_file):
-    hdtvcmd("cal position list read {}".format(callistfile))
-    f, ferr = hdtvcmd("cal position list write -F {}".format(temp_file))
+    hdtvcmd(f"cal position list read {callistfile}")
+    f, ferr = hdtvcmd(f"cal position list write -F {temp_file}")
     assert ferr == ""
     assert f == ""
     assert filecmp.cmp(callistfile, temp_file)
@@ -172,14 +170,14 @@ def test_cmd_cal_pos_recalibrate():
 
 @pytest.mark.parametrize("calfile", ["tests/share/osiris_bg.cal"])
 def test_cmd_cal_pos_read(calfile):
-    f, ferr = hdtvcmd("calibration position read {}".format(calfile))
+    f, ferr = hdtvcmd(f"calibration position read {calfile}")
     assert ferr == ""
     assert "Calibrated spectrum with id 0" in f
 
 
 @pytest.mark.parametrize("nuclide", ["Co-60", "Cs-137"])
 def test_cmd_nuclide(nuclide):
-    f, ferr = hdtvcmd("nuclide {}".format(nuclide))
+    f, ferr = hdtvcmd(f"nuclide {nuclide}")
     assert ferr == ""
     assert "Nuclide:" in f
     assert "energy" in f
@@ -197,16 +195,14 @@ def test_cmd_nuclide(nuclide):
     ],
 )
 def test_cmd_cal_eff_set(parameters, function):
-    f, ferr = hdtvcmd(
-        "calibration efficiency set -p {} {}".format(parameters, function)
-    )
+    f, ferr = hdtvcmd(f"calibration efficiency set -p {parameters} {function}")
     assert ferr == ""
     assert f == ""
 
 
 @pytest.mark.parametrize("args", ["", "0", "all", "0 1", "0,1"])
 def test_cmd_cal_eff_list(args):
-    f, ferr = hdtvcmd("calibration efficiency list {}".format(args))
+    f, ferr = hdtvcmd(f"calibration efficiency list {args}")
     assert ferr == ""
     assert "Parameter" in f
 
@@ -215,8 +211,8 @@ def test_cmd_cal_eff_list(args):
     "parfile, efffunction", [("tests/share/osiris_bg.par", "wunder")]
 )
 def test_cmd_cal_eff_read_par(parfile, efffunction):
-    hdtvcmd("calibration efficiency set {}".format(efffunction))
-    f, ferr = hdtvcmd("calibration efficiency read parameter {}".format(parfile))
+    hdtvcmd(f"calibration efficiency set {efffunction}")
+    f, ferr = hdtvcmd(f"calibration efficiency read parameter {parfile}")
     assert ferr == ""
     assert f == ""
 
@@ -226,9 +222,9 @@ def test_cmd_cal_eff_read_par(parfile, efffunction):
     [("tests/share/osiris_bg.par", "tests/share/osiris_bg.cov", "wunder")],
 )
 def test_cmd_cal_eff_read_cov(parfile, covfile, efffunction):
-    hdtvcmd("calibration efficiency set {}".format(efffunction))
-    hdtvcmd("calibration efficiency read parameter {}".format(parfile))
-    f, ferr = hdtvcmd("calibration efficiency read covariance {}".format(covfile))
+    hdtvcmd(f"calibration efficiency set {efffunction}")
+    hdtvcmd(f"calibration efficiency read parameter {parfile}")
+    f, ferr = hdtvcmd(f"calibration efficiency read covariance {covfile}")
     assert ferr == ""
     assert f == ""
 
@@ -241,10 +237,10 @@ def test_cmd_cal_eff_read_cov(parfile, covfile, efffunction):
     [("tests/share/osiris_bg.par", "tests/share/osiris_bg.cov", "wunder")],
 )
 def test_cmd_cal_eff_write_par(parfile, covfile, efffunction, temp_file):
-    hdtvcmd("calibration efficiency set {}".format(efffunction))
-    hdtvcmd("calibration efficiency read parameter {}".format(parfile))
-    hdtvcmd("calibration efficiency read covariance {}".format(covfile))
-    f, ferr = hdtvcmd("cal efficiency write parameter {}".format(temp_file))
+    hdtvcmd(f"calibration efficiency set {efffunction}")
+    hdtvcmd(f"calibration efficiency read parameter {parfile}")
+    hdtvcmd(f"calibration efficiency read covariance {covfile}")
+    f, ferr = hdtvcmd(f"cal efficiency write parameter {temp_file}")
     assert ferr == ""
     assert f == ""
     assert filecmp.cmp(parfile, temp_file)
@@ -258,10 +254,10 @@ def test_cmd_cal_eff_write_par(parfile, covfile, efffunction, temp_file):
     [("tests/share/osiris_bg.par", "tests/share/osiris_bg.cov", "wunder")],
 )
 def test_cmd_cal_eff_write_cov(parfile, covfile, efffunction, temp_file):
-    hdtvcmd("calibration efficiency set {}".format(efffunction))
-    hdtvcmd("calibration efficiency read parameter {}".format(parfile))
-    hdtvcmd("calibration efficiency read covariance {}".format(covfile))
-    f, ferr = hdtvcmd("cal efficiency write covariance {}".format(temp_file))
+    hdtvcmd(f"calibration efficiency set {efffunction}")
+    hdtvcmd(f"calibration efficiency read parameter {parfile}")
+    hdtvcmd(f"calibration efficiency read covariance {covfile}")
+    f, ferr = hdtvcmd(f"cal efficiency write covariance {temp_file}")
     assert ferr == ""
     assert f == ""
     assert filecmp.cmp(covfile, temp_file)

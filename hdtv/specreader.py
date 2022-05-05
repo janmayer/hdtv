@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -30,7 +28,7 @@ class SpecReaderError(Exception):
     pass
 
 
-class TextSpecReader(object):
+class TextSpecReader:
     """
     Configurable formatted text file import
     The format string specifies the meaning of the columns in the file.
@@ -121,7 +119,7 @@ class TextSpecReader(object):
         specified in the constructor.
         """
         data = []
-        f = open(fname, "r")
+        f = open(fname)
         linenum = 1
         x = y = e = None
 
@@ -209,7 +207,7 @@ class TextSpecReader(object):
         return hist
 
 
-class SpecReader(object):
+class SpecReader:
     @staticmethod
     def GetSpectrum(fname, fmt=None, histname=None, histtitle=None):
         """

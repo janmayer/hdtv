@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -38,7 +36,7 @@ from hdtv.specreader import SpecReaderError
 from hdtv.util import LockViewport
 
 
-class SpecInterface(object):
+class SpecInterface:
     """
     User interface to work with 1-d spectra
     """
@@ -179,7 +177,7 @@ class SpecInterface(object):
                         # Create spectrum object
                         spec = Spectrum(FileHistogram(fname, fmt))
                     except (OSError, SpecReaderError):
-                        hdtv.ui.warning("Could not load %s'%s" % (fname, fmt))
+                        hdtv.ui.warning(f"Could not load {fname}'{fmt}")
                     else:
                         sid = self.spectra.Insert(spec, ID)
                         spec.color = hdtv.color.ColorForID(sid.major)
@@ -187,9 +185,9 @@ class SpecInterface(object):
                             spec.cal = self.spectra.caldict[spec.name]
                         loaded.append(spec)
                         if fmt is None:
-                            hdtv.ui.msg("Loaded %s into %s" % (fname, sid))
+                            hdtv.ui.msg(f"Loaded {fname} into {sid}")
                         else:
-                            hdtv.ui.msg("Loaded %s'%s into %s" % (fname, fmt, sid))
+                            hdtv.ui.msg(f"Loaded {fname}'{fmt} into {sid}")
 
             if loaded:
                 # activate last loaded spectrum
@@ -213,7 +211,7 @@ class SpecInterface(object):
 
             thisspec = dict()
 
-            status = str()
+            status = ""
             if ID == self.spectra.activeID:
                 status += "A"
             if ID in self.spectra.visible:
@@ -257,7 +255,7 @@ class SpecInterface(object):
         hdtv.ui.msg("Copied spectrum " + str(ID) + " to " + str(sid))
 
 
-class TvSpecInterface(object):
+class TvSpecInterface:
     """
     TV style commands for the spectrum interface.
     """
@@ -853,7 +851,7 @@ class TvSpecInterface(object):
         else:
             specids = args.specid
         ids = hdtv.util.ID.ParseIds(specids, self.spectra)
-        s = str()
+        s = ""
         for ID in ids:
             try:
                 spec = self.spectra.dict[ID]
@@ -897,7 +895,7 @@ class TvSpecInterface(object):
             if not fname:
                 return
             self.spectra.dict[ID].WriteSpectrum(filename, fmt)
-            hdtv.ui.msg("Wrote spectrum with id %s to file %s" % (ID, filename))
+            hdtv.ui.msg(f"Wrote spectrum with id {ID} to file {filename}")
         except KeyError:
             hdtv.ui.warning("There is no spectrum with id: %s" % ID)
 
@@ -923,7 +921,7 @@ class TvSpecInterface(object):
         spec.name = args.name
         if spec.cal and not spec.cal.IsTrivial():
             self.spectra.caldict[args.name] = spec.cal
-        hdtv.ui.msg("Renamed spectrum %s to '%s'" % (ID, args.name))
+        hdtv.ui.msg(f"Renamed spectrum {ID} to '{args.name}'")
 
     def SpectrumNormalization(self, args):
         "Set normalization for spectrum"

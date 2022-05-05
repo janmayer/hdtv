@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2019  The HDTV development team (see file AUTHORS)
 #
@@ -69,7 +67,7 @@ def strip_tags(html):
     return s.get_data()
 
 
-class TxtFile(object):
+class TxtFile:
     """
     Handle txt files, ignoring commented lines
     """
@@ -116,8 +114,8 @@ class TxtFile(object):
                 self.lines.append(line)
                 self.linos.append(number)
 
-        except IOError as msg:
-            raise IOError("Error opening file:" + str(msg))
+        except OSError as msg:
+            raise OSError("Error opening file:" + str(msg))
         # except BaseException:  # Let MainLoop handle other exceptions
         #    raise
         finally:
@@ -136,8 +134,8 @@ class TxtFile(object):
                 line.rstrip("\r\n ")
                 line += os.linesep
                 self.fd.write(line)
-        except IOError as msg:
-            raise IOError("Error opening file: %s" % msg)
+        except OSError as msg:
+            raise OSError("Error opening file: %s" % msg)
         except BaseException:
             raise
         finally:
@@ -155,7 +153,7 @@ class Pairs(list):
     # default conversion is "identity" -> No conversion
     def __init__(self, conv_func=lambda x: x):
 
-        super(Pairs, self).__init__()
+        super().__init__()
         self.conv_func = conv_func  # Conversion function, e.g. float
 
     def add(self, x, y):
@@ -207,7 +205,7 @@ opt_uncertainties = hdtv.options.Option(
 hdtv.options.RegisterOption("uncertainties", opt_uncertainties)
 
 
-class Table(object):
+class Table:
     """
     Class to store tables
 
@@ -322,11 +320,11 @@ class Table(object):
                     else:
                         try:
                             if hdtv.options.Get("uncertainties") == "short":
-                                value = "{:S}".format(value)
+                                value = f"{value:S}"
                             elif hdtv.options.Get("uncertainties") == "pretty":
-                                value = "{:P}".format(value)
+                                value = f"{value:P}"
                             else:
-                                value = "{:.4u}".format(value).replace("+/-", " ")
+                                value = f"{value:.4u}".replace("+/-", " ")
                         except BaseException:
                             value = str(value)
                     if value != "":  # We have values in this columns -> don't ignore it
@@ -366,7 +364,7 @@ class Table(object):
             self._width += len(self.col_sep_char)
 
     def build_header(self):
-        headerline = str()
+        headerline = ""
         for col in range(0, len(self.header)):
             if not self._ignore_col[col]:
                 headerline += (
@@ -382,7 +380,7 @@ class Table(object):
 
     def build_sep(self):
         # Seperator between header and data
-        header_sep_line = str()
+        header_sep_line = ""
         for i in range(0, len(self._col_width)):
             if not self._ignore_col[i]:
                 for j in range(0, self._col_width[i]):
@@ -395,7 +393,7 @@ class Table(object):
         return header_sep_line
 
     def __str__(self):
-        text = str()
+        text = ""
         if self.extra_header is not None:
             text += str(self.extra_header) + os.linesep
 
@@ -430,7 +428,7 @@ class Table(object):
         return text
 
 
-class Position(object):
+class Position:
     """
     Class for storing postions that may be fixed in calibrated or uncalibrated space
 
@@ -492,7 +490,7 @@ class Position(object):
 
     # other functions
     def __str__(self):
-        text = str()
+        text = ""
         if self.fixedInCal:
             text += "Cal: %s" % self._pos_cal
         else:
@@ -530,7 +528,7 @@ class Position(object):
             self.pos_uncal = self._E2Ch(self._pos_cal)
 
 
-class ID(object):
+class ID:
     def __init__(self, major=None, minor=None):
         if major is None:
             self.major = None
@@ -629,7 +627,7 @@ class ID(object):
     @classmethod
     def _parseNormalID(cls, string):
         if "." in string:
-            major_s, minor_s = [m for m in string.split(".")]
+            major_s, minor_s = (m for m in string.split("."))
             major = int(major_s)
             # TODO
             #            if minor_s.lower() in ("x", "y", "c"):
@@ -846,7 +844,7 @@ class Singleton(type):
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+            cls._instances[cls] = super().__call__(*args, **kwargs)
         return cls._instances[cls]
 
 

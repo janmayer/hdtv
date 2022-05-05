@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # DDEP database, Decay Data Evaluation Project
 
 import json
@@ -30,9 +29,7 @@ def SearchNuclide(nuclide):
         ) as resource:
             data = resource.read().decode("utf-8")
     except:
-        raise hdtv.cmdline.HDTVCommandError(
-            "Error looking up nuclide {}".format(nuclide)
-        )
+        raise hdtv.cmdline.HDTVCommandError(f"Error looking up nuclide {nuclide}")
 
     for line in data.split("\r\n"):
         sep = line.split(" ; ")

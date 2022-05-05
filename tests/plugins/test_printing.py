@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -55,13 +53,13 @@ def test_cmd_printing():
     try:
         outfile = tempfile.mkstemp(".svg", "hdtv_ptest_")[1]
         f, ferr = hdtvcmd(
-            "print -y 'my_ylabel' -x 'my_xlabel' -t 'my_title' -F {}".format(outfile)
+            f"print -y 'my_ylabel' -x 'my_xlabel' -t 'my_title' -F {outfile}"
         )
         print(f)
         print(ferr)
         assert f == ""
         assert ferr == ""
-        with open(outfile, "r") as fout:
+        with open(outfile) as fout:
             result = fout.read()
         assert "my_ylabel" in result
         assert "my_xlabel" in result
@@ -76,7 +74,7 @@ def test_cmd_printing_formats(fmt):
     try:
         outfile = tempfile.mkstemp("." + fmt, "hdtv_pftest_")[1]
         f, ferr = hdtvcmd(
-            "print -y 'my_ylabel' -x 'my_xlabel' -t 'my_title' -F {}".format(outfile)
+            f"print -y 'my_ylabel' -x 'my_xlabel' -t 'my_title' -F {outfile}"
         )
         print(f)
         print(ferr)

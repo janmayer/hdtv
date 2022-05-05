@@ -1,4 +1,4 @@
-_hdtv() 
+_hdtv()
 {
     local cur prev opts
     COMPREPLY=()

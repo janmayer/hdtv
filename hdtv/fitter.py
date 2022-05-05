@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -26,7 +24,7 @@ import hdtv.backgroundmodels
 from hdtv.util import Pairs
 
 
-class Fitter(object):
+class Fitter:
     """
     PeakModel independent part of the Interface to the C++ Fitter
     The parts that depend on a special peak model can be found in peak.py.

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2011-2013  The HDTV development team (see file AUTHORS)
 #
@@ -38,7 +36,7 @@ import hdtv.color
 # TODO: add cut marker
 
 
-class PrintOut(object):
+class PrintOut:
     def __init__(self, spectra, energies=False):
         self.spectra = spectra
         self.labels = energies
@@ -164,7 +162,7 @@ class PrintOut(object):
         pylab.text(
             x,
             0.94 - 0.06 * i,
-            "{:S}".format(peak.pos_cal),
+            f"{peak.pos_cal:S}",
             transform=trans,
             size="small",
         )
@@ -197,7 +195,7 @@ class PrintOut(object):
         return en
 
 
-class PrintInterface(object):
+class PrintInterface:
     def __init__(self, spectra):
         self.spectra = spectra
 

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -119,5 +117,5 @@ def BuildLibrary(name, dir):
     subprocess.check_call(["cmake", "--build", ".", "--target", "install"], cwd=tmpdir)
     shutil.rmtree(tmpdir)
 
-    hdtv.ui.info("Rebuild library %s in %s" % ((libfmt % name), dir))
+    hdtv.ui.info(f"Rebuild library {(libfmt % name)} in {dir}")
     return os.path.join(dir, "lib", libfmt % name)

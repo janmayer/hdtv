@@ -29,7 +29,7 @@ Start HDTV using the ``hdtv`` command:
 
     $ hdtv
     HDTV – Nuclear Spectrum Analysis Tool
-    hdtv> 
+    hdtv>
 
 A new GUI window is opened. This window is used to view spectra and fit peaks.
 Except for the two axes, it is empty at the moment, as there is no spectrum
@@ -149,7 +149,7 @@ peaks. You can display a decomposition of the individual peaks using ``D``.
 To delete the fits or hide the decomposition, use ``-F``, ``-B`` or ``-D``.
 
 When creating a fit, a table with informations about the fit and individual
-peaks will appear in the terminal window, giving you information about 
+peaks will appear in the terminal window, giving you information about
 position, width, volume and more.
 
 By default, a linear fit is being used for the background. This might not
@@ -251,7 +251,7 @@ in a stored spectrum, use ``fit assign``, e.g.:
 
 This will assign energies to peaks ``0.1`` and ``0.3`` and conduct an energy
 calibration afterwards. It is also possible to do this in two steps:
- 
+
 .. code-block::
 
     hdtv> fit position assign 0.1 1173.228(3) 0.3 1332.492(4)
@@ -263,7 +263,7 @@ using a larger number of peaks for the calibration. After calibrating
 the spectrum, the x-axis in the GUI will show the calibrated energies.
 
 Alternatively, it is also possible to manually enter channel-energy pairs:
- 
+
 .. code-block::
 
     hdtv> calibration position enter 1543 1173.228(3) 1747 1332.492(4)
@@ -313,7 +313,7 @@ WORKING WITH MULTIPLE SPECTRA
 =============================
 
 From the command line, it is possible to show individual spectra
-using 
+using
 
 .. code-block::
 
@@ -326,7 +326,7 @@ and
     hdtv> spectrum hide <specID>
 
 ``specId`` might be a the id of one or multiple spectra. Possible values
-include ``0``, ``2,4``, ``1-5``, ``all``, ``active``, ``none``, ``next``, 
+include ``0``, ``2,4``, ``1-5``, ``all``, ``active``, ``none``, ``next``,
 ``prev``, ``first``, ``last``, ``visible``.
 
 The currently active spectrum (that is used for fitting) is set using
@@ -352,4 +352,3 @@ SEE ALSO
 ========
 
 | ``hdtv``\(1), ``root``\(1), ``python``\(1)
-

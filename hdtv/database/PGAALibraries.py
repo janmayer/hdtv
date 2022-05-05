@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # PGAA database from Institute of Isotopes, Hungarian Academey of Science,
 # Budapest
 
@@ -31,7 +30,7 @@ class PGAAGamma(Gamma):
         k0_comp=(1, 1),
     ):
 
-        super(PGAAGamma, self).__init__(nuclide, energy, sigma, intensity)
+        super().__init__(nuclide, energy, sigma, intensity)
         self.halflife = halflife
         self._k0 = k0  # TODO
         if nuclide == Nuclides(k0_comp[0], k0_comp[1])[0] and not PGAAGamma.k0_norm:
@@ -56,8 +55,8 @@ class PGAAGamma(Gamma):
 
     def __str__(self):
 
-        text = str()
-        text += super(PGAAGamma, self).__str__()
+        text = ""
+        text += super().__str__()
         text += "k0:        " + str(self.k0) + "\n"
         return text
 
@@ -74,7 +73,7 @@ class PGAAlib_IKI2000(GammaLib):
         k0_comp=(1, 1),
     ):
 
-        super(PGAAlib_IKI2000, self).__init__()
+        super().__init__()
 
         # Header for table printout
         self.fOrderedHeader = [
@@ -112,7 +111,7 @@ class PGAAlib_IKI2000(GammaLib):
             return True
 
         try:
-            datfile = open(self.csvfile, "r", encoding="utf-8")
+            datfile = open(self.csvfile, encoding="utf-8")
         except TypeError:
             datfile = open(self.csvfile, "rb")
 
@@ -163,7 +162,7 @@ class PromptGammas(GammaLib):
         k0_comp=(1, 1),
     ):
 
-        super(PromptGammas, self).__init__()
+        super().__init__()
 
         # Header for table printout
         self.fOrderedHeader = ["Z", "A", "El", "Energy/(keV)", "Sigma/(b)", "k0"]
@@ -188,7 +187,7 @@ class PromptGammas(GammaLib):
             return True
 
         try:
-            datfile = open(self.csvfile, "r", encoding="utf-8")
+            datfile = open(self.csvfile, encoding="utf-8")
         except TypeError:
             datfile = open(self.csvfile, "rb")
 

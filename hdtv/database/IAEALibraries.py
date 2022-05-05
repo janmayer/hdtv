@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # IAEA database, International Atomic Energy Agency
 
 import json

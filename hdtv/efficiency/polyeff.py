@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -89,8 +87,8 @@ class PolyEff(_Efficiency):
         try:
             self.norm = 1.0 / exp(
                 self.TF1.GetMaximum(
-                    min([p[0] for p in self._fitInput]),
-                    max([p[0] for p in self._fitInput]),
+                    min(p[0] for p in self._fitInput),
+                    max(p[0] for p in self._fitInput),
                 )
             )
         except ZeroDivisionError:

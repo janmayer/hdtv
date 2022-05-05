@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -40,7 +38,7 @@ class EEPeak(Drawable):
     """
 
     def __init__(self, pos, amp, sigma1, sigma2, eta, gamma, vol, color=None, cal=None):
-        super(EEPeak, self).__init__(color, cal)
+        super().__init__(color, cal)
         self.pos = pos
         self.amp = amp
         self.sigma1 = sigma1
@@ -109,7 +107,7 @@ class EEPeak(Drawable):
         """
         formatted printing of all attributes
         """
-        text = str()
+        text = ""
         if verbose:
             text += (
                 "Pos:         {0.pos_cal:S}\n"
@@ -122,7 +120,7 @@ class EEPeak(Drawable):
                 "Volume:      {0.vol:S}"
             ).format(self)
         else:
-            text += "Peak@ {0.pos_cal:S}".format(self)
+            text += f"Peak@ {self.pos_cal:S}"
         return text
 
     def __eq__(self, other):
@@ -167,7 +165,7 @@ class PeakModelEE(PeakModel):
     """
 
     def __init__(self):
-        super(PeakModelEE, self).__init__()
+        super().__init__()
         self.fParStatus = {
             "pos": None,
             "amp": None,

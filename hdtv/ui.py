@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2019  The HDTV development team (see file AUTHORS)
 #
@@ -38,7 +36,7 @@ from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import HTML, ANSI
 
 
-class SimpleUI(object):
+class SimpleUI:
     """
     Very simple UserInterface
     """

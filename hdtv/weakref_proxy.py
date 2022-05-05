@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2006-2009 Dirk Meyer, Jason Tackaberry
 #
@@ -27,12 +26,12 @@ __all__ = ["weakref"]
 from _weakref import ref
 
 
-class NoneProxy(object):
+class NoneProxy:
     def __call__(self):
         return None
 
 
-class weakref(object):
+class weakref:
     """
     This class represents a weak reference based on the python
     module weakref. The difference between weakref.ref and this class

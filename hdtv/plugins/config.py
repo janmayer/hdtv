@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -35,7 +33,9 @@ def ConfigSet(args):
         raise hdtv.cmdline.HDTVCommandAbort(args.variable + ": no such option")
     except ValueError as err:
         raise hdtv.cmdline.HDTVCommandAbort(
-            "Invalid value (%s) for option %s. %s" % (args.value, args.variable, err)
+            "Invalid value ({}) for option {}. {}".format(
+                args.value, args.variable, err
+            )
         )
 
 

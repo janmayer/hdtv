@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -25,7 +23,7 @@ import hdtv.ui
 from hdtv.util import LockViewport
 
 
-class Drawable(object):
+class Drawable:
     def __init__(self, color=None, cal=None):
         self.viewport = None
         # displayObj will be created when calling Draw
@@ -148,7 +146,7 @@ class Drawable(object):
             self.displayObj.Hide()
 
 
-class DrawableManager(object):
+class DrawableManager:
     """
     This class provides some handy functions to manage a collection of
     identical drawable objects.

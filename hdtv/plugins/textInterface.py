@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -52,7 +50,7 @@ class TextInterface(hdtv.ui.SimpleUI):
     def __init__(self, height=25, width=80):
         hdtv.ui.debug("Loaded TextInterface")
 
-        super(TextInterface, self).__init__()
+        super().__init__()
         # Set options
         self.opt = dict()
         self.opt["ui.pager.cmd"] = hdtv.options.Option(default="less")  # default pager

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -37,7 +35,7 @@ from hdtv.matrix import Matrix
 from hdtv.histogram import MHisto2D
 
 
-class MatInterface(object):
+class MatInterface:
     def __init__(self, spectra):
         hdtv.ui.debug("Loaded user interface for working with 2-d spectra")
 
@@ -196,7 +194,7 @@ class MatInterface(object):
 
             this = dict()
 
-            stat = str()
+            stat = ""
             if ID == matrix.activeID:
                 stat += "A"
             if ID in matrix.visible:
@@ -206,13 +204,13 @@ class MatInterface(object):
             this["stat"] = stat
             this["axis"] = obj.axis
 
-            gates = str()
+            gates = ""
             for gate in obj.regionMarkers:
                 p = sorted([gate.p1.pos_cal, gate.p2.pos_cal])
                 gates += " %d - %d " % (p[0], p[1])
             this["gates"] = gates
 
-            bgs = str()
+            bgs = ""
             for bg in obj.bgMarkers:
                 bg = sorted([bg.p1.pos_cal, bg.p2.pos_cal])
                 bgs += " %d - %d " % (bg[0], bg[1])
@@ -221,7 +219,7 @@ class MatInterface(object):
             if obj.spec is not None:
                 count += 1
                 sid = self.spectra.Index(obj.spec)
-                stat = str()
+                stat = ""
                 if sid == self.spectra.activeID:
                     stat += "A"
                 if sid in self.spectra.visible:
@@ -256,7 +254,7 @@ class MatInterface(object):
         return str(table)
 
 
-class TvMatInterface(object):
+class TvMatInterface:
     def __init__(self, matInterface):
         self.matIf = matInterface
         self.spectra = self.matIf.spectra
@@ -409,7 +407,7 @@ class TvMatInterface(object):
                 if ids == "ALL" or spec.matrix.ID in ids:
                     matrices.add(spec.matrix)
 
-        result = str()
+        result = ""
         for mat in matrices:
             result += self.matIf.ListMatrix(mat)
         hdtv.ui.msg(html=result)

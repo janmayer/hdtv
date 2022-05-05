@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -88,7 +86,7 @@ def test_cmd_config_show_variable(variable, value):
     ],
 )
 def test_cmd_config_set(variable, value):
-    hdtvcmd("config set {} {}".format(variable, value))
+    hdtvcmd(f"config set {variable} {value}")
     assert str(hdtv.options.Get(variable)) == value
 
 
@@ -104,7 +102,7 @@ def test_cmd_config_set(variable, value):
 )
 def test_cmd_config_reset(variable, value, default):
     hdtv.options.Set(variable, value)
-    hdtvcmd("config reset {}".format(variable))
+    hdtvcmd(f"config reset {variable}")
     assert str(hdtv.options.Get(variable)) == default
 
 

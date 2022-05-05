@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -161,9 +159,9 @@ class Marker(Drawable):
 
     def __str__(self):
         if self.p2 is not None:
-            return "%s marker at %s and %s" % (self.xytype, self.p1, self.p2)
+            return f"{self.xytype} marker at {self.p1} and {self.p2}"
         else:
-            return "%s marker at %s" % (self.xytype, self.p1)
+            return f"{self.xytype} marker at {self.p1}"
 
     def FixInCal(self):
         self.fixedInCal = True

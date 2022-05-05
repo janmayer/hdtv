@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # HDTV - A ROOT-based spectrum analysis software
 #  Copyright (C) 2006-2009  The HDTV development team (see file AUTHORS)
 #
@@ -28,7 +26,7 @@ import ROOT
 import hdtv.rootext.display
 
 # Base class for all background models
-class BackgroundModel(object):
+class BackgroundModel:
     """
     A background model is a function used to fit the quasi-continuous background
     of a spectrum. The user can choose how to fit its parameters (and whether to
@@ -76,7 +74,7 @@ class BackgroundModel(object):
                 elif status == "calculated":
                     statstr += "%s: calculated from fit result\n" % name
                 else:
-                    statstr += "%s: fixed at %.3f\n" % (name, status)
+                    statstr += f"{name}: fixed at {status:.3f}\n"
 
         return statstr
 
@@ -100,7 +98,7 @@ class BackgroundModel(object):
         # parameter
         if stat is not None:
             if stat not in self.fValidParStatus[parname]:
-                msg = "Status %s not allowed for parameter %s in peak model %s" % (
+                msg = "Status {} not allowed for parameter {} in peak model {}".format(
                     stat,
                     parname,
                     self.name,
@@ -118,7 +116,7 @@ class BackgroundModel(object):
 
         # Check if a numeric value is legal for the parameter
         if int not in self.fValidParStatus[parname]:
-            msg = "Invalid status %s for parameter %s in peak model %s" % (
+            msg = "Invalid status {} for parameter {} in peak model {}".format(
                 status,
                 parname,
                 self.name,
