@@ -181,8 +181,10 @@ class SpecInterface:
                     else:
                         sid = self.spectra.Insert(spec, ID)
                         spec.color = hdtv.color.ColorForID(sid.major)
-                        if spec.name in list(self.spectra.caldict.keys()):
+                        try:
                             spec.cal = self.spectra.caldict[spec.name]
+                        except KeyError:
+                            pass
                         loaded.append(spec)
                         if fmt is None:
                             hdtv.ui.msg(f"Loaded {fname} into {sid}")

@@ -1491,20 +1491,23 @@ class EnergyCalHDTVInterface:
             return
         # update calcdict of main session
         self.spectra.caldict.update(caldict)
-        for name in caldict.keys():
-            for sid in self.spectra.dict.keys():
-                if self.spectra.dict[sid].name == name:
-                    cal = caldict[name]
-                    self.spectra.ApplyCalibration([sid], cal)
+        for specId, spec in self.spectra.dict.items():
+            try:
+                cal = self.spectra.caldict[spec.name]
+            except KeyError:
+                pass
+            else:
+                self.spectra.ApplyCalibration([specId], cal, storeInCaldict=False)
 
     def CalPosListClear(self, args):
         """
         Clear list of name <-> calibration pairs
         """
-        for name in list(self.spectra.caldict.keys()):
-            for sid in self.spectra.dict.keys():
-                if self.spectra.dict[sid].name == name:
-                    self.spectra.ApplyCalibration([sid], None)
+        for specId, spec in self.spectra.dict.items():
+            if (
+                self.spectra.caldict.get(spec.name) is not None
+            ):  # Use get() instead of "key in dict", as the latter only checks for literally matching keys, while get() also considers glob/regex matches
+                self.spectra.ApplyCalibration([specId], None)
         self.spectra.caldict.clear()
 
 

@@ -19,11 +19,53 @@
 
 from array import array
 from html import escape
+import re
+import fnmatch
 
 import ROOT
 import hdtv.util
+import hdtv.cal
+import hdtv.options
 
 import hdtv.rootext.calibration
+
+
+class PositionCalibrationDict(dict):
+    """
+    Dict subclass that stores position calibrations
+
+    Subclasses dict overwriting get() and providing __missing__() and a user config option to enable calibration lookups based on glob or regex matching of dict keys to lookup key.
+    Note that in all modes a literally matching dict key is always preferred to globs/regex.
+    Note that other methods like __contains__() are not overwritten on purpose, so use "key in dict" to check for literally existing keys and dict[key] or get() to check for glob/regex matching keys.
+    """
+
+    calListSpecNameMatching = hdtv.options.Option(
+        default="glob", parse=hdtv.options.parse_choices(["literal", "glob", "regex"])
+    )
+    hdtv.options.RegisterOption(
+        "calibration.position.list.spec_name_matching", calListSpecNameMatching
+    )
+
+    def __missing__(self, key):
+        matchMode = self.calListSpecNameMatching.Get()
+        if matchMode == "glob":
+            for dictKey, val in self.items():
+                if fnmatch.fnmatch(key, dictKey):
+                    return val
+        elif matchMode == "regex":
+            for dictKey, val in self.items():
+                if re.fullmatch(dictKey, key):
+                    return val
+        raise KeyError(key)
+
+    def get(self, key, default=None):
+        """
+        Return the value for key if key is in the dictionary, else the value of a glob/regex (if enabled) matching key, else default.
+        """
+        try:
+            return self[key]
+        except KeyError:
+            return default
 
 
 def MakeCalibration(cal):

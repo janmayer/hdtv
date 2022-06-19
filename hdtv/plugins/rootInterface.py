@@ -394,9 +394,9 @@ class RootFileInterface:
                         self.caldict[spec.name] = spec.cal
                     else:
                         if args.load_cal:
-                            if spec.name in self.spectra.caldict:
+                            try:
                                 spec.cal = self.caldict[spec.name]
-                            else:
+                            except KeyError:
                                 hdtv.ui.warning(
                                     "No calibration found for %s" % spec.name
                                 )
