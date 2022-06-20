@@ -931,13 +931,15 @@ class EnergyCalIf:
                 )
         return calDict
 
-    def CreateCalList(self, calDict):
+    def CreateCalList(self, calDict, sort: bool = True):
         """
         Creates a printable list of all calibrations in calDict
         <specname>: <cal0> <cal1> ...
         """
         lines = list()
-        names = sorted(calDict.keys())
+        names = calDict.keys()
+        if sort:
+            names = sorted(names, key=hdtv.util.natural_sort_key)
         for name in names:
             cal = calDict[name]
             lines.append(name + ": " + hdtv.cal.PrintCal(cal))
@@ -958,6 +960,11 @@ class EnergyCalHDTVInterface:
 
         self.EnergyCalIf = ECalIf
         self.spectra = ECalIf.spectra
+
+        self.calListSort = hdtv.options.Option(
+            default=True, parse=hdtv.options.parse_bool
+        )
+        hdtv.options.RegisterOption("calibration.position.list.sort", self.calListSort)
 
         # calibration commands
         prog = "calibration position set"
@@ -1206,6 +1213,19 @@ class EnergyCalHDTVInterface:
         prog = "calibration position list"
         description = "List all energy calibrations that are currently loaded."
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
+            "--sort",
+            "-s",
+            action="store_true",
+            help="sort calibration list",
+        )
+        group.add_argument(
+            "--unsorted",
+            "-u",
+            action="store_true",
+            help="leave calibration list unsorted",
+        )
         hdtv.cmdline.AddCommand(prog, self.CalPosList, parser=parser)
 
         prog = "calibration position list write"
@@ -1217,6 +1237,19 @@ class EnergyCalHDTVInterface:
             action="store_true",
             default=False,
             help="overwrite existing files without asking",
+        )
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
+            "--sort",
+            "-s",
+            action="store_true",
+            help="sort calibration list",
+        )
+        group.add_argument(
+            "--unsorted",
+            "-u",
+            action="store_true",
+            help="leave calibration list unsorted",
         )
         parser.add_argument(
             "filename", metavar="output-file", help="output file for position list"
@@ -1468,14 +1501,16 @@ class EnergyCalHDTVInterface:
         """
         Print currently known calibration list
         """
-        text = self.EnergyCalIf.CreateCalList(self.spectra.caldict)
+        sort = (args.sort or self.calListSort.Get()) and (not args.unsorted)
+        text = self.EnergyCalIf.CreateCalList(self.spectra.caldict, sort=sort)
         hdtv.ui.msg(text)
 
     def CalPosListWrite(self, args):
         """
         Write calibration list to file
         """
-        text = self.EnergyCalIf.CreateCalList(self.spectra.caldict)
+        sort = (args.sort or self.calListSort.Get()) and (not args.unsorted)
+        text = self.EnergyCalIf.CreateCalList(self.spectra.caldict, sort=sort)
         fname = hdtv.util.user_save_file(args.filename, args.force)
         if not fname:
             return
