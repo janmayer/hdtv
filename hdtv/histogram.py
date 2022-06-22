@@ -138,6 +138,7 @@ class Histogram(Drawable):
             s += "Calibration: none\n"
         elif isinstance(self.cal, ROOT.HDTV.Calibration):
             s += "Calibration: Polynomial, degree %d\n" % self.cal.GetDegree()
+            s += f"Calibration coefficients: {hdtv.cal.PrintCal(self.cal)}\n"
         else:
             s += "Calibration: unknown\n"
         return s

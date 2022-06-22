@@ -346,7 +346,9 @@ class TvSpecInterface:
         description = "Write a single spectrum to the filesystem (using libmfile)"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument("filename", help="filename of output file")
-        parser.add_argument("format", help="format of spectrum file")
+        parser.add_argument(
+            "format", help="format of spectrum file (e.g. txt for simple text file)"
+        )
         parser.add_argument(
             "specid", nargs="?", default=None, help="id of spectrum to write"
         )
