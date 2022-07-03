@@ -17,6 +17,7 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
+import copy
 import os
 
 from scipy.interpolate import InterpolatedUnivariateSpline
@@ -28,10 +29,10 @@ import hdtv.rootext.mfile
 import hdtv.rootext.calibration
 import hdtv.rootext.display
 import hdtv.rootext.fit
+import hdtv.cal
 
 from hdtv.drawable import Drawable
 from hdtv.specreader import SpecReader, SpecReaderError
-from hdtv.cal import CalibrationFitter
 from hdtv.util import LockViewport
 
 # Don't add created spectra to the ROOT directory
@@ -137,6 +138,7 @@ class Histogram(Drawable):
             s += "Calibration: none\n"
         elif isinstance(self.cal, ROOT.HDTV.Calibration):
             s += "Calibration: Polynomial, degree %d\n" % self.cal.GetDegree()
+            s += f"Calibration coefficients: {hdtv.cal.PrintCal(self.cal)}\n"
         else:
             s += "Calibration: unknown\n"
         return s
@@ -231,8 +233,11 @@ class Histogram(Drawable):
             self.displayObj.SetHist(self._hist)
         # update calibration
         if calibrate:
-            if not self.cal:
-                self.cal.SetCal(0.0, 1.0)
+            if self.cal:
+                # Copy to not modify the cal in the position calibration cal dict
+                self.cal = copy.copy(self.cal)
+            else:
+                self.cal = hdtv.cal.MakeCalibration((0, 1))
             self.cal.Rebin(ngroup)
             self.displayObj.SetCal(self.cal)
             hdtv.ui.info("Calibration updated for rebinned spectrum")
@@ -310,10 +315,12 @@ class Histogram(Drawable):
 
         self._hist = newhist
         if use_tv_binning:
-            if binsize != 1.0 or self.cal:
-                self.cal.SetCal(0, binsize)
+            if binsize == 1.0:
+                self.cal = None
+            else:
+                self.cal = hdtv.cal.MakeCalibration((0, binsize))
         else:
-            self.cal.SetCal(binsize / 2, binsize)
+            self.cal = hdtv.cal.MakeCalibration((binsize / 2, binsize))
         # update display
         if self.displayObj:
             self.displayObj.SetHist(self._hist)
@@ -389,7 +396,7 @@ class Histogram(Drawable):
                 hist.GetName(), hist.GetTitle(), hist.GetNbinsX(), 0, hist.GetNbinsX()
             )
             if caldegree:
-                cf = CalibrationFitter()
+                cf = hdtv.cal.CalibrationFitter()
             # TODO: Slow
             for bin in range(0, hist.GetNbinsX()):
                 if caldegree:

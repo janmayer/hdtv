@@ -53,11 +53,11 @@ class Session(DrawableManager):
         self.workCut = Cut()
         self.workCut.active = True
         self.workCut.Draw(self.viewport)
-        self.caldict = dict()
+        self.caldict = hdtv.cal.PositionCalibrationDict()
         # main session is always active
         self._active = True
 
-    def ApplyCalibration(self, specIDs, cal):
+    def ApplyCalibration(self, specIDs, cal, storeInCaldict: bool = True):
         """
         Apply calibration cal to spectra with ids
         """
@@ -79,7 +79,8 @@ class Session(DrawableManager):
                 else:
                     hdtv.ui.msg("Calibrated spectrum with id %s" % ID)
                     cal = hdtv.cal.MakeCalibration(cal)
-                    self.caldict[spec.name] = cal
+                    if storeInCaldict:
+                        self.caldict[spec.name] = cal
                     spec.cal = cal
                 if self.workFit.spec == spec:
                     self.workFit.cal = cal
@@ -364,5 +365,5 @@ class Session(DrawableManager):
         self.workFit = Fit(Fitter(peakModel="theuerkauf", backgroundModel="polynomial"))
         self.workFit.active = True
         self.workFit.Draw(self.viewport)
-        self.caldict = dict()
+        self.caldict = hdtv.cal.PositionCalibrationDict()
         return super().Clear()

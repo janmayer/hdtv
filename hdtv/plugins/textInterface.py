@@ -60,6 +60,9 @@ class TextInterface(hdtv.ui.SimpleUI):
         self.opt["ui.pager.builtin"] = hdtv.options.Option(
             default=True, parse=hdtv.options.parse_bool
         )  # use built-in pager instead of external program
+        self.opt["ui.pager.disable_pager"] = hdtv.options.Option(
+            default=False, parse=hdtv.options.parse_bool
+        )  # whether to not use pager at all
 
         for (key, opt) in list(self.opt.items()):
             hdtv.options.RegisterOption(key, opt)
@@ -136,7 +139,7 @@ class TextInterface(hdtv.ui.SimpleUI):
             html = escape(text)
         lines = len(html.splitlines())
 
-        if lines > self.canvasheight:
+        if lines > self.canvasheight and not hdtv.options.Get("ui.pager.disable_pager"):
             self.page(html, end)
         else:
             super().msg(html=html, end=end)

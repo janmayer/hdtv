@@ -352,7 +352,8 @@ class Table:
             )
         else:
             self.data.sort(
-                key=lambda x: natural_sort_key(str(x[sortBy])), reverse=reverseSort
+                key=lambda x: natural_sort_key(str(x[sortBy]).strip()),
+                reverse=reverseSort,
             )
 
     def calc_width(self):

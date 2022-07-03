@@ -181,8 +181,10 @@ class SpecInterface:
                     else:
                         sid = self.spectra.Insert(spec, ID)
                         spec.color = hdtv.color.ColorForID(sid.major)
-                        if spec.name in list(self.spectra.caldict.keys()):
+                        try:
                             spec.cal = self.spectra.caldict[spec.name]
+                        except KeyError:
+                            pass
                         loaded.append(spec)
                         if fmt is None:
                             hdtv.ui.msg(f"Loaded {fname} into {sid}")
@@ -344,7 +346,9 @@ class TvSpecInterface:
         description = "Write a single spectrum to the filesystem (using libmfile)"
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument("filename", help="filename of output file")
-        parser.add_argument("format", help="format of spectrum file")
+        parser.add_argument(
+            "format", help="format of spectrum file (e.g. txt for simple text file)"
+        )
         parser.add_argument(
             "specid", nargs="?", default=None, help="id of spectrum to write"
         )
