@@ -141,7 +141,7 @@ class FitlistHDTVInterface:
             nargs="?",
             default=None,
             help="""may contain %%s, %%d, %%02d (or other python
-            format specifier) as placeholder for spectrum id""",
+            format specifier) as placeholder for spectrum id, if not provided defaults to the spectrum's associated fitlist""",
         )
         hdtv.cmdline.AddCommand(prog, self.FitWrite, fileargs=True, parser=parser)
 
@@ -181,9 +181,9 @@ class FitlistHDTVInterface:
         )
         parser.add_argument(
             "filename",
-            nargs="+",
-            help="""may contain %%s, %%d, %%02d (or other python
-            format specifier) as placeholder for spectrum id""",
+            nargs="*",
+            help="""May contain %%s, %%d, %%02d (or other python
+            format specifier) as placeholder for spectrum id, if not provided defaults to each spectrum's associated fitlist""",
         )
         hdtv.cmdline.AddCommand(prog, self.FitRead, fileargs=True, parser=parser)
 
@@ -258,24 +258,36 @@ class FitlistHDTVInterface:
 
         # Build list of files to load for each spectrum
         for sid in sids:
-            fnames[sid] = list()  # Filenames for this spectrum ID
-            for fname_raw in args.filename:
+            if not args.filename:
+                name = self.spectra.dict[sid].name
                 try:
-                    # Try to replace format placeholder (e.g. %s) with spectrum
-                    # ID
-                    fname = fname_raw % sid
-                except TypeError:  # No placeholder found
-                    fname = fname_raw
+                    fnames[sid] = (self.FitlistIf.list[name],)
+                except KeyError:
+                    (base, _) = os.path.splitext(name)
+                    fname = base + "." + hdtv.options.Get("fit.list.default_extension")
+                    if not os.path.isfile(fname):
+                        hdtv.ui.warning("No such file %s" % fname)
+                    else:
+                        fnames[sid] = (fname,)
+            else:
+                fnames[sid] = list()  # Filenames for this spectrum ID
+                for fname_raw in args.filename:
+                    try:
+                        # Try to replace format placeholder (e.g. %s) with spectrum
+                        # ID
+                        fname = fname_raw % sid
+                    except TypeError:  # No placeholder found
+                        fname = fname_raw
 
-                fname = os.path.expanduser(fname)
-                more = glob.glob(fname)
-                if len(more) == 0:
-                    hdtv.ui.warning("No such file %s" % fname)
-                fnames[sid].extend(more)
+                    fname = os.path.expanduser(fname)
+                    more = glob.glob(fname)
+                    if len(more) == 0:
+                        hdtv.ui.warning("No such file %s" % fname)
+                    fnames[sid].extend(more)
 
         # Load files
-        for sid in sids:
-            for fname in fnames[sid]:
+        for sid, fnameList in fnames.items():
+            for fname in fnameList:
                 hdtv.ui.msg(f"Reading fitlist {fname} to spectrum {sid}")
                 self.FitlistIf.ReadXML(
                     sid,
