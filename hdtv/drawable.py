@@ -21,6 +21,7 @@ import hdtv.cal
 import hdtv.color
 import hdtv.ui
 from hdtv.util import LockViewport
+import hdtv.options
 
 
 class Drawable:
@@ -151,6 +152,9 @@ class DrawableManager:
     This class provides some handy functions to manage a collection of
     identical drawable objects.
     """
+
+    nextPrevEndBell = hdtv.options.Option(default=False, parse=hdtv.options.parse_bool)
+    hdtv.options.RegisterOption("ui.bellOnNextAndPrevIDEndReached", nextPrevEndBell)
 
     def __init__(self, viewport=None):
         self.viewport = viewport
@@ -488,6 +492,8 @@ class DrawableManager:
 
             ids.sort()
             nextIndex = (ids.index(self._iteratorID) + 1) % len(ids)
+            if nextIndex == 0 and self.nextPrevEndBell.Get():
+                print("\a", end="", flush=True)
             nextID = ids[nextIndex]
 
         except ValueError:
@@ -509,6 +515,8 @@ class DrawableManager:
 
             ids.sort()
             prevIndex = (ids.index(self._iteratorID) - 1) % len(ids)
+            if prevIndex == len(ids) - 1 and self.nextPrevEndBell.Get():
+                print("\a", end="", flush=True)
             prevID = ids[prevIndex]
         except ValueError:
             prevID = self.activeID if self.activeID is not None else self.lastID
