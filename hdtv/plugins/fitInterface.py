@@ -59,6 +59,13 @@ class FitInterface:
         )
         hdtv.options.RegisterOption("fit.display.decomp", self.opt["display.decomp"])
 
+        self.opt["list.show_pos_lit_residuals"] = hdtv.options.Option(
+            default=False, parse=hdtv.options.parse_bool
+        )
+        hdtv.options.RegisterOption(
+            "fit.list.show_pos_lit_residuals", self.opt["list.show_pos_lit_residuals"]
+        )
+
         if self.window:
             self._register_hotkeys()
 
@@ -353,7 +360,13 @@ class FitInterface:
                 # do not use set operations here to keep order of params
                 if p not in params:
                     params.append(p)
+                    if self.opt["list.show_pos_lit_residuals"].Get() and p == "pos_lit":
+                        params.append("Δpos_lit")
             # add peaks to the list
+            if self.opt["list.show_pos_lit_residuals"].Get() and "Δpos_lit" in params:
+                for peak in peaklist:
+                    if "pos_lit" in peak:
+                        peak["Δpos_lit"] = peak["pos_lit"] - peak["pos"]
             fitlist.extend(peaklist)
         return (fitlist, params)
 
