@@ -22,6 +22,7 @@ from uncertainties import ufloat_fromstr
 
 import hdtv.cmdline
 import hdtv.ui
+import hdtv.util
 
 
 class FitMap:
@@ -73,7 +74,7 @@ class FitMap:
 
         prog = "calibration position recalibrate"
         description = (
-            "use stored nominal positions of peaks to recalibrate the spectrum"
+            "use stored nominal positions of peaks to (re)calibrate the spectrum"
         )
         parser = hdtv.cmdline.HDTVOptionParser(prog=prog, description=description)
         parser.add_argument(
@@ -117,6 +118,12 @@ class FitMap:
             action="store_true",
             default=False,
             help="set all weights to 1 in fit (ignore error bars even if given)",
+        )
+        parser.add_argument(
+            "fitids",
+            nargs="*",
+            default=["all"],
+            help="ids of the fits/peaks to use for the calibration (default=all)",
         )
         hdtv.cmdline.AddCommand(prog, self.CalPosRecalibrate, parser=parser)
 
@@ -234,15 +241,28 @@ class FitMap:
         if len(sids) == 0:
             sids = [self.spectra.activeID]
         degree = int(args.degree)
+        fitIDs = hdtv.util.ID.ParseIds(args.fitids, spec, only_existent=False)
+        peakDict = {}
+        for fitID in fitIDs:
+            try:
+                if fitID.minor is None:
+                    for minor, peak in enumerate(spec.dict[fitID].peaks):
+                        peakDict[hdtv.util.ID(fitID.major, minor)] = peak
+                else:
+                    peakDict[fitID] = spec.dict[hdtv.util.ID(fitID.major)].peaks[
+                        fitID.minor
+                    ]
+            except (IndexError, KeyError):
+                hdtv.ui.warning(f"Ignoring invalid fit/peak id {fitID}")
         pairs = hdtv.util.Pairs()
-        for ID in spec.ids:
-            fit = spec.dict[ID]
-            for peak in fit.peaks:
-                try:
-                    enlit = peak.extras["pos_lit"]
-                    pairs.add(peak.pos, enlit)
-                except BaseException:
-                    continue
+        for peakId, peak in peakDict.items():
+            if "pos_lit" in peak.extras:
+                enlit = peak.extras["pos_lit"]
+                pairs.add(peak.pos, enlit)
+            elif args.fitids != ["all"]:
+                hdtv.ui.warning(
+                    f"Ignoring fit/peak id {peakId} without assigned nominal position"
+                )
         cal = self.ecal.CalFromPairs(
             pairs,
             degree,
