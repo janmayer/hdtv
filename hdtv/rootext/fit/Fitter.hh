@@ -23,6 +23,7 @@
 #ifndef __Fitter_h__
 #define __Fitter_h__
 
+#include <limits>
 #include <memory>
 
 #include "Background.hh"
@@ -59,7 +60,9 @@ protected:
   std::unique_ptr<TF1> fBgFunc;
   double fChisquare;
 
-  void SetParameter(TF1 &func, Param &param, double ival = 0.0);
+  void SetParameter(TF1 &func, Param &param, double ival = 0.0, bool useLimits = false,
+                    double lowerLimit = std::numeric_limits<double>::min(),
+                    double upperLimit = std::numeric_limits<double>::max());
 };
 
 } // end namespace Fit

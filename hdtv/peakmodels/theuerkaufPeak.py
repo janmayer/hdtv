@@ -191,10 +191,12 @@ class PeakModelTheuerkauf(PeakModel):
         self.fOptStatus = {
             "integrate": False,
             "likelihood": "normal",
+            "onlypositivepeaks": False,
         }
         self.fValidOptStatus = {
             "integrate": [False, True],
             "likelihood": ["normal", "poisson"],
+            "onlypositivepeaks": [False, True],
         }
 
         self.ResetParamStatus()
@@ -277,6 +279,7 @@ class PeakModelTheuerkauf(PeakModel):
         self.fParStatus["sw"] = "hold"
         self.fOptStatus["integrate"] = False
         self.fOptStatus["likelihood"] = "normal"
+        self.fOptStatus["onlypositivepeaks"] = False
 
     def Uncal(self, parname, value, pos_uncal, cal):
         """
@@ -308,8 +311,9 @@ class PeakModelTheuerkauf(PeakModel):
         # self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(region[0],region[1],debug_show_inipar)
         integrate = self.GetOption("integrate")
         likelihood = self.GetOption("likelihood")
+        onlypositivepeaks = self.GetOption("onlypositivepeaks")
         self.fFitter = ROOT.HDTV.Fit.TheuerkaufFitter(
-            region[0], region[1], integrate, likelihood
+            region[0], region[1], integrate, likelihood, onlypositivepeaks
         )
         self.ResetGlobalParams()
         # Check if enough values are provided in case of per-peak parameters

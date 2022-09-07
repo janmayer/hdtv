@@ -83,8 +83,8 @@ class FitXml:
         # <fit>
         fitElement = ET.Element("fit")
         fitElement.set("peakModel", fit.fitter.peakModel.name)
-        fitElement.set("integrate", str(fit.fitter.peakModel.fOptStatus["integrate"]))
-        fitElement.set("likelihood", fit.fitter.peakModel.fOptStatus["likelihood"])
+        for opt, status in fit.fitter.peakModel.fOptStatus.items():
+            fitElement.set(opt, str(status))
         fitElement.set("nParams", str(fit.fitter.backgroundModel.fParStatus["nparams"]))
         fitElement.set("chi", str(fit.chi))
         # <spectrum>
@@ -631,9 +631,9 @@ class FitXml:
         fitter = Fitter(peakModel, backgroundModel)
         fit = Fit(fitter, cal=calibration)
 
-        for parname in ["integrate", "likelihood"]:
-            if parname in fitElement.attrib:
-                fitter.SetParameter(parname, fitElement.get(parname))
+        for opt in fitter.peakModel.fOptStatus:
+            if opt in fitElement.attrib:
+                fitter.SetParameter(opt, fitElement.get(opt))
         try:
             fit.chi = float(fitElement.get("chi"))
         except ValueError:
