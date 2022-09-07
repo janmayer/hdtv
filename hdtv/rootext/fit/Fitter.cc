@@ -37,13 +37,21 @@ Param Fitter::AllocParam() { return Param::Free(fNumParams++); }
 
 Param Fitter::AllocParam(double ival) { return Param::Free(fNumParams++, ival); }
 
-void Fitter::SetParameter(TF1 &func, Param &param, double ival) {
+void Fitter::SetParameter(TF1 &func, Param &param, double ival, bool useLimits, double lowerLimit, double upperLimit) {
+  if (useLimits && param.IsFree()) {
+    ival = ival < lowerLimit ? lowerLimit : ival > upperLimit ? upperLimit : ival;
+  }
   if (!param.HasIVal()) {
     param.SetValue(ival);
   }
 
   if (param.IsFree()) {
-    func.SetParameter(param._Id(), param._Value());
+    if (useLimits) {
+      func.SetParameter(param._Id(), param._Value());
+      func.SetParLimits(param._Id(), lowerLimit, upperLimit);
+    } else {
+      func.SetParameter(param._Id(), param._Value());
+    }
   }
 }
 

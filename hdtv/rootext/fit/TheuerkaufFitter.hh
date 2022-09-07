@@ -141,8 +141,9 @@ private:
 class TheuerkaufFitter : public Fitter {
 public:
   TheuerkaufFitter(double r1, double r2, Option<bool> integrate, Option<std::string> likelihood,
-                   bool debugShowInipar = false)
-      : Fitter(r1, r2), fIntegrate(integrate), fLikelihood(likelihood), fDebugShowInipar(debugShowInipar) {}
+                   Option<bool> onlypositivepeaks, bool debugShowInipar = false)
+      : Fitter(r1, r2), fIntegrate(integrate), fLikelihood(likelihood), fOnlypositivepeaks(onlypositivepeaks),
+        fDebugShowInipar(debugShowInipar) {}
 
   // Copying the fitter is not supported
   TheuerkaufFitter(const TheuerkaufFitter &) = delete;
@@ -172,6 +173,7 @@ private:
   std::vector<TheuerkaufPeak> fPeaks;
   Option<bool> fIntegrate;
   Option<std::string> fLikelihood;
+  Option<bool> fOnlypositivepeaks;
   bool fDebugShowInipar;
 };
 

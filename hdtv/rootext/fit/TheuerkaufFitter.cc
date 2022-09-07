@@ -482,7 +482,7 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
   }
 
   // Second: calculate average peak width (sigma)
-  double avgSigma = sumVol / (sumAmp * std::sqrt(2. * M_PI));
+  double avgSigma = std::abs(sumVol / (sumAmp * std::sqrt(2. * M_PI)));
 
   // Third: calculate sum of free volumes and amplitudes
   double sumFreeAmp = sumAmp;
@@ -500,8 +500,16 @@ void TheuerkaufFitter::_Fit(TH1 &hist) {
   for (auto &peak : fPeaks) {
     double amp = *(ampIter++);
     SetParameter(*fSumFunc, peak.fPos);
-    SetParameter(*fSumFunc, peak.fVol, sumFreeVol * amp / sumFreeAmp);
-    SetParameter(*fSumFunc, peak.fSigma, avgSigma);
+    if (fOnlypositivepeaks.GetValue()) {
+      // The root fit algorithm produces strange results when fitting with extreme limits/boundary conditions, hence set
+      // some sane upper limits
+      SetParameter(*fSumFunc, peak.fVol, std::max(sumFreeVol * amp / sumFreeAmp, 1.), true, 0.,
+                   std::max(100. * sumVol, 0.) + 1e9);
+      SetParameter(*fSumFunc, peak.fSigma, avgSigma, true, 0., 10 * (fMax - fMin) + 1e3);
+    } else {
+      SetParameter(*fSumFunc, peak.fVol, sumFreeVol * amp / sumFreeAmp);
+      SetParameter(*fSumFunc, peak.fSigma, avgSigma);
+    }
     SetParameter(*fSumFunc, peak.fTL, 10.0);
     SetParameter(*fSumFunc, peak.fTR, 10.0);
     SetParameter(*fSumFunc, peak.fSH, avgFreeStep / (amp * M_PI));
