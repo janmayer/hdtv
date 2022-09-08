@@ -320,6 +320,7 @@ class CalibrationFitter:
 
         graph.Draw("A*")
         func.Draw("SAME")
+        canvas.Update()
 
     def DrawCalResidual(self):
         """
@@ -361,3 +362,4 @@ class CalibrationFitter:
 
         graph.Draw("A*")
         nullfunc.Draw("SAME")
+        canvas.Update()
