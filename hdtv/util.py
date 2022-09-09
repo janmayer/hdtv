@@ -298,8 +298,6 @@ class Table:
             self.header = header
         # initial width of columns
         for header in self.header:
-            # TODO: len fails on unicode characters (e.g. σ) ->
-            # str.decode(encoding)
             self._col_width.append(len(str(header)) + 2)
 
     def build_lines(self):
@@ -331,8 +329,6 @@ class Table:
                         self._ignore_col[i] = False
 
                     line.append(value)
-                    # TODO: len fails on unicode characters (e.g. σ) -> str.decode(encoding)
-                    # Store maximum col width
                     if self.raw_columns and key in self.raw_columns:
                         self._col_width[i] = max(
                             self._col_width[i], len(strip_tags(value)) + 2
@@ -360,8 +356,6 @@ class Table:
         # Determine table widths
         for w in self._col_width:
             self._width += w
-            # TODO: for unicode awareness we have to do something
-            #       like len(col_sep_char.decode('utf-8')
             self._width += len(self.col_sep_char)
 
     def build_header(self):
@@ -829,8 +823,17 @@ def open_compressed(fname, mode="rb", **kwargs):
         )
 
 
-def natural_sort_key(s, _nsre=re.compile("([0-9]+)")):
-    return [int(text) if text.isdigit() else text.lower() for text in _nsre.split(s)]
+def natural_sort_key(s, _nsre=re.compile(r"([-+]?[0-9]+\.?[0-9]*)")):
+    # Split string into list of strings and floats for sorting.
+    # The result of the split will always be an alternating list of strings and
+    # floats (still in string form), always starting with a (possibly empty) string
+    # as the first element.
+    # Hence, convert all even elements to floats and all odd elements to lower case
+    # strings.
+    return [
+        float(part) if (i % 2) else part.lower()
+        for i, part in enumerate(_nsre.split(s))
+    ]
 
 
 class Singleton(type):
