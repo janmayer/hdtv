@@ -597,7 +597,7 @@ class TvFitInterface:
         self.spectra = self.fitIf.spectra
 
         # Register configuration variables for fit list
-        opt = hdtv.options.Option(default="ID")
+        opt = hdtv.options.Option(default="id")
         hdtv.options.RegisterOption("fit.list.sort_key", opt)
 
         prog = "fit execute"
@@ -1249,7 +1249,7 @@ class TvFitInterface:
         # parse sort_key
         if args.key_sort is None:
             args.key_sort = hdtv.options.Get("fit.list.sort_key")
-        key_sort = args.key_sort.lower()
+        key_sort = args.key_sort
         for sid in sids:
             spec = self.spectra.dict[sid]
             ids = hdtv.util.ID.ParseIds(args.fit, spec)
@@ -1273,7 +1273,7 @@ class TvFitInterface:
             hdtv.ui.warning("No spectra chosen or active")
             return
         # parse sort_key
-        key_sort = args.key_sort.lower()
+        key_sort = args.key_sort
         for sid in sids:
             spec = self.spectra.dict[sid]
             ids = hdtv.util.ID.ParseIds(args.fit, spec)
