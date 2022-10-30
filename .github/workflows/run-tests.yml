@@ -13,7 +13,7 @@ jobs:
         # - '6.22.4' was a broken release
         # - '6.26.2' with python '3.10' results in unsolvable conda conflicts as of 2022-05-05.
         python-version: ['3.7', '3.8', '3.9', '3.10']
-        root-version: ['6.24.0', '6.24.2', '6.24.4', '6.24.6', '6.26.0', '6.26.2']
+        root-version: ['6.24.0', '6.24.2', '6.24.4', '6.24.6', '6.26.0', '6.26.2', '6.26.4', '6.26.6','6.26.8']
         exclude:
           - python-version: '3.10'
             root-version: '6.24.0'
@@ -46,6 +46,8 @@ jobs:
             root-version: '6.22.6'
           - python-version: '3.8'
             root-version: '6.22.8'
+          - python-version: '3.11'
+            root-version: '6.26.8'
       fail-fast: false
 
     steps:
