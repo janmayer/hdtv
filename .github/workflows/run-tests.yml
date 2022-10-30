@@ -46,8 +46,6 @@ jobs:
             root-version: '6.22.6'
           - python-version: '3.8'
             root-version: '6.22.8'
-          - python-version: '3.11'
-            root-version: '6.26.8'
       fail-fast: false
 
     steps:

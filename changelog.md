@@ -5,7 +5,6 @@
 - New Feature: Position recalibrate with peak selection (@j-kleemann)
 - New Feature: Notification option when end of spectra list is reached (@j-kleemann)
 - Misc. fixes and many quality-of-life improvements (@j-kleemann)
-- Support Python 3.11 with ROOT 6.26.8 (@janmayer)
 
 ## 22.04
 - Natural sorting of spectra for `spectrum get` (@j-kleemann)
