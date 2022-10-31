@@ -2,6 +2,7 @@
 
 import versioneer
 from setuptools import setup
+from pathlib import Path
 import glob
 
 manpages = glob.glob("doc/guide/*.1")
@@ -47,6 +48,8 @@ setup(
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     description="HDTV - Nuclear Spectrum Analysis Tool",
+    long_description=(Path(__file__).parent / "README.md").read_text(),
+    long_description_content_type="text/markdown",
     url="https://github.com/janmayer/hdtv",
     maintainer="Jan Mayer",
     maintainer_email="jan.mayer@ikp.uni-koeln.de",
