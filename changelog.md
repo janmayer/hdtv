@@ -1,7 +1,13 @@
 # HDTV Changelog
 
+## 22.11
+- New Feature: Fit option onlypositivepeaks (@j-kleemann)
+- New Feature: Position recalibrate with peak selection (@j-kleemann)
+- New Feature: Notification option when end of spectra list is reached (@j-kleemann)
+- Misc. fixes and many quality-of-life improvements (@j-kleemann)
+
 ## 22.04
-- Natural sorting of spectra for `spectrum get` (@jkleemann)
+- Natural sorting of spectra for `spectrum get` (@j-kleemann)
 - calbin for negative-energy bins and related improvements (@ufrimangayer)
 - Support for ROOT 6.26 (@opapst)
 - General build system and tooling improvements (@opapst)

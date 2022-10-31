@@ -53,7 +53,11 @@ set_target_properties(
     "${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_rdict.pcm"
 )
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${PROJECT_NAME} ROOT::Core ROOT::Hist)
+target_link_libraries(
+  ${PROJECT_NAME}
+  ROOT::Core
+  ROOT::Hist
+  ROOT::MathMore)
 
 install(
   TARGETS ${PROJECT_NAME}
