@@ -11,3 +11,6 @@
 
 # Addition of pre-commit hooks
 306f48ff265c4fdd46d43f9e21cb69921a6d9d7f
+
+# Additional fixes for black version 23.1.0
+8bdf3a6c7597f17df0a3785a0b85b5786367a0d7
