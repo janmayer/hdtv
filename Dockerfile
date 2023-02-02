@@ -1,4 +1,4 @@
-FROM rootproject/root:6.26.02-ubuntu20.04
+FROM rootproject/root:6.26.10-ubuntu22.04
 
 RUN apt-get update -y &&\
     apt-get install -y --no-install-recommends python3-pip xvfb &&\

@@ -39,7 +39,7 @@ for all user (requires superuser privileges).
 To build and run HDTV, the following dependencies are required:
 
 * Python
-	- Tested with 3.7, 3.8, 3.9 and 3.10
+	- Tested with 3.7, 3.8, 3.9, 3.10 and 3.11
 	- Packages: numpy scipy matplotlib prompt_toolkit uncertainties traitlets
     - Packages for development & testing: docutils pytest pytest-cov
 * [Cern ROOT](https://root.cern/) 6
