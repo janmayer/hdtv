@@ -131,7 +131,7 @@ class _OptionManager(dict):
         Returns all options as a string
         """
         string = ""
-        for (k, v) in sorted(self.__dict__.items()):
+        for k, v in sorted(self.__dict__.items()):
             string += f"<b>{escape(k)}</b>: {escape(str(v))}\n"
         return string
 

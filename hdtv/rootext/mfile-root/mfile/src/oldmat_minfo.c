@@ -31,7 +31,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-//#include "config.h"
+// #include "config.h"
 
 #include "getputint.h"
 #include "maccess.h"
@@ -284,7 +284,8 @@ void oldmat_init(mat) MFILE *mat;
   }
 }
 
-int32_t oldmat_uninit(mat) MFILE *mat;
+int32_t oldmat_uninit(mat)
+MFILE *mat;
 {
   if ((mat->status & MST_DIRTY) == 0)
     return 0;

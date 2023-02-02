@@ -28,7 +28,7 @@ def test(bgdeg):
 
     print("")
     print("type        position           width          volume        skewness")
-    for (integral, kind) in zip((int_tot, int_bac, int_sub), ("tot:", "bac:", "sub:")):
+    for integral, kind in zip((int_tot, int_bac, int_sub), ("tot:", "bac:", "sub:")):
         pos = ErrValue(integral.GetMean(), integral.GetMeanError())
         width = ErrValue(integral.GetWidth(), integral.GetWidthError())
         vol = ErrValue(integral.GetIntegral(), integral.GetIntegralError())

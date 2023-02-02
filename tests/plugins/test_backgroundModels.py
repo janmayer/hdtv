@@ -167,7 +167,6 @@ def test_backgroundRegions(
     temp_file,
     test_spectrum,
 ):
-
     spec_interface.LoadSpectra(test_spectrum.filename)
     command = ["fit function background activate " + model]
     if settings != "":

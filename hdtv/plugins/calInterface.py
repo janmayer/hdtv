@@ -37,7 +37,6 @@ from . import EnergyCalibration
 
 class EffCalIf:
     def __init__(self, spectra):
-
         self.spectra = spectra
 
         # tv commands
@@ -439,7 +438,6 @@ class EffCalIf:
 
 class EffCalHDTVInterface:
     def __init__(self, EffCalIf):
-
         self.effIf = EffCalIf
         self.spectra = EffCalIf.spectra
 
@@ -919,7 +917,7 @@ class EnergyCalIf:
         calDict = dict()
         f = hdtv.util.TxtFile(fname)
         f.read()
-        for (l, n) in zip(f.lines, f.linos):
+        for l, n in zip(f.lines, f.linos):
             try:
                 (k, v) = l.split(":", 1)
                 name = k.strip()
@@ -957,7 +955,6 @@ class EnergyCalIf:
 
 class EnergyCalHDTVInterface:
     def __init__(self, ECalIf):
-
         self.EnergyCalIf = ECalIf
         self.spectra = ECalIf.spectra
 
@@ -1395,7 +1392,9 @@ class EnergyCalHDTVInterface:
                 fits = self.spectra.dict[hdtv.util.ID(ID)].dict
                 for fit in list(fits.values()):
                     Peaks.append(fit.ExtractParams()[0][0]["channel"])
-            except BaseException:  # errormessage if there is no spectrum with the given ID
+            except (
+                BaseException
+            ):  # errormessage if there is no spectrum with the given ID
                 raise hdtv.cmdline.HDTVCommandError(
                     "Spectrum with ID " + str(ID) + " is not visible, no action taken"
                 )

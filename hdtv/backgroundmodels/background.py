@@ -25,6 +25,7 @@ class to handle fitter setup and data transfer to the Python side
 import ROOT
 import hdtv.rootext.display
 
+
 # Base class for all background models
 class BackgroundModel:
     """

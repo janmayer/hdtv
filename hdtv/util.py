@@ -73,7 +73,6 @@ class TxtFile:
     """
 
     def __init__(self, filename, mode="r"):
-
         self.lines = list()
         self.linos = list()
         self.mode = mode
@@ -152,7 +151,6 @@ class Pairs(list):
 
     # default conversion is "identity" -> No conversion
     def __init__(self, conv_func=lambda x: x):
-
         super().__init__()
         self.conv_func = conv_func  # Conversion function, e.g. float
 

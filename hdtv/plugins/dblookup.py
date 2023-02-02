@@ -203,7 +203,7 @@ class Database:
         """
         List available databases
         """
-        for (name, db) in list(hdtv.database.databases.items()):
+        for name, db in list(hdtv.database.databases.items()):
             hdtv.ui.msg(html=f"<b>{escape(name)}</b>: {escape(db().description)}")
 
     def showDBfields(self, db=None):

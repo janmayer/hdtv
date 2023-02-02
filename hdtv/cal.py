@@ -152,7 +152,7 @@ class CalibrationFitter:
         any_has_error = False
         any_has_xerror = False
 
-        for (ch, e) in self.pairs:
+        for ch, e in self.pairs:
             has_xerror = False
             has_error = False
 
@@ -264,8 +264,7 @@ class CalibrationFitter:
         keys = "channel", "e_given", "e_fit", "residual"
         tabledata = list()
 
-        for (ch, e_given) in self.pairs:
-
+        for ch, e_given in self.pairs:
             tableline = dict()
             e_fit = self.calib.Ch2E(ch.nominal_value)
             residual = e_given - e_fit
@@ -295,7 +294,7 @@ class CalibrationFitter:
         ROOT.SetOwnership(graph, False)
 
         i = 0
-        for (ch, e) in self.pairs:
+        for ch, e in self.pairs:
             min_ch = min(min_ch, ch.nominal_value)
             max_ch = max(max_ch, ch.nominal_value)
 
@@ -339,7 +338,7 @@ class CalibrationFitter:
         ROOT.SetOwnership(graph, False)
 
         i = 0
-        for (ch, e) in self.pairs:
+        for ch, e in self.pairs:
             min_ch = min(min_ch, ch.nominal_value)
             max_ch = max(max_ch, ch.nominal_value)
             try:

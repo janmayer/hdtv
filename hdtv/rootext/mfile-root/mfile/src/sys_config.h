@@ -4,9 +4,9 @@
 #define SYSDEP_H_
 
 /* Include autoconf 'config.h' */
-//#if HAVE_CONFIG_H
-//#include "config.h"
-//#endif /* HAVE_CONFIG_H */
+// #if HAVE_CONFIG_H
+// #include "config.h"
+// #endif /* HAVE_CONFIG_H */
 
 #if defined __CYGWIN32__ && !defined __CYGWIN__
 /* For backwards compatibility with Cygwin b19 and

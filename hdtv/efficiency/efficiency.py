@@ -90,7 +90,6 @@ class _Efficiency:
         return ufloat(value, error)
 
     def _set_fitInput(self, fitPairs):
-
         self._fitInput = fitPairs
 
         for i in range(len(self._fitInput)):

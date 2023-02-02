@@ -64,7 +64,7 @@ class TextInterface(hdtv.ui.SimpleUI):
             default=False, parse=hdtv.options.parse_bool
         )  # whether to not use pager at all
 
-        for (key, opt) in list(self.opt.items()):
+        for key, opt in list(self.opt.items()):
             hdtv.options.RegisterOption(key, opt)
 
         self._fallback_canvasheight = height

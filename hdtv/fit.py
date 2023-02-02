@@ -483,7 +483,7 @@ class Fit(Drawable):
             # while doing the fit, thus we have to sort here
             self.peaks.sort()
             # update peak markers
-            for (marker, peak) in zip(self.peakMarkers, self.peaks):
+            for marker, peak in zip(self.peakMarkers, self.peaks):
                 # Marker is fixed in uncalibrated space
                 marker.p1.pos_uncal = peak.pos.nominal_value
 

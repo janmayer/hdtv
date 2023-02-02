@@ -25,6 +25,7 @@ class to handle fitter setup and data transfer to the Python side
 import ROOT
 import hdtv.rootext.fit
 
+
 # Base class for all peak models
 class PeakModel:
     """
@@ -85,7 +86,7 @@ class PeakModel:
         has at least minlen entires. Raises a ValueError with an appropriate
         error message if the check fails.
         """
-        for (parname, status) in self.fParStatus.items():
+        for parname, status in self.fParStatus.items():
             if isinstance(status, list) and len(status) < minlen:
                 raise ValueError("Not enough values for status of %s" % parname)
 

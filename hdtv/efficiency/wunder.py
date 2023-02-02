@@ -30,7 +30,6 @@ class WunderEff(_Efficiency):
     """
 
     def __init__(self, pars=list(), norm=True):
-
         self.name = "Wunder"
         self.id = self.name + "_" + hex(id(self))
         #                        ( N  * ( a *E +  b /E) * exp( c *E +  d /E))

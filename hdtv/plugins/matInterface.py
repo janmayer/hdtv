@@ -190,8 +190,7 @@ class MatInterface:
         cuts = list()
         count = 0
 
-        for (ID, obj) in matrix.dict.items():
-
+        for ID, obj in matrix.dict.items():
             this = dict()
 
             stat = ""

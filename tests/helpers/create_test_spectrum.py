@@ -26,6 +26,7 @@ from numpy.random import poisson
 import numpy as np
 from scipy.stats import norm
 
+
 # Set properties of the background spectrum
 # The properties are implemented in a separate class
 # to be able to access them before the actual spectrum has

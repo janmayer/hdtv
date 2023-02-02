@@ -29,7 +29,6 @@ class PGAAGamma(Gamma):
         halflife=None,
         k0_comp=(1, 1),
     ):
-
         super().__init__(nuclide, energy, sigma, intensity)
         self.halflife = halflife
         self._k0 = k0  # TODO
@@ -38,7 +37,6 @@ class PGAAGamma(Gamma):
             PGAAGamma.k0_norm = 1.0 / self.getk0(isNorm=True)
 
     def getk0(self, isNorm=False):
-
         if self._k0 is None:  # k0 was not given: we have to calculate
             if isNorm:
                 k0 = self.sigma / self.nuclide.element.m
@@ -54,7 +52,6 @@ class PGAAGamma(Gamma):
     k0 = property(getk0)
 
     def __str__(self):
-
         text = ""
         text += super().__str__()
         text += "k0:        " + str(self.k0) + "\n"
@@ -72,7 +69,6 @@ class PGAAlib_IKI2000(GammaLib):
         has_header=True,
         k0_comp=(1, 1),
     ):
-
         super().__init__()
 
         # Header for table printout
@@ -106,7 +102,6 @@ class PGAAlib_IKI2000(GammaLib):
         self.k0_comp = k0_comp
 
     def open(self):
-
         if self.opened:
             return True
 
@@ -161,7 +156,6 @@ class PromptGammas(GammaLib):
         has_header=True,
         k0_comp=(1, 1),
     ):
-
         super().__init__()
 
         # Header for table printout
@@ -182,7 +176,6 @@ class PromptGammas(GammaLib):
         self.k0_comp = k0_comp
 
     def open(self):
-
         if self.opened:
             return True
 

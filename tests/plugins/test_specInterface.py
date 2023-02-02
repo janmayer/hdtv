@@ -68,7 +68,7 @@ def test_cmd_spectrum_get():
     res_specfile, specid = re.search(r"Loaded (.*) into (\d+)", f).groups()
     assert len(s.spectra.dict) == 1
     assert res_specfile == testspectrum
-    for (ID, obj) in s.spectra.dict.items():
+    for ID, obj in s.spectra.dict.items():
         assert str(ID) == specid
         assert type(obj) == hdtv.spectrum.Spectrum
 
@@ -81,7 +81,7 @@ def test_cmd_spectrum_get_slot(slot):
     assert len(s.spectra.dict) == 1
     assert res_specfile == testspectrum
     assert specid == str(slot)
-    for (ID, obj) in s.spectra.dict.items():
+    for ID, obj in s.spectra.dict.items():
         assert str(ID) == specid
         assert type(obj) == hdtv.spectrum.Spectrum
 

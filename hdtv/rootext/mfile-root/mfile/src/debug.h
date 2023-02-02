@@ -32,9 +32,9 @@
 #define DEBUG_H_
 
 /* Include autoconf 'config.h' */
-//#if HAVE_CONFIG_H
-//#include "config.h"
-//#endif /* HAVE_CONFIG_H */
+// #if HAVE_CONFIG_H
+// #include "config.h"
+// #endif /* HAVE_CONFIG_H */
 
 /* Debugging output macro */
 #ifdef DEBUG_OUTPUT

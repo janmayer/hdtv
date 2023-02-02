@@ -33,7 +33,6 @@ class PolyEff(_Efficiency):
     """
 
     def __init__(self, pars=list(), degree=4, norm=False):
-
         self.name = "Polynom"
         self.id = self.name + "_" + hex(id(self))
         self._degree = degree
@@ -62,7 +61,6 @@ class PolyEff(_Efficiency):
             self._dEff_dP[i] = dEff_dP(i)
 
     def _set_fitInput(self, fitPairs):
-
         ln_fitPairs = Pairs(conv_func=log)
 
         for p in fitPairs:
@@ -71,7 +69,6 @@ class PolyEff(_Efficiency):
         _Efficiency._set_fitInput(self, ln_fitPairs)
 
     def _get_fitInput(self):
-
         fitPairs = Pairs(conv_func=exp)
 
         for p in self._fitInput:
@@ -108,7 +105,6 @@ class PolyEff(_Efficiency):
         return self.norm * exp(self.TF1.Eval(log(value), 0.0, 0.0, 0.0))
 
     def error(self, E):
-
         # TODO: this need checking
         try:
             value = E.value

@@ -13,7 +13,6 @@ class _Element:
     __slots__ = ("ID", "z", "symbol", "name", "m")
 
     def __init__(self, Z, Symbol, Name=None, M=None):
-
         self.z = Z
         self.symbol = Symbol  # Symbol of element (e.g. H)
         self.name = Name  # Full name of element (e.g. Hydrogen)
@@ -47,7 +46,6 @@ class _Elements(list):
     """
 
     def __init__(self, csvfile=os.path.join(hdtv.datadir, "elements.dat")):
-
         super().__init__()
 
         tmp = list()
@@ -84,7 +82,6 @@ class _Elements(list):
             self[e.z] = e
 
     def __call__(self, Z=None, symbol=None, name=None):
-
         if symbol:
             for z in self:
                 try:
@@ -127,11 +124,9 @@ class _Elements(list):
 
 
 class _Nuclide(_Element):
-
     __slots__ = ("ID", "element", "a", "m", "sigma", "abundance")
 
     def __init__(self, element, A, abundance=None, sigma=None, M=None):
-
         self.element = element
         super().__init__(
             element.z, element.symbol, element.name, M=None
@@ -171,7 +166,6 @@ class _Nuclide(_Element):
 
 class _Nuclides:
     def __init__(self, csvfile=os.path.join(hdtv.datadir, "nuclides.dat")):
-
         self._storage = dict()
         try:
             try:
@@ -391,10 +385,10 @@ class GammaLib(list):
         # convert keys to lowercase
         fields_lower = dict()
         args_lower = dict()
-        for (key, conv) in list(self.fParamConv.items()):
+        for key, conv in list(self.fParamConv.items()):
             fields_lower[key.lower()] = conv
 
-        for (key, value) in list(args.items()):
+        for key, value in list(args.items()):
             conv = fields_lower[key.lower()]
             if value is None:
                 continue
@@ -403,7 +397,7 @@ class GammaLib(list):
         # Prepare find args
         fargs = dict()
 
-        for (key, conv) in list(fields_lower.items()):
+        for key, conv in list(fields_lower.items()):
             try:
                 # Convert as described in fParamConv dict
                 fargs[key] = conv(args_lower[key])
@@ -419,7 +413,7 @@ class GammaLib(list):
         if not fargs:
             return []
 
-        for (key, value) in list(fargs.items()):
+        for key, value in list(fargs.items()):
             if value is None:
                 continue
             if isinstance(value, int):
