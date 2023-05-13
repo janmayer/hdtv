@@ -38,8 +38,7 @@ target_link_libraries(
   ROOT::Core
   ROOT::Hist
   ROOT::Graf
-  ROOT::Gui
-  X11)
+  ROOT::Gui)
 
 install(
   TARGETS ${PROJECT_NAME}
