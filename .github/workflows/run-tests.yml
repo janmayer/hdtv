@@ -7,33 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Notes:
-        # - '6.18.00', '6.18.04', '6.20.0' take too long to install via conda (>1h instead of ~5min)
-        # - '6.22.00', '6.22.02' are incompatible
-        # - '6.22.4' was a broken release
-        # - '6.26.2' with python '3.10' results in unsolvable conda conflicts as of 2022-05-05.
         python-version: ['3.8', '3.9', '3.10', '3.11']
-        root-version: ['6.24.6', '6.26.6', '6.26.8', '6.26.10']
-        exclude:
-          - python-version: '3.11'
-            root-version: '6.24.6'
-          - python-version: '3.11'
-            root-version: '6.26.6'
-        include:
-          - python-version: '3.7'
-            root-version: '6.16.00'
-          - python-version: '3.7'
-            root-version: '6.20.6'
-          - python-version: '3.7'
-            root-version: '6.22.8'
-          - python-version: '3.7'
-            root-version: '6.24.6'
-          - python-version: '3.7'
-            root-version: '6.26.8'
-          - python-version: '3.8'
-            root-version: '6.20.6'
-          - python-version: '3.8'
-            root-version: '6.22.8'
+        root-version: ['6.26.10', '6.28.10', 6.30.2']
       fail-fast: false
 
     steps:
@@ -58,4 +33,4 @@ jobs:
 
     - name: Post Coverage
       uses: codecov/codecov-action@v1
-      if: matrix.python-version == '3.11' && matrix.root-version == '6.26.10'
+      if: matrix.python-version == '3.11' && matrix.root-version == '6.30.2'

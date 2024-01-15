@@ -15,7 +15,6 @@ HDTV is written in a mixture of C++ and Python, glued together using PyROOT.
 ## Installation
 
 HDTV requires [CERN ROOT](https://root.cern.ch/) with working Python bindings.
-ROOT **6.22.00** and **6.22.02** are [**not compatible**](https://root.cern.ch/doc/v622/release-notes.html#language-bindings) with HDTV, but ROOT 6.22.04 and higher is.
 
 ```sh
 pip install hdtv
@@ -39,11 +38,11 @@ for all user (requires superuser privileges).
 To build and run HDTV, the following dependencies are required:
 
 * Python
-	- Tested with 3.7, 3.8, 3.9, 3.10 and 3.11
-	- Packages: numpy scipy matplotlib prompt_toolkit uncertainties traitlets
+	- Tested with 3.8, 3.9, 3.10, and 3.11
+	- Packages: numpy scipy matplotlib prompt_toolkit uncertainties
     - Packages for development & testing: docutils pytest pytest-cov
 * [Cern ROOT](https://root.cern/) 6
-    - Version 6.16.00 or higher, **except** 6.22.00 and 6.22.02.
+    - Tested with version 6.26 and higher
     - Needs to be compiled against the correct python version and with support for C++14 or higher.
     - In python, **`import ROOT` must succeed**.
     - System packages may be available on some systems, e.g. `<tool> install root python3-root`
