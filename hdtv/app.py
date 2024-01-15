@@ -126,6 +126,7 @@ class App:
         import hdtv.session
         import hdtv.ui
 
+        hdtv.cmdline.command_line.StartEventLoop()
         hdtv.cmdline.SetHistory(self.datapath / "hdtv_history")
         hdtv.cmdline.SetInteractiveDict(locals())
         spectra = hdtv.session.Session()

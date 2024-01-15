@@ -37,6 +37,8 @@ from enum import Enum, auto
 import re
 import glob
 import asyncio
+import threading
+import time
 
 from prompt_toolkit.shortcuts import PromptSession, CompleteStyle, clear
 from prompt_toolkit.completion import Completer, Completion
@@ -448,6 +450,14 @@ class CommandLine:
         else:
             eof = "Ctrl-D (i.e. EOF)"
 
+    def StartEventLoop(self):
+        def _loop(loop):
+            asyncio.set_event_loop(loop)
+            loop.run_forever()
+
+        self.thread = threading.Thread(target=_loop, args=(self.loop,))
+        self.thread.start()
+
     def SetHistory(self, path):
         if not os.access(path, os.W_OK):
             hdtv.ui.error(f"History file '{path}' is read-only, will be discarded")
@@ -523,13 +533,13 @@ class CommandLine:
         __main__.spectra.Clear()
 
     def AsyncExit(self):
-        "Asynchronous exit; to be called from another thread"
-        # self.Exit()
-        # self.session.app.exit(style="class:exiting")
-        self.loop.call_soon_threadsafe(self.Exit)
+        """Asynchronous exit; to be called from another thread"""
+        self.Exit()
+
         self.loop.call_soon_threadsafe(
             lambda: self.session.app.exit(style="class:exiting")
         )
+        self.thread.join()
 
     def EOFHandler(self):
         self.Exit()
@@ -753,6 +763,8 @@ class CommandLine:
             # Execute the command
             if line:
                 self.DoLine(line)
+
+        self.loop.call_soon_threadsafe(lambda: self.loop.stop())
 
 
 class HDTVCompleter(Completer):

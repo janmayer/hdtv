@@ -59,8 +59,6 @@ class SimpleUI:
             self.stdout.write(html)
             return
         sys.stdout.write("\r")
-        # asyncio.set_event_loop(hdtv.cmdline.command_line.loop)
-        # self.print_patched(HTML(html), end)
         hdtv.cmdline.command_line.loop.call_soon_threadsafe(
             self.print_patched, HTML(html), end
         )
