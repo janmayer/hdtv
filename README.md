@@ -60,11 +60,13 @@ cd hdtv
 docker build --tag hdtv .
 ```
 
-On Linux and MacOs, no further installation is required and in the directory with your project you will be able to use HDTV with:
+On Linux and MacOS, no further installation is required and in the directory with your project you will be able to use HDTV with:
 
 ```sh
-docker run -e DISPLAY=${DISPLAY} -v $(pwd):/work -it hdtv
+docker run -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix -v $(pwd):/work -it hdtv
 ```
+
+When using SELinux, the additional argument `--security-opt label=type:container_runtime_t` is required (before `-it`).
 
 On Windows, you will need to have an X-Server installed, for example with MobaXTerm, and be a bit more specific:
 
