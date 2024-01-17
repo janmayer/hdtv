@@ -46,8 +46,6 @@ from hdtv.plugins.fitlist import fitxml
 from hdtv.plugins.specInterface import spec_interface
 
 testspectrum = os.path.join(os.path.curdir, "tests", "share", "osiris_bg.spc")
-testspectrum_h1 = os.path.join(os.path.curdir, "tests", "share", "binning_h1.tv")
-testspectrum_h2 = os.path.join(os.path.curdir, "tests", "share", "binning_h2.tv")
 
 
 NBINS = 2000
@@ -57,27 +55,13 @@ PEAK_WIDTH = 15.0
 
 
 @pytest.fixture(autouse=True)
-def prepare():
+def prepare(tmp_path):
     fit_interface.ResetFitterParameters()
     hdtv.options.Set("table", "classic")
     hdtv.options.Set("uncertainties", "short")
     spec_interface.LoadSpectra(testspectrum)
     yield
     spectra.Clear()
-
-    bins_h1 = linspace(0.5, NBINS + 0.5, NBINS)
-    spectrum_h1 = BG_PER_BIN * ones(NBINS)
-    spectrum_h1 = spectrum_h1 + PEAK_VOLUME * norm.pdf(
-        bins_h1, loc=0.5 * NBINS, scale=PEAK_WIDTH
-    )
-    savetxt(testspectrum_h1, spectrum_h1)
-
-    bins_h2 = linspace(0.5, NBINS + 0.5, int(0.5 * NBINS))
-    spectrum_h2 = 0.5 * BG_PER_BIN * ones(int(0.5 * NBINS))
-    spectrum_h2 = spectrum_h2 + 2.0 * PEAK_VOLUME * norm.pdf(
-        bins_h2, loc=0.5 * NBINS, scale=PEAK_WIDTH
-    )
-    savetxt(testspectrum_h2, spectrum_h2)
 
 
 def get_markers(fit=None):
