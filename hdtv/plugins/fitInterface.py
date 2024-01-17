@@ -17,16 +17,15 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-import copy
-import sys
 from html import escape
 
 import ROOT
+
 import hdtv.cmdline
-import hdtv.options
-import hdtv.util
-import hdtv.ui
 import hdtv.fit
+import hdtv.options
+import hdtv.ui
+import hdtv.util
 
 
 class FitInterface:
@@ -46,7 +45,7 @@ class FitInterface:
         # Register configuration variables for fit interface
         # default region width for quickfit
 
-        self.opt = dict()
+        self.opt = {}
         self.opt["quickfit.region"] = hdtv.options.Option(
             default=20.0, parse=lambda x: float(x)
         )
@@ -290,7 +289,6 @@ class FitInterface:
         if ids is None:
             ids = spec.ids
         fits = [spec.dict[ID] for ID in ids]
-        count_fits = len(fits)
         (objects, params) = self.ExtractIntegrals(fits, integral_type)
 
         # create the table
@@ -334,8 +332,8 @@ class FitInterface:
             fitlist    : a list of dicts for each peak in the fits
             params     : a ordered list of valid parameter names
         """
-        fitlist = list()
-        params = list()
+        fitlist = []
+        params = []
         # loop through fits
         for fit in fits:
             # Get peaks
@@ -378,8 +376,8 @@ class FitInterface:
             integrallist : a list of dicts for each integral in the fits
             params       : a ordered list of valid parameter names
         """
-        integrallist = list()
-        params = list()
+        integrallist = []
+        params = []
         # loop through fits
         for fit in fits:
             (integrals, integralparams) = fit.ExtractIntegralParams(integral_type)
@@ -403,7 +401,7 @@ class FitInterface:
         IDs.
         """
         if ids is None:
-            ids = list()
+            ids = []
         ids.extend("a")
         statstr = ""
         for ID in ids:
@@ -570,13 +568,13 @@ class FitInterface:
         Show decomposition of fits
         """
 
-        fits = list()
+        fits = []
         if sid is None:
             spec = self.spectra.GetActiveObject()
         else:
             spec = self.spectra.dict[sid]
 
-        fits = list()
+        fits = []
         if ids is None:
             if self.spectra.workFit is not None:
                 fits.append(self.spectra.workFit)
@@ -999,11 +997,11 @@ class TvFitInterface:
             elif action == "delete":
                 self.spectra.RemoveMarker(mtype, pos)
 
-    def MarkerCompleter(self, text, args=[]):
+    def MarkerCompleter(self, text, args=None):
         """
         Helper function for FitMarkerChange
         """
-        if not args:
+        if args is None or not args:
             mtypes = ["background", "region", "peak"]
             return hdtv.util.GetCompleteOptions(text, mtypes)
         elif len(args) == 1:
@@ -1083,8 +1081,7 @@ class TvFitInterface:
             for fitID in fitIDs:
                 try:
                     hdtv.ui.msg(
-                        "Executing integral for region of fit %s in spectrum %s"
-                        % (fitID, specID)
+                        f"Executing integral for region of fit {fitID} in spectrum {specID}"
                     )
                     self.fitIf.ExecuteReintegrate(specID=specID, fitID=fitID)
                 except (KeyError, RuntimeError) as e:
@@ -1217,7 +1214,7 @@ class TvFitInterface:
         """
         sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
 
-        fits = list()
+        fits = []
         if not args.fitid:
             fits.append(self.spectra.workFit)
             spec = self.spectra.GetActiveObject()
@@ -1254,7 +1251,7 @@ class TvFitInterface:
             spec = self.spectra.dict[sid]
             ids = hdtv.util.ID.ParseIds(args.fit, spec)
             if args.visible:
-                ids = [ID for ID in spec.visible]
+                ids = list(spec.visible)
             if not ids:
                 continue
             self.fitIf.ListFits(
@@ -1278,7 +1275,7 @@ class TvFitInterface:
             spec = self.spectra.dict[sid]
             ids = hdtv.util.ID.ParseIds(args.fit, spec)
             if args.visible:
-                ids = [ID for ID in spec.visible]
+                ids = list(spec.visible)
             if not ids:
                 continue
             self.fitIf.ListIntegrals(
@@ -1305,7 +1302,7 @@ class TvFitInterface:
             raise hdtv.cmdline.HDTVCommandError("Invalid peak model '%s'" % name)
         else:
             name = models[0].strip()
-            ids = list()
+            ids = []
             if args.fit:
                 spec = self.spectra.GetActiveObject()
                 if spec is None:
@@ -1330,7 +1327,7 @@ class TvFitInterface:
             raise hdtv.cmdline.HDTVCommandError("Invalid background model '%s'" % name)
         else:
             name = models[0].strip()
-            ids = list()
+            ids = []
             if args.fit:
                 spec = self.spectra.GetActiveObject()
                 if spec is None:
@@ -1373,7 +1370,7 @@ class TvFitInterface:
                 "Parameter name %s is not valid" % param
             )
         param = parameter[0].strip()
-        ids = list()
+        ids = []
         if args.fit:
             spec = self.spectra.GetActiveObject()
             if spec is None:
@@ -1401,7 +1398,7 @@ class TvFitInterface:
             params.extend(self.spectra.workFit.fitter.params)
             return hdtv.util.GetCompleteOptions(text, params)
         else:  # args[0] = parameter name -> complete its possible values
-            states = list()
+            states = []
             param = args[0]
             if param in ["status", "reset", "background"]:
                 return []  # No further args to autocomplete

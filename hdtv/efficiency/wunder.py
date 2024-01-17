@@ -17,9 +17,11 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-from .efficiency import _Efficiency
-from ROOT import TF1
 import math
+
+from ROOT import TF1
+
+from .efficiency import _Efficiency
 
 
 class WunderEff(_Efficiency):
@@ -29,7 +31,7 @@ class WunderEff(_Efficiency):
     eff(E) = (a*E + b/E) * exp(c*E + d/E)
     """
 
-    def __init__(self, pars=list(), norm=True):
+    def __init__(self, pars=None, norm=True):
         self.name = "Wunder"
         self.id = self.name + "_" + hex(id(self))
         #                        ( N  * ( a *E +  b /E) * exp( c *E +  d /E))

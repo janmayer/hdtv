@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
-import struct
 import os
+import struct
 
 f = open("mat.mtx", "wb")
 
-for y in range(0, 1024):
-    for x in range(0, 1024):
+for y in range(1024):
+    for x in range(1024):
         z = 1
         if x >= 200 and y >= 200:
             z = 2

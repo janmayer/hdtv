@@ -19,15 +19,13 @@
 
 import math
 from functools import total_ordering
-from uncertainties import ufloat
 
 import ROOT
-import hdtv.rootext.display
-import hdtv.rootext.fit
+from uncertainties import ufloat
+
+from hdtv.drawable import Drawable
 
 from .peak import PeakModel
-from hdtv.drawable import Drawable
-import hdtv.options
 
 
 @total_ordering
@@ -48,7 +46,7 @@ class TheuerkaufPeak(Drawable):
         self.sh = sh
         self.sw = sw
         # dictionary for storing additional user supplied values
-        self.extras = dict()
+        self.extras = {}
 
     def __getattr__(self, name):
         """
@@ -321,7 +319,7 @@ class PeakModelTheuerkauf(PeakModel):
         self.CheckParStatusLen(len(peaklist))
 
         # Copy peaks to the fitter
-        for pid in range(0, len(peaklist)):
+        for pid in range(len(peaklist)):
             pos_uncal = peaklist[pid]
 
             pos = self.GetParam("pos", pid, pos_uncal, cal, pos_uncal)

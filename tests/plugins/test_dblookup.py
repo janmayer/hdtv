@@ -22,11 +22,10 @@ import sys
 
 import pytest
 
-from tests.helpers.utils import redirect_stdout, hdtvcmd
-
 import hdtv.cmdline
 import hdtv.options
 import hdtv.plugins.dblookup
+from tests.helpers.utils import hdtvcmd
 
 
 @pytest.fixture(autouse=True)
@@ -34,7 +33,6 @@ def prepare():
     hdtv.options.Set("table", "classic")
     hdtv.options.Set("uncertainties", "short")
     hdtv.options.Set("database.db", "pgaalib_iki2000")
-    yield
 
 
 def test_cmd_db_info():

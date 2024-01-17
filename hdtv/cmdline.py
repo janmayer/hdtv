@@ -21,40 +21,31 @@
 HDTV command line
 """
 
-import os
-import sys
-import signal
-import platform
-import traceback
-import code
-import atexit
-import subprocess
-from pwd import getpwuid
 import argparse
-import itertools
-import errno
-from enum import Enum, auto
-import re
-import glob
 import asyncio
+import code
+import glob
+import os
+import platform
+import re
+import subprocess
 import threading
-import time
+import traceback
+from enum import Enum, auto
+from pwd import getpwuid
 
-from prompt_toolkit.shortcuts import PromptSession, CompleteStyle, clear
-from prompt_toolkit.completion import Completer, Completion
-from prompt_toolkit.history import FileHistory
-from prompt_toolkit.enums import EditingMode
-from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.formatted_text import HTML
-from prompt_toolkit.key_binding.key_processor import KeyPressEvent
-from prompt_toolkit.filters import Condition, emacs_mode
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+from prompt_toolkit.completion import Completer, Completion
+from prompt_toolkit.enums import EditingMode
+from prompt_toolkit.filters import Condition, emacs_mode
+from prompt_toolkit.history import FileHistory
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.key_binding.key_processor import KeyPressEvent
+from prompt_toolkit.shortcuts import CompleteStyle, PromptSession, clear
 
-import hdtv.util
-import hdtv.options
 import __main__
-
-import ROOT
+import hdtv.options
+import hdtv.util
 
 
 class CMDType(Enum):
@@ -128,10 +119,9 @@ class HDTVCommandTreeNode:
         if there were unresolvable ambiguities or 0 if there were no matching
         childs at all.
         """
-        l = len(title)
         node = 0
         for child in self.childs:
-            if child.title[0:l] == title:
+            if child.title.startswith(title):
                 if not node:
                     node = child
                 elif use_levels and node.level != child.level:
@@ -314,11 +304,9 @@ class HDTVCommandTree(HDTVCommandTreeNode):
         except OSError:
             files = []
 
-        l = len(text)
-
         options = []
         for f in files:
-            if f[0:l] == text:
+            if f.startswith(text):
                 if os.path.isdir(directory + "/" + f):
                     options.append(f + "/")
                 elif not dirs_only:
@@ -424,7 +412,7 @@ class CommandLine:
     command and Python mode.
     """
 
-    cmds = dict()
+    cmds = {}
     cmds["__name__"] = "hdtv"
 
     def __init__(self, command_tree):
@@ -444,11 +432,6 @@ class CommandLine:
         self.session = None
         self.fKeepRunning = True
         self.exit_handlers = []
-
-        if os.sep == "\\":
-            eof = "Ctrl-Z plus Return"
-        else:
-            eof = "Ctrl-D (i.e. EOF)"
 
     def StartEventLoop(self):
         def _loop(loop):
@@ -622,7 +605,7 @@ class CommandLine:
                 #  We set the python mode accordingly.
                 self.fPyMore = self._py_console.push(cmd)
             elif cmd_type == CMDType.shell:
-                subprocess.run(cmd, shell=True)
+                subprocess.run(cmd, shell=True, check=False)
             elif cmd_type == CMDType.cmdfile:
                 self.ExecCmdfile(cmd)
         except KeyboardInterrupt:
@@ -774,9 +757,6 @@ class HDTVCompleter(Completer):
         self.loading = 0
 
     def get_completions(self, document, complete_event):
-        word_before_cursor = document.get_word_before_cursor()
-        text_before_cursor = document.text_before_cursor
-        start = document.current_line_before_cursor.lstrip()
         yield from self.cmdline.GetCompleteOptions(document, complete_event)
 
 

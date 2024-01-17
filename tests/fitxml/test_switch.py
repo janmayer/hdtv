@@ -21,14 +21,12 @@ import os
 
 import pytest
 
-from tests.helpers.utils import setup_io, redirect_stdout, isclose
-
 from hdtv.util import monkey_patch_ui, strip_tags
+from tests.helpers.utils import redirect_stdout, setup_io
 
 monkey_patch_ui()
 
 import __main__
-
 import hdtv.session
 
 try:
@@ -37,9 +35,9 @@ except RuntimeError:
     pass
 spectra = __main__.spectra
 
-from hdtv.plugins.specInterface import spec_interface
-from hdtv.plugins.fitInterface import fit_interface
 import hdtv.plugins.fitlist
+from hdtv.plugins.fitInterface import fit_interface
+from hdtv.plugins.specInterface import spec_interface
 
 testspectrum = os.path.join(os.path.curdir, "tests", "share", "osiris_bg.spc")
 
@@ -181,7 +179,7 @@ def test_spectra_activate_hidden():
 def test_spectra_remove_one():
     spectra.Pop("3")
     res = get_list()
-    assert not "3 | " in res
+    assert "3 | " not in res
 
 
 def test_spectra_reload_one():

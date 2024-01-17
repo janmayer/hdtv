@@ -24,20 +24,19 @@ Gamma database integration for HDTV
 import re
 from html import escape
 
-import hdtv.plugins
 import hdtv.cmdline
-import hdtv.options
 import hdtv.database
-import hdtv.ui
-
 import hdtv.fit
+import hdtv.options
+import hdtv.plugins
+import hdtv.ui
 
 
 class Database:
     def __init__(self):
         hdtv.ui.debug("Loaded Database Lookup plugin")
 
-        self.opt = dict()
+        self.opt = {}
         self.database = None
 
         # Register configuration variables for fit peakfind
@@ -214,7 +213,7 @@ class Database:
         html = "<b>Valid fields</b>: "
         if db is None:
             db = self.database
-        html += ", ".join([f"'{str(s)}'" for s in db.fParamConv.keys()])
+        html += ", ".join([f"'{s!s}'" for s in db.fParamConv.keys()])
         hdtv.ui.msg(html=html)
 
     def Lookup(self, args, defaults=False):
@@ -227,10 +226,10 @@ class Database:
 
         self.assureOpen()
 
-        lookupargs = dict()
+        lookupargs = {}
 
         # Valid arguments
-        vargs = list()
+        vargs = []
         for v in self.database.fParamConv.keys():
             vargs.append(v.lower())
 

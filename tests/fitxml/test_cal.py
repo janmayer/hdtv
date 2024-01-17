@@ -24,19 +24,15 @@ This script tests the interplay of fitting and restoring fits with calibration
 import os
 
 import pytest
-
 from numpy import linspace, ones, savetxt, sqrt
 from scipy.stats import norm
 
-from tests.helpers.utils import setup_io, redirect_stdout, isclose
-from tests.helpers.fixtures import temp_file
-
 from hdtv.util import monkey_patch_ui
+from tests.helpers.utils import isclose, redirect_stdout, setup_io
 
 monkey_patch_ui()
 
 import __main__
-
 import hdtv.session
 
 try:
@@ -45,9 +41,9 @@ except RuntimeError:
     pass
 spectra = __main__.spectra
 
-from hdtv.plugins.specInterface import spec_interface
 from hdtv.plugins.fitInterface import fit_interface
 from hdtv.plugins.fitlist import fitxml
+from hdtv.plugins.specInterface import spec_interface
 
 testspectrum = os.path.join(os.path.curdir, "tests", "share", "osiris_bg.spc")
 testspectrum_h1 = os.path.join(os.path.curdir, "tests", "share", "binning_h1.tv")
@@ -140,7 +136,7 @@ def test_mark_and_calibrate(region1, region2, peak):
     markers_before = test_mark(region1, region2, peak)
     spectra.ApplyCalibration("0", [0, 2])
     markers_after = get_markers()
-    assert all([x == y for (x, y) in zip(markers_before, markers_after)])
+    assert all(x == y for (x, y) in zip(markers_before, markers_after))
 
 
 @pytest.mark.parametrize("region1, region2, peak", [(2900.0, 2940.0, 2920.0)])

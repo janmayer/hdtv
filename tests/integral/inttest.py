@@ -3,12 +3,10 @@
 import sys
 
 sys.path.append("/home/braun/projects/hdtv")
+import ROOT
+
 import hdtv.specreader
 from hdtv.errvalue import ErrValue
-import ROOT
-import math
-
-hdtv.rootext.fit
 
 
 def test(bgdeg):
@@ -19,7 +17,7 @@ def test(bgdeg):
     bg.AddRegion(12.9, 18.1)
     bg.Fit(h)
 
-    for i in range(0, bg.GetDegree() + 1):
+    for i in range(bg.GetDegree() + 1):
         par = ErrValue(bg.GetFunc().GetParameter(i), bg.GetFunc().GetParError(i))
         print("bg[%d]: %10s" % (i, par.fmt()))
 

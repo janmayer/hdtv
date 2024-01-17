@@ -23,12 +23,12 @@ Peak finding and fitting plugin for HDTV
 
 import copy
 
+import ROOT
+
 import hdtv.cmdline
 import hdtv.options
-import hdtv.ui
 import hdtv.plugins
-
-import ROOT
+import hdtv.ui
 
 
 class PeakFinder:
@@ -93,8 +93,8 @@ class PeakFinder:
         foundpeaks = tSpec.GetPositionX()
 
         # Sort by position
-        tmp = list()
-        for i in range(0, num_peaks):
+        tmp = []
+        for i in range(num_peaks):
             tmp.append(foundpeaks[i])  # convert from array to list
         tmp.sort()
         foundpeaks = tmp
@@ -151,7 +151,7 @@ class PeakFinder:
                     self.spec, fit.fitter.bgFitter, region
                 )
             # add fits to spectrum
-            ID = self.spec.Insert(fit)
+            self.spec.Insert(fit)
             # FIXME: no fit title
             # fit.title = fit.title + "(*)"
             # bookkeeping

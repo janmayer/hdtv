@@ -19,9 +19,11 @@
 
 import array
 import os
+
 import ROOT
-import hdtv.ui
+
 import hdtv.rootext.mfile
+import hdtv.ui
 
 
 class SpecReaderError(Exception):
@@ -62,7 +64,7 @@ class TextSpecReader:
         if fmt:
             self.ncols = len(fmt)
 
-            for col in range(0, len(fmt)):
+            for col in range(len(fmt)):
                 c = fmt[col]
 
                 if c in ("x", "y", "e"):
@@ -121,7 +123,6 @@ class TextSpecReader:
         data = []
         f = open(fname)
         linenum = 1
-        x = y = e = None
 
         try:
             for line in f:
@@ -199,7 +200,7 @@ class TextSpecReader:
             hist = ROOT.TH1D(histname, histtitle, nbins, -0.5, nbins - 0.5)
 
         # Fill ROOT histogram object
-        for b in range(0, nbins):
+        for b in range(nbins):
             hist.SetBinContent(b + 1, data[b][1])
             if self.ecol is not None:
                 hist.SetBinError(b + 1, data[b][2])

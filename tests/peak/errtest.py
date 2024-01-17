@@ -30,8 +30,8 @@
 # This program can be used to test the handling of spectra with explicit
 # errors in hdtv.
 
-import ROOT
 import peakgen
+import ROOT
 
 spec = peakgen.Spectrum(1024, -0.5, 1023.5)
 spec.func.background = peakgen.PolyBg([10.0])

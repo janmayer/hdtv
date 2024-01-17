@@ -21,11 +21,12 @@
 Write and Read Fitlist saved in xml format
 """
 
-import os
 import glob
+import os
+
 import hdtv.cmdline
-import hdtv.options
 import hdtv.fitxml
+import hdtv.options
 import hdtv.ui
 import hdtv.util
 
@@ -36,7 +37,7 @@ class FitlistManager:
 
         self.spectra = spectra
         self.xml = hdtv.fitxml.FitXml(spectra)
-        self.list = dict()
+        self.list = {}
 
         self.tv = FitlistHDTVInterface(self)
 
@@ -69,7 +70,7 @@ class FitlistManager:
             )
 
     def WriteList(self, fname):
-        lines = list()
+        lines = []
         listpath = os.path.abspath(fname)
         for spec, xml in self.list.items():
             # create relativ path name
@@ -251,7 +252,7 @@ class FitlistHDTVInterface:
         """
         reading a fitlist from xml
         """
-        fnames = dict()  # Filenames for each spectrum ID
+        fnames = {}  # Filenames for each spectrum ID
         sids = hdtv.util.ID.ParseIds(args.spectrum, __main__.spectra)
         if len(sids) == 0:
             raise hdtv.cmdline.HDTVCommandError("There is no active spectrum")
@@ -270,7 +271,7 @@ class FitlistHDTVInterface:
                     else:
                         fnames[sid] = (fname,)
             else:
-                fnames[sid] = list()  # Filenames for this spectrum ID
+                fnames[sid] = []  # Filenames for this spectrum ID
                 for fname_raw in args.filename:
                     try:
                         # Try to replace format placeholder (e.g. %s) with spectrum

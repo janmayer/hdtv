@@ -22,12 +22,12 @@ Plugin implementing some useful hdtv commands for navigation the file system
 his includes a ls-like command, by special request from R. Schulze :)
 """
 
+import glob
 import os
 import stat
-import glob
 
-import hdtv.tabformat
 import hdtv.cmdline
+import hdtv.tabformat
 import hdtv.ui
 import hdtv.util
 

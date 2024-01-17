@@ -22,10 +22,9 @@ Plugin for executing a python script from the command line
 """
 
 import os
-import sys
 
-import hdtv.ui
 import hdtv.cmdline
+import hdtv.ui
 
 
 def run(args):

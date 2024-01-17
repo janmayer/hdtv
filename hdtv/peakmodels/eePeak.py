@@ -22,14 +22,12 @@ Peak Model for electron-electron scattering
 Implementation requested by Oleksiy Burda <burda@ikp.tu-darmstadt.de>
 """
 
+import ROOT
 from uncertainties import ufloat
 
-import ROOT
-import hdtv.rootext.display
-import hdtv.rootext.fit
+from hdtv.drawable import Drawable
 
 from .peak import PeakModel
-from hdtv.drawable import Drawable
 
 
 class EEPeak(Drawable):
@@ -48,7 +46,7 @@ class EEPeak(Drawable):
         # vol is not a fit parameter, but rather the result of the fit
         self.vol = vol
         # dictionary for storing additional user supplied values
-        self.extras = dict()
+        self.extras = {}
 
     def __getattr__(self, name):
         """
@@ -110,15 +108,15 @@ class EEPeak(Drawable):
         text = ""
         if verbose:
             text += (
-                "Pos:         {0.pos_cal:S}\n"
-                "Channel:     {0.pos:S}\n"
-                "Amp:         {0.amp:S}\n"
-                "Sigma1:      {0.sigma1:S}\n"
-                "Sigma2:      {0.sigma2:S}\n"
-                "Eta:         {0.eta:S}\n"
-                "Gamma:       {0.gamma:S}\n"
-                "Volume:      {0.vol:S}"
-            ).format(self)
+                f"Pos:         {self.pos_cal:S}\n"
+                f"Channel:     {self.pos:S}\n"
+                f"Amp:         {self.amp:S}\n"
+                f"Sigma1:      {self.sigma1:S}\n"
+                f"Sigma2:      {self.sigma2:S}\n"
+                f"Eta:         {self.eta:S}\n"
+                f"Gamma:       {self.gamma:S}\n"
+                f"Volume:      {self.vol:S}"
+            )
         else:
             text += f"Peak@ {self.pos_cal:S}"
         return text
@@ -283,7 +281,7 @@ class PeakModelEE(PeakModel):
         #  (the function raises a RuntimeError if the check fails)
         self.CheckParStatusLen(len(peaklist))
 
-        for pid in range(0, len(peaklist)):
+        for pid in range(len(peaklist)):
             pos_uncal = peaklist[pid]
 
             pos = self.GetParam("pos", pid, pos_uncal, cal, pos_uncal)

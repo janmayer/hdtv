@@ -22,15 +22,16 @@ HDTV dynamic (C++) library manager
 """
 
 import os
-import sys
 import shutil
 import subprocess
+import sys
 import tempfile
-import ROOT
-import hdtv.ui
-from hdtv.rootext import modules, libfmt
 
+import ROOT
+
+import hdtv.ui
 from hdtv._version import get_versions
+from hdtv.rootext import libfmt, modules
 
 __version__ = get_versions()["version"]
 del get_versions

@@ -19,8 +19,8 @@
 
 import ROOT
 
-import hdtv.peakmodels
 import hdtv.backgroundmodels
+import hdtv.peakmodels
 from hdtv.util import Pairs
 
 
@@ -40,7 +40,7 @@ class Fitter:
     def params(self):
         params = ["background"]
         for param, valid_status in self.peakModel.fValidParStatus.items():
-            if not "calculated" in valid_status:
+            if "calculated" not in valid_status:
                 params.append(param)
         for param in self.peakModel.fValidOptStatus.keys():
             params.append(param)
@@ -50,10 +50,11 @@ class Fitter:
         # Look in peakModel for unknown attributes
         return getattr(self.peakModel, name)
 
-    def FitBackground(self, spec, backgrounds=Pairs()):
+    def FitBackground(self, spec, backgrounds=None):
         """
         Create Background Fitter object and do the background fit
         """
+        backgrounds = backgrounds or Pairs()
         # create fitter
         self.bgFitter = self.backgroundModel.GetFitter(
             integrate=self.peakModel.GetOption("integrate"),
@@ -62,11 +63,7 @@ class Fitter:
             nbg=len(backgrounds),
         )
         if self.bgFitter is None:
-            msg = "Background model %s needs at least %i background regions to execute a fit. Found %i.".format(
-                self.backgroundModel.name,
-                self.backgroundModel.requiredBgRegions,
-                len(backgrounds),
-            )
+            msg = "Background model %s needs at least %i background regions to execute a fit. Found %i."
             raise ValueError(msg)
         else:
             for bg in backgrounds:
@@ -74,11 +71,13 @@ class Fitter:
             # do the background fit
             self.bgFitter.Fit(spec.hist.hist)
 
-    def RestoreBackground(self, backgrounds=Pairs(), params=list(), chisquare=0.0):
+    def RestoreBackground(self, backgrounds=None, params=None, chisquare=0.0):
         """
         Create Background Fitter object and
         restore the background polynom from coeffs
         """
+        backgrounds = backgrounds or Pairs()
+        params = params or []
         self.bgFitter = self.backgroundModel.GetFitter(
             integrate=self.peakModel.GetOption("integrate"),
             likelihood=self.peakModel.GetOption("likelihood"),
@@ -93,10 +92,12 @@ class Fitter:
             errorArray[i] = param.std_dev
         self.bgFitter.Restore(valueArray, errorArray, chisquare)
 
-    def FitPeaks(self, spec, region=Pairs(), peaklist=list()):
+    def FitPeaks(self, spec, region=None, peaklist=None):
         """
         Create the Peak Fitter object and do the peak fit
         """
+        region = region or Pairs()
+        peaklist = peaklist or []
         # create the fitter
         self.peakFitter = self.peakModel.GetFitter(region, peaklist, spec.cal)
         # Do the peak fit
@@ -110,13 +111,16 @@ class Fitter:
             )
 
     def RestorePeaks(
-        self, cal=None, region=Pairs(), peaks=list(), chisquare=0.0, coeffs=list()
+        self, cal=None, region=None, peaks=None, chisquare=0.0, coeffs=None
     ):
         """
         Create the Peak Fitter object and
         restore all peaks
         """
         # create the fitter
+        region = region or Pairs
+        peaks = peaks or []
+        coeffs = coeffs or []
         peaklist = [p.pos.nominal_value for p in peaks]
         self.peakFitter = self.peakModel.GetFitter(region, peaklist, cal)
         # restore first the fitter and afterwards the peaks
@@ -127,7 +131,7 @@ class Fitter:
             # internal background
             values = ROOT.TArrayD(self.backgroundModel.fParStatus["nparams"])
             errors = ROOT.TArrayD(self.backgroundModel.fParStatus["nparams"])
-            for i in range(0, self.backgroundModel.fParStatus["nparams"]):
+            for i in range(self.backgroundModel.fParStatus["nparams"]):
                 values[i] = coeffs[i].nominal_value
                 errors[i] = coeffs[i].std_dev
             self.peakFitter.Restore(values, errors, chisquare)

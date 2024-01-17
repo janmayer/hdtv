@@ -20,7 +20,6 @@
 
 try:
     import curses
-    import io
 
     def get_term_width():
         # We call curses.setupterm() every time, as the terminal width
@@ -101,7 +100,7 @@ def tabformat(cells, **kwargs):
             # Try with n_cols columns, and calculate the table width.
             tbl_width = 0
 
-            for i in range(0, n_cols):
+            for i in range(n_cols):
                 tbl_width += max(cell_widths[i * n_rows : (i + 1) * n_rows])
             # If the table is small enough, end the loop...
             if tbl_width + (n_cols - 1) * col_sep_width <= tabwidth:
@@ -112,17 +111,17 @@ def tabformat(cells, **kwargs):
     # Now produce the actual output
     # Calculate the individual column widths
     col_widths = []
-    for i in range(0, n_cols):
+    for i in range(n_cols):
         col_widths.append(max(cell_widths[i * n_rows : (i + 1) * n_rows]))
 
     # Distribute cells over rows, aloowing the table to be printed
     # row-by-row (note that successive cells go *below* each other)
-    rows = [[] for i in range(0, n_rows)]
-    for i in range(0, n_cells):
+    rows = [[] for i in range(n_rows)]
+    for i in range(n_cells):
         rows[i % n_rows].append(cells[i])
 
     # Fill up rows with empty cells
-    for i in range(0, n_rows):
+    for i in range(n_rows):
         if len(rows[i]) < n_cols:
             rows[i].append("")
 
@@ -130,5 +129,5 @@ def tabformat(cells, **kwargs):
     fmtstr = (" " * col_sep_width).join(["%%-%ds" % w for w in col_widths])
 
     # Output the table, row by row
-    for i in range(0, n_rows):
+    for i in range(n_rows):
         print(fmtstr % tuple(rows[i]))

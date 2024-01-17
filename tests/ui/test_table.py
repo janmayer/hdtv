@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 
-from hdtv.ui import *
 import hdtv.database
+from hdtv.ui import Table
 
 db = hdtv.database.PGAALibraries.PGAAlib_IKI2000()
 

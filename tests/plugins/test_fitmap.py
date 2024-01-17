@@ -21,17 +21,15 @@ import os
 
 import pytest
 
-from tests.helpers.utils import redirect_stdout, hdtvcmd
-
 from hdtv.util import monkey_patch_ui
+from tests.helpers.utils import hdtvcmd
 
 monkey_patch_ui()
 
+import __main__
 import hdtv.cmdline
 import hdtv.options
 import hdtv.session
-
-import __main__
 
 try:
     __main__.spectra = hdtv.session.Session()
@@ -39,11 +37,11 @@ except RuntimeError:
     pass
 
 
-from hdtv.plugins.specInterface import spec_interface
 import hdtv.plugins.calInterface
 import hdtv.plugins.fitInterface
-import hdtv.plugins.peakfinder
 import hdtv.plugins.fitmap
+import hdtv.plugins.peakfinder
+from hdtv.plugins.specInterface import spec_interface
 
 spectra = __main__.spectra
 

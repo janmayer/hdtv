@@ -22,10 +22,12 @@ Helper functions for access to ROOT files, treating them like POSIX
 directories
 """
 
-import os
 import fnmatch
+import os
+
 import ROOT
 from prompt_toolkit.completion import Completer, Completion
+
 from hdtv.util import SplitCmdlines
 
 # Required for Get() to work (otherwise, histogram objects are automatically

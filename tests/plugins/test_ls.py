@@ -21,10 +21,8 @@ import os
 
 import pytest
 
-from tests.helpers.utils import redirect_stdout, hdtvcmd
-
-import hdtv.cmdline
-import hdtv.plugins.ls
+import hdtv.plugins.ls  # noqa: F401
+from tests.helpers.utils import hdtvcmd
 
 
 @pytest.fixture(autouse=True)

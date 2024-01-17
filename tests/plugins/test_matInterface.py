@@ -19,17 +19,14 @@
 
 import pytest
 
-from tests.helpers.utils import redirect_stdout, hdtvcmd
-
 from hdtv.util import monkey_patch_ui
 
 monkey_patch_ui()
 
+import __main__
 import hdtv.cmdline
 import hdtv.options
 import hdtv.session
-
-import __main__
 
 try:
     if not hasattr(__main__, "spectra"):
@@ -37,7 +34,6 @@ try:
 except RuntimeError:
     pass
 
-from hdtv.plugins.specInterface import spec_interface
 import hdtv.plugins.matInterface
 
 spectra = __main__.spectra

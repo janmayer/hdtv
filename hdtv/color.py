@@ -18,11 +18,11 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 
-import colorsys
 import math
-import ROOT
-from hdtv.hsluv import hsluv_to_rgb, rgb_to_hsluv
 
+import ROOT
+
+from hdtv.hsluv import hsluv_to_rgb, rgb_to_hsluv
 
 # some default colors
 zoom = ROOT.kWhite

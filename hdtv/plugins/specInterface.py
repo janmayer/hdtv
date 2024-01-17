@@ -17,22 +17,21 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-import ROOT
-import os
-import re
-import glob
 import copy
+import glob
+import os
 
+import ROOT
+
+import hdtv.cal
 import hdtv.cmdline
 import hdtv.color
-import hdtv.cal
 import hdtv.options
-import hdtv.util
 import hdtv.ui
-
-from hdtv.spectrum import Spectrum
+import hdtv.util
 from hdtv.histogram import FileHistogram
 from hdtv.specreader import SpecReaderError
+from hdtv.spectrum import Spectrum
 from hdtv.util import LockViewport
 
 
@@ -204,22 +203,22 @@ class SpecInterface:
         """
         Create a list of all spectra (for printing)
         """
-        spectra = list()
+        spectra = []
         params = ["ID", "stat", "name", "fits"]
 
-        for ID, obj in self.spectra.dict.items():
+        for ID in self.spectra.dict.keys():
             if visible and (ID not in self.spectra.visible):
                 continue
 
-            thisspec = dict()
+            thisspec = {}
 
             status = ""
-            if ID == self.spectra.activeID:
+            if self.spectra.activeID == ID:
                 status += "A"
             if ID in self.spectra.visible:
                 status += "V"
 
-            if ID == self.spectra.activeID:
+            if self.spectra.activeID == ID:
                 color = self.spectra.dict[ID]._activeColor
             else:
                 color = self.spectra.dict[ID]._passiveColor
@@ -263,7 +262,7 @@ class TvSpecInterface:
     """
 
     def __init__(self, specInterface):
-        self.opt = dict()
+        self.opt = {}
         self.specIf = specInterface
         self.spectra = self.specIf.spectra
 
@@ -576,14 +575,14 @@ class TvSpecInterface:
         if len(ids) == 0:
             hdtv.ui.warning("Nothing to do")
             return
-        targetids = list()
+        targetids = []
         if args.spectrum is not None:
             targetids = hdtv.util.ID.ParseIds(
                 args.spectrum, self.spectra, only_existent=False
             )
             targetids.sort()
         if len(targetids) == 0:
-            targetids = [None for i in range(0, len(ids))]
+            targetids = [None for i in range(len(ids))]
         elif len(targetids) == 1:  # Only start ID is given
             startID = targetids[0]
             targetids = [
@@ -594,7 +593,7 @@ class TvSpecInterface:
             raise hdtv.cmdline.HDTVCommandError(
                 "Number of target ids does not match number of ids to copy"
             )
-        for i in range(0, len(ids)):
+        for i in range(len(ids)):
             try:
                 self.specIf.CopySpectrum(ids[i], copyTo=targetids[i])
             except KeyError:
@@ -617,7 +616,7 @@ class TvSpecInterface:
         # if addTo is a new spectrum
         if addTo not in list(self.spectra.dict.keys()):
             # first copy last of the spectra that should be added
-            sid = self.specIf.CopySpectrum(ids.pop(), addTo)
+            self.specIf.CopySpectrum(ids.pop(), addTo)
 
         # add all other spectra to the last spectrum
         for i in ids[1:]:
@@ -648,7 +647,7 @@ class TvSpecInterface:
 
         subFrom = ids[0]
         if subFrom not in list(self.spectra.dict.keys()):
-            sid = self.specIf.CopySpectrum(ids.pop(), subFrom)
+            self.specIf.CopySpectrum(ids.pop(), subFrom)
 
         for i in ids[1:]:
             try:
@@ -672,7 +671,7 @@ class TvSpecInterface:
                 ids = [self.spectra.activeID]
             else:
                 hdtv.ui.msg("No active spectrum")
-                ids = list()
+                ids = []
         else:
             ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
 
@@ -700,7 +699,7 @@ class TvSpecInterface:
                 ids = [self.spectra.activeID]
             else:
                 hdtv.ui.msg("No active spectrum")
-                ids = list()
+                ids = []
         else:
             ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
 
@@ -734,7 +733,7 @@ class TvSpecInterface:
                 ids = [self.spectra.activeID]
             else:
                 hdtv.ui.msg("No active spectrum")
-                ids = list()
+                ids = []
         else:
             ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
 
@@ -743,9 +742,9 @@ class TvSpecInterface:
         use_tv_binning ^= args.root_binning
 
         if use_tv_binning:
-            hdtv.ui.debug(f"Calbinning using tv binning convention.")
+            hdtv.ui.debug("Calbinning using tv binning convention.")
         else:
-            hdtv.ui.debug(f"Calbinning using ROOT binning convention.")
+            hdtv.ui.debug("Calbinning using ROOT binning convention.")
 
         if len(ids) == 0:
             hdtv.ui.warning("Nothing to do")
@@ -790,7 +789,7 @@ class TvSpecInterface:
                 ids = [self.spectra.activeID]
             else:
                 hdtv.ui.msg("No active spectrum")
-                ids = list()
+                ids = []
         else:
             ids = hdtv.util.ID.ParseIds(args.specid, self.spectra)
 

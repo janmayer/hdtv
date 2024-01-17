@@ -17,17 +17,16 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-import sys
-import os
 import contextlib
+import sys
 
 try:  # Python2
     from StringIO import StringIO
 except ImportError:  # Python3
     from io import StringIO
 
-from hdtv.ui import ui
 import hdtv.cmdline
+from hdtv.ui import ui
 
 
 def setup_io(num=1):

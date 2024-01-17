@@ -24,34 +24,29 @@ Specific background models (for example the exponential background) may require 
 """
 
 import os
-
-import pytest
 import xml.etree.ElementTree as ET
 
-from tests.helpers.utils import hdtvcmd, isclose
-from tests.helpers.fixtures import temp_file
-from tests.helpers.create_test_spectrum import ArtificialSpec, ArtificialSpecProp
-
+import pytest
 from numpy import exp, log, sqrt
 
 from hdtv.util import monkey_patch_ui
+from tests.helpers.create_test_spectrum import ArtificialSpec, ArtificialSpecProp
+from tests.helpers.utils import hdtvcmd, isclose
 
 monkey_patch_ui()
 
+import __main__
 import hdtv.cmdline
 import hdtv.options
 import hdtv.session
-
-import __main__
 
 try:
     __main__.spectra = hdtv.session.Session()
 except RuntimeError:
     pass
 
-from hdtv.plugins.specInterface import spec_interface
-from hdtv.plugins.fitInterface import fit_interface
 from hdtv.plugins.fitlist import fitxml
+from hdtv.plugins.specInterface import spec_interface
 
 spectra = __main__.spectra
 
@@ -70,7 +65,7 @@ WRITE_BATCHFILE = False  # Determines whether the batch files of the test fits s
 ts_prop = ArtificialSpecProp()
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_spectrum(tmp_path):
     ts = ArtificialSpec(path=tmp_path)
     ts.create()

@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
-import versioneer
-from setuptools import setup
-from pathlib import Path
 import glob
+from pathlib import Path
+
+from setuptools import setup
+
+import versioneer
 
 manpages = glob.glob("doc/guide/*.1")
 
@@ -34,7 +36,6 @@ Programming Language :: C
 Programming Language :: C++
 Programming Language :: Python
 Programming Language :: Python :: 3
-Programming Language :: Python :: 3.7
 Programming Language :: Python :: 3.8
 Programming Language :: Python :: 3.9
 Programming Language :: Python :: 3.10

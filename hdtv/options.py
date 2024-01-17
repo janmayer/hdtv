@@ -122,9 +122,7 @@ class _OptionManager(dict):
         """
         Shows the value of the variable varname
         """
-        return "<b>{}</b>: {}".format(
-            escape(varname), escape(str(self.__dict__[varname]))
-        )
+        return f"<b>{escape(varname)}</b>: {escape(str(self.__dict__[varname]))}"
 
     def Str(self):
         """

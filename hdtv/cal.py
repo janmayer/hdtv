@@ -17,17 +17,16 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
+import fnmatch
+import re
 from array import array
 from html import escape
-import re
-import fnmatch
 
 import ROOT
-import hdtv.util
-import hdtv.cal
-import hdtv.options
 
+import hdtv.options
 import hdtv.rootext.calibration
+import hdtv.util
 
 
 class PositionCalibrationDict(dict):
@@ -236,7 +235,7 @@ class CalibrationFitter:
 
         # Save the fit result
         self.calib = MakeCalibration(
-            [self.__TF1.GetParameter(i) for i in range(0, degree + 1)]
+            [self.__TF1.GetParameter(i) for i in range(degree + 1)]
         )
         self.chi2 = self.__TF1.GetChisquare()
 
@@ -262,10 +261,10 @@ class CalibrationFitter:
 
         header = ["Channel", "E_given", "E_fit", "Residual"]
         keys = "channel", "e_given", "e_fit", "residual"
-        tabledata = list()
+        tabledata = []
 
         for ch, e_given in self.pairs:
-            tableline = dict()
+            tableline = {}
             e_fit = self.calib.Ch2E(ch.nominal_value)
             residual = e_given - e_fit
 
@@ -300,7 +299,7 @@ class CalibrationFitter:
 
             try:
                 graph.SetPoint(i, ch.nominal_value, e.nominal_value)
-            except BaseException:
+            except Exception:
                 graph.SetPoint(i, ch.nominal_value, e)
             graph.SetPointError(i, ch.std_dev, 0)
             i += 1
@@ -344,7 +343,7 @@ class CalibrationFitter:
             try:
                 # energie may be ufloat
                 e = e.nominal_value
-            except BaseException:
+            except Exception:
                 pass
 
             graph.SetPoint(i, ch.nominal_value, e - self.calib.Ch2E(ch.nominal_value))

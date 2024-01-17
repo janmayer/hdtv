@@ -24,14 +24,12 @@ main session of hdtv
 import copy
 
 import hdtv.cal
-
-from hdtv.window import Window
-from hdtv.drawable import DrawableManager
-from hdtv.fitter import Fitter
-from hdtv.fit import Fit
 from hdtv.cut import Cut
+from hdtv.drawable import DrawableManager
+from hdtv.fit import Fit
+from hdtv.fitter import Fitter
 from hdtv.integral import Integrate
-from hdtv.util import monkey_patch_ui
+from hdtv.window import Window
 
 
 class Session(DrawableManager):

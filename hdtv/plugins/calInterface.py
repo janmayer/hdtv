@@ -22,16 +22,16 @@ Functions for efficiency, energy calibration
 """
 
 import argparse
-import math
-from uncertainties import ufloat, ufloat_fromstr
 
-import hdtv.efficiency
+from uncertainties import ufloat_fromstr
+
+import hdtv.cal
 import hdtv.cmdline
+import hdtv.efficiency
 import hdtv.options
 import hdtv.ui
-import hdtv.cal
 import hdtv.util
-from hdtv.fitxml import FitXml
+
 from . import EnergyCalibration
 
 
@@ -55,7 +55,7 @@ class EffCalIf:
                         * "pow" for power function efficiency
         """
         if parameter is None:
-            parameter = list()
+            parameter = []
 
         try:
             name = name.lower()
@@ -109,7 +109,6 @@ class EffCalIf:
         """
         Assign efficiency for fit
         """
-        pass
 
     def ReadPar(self, spectrumID, filename):
         """
@@ -170,9 +169,9 @@ class EffCalIf:
         if ids is None:
             ids = self.spectra.ids
 
-        tabledata = list()
+        tabledata = []
         for ID in ids:
-            tableline = dict()
+            tableline = {}
             tableline["ID"] = ID
             try:
                 tableline["Name"] = self.spectra.dict[ID].effCal.name
@@ -226,7 +225,7 @@ class EffCalIf:
                 )
 
         fitValues = hdtv.util.Pairs()
-        tabledata = list()
+        tabledata = []
 
         if filename is not None:  # at the moment you can only fit from one file
             # TODO: maybe it makes more sense to write another method for this
@@ -441,7 +440,7 @@ class EffCalHDTVInterface:
         self.effIf = EffCalIf
         self.spectra = EffCalIf.spectra
 
-        self.opt = dict()
+        self.opt = {}
 
         self.opt["eff_fun"] = hdtv.options.Option(
             default="wunder",
@@ -914,7 +913,7 @@ class EnergyCalIf:
         <specname>: <cal0> <cal1> ...
         The calibrations are written into the calibration dictionary.
         """
-        calDict = dict()
+        calDict = {}
         f = hdtv.util.TxtFile(fname)
         f.read()
         for l, n in zip(f.lines, f.linos):
@@ -934,7 +933,7 @@ class EnergyCalIf:
         Creates a printable list of all calibrations in calDict
         <specname>: <cal0> <cal1> ...
         """
-        lines = list()
+        lines = []
         names = calDict.keys()
         if sort:
             names = sorted(names, key=hdtv.util.natural_sort_key)
@@ -948,7 +947,6 @@ class EnergyCalIf:
         Copy a calibration
         """
         cal = self.spectra.dict[source_id].cal
-        coeffs = hdtv.cal.GetCoeffs(cal)
         cal = hdtv.cal.MakeCalibration(cal)
         self.spectra.ApplyCalibration(ids, cal)
 
@@ -1377,7 +1375,7 @@ class EnergyCalHDTVInterface:
                     )
         else:
             # check if active spectrum is visible
-            if not __main__.spectra.activeID in __main__.spectra.visible:
+            if __main__.spectra.activeID not in __main__.spectra.visible:
                 raise hdtv.cmdline.HDTVCommandError(
                     "Active spectrum is not visible, no action taken"
                 )

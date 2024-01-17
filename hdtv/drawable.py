@@ -19,9 +19,9 @@
 
 import hdtv.cal
 import hdtv.color
+import hdtv.options
 import hdtv.ui
 from hdtv.util import LockViewport
-import hdtv.options
 
 
 class Drawable:
@@ -115,7 +115,6 @@ class Drawable:
         """
         Refresh the objects data
         """
-        pass
 
     def Show(self):
         """
@@ -159,7 +158,7 @@ class DrawableManager:
     def __init__(self, viewport=None):
         self.viewport = viewport
         # dictionary to store the drawable objects
-        self.dict = dict()
+        self.dict = {}
         self.visible = set()
         self.activeID = None
         # This should keep track of ID for nextID, prevID
@@ -253,9 +252,9 @@ class DrawableManager:
         """
         Remove object with ID
         """
-        if ID == self.activeID:
+        if self.activeID == ID:
             self.ActivateObject(None)
-        if ID == self._iteratorID:
+        if self._iteratorID == ID:
             # set iterator to the ID before the one we remove
             self._iteratorID = self.prevID
         self.visible.discard(ID)
@@ -289,7 +288,7 @@ class DrawableManager:
         """
         Draw function (sets the viewport and draws all components)
         """
-        if not self.viewport is None and not self.viewport == viewport:
+        if self.viewport is not None and not self.viewport == viewport:
             # Unlike the Display object of the underlying implementation,
             # python objects can only be drawn on a single viewport
             raise RuntimeError("Object can only be drawn on a single viewport")

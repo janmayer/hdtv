@@ -17,9 +17,9 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-from .efficiency import _Efficiency
 from ROOT import TF1
-import math
+
+from .efficiency import _Efficiency
 
 
 class PowEff(_Efficiency):
@@ -29,7 +29,7 @@ class PowEff(_Efficiency):
     eff(E) = a + b * pow(E,-c)
     """
 
-    def __init__(self, pars=list(), norm=True):
+    def __init__(self, pars=None, norm=True):
         self.name = "Power"
         self.id = self.name + "_" + hex(id(self))
         #                       "( N *( a + b *E ^( -c )))"

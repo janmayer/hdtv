@@ -22,19 +22,16 @@ import tempfile
 
 import pytest
 
-from tests.helpers.utils import redirect_stdout, hdtvcmd
-
 from hdtv.util import monkey_patch_ui
+from tests.helpers.utils import hdtvcmd
 
 monkey_patch_ui()
 
+import __main__
 import hdtv.cmdline
 import hdtv.options
-import hdtv.ui
 import hdtv.session
-
-
-import __main__
+import hdtv.ui
 
 try:
     __main__.spectra = hdtv.session.Session()

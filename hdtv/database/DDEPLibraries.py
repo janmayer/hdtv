@@ -1,16 +1,17 @@
-# DDEP database, Decay Data Evaluation Project
+"""DDEP database, Decay Data Evaluation Project"""
 
-import json
 import hdtv.util
 
 try:
-    import urllib.request
     import urllib.error
+    import urllib.request
 except ImportError:
     import urllib
-import hdtv.ui
 from uncertainties import ufloat
-from hdtv.database.common import *
+
+import hdtv.ui
+
+# from hdtv.database.common import *
 
 
 def SearchNuclide(nuclide):
@@ -28,7 +29,7 @@ def SearchNuclide(nuclide):
             "http://www.nucleide.org/DDEP_WG/Nuclides/" + str(nuclide) + ".lara.txt"
         ) as resource:
             data = resource.read().decode("utf-8")
-    except:
+    except Exception:
         raise hdtv.cmdline.HDTVCommandError(f"Error looking up nuclide {nuclide}")
 
     for line in data.split("\r\n"):
@@ -45,17 +46,17 @@ def SearchNuclide(nuclide):
                 energy = ufloat(float(sep[0]), 0)
                 try:
                     energy.std_dev = float(sep[1])
-                except BaseException:
+                except Exception:
                     pass
 
                 intensity = ufloat(float(sep[2]) / 100, 0)
                 try:
                     intensity.std_dev = float(sep[3]) / 100
-                except BaseException:
+                except Exception:
                     pass
 
                 out["transitions"].append({"energy": energy, "intensity": intensity})
-        except:
+        except Exception:
             pass
 
     return out

@@ -21,8 +21,8 @@ import re
 
 from prompt_toolkit.completion import WordCompleter
 
-import hdtv.options
 import hdtv.cmdline
+import hdtv.options
 import hdtv.util
 
 
@@ -33,9 +33,7 @@ def ConfigSet(args):
         raise hdtv.cmdline.HDTVCommandAbort(args.variable + ": no such option")
     except ValueError as err:
         raise hdtv.cmdline.HDTVCommandAbort(
-            "Invalid value ({}) for option {}. {}".format(
-                args.value, args.variable, err
-            )
+            f"Invalid value ({args.value}) for option {args.variable}. {err}"
         )
 
 

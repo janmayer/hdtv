@@ -22,9 +22,6 @@ For each model implemented on the C++ side, we have a corresponding Python
 class to handle fitter setup and data transfer to the Python side
 """
 
-import ROOT
-import hdtv.rootext.display
-
 
 # Base class for all background models
 class BackgroundModel:
@@ -36,7 +33,7 @@ class BackgroundModel:
     """
 
     def __init__(self):
-        self.fGlobalParams = dict()
+        self.fGlobalParams = {}
         self.requiredBgRegions = 1
 
     def ResetGlobalParams(self):
@@ -136,8 +133,7 @@ class BackgroundModel:
 
         if parname not in list(self.fValidParStatus.keys()):
             raise ValueError(
-                "Invalid parameter name %s for background model %s"
-                % (parname, self.name)
+                f"Invalid parameter name {parname} for background model {self.name}"
             )
 
         self.fParStatus[parname] = self.ParseParamStatus(parname, status)

@@ -17,21 +17,18 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-import os
+import matplotlib
 import numpy
 import scipy
-import matplotlib
 
 matplotlib.use("agg")  # Must be before import pylab!
 import pylab
+from matplotlib import transforms
 
-import matplotlib.transforms as transforms
-
-import hdtv.ui
-import hdtv.cmdline
 import hdtv.cal
+import hdtv.cmdline
 import hdtv.color
-
+import hdtv.ui
 
 # TODO: add cut marker
 
@@ -259,7 +256,7 @@ class PrintInterface:
         if args.xlabel:
             pylab.xlabel(args.xlabel)
         if args.legend and len(self.spectra) > 0:
-            legend = pylab.legend(prop=dict(size="x-small"))
+            legend = pylab.legend(prop={"size": "x-small"})
             legend.draw_frame(False)
 
         # save finished plot to file

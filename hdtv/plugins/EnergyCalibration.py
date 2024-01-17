@@ -21,11 +21,10 @@
 Function for energy calibration
 """
 
-from uncertainties import ufloat
 
-import hdtv.util
 import hdtv.ui
-from hdtv.database import IAEALibraries, DDEPLibraries
+import hdtv.util
+from hdtv.database import DDEPLibraries, IAEALibraries
 
 
 def SearchNuclide(nuclide, database):
@@ -98,8 +97,8 @@ def MatchPeaksAndEnergies(peaks, energies, sigma):
 
     # compare all gradients with each other to find the most frequently one
     # (within sigma)
-    for i in range(0, len(gradient)):
-        for j in range(0, len(gradient)):
+    for i in range(len(gradient)):
+        for j in range(len(gradient)):
             if gradient[j] > gradient[i] - sigma and gradient[j] < gradient[i] + sigma:
                 accordanceCount[i] = accordanceCount[i] + 1
                 if accordanceCount[i] > NumberHighestAccordance:
@@ -108,7 +107,7 @@ def MatchPeaksAndEnergies(peaks, energies, sigma):
 
     accordance = []  # all pairs with the right gradient will be saved in this list
 
-    for i in range(0, len(gradient)):
+    for i in range(len(gradient)):
         if (
             gradient[i] > bestAccordance - sigma
             and gradient[i] < bestAccordance + sigma

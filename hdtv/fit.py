@@ -18,17 +18,17 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 import copy
-from uncertainties import ufloat
 
 import ROOT
-import hdtv.color
+from uncertainties import ufloat
+
 import hdtv.cal
+import hdtv.color
 import hdtv.integral
 import hdtv.ui
-
 from hdtv.drawable import Drawable
 from hdtv.marker import MarkerCollection
-from hdtv.util import Pairs, ID, Table, LockViewport
+from hdtv.util import ID, LockViewport, Pairs, Table
 from hdtv.weakref_proxy import weakref
 
 
@@ -47,8 +47,8 @@ class Fit(Drawable):
     # List of hook functions to be called before/after FitPeakFunc()
     # These hook functions should accept a reference to the Fit class
     # that calls them as first argument
-    FitPeakPreHooks = list()
-    FitPeakPostHooks = list()
+    FitPeakPreHooks = []
+    FitPeakPostHooks = []
     showDecomp = False  # Default value for decomposition status
 
     def __init__(self, fitter, color=None, cal=None):
@@ -163,7 +163,7 @@ class Fit(Drawable):
     # ids property to get the ids of the peaks
     @property
     def ids(self):
-        ids = list()
+        ids = []
         for i in range(len(self.peaks)):
             ids.append(ID(self.ID.major, i))
         return ids
@@ -223,11 +223,11 @@ class Fit(Drawable):
             peaklist: a list of dicts for each peak in the fit
             params  : a ordered list of valid parameter names
         """
-        peaklist = list()
+        peaklist = []
         params = ["id", "stat", "chi"]
         # Get peaks
         for peak in self.peaks:
-            thispeak = dict()
+            thispeak = {}
             thispeak["chi"] = "%d" % self.chi
             if self.ID is None:
                 thispeak["id"] = hdtv.util.ID(None, self.peaks.index(peak))
@@ -242,7 +242,7 @@ class Fit(Drawable):
             for p in self.fitter.peakModel.fValidParStatus.keys():
                 if p == "pos":
                     # Store channel additionally to position
-                    thispeak["channel"] = getattr(peak, "pos")
+                    thispeak["channel"] = peak.pos
                     if "channel" not in params:
                         params.append("channel")
                 # Use calibrated values of params if available
@@ -277,7 +277,7 @@ class Fit(Drawable):
             integrallist : a list of dicts for each peak in the fit
             params       : a ordered list of valid parameter names
         """
-        integrallist = list()
+        integrallist = []
         params = ["id", "stat", "type"]
 
         # if not self.integral:
@@ -298,7 +298,7 @@ class Fit(Drawable):
             integral_types = [integral_type]
 
         for int_type, integral in integrals.items():
-            if not integral or not int_type in integral_types:
+            if not integral or int_type not in integral_types:
                 continue
             int_res = dict(integral["uncal"])
 
@@ -376,9 +376,7 @@ class Fit(Drawable):
             except AttributeError:
                 pos = m.p1.pos_cal if m.p1.pos_cal else m.p2.pos_cal
                 hdtv.ui.warning(
-                    "Background region at {:.2f} without second marker was ignored".format(
-                        pos
-                    )
+                    f"Background region at {pos:.2f} without second marker was ignored"
                 )
         return backgrounds
 
@@ -403,7 +401,7 @@ class Fit(Drawable):
                 self.bgChi = self.fitter.bgFitter.GetChisquare()
                 self.bgParams = []
                 nparams = self.fitter.bgFitter.GetNparams()
-                for i in range(0, nparams):
+                for i in range(nparams):
                     self.bgParams.append(
                         ufloat(
                             self.fitter.bgFitter.GetCoeff(i),
@@ -475,7 +473,7 @@ class Fit(Drawable):
             self.dispPeakFunc.SetCal(self.cal)
             self.chi = self.fitter.peakFitter.GetChisquare()
             # create peak list
-            for i in range(0, self.fitter.peakFitter.GetNumPeaks()):
+            for i in range(self.fitter.peakFitter.GetNumPeaks()):
                 cpeak = self.fitter.peakFitter.GetPeak(i)
                 peak = self.fitter.peakModel.CopyPeak(cpeak, hdtv.color.peak, self.cal)
                 self.peaks.append(peak)
@@ -525,7 +523,7 @@ class Fit(Drawable):
             self.dispPeakFunc.SetCal(self.cal)
 
             # restore display functions of single peaks
-            for i in range(0, self.fitter.peakFitter.GetNumPeaks()):
+            for i in range(self.fitter.peakFitter.GetNumPeaks()):
                 cpeak = self.fitter.peakFitter.GetPeak(i)
                 func = cpeak.GetPeakFunc()
                 self.peaks[i].displayObj = ROOT.HDTV.Display.DisplayFunc(
@@ -756,7 +754,7 @@ class Fit(Drawable):
 
         returns: tuple (x_start, x_end)
         """
-        markers = list()
+        markers = []
         # Get maximum of region markers, peak markers and peaks
         for r in self.regionMarkers:
             markers.append(r.p1.pos_cal)

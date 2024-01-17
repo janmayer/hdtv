@@ -1,6 +1,8 @@
 import csv
 import os
+
 from uncertainties import ufloat_fromstr
+
 import hdtv.cmdline
 import hdtv.ui
 
@@ -45,10 +47,11 @@ class _Elements(list):
     Read and hold complete elements list
     """
 
-    def __init__(self, csvfile=os.path.join(hdtv.datadir, "elements.dat")):
+    def __init__(self, csvfile=None):
+        csvfile = csvfile or os.path.join(hdtv.datadir, "elements.dat")
         super().__init__()
 
-        tmp = list()
+        tmp = []
 
         try:
             try:
@@ -75,7 +78,7 @@ class _Elements(list):
 
         # Now store elements finally
         maxZ = max(tmp, key=lambda x: x.z)  # Get highest Z
-        for i in range(maxZ.z):
+        for _ in range(maxZ.z):
             self.append(None)
 
         for e in tmp:
@@ -165,8 +168,9 @@ class _Nuclide(_Element):
 
 
 class _Nuclides:
-    def __init__(self, csvfile=os.path.join(hdtv.datadir, "nuclides.dat")):
-        self._storage = dict()
+    def __init__(self, csvfile=None):
+        csvfile = csvfile or os.path.join(hdtv.datadir, "nuclides.dat")
+        self._storage = {}
         try:
             try:
                 datfile = open(csvfile, encoding="utf-8")
@@ -193,7 +197,7 @@ class _Nuclides:
                     sigma = None
 
                 if Z not in self._storage:
-                    self._storage[Z] = dict()
+                    self._storage[Z] = {}
                 self._storage[Z][A] = _Nuclide(
                     element, A, abundance=abd, sigma=sigma, M=M
                 )
@@ -210,7 +214,7 @@ class _Nuclides:
               Nuclides(symbol="Au") or Nuclides(name="gold") or Nuclides(Z=79) return list of all gold nuclides
         """
 
-        ret = list()
+        ret = []
 
         if (
             Z is not None
@@ -226,7 +230,7 @@ class _Nuclides:
                 for e in n.values():
                     ret.append(e)
 
-        tmp = list()
+        tmp = []
 
         # Select by A
         if A is not None:
@@ -235,7 +239,7 @@ class _Nuclides:
                     tmp.append(n)
 
             ret = tmp
-            tmp = list()
+            tmp = []
 
         # Select by symbol
         if symbol is not None:
@@ -244,7 +248,7 @@ class _Nuclides:
                     tmp.append(n)
 
             ret = tmp
-            tmp = list()
+            tmp = []
 
         # Select by name
         if name is not None:
@@ -383,8 +387,8 @@ class GammaLib(list):
             fuzziness = self.fuzziness
 
         # convert keys to lowercase
-        fields_lower = dict()
-        args_lower = dict()
+        fields_lower = {}
+        args_lower = {}
         for key, conv in list(self.fParamConv.items()):
             fields_lower[key.lower()] = conv
 
@@ -395,7 +399,7 @@ class GammaLib(list):
             args_lower[key.lower()] = conv(value)
 
         # Prepare find args
-        fargs = dict()
+        fargs = {}
 
         for key, conv in list(fields_lower.items()):
             try:

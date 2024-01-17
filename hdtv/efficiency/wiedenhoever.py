@@ -17,9 +17,11 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-from .efficiency import _Efficiency
-from ROOT import TF1
 import math
+
+from ROOT import TF1
+
+from .efficiency import _Efficiency
 
 
 class WiedenhoeverEff(_Efficiency):
@@ -30,7 +32,7 @@ class WiedenhoeverEff(_Efficiency):
     new formula: eff(E) = d * (E - b + c * exp(-d * E))^-a
     """
 
-    def __init__(self, pars=list(), norm=True):
+    def __init__(self, pars=None, norm=True):
         self.name = "Wiedenhoever"
         self.id = self.name + "_" + hex(id(self))
         # originally, [4] was not the first coefficient, this version seems to work better

@@ -27,7 +27,6 @@ from hdtv.util import monkey_patch_ui
 monkey_patch_ui()
 
 import __main__
-
 import hdtv.session
 
 try:
@@ -36,9 +35,9 @@ except RuntimeError:
     pass
 spectra = __main__.spectra
 
-from hdtv.plugins.specInterface import spec_interface
 from hdtv.plugins.fitInterface import fit_interface
 from hdtv.plugins.fitlist import fitxml
+from hdtv.plugins.specInterface import spec_interface
 
 testspectrum = os.path.join(os.path.curdir, "tests", "share", "osiris_bg.spc")
 

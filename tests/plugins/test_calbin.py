@@ -22,34 +22,27 @@ Test whether the calbin algorithm conserves the statistical properties of the sp
 """
 
 import os
-
+import xml.etree.ElementTree as ET
 from math import sqrt
 
 import pytest
-import xml.etree.ElementTree as ET
-
-from tests.helpers.utils import hdtvcmd, isclose
-from tests.helpers.create_test_spectrum import ArtificialSpec, ArtificialSpecProp
-from tests.helpers.fixtures import temp_file
 
 from hdtv.util import monkey_patch_ui
+from tests.helpers.create_test_spectrum import ArtificialSpec
+from tests.helpers.utils import hdtvcmd, isclose
 
 monkey_patch_ui()
 
+import __main__
 import hdtv.cmdline
 import hdtv.options
 import hdtv.session
-
-
-import __main__
 
 try:
     __main__.spectra = hdtv.session.Session()
 except RuntimeError:
     pass
 
-from hdtv.plugins.specInterface import spec_interface
-from hdtv.plugins.fitInterface import fit_interface
 from hdtv.plugins.fitlist import fitxml
 
 spectra = __main__.spectra
@@ -61,7 +54,7 @@ UNCERTAINTY_RELATIVE_TOLERANCE = 0.2  # Determines how large the relative deviat
 WRITE_BATCHFILE = False  # Determines whether the batch files of the test fits should be written to file.
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_spectrum(tmp_path):
     ts = ArtificialSpec(path=tmp_path)
     ts.create()

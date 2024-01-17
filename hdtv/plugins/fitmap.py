@@ -18,6 +18,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 import argparse
+
 from uncertainties import ufloat_fromstr
 
 import hdtv.cmdline
@@ -205,7 +206,7 @@ class FitMap:
         """
         f = hdtv.util.TxtFile(args.filename)
         f.read()
-        energies = list()
+        energies = []
         for line in f.lines:
             energies.append(ufloat_fromstr(line.split(",")[0]))
         if self.spectra.activeID is None:

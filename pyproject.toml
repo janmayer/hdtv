@@ -1,19 +1,33 @@
-[tool.black]
-target-version = ['py37', 'py38', 'py39', 'py310', 'py311']
-include = '\.pyi?$'
-exclude = '''
-(
-  /(
-      \.asv
-    | \.eggs
-    | \.git
-    | \.venv
-    | benchmarks
-    | build
-    | conda.recipe
-    | dist
-  )/
-  | _version.py
-  | versioneer.py
-)
-'''
+[tool.ruff]
+target-version = "py38"
+exclude = ["*.asv", "benchmarks", "_version.py", "versioneer.py"]
+ignore = [
+    "E741",
+    "E402",
+    "E501",
+    "E722",
+    "PLR",
+    "PLW2901",
+    "RUF012",  # enforces type annotations on a codebase that lacks type annotations
+    "B904",
+    "ISC001",
+]
+select = [
+    "E",
+    "F",
+    "W",  # flake8
+    "B",
+    #"B904",  # flake8-bugbear
+    "I",  # isort
+    #"ARG",         # flake8-unused-arguments
+    "C4",  # flake8-comprehensions
+    "ISC",  # flake8-implicit-str-concat
+    "PGH",  # pygrep-hooks
+    "PIE",  # flake8-pie
+    "PL",  # pylint
+    #"PT",  # flake8-pytest-style
+    #"RUF",  # Ruff-specific
+    #"SIM",  # flake8-simplify
+    "UP",  # pyupgrade
+    "YTT"  # flake8-2020
+]

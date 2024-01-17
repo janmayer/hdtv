@@ -1,10 +1,14 @@
-# IAEA database, International Atomic Energy Agency
+"""IAEA database, International Atomic Energy Agency"""
 
 import json
-import hdtv.util
-import hdtv.ui
+import os
+
 from uncertainties import ufloat
-from hdtv.database.common import *
+
+import hdtv.ui
+import hdtv.util
+
+# from hdtv.database.common import *
 
 # TODO: integrate this in a class?
 

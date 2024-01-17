@@ -23,11 +23,10 @@
 This is the main HDTV application.
 """
 
-import sys
-import os
-import glob
-from pathlib import Path
 import argparse
+import os
+import sys
+from pathlib import Path
 
 if __name__ == "__main__":
     project_dir = Path(__file__).absolute().parents[1].resolve()
@@ -52,6 +51,23 @@ def check_root_version():
         exit(1)
 
 
+def get_path(env: str, default: str) -> Path:
+    """
+    Get path used for user config and data
+    """
+    if user_path := os.environ.get("HDTV_USER_PATH"):
+        return Path(user_path)
+
+    legacy_path = Path.home() / ".hdtv"
+    if legacy_path.exists():
+        return legacy_path
+
+    if xdg_path := os.environ.get(env):
+        return Path(xdg_path) / "hdtv"
+
+    return Path.home() / default / "hdtv"
+
+
 class App:
     def __init__(self):
         # Reset command line arguments so that ROOT does not stumble about them
@@ -59,25 +75,8 @@ class App:
         sys.argv = [sys.argv[0]]
 
         # Get config and data directory
-        self.legacypath = Path.home() / ".hdtv"
-        self.configpath = Path(
-            os.getenv(
-                "HDTV_USER_PATH",
-                self.legacypath
-                if self.legacypath.is_dir()
-                else Path(os.getenv("XDG_CONFIG_HOME", Path.home() / ".config"))
-                / "hdtv",
-            )
-        )
-        self.datapath = Path(
-            os.getenv(
-                "HDTV_USER_PATH",
-                self.legacypath
-                if self.legacypath.is_dir()
-                else Path(os.getenv("XDG_DATA_HOME", Path.home() / ".local/share"))
-                / "hdtv",
-            )
-        )
+        self.configpath = get_path("XDG_CONFIG_HOME", ".config")
+        self.datapath = get_path("XDG_DATA_HOME", ".local/share")
 
         for path in [self.datapath, self.configpath]:
             try:
@@ -135,27 +134,27 @@ class App:
         __main__.spectra = spectra
 
         # Import core plugins
-        import hdtv.plugins.textInterface
-        import hdtv.plugins.ls
-        import hdtv.plugins.run
-        import hdtv.plugins.specInterface
-        import hdtv.plugins.fitInterface
         import hdtv.plugins.calInterface
-        import hdtv.plugins.matInterface
-        import hdtv.plugins.rootInterface
         import hdtv.plugins.config
-        import hdtv.plugins.fitlist
-        import hdtv.plugins.fittex
-        import hdtv.plugins.fitmap
         import hdtv.plugins.dblookup
+        import hdtv.plugins.fitInterface
+        import hdtv.plugins.fitlist
+        import hdtv.plugins.fitmap
+        import hdtv.plugins.fittex
+        import hdtv.plugins.ls
+        import hdtv.plugins.matInterface
         import hdtv.plugins.peakfinder
         import hdtv.plugins.printing
+        import hdtv.plugins.rootInterface
+        import hdtv.plugins.run
+        import hdtv.plugins.specInterface
+        import hdtv.plugins.textInterface
 
         hdtv.ui.msg("HDTV - Nuclear Spectrum Analysis Tool")
 
         # Execute startup.py for user configuration in python
         try:
-            import startup
+            import startup  # noqa: F401
         except ImportError:
             hdtv.ui.debug("No startup.py file")
 

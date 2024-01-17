@@ -1,11 +1,13 @@
-# PGAA database from Institute of Isotopes, Hungarian Academey of Science,
-# Budapest
+"""PGAA database from Institute of Isotopes, Hungarian Academey of Science, Budapest"""
+
+import csv
+import os
 
 from uncertainties import ufloat, ufloat_fromstr
 
-from hdtv.database.common import *
 import hdtv.cmdline
 import hdtv.ui
+from hdtv.database.common import Gamma, GammaLib, Nuclides
 
 
 class PGAAGamma(Gamma):
@@ -65,10 +67,11 @@ class PGAAlib_IKI2000(GammaLib):
 
     def __init__(
         self,
-        csvfile=os.path.join(hdtv.datadir, "PGAAlib-IKI2000.dat"),
+        csvfile=None,
         has_header=True,
         k0_comp=(1, 1),
     ):
+        csvfile = csvfile or os.path.join(hdtv.datadir, "PGAAlib-IKI2000.dat")
         super().__init__()
 
         # Header for table printout
@@ -136,7 +139,7 @@ class PGAAlib_IKI2000(GammaLib):
                 )
                 self.append(gamma)
         except csv.Error as e:
-            raise HDTVCommandAbort(
+            raise hdtv.cmdline.HDTVCommandAbort(
                 "file %s, line %d: %s" % (self.csvfile, reader.line_num, e)
             )
         else:
@@ -152,10 +155,11 @@ class PromptGammas(GammaLib):
 
     def __init__(
         self,
-        csvfile=os.path.join(hdtv.datadir, "PromptGammas.dat"),
+        csvfile=None,
         has_header=True,
         k0_comp=(1, 1),
     ):
+        csvfile = os.path.join(hdtv.datadir, "PromptGammas.dat")
         super().__init__()
 
         # Header for table printout

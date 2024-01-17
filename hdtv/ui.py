@@ -22,18 +22,14 @@ Basic user interface functions (Input/Output, etc)
 """
 
 import sys
-import os
 from html import escape
-from typing import cast, TextIO
 
-import asyncio
-
-import hdtv.options
-import hdtv.cmdline
-
-from prompt_toolkit.patch_stdout import StdoutProxy, patch_stdout
 from prompt_toolkit import print_formatted_text
-from prompt_toolkit.formatted_text import HTML, ANSI
+from prompt_toolkit.formatted_text import HTML
+from prompt_toolkit.patch_stdout import patch_stdout
+
+import hdtv.cmdline
+import hdtv.options
 
 
 class SimpleUI:

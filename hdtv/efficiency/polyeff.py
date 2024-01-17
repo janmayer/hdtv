@@ -18,10 +18,13 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 from math import pow
-from uncertainties.umath import log, exp
-from .efficiency import _Efficiency
+
 from ROOT import TF1, TF2
+from uncertainties.umath import exp, log
+
 from hdtv.util import Pairs
+
+from .efficiency import _Efficiency
 
 
 class PolyEff(_Efficiency):
@@ -32,7 +35,7 @@ class PolyEff(_Efficiency):
 
     """
 
-    def __init__(self, pars=list(), degree=4, norm=False):
+    def __init__(self, pars=None, degree=4, norm=False):
         self.name = "Polynom"
         self.id = self.name + "_" + hex(id(self))
         self._degree = degree
@@ -57,7 +60,7 @@ class PolyEff(_Efficiency):
         def dEff_dP(i):
             return lambda logE, fPars: self.norm * pow(logE, i)
 
-        for i in range(0, degree + 1):
+        for i in range(degree + 1):
             self._dEff_dP[i] = dEff_dP(i)
 
     def _set_fitInput(self, fitPairs):

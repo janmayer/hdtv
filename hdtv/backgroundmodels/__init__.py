@@ -1,9 +1,9 @@
 from .exponential import BackgroundModelExponential
-from .polynomial import BackgroundModelPolynomial
 from .interpolation import BackgroundModelInterpolation
+from .polynomial import BackgroundModelPolynomial
 
 # dictionary of available background models
-BackgroundModels = dict()
+BackgroundModels = {}
 BackgroundModels["exponential"] = BackgroundModelExponential
 BackgroundModels["polynomial"] = BackgroundModelPolynomial
 BackgroundModels["interpolation"] = BackgroundModelInterpolation

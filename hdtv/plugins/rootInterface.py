@@ -21,21 +21,20 @@
 Preliminary ROOT file interface for hdtv
 """
 
-import os
 import fnmatch
+import os
 
 import ROOT
-import hdtv.rootext.display
 
 import hdtv.cmdline
-import hdtv.tabformat
 import hdtv.rfile_utils
-import hdtv.util
+import hdtv.rootext.display
+import hdtv.tabformat
 import hdtv.ui
-
-from hdtv.spectrum import Spectrum
+import hdtv.util
 from hdtv.histogram import Histogram, RHisto2D, THnSparseWrapper
 from hdtv.matrix import Matrix
+from hdtv.spectrum import Spectrum
 
 
 class RootFileInterface:
@@ -47,7 +46,7 @@ class RootFileInterface:
         self.caldict = spectra.caldict
         self.rootfile = None
         self.browser = None
-        self.matviews = list()
+        self.matviews = []
 
         hdtv.cmdline.AddCommand("root ls", self.RootLs, maxargs=1)
         hdtv.cmdline.AddCommand("root ll", self.RootLL, maxargs=1, level=0)
@@ -380,7 +379,7 @@ class RootFileInterface:
         if args.replace:
             self.spectra.Clear()
 
-        loaded = list()
+        loaded = []
         if self.window.viewport:
             self.window.viewport.LockUpdate()
         try:  # We should really use a context manager here...

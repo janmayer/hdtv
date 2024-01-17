@@ -17,10 +17,10 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
+from .exp import ExpEff
+from .polyeff import PolyEff
+from .pow import PowEff
 from .wiedenhoever import WiedenhoeverEff
 from .wunder import WunderEff
-from .polyeff import PolyEff
-from .exp import ExpEff
-from .pow import PowEff
 
-# from . orthogonal import OrthogonalEff
+__all__ = ["WiedenhoeverEff", "WunderEff", "PolyEff", "ExpEff", "PowEff"]

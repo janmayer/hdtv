@@ -20,15 +20,14 @@
 import os
 
 import pytest
-from tests.helpers.utils import redirect_stdout, hdtvcmd, isclose, setup_io
 
 from hdtv.util import monkey_patch_ui
+from tests.helpers.utils import hdtvcmd, isclose
 
 monkey_patch_ui()
 
-import hdtv.session
-
 import __main__
+import hdtv.session
 
 try:
     __main__.spectra = hdtv.session.Session()
@@ -36,13 +35,12 @@ except RuntimeError:
     pass
 session = __main__.spectra
 
-import hdtv.plugins.specInterface
-from hdtv.plugins.fitInterface import fit_interface
-import hdtv.plugins.rootInterface
-
 import hdtv.cmdline
 import hdtv.options
+import hdtv.plugins.rootInterface
+import hdtv.plugins.specInterface
 import hdtv.rfile_utils
+from hdtv.plugins.fitInterface import fit_interface
 
 
 @pytest.fixture(autouse=True)

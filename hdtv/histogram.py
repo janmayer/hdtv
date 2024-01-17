@@ -20,17 +20,16 @@
 import copy
 import os
 
-from scipy.interpolate import InterpolatedUnivariateSpline
 import numpy as np
-
 import ROOT
+from scipy.interpolate import InterpolatedUnivariateSpline
+
+import hdtv.cal
 import hdtv.color
-import hdtv.rootext.mfile
 import hdtv.rootext.calibration
 import hdtv.rootext.display
 import hdtv.rootext.fit
-import hdtv.cal
-
+import hdtv.rootext.mfile
 from hdtv.drawable import Drawable
 from hdtv.specreader import SpecReader, SpecReaderError
 from hdtv.util import LockViewport
@@ -42,7 +41,7 @@ ROOT.TH1.AddDirectory(ROOT.kFALSE)
 def HasPrimitiveBinning(hist):
     if hist.GetNbinsX() != (hist.GetXaxis().GetXmax() - hist.GetXaxis().GetXmin()):
         return False
-    for bin in range(0, hist.GetNbinsX()):
+    for bin in range(hist.GetNbinsX()):
         if hist.GetBinWidth(bin) != 1.0:
             return False
     return True
@@ -124,12 +123,8 @@ class Histogram(Drawable):
         xmin = self._hist.GetXaxis().GetXmin()
         xmax = self._hist.GetXaxis().GetXmax()
         if self.cal and not self.cal.IsTrivial():
-            s += "Xmin: {:.2f} (cal)  {:.2f} (uncal)\n".format(
-                self.cal.Ch2E(xmin), xmin
-            )
-            s += "Xmax: {:.2f} (cal)  {:.2f} (uncal)\n".format(
-                self.cal.Ch2E(xmax), xmax
-            )
+            s += f"Xmin: {self.cal.Ch2E(xmin):.2f} (cal)  {xmin:.2f} (uncal)\n"
+            s += f"Xmax: {self.cal.Ch2E(xmax):.2f} (cal)  {xmax:.2f} (uncal)\n"
         else:
             s += "Xmin: %.2f\n" % xmin
             s += "Xmax: %.2f\n" % xmax
@@ -162,7 +157,7 @@ class Histogram(Drawable):
         else:
             hdtv.ui.info("Adding calibrated")
             nbins = self._hist.GetNbinsX()
-            for n in range(0, nbins):
+            for n in range(nbins):
                 integral = ROOT.HDTV.TH1IntegrateWithPartialBins(
                     spec._hist,
                     spec.cal.E2Ch(self.cal.Ch2E(n - 0.5)),
@@ -195,7 +190,7 @@ class Histogram(Drawable):
         else:
             hdtv.ui.info("Subtracting calibrated")
             nbins = self._hist.GetNbinsX()
-            for n in range(0, nbins):
+            for n in range(nbins):
                 integral = ROOT.HDTV.TH1IntegrateWithPartialBins(
                     spec._hist,
                     spec.cal.E2Ch(self.cal.Ch2E(n - 0.5)),
@@ -263,10 +258,10 @@ class Histogram(Drawable):
         nbins = int(np.ceil(upper_old / binsize)) + 1
         if use_tv_binning:
             lower = -0.5 * binsize
-            upper = 0.5 * binsize + (upper_old // nbins) * (nbins - 1)
+            # upper = 0.5 * binsize + (upper_old // nbins) * (nbins - 1)
         else:
             lower = 0.0
-            upper = binsize + (upper_old // nbins) * (nbins - 1)
+            # upper = binsize + (upper_old // nbins) * (nbins - 1)
 
         # Create new histogram with number of bins equal
         # to the calibrated range of the old histogram
@@ -310,7 +305,7 @@ class Histogram(Drawable):
                 "Bins with negative energies in original spectrum were discarded."
             )
 
-        for i in range(0, nbins):
+        for i in range(nbins):
             newhist.SetBinContent(i + 1, output_hist[i])
 
         self._hist = newhist
@@ -332,7 +327,7 @@ class Histogram(Drawable):
         """
         Randomize each bin content assuming a Poissonian distribution.
         """
-        for i in range(0, self._hist.GetNbinsX() + 1):
+        for i in range(self._hist.GetNbinsX() + 1):
             counts = self._hist.GetBinContent(i)
             # error = self._hist.GetBinError(i)
             varied = np.random.poisson(counts)
@@ -398,7 +393,7 @@ class Histogram(Drawable):
             if caldegree:
                 cf = hdtv.cal.CalibrationFitter()
             # TODO: Slow
-            for bin in range(0, hist.GetNbinsX()):
+            for bin in range(hist.GetNbinsX()):
                 if caldegree:
                     cf.AddPair(bin, hist.GetXaxis().GetBinUpEdge(bin))
                 self._hist.SetBinContent(bin, hist.GetBinContent(bin))
@@ -477,8 +472,7 @@ class FileHistogram(Histogram):
             hist = SpecReader.GetSpectrum(self.filename, self.fmt)
         except SpecReaderError as msg:
             hdtv.ui.warning(
-                "Failed to load spectrum: %s (file: %s), keeping previous data"
-                % (msg, self.filename)
+                f"Failed to load spectrum: {msg} (file: {self.filename}), keeping previous data"
             )
             return
         self.hist = hist
@@ -498,7 +492,7 @@ class CutHistogram(Histogram):
         for i in range(len(self.gates)):
             g = self.gates[i]
             s += "%d - %d " % (g.p1.pos_cal, g.p2.pos_cal)
-            if not i == len(self.gates):
+            if i != len(self.gates):
                 "and"
         return s
 
@@ -775,7 +769,7 @@ class MHisto2D(Histo2D):
         return hist
 
     def GetBasename(self, fname):
-        if fname.endswith(".mtx") or fname.endswith(".mtx"):
+        if fname.endswith(".mtx"):
             return fname[:-4]
         else:
             return fname

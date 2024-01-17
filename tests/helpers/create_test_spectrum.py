@@ -19,11 +19,9 @@
 
 import os
 
-import pytest
-
-from numpy import arange, exp, log, ones, savetxt, sqrt
-from numpy.random import poisson
 import numpy as np
+from numpy import arange, exp, log, ones, savetxt
+from numpy.random import poisson
 from scipy.stats import norm
 
 
@@ -44,7 +42,8 @@ class ArtificialSpecProp:
 
 
 class ArtificialSpec:
-    def __init__(self, path, prop=ArtificialSpecProp()):
+    def __init__(self, path, prop=None):
+        prop = prop or ArtificialSpecProp()
         self.nsteps = prop.nsteps
         self.bg_regions = prop.bg_regions
         self.peak_width = prop.peak_width

@@ -21,14 +21,13 @@ import re
 
 import pytest
 
-from tests.helpers.utils import redirect_stdout, hdtvcmd
-
 import hdtv.cmdline
 import hdtv.options
 import hdtv.plugins.config
 
 # populate with a few options
 import hdtv.plugins.dblookup
+from tests.helpers.utils import hdtvcmd
 
 
 @pytest.fixture(autouse=True)
@@ -42,7 +41,6 @@ def prepare():
         "database.sort_reverse",
     ]:
         hdtv.options.Reset(variable)
-    yield
 
 
 def test_cmd_config_show():

@@ -18,13 +18,12 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 import ROOT
-import hdtv.rootext.display
 
 import hdtv.cal
 import hdtv.color
-
+import hdtv.rootext.display
 from hdtv.drawable import Drawable
-from hdtv.util import Position, LockViewport
+from hdtv.util import LockViewport
 
 
 class Marker(Drawable):
@@ -293,7 +292,7 @@ class MarkerCollection(list):
         if len(self) == 0:
             hdtv.ui.warning("No marker available, no action taken")
             return
-        index = dict()
+        index = {}
         for m in self:
             p1 = m.p1.pos_cal
             diff = abs(pos - p1)

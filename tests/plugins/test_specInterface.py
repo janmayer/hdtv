@@ -17,27 +17,22 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-import re
 import os
-import sys
+import re
 import warnings
-import shutil
 from math import ceil
 
 import pytest
 
-from tests.helpers.utils import redirect_stdout, hdtvcmd
-from tests.helpers.fixtures import temp_file
-
 from hdtv.util import monkey_patch_ui
+from tests.helpers.utils import hdtvcmd
 
 monkey_patch_ui()
 
+import __main__
 import hdtv.cmdline
 import hdtv.options
 import hdtv.session
-
-import __main__
 
 try:
     __main__.spectra = hdtv.session.Session()
@@ -226,8 +221,8 @@ def test_cmd_spectrum_activate_multi(numspecs):
     if numspecs > 1:
         assert "Can only activate one spectrum" in ferr
     else:
-        assert "" == ferr
-        assert "" == f
+        assert ferr == ""
+        assert f == ""
 
 
 def test_cmd_spectrum_info():
@@ -275,7 +270,7 @@ def test_cmd_spectrum_rebin(ngroup):
     hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 1
 
-    with warnings.catch_warnings(record=True) as w:
+    with warnings.catch_warnings(record=True):
         f, ferr = hdtvcmd(f"spectrum rebin 0 {ngroup}")
         assert f"Rebinning 0 with {ngroup} bins per new bin" in f
         assert get_spec(0).hist.hist.GetNbinsX() == 8192 // ngroup
@@ -287,7 +282,7 @@ def test_cmd_spectrum_calbin_binsize(binsize):
     hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 1
 
-    with warnings.catch_warnings(record=True) as w:
+    with warnings.catch_warnings(record=True):
         f, ferr = hdtvcmd(f"spectrum calbin -b {binsize} 0")
         assert f"Calbinning 0 with binsize={binsize}" in f
         assert get_spec(0).hist.hist.GetNbinsX() == int(ceil(8191 / binsize)) + 1
@@ -299,7 +294,7 @@ def test_cmd_spectrum_calbin_root_tv(parameter):
     hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 1
 
-    with warnings.catch_warnings(record=True) as w:
+    with warnings.catch_warnings(record=True):
         f, ferr = hdtvcmd(f"spectrum calbin {parameter} 0")
         assert "Calbinning 0 with binsize=" in f
 
@@ -310,7 +305,7 @@ def test_cmd_spectrum_calbin_spline_order(spline_order):
     hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 1
 
-    with warnings.catch_warnings(record=True) as w:
+    with warnings.catch_warnings(record=True):
         f, ferr = hdtvcmd(f"spectrum calbin -k {spline_order} 0")
         assert "Calbinning 0 with" in f
 
@@ -319,9 +314,9 @@ def test_cmd_spectrum_calbin_calibrated():
     assert len(s.spectra.dict) == 0
     hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 1
-    hdtvcmd(f"calibration position set 5 2.2")
+    hdtvcmd("calibration position set 5 2.2")
 
-    with warnings.catch_warnings(record=True) as w:
+    with warnings.catch_warnings(record=True):
         f, ferr = hdtvcmd("spectrum calbin -d 0")
         assert "Calbinning 0 with" in f
 
@@ -331,7 +326,7 @@ def test_cmd_spectrum_resample():
     hdtvcmd(f"spectrum get {testspectrum}")
     assert len(s.spectra.dict) == 1
 
-    with warnings.catch_warnings(record=True) as w:
+    with warnings.catch_warnings(record=True):
         f, ferr = hdtvcmd("spectrum resample 0")
         assert "Total area changed by" in f
 

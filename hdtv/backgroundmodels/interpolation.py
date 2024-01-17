@@ -18,6 +18,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 import ROOT
+
 from .background import BackgroundModel
 
 
@@ -58,7 +59,7 @@ class BackgroundModelInterpolation(BackgroundModel):
         else:
             msg = (
                 "Status specifier %s of background fitter is invalid."
-                % fParStatus["nparams"]
+                % self.fParStatus["nparams"]
             )
             raise ValueError(msg)
 

@@ -1,17 +1,19 @@
 repos:
 - repo: https://github.com/asottile/pyupgrade
-  rev: v3.3.1
+  rev: v3.15.0
   hooks:
   - id: pyupgrade
-    args: ["--py37-plus"]
+    args: ["--py38-plus"]
 
-- repo: https://github.com/psf/black
-  rev: 23.1.0
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.1.13
   hooks:
-  - id: black
+    - id: ruff
+      args: ["--fix"]
+    - id: ruff-format
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.4.0
+  rev: v4.5.0
   hooks:
   - id: check-added-large-files
   - id: check-case-conflict

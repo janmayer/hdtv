@@ -19,11 +19,7 @@
 
 import pytest
 
-from tests.helpers.utils import redirect_stdout, hdtvcmd
-
-import hdtv.cmdline
-import hdtv.plugins.run
-import hdtv.plugins.ls
+from tests.helpers.utils import hdtvcmd
 
 
 @pytest.mark.parametrize(

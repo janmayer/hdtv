@@ -18,21 +18,22 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 import traceback
+
 import ROOT
-import hdtv.options
-import hdtv.color
+
 import hdtv.cmdline
+import hdtv.color
+import hdtv.options
+import hdtv.rootext.display
 import hdtv.ui
 from hdtv.marker import MarkerCollection
-import hdtv.rootext.display
-from hdtv.cmdline import HDTVCommandAbort, HDTVCommandError
 
 
 class HotkeyList:
     "Class to handle multi-key hotkeys."
 
     def __init__(self):
-        self.fKeyCmds = dict()
+        self.fKeyCmds = {}
         self.fCurNode = self.fKeyCmds
 
     def AddHotkey(self, key, cmd):
@@ -53,7 +54,7 @@ class HotkeyList:
                     if not isinstance(curNode, dict):
                         raise RuntimeError("Refusing to overwrite non-matching hotkey")
                 except KeyError:
-                    curNode[k] = dict()
+                    curNode[k] = {}
                     curNode = curNode[k]
 
             key = key[-1]
@@ -186,7 +187,7 @@ class KeyHandler(HotkeyList):
             if handled is None:
                 self.keyString += keyStr
                 self.viewport.SetStatusText("Command: %s" % self.keyString)
-            elif handled == False:
+            elif not handled:
                 self.keyString += keyStr
                 self.viewport.SetStatusText("Invalid hotkey %s" % self.keyString)
                 self.keyString = ""
@@ -210,7 +211,7 @@ class Window(KeyHandler):
 
         self.viewer = ROOT.HDTV.Display.Viewer()
         self.viewport = self.viewer.GetViewport()
-        self._dispatchers = list()
+        self._dispatchers = []
 
         # Handle closing of the main window (with an application exit)
         disp = ROOT.TPyDispatcher(hdtv.cmdline.AsyncExit)

@@ -18,10 +18,9 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 import hdtv.color
-
-from hdtv.weakref_proxy import weakref
 from hdtv.drawable import Drawable
 from hdtv.util import LockViewport
+from hdtv.weakref_proxy import weakref
 
 
 class Cut(Drawable):

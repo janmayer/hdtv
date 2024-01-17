@@ -21,23 +21,24 @@
 TextInterface functions
 """
 
-import hdtv.options
-import hdtv.ui
-import pydoc
-from html import escape
 import fcntl
-import termios
+import pydoc
 import struct
+import termios
+from html import escape
 
 from prompt_toolkit.application import Application
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.filters import to_filter
-from prompt_toolkit.formatted_text import to_formatted_text, fragment_list_to_text, HTML
+from prompt_toolkit.formatted_text import HTML, fragment_list_to_text, to_formatted_text
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout import BufferControl
 from prompt_toolkit.layout.containers import HSplit, Window
 from prompt_toolkit.layout.layout import Layout
-from prompt_toolkit.layout.processors import Transformation, Processor
+from prompt_toolkit.layout.processors import Processor, Transformation
+
+import hdtv.options
+import hdtv.ui
 
 
 class FormatText(Processor):
@@ -52,7 +53,7 @@ class TextInterface(hdtv.ui.SimpleUI):
 
         super().__init__()
         # Set options
-        self.opt = dict()
+        self.opt = {}
         self.opt["ui.pager.cmd"] = hdtv.options.Option(default="less")  # default pager
         self.opt["ui.pager.args"] = hdtv.options.Option(
             default="-F -X -R -S"

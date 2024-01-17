@@ -18,9 +18,10 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 import os
+
+import hdtv.cmdline
 import hdtv.ui
 import hdtv.util
-import hdtv.cmdline
 
 preamble = r"""\makeatletter
 \@ifundefined{standalonetrue}{\newif\ifstandalone}{\let\ifbackup=\ifstandalone}
@@ -80,9 +81,7 @@ class TexTable(hdtv.util.Table):
         for i in range(2):
             for string in self.header:
                 string = string.replace("_", "-")
-                header += r"\multicolumn{{1}}{{{}}}{{\textbf{{{}}}}} &".format(
-                    self.ha, string
-                )
+                header += rf"\multicolumn{{1}}{{{self.ha}}}{{\textbf{{{string}}}}} &"
             header = header.rstrip("&")
             header += r"\\ \hline" + os.linesep
             if i == 0:
@@ -122,7 +121,7 @@ class TexTable(hdtv.util.Table):
         # Build lines
         for line in lines:
             line_str = ""
-            for col in range(0, len(line)):
+            for col in range(len(line)):
                 if not self._ignore_col[col]:
                     line_str += str(" " + line[col] + " ").rjust(self._col_width[col])
                 if col != len(line) - 1:
@@ -197,7 +196,7 @@ class fitTex:
         filename = os.path.expanduser(args.filename)
 
         # get list of fits
-        fits = list()
+        fits = []
         sids = hdtv.util.ID.ParseIds(args.spectrum, self.spectra)
         if len(sids) == 0:
             hdtv.ui.warning("No spectra chosen or active")

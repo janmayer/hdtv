@@ -23,7 +23,6 @@ class to handle fitter setup and data transfer to the Python side
 """
 
 import ROOT
-import hdtv.rootext.fit
 
 
 # Base class for all peak models
@@ -35,7 +34,7 @@ class PeakModel:
     """
 
     def __init__(self):
-        self.fGlobalParams = dict()
+        self.fGlobalParams = {}
 
     def ResetGlobalParams(self):
         self.fGlobalParams.clear()

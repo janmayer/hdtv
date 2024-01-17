@@ -21,18 +21,16 @@
 Matrix interface for hdtv
 """
 
-import os
 
 import ROOT
-import hdtv.rootext.display
 
+import hdtv.cmdline
+import hdtv.rootext.display
 import hdtv.ui
 import hdtv.util
-import hdtv.cmdline
-from hdtv.specreader import SpecReader, SpecReaderError
-
-from hdtv.matrix import Matrix
 from hdtv.histogram import MHisto2D
+from hdtv.matrix import Matrix
+from hdtv.specreader import SpecReader, SpecReaderError
 
 
 class MatInterface:
@@ -187,14 +185,14 @@ class MatInterface:
 
     def ListMatrix(self, matrix):
         params = ["ID", "stat", "axis", "gates", "bg", "specID"]
-        cuts = list()
+        cuts = []
         count = 0
 
         for ID, obj in matrix.dict.items():
-            this = dict()
+            this = {}
 
             stat = ""
-            if ID == matrix.activeID:
+            if matrix.activeID == ID:
                 stat += "A"
             if ID in matrix.visible:
                 stat += "V"
@@ -443,11 +441,11 @@ class TvMatInterface:
         if action == "delete":
             self.spectra.RemoveMarker(mtype, args.position)
 
-    def MarkerCompleter(self, text, args=[]):
+    def MarkerCompleter(self, text, args=None):
         """
         Helper function for CutMarkerChange
         """
-        if not args:
+        if args is None or not args:
             mtypes = ["background", "region"]
             return hdtv.util.GetCompleteOptions(text, mtypes)
         elif len(args) == 1:

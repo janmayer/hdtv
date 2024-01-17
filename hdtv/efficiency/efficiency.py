@@ -20,11 +20,12 @@
 import array
 import string
 from math import sqrt
+
+from ROOT import TF2, TGraphErrors, TVirtualFitter
 from uncertainties import ufloat
 
-from hdtv.util import TxtFile, Pairs
 import hdtv.ui
-from ROOT import TF1, TF2, TGraphErrors, TVirtualFitter
+from hdtv.util import Pairs, TxtFile
 
 
 class _Efficiency:
@@ -36,7 +37,7 @@ class _Efficiency:
         self.fCov = [
             [None for j in range(self._numPars)] for i in range(self._numPars)
         ]  # Simple matrix replacement
-        self._dEff_dP = list()
+        self._dEff_dP = []
         self.TGraph = TGraphErrors()
 
         # Normalization factors
@@ -54,7 +55,7 @@ class _Efficiency:
         #
         self.TF1.SetParName(0, "N")  # Normalization
 
-        for i in range(0, num_pars):
+        for i in range(num_pars):
             self._dEff_dP.append(None)
             if num_pars <= len(string.ascii_lowercase):
                 self.TF1.SetParName(i + 1, string.ascii_lowercase[i])
@@ -63,7 +64,7 @@ class _Efficiency:
         """
         Get parameter of efficiency function
         """
-        pars = list()
+        pars = []
         for i in range(self._numPars):
             pars.append(self.TF1.GetParameter(i))
 
@@ -140,22 +141,22 @@ class _Efficiency:
         hasXerrors = False
         # Convert energies to array needed by ROOT
         try:
-            list(map(lambda x: E.append(x[0].nominal_value), self._fitInput))
-            list(map(lambda x: delta_E.append(x[0].std_dev), self._fitInput))
-            list(map(lambda x: EN.append(0.0), self._fitInput))
+            [E.append(x[0].nominal_value) for x in self._fitInput]
+            [delta_E.append(x[0].std_dev) for x in self._fitInput]
+            [EN.append(0.0) for x in self._fitInput]
             hasXerrors = True
         except AttributeError:  # energies does not seem to be ufloat list
-            list(map(lambda x: E.append(x[0]), self._fitInput))
-            list(map(lambda x: delta_E.append(0.0), self._fitInput))
+            [E.append(x[0]) for x in self._fitInput]
+            [delta_E.append(0.0) for x in self._fitInput]
 
         # Convert efficiencies to array needed by ROOT
         try:
-            list(map(lambda x: eff.append(x[1].nominal_value), self._fitInput))
-            list(map(lambda x: delta_eff.append(x[1].std_dev), self._fitInput))
-            list(map(lambda x: effN.append(0.0), self._fitInput))
+            [eff.append(x[1].nominal_value) for x in self._fitInput]
+            [delta_eff.append(x[1].std_dev) for x in self._fitInput]
+            [effN.append(0.0) for x in self._fitInput]
         except AttributeError:  # energies does not seem to be ufloat list
-            list(map(lambda x: eff.append(x[1]), self._fitInput))
-            list(map(lambda x: delta_eff.append(0.0), self._fitInput))
+            [eff.append(x[1]) for x in self._fitInput]
+            [delta_eff.append(0.0) for x in self._fitInput]
 
         # if fit has errors we first fit without errors to get good initial values
         # if hasXerrors == True:
@@ -217,8 +218,8 @@ class _Efficiency:
         # Get covariance matrix
         tvf = TVirtualFitter.GetFitter()
         ##        cov = tvf.GetCovarianceMatrix()
-        for i in range(0, self._numPars):
-            for j in range(0, self._numPars):
+        for i in range(self._numPars):
+            for j in range(self._numPars):
                 self.fCov[i][j] = tvf.GetCovarianceMatrixElement(i, j)
         ##                 self.fCov[i][j] = cov[i * self._numPars + j]
 
@@ -262,9 +263,9 @@ class _Efficiency:
         res = 0.0
 
         # Do matrix multiplication
-        for i in range(0, self._numPars):
+        for i in range(self._numPars):
             tmp = 0.0
-            for j in range(0, self._numPars):
+            for j in range(self._numPars):
                 tmp += self._dEff_dP[j](value, self.parameter) * self.fCov[i][j]
 
             res += self._dEff_dP[i](value, self.parameter) * tmp
@@ -337,9 +338,9 @@ class _Efficiency:
         """
         file = TxtFile(covfile, "w")
 
-        for i in range(0, self._numPars):
+        for i in range(self._numPars):
             line = ""
-            for j in range(0, self._numPars):
+            for j in range(self._numPars):
                 line += str(self.fCov[i][j]) + " "
             file.lines.append(line.strip())
 

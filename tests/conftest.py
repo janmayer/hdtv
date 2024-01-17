@@ -17,12 +17,15 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-import sys
 import os
-import tempfile
 import shutil
+import sys
+import tempfile
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "helpers"))
+
+
+pytest_plugins = ("tests.helpers.fixtures",)
 
 
 def pytest_addoption(parser):

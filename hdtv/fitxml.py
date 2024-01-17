@@ -18,13 +18,14 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 import xml.etree.ElementTree as ET
+
 from uncertainties import ufloat
 
 import hdtv.ui
-from hdtv.util import Position, LockViewport
-from hdtv.fitter import Fitter
-from hdtv.fit import Fit
 from hdtv.cmdline import HDTVCommandError
+from hdtv.fit import Fit
+from hdtv.fitter import Fitter
+from hdtv.util import LockViewport, Position
 
 # Increase the version number if you changed something related to the xml output.
 # If your change affect the reading, you should increase the major number
@@ -149,7 +150,7 @@ class FitXml:
         bgElement.set("chisquare", str(fit.bgChi))
         bgElement.set("backgroundModel", fit.fitter.backgroundModel.name)
         # <coeff>
-        for i in range(0, nparams):
+        for i in range(nparams):
             paramElement = ET.SubElement(bgElement, "param")
             paramElement.set("npar", str(i))
             # <value>
@@ -203,7 +204,7 @@ class FitXml:
                         errorElement.text = str(param.std_dev)
             # <extras>
             extraElement = ET.SubElement(peakElement, "extras")
-            for param in sorted(list(peak.extras.keys())):
+            for param in sorted(peak.extras.keys()):
                 paramElement = ET.SubElement(extraElement, param)
                 param = peak.extras[param]
                 try:
@@ -224,7 +225,7 @@ class FitXml:
                 for cal_type, cal_integral in integral.items():
                     calElement = ET.SubElement(integralElement, cal_type)
                     for name, param in cal_integral.items():
-                        if not name in ["id", "stat", "type"]:
+                        if name not in ["id", "stat", "type"]:
                             paramElement = ET.SubElement(calElement, name)
                             if param.nominal_value is not None:
                                 valueElement = ET.SubElement(paramElement, "value")
@@ -239,20 +240,22 @@ class FitXml:
         This function formats the xml in-place for prettyprinting
 
         Source: http://effbot.org/zone/element-lib.htm#prettyprint
+        See also https://stackoverflow.com/a/4590052
         """
         i = "\n" + level * "  "
+        j = "\n" + (level - 1) * "  "
         if len(elem):
             if not elem.text or not elem.text.strip():
                 elem.text = i + "  "
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
-            for elem in elem:
-                self._indent(elem, level + 1)
+            for subelem in elem:
+                self._indent(subelem, level + 1)
             if not elem.tail or not elem.tail.strip():
-                elem.tail = i
+                elem.tail = j
         else:
             if level and (not elem.tail or not elem.tail.strip()):
-                elem.tail = i
+                elem.tail = j
 
     ##### Reading of xml #####################################################
 
@@ -319,7 +322,7 @@ class FitXml:
             try:
                 tree = ET.parse(file_object)
                 root = tree.getroot()
-                if not root.tag == "hdtv" or root.get("version") is None:
+                if root.tag != "hdtv" or root.get("version") is None:
                     e = "this is not a valid hdtv file"
                     raise SyntaxError(e)
                 # current version
@@ -427,7 +430,7 @@ class FitXml:
         spec = self.spectra.dict[sid]
         count = 0
         do_fit = ""
-        fits = list()
+        fits = []
         spec_name_last = ""
         for fitElement in root.findall("fit"):
             if calibrate:
@@ -469,7 +472,7 @@ class FitXml:
             fits.append(fit)
         # add fits to spectrum
         for fit in fits:
-            ID = spec.Insert(fit)
+            spec.Insert(fit)
             count += 1
             if sid not in self.spectra.visible:
                 fit.Hide()
@@ -542,12 +545,12 @@ class FitXml:
         if sids is None:
             sids = self.spectra.ids
         # create an index of spectra that are saved in xml
-        index = dict()
+        index = {}
         for specElement in root.iter():
             name = specElement.get("name")
             index[name] = specElement
         # <spectrum>
-        all_fits = list()
+        all_fits = []
         for sid in sids:
             spec = self.spectra.dict[sid]
             try:
@@ -571,7 +574,7 @@ class FitXml:
                     )
                     hdtv.ui.warning(msg)
             # <fits>
-            fits = list()
+            fits = []
             for fitElement in specElement.findall("fit"):
                 (fit, success) = self.Xml2Fit_v1(fitElement, spec.cal)
                 count = count + 1
@@ -604,7 +607,7 @@ class FitXml:
                         if do_fit in ["Y", "y", "", "A", "a"]:
                             fit.FitPeakFunc(spec)
                 # finish this fit
-                ID = spec.Insert(fit)
+                spec.Insert(fit)
                 if sid not in self.spectra.visible:
                     fit.Hide()
                 fits.append(fit)
@@ -671,7 +674,7 @@ class FitXml:
                 fit.bgChi = float(bgElement.get("chisquare"))
             except ValueError:
                 pass
-            params = list()
+            params = []
 
             # Distinguish between old notation of background parameters (coeff, ncoeff),
             # which interprets the parameters as coefficients of a polynomial, and the
@@ -696,11 +699,11 @@ class FitXml:
             fit.bgParams = [p[1] for p in params]
 
         # <peak>
-        statusdict = dict()
+        statusdict = {}
         for peakElement in fitElement.findall("peak"):
             # <uncal>
             uncalElement = peakElement.find("uncal")
-            parameter = dict()
+            parameter = {}
             for paramElement in uncalElement:
                 # parameter value/error
                 name = paramElement.tag
@@ -713,7 +716,7 @@ class FitXml:
                     statusdict[name] = [status]
             # <extras>
             extraElement = peakElement.find("extras")
-            extras = dict()
+            extras = {}
             if extraElement is not None:
                 for paramElement in extraElement:
                     name = paramElement.tag
@@ -745,13 +748,13 @@ class FitXml:
                 else:
                     status = statusdict[name]
                 fitter.SetParameter(name, status)
-        integrals = dict()
+        integrals = {}
         for integral in fitElement.findall("integral"):
             integral_type = integral.get("integraltype")
-            integrals[integral_type] = dict()
+            integrals[integral_type] = {}
             for calElement in integral:
                 cal_type = calElement.tag
-                integrals[integral_type][cal_type] = dict()
+                integrals[integral_type][cal_type] = {}
                 for paramElement in calElement:
                     # <value>
                     valueElement = paramElement.find("value")
@@ -764,7 +767,7 @@ class FitXml:
         if not integrals:
             integrals = None
         for integral_type in ["sub", "bg"]:
-            if integrals and not integral_type in integrals:
+            if integrals and integral_type not in integrals:
                 integrals[integral_type] = None
         fit.integral = integrals
         return (fit, success)
@@ -802,7 +805,7 @@ class FitXml:
                 # model was a polynomial, and therefore it did not have to be stored
                 fitter = Fitter(peakModel, "polynomial")
                 # <result>
-                params = dict()
+                params = {}
                 for resultElement in fitElement.findall("result"):
                     for paramElement in resultElement:
                         parname = paramElement.tag

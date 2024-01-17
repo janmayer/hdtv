@@ -23,6 +23,7 @@
 
 
 import math
+
 import ROOT
 
 
@@ -54,9 +55,7 @@ class TheuerkaufPeak:
         # Contribution from left tail and left half of truncated Gaussian
         if self.tl:
             norm = (
-                self.sigma**2
-                / self.tl
-                * math.exp(-self.tl**2 / (2 * self.sigma**2))
+                self.sigma**2 / self.tl * math.exp(-(self.tl**2) / (2 * self.sigma**2))
             )
             norm += (
                 math.sqrt(math.pi / 2)
@@ -69,9 +68,7 @@ class TheuerkaufPeak:
         # Contribution from right tail and right half of truncated Gaussian
         if self.tr:
             norm += (
-                self.sigma**2
-                / self.tr
-                * math.exp(-self.tr**2 / (2 * self.sigma**2))
+                self.sigma**2 / self.tr * math.exp(-(self.tr**2) / (2 * self.sigma**2))
             )
             norm += (
                 math.sqrt(math.pi / 2)
@@ -122,11 +119,9 @@ class EEPeak:
         elif dx <= self.eta * self.sigma2:
             _y = math.exp(-math.log(2) * dx**2 / self.sigma2**2)
         else:
-            B = self.sigma2 * self.gamma - 2.0 * self.sigma2 * self.eta**2 * math.log(
-                2
-            )
+            B = self.sigma2 * self.gamma - 2.0 * self.sigma2 * self.eta**2 * math.log(2)
             B /= 2.0 * self.eta * math.log(2)
-            A = 2 ** (-self.eta**2) * (self.sigma2 * self.eta + B) ** self.gamma
+            A = 2 ** (-(self.eta**2)) * (self.sigma2 * self.eta + B) ** self.gamma
             _y = A / (B + dx) ** self.gamma
 
         return _y * self.amp

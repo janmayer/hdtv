@@ -57,7 +57,7 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: '3.x'
-      - name: Install black
-        run: pip install black && black --version
-      - name: Run black
-        run: black --check .
+      - name: Install ruff
+        run: pip install ruff && ruff --version
+      - name: Run ruff
+        run: ruff check

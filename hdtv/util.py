@@ -17,23 +17,23 @@
 # along with HDTV; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-import re
-import os
-import shlex
-from itertools import count
 import contextlib
+import os
+import re
+import shlex
 from html import escape
 from html.parser import HTMLParser
+from itertools import count
 from typing import Optional
 
 import numpy as np
 from prompt_toolkit.key_binding.key_bindings import KeyBindings
-from prompt_toolkit.shortcuts import PromptSession
 from prompt_toolkit.keys import Keys
+from prompt_toolkit.shortcuts import PromptSession
 
+import hdtv.dummy
 import hdtv.options
 import hdtv.ui
-import hdtv.dummy
 
 
 def Indent(s, indent=" "):
@@ -73,8 +73,8 @@ class TxtFile:
     """
 
     def __init__(self, filename, mode="r"):
-        self.lines = list()
-        self.linos = list()
+        self.lines = []
+        self.linos = []
         self.mode = mode
         # TODO: this has to be handled properly (escaped whitespaces, etc...)
         filename = str(filename).rstrip()
@@ -164,7 +164,6 @@ class Pairs(list):
         """
         TODO
         """
-        pass
 
     def fromFile(self, fname, sep=None):
         """
@@ -226,7 +225,7 @@ class Table:
         self.extra_footer = extra_footer
         self.sortBy = sortBy
         self.keys = keys
-        self.data = list()
+        self.data = []
 
         self.style = style = hdtv.options.Get("table")
 
@@ -256,12 +255,12 @@ class Table:
             self.crossing_char = ""
 
         self._width = 0  # Width of table
-        self._col_width = list()  # width of columns
+        self._col_width = []  # width of columns
 
         self.raw_columns = raw_columns
 
         # One additional "border column"
-        self._ignore_col = [ignoreEmptyCols for i in range(0, len(keys) + 1)]
+        self._ignore_col = [ignoreEmptyCols for i in range(len(keys) + 1)]
 
         self.read_data(data, keys, header)
         if sortBy is not None:
@@ -276,9 +275,9 @@ class Table:
         return len(self.data)
 
     def read_data(self, data, keys, header=None):
-        self.data = list()
+        self.data = []
         for d in data:
-            tmp = dict()
+            tmp = {}
             for k in keys:
                 try:
                     tmp[k] = d[k]
@@ -299,9 +298,9 @@ class Table:
             self._col_width.append(len(str(header)) + 2)
 
     def build_lines(self):
-        lines = list()
+        lines = []
         for d in self.data:
-            line = list()
+            line = []
             for i, key in enumerate(self.keys):
                 try:
                     value = d[key]
@@ -358,7 +357,7 @@ class Table:
 
     def build_header(self):
         headerline = ""
-        for col in range(0, len(self.header)):
+        for col in range(len(self.header)):
             if not self._ignore_col[col]:
                 headerline += (
                     "<b>"
@@ -374,9 +373,9 @@ class Table:
     def build_sep(self):
         # Seperator between header and data
         header_sep_line = ""
-        for i in range(0, len(self._col_width)):
+        for i in range(len(self._col_width)):
             if not self._ignore_col[i]:
-                for j in range(0, self._col_width[i]):
+                for _ in range(self._col_width[i]):
                     if self.header[i] == self.sortBy:
                         header_sep_line += self.header_sep_char_sorted
                     else:
@@ -401,7 +400,7 @@ class Table:
 
         for line in lines:
             line_str = ""
-            for col in range(0, len(line)):
+            for col in range(len(line)):
                 if not self._ignore_col[col]:
                     if self.raw_columns and self.keys[col] in self.raw_columns:
                         fill_len = self._col_width[col] - len(strip_tags(line[col])) - 1
@@ -597,7 +596,7 @@ class ID:
     @classmethod
     def _parseSpecialID(cls, string, manager):
         if string.upper() == "NONE":
-            return list()
+            return []
         elif string.upper() == "NEXT":
             return [manager.nextID]
         elif string.upper() == "PREV":
@@ -643,7 +642,7 @@ class ID:
         # Split string
         parts = [p for p in strings.split(",") if p]
 
-        ids = list()
+        ids = []
         for s in parts:
             # first deal with ranges
             if "-" in s:
@@ -690,11 +689,11 @@ class ID:
 
         # ID might be None, if e.g. activeID is None
         count = ids.count(None)
-        for i in range(count):
+        for _ in range(count):
             ids.remove(None)
 
         # filter non-existing ids
-        valid_ids = list()
+        valid_ids = []
         if only_existent:
             for ID in ids:
                 for mID in manager.ids:
@@ -854,10 +853,11 @@ class monkey_patch_ui:
     """Replace ROOT.HDTV.Display by a noop dummy version"""
 
     def __init__(self):
-        import hdtv
-        import hdtv.rootext.display
         import ROOT
+
+        import hdtv
         import hdtv.dummy
+        import hdtv.rootext.display
 
         self._orig = ROOT.HDTV.Display
         ROOT.HDTV.Display = hdtv.dummy
