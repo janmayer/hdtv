@@ -14,6 +14,3 @@
 
 # Additional fixes for black version 23.1.0
 8bdf3a6c7597f17df0a3785a0b85b5786367a0d7
-
-# Refactor: ruff format and linting + fix problems
-5633d242be314b65b12c6ca9fd9dd0f84cdcbc75
