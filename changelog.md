@@ -1,5 +1,9 @@
 # HDTV Changelog
 
+## 24.01
+- Fix no terminal output (@opapst)
+- Make ls actually list directory contents (@opapst)
+
 ## 22.11
 - New Feature: Fit option onlypositivepeaks (@j-kleemann)
 - New Feature: Position recalibrate with peak selection (@j-kleemann)
