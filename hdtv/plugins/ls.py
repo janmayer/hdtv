@@ -24,7 +24,7 @@ his includes a ls-like command, by special request from R. Schulze :)
 
 import glob
 import os
-import stat
+from pathlib import Path
 
 import hdtv.cmdline
 import hdtv.tabformat
@@ -36,24 +36,18 @@ def ls(args):
     """
     this function prints an output similar to that of the ``ls'' program
     """
-    if len(args) > 0:
-        pattern = os.path.expanduser(args[0])
-    else:
-        pattern = "*"
-
     dirlist = []
-    for fname in glob.glob(pattern):
-        # For broken symlinks, os.stat may fail.
-        # We simply add them to the list, without
-        # knowing more about them.
-        try:
-            mode = os.stat(fname)[stat.ST_MODE]
-            if stat.S_ISDIR(mode):
-                dirlist.append(fname + "/")
+    for pattern in args or ["."]:
+        for arg in glob.glob(os.path.expanduser(pattern)):
+            path = Path(arg)
+            if path.is_dir():
+                for fname in path.iterdir():
+                    if fname.is_dir():
+                        dirlist.append(f"{fname.name}/")
+                    else:
+                        dirlist.append(fname.name)
             else:
-                dirlist.append(fname)
-        except OSError:
-            dirlist.append(fname)
+                dirlist.append(path.name)
 
     dirlist = sorted(dirlist, key=hdtv.util.natural_sort_key)
     hdtv.tabformat.tabformat(dirlist)
