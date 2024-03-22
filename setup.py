@@ -64,7 +64,7 @@ setup(
         "matplotlib",
         "numpy",
         "ipython",
-        "prompt_toolkit>=3.0.37",
+        "prompt_toolkit>=3.0.40",
         "traitlets",
         "uncertainties",
     ],

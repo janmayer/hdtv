@@ -39,7 +39,7 @@ To build and run HDTV, the following dependencies are required:
 
 * Python
 	- Tested with 3.8, 3.9, 3.10, and 3.11
-	- Packages: numpy scipy matplotlib prompt_toolkit>=3.0.37 uncertainties
+	- Packages: numpy scipy matplotlib prompt_toolkit>=3.0.40 uncertainties
     - Packages for development & testing: docutils pytest pytest-cov
 * [Cern ROOT](https://root.cern/) 6
     - Tested with version 6.26 and higher
