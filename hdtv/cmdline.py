@@ -34,6 +34,7 @@ import traceback
 from enum import Enum, auto
 from pwd import getpwuid
 
+import prompt_toolkit
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.enums import EditingMode
@@ -419,6 +420,12 @@ class CommandLine:
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
 
+        # prompt_toolkit < 3.0.40 brings its own event loop
+        ptk_version = prompt_toolkit.__version__
+        self.fallback_eventloop = (
+            ptk_version.startswith("3.0.") and int(ptk_version[4:].split("-")[0]) < 40
+        )
+
         self.command_tree = command_tree
 
         self.history = None
@@ -434,6 +441,9 @@ class CommandLine:
         self.exit_handlers = []
 
     def StartEventLoop(self):
+        if self.fallback_eventloop:
+            return
+
         def _loop(loop):
             asyncio.set_event_loop(loop)
             loop.run_forever()
@@ -517,12 +527,16 @@ class CommandLine:
 
     def AsyncExit(self):
         """Asynchronous exit; to be called from another thread"""
-        self.Exit()
+        if self.fallback_eventloop:
+            self.loop.call_soon_threadsafe(self.Exit)
+        else:
+            self.Exit()
 
         self.loop.call_soon_threadsafe(
             lambda: self.session.app.exit(style="class:exiting")
         )
-        self.thread.join()
+        if not self.fallback_eventloop:
+            self.thread.join()
 
     def EOFHandler(self):
         self.Exit()
@@ -747,7 +761,8 @@ class CommandLine:
             if line:
                 self.DoLine(line)
 
-        self.loop.call_soon_threadsafe(lambda: self.loop.stop())
+        if not self.fallback_eventloop:
+            self.loop.call_soon_threadsafe(lambda: self.loop.stop())
 
 
 class HDTVCompleter(Completer):
