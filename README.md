@@ -20,6 +20,18 @@ HDTV requires [CERN ROOT](https://root.cern.ch/) with working Python bindings.
 pip install hdtv
 ```
 
+If pip raises `error: externally-managed-environment`,
+you can install hdtv in a virtual environment,
+for example by using `pipx`:
+
+```sh
+pipx install hdtv
+```
+
+If you want to use hdtv with a fixed-location installation
+(i.e., you don’t have to `source <...>/thisroot.sh`, not even in `.bashrc`),
+you have to supply the additional argument `--system-site-packages` to `pipx`.
+
 Please note that the python package (wheel) does currently not include the compiled libraries required to run, as these depend on the root version, the python version, the compiler, and the moon phases.
 Instead, these are compiled automatically at first start, which requires certain build tools (see below).
 
@@ -38,14 +50,15 @@ for all user (requires superuser privileges).
 To build and run HDTV, the following dependencies are required:
 
 * Python
-	- Tested with 3.8, 3.9, 3.10, and 3.11
-	- Packages: numpy scipy matplotlib prompt_toolkit>=3.0.14 uncertainties
-    - Packages for development & testing: docutils pytest pytest-cov
+    - Tested with 3.8, 3.9, 3.10, and 3.11
+    - Python-dependencies are installed automatically when using pip/pipx
+        - Packages: numpy scipy matplotlib prompt_toolkit>=3.0.14 uncertainties (when manually installed)
+        - Packages for development & testing: docutils pytest pytest-cov
 * [Cern ROOT](https://root.cern/) 6
     - Tested with version 6.26 and higher
     - Needs to be compiled against the correct python version and with support for C++14 or higher.
     - In python, **`import ROOT` must succeed**.
-    - System packages may be available on some systems, e.g. `<tool> install root python3-root`
+    - System packages may be available on some systems, e.g. `<tool> install root python3-root` ([More info](https://root.cern/install/#linux-package-managers))
 * cmake, gcc, g++ (or similar, in a somewhat modern version)
 * libx11-dev `<tool> install libx11-6 libx11-dev`
 
