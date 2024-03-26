@@ -1,5 +1,9 @@
 # HDTV Changelog
 
+## 24.03
+- Relax version requirements for prompt_toolkit (@opapst)
+- Instructions for installation with pipx (@opapst)
+
 ## 24.01
 - Fix no terminal output (@opapst)
 - Make ls actually list directory contents (@opapst)

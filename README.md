@@ -25,12 +25,12 @@ you can install hdtv in a virtual environment,
 for example by using `pipx`:
 
 ```sh
-pipx install hdtv
+pipx install hdtv --system-site-packages
 ```
 
-If you want to use hdtv with a fixed-location installation
-(i.e., you don’t have to `source <...>/thisroot.sh`, not even in `.bashrc`),
-you have to supply the additional argument `--system-site-packages` to `pipx`.
+If you use hdtv with a location-independent ROOT installation
+(i.e., you have to `source <...>/thisroot.sh`, e.g. in `.bashrc` or manually),
+you can leave out the `--system-site-packages` option.
 
 Please note that the python package (wheel) does currently not include the compiled libraries required to run, as these depend on the root version, the python version, the compiler, and the moon phases.
 Instead, these are compiled automatically at first start, which requires certain build tools (see below).
