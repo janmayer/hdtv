@@ -125,7 +125,7 @@ class PeakModel:
         # Check if a numeric value is legal for the parameter
         if float not in valid_status[parname]:
             msg = f"Invalid status {status} for parameter {parname} "
-            "in peak model {self.name}"
+            f"in peak model {self.name}"
             raise ValueError(msg)
 
         try:
