@@ -19,10 +19,10 @@ jobs:
       fail-fast: false
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Setup conda
-      uses: conda-incubator/setup-miniconda@v2
+      uses: conda-incubator/setup-miniconda@v3
       with:
         auto-update-conda: true
         miniconda-version: "latest"
@@ -39,5 +39,5 @@ jobs:
       run: pytest -v --color=yes --cov=hdtv --cov-report=xml tests
 
     - name: Post Coverage
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v3
       if: matrix.python-version == '3.12' && matrix.root-version == '6.32.2'
