@@ -117,15 +117,19 @@ class PeakModel:
         # parameter
         if stat is not None:
             if stat not in valid_status[parname]:
-                msg = f"Status {stat} not allowed for parameter {parname} "
-                f"in peak model {self.name}"
+                msg = (
+                    f"Status {stat} not allowed for parameter {parname} "
+                    f"in peak model {self.name}"
+                )
                 raise ValueError(msg)
             return stat
 
         # Check if a numeric value is legal for the parameter
         if float not in valid_status[parname]:
-            msg = f"Invalid status {status} for parameter {parname} "
-            f"in peak model {self.name}"
+            msg = (
+                f"Invalid status {status} for parameter {parname} "
+                f"in peak model {self.name}"
+            )
             raise ValueError(msg)
 
         try:

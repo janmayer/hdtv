@@ -96,8 +96,10 @@ class BackgroundModel:
         # parameter
         if stat is not None:
             if stat not in self.fValidParStatus[parname]:
-                msg = f"Status {stat} not allowed for parameter {parname} "
-                f"in peak model {self.name}"
+                msg = (
+                    f"Status {stat} not allowed for parameter {parname} "
+                    "in peak model {self.name}"
+                )
                 raise ValueError(msg)
             return stat
 
@@ -111,8 +113,10 @@ class BackgroundModel:
 
         # Check if a numeric value is legal for the parameter
         if int not in self.fValidParStatus[parname]:
-            msg = f"Invalid status {status} for parameter {parname} "
-            f"in peak model {self.name}"
+            msg = (
+                f"Invalid status {status} for parameter {parname} "
+                f"in peak model {self.name}"
+            )
             raise ValueError(msg)
         return val
 
