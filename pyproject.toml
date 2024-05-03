@@ -1,7 +1,7 @@
 [tool.ruff]
 target-version = "py38"
 exclude = ["*.asv", "benchmarks", "_version.py", "versioneer.py"]
-ignore = [
+lint.ignore = [
     "E741",
     "E402",
     "E501",
@@ -11,8 +11,9 @@ ignore = [
     "RUF012",  # enforces type annotations on a codebase that lacks type annotations
     "B904",
     "ISC001",
+    "UP031",  # Use format specifiers instead of percent format
 ]
-select = [
+lint.select = [
     "E",
     "F",
     "W",  # flake8

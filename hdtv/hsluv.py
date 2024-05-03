@@ -270,11 +270,10 @@ def lch_to_hpluv(_hx_tuple):
 
 
 def rgb_to_hex(_hx_tuple):
-    return "#{:02x}{:02x}{:02x}".format(
-        int(_math.floor(_hx_tuple[0] * 255 + 0.5)),
-        int(_math.floor(_hx_tuple[1] * 255 + 0.5)),
-        int(_math.floor(_hx_tuple[2] * 255 + 0.5)),
-    )
+    r = int(_math.floor(_hx_tuple[0] * 255 + 0.5))
+    g = int(_math.floor(_hx_tuple[1] * 255 + 0.5))
+    b = int(_math.floor(_hx_tuple[2] * 255 + 0.5))
+    return f"#{r:02x}{g:02x}{b:02x}"
 
 
 def hex_to_rgb(_hex):
