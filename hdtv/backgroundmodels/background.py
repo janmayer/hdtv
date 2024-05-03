@@ -97,7 +97,7 @@ class BackgroundModel:
         if stat is not None:
             if stat not in self.fValidParStatus[parname]:
                 msg = f"Status {stat} not allowed for parameter {parname} "
-                "in peak model {self.name}"
+                f"in peak model {self.name}"
                 raise ValueError(msg)
             return stat
 
