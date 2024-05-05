@@ -7,11 +7,12 @@ Welcome to hdtv's documentation!
 ================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
    Guide <include_guide.rst>
    Tutorial <include_tutorial.rst>
+
 
 Indices and tables
 ==================
