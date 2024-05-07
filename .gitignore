@@ -25,6 +25,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+.spyproject/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -56,7 +57,7 @@ junit.xml
 *.log
 
 # Sphinx documentation
-docs/_build/
+doc/sphinx/_build/
 
 # PyBuilder
 target/

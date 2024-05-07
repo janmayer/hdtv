@@ -1,0 +1,6 @@
+Build the autoapi documentation with
+ sphinx-build -b html . _build
+inside this directory.
+Dependencies for this documentation:
+ sphinx-autoapi
+ sphinx-rtd-theme

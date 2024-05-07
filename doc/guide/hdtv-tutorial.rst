@@ -309,6 +309,31 @@ To write all existing calibrations into a calibration list file, use
 
     hdtv> calibration position list write <filename>
 
+Alternatively, the calibration can be done with some known calibration
+sources automatically:
+
+.. code-block::
+
+    hdtv> calibration position nuclide Eu-152 -d IAEA -a
+
+To calibrate the efficiency also the built-in calibration sources can
+be used.
+.. code-block::
+
+    hdtv> calibration efficiency fit -d IAEA 0,152Eu
+
+NORMALIZE SPECTRA
+=================
+Spectra can be normalized with a coefficient with
+
+.. code-block::
+
+    hdtv> spectrum normalize <specID> <coefficient>
+
+Afterwards, go to the spectrum and press ``shift``+``1`` to apply the normalization.
+Press the key combination again to unapply it.
+
+
 WORKING WITH MULTIPLE SPECTRA
 =============================
 
@@ -347,6 +372,51 @@ a <specID>
 
 The currently visible spectra and their corresponding colors are shown in
 the top left corner of the GUI spectra window.
+
+Spectra can be also deleted, or copied:
+
+.. code-block::
+
+    hdtv> spectrum copy <specID>
+    hdtv> spectrum delete <specID>
+
+Add several spectra by first specifying the specID of the resulting summed
+spectrum:
+
+.. code-block::
+
+    hdtv> spectrum add <specID_sum> <specID1> <specID2> ...
+
+
+OPEN ROOT FILES
+=============== 
+
+To open a ROOT histogram:
+
+.. code-block::
+
+    hdtv> root get path/to/rootfile.root/histogram
+
+To open an asymmetric ROOT matrix:
+
+.. code-block::
+
+    hdtv> root matrix get asym path/to/rootfile.root/matrix
+
+For symmetric matrices use ``sym`` instead of ``asym``.
+Opening a matrix gives two spectra 0.0 and 0.1 which are the X and Y projections.
+
+PEAK SEARCH
+===========
+Find peaks automatically between start and end bin:
+
+.. code-block::
+
+    hdtv> fit peakfind startbin endbin  [-a] [-r] [-s] [-t]
+
+The option [-a] automatically fits the found peaks. [-r] rejects peaks. 
+With [-s] sigma and with [-t] the threshold for the search can be specified.
+
 
 SEE ALSO
 ========
