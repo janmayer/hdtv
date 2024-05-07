@@ -10,7 +10,7 @@ Welcome to hdtv's documentation!
    :maxdepth: 3
    :caption: Contents:
 
-   Guide <include_guide.rst>
+   Documentation <include_guide.rst>
    Tutorial <include_tutorial.rst>
 
 
