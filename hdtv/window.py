@@ -127,6 +127,9 @@ class KeyHandler(HotkeyList):
         Key handler in edit mode
         """
         try:
+            keyStr = self.viewer.fKeyStr.as_string()
+        except AttributeError:
+            # Older versions of cppyy already convert to string
             keyStr = self.viewer.fKeyStr
         except UnicodeDecodeError as err:
             keyStr = err.args[1].split(b"\x00")[0].decode("utf-8")
@@ -175,6 +178,9 @@ class KeyHandler(HotkeyList):
             handled = self.EditKeyHandler()
         else:
             try:
+                keyStr = self.viewer.fKeyStr.as_string()
+            except AttributeError:
+                # Older versions of cppyy already convert to string
                 keyStr = self.viewer.fKeyStr
             except UnicodeDecodeError as err:
                 keyStr = err.args[1].split(b"\x00")[0].decode("utf-8")
