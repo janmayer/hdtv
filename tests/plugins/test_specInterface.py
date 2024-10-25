@@ -65,7 +65,7 @@ def test_cmd_spectrum_get():
     assert res_specfile == testspectrum
     for ID, obj in s.spectra.dict.items():
         assert str(ID) == specid
-        assert type(obj) == hdtv.spectrum.Spectrum
+        assert isinstance(obj, hdtv.spectrum.Spectrum)
 
 
 @pytest.mark.parametrize("slot", [3, 1000000])
@@ -78,7 +78,7 @@ def test_cmd_spectrum_get_slot(slot):
     assert specid == str(slot)
     for ID, obj in s.spectra.dict.items():
         assert str(ID) == specid
-        assert type(obj) == hdtv.spectrum.Spectrum
+        assert isinstance(obj, hdtv.spectrum.Spectrum)
 
 
 @pytest.mark.parametrize("num", [4, 40])
