@@ -1,5 +1,8 @@
 # HDTV Changelog
 
+## 24.10
+- Support and test the latest Python (3.12) and ROOT (6.32) versions (@opapst)
+
 ## 24.03
 - Relax version requirements for prompt_toolkit (@opapst)
 - Instructions for installation with pipx (@opapst)
