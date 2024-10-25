@@ -7,8 +7,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
-        root-version: ['6.26.10', '6.28.10', '6.30.2']
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+        root-version: ['6.26.10', '6.28.12', '6.30.4', '6.32.2']
+        exclude:
+          - python-version: '3.12'
+            root-version: '6.26.10'
+          - python-version: '3.12'
+            root-version: '6.28.12'
+          - python-version: '3.12'
+            root-version: '6.30.4'
       fail-fast: false
 
     steps:
@@ -33,4 +40,4 @@ jobs:
 
     - name: Post Coverage
       uses: codecov/codecov-action@v1
-      if: matrix.python-version == '3.11' && matrix.root-version == '6.30.2'
+      if: matrix.python-version == '3.12' && matrix.root-version == '6.32.2'
