@@ -12,12 +12,12 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@master
       - name: Setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Build
         run: |
-          pip install wheel
+          pip install wheel setuptools
           python setup.py sdist bdist_wheel
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
