@@ -92,9 +92,7 @@ See also [https://hub.docker.com/r/rootproject/root](https://hub.docker.com/r/ro
 
 ## Documentation
 For more information, including an overview of the available key
-bindings, refer to the [documentation](doc/guide/hdtv.rst).
-A [tutorial](doc/guide/hdtv-tutorial.rst) giving an introduction
-to HDTV and its basic features is also available.
+bindings, refer to the [documentation](https://janmayer.github.io/hdtv/).
 
 
 ## Further installation topics

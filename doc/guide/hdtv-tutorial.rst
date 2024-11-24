@@ -417,6 +417,15 @@ Find peaks automatically between start and end bin:
 The option [-a] automatically fits the found peaks. [-r] rejects peaks. 
 With [-s] sigma and with [-t] the threshold for the search can be specified.
 
+Nuclides
+========
+Lookup decay radiation of common calibration sources:
+
+.. code-block::
+
+    hdtv> nuclide Am-241
+
+
 
 SEE ALSO
 ========
