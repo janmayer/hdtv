@@ -87,7 +87,7 @@ static int32_t readline(MFILE *mat, int32_t *buffer, uint32_t line) {
     }
   }
   if (lci->cachedcomprline == line) {
-    return lci->uncomprf(buffer, lci->comprlinebuf, mat->columns);
+    return lci->uncomprf(buffer, (char *)lci->comprlinebuf, mat->columns);
   }
 
   return -1;
@@ -104,7 +104,7 @@ static int32_t writeline(MFILE *mat, int32_t *buffer, uint32_t line) {
   uint32_t l = poslentable[line].len;
 
   uint32_t fp = lci->freepos;
-  uint32_t nl = lci->comprf(lci->comprlinebuf, buffer, mat->columns);
+  uint32_t nl = lci->comprf((char *)lci->comprlinebuf, buffer, mat->columns);
 #ifdef VERIFY_COMPRESSION
   verifycompr(lci, buffer, mat->columns);
 #endif
@@ -144,47 +144,57 @@ static void trycacheline(MFILE *mat, uint32_t line) {
   }
 }
 
-int32_t lc_get(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num) {
+int32_t lc_get(MFILE *mat, void *buffer, int32_t level, int32_t line, int32_t col, int32_t num) {
+
+  uint32_t lev = (uint32_t)level;
+  uint32_t l = (uint32_t)line;
+  uint32_t c = (uint32_t)col;
+  uint32_t n = (uint32_t)num;
 
   lc_minfo *lci = (lc_minfo *)mat->specinfo.p;
 
-  line += level * mat->lines;
+  l += lev * mat->lines;
 
-  if (num != mat->columns) {
-    trycacheline(mat, line);
+  if (n != mat->columns) {
+    trycacheline(mat, l);
   }
 
-  if (line == lci->cachedline) {
-    memcpy(buffer, lci->linebuf + col, num * sizeof(int));
-    return num;
+  if (l == lci->cachedline) {
+    memcpy((int32_t *)buffer, lci->linebuf + c, n * sizeof(int));
+    return n;
   }
-  if (num == mat->columns) {
-    return readline(mat, buffer, line);
+  if (n == mat->columns) {
+    return readline(mat, (int32_t *)buffer, l);
   }
 
   return -1;
 }
 
-int32_t lc_put(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num) {
+int32_t lc_put(MFILE *mat, void *buffer, int32_t level, int32_t line, int32_t col, int32_t num) {
+
+  uint32_t lev = (uint32_t)level;
+  uint32_t l = (uint32_t)line;
+  uint32_t c = (uint32_t)col;
+  uint32_t n = (uint32_t)num;
 
   lc_minfo *lci = (lc_minfo *)mat->specinfo.p;
 
-  line += level * mat->lines;
+  l += lev * mat->lines;
 
-  if (num == mat->columns) {
-    return writeline(mat, buffer, line);
+  if (n == mat->columns) {
+    return writeline(mat, (int32_t *)buffer, l);
   }
-  if (lci->cachedline != line) {
-    trycacheline(mat, line);
-    if (lci->cachedline != line && !lci->cachedlinedirty) {
+  if (lci->cachedline != l) {
+    trycacheline(mat, l);
+    if (lci->cachedline != l && !lci->cachedlinedirty) {
       memset(lci->linebuf, 0, mat->columns * sizeof(int32_t));
-      lci->cachedline = line;
+      lci->cachedline = l;
     }
   }
-  if (lci->cachedline == line) {
+  if (lci->cachedline == l) {
     lci->cachedlinedirty = 1;
-    memcpy(lci->linebuf + col, buffer, num * sizeof(int32_t));
-    return num;
+    memcpy(lci->linebuf + c, (int32_t *)buffer, n * sizeof(int32_t));
+    return n;
   }
 
   return -1;

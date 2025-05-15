@@ -42,21 +42,21 @@ static int32_t conv_dbl_to_flt(float *dst, const double *src, int32_t num);
 static int32_t conv_flt_to_int(int32_t *dst, const float *src, int32_t num);
 static int32_t conv_dbl_to_int(int32_t *dst, const double *src, int32_t num);
 
-static int32_t mgetint_via_flt(MFILE *mat, int32_t *b, int32_t v, int32_t l, int32_t c, int32_t n);
+static int32_t mgetint_via_flt(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n);
 
-static int32_t mgetint_via_dbl(MFILE *mat, int32_t *b, int32_t v, int32_t l, int32_t c, int32_t n);
+static int32_t mgetint_via_dbl(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n);
 
-static int32_t mgetflt_via_int(MFILE *mat, float *b, int32_t v, int32_t l, int32_t c, int32_t n);
-static int32_t mgetflt_via_dbl(MFILE *mat, float *b, int32_t v, int32_t l, int32_t c, int32_t n);
-static int32_t mgetdbl_via_int(MFILE *mat, double *b, int32_t v, int32_t l, int32_t c, int32_t n);
-static int32_t mgetdbl_via_flt(MFILE *mat, double *b, int32_t v, int32_t l, int32_t c, int32_t n);
+static int32_t mgetflt_via_int(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n);
+static int32_t mgetflt_via_dbl(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n);
+static int32_t mgetdbl_via_int(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n);
+static int32_t mgetdbl_via_flt(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n);
 
-static int32_t mputint_via_flt(MFILE *mat, int32_t *b, int32_t v, int32_t l, int32_t c, int32_t n);
-static int32_t mputint_via_dbl(MFILE *mat, int32_t *b, int32_t v, int32_t l, int32_t c, int32_t n);
-static int32_t mputflt_via_int(MFILE *mat, float *b, int32_t v, int32_t l, int32_t c, int32_t n);
-static int32_t mputflt_via_dbl(MFILE *mat, float *b, int32_t v, int32_t l, int32_t c, int32_t n);
-static int32_t mputdbl_via_int(MFILE *mat, double *b, int32_t v, int32_t l, int32_t c, int32_t n);
-static int32_t mputdbl_via_flt(MFILE *mat, double *b, int32_t v, int32_t l, int32_t c, int32_t n);
+static int32_t mputint_via_flt(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n);
+static int32_t mputint_via_dbl(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n);
+static int32_t mputflt_via_int(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n);
+static int32_t mputflt_via_dbl(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n);
+static int32_t mputdbl_via_int(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n);
+static int32_t mputdbl_via_flt(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n);
 
 /*------------------------------------------------------------------------*/
 
@@ -134,124 +134,124 @@ static void checkconvbuffer(uint32_t size) {
   }
 }
 
-static int32_t mgetint_via_flt(MFILE *mat, int32_t *b, int32_t v, int32_t l, int32_t c, int32_t n) {
+static int32_t mgetint_via_flt(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n) {
 
   int32_t num;
 
   checkconvbuffer(n * sizeof(float));
   num = mgetflt(mat, (float *)mgetconvbuf, v, l, c, n);
 
-  return conv_flt_to_int(b, (float *)mgetconvbuf, num);
+  return conv_flt_to_int((int32_t *)b, (float *)mgetconvbuf, num);
 }
 
-static int32_t mgetint_via_dbl(MFILE *mat, int32_t *b, int32_t v, int32_t l, int32_t c, int32_t n) {
+static int32_t mgetint_via_dbl(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n) {
 
   int32_t num;
 
   checkconvbuffer(n * sizeof(double));
   num = mgetdbl(mat, (double *)mgetconvbuf, v, l, c, n);
 
-  return conv_dbl_to_int(b, (double *)mgetconvbuf, num);
+  return conv_dbl_to_int((int32_t *)b, (double *)mgetconvbuf, num);
 }
 
-static int32_t mgetflt_via_int(MFILE *mat, float *b, int32_t v, int32_t l, int32_t c, int32_t n) {
+static int32_t mgetflt_via_int(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n) {
 
   int32_t num;
 
   checkconvbuffer(n * sizeof(int));
   num = mgetint(mat, (int32_t *)mgetconvbuf, v, l, c, n);
 
-  return conv_int_to_flt(b, (int32_t *)mgetconvbuf, num);
+  return conv_int_to_flt((float *)b, (int32_t *)mgetconvbuf, num);
 }
 
-static int32_t mgetflt_via_dbl(MFILE *mat, float *b, int32_t v, int32_t l, int32_t c, int32_t n) {
+static int32_t mgetflt_via_dbl(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n) {
 
   int32_t num;
 
   checkconvbuffer(n * sizeof(double));
   num = mgetdbl(mat, (double *)mgetconvbuf, v, l, c, n);
 
-  return conv_dbl_to_flt(b, (double *)mgetconvbuf, num);
+  return conv_dbl_to_flt((float *)b, (double *)mgetconvbuf, num);
 }
 
-static int32_t mgetdbl_via_int(MFILE *mat, double *b, int32_t v, int32_t l, int32_t c, int32_t n) {
+static int32_t mgetdbl_via_int(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n) {
 
   int32_t num;
 
   checkconvbuffer(n * sizeof(int));
   num = mgetint(mat, (int32_t *)mgetconvbuf, v, l, c, n);
 
-  return conv_int_to_dbl(b, (int32_t *)mgetconvbuf, num);
+  return conv_int_to_dbl((double *)b, (int32_t *)mgetconvbuf, num);
 }
 
-static int32_t mgetdbl_via_flt(MFILE *mat, double *b, int32_t v, int32_t l, int32_t c, int32_t n) {
+static int32_t mgetdbl_via_flt(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n) {
 
   int32_t num;
 
   checkconvbuffer(n * sizeof(float));
   num = mgetflt(mat, (float *)mgetconvbuf, v, l, c, n);
 
-  return conv_flt_to_dbl(b, (float *)mgetconvbuf, num);
+  return conv_flt_to_dbl((double *)b, (float *)mgetconvbuf, num);
 }
 
 /*------------------------------------------------------------------------*/
 
-static int32_t mputint_via_flt(MFILE *mat, int32_t *b, int32_t v, int32_t l, int32_t c, int32_t n) {
+static int32_t mputint_via_flt(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n) {
 
   int32_t num;
 
   checkconvbuffer(n * sizeof(float));
-  num = conv_int_to_flt((float *)mgetconvbuf, b, n);
+  num = conv_int_to_flt((float *)mgetconvbuf, (int32_t *)b, n);
 
   return mputflt(mat, (float *)mgetconvbuf, v, l, c, num);
 }
 
-static int32_t mputint_via_dbl(MFILE *mat, int32_t *b, int32_t v, int32_t l, int32_t c, int32_t n) {
+static int32_t mputint_via_dbl(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n) {
 
   int32_t num;
 
   checkconvbuffer(n * sizeof(double));
-  num = conv_int_to_dbl((double *)mgetconvbuf, b, n);
+  num = conv_int_to_dbl((double *)mgetconvbuf, (int32_t *)b, n);
 
   return mputdbl(mat, (double *)mgetconvbuf, v, l, c, num);
 }
 
-static int32_t mputflt_via_int(MFILE *mat, float *b, int32_t v, int32_t l, int32_t c, int32_t n) {
+static int32_t mputflt_via_int(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n) {
 
   int32_t num;
 
   checkconvbuffer(n * sizeof(int));
-  num = conv_flt_to_int((int32_t *)mgetconvbuf, b, n);
+  num = conv_flt_to_int((int32_t *)mgetconvbuf, (float *)b, n);
 
   return mputint(mat, (int32_t *)mgetconvbuf, v, l, c, num);
 }
 
-static int32_t mputflt_via_dbl(MFILE *mat, float *b, int32_t v, int32_t l, int32_t c, int32_t n) {
+static int32_t mputflt_via_dbl(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n) {
 
   int32_t num;
 
   checkconvbuffer(n * sizeof(double));
-  num = conv_flt_to_dbl((double *)mgetconvbuf, b, n);
+  num = conv_flt_to_dbl((double *)mgetconvbuf, (float *)b, n);
 
   return mputdbl(mat, (double *)mgetconvbuf, v, l, c, num);
 }
 
-static int32_t mputdbl_via_int(MFILE *mat, double *b, int32_t v, int32_t l, int32_t c, int32_t n) {
+static int32_t mputdbl_via_int(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n) {
 
   int32_t num;
 
   checkconvbuffer(n * sizeof(int));
-  num = conv_dbl_to_int((int32_t *)mgetconvbuf, b, n);
+  num = conv_dbl_to_int((int32_t *)mgetconvbuf, (double *)b, n);
 
   return mputint(mat, (int32_t *)mgetconvbuf, v, l, c, num);
 }
 
-static int32_t mputdbl_via_flt(MFILE *mat, double *b, int32_t v, int32_t l, int32_t c, int32_t n) {
+static int32_t mputdbl_via_flt(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n) {
 
   int32_t num;
 
   checkconvbuffer(n * sizeof(float));
-  num = conv_dbl_to_flt((float *)mgetconvbuf, b, n);
+  num = conv_dbl_to_flt((float *)mgetconvbuf, (double *)b, n);
 
   return mputflt(mat, (float *)mgetconvbuf, v, l, c, num);
 }

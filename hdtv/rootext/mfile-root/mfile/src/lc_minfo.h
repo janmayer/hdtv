@@ -64,8 +64,8 @@ typedef struct {
   uint32_t comprlinelen;
   uint32_t poslentablepos;
   lc_poslen *poslentableptr;
-  int32_t (*comprf)();
-  int32_t (*uncomprf)();
+  int32_t (*comprf)(char *dest, int32_t *src, int32_t num);
+  int32_t (*uncomprf)(int32_t *dest, char *src, int32_t num);
 } lc_minfo;
 
 void lc_probe(MFILE *mat);
