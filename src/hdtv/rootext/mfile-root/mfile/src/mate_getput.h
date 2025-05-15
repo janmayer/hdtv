@@ -30,4 +30,4 @@
 #include "mfile.h"
 #include <stdint.h>
 
-int32_t mate_get(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num);
+int32_t mate_get(MFILE *mat, void *buffer, int32_t level, int32_t line, int32_t col, int32_t num);
