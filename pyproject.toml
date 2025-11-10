@@ -66,6 +66,7 @@ test = ["pytest", "pytest-cov"]
 hdtv = "hdtv.app:run"
 
 [tool.setuptools]
+package-dir = {"" = "src"}
 packages = [
     "hdtv",
     "hdtv.database",
