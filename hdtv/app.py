@@ -179,10 +179,11 @@ class App:
         hdtv.cmdline.command_tree.SetDefaultLevel(1)
 
     def parse_args(self, args):
-        from hdtv._version import get_versions
-
-        __version__ = get_versions()["version"]
-        del get_versions
+        from importlib.metadata import version, PackageNotFoundError
+        try:
+            __version__ = version("hdtv")
+        except PackageNotFoundError:
+            pass
         parser = argparse.ArgumentParser()
         parser.add_argument(
             "-b", "--batch", dest="batchfile", help="Open and execute HDTV batchfile"

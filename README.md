@@ -104,7 +104,7 @@ to HDTV and its basic features is also available.
 ```
 git clone https://github.com/janmayer/hdtv.git
 cd hdtv
-./bin/hdtv
+./hdtv/app.py
 ```
 
 Generate man pages:

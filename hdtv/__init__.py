@@ -28,7 +28,3 @@ hdtv.rootext.UpdateRootIncludePath()
 
 installdir = os.path.dirname(__file__)
 datadir = os.path.join(installdir, "share")
-
-from . import _version
-
-__version__ = _version.get_versions()["version"]

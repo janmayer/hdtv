@@ -1,6 +1,96 @@
+[build-system]
+requires = ["setuptools>=80", "setuptools-scm[simple]>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hdtv"
+maintainers = [{name = "Jan Mayer", email = "jan.mayer@ikp.uni-koeln.de"}]
+license = "GPL-2.0-or-later"
+description = "HDTV - Nuclear Spectrum Analysis Tool"
+keywords = [
+    "analysis",
+    "data-analysis",
+    "gamma-spectroscopy",
+    "nuclear-physics",
+    "nuclear-spectrum-analysis",
+    "physics",
+    "python",
+    "root",
+    "root-cern",
+    "spectroscopy",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Environment :: X11 Applications",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: C",
+    "Programming Language :: C++",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+urls = {Homepage = "https://github.com/janmayer/hdtv"}
+dependencies = [
+    "scipy",
+    "matplotlib",
+    "numpy",
+    "ipython",
+    "prompt_toolkit>=3.0.14",
+    "traitlets",
+    "uncertainties",
+]
+dynamic = ["version"]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.optional-dependencies]
+dev = ["docutils"]
+test = ["pytest", "pytest-cov"]
+
+[project.scripts]
+hdtv = "hdtv.app:run"
+
+[tool.setuptools]
+packages = [
+    "hdtv",
+    "hdtv.database",
+    "hdtv.backgroundmodels",
+    "hdtv.efficiency",
+    "hdtv.peakmodels",
+    "hdtv.plugins",
+    "hdtv.rootext",
+]
+include-package-data = false
+
+[tool.setuptools.package-data]
+hdtv = ["share/*"]
+"hdtv.rootext" = [
+    "calibration/*",
+    "display/*",
+    "fit/*",
+    "mfile-root/*",
+    "mfile-root/*/*",
+    "mfile-root/*/*/*",
+]
+
 [tool.ruff]
 target-version = "py39"
-exclude = ["*.asv", "benchmarks", "_version.py", "versioneer.py"]
+exclude = ["*.asv", "benchmarks"]
 lint.ignore = [
     "E741",
     "E402",
@@ -33,3 +123,17 @@ lint.select = [
     "UP",  # pyupgrade
     "YTT"  # flake8-2020
 ]
+
+[tool.pytest.ini_options]
+norecursedirs = [".*", "*.egg*", "build", "dist", "conda.recipe", "efficiency", "ui", "tests/helpers"]
+junit_family = "xunit2"
+addopts = """
+--junitxml=junit.xml
+--ignore setup.py
+--ignore run_test.py
+--cov-report term-missing
+--tb native
+--strict
+--durations=20"""
+env = "PYTHONHASHSEED=0"
+markers = ["serial: execute test serially (to avoid race conditions)"]
