@@ -1,9 +1,14 @@
 # Do not import ROOT here!
 import os
+import sys
 
 modules = ["mfile-root", "fit", "calibration", "display"]
 
-libfmt = "lib%s.so"
+libfmt = {
+    "linux" : "lib%s.so",
+    "darwin": "lib%s.dylib",
+    "win32" :    "%s.dll",
+}[sys.platform]
 
 
 def UpdateRootIncludePath():

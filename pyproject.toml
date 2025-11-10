@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=80", "setuptools-scm[simple]>=8"]
-build-backend = "setuptools.build_meta"
+requires = ["scikit-build-core>=0.11", "setuptools-scm[simple]>=9.2"]
+build-backend = "scikit_build_core.build"
 
 [project]
 name = "hdtv"
@@ -65,29 +65,15 @@ test = ["pytest", "pytest-cov"]
 [project.scripts]
 hdtv = "hdtv.app:run"
 
-[tool.setuptools]
-package-dir = {"" = "src"}
-packages = [
-    "hdtv",
-    "hdtv.database",
-    "hdtv.backgroundmodels",
-    "hdtv.efficiency",
-    "hdtv.peakmodels",
-    "hdtv.plugins",
-    "hdtv.rootext",
-]
-include-package-data = false
+[tool.scikit-build]
+minimum-version = "build-system.requires"
+build-dir = "build/{wheel_tag}"
+cmake.source-dir = "src/rootext"
+metadata.version.provider = "scikit_build_core.metadata.setuptools_scm"
+# sdist.include = ["src/hdtv/_version.py"]
 
-[tool.setuptools.package-data]
-hdtv = ["share/*"]
-"hdtv.rootext" = [
-    "calibration/*",
-    "display/*",
-    "fit/*",
-    "mfile-root/*",
-    "mfile-root/*/*",
-    "mfile-root/*/*/*",
-]
+# [tool.setuptools_scm]
+# write_to = "src/hdtv/_version.py"
 
 [tool.ruff]
 target-version = "py39"

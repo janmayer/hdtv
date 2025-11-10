@@ -32,19 +32,15 @@ If you use hdtv with a location-independent ROOT installation
 (i.e., you have to `source <...>/thisroot.sh`, e.g. in `.bashrc` or manually),
 you can leave out the `--system-site-packages` option.
 
-Please note that the python package (wheel) does currently not include the compiled libraries required to run, as these depend on the root version, the python version, the compiler, and the moon phases.
-Instead, these are compiled automatically at first start, which requires certain build tools (see below).
-
-Alternatively, the compilation can be triggered with
+Please note that the distributed python packace can only be a source distribuition (sdist) and the compilation of C++ code happends during installation agains the ROOT library found on the host.
+If the ROOT package got updated, just reinstall hdtv with
 ```sh
-hdtv --rebuild-usr
+pip install hdtv --force-reinstall
 ```
-for the current user; or with
+or
 ```sh
-hdtv --rebuild-sys
+pipx reinstall hdtv
 ```
-for all user (requires superuser privileges).
-
 
 ### Requirements
 To build and run HDTV, the following dependencies are required:
@@ -119,19 +115,6 @@ make doc
 
 HDTV uses `ROOT.gSystem.Load(libary)` to load some critical
 components. These need to be compiled against the *exact* ROOT
-version imported in python. HDTV will try to automatically recompile
-the libraries for the current ROOT if the available ones cannot
-be loaded. This can also be forced with:
-
-`hdtv --rebuild-usr`
-
-When installed system-wide, the libraries can be recompiled once for
-all users with:
-
-`hdtv --rebuild-sys`
-
-This eliminates the need to reinstall HDTV after changes to the root
-installation.
-
-Multiple Versions of ROOT can be used alongside, the correct library
-version will be chosen automatically.
+version imported in python. The compilation happens during installation
+against the found ROOT library. Different ROOT versions can be used in
+different venvs.

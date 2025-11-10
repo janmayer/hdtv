@@ -16,7 +16,6 @@ build:
   # "skip: True  # [not win]" to limit to Windows.
   script:
     - {{ PYTHON }} -m pip install --no-deps --ignore-installed -vv .
-    - hdtv --rebuild-sys
 
 requirements:
   # if you need compilers, uncomment these

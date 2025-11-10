@@ -29,26 +29,10 @@ pytest_plugins = ("tests.helpers.fixtures",)
 
 
 def pytest_addoption(parser):
-    parser.addoption(
-        "--force-rebuild", action="store_true", help="Force library rebuild."
-    )
-
+    None
 
 def pytest_configure(config):
-    print("Update Root Include Path ...")
-    import hdtv.rootext
-
-    hdtv.rootext.UpdateRootIncludePath()
-    os.environ["XDG_CACHE_HOME"] = tempfile.mkdtemp()
-    if config.getoption("force_rebuild"):
-        print("Force Library Rebuild ...")
-        import hdtv.rootext.dlmgr
-
-        hdtv.rootext.dlmgr.RebuildLibraries(hdtv.rootext.dlmgr.usrlibdir)
-
+    None
 
 def pytest_sessionfinish(session, exitstatus):
-    tmpdir = os.getenv("XDG_CACHE_HOME")
-    if tmpdir != "" and os.path.exists(tmpdir):
-        # fingers crossed
-        shutil.rmtree(tmpdir)
+    None

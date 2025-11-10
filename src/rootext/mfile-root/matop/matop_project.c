@@ -72,7 +72,9 @@ int matop_proj_single(MFILE *dstx, MFILE *dsty, unsigned int level, MFILE *src) 
   case MAT_HE2T:
   case MAT_HE4T:
 
+#ifndef NO_SHM
   case MAT_SHM:
+#endif
   case MAT_LC:
   case MAT_MATE:
   case MAT_TRIXI:
