@@ -21,7 +21,6 @@
 import math
 
 import ROOT
-
 from hsluv import hsluv_to_rgb, rgb_to_hsluv
 
 # some default colors
