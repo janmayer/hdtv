@@ -35,3 +35,16 @@ lint.select = [
     "UP",  # pyupgrade
     "YTT"  # flake8-2020
 ]
+
+[tool.pytest.ini_options]
+norecursedirs = [".*", "*.egg*", "build", "dist", "conda.recipe", "efficiency", "ui", "tests/helpers"]
+junit_family = "xunit2"
+addopts = """
+--junitxml=junit.xml
+--ignore setup.py
+--ignore run_test.py
+--cov-report term-missing
+--tb native
+--strict
+--durations=20"""
+markers = ["serial: execute test serially (to avoid race conditions)"]
