@@ -4,9 +4,9 @@ import sys
 
 sys.path.append("/home/braun/projects/hdtv")
 import ROOT
+from hdtv.errvalue import ErrValue
 
 import hdtv.specreader
-from hdtv.errvalue import ErrValue
 
 
 def test(bgdeg):
