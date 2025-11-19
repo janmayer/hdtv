@@ -18,6 +18,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 import os
+from importlib.metadata import PackageNotFoundError, version
 
 # This needs to happen before "import ROOT" is called the first time –
 # if not, there will be a header not found error
@@ -29,6 +30,7 @@ hdtv.rootext.UpdateRootIncludePath()
 installdir = os.path.dirname(__file__)
 datadir = os.path.join(installdir, "share")
 
-from . import _version
-
-__version__ = _version.get_versions()["version"]
+try:
+    __version__ = version("hdtv")
+except PackageNotFoundError:
+    __version__ = "unknown"

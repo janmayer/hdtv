@@ -1,4 +1,3 @@
 recursive-include doc/ *
 recursive-include tests/ *
 global-exclude *.py[cod]
-include versioneer.py

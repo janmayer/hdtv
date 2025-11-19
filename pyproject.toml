@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "versioneer"]
+requires = ["setuptools", "versioningit"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -96,17 +96,14 @@ hdtv = ["share/*"]
 "share/bash-completion/completions" = ["data/completions/hdtv"]
 "share/applications" = ["data/hdtv.desktop"]
 
-[tool.versioneer]
-VCS = "git"
-style = "pep440"
-versionfile_source = "hdtv/_version.py"
-versionfile_build = "hdtv/_version.py"
-tag_prefix = "v"
-parentdir_prefix = "hdtv-"
+[tool.versioningit.format]
+distance = "{base_version}+{distance}.{vcs}{rev}"
+dirty = "{base_version}+{distance}.{vcs}{rev}.dirty"
+distance-dirty = "{base_version}+{distance}.{vcs}{rev}.dirty"
 
 [tool.ruff]
 target-version = "py39"
-exclude = ["*.asv", "benchmarks", "_version.py", "versioneer.py"]
+exclude = ["*.asv", "benchmarks"]
 lint.ignore = [
     "E741",
     "E402",
@@ -147,7 +144,6 @@ norecursedirs = [".*", "*.egg*", "build", "dist", "conda.recipe", "efficiency", 
 junit_family = "xunit2"
 addopts = """
 --junitxml=junit.xml
---ignore setup.py
 --ignore run_test.py
 --cov-report term-missing
 --tb native

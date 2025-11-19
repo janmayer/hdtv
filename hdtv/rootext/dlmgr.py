@@ -30,11 +30,8 @@ import tempfile
 import ROOT
 
 import hdtv.ui
-from hdtv._version import get_versions
+from hdtv import __version__
 from hdtv.rootext import libfmt, modules
-
-__version__ = get_versions()["version"]
-del get_versions
 
 cachedir = os.path.join(
     os.getenv("XDG_CACHE_HOME", os.path.join(os.environ["HOME"], ".cache")), "hdtv"
