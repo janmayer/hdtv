@@ -50,7 +50,7 @@ for all user (requires superuser privileges).
 To build and run HDTV, the following dependencies are required:
 
 * Python
-    - Tested with 3.9, 3.10, 3.11, and 3.12
+    - Tested with 3.10, 3.11, 3.12, 3.13, and 3.14
     - Python-dependencies are installed automatically when using pip/pipx
         - Packages: numpy scipy matplotlib prompt_toolkit>=3.0.14 uncertainties (when manually installed)
         - Packages for development & testing: docutils pytest pytest-cov
