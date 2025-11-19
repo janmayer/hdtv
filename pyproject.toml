@@ -1,3 +1,101 @@
+[build-system]
+requires = ["setuptools", "versioneer"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hdtv"
+description = "HDTV - Nuclear Spectrum Analysis Tool"
+readme = "README.md"
+license = "GPL-2.0-only"
+maintainers = [{name = "Jan Mayer", email = "jan.mayer@ikp.uni-koeln.de"}]
+keywords = [
+    "analysis",
+    "data-analysis",
+    "gamma-spectroscopy",
+    "nuclear-physics",
+    "nuclear-spectrum-analysis",
+    "physics",
+    "python",
+    "root",
+    "root-cern",
+    "spectroscopy",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Environment :: X11 Applications",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: C",
+    "Programming Language :: C++",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+urls = {Homepage = "https://github.com/janmayer/hdtv"}
+dependencies = [
+    "hsluv",
+    "ipython",
+    "matplotlib",
+    "numpy",
+    "prompt_toolkit>=3.0.14",
+    "scipy",
+    "traitlets",
+    "uncertainties",
+]
+dynamic = ["version"]
+
+[project.scripts]
+hdtv = "hdtv.app:run"
+
+[dependency-groups]
+dev = [
+    "pytest", "pytest-cov",
+    "docutils",
+    "ruff",
+]
+
+[tool.setuptools]
+packages = [
+    "hdtv",
+    "hdtv.database",
+    "hdtv.backgroundmodels",
+    "hdtv.efficiency",
+    "hdtv.peakmodels",
+    "hdtv.plugins",
+    "hdtv.rootext",
+]
+include-package-data = false
+
+[tool.setuptools.package-data]
+hdtv = ["share/*"]
+"hdtv.rootext" = [
+    "calibration/*",
+    "display/*",
+    "fit/*",
+    "mfile-root/*",
+    "mfile-root/*/*",
+    "mfile-root/*/*/*",
+]
+
+[tool.setuptools.data-files]
+"share/man/man1" = ["doc/guide/*.1"]
+"share/zsh/site-functions" = ["data/completions/_hdtv"]
+"share/bash-completion/completions" = ["data/completions/hdtv"]
+"share/applications" = ["data/hdtv.desktop"]
+
 [tool.versioneer]
 VCS = "git"
 style = "pep440"
