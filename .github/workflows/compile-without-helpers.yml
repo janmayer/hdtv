@@ -34,6 +34,6 @@ jobs:
         cd build-${COMPONENT}
         export CC=$(root-config --cc)
         export CXX=$(root-config --cxx)
-        cmake ${GITHUB_WORKSPACE}/hdtv/rootext/${COMPONENT}
+        cmake ${GITHUB_WORKSPACE}/src/hdtv/rootext/${COMPONENT}
         cmake --build .
         done

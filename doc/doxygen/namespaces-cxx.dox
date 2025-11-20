@@ -1,5 +1,7 @@
 //! Namespace for all hdtv C++ classes
 namespace HDTV {
+//! Classes for calibration object
+namespace Calibration { }
 //! Classes for displaying objects on screen
 namespace Display { }
 //! Classes for fitting analytical functions to histograms
