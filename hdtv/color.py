@@ -22,7 +22,7 @@ import math
 
 import ROOT
 
-from hdtv.hsluv import hsluv_to_rgb, rgb_to_hsluv
+from hsluv import hsluv_to_rgb, rgb_to_hsluv
 
 # some default colors
 zoom = ROOT.kWhite
