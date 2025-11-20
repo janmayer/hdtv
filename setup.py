@@ -67,6 +67,7 @@ setup(
         "prompt_toolkit>=3.0.14",
         "traitlets",
         "uncertainties",
+        "hsluv",
     ],
     extras_require={
         "dev": ["docutils"],
