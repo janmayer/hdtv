@@ -96,16 +96,27 @@ bindings, refer to the [documentation](doc/guide/hdtv.rst).
 A [tutorial](doc/guide/hdtv-tutorial.rst) giving an introduction
 to HDTV and its basic features is also available.
 
+## Development
+A development environment can be easily setup with [**uv**](https://docs.astral.sh/uv/)
 
-## Further installation topics
+Install uv and all dependencies listed in the Requirements section above.
 
-### Run locally from source directory without installation
-
+Clone this repository
 ```
-git clone https://github.com/janmayer/hdtv.git
+git clone https://github.com/janmayer/hdtv
 cd hdtv
-./bin/hdtv
 ```
+
+Initialize a virtual environment with
+```
+uv venv --system-site --system-site-packages
+```
+HDTV can then be build and run with
+```
+uv run hdtv
+```
+All required Python dependencies are installed automatically.
+Other python tools can also be executed in the venv with `uv run ...`.
 
 Generate man pages:
 
@@ -114,10 +125,9 @@ cd doc/guide
 make doc
 ```
 
+## Handling different ROOT versions
 
-### Handling different ROOT versions
-
-HDTV uses `ROOT.gSystem.Load(libary)` to load some critical
+HDTV uses `ROOT.gSystem.Load(library)` to load some critical
 components. These need to be compiled against the *exact* ROOT
 version imported in python. HDTV will try to automatically recompile
 the libraries for the current ROOT if the available ones cannot
