@@ -23,6 +23,7 @@
 #ifndef __VMatrix_h__
 #define __VMatrix_h__
 
+#include <cmath>
 #include <list>
 
 #include <TH1.h>
