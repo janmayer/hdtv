@@ -32,6 +32,8 @@ jobs:
         cd ${HOME}
         mkdir build-${COMPONENT}
         cd build-${COMPONENT}
-        CC=gcc-10 CXX=g++-10 cmake ${GITHUB_WORKSPACE}/hdtv/rootext/${COMPONENT}
-        CC=gcc-10 CXX=g++-10 cmake --build .
+        export CC=$(root-config --cc)
+        export CXX=$(root-config --cxx)
+        cmake ${GITHUB_WORKSPACE}/hdtv/rootext/${COMPONENT}
+        cmake --build .
         done
