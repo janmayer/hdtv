@@ -22,6 +22,7 @@ jobs:
         mamba-version: "*"
         channels: conda-forge
         python-version: ${{ matrix.python-version }}
+        conda-remove-defaults: true
 
     - name: Install dependencies
       shell: bash -l {0}
