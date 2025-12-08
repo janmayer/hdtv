@@ -7,19 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12']
-        root-version: ['6.26.10', '6.28.12', '6.30.4', '6.32.2']
-        exclude:
-          - python-version: '3.12'
-            root-version: '6.26.10'
-          - python-version: '3.12'
-            root-version: '6.28.12'
-          - python-version: '3.12'
-            root-version: '6.30.4'
+        python-version: ['3.10', '3.11', '3.12', '3.13']
+        root-version: ['6.32.16', '6.34.10', '6.36.06']
       fail-fast: false
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Setup conda
       uses: conda-incubator/setup-miniconda@v3
@@ -39,5 +32,5 @@ jobs:
       run: pytest -v --color=yes --cov=hdtv --cov-report=xml tests
 
     - name: Post Coverage
-      uses: codecov/codecov-action@v3
-      if: matrix.python-version == '3.12' && matrix.root-version == '6.32.2'
+      uses: codecov/codecov-action@v5
+      if: matrix.python-version == '3.13' && matrix.root-version == '6.36.06'
