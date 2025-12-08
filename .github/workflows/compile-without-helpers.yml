@@ -17,10 +17,11 @@ jobs:
         mamba-version: "*"
         channels: conda-forge
         python-version: '3.13'
+        conda-remove-defaults: true
 
     - name: Install dependencies
       shell: bash -l {0}
-      run: mamba install root='6.36.06'
+      run: mamba install root='6.36.06' xorg-libx11
 
     - name: Build
       shell: bash -l {0}
