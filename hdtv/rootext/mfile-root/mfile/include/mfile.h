@@ -121,6 +121,7 @@ typedef struct minfo {
 
 typedef struct accessmethod *amp;
 
+typedef struct matfile MFILE;
 typedef struct matfile {
   amp ap;
   char *name;
@@ -132,14 +133,15 @@ typedef struct matfile {
   uint32_t levels;
   uint32_t lines;
   uint32_t columns;
-  int32_t (*mflushf)();
-  int32_t (*muninitf)();
-  int32_t (*mgeti4f)();
-  int32_t (*mgetf4f)();
-  int32_t (*mgetf8f)();
-  int32_t (*mputi4f)();
-  int32_t (*mputf4f)();
-  int32_t (*mputf8f)();
+  int32_t (*mflushf)(MFILE *mat);
+  int32_t (*muninitf)(MFILE *mat);
+  int32_t (*mgeti4f)(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t);
+  int32_t (*mgetf4f)(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n);
+  int32_t (*mgetf8f)(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n);
+  int32_t (*mputi4f)(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n);
+  int32_t (*mputf4f)(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n);
+  int32_t (*mputf8f)(MFILE *mat, void *b, int32_t v, int32_t l, int32_t c, int32_t n);
+
   union {
     void *p;
     int32_t i;
@@ -161,14 +163,14 @@ int32_t msetfmt(MFILE *mat, const char *format);
 char *mgetfmt(MFILE *mat, char *format);
 
 /* lev: [0..(levels-1)], lin: [0..(lines-1)], col: [0..(columns-1)] */
-int32_t mgetint(MFILE *mat, int32_t buf[], int32_t lev, int32_t lin, int32_t col, int32_t num);
-int32_t mputint(MFILE *mat, int32_t buf[], int32_t lev, int32_t lin, int32_t col, int32_t num);
+int32_t mgetint(MFILE *mat, void *buf, int32_t lev, int32_t lin, int32_t col, int32_t num);
+int32_t mputint(MFILE *mat, void *buf, int32_t lev, int32_t lin, int32_t col, int32_t num);
 
-int32_t mgetflt(MFILE *mat, float buf[], int32_t lev, int32_t lin, int32_t col, int32_t num);
-int32_t mputflt(MFILE *mat, float buf[], int32_t lev, int32_t lin, int32_t col, int32_t num);
+int32_t mgetflt(MFILE *mat, void *buf, int32_t lev, int32_t lin, int32_t col, int32_t num);
+int32_t mputflt(MFILE *mat, void *buf, int32_t lev, int32_t lin, int32_t col, int32_t num);
 
-int32_t mgetdbl(MFILE *mat, double buf[], int32_t lev, int32_t lin, int32_t col, int32_t num);
-int32_t mputdbl(MFILE *mat, double buf[], int32_t lev, int32_t lin, int32_t col, int32_t num);
+int32_t mgetdbl(MFILE *mat, void *buf, int32_t lev, int32_t lin, int32_t col, int32_t num);
+int32_t mputdbl(MFILE *mat, void *buf, int32_t lev, int32_t lin, int32_t col, int32_t num);
 
 #define mget(mat, buf, lev, lin, col, num) mgetint(mat, buf, lev, lin, col, num)
 #define mput(mat, buf, lev, lin, col, num) mputint(mat, buf, lev, lin, col, num)

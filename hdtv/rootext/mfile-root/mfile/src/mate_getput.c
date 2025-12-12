@@ -29,14 +29,14 @@
 #include "mate_getput.h"
 #include "getputint.h"
 
-#define fpos(s) (((level * mat->lines + line) * mat->columns + col) * (s))
+#define fpos(s) ((((uint32_t)level * mat->lines + (uint32_t)line) * mat->columns + (uint32_t)col) * (s))
 
-int32_t mate_get(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num) {
-  int32_t nread = getle4(mat->ap, buffer, fpos(4) + 0x200, num);
+int32_t mate_get(MFILE *mat, void *buffer, int32_t level, int32_t line, int32_t col, int32_t num) {
+  int32_t nread = getle4(mat->ap, (int32_t *)buffer, fpos(4) + 0x200, (uint32_t)num);
   int32_t i;
 
   for (i = 0; i < nread; i++) {
-    buffer[i] &= 0xffffff;
+    ((int32_t *)buffer)[i] &= 0xffffff;
   }
   return nread;
 }

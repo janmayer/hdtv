@@ -34,27 +34,27 @@
 #include "txt_getput.h"
 #include "txt_minfo.h"
 
-int32_t txt_get(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num) {
+int32_t txt_get(MFILE *mat, void *buffer, int32_t level, int32_t line, int32_t col, int32_t num) {
 
   double *dblp = (double *)mat->specinfo.p;
 
   /*  if (dblp == NULL) return -1; */
 
-  int32_t idx = ((level * mat->lines) + line) * mat->columns + col;
+  int32_t idx = (((uint32_t)level * mat->lines) + (uint32_t)line) * mat->columns + (uint32_t)col;
 
-  memcpy(buffer, dblp + idx, num * sizeof(double));
+  memcpy((int32_t *)buffer, dblp + idx, (uint32_t)num * sizeof(double));
 
   return num;
 }
 
-int32_t txt_put(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num) {
+int32_t txt_put(MFILE *mat, void *buffer, int32_t level, int32_t line, int32_t col, int32_t num) {
   double *dblp = (double *)mat->specinfo.p;
 
   /*  if (dblp == NULL) return -1; */
 
-  int32_t idx = ((level * mat->lines) + line) * mat->columns + col;
+  int32_t idx = (((uint32_t)level * mat->lines) + (uint32_t)line) * mat->columns + (uint32_t)col;
 
-  memcpy(dblp + idx, buffer, num * sizeof(double));
+  memcpy(dblp + idx, (int32_t *)buffer, (uint32_t)num * sizeof(double));
 
   return num;
 }
