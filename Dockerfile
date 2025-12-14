@@ -1,18 +1,18 @@
+FROM rootproject/root:6.34.00-ubuntu24.04
+
 LABEL name="hdtv"
 
-FROM rootproject/root:6.28.04-ubuntu22.04
+ENV PATH="$PATH:/root/.local/bin"
 
 RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends \
-    python3-pip \
-    xvfb \
-    && rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends pipx xvfb && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /install
 COPY . /install
-RUN pip3 install "scipy>=1.9.0,<1.10.0" && \
-    python3 setup.py install
-RUN bash -c "Xvfb :0 -screen 0 1024x768x16 &" && \
+
+RUN python3 -m pipx install . && \
+    bash -c "Xvfb :0 -screen 0 1024x768x16 &" && \
     DISPLAY=:0 hdtv --rebuild-usr --execute exit
 
 WORKDIR /work
