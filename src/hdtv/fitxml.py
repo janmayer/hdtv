@@ -669,7 +669,7 @@ class FitXml:
             fit.ChangeMarker("peak", pos, "set")
         # <background>
         bgElement = fitElement.find("background")
-        if bgElement:
+        if bgElement is not None:
             try:
                 fit.bgChi = float(bgElement.get("chisquare"))
             except ValueError:
