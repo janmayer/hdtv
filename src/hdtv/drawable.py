@@ -39,7 +39,12 @@ class Drawable:
         return str(self.displayObj)
 
     # cal property
-    def _set_cal(self, cal):
+    @property
+    def cal(self):
+        return self._cal
+
+    @cal.setter
+    def cal(self, cal):
         self._cal = hdtv.cal.MakeCalibration(cal)
         # update display if needed
         try:
@@ -47,13 +52,12 @@ class Drawable:
         except BaseException:
             pass
 
-    def _get_cal(self):
-        return self._cal
+    @property
+    def color(self):
+        return self._passiveColor
 
-    cal = property(_get_cal, _set_cal)
-
-    # color property
-    def _set_color(self, color):
+    @color.setter
+    def color(self, color):
         self._activeColor = hdtv.color.Highlight(color, active=True)
         self._passiveColor = hdtv.color.Highlight(color, active=False)
         # update display if needed
@@ -63,13 +67,12 @@ class Drawable:
             else:
                 self.displayObj.SetColor(self._passiveColor)
 
-    def _get_color(self):
-        return self._passiveColor
+    @property
+    def active(self):
+        return self._active
 
-    color = property(_get_color, _set_color)
-
-    # active property
-    def _set_active(self, state):
+    @active.setter
+    def active(self, state):
         self._active = state
         if self.displayObj is not None:
             if self._active:
@@ -82,13 +85,12 @@ class Drawable:
             else:
                 self.displayObj.SetColor(self._passiveColor)
 
-    def _get_active(self):
-        return self._active
+    @property
+    def ID(self):
+        return self._ID
 
-    active = property(_get_active, _set_active)
-
-    # ID property
-    def _set_ID(self, ID):
+    @ID.setter
+    def ID(self, ID):
         self._ID = ID
         if self.displayObj:
             try:
@@ -96,11 +98,6 @@ class Drawable:
                 self.displayObj.SetID(ID)
             except BaseException:
                 pass
-
-    def _get_ID(self):
-        return self._ID
-
-    ID = property(_get_ID, _set_ID)
 
     def Draw(self, viewport):
         """
@@ -174,17 +171,16 @@ class DrawableManager:
         ids = sorted(self.dict.keys())
         return ids
 
-    # active property
-    def _set_active(self, state):
+    @property
+    def active(self):
+        return self._active
+
+    @active.setter
+    def active(self, state):
         self._active = state
         if self.activeID is not None:
             # give state to the active child
             self.GetActiveObject().active = state
-
-    def _get_active(self):
-        return self._active
-
-    active = property(_get_active, _set_active)
 
     def ActivateObject(self, ID=None):
         """

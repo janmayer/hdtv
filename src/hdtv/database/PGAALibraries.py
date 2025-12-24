@@ -51,7 +51,9 @@ class PGAAGamma(Gamma):
         else:
             return self._k0
 
-    k0 = property(getk0)
+    @property
+    def k0(self):
+        return self.getk0()
 
     def __str__(self):
         text = ""
