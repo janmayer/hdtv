@@ -60,7 +60,8 @@ class _Efficiency:
             if num_pars <= len(string.ascii_lowercase):
                 self.TF1.SetParName(i + 1, string.ascii_lowercase[i])
 
-    def _getParameter(self):
+    @property
+    def parameter(self):
         """
         Get parameter of efficiency function
         """
@@ -69,8 +70,8 @@ class _Efficiency:
             pars.append(self.TF1.GetParameter(i))
 
         return pars
-
-    def _setParameter(self, pars):
+    @parameter.setter
+    def parameter(self, pars):
         """
         Set parameter for efficiency function
         """
@@ -80,8 +81,6 @@ class _Efficiency:
             except IndexError:
                 self.TF1.SetParameter(i, 0)
 
-    parameter = property(_getParameter, _setParameter)
-
     def __call__(self, E):
         value = self.value(E)
         try:
@@ -90,7 +89,12 @@ class _Efficiency:
             error = None
         return ufloat(value, error)
 
-    def _set_fitInput(self, fitPairs):
+    @property
+    def fitInput(self):
+        return self._fitInput
+
+    @fitInput.setter
+    def fitInput(self, fitPairs):
         self._fitInput = fitPairs
 
         for i in range(len(self._fitInput)):
@@ -111,11 +115,6 @@ class _Efficiency:
 
             self.TGraph.SetPoint(i, e_nominal_value, eff_nominal_value)
             self.TGraph.SetPointError(i, e_std_dev, eff_std_dev)
-
-    def _get_fitInput(self):
-        return self._fitInput
-
-    fitInput = property(_get_fitInput, _set_fitInput)
 
     def fit(self, fitPairs=None, quiet=True):
         """

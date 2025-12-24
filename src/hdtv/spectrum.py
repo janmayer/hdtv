@@ -39,25 +39,23 @@ class Spectrum(DrawableManager):
         #  if self.hist does not exist
         return getattr(self.__dict__["hist"], name)
 
-    # color property
-    def _set_color(self, color):
+    @property
+    def color(self):
+        return self.hist.color
+
+    @color.setter
+    def color(self, color):
         for fit in self.dict.values():
             fit.color = color
 
-    def _get_color(self):
-        return self.hist.color
-
-    color = property(_get_color, _set_color)
-
-    # cal property
-    def _set_cal(self, cal):
-        for fit in self.dict.values():
-            fit.cal = cal
-
-    def _get_cal(self):
+    @property
+    def cal(self):
         return self.hist.cal
 
-    cal = property(_get_cal, _set_cal)
+    @cal.setter
+    def cal(self, cal):
+        for fit in self.dict.values():
+            fit.cal = cal
 
     # overwrite some functions of DrawableManager to do some extra work
     def Insert(self, fit, ID=None):

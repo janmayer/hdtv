@@ -63,23 +63,20 @@ class PolyEff(_Efficiency):
         for i in range(degree + 1):
             self._dEff_dP[i] = dEff_dP(i)
 
-    def _set_fitInput(self, fitPairs):
-        ln_fitPairs = Pairs(conv_func=log)
-
-        for p in fitPairs:
-            ln_fitPairs.add(p[0], p[1])
-
-        _Efficiency._set_fitInput(self, ln_fitPairs)
-
-    def _get_fitInput(self):
+    @property
+    def fitInput(self):
         fitPairs = Pairs(conv_func=exp)
-
         for p in self._fitInput:
             fitPairs.add(p[0], p[1])
-
         return fitPairs
 
-    fitInput = property(_get_fitInput, _set_fitInput)
+    @fitInput.setter
+    def fitInput(self, fitPairs):
+        ln_fitPairs = Pairs(conv_func=log)
+        for p in fitPairs:
+            ln_fitPairs.add(p[0], p[1])
+        _Efficiency.fitInput.__set__(self, ln_fitPairs)
+
 
     def normalize(self):
         # Normalize the efficiency function

@@ -33,8 +33,12 @@ class Matrix(DrawableManager):
         self._yproj = None
         self._color = hdtv.color.default
 
-    # color property
-    def _set_color(self, color):
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, color):
         # give all cuts and projections the same color
         self._color = color
         for cut in self.dict.values():
@@ -43,11 +47,6 @@ class Matrix(DrawableManager):
             self._xproj.color = color
         if self._yproj is not None:
             self._yproj.color = color
-
-    def _get_color(self):
-        return self._color
-
-    color = property(_get_color, _set_color)
 
     # name
     @property
