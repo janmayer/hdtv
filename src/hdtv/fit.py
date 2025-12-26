@@ -74,21 +74,24 @@ class Fit(Drawable):
         self.active = False
         self.integral = None
 
-    # ID property
-    def _get_ID(self):
+    @property
+    def ID(self):
         return self._ID
 
-    def _set_ID(self, ID):
+    @ID.setter
+    def ID(self, ID):
         self._ID = ID
         if ID is not None:
             self.peakMarkers.ID = ID
         else:
             self.peakMarkers.ID = ID
 
-    ID = property(_get_ID, _set_ID)
+    @property
+    def cal(self):
+        return self._cal
 
-    # cal property
-    def _set_cal(self, cal):
+    @cal.setter
+    def cal(self, cal):
         self._cal = hdtv.cal.MakeCalibration(cal)
         with LockViewport(self.viewport):
             self.peakMarkers.cal = self._cal
@@ -101,13 +104,12 @@ class Fit(Drawable):
             for peak in self.peaks:
                 peak.cal = self._cal
 
-    def _get_cal(self):
-        return self._cal
+    @property
+    def color(self):
+        return self._passiveColor
 
-    cal = property(_get_cal, _set_cal)
-
-    # color property
-    def _set_color(self, color):
+    @color.setter
+    def color(self, color):
         # we only need the passive color for fits
         self._passiveColor = hdtv.color.Highlight(color, active=False)
         with LockViewport(self.viewport):
@@ -118,13 +120,12 @@ class Fit(Drawable):
                 peak.color = color
             self.Show()
 
-    def _get_color(self):
-        return self._passiveColor
+    @property
+    def active(self):
+        return self._active
 
-    color = property(_get_color, _set_color)
-
-    # active property
-    def _set_active(self, state):
+    @active.setter
+    def active(self, state):
         with LockViewport(self.viewport):
             self._active = state
             self.peakMarkers.active = state
@@ -134,13 +135,13 @@ class Fit(Drawable):
                 peak.active = state
             self.Show()
 
-    def _get_active(self):
-        return self._active
 
-    active = property(_get_active, _set_active)
+    @property
+    def spec(self):
+        return self._spec
 
-    # spec property
-    def _set_spec(self, spec):
+    @spec.setter
+    def spec(self, spec):
         if hasattr(self, "spec") and self._spec == spec:
             return
         # use weakref to prevent problems with cyclic reference
@@ -154,11 +155,6 @@ class Fit(Drawable):
             self.color = spec.color
             self.cal = spec.cal
             self.FixMarkerInUncal()
-
-    def _get_spec(self):
-        return self._spec
-
-    spec = property(_get_spec, _set_spec)
 
     # ids property to get the ids of the peaks
     @property
