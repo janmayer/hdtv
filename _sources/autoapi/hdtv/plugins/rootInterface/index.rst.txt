@@ -1,0 +1,133 @@
+hdtv.plugins.rootInterface
+==========================
+
+.. py:module:: hdtv.plugins.rootInterface
+
+.. autoapi-nested-parse::
+
+   Preliminary ROOT file interface for hdtv
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.plugins.rootInterface.r
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.plugins.rootInterface.RootFileInterface
+
+
+Module Contents
+---------------
+
+.. py:class:: RootFileInterface(spectra)
+
+   .. py:attribute:: spectra
+
+
+   .. py:attribute:: window
+
+
+   .. py:attribute:: caldict
+
+
+   .. py:attribute:: rootfile
+      :value: None
+
+
+
+   .. py:attribute:: browser
+      :value: None
+
+
+
+   .. py:attribute:: matviews
+      :value: []
+
+
+
+   .. py:method:: RootBrowse(args)
+
+
+   .. py:method:: RootLs(args)
+
+
+   .. py:method:: RootLL(args)
+
+
+   .. py:method:: RootCd(args)
+
+
+   .. py:method:: RootPwd(args)
+
+
+   .. py:method:: RootOpen(args)
+
+
+   .. py:method:: RootClose(args)
+
+
+   .. py:method:: GetObj(path)
+
+      Load an object from a ROOT file
+
+
+
+   .. py:method:: GetCut(path)
+
+      Load a cut (TCutG) from a ROOT file.
+
+
+
+   .. py:method:: GetTH2(path)
+
+      Load a 2D histogram (``matrix'') from a ROOT file. This can be either
+      a ``true'' TH2 histogram or a THnSparse of dimension 2.
+
+      Note: Unlike RootGet(), this function does not support shell-style
+      pattern expansion, as this make it too easy to undeliberately load
+      too many histograms. As they use a lot of memory, this would likely
+      lead to a crash of the program.
+
+
+
+   .. py:method:: RootCutView(args)
+
+      Load a ROOT cut (TCutG) from a ROOT file and display it.
+
+
+
+   .. py:method:: RootCutDelete(args)
+
+      Delete all cuts shown in the current matrix view.
+
+
+
+   .. py:method:: RootMatrixView(args)
+
+      Load a 2D histogram (``matrix'') from a ROOT file and display it.
+
+
+
+   .. py:method:: RootMatrixGet(args)
+
+      Load a 2D histogram (``matrix'') from a ROOT file in projection mode.
+
+
+
+   .. py:method:: RootGet(args)
+
+      Load spectra from Rootfile
+
+
+
+.. py:data:: r
+

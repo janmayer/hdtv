@@ -1,0 +1,191 @@
+hdtv.efficiency
+===============
+
+.. py:module:: hdtv.efficiency
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/hdtv/efficiency/efficiency/index
+   /autoapi/hdtv/efficiency/exp/index
+   /autoapi/hdtv/efficiency/polyeff/index
+   /autoapi/hdtv/efficiency/pow/index
+   /autoapi/hdtv/efficiency/wiedenhoever/index
+   /autoapi/hdtv/efficiency/wunder/index
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.efficiency.ExpEff
+   hdtv.efficiency.PolyEff
+   hdtv.efficiency.PowEff
+   hdtv.efficiency.WiedenhoeverEff
+   hdtv.efficiency.WunderEff
+
+
+Package Contents
+----------------
+
+.. py:class:: ExpEff(pars=None, norm=True)
+
+   Bases: :py:obj:`hdtv.efficiency.efficiency._Efficiency`
+
+
+   'Exponential' efficiency formula.
+
+   eff(E) = a * exp(-b*E) + c * exp(-d*E)
+
+
+   .. py:attribute:: name
+      :value: 'Exponential'
+
+
+
+   .. py:attribute:: id
+
+
+   .. py:attribute:: TF1
+
+
+   .. py:attribute:: _dEff_dP
+      :value: [None, None, None, None, None]
+
+
+
+.. py:class:: PolyEff(pars=None, degree=4, norm=False)
+
+   Bases: :py:obj:`hdtv.efficiency.efficiency._Efficiency`
+
+
+   'Polynom' efficiency
+
+   Internally working on double logarithmic E and eff scale
+
+
+
+   .. py:attribute:: name
+      :value: 'Polynom'
+
+
+
+   .. py:attribute:: id
+
+
+   .. py:attribute:: _degree
+      :value: 4
+
+
+
+   .. py:attribute:: TF1
+
+
+   .. py:method:: _set_fitInput(fitPairs)
+
+
+   .. py:method:: _get_fitInput()
+
+
+   .. py:attribute:: fitInput
+
+
+   .. py:method:: normalize()
+
+
+   .. py:method:: value(E)
+
+
+   .. py:method:: error(E)
+
+      Calculate error using the covariance matrix via:
+
+        delta_Eff = sqrt((dEff_dP[0], dEff_dP[1], ... dEff_dP[num_pars]) x cov x (dEff_dP[0], dEff_dP[1], ... dEff_dP[num_pars]))
+
+
+
+
+.. py:class:: PowEff(pars=None, norm=True)
+
+   Bases: :py:obj:`hdtv.efficiency.efficiency._Efficiency`
+
+
+   'Power function' efficiency formula.
+
+   eff(E) = a + b * pow(E,-c)
+
+
+   .. py:attribute:: name
+      :value: 'Power'
+
+
+
+   .. py:attribute:: id
+
+
+   .. py:attribute:: TF1
+
+
+   .. py:attribute:: _dEff_dP
+      :value: [None, None, None, None, None]
+
+
+
+.. py:class:: WiedenhoeverEff(pars=None, norm=True)
+
+   Bases: :py:obj:`hdtv.efficiency.efficiency._Efficiency`
+
+
+   'Wiedenhoever' efficiency formula.
+
+   former formula: eff(E) = a * (E - c+ d * exp(-e * E))^-b
+   new formula: eff(E) = d * (E - b + c * exp(-d * E))^-a
+
+
+   .. py:attribute:: name
+      :value: 'Wiedenhoever'
+
+
+
+   .. py:attribute:: id
+
+
+   .. py:attribute:: TF1
+
+
+   .. py:attribute:: _dEff_dP
+      :value: [None, None, None, None, None]
+
+
+
+.. py:class:: WunderEff(pars=None, norm=True)
+
+   Bases: :py:obj:`hdtv.efficiency.efficiency._Efficiency`
+
+
+   'Wunder' efficiency formula.
+
+   eff(E) = (a*E + b/E) * exp(c*E + d/E)
+
+
+   .. py:attribute:: name
+      :value: 'Wunder'
+
+
+
+   .. py:attribute:: id
+
+
+   .. py:attribute:: TF1
+
+
+   .. py:attribute:: _dEff_dP
+      :value: [None, None, None, None, None]
+
+
+

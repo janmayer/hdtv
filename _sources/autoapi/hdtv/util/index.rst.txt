@@ -1,0 +1,471 @@
+hdtv.util
+=========
+
+.. py:module:: hdtv.util
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.util.opt_table
+   hdtv.util.opt_uncertainties
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.util.MLStripper
+   hdtv.util.TxtFile
+   hdtv.util.Pairs
+   hdtv.util.Table
+   hdtv.util.Position
+   hdtv.util.ID
+   hdtv.util.Singleton
+   hdtv.util.monkey_patch_ui
+   hdtv.util.LockViewport
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.util.Indent
+   hdtv.util.GetCompleteOptions
+   hdtv.util.strip_tags
+   hdtv.util.remove_comments
+   hdtv.util.split_line
+   hdtv.util.user_save_file
+   hdtv.util.backup_file
+   hdtv.util.open_compressed
+   hdtv.util.natural_sort_key
+   hdtv.util.temp_seed
+   hdtv.util.SplitCmdline
+   hdtv.util.SplitCmdlines
+
+
+Module Contents
+---------------
+
+.. py:function:: Indent(s, indent=' ')
+
+   Re-format a (possibly multi-line) string such that each line is indented.
+
+
+.. py:function:: GetCompleteOptions(begin, options)
+
+.. py:class:: MLStripper
+
+   Bases: :py:obj:`html.parser.HTMLParser`
+
+
+   Find tags and other markup and call handler functions.
+
+   Usage:
+       p = HTMLParser()
+       p.feed(data)
+       ...
+       p.close()
+
+   Start tags are handled by calling self.handle_starttag() or
+   self.handle_startendtag(); end tags by self.handle_endtag().  The
+   data between tags is passed from the parser to the derived class
+   by calling self.handle_data() with the data as argument (the data
+   may be split up in arbitrary chunks).  If convert_charrefs is
+   True the character references are converted automatically to the
+   corresponding Unicode character (and self.handle_data() is no
+   longer split in chunks), otherwise they are passed by calling
+   self.handle_entityref() or self.handle_charref() with the string
+   containing respectively the named or numeric reference as the
+   argument.
+
+
+   .. py:attribute:: fed
+      :value: []
+
+
+
+   .. py:method:: handle_data(d)
+
+
+   .. py:method:: get_data()
+
+
+.. py:function:: strip_tags(html)
+
+.. py:class:: TxtFile(filename, mode='r')
+
+   Handle txt files, ignoring commented lines
+
+
+   .. py:attribute:: lines
+      :value: []
+
+
+
+   .. py:attribute:: linos
+      :value: []
+
+
+
+   .. py:attribute:: mode
+      :value: 'r'
+
+
+
+   .. py:attribute:: filename
+
+
+   .. py:attribute:: fd
+      :value: None
+
+
+
+   .. py:method:: read(verbose=False)
+
+      Read text file to self.lines
+
+      Comments are stripped and lines seperated by '' are automatically
+      concatenated
+
+
+
+   .. py:method:: write()
+
+      Write lines stored in self.lines to text file
+
+      Newlines are automatically appended if necessary
+
+
+
+.. py:class:: Pairs(conv_func=lambda x: x)
+
+   Bases: :py:obj:`list`
+
+
+   List of pair values
+
+   conv_func: conversion function to be called before storage of pair
+
+
+   .. py:attribute:: conv_func
+
+
+   .. py:method:: add(x, y)
+
+      Add a pair
+
+
+
+   .. py:method:: remove(pair)
+
+      TODO
+
+
+
+   .. py:method:: fromFile(fname, sep=None)
+
+      Read pairs from file
+
+
+
+   .. py:method:: fromLists(list1, list2)
+
+      Create pairs from to lists by assigning corresponding indices
+
+
+
+.. py:data:: opt_table
+
+.. py:data:: opt_uncertainties
+
+.. py:class:: Table(data, keys, header=None, ignoreEmptyCols=True, sortBy=None, reverseSort=False, raw_columns=None, extra_header=None, extra_footer=None)
+
+   Class to store tables
+
+   data: iterable that contains 'keys' as attributes or dict entries
+
+
+   .. py:attribute:: extra_header
+      :value: None
+
+
+
+   .. py:attribute:: extra_footer
+      :value: None
+
+
+
+   .. py:attribute:: sortBy
+      :value: None
+
+
+
+   .. py:attribute:: keys
+
+
+   .. py:attribute:: data
+      :value: []
+
+
+
+   .. py:attribute:: _width
+      :value: 0
+
+
+
+   .. py:attribute:: _col_width
+      :value: []
+
+
+
+   .. py:attribute:: raw_columns
+      :value: None
+
+
+
+   .. py:attribute:: _ignore_col
+
+
+   .. py:property:: num_columns
+
+
+   .. py:property:: num_rows
+
+
+   .. py:method:: read_data(data, keys, header=None)
+
+
+   .. py:method:: build_lines()
+
+
+   .. py:method:: sort_data(sortBy, reverseSort=False)
+
+
+   .. py:method:: calc_width()
+
+
+   .. py:method:: build_header()
+
+
+   .. py:method:: build_sep()
+
+
+   .. py:method:: __str__()
+
+
+.. py:class:: Position(pos, fixedInCal, cal=None)
+
+   Class for storing postions that may be fixed in calibrated or uncalibrated space
+
+   if self.pos_cal is set the position is fixed in calibrated space.
+   if self.pos_uncal is set the position is fixed in uncalibrated space.
+
+
+   .. py:attribute:: cal
+      :value: None
+
+
+
+   .. py:attribute:: _fixedInCal
+
+
+   .. py:method:: _set_pos_cal(pos)
+
+
+   .. py:method:: _get_pos_cal()
+
+
+   .. py:attribute:: pos_cal
+
+
+   .. py:method:: _set_pos_uncal(pos)
+
+
+   .. py:method:: _get_pos_uncal()
+
+
+   .. py:attribute:: pos_uncal
+
+
+   .. py:method:: _set_fixedInCal(fixedInCal)
+
+
+   .. py:method:: _get_fixedInCal()
+
+
+   .. py:attribute:: fixedInCal
+
+
+   .. py:method:: __str__()
+
+
+   .. py:method:: _Ch2E(Ch)
+
+
+   .. py:method:: _E2Ch(E)
+
+
+   .. py:method:: FixInCal()
+
+      Fix position in calibrated space
+
+
+
+   .. py:method:: FixInUncal()
+
+      Fix position in uncalibrated space
+
+
+
+.. py:class:: ID(major=None, minor=None)
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: __ne__(other)
+
+
+   .. py:method:: __gt__(other)
+
+
+   .. py:method:: __lt__(other)
+
+
+   .. py:method:: __ge__(other)
+
+
+   .. py:method:: __le__(other)
+
+
+   .. py:method:: __hash__()
+
+
+   .. py:method:: __str__()
+
+
+   .. py:method:: __repr__()
+
+
+   .. py:method:: __int__()
+
+
+   .. py:method:: __float__()
+
+
+   .. py:method:: _parseSpecialID(string, manager)
+      :classmethod:
+
+
+
+   .. py:method:: _parseNormalID(string)
+      :classmethod:
+
+
+
+   .. py:method:: ParseIds(strings, manager, only_existent=True)
+      :classmethod:
+
+
+
+.. py:function:: remove_comments(string)
+
+   Removes '#' comments at the end of a line
+
+
+.. py:function:: split_line(line)
+
+   Splits multiple commands in a single line separated by ';'
+
+
+.. py:function:: user_save_file(filename, force=False)
+
+   Make sure filename is not in use. Offer to backup existing file
+   unless force is True.
+   Returns filename if successful or False if aborted.
+
+
+.. py:function:: backup_file(filename, bak_ext='bak')
+
+   Safely backup a file, using a new filename
+
+
+.. py:function:: open_compressed(fname, mode='rb', **kwargs)
+
+   Behaves like open(), but automatically handles compression,
+   depending on the extension of the given filename.
+
+
+.. py:function:: natural_sort_key(s, _nsre=re.compile('([-+]?[0-9]+\\.?[0-9]*)'))
+
+.. py:class:: Singleton
+
+   Bases: :py:obj:`type`
+
+
+   Permit no more than a single instance of a class.
+   Use as a metaclass:
+
+       class MyClass(metaclass=Singleton)
+
+
+   .. py:attribute:: _instances
+
+
+   .. py:method:: __call__(*args, **kwargs)
+
+
+.. py:class:: monkey_patch_ui
+
+   Replace ROOT.HDTV.Display by a noop dummy version
+
+
+   .. py:attribute:: _orig
+
+
+   .. py:method:: __enter__()
+
+
+   .. py:method:: __exit__(*args, **kws)
+
+
+.. py:function:: temp_seed(seed: Optional[int] = None)
+
+   Temporarily set numpy seed. Restore old state of random
+   number generator afterwards.
+
+   Args:
+       seed: Temporary seed for numpy
+
+
+.. py:function:: SplitCmdline(s)
+
+   Split a string, handling escaped whitespace.
+   Essentially our own version of shlex.split, but with only double
+   quotes accepted as quotes.
+
+   Returns:
+       List of command fragments
+       Suffix removed from last fragment (quotes)
+
+
+.. py:function:: SplitCmdlines(s)
+
+   Split line into multiple commands separated by ';'.
+
+
+.. py:class:: LockViewport(viewport)
+
+   .. py:attribute:: viewport
+
+
+   .. py:method:: __enter__()
+
+
+   .. py:method:: __exit__(*a)
+
+

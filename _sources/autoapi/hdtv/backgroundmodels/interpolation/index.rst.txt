@@ -1,0 +1,54 @@
+hdtv.backgroundmodels.interpolation
+===================================
+
+.. py:module:: hdtv.backgroundmodels.interpolation
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.backgroundmodels.interpolation.BackgroundModelInterpolation
+
+
+Module Contents
+---------------
+
+.. py:class:: BackgroundModelInterpolation
+
+   Bases: :py:obj:`hdtv.backgroundmodels.background.BackgroundModel`
+
+
+   Interpolation background model
+
+
+   .. py:attribute:: fParStatus
+
+
+   .. py:attribute:: fValidParStatus
+
+
+   .. py:attribute:: name
+      :value: 'interpolation'
+
+
+
+   .. py:attribute:: requiredBgRegions
+      :value: 3
+
+
+
+   .. py:method:: ResetParamStatus()
+
+      Reset parameter status to defaults
+
+
+
+   .. py:method:: GetFitter(integrate, likelihood, nparams=None, nbg=None)
+
+      Creates a C++ Fitter object, which can then do the real work
+      integrate and likelihood are ignored (do not make sense here)
+
+
+

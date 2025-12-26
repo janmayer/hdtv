@@ -1,0 +1,79 @@
+hdtv.peakmodels.peak
+====================
+
+.. py:module:: hdtv.peakmodels.peak
+
+.. autoapi-nested-parse::
+
+   For each model implemented on the C++ side, we have a corresponding Python
+   class to handle fitter setup and data transfer to the Python side
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.peakmodels.peak.PeakModel
+
+
+Module Contents
+---------------
+
+.. py:class:: PeakModel
+
+   A peak model is a function used to fit peaks. The user can choose how to fit
+   its parameters (and whether to include them at all, i.e. for tails). After
+   everything has been configured, the peak model produces a C++ fitter object.
+
+
+   .. py:attribute:: fGlobalParams
+
+
+   .. py:method:: ResetGlobalParams()
+
+
+   .. py:method:: OptionsStr()
+
+      Returns a string describing the currently set parameters of the model
+
+
+
+   .. py:method:: CheckParStatusLen(minlen)
+
+      Checks if each parameter status provided on a peak-by-peak basis
+      has at least minlen entires. Raises a ValueError with an appropriate
+      error message if the check fails.
+
+
+
+   .. py:method:: ParseParamStatus(parname, status)
+
+      Parse a parameter status specification string
+      Raises ValueError when the status is not legal for this parameter
+
+
+
+   .. py:method:: SetParameter(parname, status)
+
+      Set status for a certain parameter. Status is a string describing the
+      desired status. Raises ValueError in case of invalid input.
+
+      status may be single string which will be taken for all peaks, or
+      list, where each item will be assigned to corresponing peak
+
+
+
+   .. py:method:: GetParam(name, peak_id, pos_uncal, cal, ival=None)
+
+      Return an appropriate HDTV.Fit.Param object for the specified parameter
+
+
+
+   .. py:method:: GetOption(name)
+
+      Return an appropriate HDTV.Fit.Option object for the specified parameter
+
+
+

@@ -1,0 +1,182 @@
+hdtv.options
+============
+
+.. py:module:: hdtv.options
+
+.. autoapi-nested-parse::
+
+   Infrastructure for configuration variables
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.options.OptionManager
+   hdtv.options.RegisterOption
+   hdtv.options.Set
+   hdtv.options.Get
+   hdtv.options.Reset
+   hdtv.options.ResetAll
+   hdtv.options.Show
+   hdtv.options.Str
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.options.Option
+   hdtv.options._OptionManager
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.options.parse_bool
+   hdtv.options.parse_choices
+
+
+Module Contents
+---------------
+
+.. py:class:: Option(default=None, parse=lambda x: x, toStr=lambda x: str(x), changeCallback=None)
+
+   A configuration variable
+
+
+   .. py:attribute:: defaultValue
+      :value: None
+
+
+
+   .. py:attribute:: value
+      :value: None
+
+
+
+   .. py:attribute:: parse
+
+
+   .. py:attribute:: ToStr
+
+
+   .. py:attribute:: ChangeCallback
+      :value: None
+
+
+
+   .. py:method:: __bool__()
+
+      How to convert option to 'bool'
+
+
+
+   .. py:method:: Set(value)
+
+      Set the variable to the specified value
+
+
+
+   .. py:method:: ParseAndSet(rawValue)
+
+      Parses rawValue and sets the variable to the result
+
+
+
+   .. py:method:: Get()
+
+      Return the value of the variable
+
+
+
+   .. py:method:: Reset()
+
+      Reset the variable to its default value
+
+
+
+   .. py:method:: __str__()
+
+      Returns the value as a string
+
+
+
+.. py:class:: _OptionManager
+
+   Bases: :py:obj:`dict`
+
+
+   Manages a set of options
+
+
+   .. py:method:: RegisterOption(varname, value)
+
+      Adds a configuration variable
+
+
+
+   .. py:method:: Set(varname, rawValue)
+
+      Sets the variable specified by varname. Raises a KeyError if it does not exist.
+
+
+
+   .. py:method:: Get(varname)
+
+      Gets the value of the variable varname. Raises a KeyError if it does not exist.
+
+
+
+   .. py:method:: Reset(varname)
+
+      Resets value of variable varname to default. Raises KeyError if it does not exist.
+
+
+
+   .. py:method:: ResetAll()
+
+      Resets value of all variables to default.
+
+
+
+   .. py:method:: Show(varname)
+
+      Shows the value of the variable varname
+
+
+
+   .. py:method:: Str()
+
+      Returns all options as a string
+
+
+
+.. py:function:: parse_bool(x)
+
+   Parse boolean options
+
+
+.. py:function:: parse_choices(choices)
+
+.. py:data:: OptionManager
+
+.. py:data:: RegisterOption
+
+.. py:data:: Set
+
+.. py:data:: Get
+
+.. py:data:: Reset
+
+.. py:data:: ResetAll
+
+.. py:data:: Show
+
+.. py:data:: Str
+

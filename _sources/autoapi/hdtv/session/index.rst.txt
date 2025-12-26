@@ -1,0 +1,151 @@
+hdtv.session
+============
+
+.. py:module:: hdtv.session
+
+.. autoapi-nested-parse::
+
+   main session of hdtv
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.session.Session
+
+
+Module Contents
+---------------
+
+.. py:class:: Session
+
+   Bases: :py:obj:`hdtv.drawable.DrawableManager`
+
+
+   Main session of hdtv
+
+   First of all this provides a list of spectra, which is why this is called
+   spectra in most contexts. But this also keeps track of the basic fit interface
+   and of a list of calibrations.
+
+
+   .. py:attribute:: window
+
+
+   .. py:attribute:: workFit
+
+
+   .. py:attribute:: workCut
+
+
+   .. py:attribute:: caldict
+
+
+   .. py:attribute:: _active
+      :value: True
+
+
+
+   .. py:method:: ApplyCalibration(specIDs, cal, storeInCaldict: bool = True)
+
+      Apply calibration cal to spectra with ids
+
+
+
+   .. py:method:: SetMarker(mtype, pos=None)
+
+      Set Marker of type "mtype" (bg, peak, region, cut) to position pos,
+      if pos is not given, the current position of the cursor is used.
+
+
+
+   .. py:method:: RemoveMarker(mtype, pos=None)
+
+      Remove the marker of type "mtype" (bg, peak, region), that is
+      closest to position "pos", if position is not given, the current position
+      of the cursor is used.
+
+
+
+   .. py:method:: ExecuteIntegral()
+
+
+   .. py:method:: ExecuteFit(peaks=True)
+
+      Execute the fit
+
+      If peaks=False, just a background fit is executed, else a peak fit is executed.
+
+
+
+   .. py:method:: ClearFit(bg_only=False)
+
+      Clear the markers and erase a previously executed fit.
+
+      If bg_only is True, only the background fit is cleared and a peak fit
+      is repeated now with internal background.
+
+
+
+   .. py:method:: ActivateFit(ID, sid=None)
+
+      Copy markers of a already stored fit to workFit.
+
+      Note: that a call to Store will overwrite the active fit with workFit
+
+
+
+   .. py:method:: StoreFit(ID=None)
+
+      Stores current workFit with ID.
+
+      If no ID is given, the next free ID is used.
+      The markers are kept in workFit, for possible re-use.
+
+
+
+   .. py:method:: ExecuteCut()
+
+
+   .. py:method:: ClearCut()
+
+
+   .. py:method:: ActivateCut(ID)
+
+
+   .. py:method:: StoreCut(ID=None)
+
+
+   .. py:method:: ActivateObject(obj)
+
+      Activate Object and reset workFit when activating another spectrum
+
+
+
+   .. py:method:: Pop(ID)
+
+      Pop spectrum with ID and activate prevID if ID was activeID
+
+
+
+   .. py:method:: ShowObjects(ids, clear=True)
+
+      Show spectra and make sure one of the visible objects is active
+
+
+
+   .. py:method:: HideObjects(ids)
+
+      Hide spectra and make sure one of the visible objects is active
+
+
+
+   .. py:method:: Clear()
+
+      Clear everything
+
+
+

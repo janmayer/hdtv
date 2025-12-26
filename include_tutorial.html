@@ -1,0 +1,453 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HDTV &mdash; hdtv  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="autoapi/index.html" />
+    <link rel="prev" title="HDTV" href="include_guide.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            hdtv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="include_guide.html">Documentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#a-tutorial-introduction-to-hdtv">A tutorial introduction to HDTV</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#starting-hdtv">STARTING HDTV</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#load-a-spectrum">LOAD A SPECTRUM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fit-peaks">FIT PEAKS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#energy-calibration">ENERGY CALIBRATION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#normalize-spectra">NORMALIZE SPECTRA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#working-with-multiple-spectra">WORKING WITH MULTIPLE SPECTRA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#open-root-files">OPEN ROOT FILES</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#peak-search">PEAK SEARCH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#see-also">SEE ALSO</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">hdtv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">HDTV</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/include_tutorial.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="hdtv">
+<h1>HDTV<a class="headerlink" href="#hdtv" title="Link to this heading"></a></h1>
+<section id="a-tutorial-introduction-to-hdtv">
+<h2>A tutorial introduction to HDTV<a class="headerlink" href="#a-tutorial-introduction-to-hdtv" title="Link to this heading"></a></h2>
+<dl class="field-list simple">
+<dt class="field-odd">Manual section<span class="colon">:</span></dt>
+<dd class="field-odd"><p>1</p>
+</dd>
+</dl>
+<section id="synopsis">
+<h3>SYNOPSIS<a class="headerlink" href="#synopsis" title="Link to this heading"></a></h3>
+<div class="line-block">
+<div class="line"><strong>hdtv</strong> [ <strong>-h</strong> ] [ <strong>-b</strong> <em>batchfile</em> ] [ <strong>-e</strong> <em>commands</em> ] [ <strong>-v</strong> ]</div>
+</div>
+</section>
+<section id="description">
+<h3>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
+<p>This tutorial explains how to open spectra in HDTV, fit peaks and apply energy
+calibrations. It gives an overview over the basic features and a typical
+workflow for using HDTV.</p>
+</section>
+<section id="starting-hdtv">
+<h3>STARTING HDTV<a class="headerlink" href="#starting-hdtv" title="Link to this heading"></a></h3>
+<p>Start HDTV using the <code class="docutils literal notranslate"><span class="pre">hdtv</span></code> command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ hdtv
+HDTV – Nuclear Spectrum Analysis Tool
+hdtv&gt;
+</pre></div>
+</div>
+<p>A new GUI window is opened. This window is used to view spectra and fit peaks.
+Except for the two axes, it is empty at the moment, as there is no spectrum
+to view yet.</p>
+<p>Additionally, your terminal window now features the <code class="docutils literal notranslate"><span class="pre">hdtv&gt;</span></code> prompt, which is
+ready to accept your commands. To get an overview over the available commands,
+press the <code class="docutils literal notranslate"><span class="pre">Tab</span></code> key. If you want to leave HDTV, you can do so using <code class="docutils literal notranslate"><span class="pre">exit</span></code>
+or <code class="docutils literal notranslate"><span class="pre">quit</span></code>. To get more information about a command, enter the name of the
+command followed by <code class="docutils literal notranslate"><span class="pre">--help</span></code>.</p>
+</section>
+<section id="load-a-spectrum">
+<h3>LOAD A SPECTRUM<a class="headerlink" href="#load-a-spectrum" title="Link to this heading"></a></h3>
+<p>To read and write spectra, HDTV resorts to the libmfile library. It supports
+multiple file formats for spectra and matrices, including line compressed
+(lc) files and line-separated ASCII (txt) spectra.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">cd</span></code>, <code class="docutils literal notranslate"><span class="pre">ls</span></code> and <code class="docutils literal notranslate"><span class="pre">pwd</span></code> to navigate your file system and find the
+spectrum you want to load.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">spectrum</span> <span class="pre">*</span></code> commands are used to work with spectra. Load a new
+spectrum using</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">spectrum</span> <span class="n">get</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>It is possible to abbreviate commands to safe time and type less. The
+following commands are all equivalent:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">spectrum</span> <span class="n">get</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span>
+<span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">spe</span> <span class="n">g</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span>
+<span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">s</span> <span class="n">g</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span>
+<span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">spectrum</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span>
+<span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">s</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>The last two commands are special, as the <code class="docutils literal notranslate"><span class="pre">spectrum</span> <span class="pre">*</span></code> command group
+will default to its <code class="docutils literal notranslate"><span class="pre">get</span></code> subcommand, if no subcommand is present.
+Please note that it is not always possible to abbreviate to a single
+letter unambiguously.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">filename</span></code> argument can consist of one or multiple filenames.
+Globbing is possible, so patterns such as <code class="docutils literal notranslate"><span class="pre">*</span></code>, <code class="docutils literal notranslate"><span class="pre">?</span></code> or <code class="docutils literal notranslate"><span class="pre">[0-9]</span></code>
+can be used for filename completion.</p>
+<p>After you press <code class="docutils literal notranslate"><span class="pre">Enter</span></code>, the spectrum appears in the GUI spectra window.
+Several interaction possibilities with this window exist:</p>
+<dl class="simple">
+<dt>Left Mouse Button, &lt;, &gt;, Left, Right</dt><dd><p>Move left and right in the spectrum.</p>
+</dd>
+<dt>Shift + Left Mouse Button</dt><dd><p>Move in all directions in the spectrum.</p>
+</dd>
+<dt>Ctrl + [Shift] + Left Mouse Button</dt><dd><p>Move around faster.</p>
+</dd>
+<dt>Scroll Whell, 0, 1</dt><dd><p>Zoom in and out.</p>
+</dd>
+<dt>l</dt><dd><p>Toggle between linear and log y-scale.</p>
+</dd>
+<dt>Up, Down</dt><dd><p>Move up and down in the spectrum.</p>
+</dd>
+<dt>|, |, x</dt><dd><p>Mark a horizontal range (using <code class="docutils literal notranslate"><span class="pre">|</span></code> and <code class="docutils literal notranslate"><span class="pre">|</span></code>) and zoom to it (<code class="docutils literal notranslate"><span class="pre">x</span></code>).</p>
+</dd>
+<dt>h, h, y</dt><dd><p>Mark a vertical range (using <code class="docutils literal notranslate"><span class="pre">h</span></code> and <code class="docutils literal notranslate"><span class="pre">h</span></code>) and zoom to it (<code class="docutils literal notranslate"><span class="pre">y</span></code>).</p>
+</dd>
+<dt>Z, X</dt><dd><p>Zoom in and out vertically.</p>
+</dd>
+<dt>A</dt><dd><p>Toggle Y Auto Scale.</p>
+</dd>
+<dt>i</dt><dd><p>Press <code class="docutils literal notranslate"><span class="pre">i</span></code> and input a number to center at a certain positon.
+Confirm with <code class="docutils literal notranslate"><span class="pre">Enter</span></code>.</p>
+</dd>
+</dl>
+<p>For a complete list, see <code class="docutils literal notranslate"><span class="pre">hdtv</span></code>(1).</p>
+</section>
+<section id="fit-peaks">
+<h3>FIT PEAKS<a class="headerlink" href="#fit-peaks" title="Link to this heading"></a></h3>
+<p>The GUI window is also used for fitting. To create a fit, several markers
+have to be set for fit region, background region and the peaks.</p>
+<p>Mark the left and right border of the fit region using the <code class="docutils literal notranslate"><span class="pre">r</span></code> key for
+each side. Two blue lines will appear. All peaks you want to fit have to
+lie within the region between these two lines. Only one fit region can
+exist, pressing <code class="docutils literal notranslate"><span class="pre">r</span></code> again will delete the old fit region and create a
+new one.</p>
+<p>Mark regions of the spectrum that contain only background and no peaks
+using the <code class="docutils literal notranslate"><span class="pre">b</span></code> key for each side. Two yellow lines will appear. They do
+not have to lie within the fit region. You can create multiple background
+regions.</p>
+<p>Finally, mark all the peaks using the <code class="docutils literal notranslate"><span class="pre">p</span></code> key. One purple line will appear
+for each marked peak.</p>
+<p>You can delete marked regions and peaks by pressing <code class="docutils literal notranslate"><span class="pre">Minus</span></code> followed by
+<code class="docutils literal notranslate"><span class="pre">r</span></code> or <code class="docutils literal notranslate"><span class="pre">b</span></code>, respectively <code class="docutils literal notranslate"><span class="pre">p</span></code>. This will delete the corresponding
+fit region/background region/peak marker closest to the cursor.</p>
+<p>To finally execute the fit, press <code class="docutils literal notranslate"><span class="pre">F</span></code>. This might cause the peak markers
+to move to the fitted position. To only fit the background, press <code class="docutils literal notranslate"><span class="pre">B</span></code>.
+In the spectra window, plots will appear for the fitted background and
+peaks. You can display a decomposition of the individual peaks using <code class="docutils literal notranslate"><span class="pre">D</span></code>.
+To delete the fits or hide the decomposition, use <code class="docutils literal notranslate"><span class="pre">-F</span></code>, <code class="docutils literal notranslate"><span class="pre">-B</span></code> or <code class="docutils literal notranslate"><span class="pre">-D</span></code>.</p>
+<p>When creating a fit, a table with informations about the fit and individual
+peaks will appear in the terminal window, giving you information about
+position, width, volume and more.</p>
+<p>By default, a linear fit is being used for the background. This might not
+be sufficient for your needs, so you may want to switch to a polynomial
+with a different degree. To switch to a cubic polynomial, use</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">fit</span> <span class="n">parameter</span> <span class="n">background</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<p>When you are satisfied with the fit, you might want to store it for further
+usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">fit</span> <span class="n">store</span>
+</pre></div>
+</div>
+<p>A number will appear at the top of the GUI window above each peak, denoting
+the corresponding fitID. Each peak can be identified using a pair of two
+numbers separated by a dot. For example, <code class="docutils literal notranslate"><span class="pre">0.0</span></code> corresponds to peak <code class="docutils literal notranslate"><span class="pre">0</span></code>
+(the leftmost peak) in fit <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+<p>It is now possible, to safely delete the so-called workFit using <code class="docutils literal notranslate"><span class="pre">-F</span></code>.
+The peak marker and the graphs of the fitted peaks and the background will
+remain in the color of the corresponding spectrum.</p>
+<p>To activate and possibly modify the fit again, execute</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">fit</span> <span class="n">activate</span> <span class="o">&lt;</span><span class="n">fitID</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>The colored region markers and fit graphs will reappear. The original fit
+will stay visible with dashed lines until you store the fit again.</p>
+<p>You can export fits to XML-files using</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">fit</span> <span class="n">write</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>HDTV includes several peak and background models. The default model is the
+so-called <cite>theuerkauf</cite> peak model, which is identical to the classical tv
+peak model. An alternate model is the <cite>ee</cite> peak model, which is used to
+describe the shape of lines in electron-scattering spectra. To explicitly
+activate a peak model, use</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">fit</span> <span class="n">function</span> <span class="n">peak</span> <span class="n">activate</span> <span class="o">&lt;</span><span class="n">peakmodel</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Likewise, several background models are available: <cite>polynomial</cite> (default),
+<cite>exponential</cite> and <cite>interpolation</cite>. They can be activated using</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">fit</span> <span class="n">function</span> <span class="n">background</span> <span class="n">activate</span> <span class="o">&lt;</span><span class="n">backgroundmodel</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>The order of the polynomial and exponential background and the order of the
+interpolation spline of the interpolation background model can be adjusted
+using</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">fit</span> <span class="n">parameter</span> <span class="n">background</span> <span class="o">&lt;</span><span class="n">order</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>The interpolation model works in a different way in comparison to the
+polynomial and exponential model: Instead of fitting a model
+to the selected background region, a spline is created. It does not
+consider every bin of the selected background region. Instead, for each
+background region, only the mean value of all bins is considered.</p>
+<p>It is possible to choose between <cite>normal</cite> (default) and <cite>poisson</cite>
+statistics:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">fit</span> <span class="n">parameter</span> <span class="n">likelihood</span> <span class="o">&lt;</span><span class="n">statistics</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Also, the user can choose to integrate the model for each bin, instead
+of evaluating it at the bin center:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">fit</span> <span class="n">parameter</span> <span class="n">integrate</span> <span class="n">true</span>
+</pre></div>
+</div>
+</section>
+<section id="energy-calibration">
+<h3>ENERGY CALIBRATION<a class="headerlink" href="#energy-calibration" title="Link to this heading"></a></h3>
+<p>One of the most important tasks is to conduct an energy calibration. It is
+very easy to do so using HDTV by assigning the known energy literature value
+to fitted peaks in calibration spectra. To assign energies to fitted peaks
+in a stored spectrum, use <code class="docutils literal notranslate"><span class="pre">fit</span> <span class="pre">assign</span></code>, e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">calibration</span> <span class="n">position</span> <span class="n">assign</span> <span class="mf">0.1</span> <span class="mf">1173.228</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="mf">0.3</span> <span class="mf">1332.492</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will assign energies to peaks <code class="docutils literal notranslate"><span class="pre">0.1</span></code> and <code class="docutils literal notranslate"><span class="pre">0.3</span></code> and conduct an energy
+calibration afterwards. It is also possible to do this in two steps:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">fit</span> <span class="n">position</span> <span class="n">assign</span> <span class="mf">0.1</span> <span class="mf">1173.228</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="mf">0.3</span> <span class="mf">1332.492</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">calibration</span> <span class="n">position</span> <span class="n">recalibrate</span>
+</pre></div>
+</div>
+<p>As you might have noticed, HDTV is capable of dealing with uncertainties
+and will respect them in the calibration. This is especially useful when
+using a larger number of peaks for the calibration. After calibrating
+the spectrum, the x-axis in the GUI will show the calibrated energies.</p>
+<p>Alternatively, it is also possible to manually enter channel-energy pairs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">calibration</span> <span class="n">position</span> <span class="n">enter</span> <span class="mi">1543</span> <span class="mf">1173.228</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="mi">1747</span> <span class="mf">1332.492</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also use an external program to determine a fit polynomial and
+enter the coefficients manually:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">calibration</span> <span class="n">position</span> <span class="nb">set</span> <span class="o">-</span><span class="mf">30.88423486072141</span> <span class="mf">0.780361132236243</span>
+</pre></div>
+</div>
+<p>This corresponds to the fit function</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Energy</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">=</span> <span class="o">-</span><span class="mf">30.88423486072141</span> <span class="o">+</span> <span class="mf">0.780361132236243</span> <span class="n">c</span>
+</pre></div>
+</div>
+<p>Higher order coefficients can be added at the end of the command.</p>
+<p>You can permanently store the calibrations in calibration files. The file
+format has changed in comparison to the old TV program. While
+spectrum-specific calibration files that only contain a single calibration
+are still supported using <code class="docutils literal notranslate"><span class="pre">calibration</span> <span class="pre">position</span> <span class="pre">read</span> <span class="pre">&lt;filename&gt;</span></code> and
+<code class="docutils literal notranslate"><span class="pre">calibration</span> <span class="pre">position</span> <span class="pre">write</span> <span class="pre">&lt;filename&gt;</span></code>, it is recommended to use
+calibration lists instead. A single calibration list file can contain
+the calibration for multiple spectra. The file format corresponds to the
+output of <code class="docutils literal notranslate"><span class="pre">calibration</span> <span class="pre">position</span> <span class="pre">list</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">calibration</span> <span class="n">position</span> <span class="nb">list</span>
+<span class="n">osiris_bg</span><span class="o">.</span><span class="n">spc</span><span class="p">:</span> <span class="o">-</span><span class="mf">30.88423486072141</span>   <span class="mf">0.780361132236243</span>
+</pre></div>
+</div>
+<p>To load a calibration list file, use</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">calibration</span> <span class="n">position</span> <span class="nb">list</span> <span class="n">read</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>To write all existing calibrations into a calibration list file, use</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">calibration</span> <span class="n">position</span> <span class="nb">list</span> <span class="n">write</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Alternatively, the calibration can be done with some known calibration
+sources automatically:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">calibration</span> <span class="n">position</span> <span class="n">nuclide</span> <span class="n">Eu</span><span class="o">-</span><span class="mi">152</span> <span class="o">-</span><span class="n">d</span> <span class="n">IAEA</span> <span class="o">-</span><span class="n">a</span>
+</pre></div>
+</div>
+<p>To calibrate the efficiency also the built-in calibration sources can
+be used.
+.. code-block:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">calibration</span> <span class="n">efficiency</span> <span class="n">fit</span> <span class="o">-</span><span class="n">d</span> <span class="n">IAEA</span> <span class="mi">0</span><span class="p">,</span><span class="mi">152</span><span class="n">Eu</span>
+</pre></div>
+</div>
+</section>
+<section id="normalize-spectra">
+<h3>NORMALIZE SPECTRA<a class="headerlink" href="#normalize-spectra" title="Link to this heading"></a></h3>
+<p>Spectra can be normalized with a coefficient with</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">spectrum</span> <span class="n">normalize</span> <span class="o">&lt;</span><span class="n">specID</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">coefficient</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Afterwards, go to the spectrum and press <code class="docutils literal notranslate"><span class="pre">shift``+``1</span></code> to apply the normalization.
+Press the key combination again to unapply it.</p>
+</section>
+<section id="working-with-multiple-spectra">
+<h3>WORKING WITH MULTIPLE SPECTRA<a class="headerlink" href="#working-with-multiple-spectra" title="Link to this heading"></a></h3>
+<p>From the command line, it is possible to show individual spectra
+using</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">spectrum</span> <span class="n">show</span> <span class="o">&lt;</span><span class="n">specID</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>and</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">spectrum</span> <span class="n">hide</span> <span class="o">&lt;</span><span class="n">specID</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">specId</span></code> might be a the id of one or multiple spectra. Possible values
+include <code class="docutils literal notranslate"><span class="pre">0</span></code>, <code class="docutils literal notranslate"><span class="pre">2,4</span></code>, <code class="docutils literal notranslate"><span class="pre">1-5</span></code>, <code class="docutils literal notranslate"><span class="pre">all</span></code>, <code class="docutils literal notranslate"><span class="pre">active</span></code>, <code class="docutils literal notranslate"><span class="pre">none</span></code>, <code class="docutils literal notranslate"><span class="pre">next</span></code>,
+<code class="docutils literal notranslate"><span class="pre">prev</span></code>, <code class="docutils literal notranslate"><span class="pre">first</span></code>, <code class="docutils literal notranslate"><span class="pre">last</span></code>, <code class="docutils literal notranslate"><span class="pre">visible</span></code>.</p>
+<p>The currently active spectrum (that is used for fitting) is set using</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">spectrum</span> <span class="n">activate</span> <span class="o">&lt;</span><span class="n">specID</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>It is also possible to show and hide spectra from the GUI spectra window:</p>
+<dl class="simple">
+<dt>n &lt;specID&gt;</dt><dd><p><code class="docutils literal notranslate"><span class="pre">n</span></code> followed by the IDs of the spectra to show.
+Confirm with <code class="docutils literal notranslate"><span class="pre">Enter</span></code>.</p>
+</dd>
+<dt>a &lt;specID&gt;</dt><dd><p><code class="docutils literal notranslate"><span class="pre">a</span></code> followed by the ID of the spectrum to activate.
+Confirm with <code class="docutils literal notranslate"><span class="pre">Enter</span></code>.</p>
+</dd>
+</dl>
+<p>The currently visible spectra and their corresponding colors are shown in
+the top left corner of the GUI spectra window.</p>
+<p>Spectra can be also deleted, or copied:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">spectrum</span> <span class="n">copy</span> <span class="o">&lt;</span><span class="n">specID</span><span class="o">&gt;</span>
+<span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">spectrum</span> <span class="n">delete</span> <span class="o">&lt;</span><span class="n">specID</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Add several spectra by first specifying the specID of the resulting summed
+spectrum:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">spectrum</span> <span class="n">add</span> <span class="o">&lt;</span><span class="n">specID_sum</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">specID1</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">specID2</span><span class="o">&gt;</span> <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="open-root-files">
+<h3>OPEN ROOT FILES<a class="headerlink" href="#open-root-files" title="Link to this heading"></a></h3>
+<p>To open a ROOT histogram:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">root</span> <span class="n">get</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">rootfile</span><span class="o">.</span><span class="n">root</span><span class="o">/</span><span class="n">histogram</span>
+</pre></div>
+</div>
+<p>To open an asymmetric ROOT matrix:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">root</span> <span class="n">matrix</span> <span class="n">get</span> <span class="n">asym</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">rootfile</span><span class="o">.</span><span class="n">root</span><span class="o">/</span><span class="n">matrix</span>
+</pre></div>
+</div>
+<p>For symmetric matrices use <code class="docutils literal notranslate"><span class="pre">sym</span></code> instead of <code class="docutils literal notranslate"><span class="pre">asym</span></code>.
+Opening a matrix gives two spectra 0.0 and 0.1 which are the X and Y projections.</p>
+</section>
+<section id="peak-search">
+<h3>PEAK SEARCH<a class="headerlink" href="#peak-search" title="Link to this heading"></a></h3>
+<p>Find peaks automatically between start and end bin:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hdtv</span><span class="o">&gt;</span> <span class="n">fit</span> <span class="n">peakfind</span> <span class="n">startbin</span> <span class="n">endbin</span>  <span class="p">[</span><span class="o">-</span><span class="n">a</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The option [-a] automatically fits the found peaks. [-r] rejects peaks.
+With [-s] sigma and with [-t] the threshold for the search can be specified.</p>
+</section>
+<section id="see-also">
+<h3>SEE ALSO<a class="headerlink" href="#see-also" title="Link to this heading"></a></h3>
+<div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">hdtv</span></code>(1), <code class="docutils literal notranslate"><span class="pre">root</span></code>(1), <code class="docutils literal notranslate"><span class="pre">python</span></code>(1)</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="include_guide.html" class="btn btn-neutral float-left" title="HDTV" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autoapi/index.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, IKP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

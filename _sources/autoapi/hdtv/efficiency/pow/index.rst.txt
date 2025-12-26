@@ -1,0 +1,43 @@
+hdtv.efficiency.pow
+===================
+
+.. py:module:: hdtv.efficiency.pow
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.efficiency.pow.PowEff
+
+
+Module Contents
+---------------
+
+.. py:class:: PowEff(pars=None, norm=True)
+
+   Bases: :py:obj:`hdtv.efficiency.efficiency._Efficiency`
+
+
+   'Power function' efficiency formula.
+
+   eff(E) = a + b * pow(E,-c)
+
+
+   .. py:attribute:: name
+      :value: 'Power'
+
+
+
+   .. py:attribute:: id
+
+
+   .. py:attribute:: TF1
+
+
+   .. py:attribute:: _dEff_dP
+      :value: [None, None, None, None, None]
+
+
+

@@ -1,0 +1,30 @@
+hdtv.tabformat
+==============
+
+.. py:module:: hdtv.tabformat
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.tabformat.get_term_width
+   hdtv.tabformat.tabformat
+
+
+Module Contents
+---------------
+
+.. py:function:: get_term_width()
+
+.. py:function:: tabformat(cells, **kwargs)
+
+   Prints a number of cells in a layout similar to that used
+   by the ``ls'' program. Expects a list of cell contents.
+   Optional keyword arguments are colsepwidth, the spacing between
+   two columns (defaults to 2), and tabwidth, the requested width
+   of the table (defaults to width of terminal, or 80 if that
+   cannot be read).
+
+

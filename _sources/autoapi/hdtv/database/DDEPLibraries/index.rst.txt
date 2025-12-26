@@ -1,0 +1,27 @@
+hdtv.database.DDEPLibraries
+===========================
+
+.. py:module:: hdtv.database.DDEPLibraries
+
+.. autoapi-nested-parse::
+
+   DDEP database, Decay Data Evaluation Project
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.database.DDEPLibraries.SearchNuclide
+
+
+Module Contents
+---------------
+
+.. py:function:: SearchNuclide(nuclide)
+
+   Opens table of nuclides with peak energies, gives back the peak energies of the nuclide and its intensities.
+
+

@@ -1,0 +1,216 @@
+hdtv.plugins.specInterface
+==========================
+
+.. py:module:: hdtv.plugins.specInterface
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.plugins.specInterface.spec_interface
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.plugins.specInterface.SpecInterface
+   hdtv.plugins.specInterface.TvSpecInterface
+
+
+Module Contents
+---------------
+
+.. py:class:: SpecInterface(spectra)
+
+   User interface to work with 1-d spectra
+
+
+   .. py:attribute:: spectra
+
+
+   .. py:attribute:: window
+
+
+   .. py:attribute:: caldict
+
+
+   .. py:attribute:: tv
+
+
+   .. py:attribute:: LoadSpectraNaturalSort
+
+
+   .. py:method:: _HotkeyShow(arg)
+
+      ShowObjects wrapper for use with Hotkey
+
+
+
+   .. py:method:: _HotkeyActivate(arg)
+
+      ActivateObject wrapper for use with Hotkey
+
+
+
+   .. py:method:: LoadSpectra(patterns, ID=None)
+
+      Load spectra from files matching patterns.
+
+      If ID is specified, the spectrum is stored with id ID, possibly
+      replacing a spectrum that was there before.
+
+      Returns:
+          A list of the loaded spectra
+
+
+
+   .. py:method:: ListSpectra(visible=False)
+
+      Create a list of all spectra (for printing)
+
+
+
+   .. py:method:: CopySpectrum(ID, copyTo=None)
+
+      Copy spectrum
+
+      Return ID of new spectrum
+
+
+
+.. py:class:: TvSpecInterface(specInterface)
+
+   TV style commands for the spectrum interface.
+
+
+   .. py:attribute:: opt
+
+
+   .. py:attribute:: specIf
+
+
+   .. py:attribute:: spectra
+
+
+   .. py:method:: SpectrumList(args)
+
+      Print a list of spectra
+
+
+
+   .. py:method:: SpectrumGet(args)
+
+      Load Spectra from files
+
+
+
+   .. py:method:: SpectrumDelete(args)
+
+      Deletes spectra
+
+
+
+   .. py:method:: SpectrumActivate(args)
+
+      Activate one spectrum
+
+
+
+   .. py:method:: SpectrumCopy(args)
+
+      Copy spectra
+
+
+
+   .. py:method:: SpectrumAdd(args)
+
+      Add spectra (spec1 + spec2, ...)
+
+
+
+   .. py:method:: SpectrumSub(args)
+
+      Subtract spectra (spec1 - spec2, ...)
+
+
+
+   .. py:method:: SpectrumMultiply(args)
+
+      Multiply spectrum
+
+
+
+   .. py:method:: SpectrumRebin(args)
+
+      Rebin spectrum
+
+
+
+   .. py:method:: SpectrumCalbin(args)
+
+      Calbin spectrum
+
+
+
+   .. py:method:: SpectrumResample(args)
+
+      Rebin spectrum
+
+
+
+   .. py:method:: SpectrumHide(args)
+
+      Hides spectra
+
+
+
+   .. py:method:: SpectrumShow(args)
+
+      Shows spectra
+
+      When inverse == True SpectrumShow behaves like SpectrumHide
+
+
+
+   .. py:method:: SpectrumInfo(args)
+
+      Print info on spectrum objects
+
+
+
+   .. py:method:: SpectrumUpdate(args)
+
+      Refresh spectra
+
+
+
+   .. py:method:: SpectrumWrite(args)
+
+      Write Spectrum to File
+
+
+
+   .. py:method:: SpectrumName(args)
+
+      Give spectrum a name
+
+
+
+   .. py:method:: SpectrumNormalization(args)
+
+      Set normalization for spectrum
+
+
+
+   .. py:method:: RandomModelCompleter(text, args=None)
+
+      Helper function for SpectrumResample
+
+
+
+.. py:data:: spec_interface
+

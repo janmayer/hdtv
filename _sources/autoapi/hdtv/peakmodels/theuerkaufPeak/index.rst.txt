@@ -1,0 +1,139 @@
+hdtv.peakmodels.theuerkaufPeak
+==============================
+
+.. py:module:: hdtv.peakmodels.theuerkaufPeak
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.peakmodels.theuerkaufPeak.TheuerkaufPeak
+   hdtv.peakmodels.theuerkaufPeak.PeakModelTheuerkauf
+
+
+Module Contents
+---------------
+
+.. py:class:: TheuerkaufPeak(pos, vol, width, tl, tr, sh, sw, color=None, cal=None)
+
+   Bases: :py:obj:`hdtv.drawable.Drawable`
+
+
+   Peak object for the Theuerkauf (classic TV) fitter
+
+
+   .. py:attribute:: pos
+
+
+   .. py:attribute:: vol
+
+
+   .. py:attribute:: width
+
+
+   .. py:attribute:: tl
+
+
+   .. py:attribute:: tr
+
+
+   .. py:attribute:: sh
+
+
+   .. py:attribute:: sw
+
+
+   .. py:attribute:: extras
+
+
+   .. py:method:: __getattr__(name)
+
+      calculate calibrated values on the fly for pos and width
+
+
+
+   .. py:method:: __str__()
+
+
+   .. py:method:: formatted_str(verbose=False)
+
+      print the properties of this peak in a nicely formatted way
+
+
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: __ne__(other)
+
+
+   .. py:method:: __lt__(other)
+
+
+   .. py:method:: Draw(viewport)
+
+      Draw the function of this peak
+
+
+
+.. py:class:: PeakModelTheuerkauf
+
+   Bases: :py:obj:`hdtv.peakmodels.peak.PeakModel`
+
+
+   Theuerkauf peak model - "classical" model used by tv
+
+
+   .. py:attribute:: fParStatus
+
+
+   .. py:attribute:: fValidParStatus
+
+
+   .. py:attribute:: fOptStatus
+
+
+   .. py:attribute:: fValidOptStatus
+
+
+   .. py:attribute:: Peak
+
+
+   .. py:attribute:: name
+      :value: 'theuerkauf'
+
+
+
+   .. py:method:: CopyPeak(cpeak, color=None, cal=None)
+
+      create a python peak object from C++ peak object
+
+
+
+   .. py:method:: RestoreParams(peak, cpeak)
+
+      Restore the params of a C++ peak object using a python peak object
+
+
+
+   .. py:method:: ResetParamStatus()
+
+      Reset parameter status to defaults
+
+
+
+   .. py:method:: Uncal(parname, value, pos_uncal, cal)
+
+      Convert a value from calibrated (spectrum) to uncalibrated (fitter) units
+      This is needed, when a value is hold to a specific calibrated value.
+
+
+
+   .. py:method:: GetFitter(region, peaklist, cal)
+
+      Creates a C++ Fitter object, which can then do the real work
+
+
+

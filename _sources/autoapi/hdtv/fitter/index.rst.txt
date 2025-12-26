@@ -1,0 +1,98 @@
+hdtv.fitter
+===========
+
+.. py:module:: hdtv.fitter
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.fitter.Fitter
+
+
+Module Contents
+---------------
+
+.. py:class:: Fitter(peakModel, backgroundModel)
+
+   PeakModel independent part of the Interface to the C++ Fitter
+   The parts that depend on a special peak model can be found in peak.py.
+
+
+   .. py:attribute:: peakFitter
+      :value: None
+
+
+
+   .. py:attribute:: bgFitter
+      :value: None
+
+
+
+   .. py:property:: params
+
+
+   .. py:method:: __getattr__(name)
+
+
+   .. py:method:: FitBackground(spec, backgrounds=None)
+
+      Create Background Fitter object and do the background fit
+
+
+
+   .. py:method:: RestoreBackground(backgrounds=None, params=None, chisquare=0.0)
+
+      Create Background Fitter object and
+      restore the background polynom from coeffs
+
+
+
+   .. py:method:: FitPeaks(spec, region=None, peaklist=None)
+
+      Create the Peak Fitter object and do the peak fit
+
+
+
+   .. py:method:: RestorePeaks(cal=None, region=None, peaks=None, chisquare=0.0, coeffs=None)
+
+      Create the Peak Fitter object and
+      restore all peaks
+
+
+
+   .. py:method:: SetPeakModel(model)
+
+      Sets the peak model to be used for fitting.
+      Model can be either a string, in which case it is used as a key into
+      the gPeakModels dictionary, or a PeakModel object.
+
+
+
+   .. py:method:: SetBackgroundModel(model)
+
+      Sets the background model to be used for fitting.
+      Model can be either a string, in which case it is used as a key into
+      the gPeakModels dictionary, or a BackgroundModel object.
+
+
+
+   .. py:method:: SetParameter(parname, status)
+
+      Sets the parameter status for fitting.
+
+
+
+   .. py:method:: __copy__()
+
+      Create a copy of this fitter
+      This also copies the status of the corresponding peakModel,
+      and hence the status of the fit parameters and options.
+
+
+
+   .. py:method:: __eq__(other)
+
+

@@ -1,0 +1,53 @@
+hdtv.backgroundmodels.polynomial
+================================
+
+.. py:module:: hdtv.backgroundmodels.polynomial
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.backgroundmodels.polynomial.BackgroundModelPolynomial
+
+
+Module Contents
+---------------
+
+.. py:class:: BackgroundModelPolynomial
+
+   Bases: :py:obj:`hdtv.backgroundmodels.background.BackgroundModel`
+
+
+   Polynomial background model
+
+
+   .. py:attribute:: fParStatus
+
+
+   .. py:attribute:: fValidParStatus
+
+
+   .. py:attribute:: name
+      :value: 'polynomial'
+
+
+
+   .. py:attribute:: requiredBgRegions
+      :value: 1
+
+
+
+   .. py:method:: ResetParamStatus()
+
+      Reset parameter status to defaults
+
+
+
+   .. py:method:: GetFitter(integrate, likelihood, nparams=None, nbg=None)
+
+      Creates a C++ Fitter object, which can then do the real work
+
+
+
