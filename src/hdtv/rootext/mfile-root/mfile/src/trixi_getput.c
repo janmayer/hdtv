@@ -32,9 +32,9 @@
 #include "getputint.h"
 #include "trixi_getput.h"
 
-#define fpos(s) (((level * mat->lines + line) * mat->columns + col) * (s) + 512)
+#define fpos(s) ((((uint32_t)level * mat->lines + (uint32_t)line) * mat->columns + (uint32_t)col) * (s) + 512)
 
-int32_t trixi_get(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num) {
+int32_t trixi_get(MFILE *mat, void *buffer, int32_t level, int32_t line, int32_t col, int32_t num) {
 
-  return getle2(mat->ap, buffer, fpos(2), num);
+  return getle2(mat->ap, (int32_t *)buffer, fpos(2), (uint32_t)num);
 }

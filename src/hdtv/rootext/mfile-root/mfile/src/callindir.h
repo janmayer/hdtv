@@ -30,9 +30,9 @@
 #include "mfile.h"
 #include <stdint.h>
 
-extern int32_t mgetint(MFILE *mat, int32_t *buffer, int32_t level, int32_t line, int32_t col, int32_t num);
-extern int32_t mputint(MFILE *mat, int32_t *buffer, int32_t level, int32_t line, int32_t col, int32_t num);
-extern int32_t mgetflt(MFILE *mat, float *buffer, int32_t level, int32_t line, int32_t col, int32_t num);
-extern int32_t mputflt(MFILE *mat, float *buffer, int32_t level, int32_t line, int32_t col, int32_t num);
-extern int32_t mgetdbl(MFILE *mat, double *buffer, int32_t level, int32_t line, int32_t col, int32_t num);
-extern int32_t mputdbl(MFILE *mat, double *buffer, int32_t level, int32_t line, int32_t col, int32_t num);
+extern int32_t mgetint(MFILE *mat, void *buffer, int32_t level, int32_t line, int32_t col, int32_t num);
+extern int32_t mputint(MFILE *mat, void *buffer, int32_t level, int32_t line, int32_t col, int32_t num);
+extern int32_t mgetflt(MFILE *mat, void *buffer, int32_t level, int32_t line, int32_t col, int32_t num);
+extern int32_t mputflt(MFILE *mat, void *buffer, int32_t level, int32_t line, int32_t col, int32_t num);
+extern int32_t mgetdbl(MFILE *mat, void *buffer, int32_t level, int32_t line, int32_t col, int32_t num);
+extern int32_t mputdbl(MFILE *mat, void *buffer, int32_t level, int32_t line, int32_t col, int32_t num);
