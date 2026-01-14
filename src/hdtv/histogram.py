@@ -340,7 +340,7 @@ class Histogram(Drawable):
         Draw this spectrum to the viewport
         """
 
-        if self.viewport is not None and not self.viewport == viewport:
+        if self.viewport is not None and self.viewport is not viewport:
             # Unlike the DisplaySpec object of the underlying implementation,
             # Spectrum() objects can only be drawn on a single viewport
             raise RuntimeError("Spectrum can only be drawn on a single viewport")
