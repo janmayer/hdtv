@@ -1,0 +1,49 @@
+hdtv.rootext
+============
+
+.. py:module:: hdtv.rootext
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/hdtv/rootext/calibration/index
+   /autoapi/hdtv/rootext/display/index
+   /autoapi/hdtv/rootext/dlmgr/index
+   /autoapi/hdtv/rootext/fit/index
+   /autoapi/hdtv/rootext/mfile/index
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.rootext.modules
+   hdtv.rootext.libfmt
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.rootext.UpdateRootIncludePath
+
+
+Package Contents
+----------------
+
+.. py:data:: modules
+   :value: ['mfile-root', 'fit', 'calibration', 'display']
+
+
+.. py:data:: libfmt
+   :value: 'lib%s.so'
+
+
+.. py:function:: UpdateRootIncludePath()
+

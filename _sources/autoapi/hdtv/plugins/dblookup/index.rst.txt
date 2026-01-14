@@ -1,0 +1,96 @@
+hdtv.plugins.dblookup
+=====================
+
+.. py:module:: hdtv.plugins.dblookup
+
+.. autoapi-nested-parse::
+
+   Gamma database integration for HDTV
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.plugins.dblookup.database
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.plugins.dblookup.Database
+
+
+Module Contents
+---------------
+
+.. py:class:: Database
+
+   .. py:attribute:: opt
+
+
+   .. py:attribute:: database
+      :value: None
+
+
+
+   .. py:method:: FitPeakPostHook(fitclass)
+
+      Hook for hdtv.fit.Fit.FitPeakFunc function to automatically list matching
+      database entries
+
+
+
+   .. py:method:: SetAutoLookup(autolookup_opt)
+
+      Activate/Deactivate automatic lookup of peaks
+
+
+
+   .. py:method:: Set(dbname=None, open=False)
+
+      Set database Callback
+
+      open: If true automatically opens and reads database
+
+
+
+   .. py:method:: Info(args)
+
+      Print info about database(s)
+
+
+
+   .. py:method:: assureOpen()
+
+      assure that the database has been opened
+
+
+
+   .. py:method:: List(args)
+
+      List available databases
+
+
+
+   .. py:method:: showDBfields(db=None)
+
+      Show fields of database db. If db is None show field of current database
+
+
+
+   .. py:method:: Lookup(args, defaults=False)
+
+      Lookup entry in database
+
+      args.specs should be something like "<fieldname>=value"
+      if <fieldname> is omitted it is assumed to be energy
+
+
+
+.. py:data:: database
+

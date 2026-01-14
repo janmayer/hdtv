@@ -1,0 +1,329 @@
+hdtv.histogram
+==============
+
+.. py:module:: hdtv.histogram
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.histogram.Histogram
+   hdtv.histogram.FileHistogram
+   hdtv.histogram.CutHistogram
+   hdtv.histogram.THnSparseWrapper
+   hdtv.histogram.Histo2D
+   hdtv.histogram.RHisto2D
+   hdtv.histogram.MHisto2D
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.histogram.HasPrimitiveBinning
+
+
+Module Contents
+---------------
+
+.. py:function:: HasPrimitiveBinning(hist)
+
+.. py:class:: Histogram(hist, color=hdtv.color.default, cal=None)
+
+   Bases: :py:obj:`hdtv.drawable.Drawable`
+
+
+   Histogram object
+
+   This class is hdtvs wrapper around a ROOT histogram. It adds a calibration,
+   plus some internal management for drawing the histogram to the hdtv spectrum
+   viewer.
+
+
+   .. py:attribute:: _norm
+      :value: 1.0
+
+
+
+   .. py:attribute:: _ID
+      :value: None
+
+
+
+   .. py:attribute:: effCal
+      :value: None
+
+
+
+   .. py:attribute:: typeStr
+      :value: 'spectrum'
+
+
+
+   .. py:attribute:: cal
+      :value: None
+
+
+
+   .. py:method:: __str__()
+
+
+   .. py:method:: __copy__()
+
+
+   .. py:method:: _set_hist(hist)
+
+
+   .. py:method:: _get_hist()
+
+
+   .. py:attribute:: hist
+
+
+   .. py:method:: _get_name()
+
+
+   .. py:method:: _set_name(name)
+
+
+   .. py:attribute:: name
+
+
+   .. py:method:: _set_norm(norm)
+
+
+   .. py:method:: _get_norm()
+
+
+   .. py:attribute:: norm
+
+
+   .. py:property:: info
+
+      Return a string describing this spectrum
+
+
+
+   .. py:method:: Plus(spec)
+
+      Add other spectrum to this one
+
+
+
+   .. py:method:: Minus(spec)
+
+      Subtract other spectrum from this one
+
+
+
+   .. py:method:: Multiply(factor)
+
+      Multiply spectrum with factor
+
+
+
+   .. py:method:: Rebin(ngroup, calibrate=True)
+
+      Rebin spectrum by adding ngroup bins into one
+
+
+
+   .. py:method:: Calbin(binsize: float = 1.0, spline_order: int = 3, use_tv_binning: bool = True)
+
+      Rebin spectrum to match calibration unit
+
+      Args:
+          binsize: Size of calibrated bins
+          spline_order: Order of the spline interpolation (default: 3)
+          use_tv_binning: Center first bin on 0. (True) or
+              lower edge of first bin on 0. (False).
+
+
+
+   .. py:method:: Poisson()
+
+      Randomize each bin content assuming a Poissonian distribution.
+
+
+
+   .. py:method:: Draw(viewport)
+
+      Draw this spectrum to the viewport
+
+
+
+   .. py:method:: WriteSpectrum(fname, fmt)
+
+      Write the spectrum to file
+
+
+
+   .. py:method:: SetHistWithPrimitiveBinning(hist, caldegree=4, silent=False)
+
+
+.. py:class:: FileHistogram(fname, fmt=None, color=hdtv.color.default, cal=None)
+
+   Bases: :py:obj:`Histogram`
+
+
+   File spectrum object
+
+   A spectrum that comes from a file in any of the formats supported by hdtv.
+
+
+   .. py:attribute:: fmt
+      :value: None
+
+
+
+   .. py:attribute:: filename
+
+
+   .. py:attribute:: typeStr
+      :value: 'spectrum, read from file'
+
+
+
+   .. py:property:: info
+
+      Return a string describing this spectrum
+
+
+
+   .. py:method:: Refresh()
+
+      Reload the spectrum from disk
+
+
+
+.. py:class:: CutHistogram(hist, axis, gates, color=hdtv.color.default, cal=None)
+
+   Bases: :py:obj:`Histogram`
+
+
+   Histogram object
+
+   This class is hdtvs wrapper around a ROOT histogram. It adds a calibration,
+   plus some internal management for drawing the histogram to the hdtv spectrum
+   viewer.
+
+
+   .. py:attribute:: gates
+
+
+   .. py:attribute:: axis
+
+
+   .. py:property:: info
+
+      Return a string describing this spectrum
+
+
+
+.. py:class:: THnSparseWrapper(hist)
+
+   Wrapper around a 2d THnSparse object, providing ProjectionX and
+   ProjectionY.
+
+
+   .. py:method:: __setattr__(name, value)
+
+
+   .. py:method:: __getattr__(name)
+
+
+   .. py:method:: GetXaxis()
+
+
+   .. py:method:: GetYaxis()
+
+
+   .. py:method:: ProjectionX(name, b1, b2, opt)
+
+
+   .. py:method:: ProjectionY(name, b1, b2, opt)
+
+
+.. py:class:: Histo2D
+
+   .. py:property:: name
+
+
+   .. py:property:: xproj
+
+
+   .. py:property:: yproj
+
+
+   .. py:method:: ExecuteCut(regionMarkers, bgMarkers, axis)
+
+
+.. py:class:: RHisto2D(rhist)
+
+   Bases: :py:obj:`Histo2D`
+
+
+   ROOT TH2-backed matrix for projection
+
+
+   .. py:attribute:: rhist
+
+
+   .. py:attribute:: _prx
+      :value: None
+
+
+
+   .. py:attribute:: _pry
+      :value: None
+
+
+
+   .. py:property:: name
+
+
+   .. py:property:: xproj
+
+
+   .. py:property:: yproj
+
+
+   .. py:method:: ExecuteCut(regionMarkers, bgMarkers, axis)
+
+
+.. py:class:: MHisto2D(fname, sym)
+
+   Bases: :py:obj:`Histo2D`
+
+
+   MFile-backed matrix for projection
+
+
+   .. py:attribute:: _xproj
+
+
+   .. py:attribute:: filename
+
+
+   .. py:property:: xproj
+
+
+   .. py:property:: yproj
+
+
+   .. py:method:: ExecuteCut(regionMarkers, bgMarkers, axis)
+
+
+   .. py:method:: GetBasename(fname)
+
+
+   .. py:method:: GenerateFiles(fname, sym)
+
+      Generate projection(s) and possibly transpose (for asymmetric matrices),
+      if they do not exist yet.
+
+
+

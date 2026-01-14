@@ -1,0 +1,30 @@
+hdtv.plugins
+============
+
+.. py:module:: hdtv.plugins
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/hdtv/plugins/EnergyCalibration/index
+   /autoapi/hdtv/plugins/calInterface/index
+   /autoapi/hdtv/plugins/config/index
+   /autoapi/hdtv/plugins/dblookup/index
+   /autoapi/hdtv/plugins/fitInterface/index
+   /autoapi/hdtv/plugins/fitlist/index
+   /autoapi/hdtv/plugins/fitmap/index
+   /autoapi/hdtv/plugins/fittex/index
+   /autoapi/hdtv/plugins/ls/index
+   /autoapi/hdtv/plugins/matInterface/index
+   /autoapi/hdtv/plugins/peakfinder/index
+   /autoapi/hdtv/plugins/printing/index
+   /autoapi/hdtv/plugins/rootInterface/index
+   /autoapi/hdtv/plugins/run/index
+   /autoapi/hdtv/plugins/specInterface/index
+   /autoapi/hdtv/plugins/textInterface/index
+
+

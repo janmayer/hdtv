@@ -1,0 +1,140 @@
+hdtv.plugins.fittex
+===================
+
+.. py:module:: hdtv.plugins.fittex
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.plugins.fittex.preamble
+   hdtv.plugins.fittex.enddok
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.plugins.fittex.TexTable
+   hdtv.plugins.fittex.fitTex
+
+
+Module Contents
+---------------
+
+.. py:data:: preamble
+   :value: Multiline-String
+
+   .. raw:: html
+
+      <details><summary>Show Value</summary>
+
+   .. code-block:: python
+
+      """\makeatletter
+      \@ifundefined{standalonetrue}{\newif\ifstandalone}{\let\ifbackup=\ifstandalone}
+      \@ifundefined{section}{\standalonetrue}{\standalonefalse}
+      \makeatother
+      \ifstandalone
+      
+      \documentclass[12pt,oneside,a4paper]{report}
+      \usepackage[ngerman]{babel}
+      \usepackage{amsmath}
+      \usepackage{amssymb}
+      \usepackage{graphicx}
+      \usepackage{a4}
+      \usepackage[T1]{fontenc}
+      \usepackage{ae,aecompl}
+      \usepackage[utf8]{inputenc}
+      \usepackage[font=small,labelfont=bf,textfont=it]{caption}
+      \usepackage{longtable}
+      
+      
+      \begin{document}
+      \fi
+      \begin{center}
+      \begin{longtable}"""
+
+   .. raw:: html
+
+      </details>
+
+
+
+.. py:data:: enddok
+   :value: Multiline-String
+
+   .. raw:: html
+
+      <details><summary>Show Value</summary>
+
+   .. code-block:: python
+
+      """\end{longtable}
+      \end{center}
+      
+      \ifstandalone
+      \end{document}
+      \else
+      \let\ifstandalone=\ifbackup
+      \expandafter\endinput
+      \fi
+      """
+
+   .. raw:: html
+
+      </details>
+
+
+
+.. py:class:: TexTable(data, keys, header=None, sortBy=None, reverseSort=False, ha='c')
+
+   Bases: :py:obj:`hdtv.util.Table`
+
+
+   Class to store tables
+
+   data: iterable that contains 'keys' as attributes or dict entries
+
+
+   .. py:attribute:: col_sep_char
+      :value: '&'
+
+
+
+   .. py:attribute:: empty_field
+      :value: ' '
+
+
+
+   .. py:attribute:: ha
+      :value: 'c'
+
+
+
+   .. py:method:: build_header()
+
+
+   .. py:method:: __str__()
+
+
+.. py:class:: fitTex(spectra, fitInterface)
+
+   Create a table for use with latex.
+
+   The resulting file can be compiled standalone or included in another latex
+   document. It uses the longtable package.
+
+
+   .. py:attribute:: spectra
+
+
+   .. py:attribute:: f
+
+
+   .. py:method:: WriteTex(args)
+
+

@@ -1,0 +1,77 @@
+hdtv.cut
+========
+
+.. py:module:: hdtv.cut
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.cut.Cut
+
+
+Module Contents
+---------------
+
+.. py:class:: Cut(color=None, cal=None)
+
+   Bases: :py:obj:`hdtv.drawable.Drawable`
+
+
+   .. py:attribute:: regionMarkers
+
+
+   .. py:attribute:: bgMarkers
+
+
+   .. py:attribute:: spec
+      :value: None
+
+
+
+   .. py:attribute:: axis
+      :value: None
+
+
+
+   .. py:method:: __setattr__(name, value)
+
+
+   .. py:method:: _set_color(color)
+
+
+   .. py:method:: _get_color()
+
+
+   .. py:attribute:: color
+
+
+   .. py:method:: SetMarker(mtype, pos)
+
+
+   .. py:method:: RemoveMarker(mtype, pos)
+
+
+   .. py:method:: ExecuteCut(matrix, axis)
+
+
+   .. py:method:: __copy__()
+
+      copies marker of this cut
+
+
+
+   .. py:method:: Draw(viewport)
+
+
+   .. py:method:: Hide()
+
+
+   .. py:method:: Show()
+
+
+   .. py:method:: Refresh()
+
+

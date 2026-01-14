@@ -1,0 +1,24 @@
+hdtv.database.IAEALibraries
+===========================
+
+.. py:module:: hdtv.database.IAEALibraries
+
+.. autoapi-nested-parse::
+
+   IAEA database, International Atomic Energy Agency
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.database.IAEALibraries.SearchNuclide
+
+
+Module Contents
+---------------
+
+.. py:function:: SearchNuclide(nuclide)
+

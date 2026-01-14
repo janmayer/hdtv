@@ -1,0 +1,83 @@
+hdtv.weakref_proxy
+==================
+
+.. py:module:: hdtv.weakref_proxy
+
+.. autoapi-nested-parse::
+
+   This file contains a wrapper for weakref that the weak reference can
+   be used the same way the real object would be used.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.weakref_proxy.weakref
+
+
+Module Contents
+---------------
+
+.. py:class:: weakref(object)
+
+   This class represents a weak reference based on the python
+   module weakref. The difference between weakref.ref and this class
+   is that you can access the ref without calling it first.
+   E.g.: foo = weak(bar) and bar has the attribute x. With a normal
+   weakref.ref you need to call foo().x to get, this class makes it
+   possible to just use foo.x.
+
+   All functions are passed to the real object behind the weakref. To
+   check if the weakref is alive or not, you can compare the object with
+   None. Do not use a simple if, because an object still alive can also
+   be False (e.g. an empty list).
+
+
+   .. py:method:: __getattribute__(attr)
+
+
+   .. py:method:: __setattr__(attr, value)
+
+
+   .. py:method:: __delattr__(attr)
+
+
+   .. py:method:: __getitem__(key)
+
+
+   .. py:method:: __delitem__(key)
+
+
+   .. py:method:: __setitem__(key, value)
+
+
+   .. py:method:: __bool__()
+
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: __ne__(other)
+
+
+   .. py:method:: __gt__(other)
+
+
+   .. py:method:: __lt__(other)
+
+
+   .. py:method:: __ge__(other)
+
+
+   .. py:method:: __le__(other)
+
+
+   .. py:method:: __str__()
+
+
+   .. py:method:: __deepcopy__(memo)
+
+

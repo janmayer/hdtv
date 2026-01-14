@@ -1,0 +1,64 @@
+hdtv
+====
+
+.. py:module:: hdtv
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/hdtv/app/index
+   /autoapi/hdtv/backgroundmodels/index
+   /autoapi/hdtv/cal/index
+   /autoapi/hdtv/cmdline/index
+   /autoapi/hdtv/color/index
+   /autoapi/hdtv/cut/index
+   /autoapi/hdtv/database/index
+   /autoapi/hdtv/drawable/index
+   /autoapi/hdtv/dummy/index
+   /autoapi/hdtv/efficiency/index
+   /autoapi/hdtv/fit/index
+   /autoapi/hdtv/fitpanel/index
+   /autoapi/hdtv/fitter/index
+   /autoapi/hdtv/fitxml/index
+   /autoapi/hdtv/histogram/index
+   /autoapi/hdtv/integral/index
+   /autoapi/hdtv/marker/index
+   /autoapi/hdtv/matrix/index
+   /autoapi/hdtv/options/index
+   /autoapi/hdtv/peakmodels/index
+   /autoapi/hdtv/plugins/index
+   /autoapi/hdtv/rfile_utils/index
+   /autoapi/hdtv/rootext/index
+   /autoapi/hdtv/session/index
+   /autoapi/hdtv/specreader/index
+   /autoapi/hdtv/spectrum/index
+   /autoapi/hdtv/tabformat/index
+   /autoapi/hdtv/ui/index
+   /autoapi/hdtv/util/index
+   /autoapi/hdtv/weakref_proxy/index
+   /autoapi/hdtv/window/index
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.installdir
+   hdtv.datadir
+   hdtv.__version__
+
+
+Package Contents
+----------------
+
+.. py:data:: installdir
+
+.. py:data:: datadir
+
+.. py:data:: __version__
+

@@ -1,0 +1,59 @@
+hdtv.rootext.dlmgr
+==================
+
+.. py:module:: hdtv.rootext.dlmgr
+
+.. autoapi-nested-parse::
+
+   HDTV dynamic (C++) library manager
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.rootext.dlmgr.cachedir
+   hdtv.rootext.dlmgr.usrdir
+   hdtv.rootext.dlmgr.sysdir
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.rootext.dlmgr.FindLibrary
+   hdtv.rootext.dlmgr.LoadLibrary
+   hdtv.rootext.dlmgr._LoadLibrary
+   hdtv.rootext.dlmgr.RebuildLibraries
+   hdtv.rootext.dlmgr.BuildLibrary
+
+
+Module Contents
+---------------
+
+.. py:data:: cachedir
+
+.. py:data:: usrdir
+
+.. py:data:: sysdir
+
+.. py:function:: FindLibrary(name, libname)
+
+   Find the path to a dynamic library in a subfolder.
+   Returns the full filename.
+
+
+.. py:function:: LoadLibrary(name)
+
+   Load a dynamic library. Try to find and load it, or rebuild it on fail
+
+
+.. py:function:: _LoadLibrary(fname)
+
+.. py:function:: RebuildLibraries(dir, libraries=None)
+
+.. py:function:: BuildLibrary(name, dir)
+

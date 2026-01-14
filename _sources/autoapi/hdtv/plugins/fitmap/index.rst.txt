@@ -1,0 +1,56 @@
+hdtv.plugins.fitmap
+===================
+
+.. py:module:: hdtv.plugins.fitmap
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.plugins.fitmap.FitMap
+
+
+Module Contents
+---------------
+
+.. py:class:: FitMap(spectra, ecal)
+
+   .. py:attribute:: spectra
+
+
+   .. py:attribute:: ecal
+
+
+   .. py:method:: FitPosAssign(args)
+
+      Assign a nominal value for the positon of peaks
+
+      Peaks are specified by their id and the peak number within the fit.
+      Syntax: id.number
+      If no number is given, the first peak in the fit is used.
+
+
+
+   .. py:method:: FitPosErase(args)
+
+      Erase nominal values for the position of peaks
+
+      Peaks are specified by their id and the peak number within the fit.
+      Syntax: id.number
+      If no number is given, the all peaks in that fit are used.
+
+
+
+   .. py:method:: FitPosMap(args)
+
+      Read a list of energies from file and map to the fitted peaks.
+
+      The spectrum must be roughly calibrated for this to work.
+
+
+
+   .. py:method:: CalPosRecalibrate(args)
+
+

@@ -1,0 +1,43 @@
+hdtv.efficiency.exp
+===================
+
+.. py:module:: hdtv.efficiency.exp
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.efficiency.exp.ExpEff
+
+
+Module Contents
+---------------
+
+.. py:class:: ExpEff(pars=None, norm=True)
+
+   Bases: :py:obj:`hdtv.efficiency.efficiency._Efficiency`
+
+
+   'Exponential' efficiency formula.
+
+   eff(E) = a * exp(-b*E) + c * exp(-d*E)
+
+
+   .. py:attribute:: name
+      :value: 'Exponential'
+
+
+
+   .. py:attribute:: id
+
+
+   .. py:attribute:: TF1
+
+
+   .. py:attribute:: _dEff_dP
+      :value: [None, None, None, None, None]
+
+
+

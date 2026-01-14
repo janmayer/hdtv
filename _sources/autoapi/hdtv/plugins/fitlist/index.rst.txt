@@ -1,0 +1,85 @@
+hdtv.plugins.fitlist
+====================
+
+.. py:module:: hdtv.plugins.fitlist
+
+.. autoapi-nested-parse::
+
+   Write and Read Fitlist saved in xml format
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.plugins.fitlist.fitxml
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.plugins.fitlist.FitlistManager
+   hdtv.plugins.fitlist.FitlistHDTVInterface
+
+
+Module Contents
+---------------
+
+.. py:class:: FitlistManager(spectra)
+
+   .. py:attribute:: spectra
+
+
+   .. py:attribute:: xml
+
+
+   .. py:attribute:: list
+
+
+   .. py:attribute:: tv
+
+
+   .. py:method:: WriteXML(sid, fname=None)
+
+
+   .. py:method:: ReadXML(sid, fname, calibrate=False, refit=False, interactive=True, associate=True)
+
+
+   .. py:method:: WriteList(fname)
+
+
+   .. py:method:: ReadList(fname)
+
+
+.. py:class:: FitlistHDTVInterface(FitlistIf)
+
+   .. py:attribute:: FitlistIf
+
+
+   .. py:attribute:: spectra
+
+
+   .. py:method:: FitWrite(args)
+
+      Saving a fitlist as xml
+
+
+
+   .. py:method:: FitRead(args)
+
+      reading a fitlist from xml
+
+
+
+   .. py:method:: FitSavelists(args)
+
+
+   .. py:method:: FitGetlists(args)
+
+
+.. py:data:: fitxml
+

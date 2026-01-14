@@ -1,0 +1,112 @@
+hdtv.cal
+========
+
+.. py:module:: hdtv.cal
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.cal.PositionCalibrationDict
+   hdtv.cal.CalibrationFitter
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.cal.MakeCalibration
+   hdtv.cal.GetCoeffs
+   hdtv.cal.PrintCal
+
+
+Module Contents
+---------------
+
+.. py:class:: PositionCalibrationDict
+
+   Bases: :py:obj:`dict`
+
+
+   Dict subclass that stores position calibrations
+
+   Subclasses dict overwriting get() and providing __missing__() and a user config option to enable calibration lookups based on glob or regex matching of dict keys to lookup key.
+   Note that in all modes a literally matching dict key is always preferred to globs/regex.
+   Note that other methods like __contains__() are not overwritten on purpose, so use "key in dict" to check for literally existing keys and dict[key] or get() to check for glob/regex matching keys.
+
+
+   .. py:attribute:: calListSpecNameMatching
+
+
+   .. py:method:: __missing__(key)
+
+
+   .. py:method:: get(key, default=None)
+
+      Return the value for key if key is in the dictionary, else the value of a glob/regex (if enabled) matching key, else default.
+
+
+
+.. py:function:: MakeCalibration(cal)
+
+   Create a ROOT.HDTV.Calibration object from a python list
+
+
+.. py:function:: GetCoeffs(cal)
+
+   Get the list of calibration coeffs from the ROOT.HDTV.Calibration object
+
+
+.. py:function:: PrintCal(cal)
+
+   Get the calibration as string
+
+
+.. py:class:: CalibrationFitter
+
+   Fit a calibration polynom to a list of channel/energy pairs.
+
+
+   .. py:method:: Reset()
+
+
+   .. py:method:: AddPair(ch, e)
+
+
+   .. py:method:: FitCal(degree, ignore_errors=False)
+
+      Use the reference peaks found in the histogram to fit the actual
+      calibration function.
+      If degree == 0, the linear coefficient of the polynomial is fixed at 1.
+
+      If self.pairs contains ufloats the channel std_dev is respected
+
+
+
+   .. py:method:: ResultStr()
+
+      Return string describing the result of the calibration
+
+
+
+   .. py:method:: ResultTable()
+
+      Return a table showing the fit results
+
+
+
+   .. py:method:: DrawCalFit()
+
+      Draw fit used for calibration
+
+
+
+   .. py:method:: DrawCalResidual()
+
+      Debug: draw residual of fit used for calibration
+
+
+

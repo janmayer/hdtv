@@ -1,0 +1,45 @@
+hdtv.plugins.EnergyCalibration
+==============================
+
+.. py:module:: hdtv.plugins.EnergyCalibration
+
+.. autoapi-nested-parse::
+
+   Function for energy calibration
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.plugins.EnergyCalibration.SearchNuclide
+   hdtv.plugins.EnergyCalibration.TableOfNuclide
+   hdtv.plugins.EnergyCalibration.MatchPeaksAndEnergies
+   hdtv.plugins.EnergyCalibration.MatchFitsAndTransitions
+
+
+Module Contents
+---------------
+
+.. py:function:: SearchNuclide(nuclide, database)
+
+   Searches for information about the nuclide in different databases.
+
+
+.. py:function:: TableOfNuclide(data)
+
+   Creates a table of the given data.
+
+
+.. py:function:: MatchPeaksAndEnergies(peaks, energies, sigma)
+
+   Combines Peaks with the right energies from the table (with searchEnergie).
+
+
+.. py:function:: MatchFitsAndTransitions(fits, transitions, sigma=0.5)
+
+   Combines peaks with the right intensities.
+
+

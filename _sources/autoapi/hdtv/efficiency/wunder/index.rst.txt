@@ -1,0 +1,43 @@
+hdtv.efficiency.wunder
+======================
+
+.. py:module:: hdtv.efficiency.wunder
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.efficiency.wunder.WunderEff
+
+
+Module Contents
+---------------
+
+.. py:class:: WunderEff(pars=None, norm=True)
+
+   Bases: :py:obj:`hdtv.efficiency.efficiency._Efficiency`
+
+
+   'Wunder' efficiency formula.
+
+   eff(E) = (a*E + b/E) * exp(c*E + d/E)
+
+
+   .. py:attribute:: name
+      :value: 'Wunder'
+
+
+
+   .. py:attribute:: id
+
+
+   .. py:attribute:: TF1
+
+
+   .. py:attribute:: _dEff_dP
+      :value: [None, None, None, None, None]
+
+
+

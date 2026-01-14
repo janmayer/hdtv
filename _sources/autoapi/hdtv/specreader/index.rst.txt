@@ -1,0 +1,120 @@
+hdtv.specreader
+===============
+
+.. py:module:: hdtv.specreader
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   hdtv.specreader.SpecReaderError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.specreader.TextSpecReader
+   hdtv.specreader.SpecReader
+
+
+Module Contents
+---------------
+
+.. py:exception:: SpecReaderError
+
+   Bases: :py:obj:`Exception`
+
+
+   Common base class for all non-exit exceptions.
+
+
+.. py:class:: TextSpecReader(fmt=None, cmts=('#', '!', '//'))
+
+   Configurable formatted text file import
+   The format string specifies the meaning of the columns in the file.
+    x: x  (position)
+    y: y  (counts)
+    e: dy (error of counts)
+    i: ignore this column
+
+   If no column for x is specified, the bin number (beginning at zero) is
+   taken for the bin center (just as the old tv program does it). If no
+   column for e is specified, square root errors are assumed. It is an error
+   if no column for y is specified.
+
+   If no format string is given, the format is inferred from the number of
+   columns in the file:
+    1: y
+    2: xy
+    3: xye
+
+   The cmts parameter is a tuple of possible strings that start a comment.
+   cmts=None switches comment processing off. Comments extend to the end of the
+   line. If unspecified, cmt defaults to ("#", "!", "//").
+
+
+   .. py:attribute:: ncols
+      :value: None
+
+
+
+   .. py:attribute:: cmts
+      :value: ('#', '!', '//')
+
+
+
+   .. py:method:: GetBinLowEdges(centers)
+
+      Generate an array of (n+1) bin lower edges from an array of n bin
+      centers. The result is returned as an array object so that is can be
+      passed directly to the ROOT.TH1 constructor.
+
+
+
+   .. py:method:: StripComments(line)
+
+
+   .. py:method:: GetSpectrum(fname, histname, histtitle)
+
+      Process a text file into a ROOT histogram object, using the format
+      specified in the constructor.
+
+
+
+.. py:class:: SpecReader
+
+   .. py:method:: GetSpectrum(fname, fmt=None, histname=None, histtitle=None)
+      :staticmethod:
+
+
+      Reads a histogram from a non-ROOT file. fmt specifies the format.
+      The following formats are recognized:
+        * cracow  (Cracow from GSI)
+        * mfile   (use libmfile and attempt autodetection)
+        * any format specifier understood by libmfile
+
+
+
+   .. py:method:: GetMatrix(fname, fmt=None, histname=None, histtitle=None)
+      :staticmethod:
+
+
+
+   .. py:method:: GetVMatrix(fname, fmt=None, histname=None, histtitle=None)
+      :staticmethod:
+
+
+      Load a ``virtual'' matrix, i.e. a matrix that is not completely loaded
+      into memory.
+
+
+
+   .. py:method:: WriteSpectrum(hist, fname, fmt)
+      :staticmethod:
+
+
+

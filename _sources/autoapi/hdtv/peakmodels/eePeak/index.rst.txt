@@ -1,0 +1,154 @@
+hdtv.peakmodels.eePeak
+======================
+
+.. py:module:: hdtv.peakmodels.eePeak
+
+.. autoapi-nested-parse::
+
+   Peak Model for electron-electron scattering
+   Implementation requested by Oleksiy Burda <burda@ikp.tu-darmstadt.de>
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.peakmodels.eePeak.EEPeak
+   hdtv.peakmodels.eePeak.PeakModelEE
+
+
+Module Contents
+---------------
+
+.. py:class:: EEPeak(pos, amp, sigma1, sigma2, eta, gamma, vol, color=None, cal=None)
+
+   Bases: :py:obj:`hdtv.drawable.Drawable`
+
+
+   Peak object for the ee fitter
+
+
+   .. py:attribute:: pos
+
+
+   .. py:attribute:: amp
+
+
+   .. py:attribute:: sigma1
+
+
+   .. py:attribute:: sigma2
+
+
+   .. py:attribute:: eta
+
+
+   .. py:attribute:: gamma
+
+
+   .. py:attribute:: vol
+
+
+   .. py:attribute:: extras
+
+
+   .. py:method:: __getattr__(name)
+
+      calculate calibrated values on the fly for pos, sigma1 and sigma2
+
+
+
+   .. py:method:: __str__()
+
+
+   .. py:method:: formatted_str(verbose=False)
+
+      formatted printing of all attributes
+
+
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: __ne__(other)
+
+
+   .. py:method:: __gt__(other)
+
+
+   .. py:method:: __lt__(other)
+
+
+   .. py:method:: __ge__(other)
+
+
+   .. py:method:: __le__(other)
+
+
+   .. py:method:: Draw(viewport)
+
+      Draw the function of this peak
+
+
+
+.. py:class:: PeakModelEE
+
+   Bases: :py:obj:`hdtv.peakmodels.peak.PeakModel`
+
+
+   Peak model for electron-electron scattering
+
+
+   .. py:attribute:: fParStatus
+
+
+   .. py:attribute:: fValidParStatus
+
+
+   .. py:attribute:: fOptStatus
+
+
+   .. py:attribute:: fValidOptStatus
+
+
+   .. py:attribute:: name
+      :value: 'ee'
+
+
+
+   .. py:attribute:: Peak
+
+
+   .. py:method:: CopyPeak(cpeak, color=None, cal=None)
+
+      Copies peak data from a C++ peak class to a Python class
+
+
+
+   .. py:method:: RestoreParams(peak, cpeak)
+
+      Restore the params of a C++ peak object using a python peak object
+
+
+
+   .. py:method:: ResetParamStatus()
+
+      Reset parameter status to defaults
+
+
+
+   .. py:method:: Uncal(parname, value, pos_uncal, cal)
+
+      Convert a value from calibrated to uncalibrated units
+      This is needed, when a value is hold to a specific calibrated value.
+
+
+
+   .. py:method:: GetFitter(region, peaklist, cal)
+
+      Creates a C++ Fitter object, which can then do the real work
+
+
+
