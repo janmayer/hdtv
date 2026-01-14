@@ -2,18 +2,31 @@ FROM rootproject/root:6.34.00-ubuntu24.04
 
 LABEL name="hdtv"
 
-ENV PATH="$PATH:/root/.local/bin"
+ENV PATH="/root/.local/bin:$PATH"
+ENV DISPLAY=:99
 
 RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends pipx xvfb && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends \
+        pipx \
+        xvfb \
+        xauth \
+        libx11-6 \
+        libxext6 \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /install
 COPY . /install
 
-RUN python3 -m pipx install . && \
-    bash -c "Xvfb :0 -screen 0 1024x768x16 &" && \
-    DISPLAY=:0 hdtv --rebuild-usr --execute exit
+RUN python3 -m pipx install .
 
 WORKDIR /work
-CMD hdtv
+
+# Runtime entrypoint
+COPY docker-entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+RUN /entrypoint.sh
+RUN touch /root/.local/share/hdtv/hdtv_history
+RUN chmod 777 /root/.local/share/hdtv/hdtv_history
+CMD ["hdtv"]
+
