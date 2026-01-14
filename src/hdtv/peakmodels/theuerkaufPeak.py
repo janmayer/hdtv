@@ -150,7 +150,7 @@ class TheuerkaufPeak(Drawable):
         Draw the function of this peak
         """
         if self.viewport:
-            if self.viewport == viewport:
+            if self.viewport is viewport:
                 self.Show()
             else:
                 # Unlike the Display object of the underlying implementation,

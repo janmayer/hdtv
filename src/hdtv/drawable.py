@@ -288,7 +288,7 @@ class DrawableManager:
         """
         Draw function (sets the viewport and draws all components)
         """
-        if self.viewport is not None and not self.viewport == viewport:
+        if self.viewport is not None and self.viewport is not viewport:
             # Unlike the Display object of the underlying implementation,
             # python objects can only be drawn on a single viewport
             raise RuntimeError("Object can only be drawn on a single viewport")

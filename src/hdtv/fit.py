@@ -541,7 +541,7 @@ class Fit(Drawable):
         """
         Draw
         """
-        if self.viewport and not self.viewport == viewport:
+        if self.viewport and self.viewport is not viewport:
             # Unlike the Display object of the underlying implementation,
             # python objects can only be drawn on a single viewport
             raise RuntimeError("Object can only be drawn on a single viewport")

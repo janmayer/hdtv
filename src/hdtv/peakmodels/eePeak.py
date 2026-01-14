@@ -144,7 +144,7 @@ class EEPeak(Drawable):
         Draw the function of this peak
         """
         if self.viewport:
-            if self.viewport == viewport:
+            if self.viewport is viewport:
                 # this has already been drawn
                 self.Show()
                 return

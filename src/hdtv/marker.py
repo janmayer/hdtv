@@ -109,7 +109,7 @@ class Marker(Drawable):
         """
         Draw the marker
         """
-        if self.viewport and not self.viewport == viewport:
+        if self.viewport and self.viewport is not viewport:
             # Marker can only be drawn to a single viewport
             raise RuntimeError("Marker cannot be realized on multiple viewports")
         self.viewport = viewport
