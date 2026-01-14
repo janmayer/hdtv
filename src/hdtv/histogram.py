@@ -19,6 +19,7 @@
 
 import copy
 import os
+from typing import Final
 
 import numpy as np
 import ROOT
@@ -138,6 +139,16 @@ class Histogram(Drawable):
             s += "Calibration: unknown\n"
         return s
 
+    @staticmethod
+    def _TH1IntegrateWithPartialBins(spec : ROOT.TH1, xmin : float, xmax : float) -> float:
+        axis : Final[ROOT.TAxis] = spec.GetXaxis()
+        bmin : Final[int] = axis.FindBin(xmin)
+        bmax : Final[int] = axis.FindBin(xmax)
+        integral : float = spec.Integral(bmin, bmax)
+        integral -= spec.GetBinContent(bmin) * (xmin - axis.GetBinLowEdge(bmin)) / axis.GetBinWidth(bmin)
+        integral -= spec.GetBinContent(bmax) * (axis.GetBinUpEdge(bmax) - xmax) / axis.GetBinWidth(bmax)
+        return integral
+
     # TODO: sumw2 function should be called at some point for correct error
     # handling
     def Plus(self, spec):
@@ -158,7 +169,7 @@ class Histogram(Drawable):
             hdtv.ui.info("Adding calibrated")
             nbins = self._hist.GetNbinsX()
             for n in range(nbins):
-                integral = ROOT.HDTV.TH1IntegrateWithPartialBins(
+                integral = self._TH1IntegrateWithPartialBins(
                     spec._hist,
                     spec.cal.E2Ch(self.cal.Ch2E(n - 0.5)),
                     spec.cal.E2Ch(self.cal.Ch2E(n + 0.5)),
@@ -191,7 +202,7 @@ class Histogram(Drawable):
             hdtv.ui.info("Subtracting calibrated")
             nbins = self._hist.GetNbinsX()
             for n in range(nbins):
-                integral = ROOT.HDTV.TH1IntegrateWithPartialBins(
+                integral = self._TH1IntegrateWithPartialBins(
                     spec._hist,
                     spec.cal.E2Ch(self.cal.Ch2E(n - 0.5)),
                     spec.cal.E2Ch(self.cal.Ch2E(n + 0.5)),
