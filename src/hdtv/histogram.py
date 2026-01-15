@@ -79,36 +79,34 @@ class Histogram(Drawable):
         return Histogram(hist, color=self.color, cal=self.cal)
 
     # hist property
-    def _set_hist(self, hist):
+    @property
+    def hist(self):
+        return self._hist
+
+    @hist.setter
+    def hist(self, hist):
         self._hist = hist
         if self.displayObj:
             self.displayObj.SetHist(self._hist)
 
-    def _get_hist(self):
-        return self._hist
-
-    hist = property(_get_hist, _set_hist)
-
-    # name property
-    def _get_name(self):
+    @property
+    def name(self):
         if self._hist:
             return self._hist.GetName()
 
-    def _set_name(self, name):
+    @name.setter
+    def name(self, name):
         self._hist.SetName(name)
 
-    name = property(_get_name, _set_name)
+    @property
+    def norm(self):
+        return self._norm
 
-    # norm property
-    def _set_norm(self, norm):
+    @norm.setter
+    def norm(self, norm):
         self._norm = norm
         if self.displayObj:
             self.displayObj.SetNorm(norm)
-
-    def _get_norm(self):
-        return self._norm
-
-    norm = property(_get_norm, _set_norm)
 
     @property
     def info(self):

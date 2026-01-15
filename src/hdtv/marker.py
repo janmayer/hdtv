@@ -47,63 +47,50 @@ class Marker(Drawable):
         self.p2 = None
         Drawable.__init__(self, color=color, cal=cal)
 
-    # p1 and p2 properties
-    def _set_p(self, pos, p):
+    @property
+    def p1(self):
+        return self._p1
+
+    @p1.setter
+    def p1(self, pos):
         if isinstance(pos, (float, int)):
             pos = hdtv.util.Position(pos, self.fixedInCal, self.cal)
-        setattr(self, "_%s" % p, pos)
+        self._p1 = pos
 
-    def _get_p(self, p):
-        return getattr(self, "_%s" % p)
+    @property
+    def p2(self):
+        return self._p2
 
-    p1 = property(
-        lambda self: self._get_p("p1"), lambda self, pos: self._set_p(pos, "p1")
-    )
-    p2 = property(
-        lambda self: self._get_p("p2"), lambda self, pos: self._set_p(pos, "p2")
-    )
+    @p2.setter
+    def p2(self, pos):
+        if isinstance(pos, (float, int)):
+            pos = hdtv.util.Position(pos, self.fixedInCal, self.cal)
+        self._p2 = pos
 
-    # color property
-    def _set_color(self, color):
-        # active color is given at creation and should not change
-        self._passiveColor = hdtv.color.Highlight(color, active=False)
-        if self.displayObj:
-            if self.active:
-                self.displayObj.SetColor(self._activeColor)
-            else:
-                self.displayObj.SetColor(self._passiveColor)
-
-    def _get_color(self):
-        return self._passiveColor
-
-    color = property(_get_color, _set_color)
-
-    # cal property
-    def _set_cal(self, cal):
+    @Drawable.cal.setter
+    def cal(self, cal):
         self.p1.cal = cal
         if self.p2 is not None:
             self.p2.cal = cal
-        Drawable._set_cal(self, cal)
+        Drawable.cal.__set__(self, cal)
         if self.displayObj:
             # call Refresh to carry the possible change
             # of p1.pos_uncal und p2.pos_uncal to the displayObj
             self.Refresh()
 
-    def _get_cal(self):
-        return self._cal
 
-    cal = property(_get_cal, _set_cal)
+    @property
+    def dashed(self):
+        return self._dashed
 
-    # dashed property
-    def _set_dashed(self, state):
+    @dashed.setter
+    def dashed(self, state):
         self._dashed = state
         if self.displayObj:
             self.displayObj.SetDash(state, state)
 
     def _get_dashed(self):
         return self._dashed
-
-    dashed = property(_get_dashed, _set_dashed)
 
     def Draw(self, viewport):
         """
