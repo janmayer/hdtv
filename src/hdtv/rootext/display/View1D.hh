@@ -25,7 +25,7 @@
 
 #include <list>
 
-#include "Calibration.hh"
+#include "Calibration.hpp"
 #include "DisplayStack.hh"
 #include "Painter.hh"
 #include "View.hh"
