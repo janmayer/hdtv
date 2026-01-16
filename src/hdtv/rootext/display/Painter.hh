@@ -41,7 +41,7 @@
 #include <TGFrame.h>
 #include <TGResourcePool.h>
 
-#include "Calibration.hh"
+#include "Calibration.hpp"
 
 namespace HDTV {
 namespace Display {
