@@ -144,7 +144,7 @@ static void trycacheline(MFILE *mat, uint32_t line) {
   }
 }
 
-int32_t lc_get(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num) {
+int32_t lc_get(MFILE *mat, int32_t *buffer, int32_t level, int32_t line, int32_t col, int32_t num) {
 
   lc_minfo *lci = (lc_minfo *)mat->specinfo.p;
 
@@ -165,7 +165,7 @@ int32_t lc_get(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint3
   return -1;
 }
 
-int32_t lc_put(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num) {
+int32_t lc_put(MFILE *mat, int32_t *buffer, int32_t level, int32_t line, int32_t col, int32_t num) {
 
   lc_minfo *lci = (lc_minfo *)mat->specinfo.p;
 

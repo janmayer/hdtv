@@ -246,25 +246,25 @@ void oldmat_init(MFILE *mat) {
 
     switch (datatype) {
     case MAT_D_I2U:
-      mat->mgeti4f = getf;
-      mat->mputi4f = putf;
+      mat->mgeti4f = (mgeti4f *)getf;
+      mat->mputi4f = (mputi4f *)putf;
       break;
     case MAT_D_I2S:
-      mat->mgeti4f = getf;
-      mat->mputi4f = putf;
+      mat->mgeti4f = (mgeti4f *)getf;
+      mat->mputi4f = (mputi4f *)putf;
       break;
     case MAT_D_I4S:
-      mat->mgeti4f = getf;
-      mat->mputi4f = putf;
+      mat->mgeti4f = (mgeti4f *)getf;
+      mat->mputi4f = (mputi4f *)putf;
       break;
     case MAT_D_F4:
-      mat->mgetf4f = getf;
-      mat->mputf4f = putf;
+      mat->mgetf4f = (mgetf4f *)getf;
+      mat->mputf4f = (mputf4f *)putf;
       mat->version = 2;
       break;
     case MAT_D_F8:
-      mat->mgetf8f = getf;
-      mat->mputf8f = putf;
+      mat->mgetf8f = (mgetf8f *)getf;
+      mat->mputf8f = (mputf8f *)putf;
       mat->version = 2;
       break;
     default:
