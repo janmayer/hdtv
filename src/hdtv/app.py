@@ -115,7 +115,7 @@ class App:
                 hdtv.rootext.dlmgr.sysdir, libraries=args.rebuildsys or None
             )
 
-        if args.rebuildusr or args.rebuildsys:
+        if args.rebuildusr is not None or args.rebuildsys is not None:
             sys.exit(0)
 
         check_root_version()
