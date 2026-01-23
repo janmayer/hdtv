@@ -97,6 +97,13 @@ hdtv = ["share/*"]
 "share/bash-completion/completions" = ["data/completions/hdtv"]
 "share/applications" = ["data/hdtv.desktop"]
 
+[tool.versioningit.vcs]
+method = "git-archive"
+describe-subst = "$Format:%(describe:tags)$"
+# A clone or fork with tags is needed to get the correct version information.
+# The fixed `default-tag` is used when no git tag is available.
+default-tag = "0000"
+
 [tool.versioningit.format]
 distance = "{base_version}+{distance}.{vcs}{rev}"
 dirty = "{base_version}+{distance}.{vcs}{rev}.dirty"
