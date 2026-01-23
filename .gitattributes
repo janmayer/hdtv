@@ -1,4 +1,4 @@
-hdtv/_version.py export-subst
+pyproject.toml export-subst
 * text=auto eol=lf
 
 #
