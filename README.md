@@ -109,7 +109,7 @@ cd hdtv
 
 Initialize a virtual environment with
 ```
-uv venv --system-site --system-site-packages
+uv venv --system-site-packages
 ```
 HDTV can then be build and run with
 ```
