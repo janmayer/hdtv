@@ -2,9 +2,7 @@ cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
 project(calibration LANGUAGES CXX)
 
-set(SOURCES Calibration.cc)
-
-set(HEADERS Calibration.hh)
+set(HEADERS Calibration.hpp)
 
 find_package(ROOT REQUIRED COMPONENTS Core Hist)
 message(STATUS "ROOT Version ${ROOT_VERSION} found in ${ROOT_root_CMD}")
@@ -22,7 +20,7 @@ root_generate_dictionary(
   LINKDEF
   LinkDef.h)
 
-add_library(${PROJECT_NAME} SHARED ${SOURCES} G__${PROJECT_NAME}.cxx)
+add_library(${PROJECT_NAME} SHARED G__${PROJECT_NAME}.cxx)
 add_library(hdtv::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_14)

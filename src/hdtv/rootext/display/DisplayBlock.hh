@@ -23,7 +23,7 @@
 #ifndef __DisplayBlock_h__
 #define __DisplayBlock_h__
 
-#include "Calibration.hh"
+#include "Calibration.hpp"
 #include "DisplayObj.hh"
 
 class TGGC;

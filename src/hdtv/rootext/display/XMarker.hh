@@ -23,7 +23,7 @@
 #ifndef __XMarker_h__
 #define __XMarker_h__
 
-#include "Calibration.hh"
+#include "Calibration.hpp"
 #include "Marker.hh"
 #include "Painter.hh"
 
