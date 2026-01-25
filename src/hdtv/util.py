@@ -438,47 +438,44 @@ class Position:
             self._pos_cal = None
             self._pos_uncal = pos
 
-    # pos_cal
-    def _set_pos_cal(self, pos):
-        if not self.fixedInCal:
-            raise TypeError("Position is fixed in uncalibrated space")
-        self._pos_cal = pos
-        self._pos_uncal = None
-
-    def _get_pos_cal(self):
+    @property
+    def pos_cal(self):
         if self.fixedInCal:
             return self._pos_cal
         else:
             return self._Ch2E(self._pos_uncal)
 
-    pos_cal = property(_get_pos_cal, _set_pos_cal)
+    @pos_cal.setter
+    def pos_cal(self, pos):
+        if not self.fixedInCal:
+            raise TypeError("Position is fixed in uncalibrated space")
+        self._pos_cal = pos
+        self._pos_uncal = None
 
-    # pos_uncal
-    def _set_pos_uncal(self, pos):
-        if self._fixedInCal:
-            raise TypeError("Position is fixed in calibrated space")
-        self._pos_uncal = pos
-        self._pos_cal = None
-
-    def _get_pos_uncal(self):
+    @property
+    def pos_uncal(self):
         if self.fixedInCal:
             return self._E2Ch(self._pos_cal)
         else:
             return self._pos_uncal
 
-    pos_uncal = property(_get_pos_uncal, _set_pos_uncal)
+    @pos_uncal.setter
+    def pos_uncal(self, pos):
+        if self._fixedInCal:
+            raise TypeError("Position is fixed in calibrated space")
+        self._pos_uncal = pos
+        self._pos_cal = None
 
-    # fixedInCal property
-    def _set_fixedInCal(self, fixedInCal):
+    @property
+    def fixedInCal(self):
+        return self._fixedInCal
+
+    @fixedInCal.setter
+    def fixedInCal(self, fixedInCal):
         if fixedInCal:
             self.FixInCal()
         else:
             self.FixInUncal()
-
-    def _get_fixedInCal(self):
-        return self._fixedInCal
-
-    fixedInCal = property(_get_fixedInCal, _set_fixedInCal)
 
     # other functions
     def __str__(self):

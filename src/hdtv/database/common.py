@@ -23,15 +23,13 @@ class _Element:
         self.m = M
         self.ID = self.symbol
 
-    def _get_Z(self):
+    @property
+    def Z(self):
         return self.z
 
-    Z = property(_get_Z)
-
-    def _get_M(self):
+    @property
+    def M(self):
         return self.m
-
-    M = property(_get_M)
 
     def __str__(self):
         text = ""
@@ -140,13 +138,13 @@ class _Nuclide(_Element):
         self.abundance = abundance
         self.ID = str(self.a) + "-" + str(self.symbol)
 
-    def _get_symbol(self):
+    @property
+    def symbol(self):
         return self.element.symbol
 
-    def _set_symbol(self, symbol):
+    @symbol.setter
+    def symbol(self, symbol):
         self.element.symbol = symbol
-
-    symbol = property(_get_symbol, _set_symbol)  # def _Z(self):
 
     def __str__(self):
         text = ""
@@ -283,20 +281,17 @@ class Gamma:
             text += "Intensity: " + str(self.intensity * 100.0) + " %\n"
         return text
 
-    def _Z(self):
+    @property
+    def z(self):
         return self.nuclide.z
 
-    z = property(_Z)
-
-    def _A(self):
+    @property
+    def a(self):
         return self.nuclide.a
 
-    a = property(_A)
-
-    def _symbol(self):
+    @property
+    def symbol(self):
         return self.nuclide.symbol
-
-    symbol = property(_symbol)
 
     def __eq__(self, other):
         if self.energy == other.energy and other.ID is not None:

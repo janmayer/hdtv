@@ -44,8 +44,8 @@ class Cut(Drawable):
             self.bgMarkers.__setattr__(name, value)
         Drawable.__setattr__(self, name, value)
 
-    # color property
-    def _set_color(self, color):
+    @Drawable.color.setter
+    def color(self, color):
         # we only need the passive color for fits
         self._passiveColor = hdtv.color.Highlight(color, active=False)
         with LockViewport(self.viewport):
@@ -53,11 +53,6 @@ class Cut(Drawable):
             self.bgMarkers.color = color
             if hasattr(self, "spec") and self.spec is not None:
                 self.spec.color = color
-
-    def _get_color(self):
-        return self._passiveColor
-
-    color = property(_get_color, _set_color)
 
     def SetMarker(self, mtype, pos):
         if mtype == "":
