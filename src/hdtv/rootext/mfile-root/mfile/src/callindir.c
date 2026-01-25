@@ -37,41 +37,38 @@
    (uint32_t)num <= mat->columns && (uint32_t)(col + num) <= mat->columns)
 
 int32_t mgetint(MFILE *mat, int32_t *buffer, int32_t level, int32_t line, int32_t col, int32_t num) {
-
-  int32_t (*f)();
-
   /* sanity checks */
-  if (paramok(mat, buffer, level, line, col, num)) {
+  if (!paramok(mat, buffer, level, line, col, num))
+    return -1;
 
-    if ((f = mat->mgeti4f))
-      return f(mat, buffer, level, line, col, num);
-    matproc_init(mat);
-    installconverters(mat);
-    if ((f = mat->mgeti4f))
-      return f(mat, buffer, level, line, col, num);
-  }
+  if (mat->mgeti4f)
+    return mat->mgeti4f(mat, buffer, level, line, col, num);
+
+  matproc_init(mat);
+  installconverters(mat);
+  if (mat->mgeti4f)
+    return mat->mgeti4f(mat, buffer, level, line, col, num);
 
   return -1;
 }
 
 int32_t mputint(MFILE *mat, int32_t *buffer, int32_t level, int32_t line, int32_t col, int32_t num) {
-
-  int32_t (*f)();
-
   /* sanity checks */
-  if (paramok(mat, buffer, level, line, col, num)) {
+  if (!paramok(mat, buffer, level, line, col, num))
+    return -1;
 
-    mat->status |= (MST_DIRTY | MST_DIMSFIXED);
+  mat->status |= (MST_DIRTY | MST_DIMSFIXED);
 
-    if ((f = mat->mputi4f))
-      return f(mat, buffer, level, line, col, num);
-    if (mat->filetype == MAT_UNKNOWN)
-      mat->filetype = MAT_STD_INT;
-    matproc_init(mat);
-    installconverters(mat);
-    if ((f = mat->mputi4f))
-      return f(mat, buffer, level, line, col, num);
-  }
+  if (mat->mputi4f)
+    return mat->mputi4f(mat, buffer, level, line, col, num);
+
+  if (mat->filetype == MAT_UNKNOWN)
+    mat->filetype = MAT_STD_INT;
+
+  matproc_init(mat);
+  installconverters(mat);
+  if (mat->mputi4f)
+    return mat->mputi4f(mat, buffer, level, line, col, num);
 
   return -1;
 }
@@ -79,41 +76,38 @@ int32_t mputint(MFILE *mat, int32_t *buffer, int32_t level, int32_t line, int32_
 /*------------------------------------------------------------------------*/
 
 int32_t mgetflt(MFILE *mat, float *buffer, int32_t level, int32_t line, int32_t col, int32_t num) {
-
-  int32_t (*f)();
-
   /* sanity checks */
-  if (paramok(mat, buffer, level, line, col, num)) {
+  if (!paramok(mat, buffer, level, line, col, num))
+    return -1;
 
-    if ((f = mat->mgetf4f))
-      return f(mat, buffer, level, line, col, num);
-    matproc_init(mat);
-    installconverters(mat);
-    if ((f = mat->mgetf4f))
-      return f(mat, buffer, level, line, col, num);
-  }
+  if (mat->mgetf4f)
+    return mat->mgetf4f(mat, buffer, level, line, col, num);
+
+  matproc_init(mat);
+  installconverters(mat);
+  if (mat->mgetf4f)
+    return mat->mgetf4f(mat, buffer, level, line, col, num);
 
   return -1;
 }
 
 int32_t mputflt(MFILE *mat, float *buffer, int32_t level, int32_t line, int32_t col, int32_t num) {
-
-  int32_t (*f)();
-
   /* sanity checks */
-  if (paramok(mat, buffer, level, line, col, num)) {
+  if (!paramok(mat, buffer, level, line, col, num))
+    return -1;
 
-    mat->status |= (MST_DIRTY | MST_DIMSFIXED);
+  mat->status |= (MST_DIRTY | MST_DIMSFIXED);
 
-    if ((f = mat->mputf4f))
-      return f(mat, buffer, level, line, col, num);
-    if (mat->filetype == MAT_UNKNOWN)
-      mat->filetype = MAT_STD_FLT;
-    matproc_init(mat);
-    installconverters(mat);
-    if ((f = mat->mputf4f))
-      return f(mat, buffer, level, line, col, num);
-  }
+  if (mat->mputf4f)
+    return mat->mputf4f(mat, buffer, level, line, col, num);
+
+  if (mat->filetype == MAT_UNKNOWN)
+    mat->filetype = MAT_STD_FLT;
+
+  matproc_init(mat);
+  installconverters(mat);
+  if (mat->mputf4f)
+    return mat->mputf4f(mat, buffer, level, line, col, num);
 
   return -1;
 }
@@ -121,41 +115,38 @@ int32_t mputflt(MFILE *mat, float *buffer, int32_t level, int32_t line, int32_t 
 /*------------------------------------------------------------------------*/
 
 int32_t mgetdbl(MFILE *mat, double *buffer, int32_t level, int32_t line, int32_t col, int32_t num) {
-
-  int32_t (*f)();
-
   /* sanity checks */
-  if (paramok(mat, buffer, level, line, col, num)) {
+  if (!paramok(mat, buffer, level, line, col, num))
+    return -1;
 
-    if ((f = mat->mgetf8f))
-      return f(mat, buffer, level, line, col, num);
-    matproc_init(mat);
-    installconverters(mat);
-    if ((f = mat->mgetf8f))
-      return f(mat, buffer, level, line, col, num);
-  }
+  if (mat->mgetf8f)
+    return mat->mgetf8f(mat, buffer, level, line, col, num);
+
+  matproc_init(mat);
+  installconverters(mat);
+  if (mat->mgetf8f)
+    return mat->mgetf8f(mat, buffer, level, line, col, num);
 
   return -1;
 }
 
 int32_t mputdbl(MFILE *mat, double *buffer, int32_t level, int32_t line, int32_t col, int32_t num) {
-
-  int32_t (*f)();
-
   /* sanity checks */
-  if (paramok(mat, buffer, level, line, col, num)) {
+  if (!paramok(mat, buffer, level, line, col, num))
+    return -1;
 
-    mat->status |= (MST_DIRTY | MST_DIMSFIXED);
+  mat->status |= (MST_DIRTY | MST_DIMSFIXED);
 
-    if ((f = mat->mputf8f))
-      return f(mat, buffer, level, line, col, num);
-    if (mat->filetype == MAT_UNKNOWN)
-      mat->filetype = MAT_STD_DBL;
-    matproc_init(mat);
-    installconverters(mat);
-    if ((f = mat->mputf8f))
-      return f(mat, buffer, level, line, col, num);
-  }
+  if (mat->mputf8f)
+    return mat->mputf8f(mat, buffer, level, line, col, num);
+
+  if (mat->filetype == MAT_UNKNOWN)
+    mat->filetype = MAT_STD_DBL;
+
+  matproc_init(mat);
+  installconverters(mat);
+  if (mat->mputf8f)
+    return mat->mputf8f(mat, buffer, level, line, col, num);
 
   return -1;
 }

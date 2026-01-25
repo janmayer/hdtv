@@ -34,7 +34,7 @@
 
 #define fpos(s) (((level * mat->lines + line) * mat->columns + col) * (s) + 512)
 
-int32_t trixi_get(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num) {
+int32_t trixi_get(MFILE *mat, int32_t *buffer, int32_t level, int32_t line, int32_t col, int32_t num) {
 
   return getle2(mat->ap, buffer, fpos(2), num);
 }

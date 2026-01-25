@@ -35,6 +35,15 @@ typedef void minitf(MFILE *mat);
 typedef int32_t mgetf(MFILE *mat, void *buf, int32_t v, int32_t l, int32_t c, int32_t n);
 typedef int32_t mputf(MFILE *mat, void *buf, int32_t v, int32_t l, int32_t c, int32_t n);
 
+typedef int32_t mgeti4f(MFILE *mat, int32_t *buf, int32_t v, int32_t l, int32_t c, int32_t n);
+typedef int32_t mputi4f(MFILE *mat, int32_t *buf, int32_t v, int32_t l, int32_t c, int32_t n);
+
+typedef int32_t mgetf4f(MFILE *mat, float *buf, int32_t v, int32_t l, int32_t c, int32_t n);
+typedef int32_t mputf4f(MFILE *mat, float *buf, int32_t v, int32_t l, int32_t c, int32_t n);
+
+typedef int32_t mgetf8f(MFILE *mat, double *buf, int32_t v, int32_t l, int32_t c, int32_t n);
+typedef int32_t mputf8f(MFILE *mat, double *buf, int32_t v, int32_t l, int32_t c, int32_t n);
+
 void matproc_guessfiletype(MFILE *mat);
 void matproc_init(MFILE *mat);
 int32_t matproc_filetype(const char *fmtname);

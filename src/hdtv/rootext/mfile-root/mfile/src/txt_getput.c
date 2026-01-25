@@ -34,7 +34,7 @@
 #include "txt_getput.h"
 #include "txt_minfo.h"
 
-int32_t txt_get(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num) {
+int32_t txt_get(MFILE *mat, double *buffer, int32_t level, int32_t line, int32_t col, int32_t num) {
 
   double *dblp = (double *)mat->specinfo.p;
 
@@ -47,7 +47,7 @@ int32_t txt_get(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint
   return num;
 }
 
-int32_t txt_put(MFILE *mat, int32_t *buffer, uint32_t level, uint32_t line, uint32_t col, uint32_t num) {
+int32_t txt_put(MFILE *mat, double *buffer, int32_t level, int32_t line, int32_t col, int32_t num) {
   double *dblp = (double *)mat->specinfo.p;
 
   /*  if (dblp == NULL) return -1; */
