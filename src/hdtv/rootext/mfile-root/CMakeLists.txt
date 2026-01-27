@@ -7,11 +7,7 @@ project(mfile-root LANGUAGES C CXX)
 set(SOURCES
     MatOp.cc
     MFileHist.cc
-    MFileRoot.cc
     VMatrix.cc
-    matop/matop_adjust.c
-    matop/matop_conv.c
-    matop/matop_project.c
     mfile/src/callindir.c
     mfile/src/converters.c
     mfile/src/disk_access.c
@@ -39,15 +35,7 @@ set(SOURCES
     mfile/src/txt_getput.c
     mfile/src/txt_minfo.c)
 
-set(HEADERS
-    MatOp.hh
-    MFileHist.hh
-    MFileRoot.hh
-    VMatrix.hh
-    matop/matop.h
-    matop/matop_adjust.h
-    matop/matop_conv.h
-    matop/matop_project.h)
+set(HEADERS MatOp.hh MFileHist.hh VMatrix.hh)
 
 find_package(ROOT REQUIRED COMPONENTS Core Hist)
 message(STATUS "ROOT Version ${ROOT_VERSION} found in ${ROOT_root_CMD}")
@@ -78,11 +66,8 @@ set_target_properties(
     "${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_rdict.pcm"
 )
 target_include_directories(
-  ${PROJECT_NAME}
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-         ${CMAKE_CURRENT_SOURCE_DIR}/matop
-         ${CMAKE_CURRENT_SOURCE_DIR}/mfile/include
-         ${CMAKE_CURRENT_SOURCE_DIR}/mfile/src)
+  ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/mfile/include
+                         ${CMAKE_CURRENT_SOURCE_DIR}/mfile/src)
 target_link_libraries(${PROJECT_NAME} ROOT::Core ROOT::Hist)
 
 # For mfile
