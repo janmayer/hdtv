@@ -2,18 +2,17 @@ FROM rootproject/root:6.34.00-ubuntu24.04
 
 LABEL name="hdtv"
 
-ENV PATH="$PATH:/root/.local/bin"
+ENV PATH="/root/.local/bin:$PATH"
 
 RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends pipx xvfb && \
+    apt-get install -y --no-install-recommends pipx && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /install
 COPY . /install
 
 RUN python3 -m pipx install . && \
-    bash -c "Xvfb :0 -screen 0 1024x768x16 &" && \
-    DISPLAY=:0 hdtv --rebuild-usr --execute exit
+    hdtv --rebuild-usr
 
 WORKDIR /work
 CMD hdtv
