@@ -1,0 +1,25 @@
+hdtv.integral
+=============
+
+.. py:module:: hdtv.integral
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.integral.Integrate
+   hdtv.integral.get_integral_info
+   hdtv.integral.calibrate_integral
+
+
+Module Contents
+---------------
+
+.. py:function:: Integrate(spec, bg, region)
+
+.. py:function:: get_integral_info(spec, integral)
+
+.. py:function:: calibrate_integral(integral_info, cal)
+

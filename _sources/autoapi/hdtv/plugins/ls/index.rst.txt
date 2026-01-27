@@ -1,0 +1,40 @@
+hdtv.plugins.ls
+===============
+
+.. py:module:: hdtv.plugins.ls
+
+.. autoapi-nested-parse::
+
+   Plugin implementing some useful hdtv commands for navigation the file system
+   his includes a ls-like command, by special request from R. Schulze :)
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.plugins.ls.ls
+   hdtv.plugins.ls.cd
+   hdtv.plugins.ls.pwd
+
+
+Module Contents
+---------------
+
+.. py:function:: ls(args)
+
+   this function prints an output similar to that of the ``ls'' program
+
+
+.. py:function:: cd(args)
+
+   change current working directory
+
+
+.. py:function:: pwd(args)
+
+   print name of current/working directory
+
+

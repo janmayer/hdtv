@@ -1,0 +1,568 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hdtv.histogram &mdash; hdtv  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="hdtv.integral" href="../integral/index.html" />
+    <link rel="prev" title="hdtv.fitxml" href="../fitxml/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            hdtv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../include_guide.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../include_tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">hdtv</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../app/index.html">hdtv.app</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../backgroundmodels/index.html">hdtv.backgroundmodels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cal/index.html">hdtv.cal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cmdline/index.html">hdtv.cmdline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../color/index.html">hdtv.color</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cut/index.html">hdtv.cut</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../database/index.html">hdtv.database</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../drawable/index.html">hdtv.drawable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dummy/index.html">hdtv.dummy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../efficiency/index.html">hdtv.efficiency</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fit/index.html">hdtv.fit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fitpanel/index.html">hdtv.fitpanel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fitter/index.html">hdtv.fitter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fitxml/index.html">hdtv.fitxml</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">hdtv.histogram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../integral/index.html">hdtv.integral</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../marker/index.html">hdtv.marker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../matrix/index.html">hdtv.matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../options/index.html">hdtv.options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../peakmodels/index.html">hdtv.peakmodels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../plugins/index.html">hdtv.plugins</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../rfile_utils/index.html">hdtv.rfile_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../rootext/index.html">hdtv.rootext</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../session/index.html">hdtv.session</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../specreader/index.html">hdtv.specreader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spectrum/index.html">hdtv.spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tabformat/index.html">hdtv.tabformat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ui/index.html">hdtv.ui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util/index.html">hdtv.util</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../weakref_proxy/index.html">hdtv.weakref_proxy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../window/index.html">hdtv.window</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#attributes">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#package-contents">Package Contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">hdtv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">hdtv</a></li>
+      <li class="breadcrumb-item active">hdtv.histogram</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/hdtv/histogram/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-hdtv.histogram">
+<span id="hdtv-histogram"></span><h1>hdtv.histogram<a class="headerlink" href="#module-hdtv.histogram" title="Link to this heading"></a></h1>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.histogram.Histogram" title="hdtv.histogram.Histogram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Histogram</span></code></a></p></td>
+<td><p>Histogram object</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hdtv.histogram.FileHistogram" title="hdtv.histogram.FileHistogram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FileHistogram</span></code></a></p></td>
+<td><p>File spectrum object</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.histogram.CutHistogram" title="hdtv.histogram.CutHistogram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CutHistogram</span></code></a></p></td>
+<td><p>Histogram object</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hdtv.histogram.THnSparseWrapper" title="hdtv.histogram.THnSparseWrapper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">THnSparseWrapper</span></code></a></p></td>
+<td><p>Wrapper around a 2d THnSparse object, providing ProjectionX and</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.histogram.Histo2D" title="hdtv.histogram.Histo2D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Histo2D</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hdtv.histogram.RHisto2D" title="hdtv.histogram.RHisto2D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RHisto2D</span></code></a></p></td>
+<td><p>ROOT TH2-backed matrix for projection</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.histogram.MHisto2D" title="hdtv.histogram.MHisto2D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MHisto2D</span></code></a></p></td>
+<td><p>MFile-backed matrix for projection</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.histogram.HasPrimitiveBinning" title="hdtv.histogram.HasPrimitiveBinning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HasPrimitiveBinning</span></code></a>(hist)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="hdtv.histogram.HasPrimitiveBinning">
+<span class="sig-prename descclassname"><span class="pre">hdtv.histogram.</span></span><span class="sig-name descname"><span class="pre">HasPrimitiveBinning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.HasPrimitiveBinning" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.histogram.</span></span><span class="sig-name descname"><span class="pre">Histogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">hdtv.color.default</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../drawable/index.html#hdtv.drawable.Drawable" title="hdtv.drawable.Drawable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hdtv.drawable.Drawable</span></code></a></p>
+<p>Histogram object</p>
+<p>This class is hdtvs wrapper around a ROOT histogram. It adds a calibration,
+plus some internal management for drawing the histogram to the hdtv spectrum
+viewer.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram._norm">
+<span class="sig-name descname"><span class="pre">_norm</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></span><a class="headerlink" href="#hdtv.histogram.Histogram._norm" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram._ID">
+<span class="sig-name descname"><span class="pre">_ID</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#hdtv.histogram.Histogram._ID" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.effCal">
+<span class="sig-name descname"><span class="pre">effCal</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#hdtv.histogram.Histogram.effCal" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.typeStr">
+<span class="sig-name descname"><span class="pre">typeStr</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'spectrum'</span></span><a class="headerlink" href="#hdtv.histogram.Histogram.typeStr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.cal">
+<span class="sig-name descname"><span class="pre">cal</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#hdtv.histogram.Histogram.cal" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram.__str__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.__copy__">
+<span class="sig-name descname"><span class="pre">__copy__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram.__copy__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram._set_hist">
+<span class="sig-name descname"><span class="pre">_set_hist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram._set_hist" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram._get_hist">
+<span class="sig-name descname"><span class="pre">_get_hist</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram._get_hist" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.hist">
+<span class="sig-name descname"><span class="pre">hist</span></span><a class="headerlink" href="#hdtv.histogram.Histogram.hist" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram._get_name">
+<span class="sig-name descname"><span class="pre">_get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram._get_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram._set_name">
+<span class="sig-name descname"><span class="pre">_set_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram._set_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#hdtv.histogram.Histogram.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram._set_norm">
+<span class="sig-name descname"><span class="pre">_set_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norm</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram._set_norm" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram._get_norm">
+<span class="sig-name descname"><span class="pre">_get_norm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram._get_norm" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.norm">
+<span class="sig-name descname"><span class="pre">norm</span></span><a class="headerlink" href="#hdtv.histogram.Histogram.norm" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.info">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">info</span></span><a class="headerlink" href="#hdtv.histogram.Histogram.info" title="Link to this definition"></a></dt>
+<dd><p>Return a string describing this spectrum</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.Plus">
+<span class="sig-name descname"><span class="pre">Plus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram.Plus" title="Link to this definition"></a></dt>
+<dd><p>Add other spectrum to this one</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.Minus">
+<span class="sig-name descname"><span class="pre">Minus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram.Minus" title="Link to this definition"></a></dt>
+<dd><p>Subtract other spectrum from this one</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.Multiply">
+<span class="sig-name descname"><span class="pre">Multiply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram.Multiply" title="Link to this definition"></a></dt>
+<dd><p>Multiply spectrum with factor</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.Rebin">
+<span class="sig-name descname"><span class="pre">Rebin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ngroup</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibrate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram.Rebin" title="Link to this definition"></a></dt>
+<dd><p>Rebin spectrum by adding ngroup bins into one</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.Calbin">
+<span class="sig-name descname"><span class="pre">Calbin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spline_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_tv_binning</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram.Calbin" title="Link to this definition"></a></dt>
+<dd><p>Rebin spectrum to match calibration unit</p>
+<dl>
+<dt>Args:</dt><dd><p>binsize: Size of calibrated bins
+spline_order: Order of the spline interpolation (default: 3)
+use_tv_binning: Center first bin on 0. (True) or</p>
+<blockquote>
+<div><p>lower edge of first bin on 0. (False).</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.Poisson">
+<span class="sig-name descname"><span class="pre">Poisson</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram.Poisson" title="Link to this definition"></a></dt>
+<dd><p>Randomize each bin content assuming a Poissonian distribution.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.Draw">
+<span class="sig-name descname"><span class="pre">Draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">viewport</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram.Draw" title="Link to this definition"></a></dt>
+<dd><p>Draw this spectrum to the viewport</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.WriteSpectrum">
+<span class="sig-name descname"><span class="pre">WriteSpectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram.WriteSpectrum" title="Link to this definition"></a></dt>
+<dd><p>Write the spectrum to file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histogram.SetHistWithPrimitiveBinning">
+<span class="sig-name descname"><span class="pre">SetHistWithPrimitiveBinning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caldegree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histogram.SetHistWithPrimitiveBinning" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.histogram.FileHistogram">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.histogram.</span></span><span class="sig-name descname"><span class="pre">FileHistogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">hdtv.color.default</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.FileHistogram" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#hdtv.histogram.Histogram" title="hdtv.histogram.Histogram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Histogram</span></code></a></p>
+<p>File spectrum object</p>
+<p>A spectrum that comes from a file in any of the formats supported by hdtv.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.FileHistogram.fmt">
+<span class="sig-name descname"><span class="pre">fmt</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#hdtv.histogram.FileHistogram.fmt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.FileHistogram.filename">
+<span class="sig-name descname"><span class="pre">filename</span></span><a class="headerlink" href="#hdtv.histogram.FileHistogram.filename" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.FileHistogram.typeStr">
+<span class="sig-name descname"><span class="pre">typeStr</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'spectrum,</span> <span class="pre">read</span> <span class="pre">from</span> <span class="pre">file'</span></span><a class="headerlink" href="#hdtv.histogram.FileHistogram.typeStr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hdtv.histogram.FileHistogram.info">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">info</span></span><a class="headerlink" href="#hdtv.histogram.FileHistogram.info" title="Link to this definition"></a></dt>
+<dd><p>Return a string describing this spectrum</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.FileHistogram.Refresh">
+<span class="sig-name descname"><span class="pre">Refresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.FileHistogram.Refresh" title="Link to this definition"></a></dt>
+<dd><p>Reload the spectrum from disk</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.histogram.CutHistogram">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.histogram.</span></span><span class="sig-name descname"><span class="pre">CutHistogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">hdtv.color.default</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.CutHistogram" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#hdtv.histogram.Histogram" title="hdtv.histogram.Histogram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Histogram</span></code></a></p>
+<p>Histogram object</p>
+<p>This class is hdtvs wrapper around a ROOT histogram. It adds a calibration,
+plus some internal management for drawing the histogram to the hdtv spectrum
+viewer.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.CutHistogram.gates">
+<span class="sig-name descname"><span class="pre">gates</span></span><a class="headerlink" href="#hdtv.histogram.CutHistogram.gates" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.CutHistogram.axis">
+<span class="sig-name descname"><span class="pre">axis</span></span><a class="headerlink" href="#hdtv.histogram.CutHistogram.axis" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hdtv.histogram.CutHistogram.info">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">info</span></span><a class="headerlink" href="#hdtv.histogram.CutHistogram.info" title="Link to this definition"></a></dt>
+<dd><p>Return a string describing this spectrum</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.histogram.THnSparseWrapper">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.histogram.</span></span><span class="sig-name descname"><span class="pre">THnSparseWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.THnSparseWrapper" title="Link to this definition"></a></dt>
+<dd><p>Wrapper around a 2d THnSparse object, providing ProjectionX and
+ProjectionY.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.THnSparseWrapper.__setattr__">
+<span class="sig-name descname"><span class="pre">__setattr__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.THnSparseWrapper.__setattr__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.THnSparseWrapper.__getattr__">
+<span class="sig-name descname"><span class="pre">__getattr__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.THnSparseWrapper.__getattr__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.THnSparseWrapper.GetXaxis">
+<span class="sig-name descname"><span class="pre">GetXaxis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.THnSparseWrapper.GetXaxis" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.THnSparseWrapper.GetYaxis">
+<span class="sig-name descname"><span class="pre">GetYaxis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.THnSparseWrapper.GetYaxis" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.THnSparseWrapper.ProjectionX">
+<span class="sig-name descname"><span class="pre">ProjectionX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.THnSparseWrapper.ProjectionX" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.THnSparseWrapper.ProjectionY">
+<span class="sig-name descname"><span class="pre">ProjectionY</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.THnSparseWrapper.ProjectionY" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.histogram.Histo2D">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.histogram.</span></span><span class="sig-name descname"><span class="pre">Histo2D</span></span><a class="headerlink" href="#hdtv.histogram.Histo2D" title="Link to this definition"></a></dt>
+<dd><dl class="py property">
+<dt class="sig sig-object py" id="hdtv.histogram.Histo2D.name">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#hdtv.histogram.Histo2D.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hdtv.histogram.Histo2D.xproj">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">xproj</span></span><a class="headerlink" href="#hdtv.histogram.Histo2D.xproj" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hdtv.histogram.Histo2D.yproj">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">yproj</span></span><a class="headerlink" href="#hdtv.histogram.Histo2D.yproj" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.Histo2D.ExecuteCut">
+<span class="sig-name descname"><span class="pre">ExecuteCut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regionMarkers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bgMarkers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.Histo2D.ExecuteCut" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.histogram.RHisto2D">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.histogram.</span></span><span class="sig-name descname"><span class="pre">RHisto2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.RHisto2D" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#hdtv.histogram.Histo2D" title="hdtv.histogram.Histo2D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Histo2D</span></code></a></p>
+<p>ROOT TH2-backed matrix for projection</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.RHisto2D.rhist">
+<span class="sig-name descname"><span class="pre">rhist</span></span><a class="headerlink" href="#hdtv.histogram.RHisto2D.rhist" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.RHisto2D._prx">
+<span class="sig-name descname"><span class="pre">_prx</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#hdtv.histogram.RHisto2D._prx" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.RHisto2D._pry">
+<span class="sig-name descname"><span class="pre">_pry</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#hdtv.histogram.RHisto2D._pry" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hdtv.histogram.RHisto2D.name">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#hdtv.histogram.RHisto2D.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hdtv.histogram.RHisto2D.xproj">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">xproj</span></span><a class="headerlink" href="#hdtv.histogram.RHisto2D.xproj" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hdtv.histogram.RHisto2D.yproj">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">yproj</span></span><a class="headerlink" href="#hdtv.histogram.RHisto2D.yproj" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.RHisto2D.ExecuteCut">
+<span class="sig-name descname"><span class="pre">ExecuteCut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regionMarkers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bgMarkers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.RHisto2D.ExecuteCut" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.histogram.MHisto2D">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.histogram.</span></span><span class="sig-name descname"><span class="pre">MHisto2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sym</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.MHisto2D" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#hdtv.histogram.Histo2D" title="hdtv.histogram.Histo2D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Histo2D</span></code></a></p>
+<p>MFile-backed matrix for projection</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.MHisto2D._xproj">
+<span class="sig-name descname"><span class="pre">_xproj</span></span><a class="headerlink" href="#hdtv.histogram.MHisto2D._xproj" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.histogram.MHisto2D.filename">
+<span class="sig-name descname"><span class="pre">filename</span></span><a class="headerlink" href="#hdtv.histogram.MHisto2D.filename" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hdtv.histogram.MHisto2D.xproj">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">xproj</span></span><a class="headerlink" href="#hdtv.histogram.MHisto2D.xproj" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hdtv.histogram.MHisto2D.yproj">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">yproj</span></span><a class="headerlink" href="#hdtv.histogram.MHisto2D.yproj" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.MHisto2D.ExecuteCut">
+<span class="sig-name descname"><span class="pre">ExecuteCut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regionMarkers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bgMarkers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.MHisto2D.ExecuteCut" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.MHisto2D.GetBasename">
+<span class="sig-name descname"><span class="pre">GetBasename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.MHisto2D.GetBasename" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.histogram.MHisto2D.GenerateFiles">
+<span class="sig-name descname"><span class="pre">GenerateFiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sym</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.histogram.MHisto2D.GenerateFiles" title="Link to this definition"></a></dt>
+<dd><p>Generate projection(s) and possibly transpose (for asymmetric matrices),
+if they do not exist yet.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../fitxml/index.html" class="btn btn-neutral float-left" title="hdtv.fitxml" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../integral/index.html" class="btn btn-neutral float-right" title="hdtv.integral" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, IKP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,233 @@
+hdtv.marker
+===========
+
+.. py:module:: hdtv.marker
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.marker.Marker
+   hdtv.marker.MarkerCollection
+
+
+Module Contents
+---------------
+
+.. py:class:: Marker(xytype, p1, color=hdtv.color.zoom, cal=None, connecttop=False)
+
+   Bases: :py:obj:`hdtv.drawable.Drawable`
+
+
+   Markers in X or in Y direction
+
+   Every marker contains a pair of positions as many markers come always in
+   pairs to mark a region (like background markers). Of course it is also
+   possible to have markers that consist of a single marker, then the second
+   position is None.
+
+
+   .. py:attribute:: _activeColor
+
+
+   .. py:attribute:: _cal
+      :value: None
+
+
+
+   .. py:attribute:: _dashed
+      :value: False
+
+
+
+   .. py:attribute:: fixedInCal
+      :value: True
+
+
+
+   .. py:attribute:: xytype
+
+
+   .. py:attribute:: connecttop
+      :value: False
+
+
+
+   .. py:attribute:: p1
+
+
+   .. py:attribute:: p2
+      :value: None
+
+
+
+   .. py:method:: _set_p(pos, p)
+
+
+   .. py:method:: _get_p(p)
+
+
+   .. py:method:: _set_color(color)
+
+
+   .. py:method:: _get_color()
+
+
+   .. py:attribute:: color
+
+
+   .. py:method:: _set_cal(cal)
+
+
+   .. py:method:: _get_cal()
+
+
+   .. py:attribute:: cal
+
+
+   .. py:method:: _set_dashed(state)
+
+
+   .. py:method:: _get_dashed()
+
+
+   .. py:attribute:: dashed
+
+
+   .. py:method:: Draw(viewport)
+
+      Draw the marker
+
+
+
+   .. py:method:: Refresh()
+
+
+   .. py:method:: __str__()
+
+
+   .. py:method:: FixInCal()
+
+
+   .. py:method:: FixInUncal()
+
+
+.. py:class:: MarkerCollection(xytype, paired=False, maxnum=None, color=None, cal=None, connecttop=True)
+
+   Bases: :py:obj:`list`
+
+
+   A collection of identical markers
+
+
+   .. py:attribute:: viewport
+      :value: None
+
+
+
+   .. py:attribute:: xytype
+
+
+   .. py:attribute:: paired
+      :value: False
+
+
+
+   .. py:attribute:: maxnum
+      :value: None
+
+
+
+   .. py:attribute:: connecttop
+      :value: True
+
+
+
+   .. py:attribute:: cal
+      :value: None
+
+
+
+   .. py:attribute:: ID
+      :value: None
+
+
+
+   .. py:attribute:: activeColor
+      :value: None
+
+
+
+   .. py:attribute:: color
+
+
+   .. py:attribute:: active
+      :value: True
+
+
+
+   .. py:attribute:: fixedInCal
+      :value: True
+
+
+
+   .. py:method:: __setattr__(name, value)
+
+      Implement setattr(self, name, value).
+
+
+
+   .. py:method:: Draw(viewport)
+
+
+   .. py:method:: Show()
+
+
+   .. py:method:: Hide()
+
+
+   .. py:method:: Refresh()
+
+
+   .. py:method:: FixInCal()
+
+
+   .. py:method:: FixInUncal()
+
+
+   .. py:method:: SetMarker(pos)
+
+      Set a marker to calibrated position pos, possibly completing a marker pair
+
+
+
+   .. py:method:: IsFull()
+
+      Checks if this MarkerCollection already contains the maximum number of
+      markers allowed
+
+
+
+   .. py:method:: IsPending()
+
+      Checks if there is a single marker waiting to form a pair.
+      Always returns False if this is a MarkerCollection with paired == False.
+
+
+
+   .. py:method:: Clear()
+
+      Remove all markers from this collection
+
+
+
+   .. py:method:: RemoveNearest(pos)
+
+      Remove the marker that is nearest to pos
+      If one of the members of a marker pair is nearest to pos,
+      both are removed
+
+
+

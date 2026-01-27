@@ -1,0 +1,124 @@
+hdtv.database
+=============
+
+.. py:module:: hdtv.database
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/hdtv/database/DDEPLibraries/index
+   /autoapi/hdtv/database/IAEALibraries/index
+   /autoapi/hdtv/database/PGAALibraries/index
+   /autoapi/hdtv/database/common/index
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.database.databases
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.database.PGAAlib_IKI2000
+   hdtv.database.PromptGammas
+
+
+Package Contents
+----------------
+
+.. py:class:: PGAAlib_IKI2000(csvfile=None, has_header=True, k0_comp=(1, 1))
+
+   Bases: :py:obj:`hdtv.database.common.GammaLib`
+
+
+   PGAA library of the Institute of Isotopes, Hungarian Academy of Sciences, Budapest
+
+
+   .. py:attribute:: fOrderedHeader
+      :value: ['Z', 'A', 'El', 'Energy/(keV)', 'Intensity', 'Sigma/(b)', 'k0', 'Halflife/(s)']
+
+
+
+   .. py:attribute:: fParamConv
+
+
+   .. py:attribute:: name
+      :value: 'PGAAlib_IKI2000'
+
+
+
+   .. py:attribute:: description
+      :value: 'PGAA database, Inst. of Isotopes, Hungarian Academey of Science'
+
+
+
+   .. py:attribute:: csvfile
+
+
+   .. py:attribute:: _has_header
+      :value: True
+
+
+
+   .. py:attribute:: k0_comp
+      :value: (1, 1)
+
+
+
+   .. py:method:: open()
+
+
+.. py:class:: PromptGammas(csvfile=None, has_header=True, k0_comp=(1, 1))
+
+   Bases: :py:obj:`hdtv.database.common.GammaLib`
+
+
+   Extensive IAEA Prompt-Gamma library
+
+
+   .. py:attribute:: fOrderedHeader
+      :value: ['Z', 'A', 'El', 'Energy/(keV)', 'Sigma/(b)', 'k0']
+
+
+
+   .. py:attribute:: fParamConv
+
+
+   .. py:attribute:: name
+      :value: 'PromptGammas'
+
+
+
+   .. py:attribute:: description
+      :value: 'Extensive Prompt-Gamma library'
+
+
+
+   .. py:attribute:: csvfile
+
+
+   .. py:attribute:: _has_header
+      :value: True
+
+
+
+   .. py:attribute:: k0_comp
+      :value: (1, 1)
+
+
+
+   .. py:method:: open()
+
+
+.. py:data:: databases
+

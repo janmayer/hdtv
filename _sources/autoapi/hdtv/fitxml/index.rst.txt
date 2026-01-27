@@ -1,0 +1,180 @@
+hdtv.fitxml
+===========
+
+.. py:module:: hdtv.fitxml
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.fitxml.VERSION
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.fitxml.FitXml
+
+
+Module Contents
+---------------
+
+.. py:data:: VERSION
+   :value: '1.5'
+
+
+.. py:class:: FitXml(spectra)
+
+   Class to save and read fit lists to and from xml file
+
+
+   .. py:attribute:: spectra
+
+
+   .. py:attribute:: version
+      :value: '1.5'
+
+
+
+   .. py:attribute:: RestoreFromXml
+
+
+   .. py:attribute:: Xml2Fit
+
+
+   .. py:method:: WriteFitlist(file_object, sid=None)
+
+      Write Fitlist to file
+
+
+
+   .. py:method:: CreateXml(fits)
+
+      Creates a xml tree for fits
+
+
+
+   .. py:method:: Fit2Xml(fit)
+
+      Creates xml element for a fit
+
+
+
+   .. py:method:: _indent(elem, level=0)
+
+      This function formats the xml in-place for prettyprinting
+
+      Source: http://effbot.org/zone/element-lib.htm#prettyprint
+      See also https://stackoverflow.com/a/4590052
+
+
+
+   .. py:method:: _getPosFromElement(markerElement, fit=None)
+
+      Read position in energy domain from XML element.
+
+
+
+   .. py:method:: _readParamElement(paramElement)
+
+      Reads parameter info from a xml element and creates an ufloat
+
+
+
+   .. py:method:: ReadFitlist(file_object, sid=None, calibrate=False, refit=False, interactive=True, fname=None)
+
+      Reads fitlist from xml files
+
+
+
+   .. py:method:: RestoreFromXml_v1_5(root, sid, calibrate=False, refit=False, interactive=True)
+
+      Restores fits from xml file (version = 1.5)
+
+      Changes to version 1.4:
+      Notation of the parameters for the background model has been modified to
+      allow for a more general interpretation as arbitrary fit parameters.
+      No big change!
+
+
+
+   .. py:method:: RestoreFromXml_v1_4(root, sid, calibrate=False, refit=False, interactive=True)
+
+      Restores fits from xml file (version = 1.4)
+
+      Changes to version 1.3:
+      Information about the integral over the fit region (and bg, if
+      available) are supplied. No big change!
+
+
+
+   .. py:method:: RestoreFromXml_v1_3(root, sid, calibrate=False, refit=False, interactive=True)
+
+      Restores fits from xml file (version = 1.3)
+
+      Changes to version 1.2:
+      Now it is possible to store additional user supplied parameter for
+      each peak. No big change!
+
+
+
+   .. py:method:: RestoreFromXml_v1_2(root, sid, calibrate=False, refit=False, interactive=True)
+
+      Restores fits from xml file (version = 1.2)
+
+      Changes to version 1.1:
+      Calibrated AND Uncalibrated marker positions are saved in version 1.2,
+      where as in version 1.1 only one of both has been saved. No big change!
+
+
+
+   .. py:method:: RestoreFromXml_v1_1(root, sid, calibrate=False, refit=False, interactive=True)
+
+      Restores fits from xml file (version = 1.1)
+
+      Changes compared to version 1.0:
+      In this version a file contains only fits belonging to one spectra
+      this changes the xml hierachy a little, the fit elements are now direct
+      childs of the root element. The spectrum element is still there, but now
+      a child of each fit element and not longer used in hdtv for anything
+
+
+
+   .. py:method:: RestoreFromXml_v1_0(root, sids=None, calibrate=False, refit=False, interactive=False)
+
+      Restores fits from xml file (version = 1.0)
+
+      This version is able to restore the fits from the XML.
+      Changes compared to version 0.1:
+          * changed some node namings:
+              ** <background> -> <bgMarker>
+              ** <region>     -> <regionMarker>
+              ** <peak>       -> <peakMarker>
+              ** <result>     -> <peak>
+          * new node for the background polynomial <background>
+          * saved chisquare of the fits
+          * calibrated and uncalibrated values for each peak parameter
+
+
+
+   .. py:method:: Xml2Fit_v1(fitElement, calibration=None)
+
+      Creates a fit object from information found in a xml file
+
+
+
+   .. py:method:: RestoreFromXml_v0(root, do_fit=False)
+
+      Reads fits from xml file (version = 0.*)
+
+      Note: For performance reasons this does not reconstruct the fit results.
+      It only sets the markers and restores the status of the fitter. The user
+      must repeat the fit, if he/she wants to see the results again.
+      (This should be improved in later versions.)
+
+
+

@@ -1,0 +1,312 @@
+hdtv.fit
+========
+
+.. py:module:: hdtv.fit
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.fit.Fit
+
+
+Module Contents
+---------------
+
+.. py:class:: Fit(fitter, color=None, cal=None)
+
+   Bases: :py:obj:`hdtv.drawable.Drawable`
+
+
+   Fit object
+
+   This Fit object is the graphical representation of a fit in HDTV.
+   It contains the marker lists and the functions. The actual interface to
+   the C++ fitting routines is the class Fitter.
+
+   All internal values (fit parameters, fit region, peak list) are in
+   uncalibrated units.
+
+
+   .. py:attribute:: FitPeakPreHooks
+      :value: []
+
+
+
+   .. py:attribute:: FitPeakPostHooks
+      :value: []
+
+
+
+   .. py:attribute:: showDecomp
+      :value: False
+
+
+
+   .. py:attribute:: regionMarkers
+
+
+   .. py:attribute:: peakMarkers
+
+
+   .. py:attribute:: bgMarkers
+
+
+   .. py:attribute:: fitter
+
+
+   .. py:attribute:: peaks
+      :value: []
+
+
+
+   .. py:attribute:: chi
+      :value: None
+
+
+
+   .. py:attribute:: bgChi
+      :value: None
+
+
+
+   .. py:attribute:: bgParams
+      :value: []
+
+
+
+   .. py:attribute:: _showDecomp
+      :value: False
+
+
+
+   .. py:attribute:: dispPeakFunc
+      :value: None
+
+
+
+   .. py:attribute:: dispBgFunc
+      :value: None
+
+
+
+   .. py:attribute:: _spec
+      :value: None
+
+
+
+   .. py:attribute:: active
+      :value: False
+
+
+
+   .. py:attribute:: integral
+      :value: None
+
+
+
+   .. py:method:: _get_ID()
+
+
+   .. py:method:: _set_ID(ID)
+
+
+   .. py:attribute:: ID
+
+
+   .. py:method:: _set_cal(cal)
+
+
+   .. py:method:: _get_cal()
+
+
+   .. py:attribute:: cal
+
+
+   .. py:method:: _set_color(color)
+
+
+   .. py:method:: _get_color()
+
+
+   .. py:attribute:: color
+
+
+   .. py:method:: _set_active(state)
+
+
+   .. py:method:: _get_active()
+
+
+   .. py:method:: _set_spec(spec)
+
+
+   .. py:method:: _get_spec()
+
+
+   .. py:attribute:: spec
+
+
+   .. py:property:: ids
+
+
+   .. py:method:: __str__()
+
+      show fit results in a nice table
+
+
+
+   .. py:method:: print_integral()
+
+      show integral of fit regions in a nice table
+
+
+
+   .. py:method:: formatted_str(verbose=True)
+
+      show fit results in a more tv like way
+
+      TODO: Since we do not use this any longer, we may as well remove it.
+
+
+
+   .. py:method:: ExtractParams()
+
+      Helper function for use for printing fit results in a nice table
+
+      Return values:
+          peaklist: a list of dicts for each peak in the fit
+          params  : a ordered list of valid parameter names
+
+
+
+   .. py:method:: ExtractIntegralParams(integral_type='auto')
+
+      Helper function for use for printing fit results in a nice table
+
+      Return values:
+          integrallist : a list of dicts for each peak in the fit
+          params       : a ordered list of valid parameter names
+
+
+
+   .. py:method:: ChangeMarker(mtype, pos, action)
+
+      Set a new marker or remove a marker.
+
+      action : "put" or "remove"
+      mtype  : "bg", "region", "peak"
+
+
+
+   .. py:method:: FixMarkerInCal()
+
+      Fix marker in calibrated space
+
+
+
+   .. py:method:: FixMarkerInUncal()
+
+      Fix marker in uncalibrated space
+
+
+
+   .. py:method:: _get_background_pairs()
+
+
+   .. py:method:: FitBgFunc(spec=None)
+
+      Do the background fit and extract the function for display
+      Note: You still need to call Draw afterwards.
+
+
+
+   .. py:method:: FitPeakFunc(spec=None)
+
+      Do the actual peak fit and extract the functions for display
+      Note: You still need to call Draw afterwards.
+
+
+
+   .. py:method:: Restore(spec)
+
+
+   .. py:method:: Draw(viewport)
+
+      Draw
+
+
+
+   .. py:method:: Refresh()
+
+      Refresh
+
+
+
+   .. py:method:: Erase(bg_only=False)
+
+      Erase previous fit. NOTE: the fitter is *not* resetted
+
+
+
+   .. py:method:: ShowAsWorkFit()
+
+
+   .. py:method:: ShowAsPending()
+
+
+   .. py:method:: ShowAsPassive()
+
+
+   .. py:method:: Show()
+
+      Show the object
+
+
+
+   .. py:method:: Hide()
+
+      Hide the object
+
+
+
+   .. py:method:: __copy__()
+
+      Create new fit with identical markers
+
+
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: __ne__(other)
+
+
+   .. py:method:: __gt__(other)
+
+
+   .. py:method:: __lt__(other)
+
+
+   .. py:method:: __ge__(other)
+
+
+   .. py:method:: __le__(other)
+
+
+   .. py:property:: xdimensions
+
+      Return dimensions of fit in x-direction
+
+      returns: tuple (x_start, x_end)
+
+
+
+   .. py:method:: SetDecomp(stat=True)
+
+      Sets whether to display a decomposition of the fit
+
+
+

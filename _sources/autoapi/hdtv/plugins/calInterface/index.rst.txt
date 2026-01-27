@@ -1,0 +1,331 @@
+hdtv.plugins.calInterface
+=========================
+
+.. py:module:: hdtv.plugins.calInterface
+
+.. autoapi-nested-parse::
+
+   Functions for efficiency, energy calibration
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.plugins.calInterface.eff_cal_interface
+   hdtv.plugins.calInterface.energy_cal_interface
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.plugins.calInterface.EffCalIf
+   hdtv.plugins.calInterface.EffCalHDTVInterface
+   hdtv.plugins.calInterface.EnergyCalIf
+   hdtv.plugins.calInterface.EnergyCalHDTVInterface
+
+
+Module Contents
+---------------
+
+.. py:class:: EffCalIf(spectra)
+
+   .. py:attribute:: spectra
+
+
+   .. py:attribute:: tv
+
+
+   .. py:attribute:: fit
+      :value: False
+
+
+
+   .. py:method:: SetFun(spectrumID, name, parameter=None)
+
+      Set efficiency function to use
+
+
+      Allowed names:  * "wunder" for "Wunder"-Efficiency
+                      * "wiedenhoever" for Wiedenhoever-Efficiency
+                      * "poly" for polynomial efficiency
+                      * "exp" for exponential efficiency
+                      * "pow" for power function efficiency
+
+
+
+   .. py:method:: SetPar(spectrumID, parameter)
+
+      Set parameter for efficiency function
+
+
+
+   .. py:method:: Assign(todo)
+
+      Assign efficiency for fit
+
+
+
+   .. py:method:: ReadPar(spectrumID, filename)
+
+      Load efficiency parameter and covariance from file
+
+
+
+   .. py:method:: ReadCov(spectrumID, filename)
+
+      Load efficiency parameter and covariance from file
+
+
+
+   .. py:method:: WritePar(spectrumID, filename)
+
+      Save efficiency parameter
+
+
+
+   .. py:method:: WriteCov(spectrumID, filename)
+
+      Save efficiency parameter
+
+
+
+   .. py:method:: List(ids=None)
+
+      List currently used efficiencies
+
+
+
+   .. py:method:: Plot(spectrumID)
+
+      Plot efficiency
+
+
+
+   .. py:method:: Fit(spectrumIDs, filename, nuclides, coefficients, sigma, show_graph=False, fit_panel=False, show_table=False, source=None)
+
+      Plot efficiency
+
+
+
+   .. py:method:: CalculateEff(spectrumID, nuclide, coefficient, source, sigma)
+
+      Calculates efficiency from a given spectrum and given nuclide.
+
+
+
+   .. py:method:: EffCorrection(referenceID, maxEnergy, spectrumID, fitValues, nuclide, source, sigma)
+
+      If there is one spectrum given without coefficient, you have to correct
+      it by calculation the missing factor that it fits to the other one.
+
+
+
+.. py:class:: EffCalHDTVInterface(EffCalIf)
+
+   .. py:attribute:: effIf
+
+
+   .. py:attribute:: spectra
+
+
+   .. py:attribute:: opt
+
+
+   .. py:method:: SetFun(args)
+
+      set efficiency function
+
+
+
+   .. py:method:: ReadPar(args)
+
+      Read efficiency parameter
+
+
+
+   .. py:method:: ReadCov(args)
+
+      Read efficiency covariance
+
+
+
+   .. py:method:: WritePar(args)
+
+      Save efficiency parameter
+
+
+
+   .. py:method:: WriteCov(args)
+
+      Write efficiency covariance
+
+
+
+   .. py:method:: PlotEff(args)
+
+      Plot efficiency
+
+
+
+   .. py:method:: FitEff(args)
+
+      Fit efficiency
+
+
+
+   .. py:method:: ListEff(args)
+
+      List efficiencies
+
+
+
+.. py:class:: EnergyCalIf(spectra)
+
+   Interface for energy calibrations
+
+
+   .. py:attribute:: spectra
+
+
+   .. py:attribute:: tv
+
+
+   .. py:method:: CalFromFile(fname)
+
+      Read calibration polynom from file
+
+      Allow formats are:
+          * One coefficient in each line, starting with p0
+          * Coefficients in one line, seperated by space, starting with p0
+
+
+
+   .. py:method:: CalFromPairs(pairs, degree=1, table=False, fit=False, residual=False, ignore_errors=False)
+
+      Create calibration from pairs of channel and energy
+
+
+
+   .. py:method:: CalFromFits(fits, pairs, degree=1, table=False, fit=False, residual=False, ignore_errors=False)
+
+      Create a calibration from pairs of fits and energies
+
+
+
+   .. py:method:: CalsFromList(fname)
+
+      Reads calibrations from a calibration list file. The file has the format
+      <specname>: <cal0> <cal1> ...
+      The calibrations are written into the calibration dictionary.
+
+
+
+   .. py:method:: CreateCalList(calDict, sort: bool = True)
+
+      Creates a printable list of all calibrations in calDict
+      <specname>: <cal0> <cal1> ...
+
+
+
+   .. py:method:: CopyCal(source_id, ids)
+
+      Copy a calibration
+
+
+
+.. py:class:: EnergyCalHDTVInterface(ECalIf)
+
+   .. py:attribute:: EnergyCalIf
+
+
+   .. py:attribute:: spectra
+
+
+   .. py:attribute:: calListSort
+
+
+   .. py:method:: Nuc(args)
+
+      Returns a table of energies and intensities of the given nuclide.
+
+
+
+   .. py:method:: CalPosSet(args)
+
+      Create calibration from the coefficients p of a polynomial
+
+
+
+   .. py:method:: CalPosUnset(args)
+
+      Unset calibration
+
+
+
+   .. py:method:: CalPosCopy(args)
+
+      Copy calibration from one spectrum to others
+
+
+
+   .. py:method:: CalPosEnter(args)
+
+      Create calibration from pairs of channel and energy
+
+
+
+   .. py:method:: CalPosNuc(args)
+
+      Create a calibration for given nuclide.
+
+
+
+   .. py:method:: CalPosRead(args)
+
+      Read calibration from file
+
+
+
+   .. py:method:: CalPosAssign(args)
+
+      Calibrate the active spectrum by assigning energies to fitted peaks
+
+      Peaks are specified by their id and the peak number within the fit.
+      Syntax: id.number
+      If no number is given, the first peak in the fit is used.
+
+
+
+   .. py:method:: CalPosList(args)
+
+      Print currently known calibration list
+
+
+
+   .. py:method:: CalPosListWrite(args)
+
+      Write calibration list to file
+
+
+
+   .. py:method:: CalPosListRead(args)
+
+      Read calibrations for several spectra from file
+
+
+
+   .. py:method:: CalPosListClear(args)
+
+      Clear list of name <-> calibration pairs
+
+
+
+.. py:data:: eff_cal_interface
+
+.. py:data:: energy_cal_interface
+

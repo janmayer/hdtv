@@ -1,0 +1,529 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hdtv.plugins.calInterface &mdash; hdtv  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="hdtv.plugins.config" href="../config/index.html" />
+    <link rel="prev" title="hdtv.plugins.EnergyCalibration" href="../EnergyCalibration/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            hdtv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../include_guide.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../include_tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html">hdtv</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../../app/index.html">hdtv.app</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../backgroundmodels/index.html">hdtv.backgroundmodels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cal/index.html">hdtv.cal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cmdline/index.html">hdtv.cmdline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../color/index.html">hdtv.color</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cut/index.html">hdtv.cut</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../database/index.html">hdtv.database</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../drawable/index.html">hdtv.drawable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dummy/index.html">hdtv.dummy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../efficiency/index.html">hdtv.efficiency</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../fit/index.html">hdtv.fit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../fitpanel/index.html">hdtv.fitpanel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../fitter/index.html">hdtv.fitter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../fitxml/index.html">hdtv.fitxml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../histogram/index.html">hdtv.histogram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../integral/index.html">hdtv.integral</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../marker/index.html">hdtv.marker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../matrix/index.html">hdtv.matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../options/index.html">hdtv.options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../peakmodels/index.html">hdtv.peakmodels</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../index.html">hdtv.plugins</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../rfile_utils/index.html">hdtv.rfile_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../rootext/index.html">hdtv.rootext</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../session/index.html">hdtv.session</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../specreader/index.html">hdtv.specreader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spectrum/index.html">hdtv.spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../tabformat/index.html">hdtv.tabformat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../ui/index.html">hdtv.ui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../util/index.html">hdtv.util</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../weakref_proxy/index.html">hdtv.weakref_proxy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../window/index.html">hdtv.window</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#attributes">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#package-contents">Package Contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">hdtv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">hdtv</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">hdtv.plugins</a></li>
+      <li class="breadcrumb-item active">hdtv.plugins.calInterface</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/autoapi/hdtv/plugins/calInterface/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-hdtv.plugins.calInterface">
+<span id="hdtv-plugins-calinterface"></span><h1>hdtv.plugins.calInterface<a class="headerlink" href="#module-hdtv.plugins.calInterface" title="Link to this heading"></a></h1>
+<p>Functions for efficiency, energy calibration</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.plugins.calInterface.eff_cal_interface" title="hdtv.plugins.calInterface.eff_cal_interface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eff_cal_interface</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hdtv.plugins.calInterface.energy_cal_interface" title="hdtv.plugins.calInterface.energy_cal_interface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">energy_cal_interface</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.plugins.calInterface.EffCalIf" title="hdtv.plugins.calInterface.EffCalIf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EffCalIf</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hdtv.plugins.calInterface.EffCalHDTVInterface" title="hdtv.plugins.calInterface.EffCalHDTVInterface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EffCalHDTVInterface</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.plugins.calInterface.EnergyCalIf" title="hdtv.plugins.calInterface.EnergyCalIf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EnergyCalIf</span></code></a></p></td>
+<td><p>Interface for energy calibrations</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hdtv.plugins.calInterface.EnergyCalHDTVInterface" title="hdtv.plugins.calInterface.EnergyCalHDTVInterface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EnergyCalHDTVInterface</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalIf">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.plugins.calInterface.</span></span><span class="sig-name descname"><span class="pre">EffCalIf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectra</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalIf" title="Link to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalIf.spectra">
+<span class="sig-name descname"><span class="pre">spectra</span></span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalIf.spectra" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalIf.tv">
+<span class="sig-name descname"><span class="pre">tv</span></span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalIf.tv" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalIf.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalIf.fit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalIf.SetFun">
+<span class="sig-name descname"><span class="pre">SetFun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectrumID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalIf.SetFun" title="Link to this definition"></a></dt>
+<dd><p>Set efficiency function to use</p>
+<dl class="simple">
+<dt>Allowed names:  * “wunder” for “Wunder”-Efficiency</dt><dd><ul class="simple">
+<li><p>“wiedenhoever” for Wiedenhoever-Efficiency</p></li>
+<li><p>“poly” for polynomial efficiency</p></li>
+<li><p>“exp” for exponential efficiency</p></li>
+<li><p>“pow” for power function efficiency</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalIf.SetPar">
+<span class="sig-name descname"><span class="pre">SetPar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectrumID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalIf.SetPar" title="Link to this definition"></a></dt>
+<dd><p>Set parameter for efficiency function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalIf.Assign">
+<span class="sig-name descname"><span class="pre">Assign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">todo</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalIf.Assign" title="Link to this definition"></a></dt>
+<dd><p>Assign efficiency for fit</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalIf.ReadPar">
+<span class="sig-name descname"><span class="pre">ReadPar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectrumID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalIf.ReadPar" title="Link to this definition"></a></dt>
+<dd><p>Load efficiency parameter and covariance from file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalIf.ReadCov">
+<span class="sig-name descname"><span class="pre">ReadCov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectrumID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalIf.ReadCov" title="Link to this definition"></a></dt>
+<dd><p>Load efficiency parameter and covariance from file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalIf.WritePar">
+<span class="sig-name descname"><span class="pre">WritePar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectrumID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalIf.WritePar" title="Link to this definition"></a></dt>
+<dd><p>Save efficiency parameter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalIf.WriteCov">
+<span class="sig-name descname"><span class="pre">WriteCov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectrumID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalIf.WriteCov" title="Link to this definition"></a></dt>
+<dd><p>Save efficiency parameter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalIf.List">
+<span class="sig-name descname"><span class="pre">List</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalIf.List" title="Link to this definition"></a></dt>
+<dd><p>List currently used efficiencies</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalIf.Plot">
+<span class="sig-name descname"><span class="pre">Plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectrumID</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalIf.Plot" title="Link to this definition"></a></dt>
+<dd><p>Plot efficiency</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalIf.Fit">
+<span class="sig-name descname"><span class="pre">Fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectrumIDs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nuclides</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_panel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalIf.Fit" title="Link to this definition"></a></dt>
+<dd><p>Plot efficiency</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalIf.CalculateEff">
+<span class="sig-name descname"><span class="pre">CalculateEff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectrumID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nuclide</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalIf.CalculateEff" title="Link to this definition"></a></dt>
+<dd><p>Calculates efficiency from a given spectrum and given nuclide.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalIf.EffCorrection">
+<span class="sig-name descname"><span class="pre">EffCorrection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">referenceID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxEnergy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectrumID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitValues</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nuclide</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalIf.EffCorrection" title="Link to this definition"></a></dt>
+<dd><p>If there is one spectrum given without coefficient, you have to correct
+it by calculation the missing factor that it fits to the other one.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalHDTVInterface">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.plugins.calInterface.</span></span><span class="sig-name descname"><span class="pre">EffCalHDTVInterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">EffCalIf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalHDTVInterface" title="Link to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalHDTVInterface.effIf">
+<span class="sig-name descname"><span class="pre">effIf</span></span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalHDTVInterface.effIf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalHDTVInterface.spectra">
+<span class="sig-name descname"><span class="pre">spectra</span></span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalHDTVInterface.spectra" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalHDTVInterface.opt">
+<span class="sig-name descname"><span class="pre">opt</span></span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalHDTVInterface.opt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalHDTVInterface.SetFun">
+<span class="sig-name descname"><span class="pre">SetFun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalHDTVInterface.SetFun" title="Link to this definition"></a></dt>
+<dd><p>set efficiency function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalHDTVInterface.ReadPar">
+<span class="sig-name descname"><span class="pre">ReadPar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalHDTVInterface.ReadPar" title="Link to this definition"></a></dt>
+<dd><p>Read efficiency parameter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalHDTVInterface.ReadCov">
+<span class="sig-name descname"><span class="pre">ReadCov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalHDTVInterface.ReadCov" title="Link to this definition"></a></dt>
+<dd><p>Read efficiency covariance</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalHDTVInterface.WritePar">
+<span class="sig-name descname"><span class="pre">WritePar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalHDTVInterface.WritePar" title="Link to this definition"></a></dt>
+<dd><p>Save efficiency parameter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalHDTVInterface.WriteCov">
+<span class="sig-name descname"><span class="pre">WriteCov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalHDTVInterface.WriteCov" title="Link to this definition"></a></dt>
+<dd><p>Write efficiency covariance</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalHDTVInterface.PlotEff">
+<span class="sig-name descname"><span class="pre">PlotEff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalHDTVInterface.PlotEff" title="Link to this definition"></a></dt>
+<dd><p>Plot efficiency</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalHDTVInterface.FitEff">
+<span class="sig-name descname"><span class="pre">FitEff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalHDTVInterface.FitEff" title="Link to this definition"></a></dt>
+<dd><p>Fit efficiency</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EffCalHDTVInterface.ListEff">
+<span class="sig-name descname"><span class="pre">ListEff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EffCalHDTVInterface.ListEff" title="Link to this definition"></a></dt>
+<dd><p>List efficiencies</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalIf">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.plugins.calInterface.</span></span><span class="sig-name descname"><span class="pre">EnergyCalIf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectra</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalIf" title="Link to this definition"></a></dt>
+<dd><p>Interface for energy calibrations</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalIf.spectra">
+<span class="sig-name descname"><span class="pre">spectra</span></span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalIf.spectra" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalIf.tv">
+<span class="sig-name descname"><span class="pre">tv</span></span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalIf.tv" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalIf.CalFromFile">
+<span class="sig-name descname"><span class="pre">CalFromFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalIf.CalFromFile" title="Link to this definition"></a></dt>
+<dd><p>Read calibration polynom from file</p>
+<dl class="simple">
+<dt>Allow formats are:</dt><dd><ul class="simple">
+<li><p>One coefficient in each line, starting with p0</p></li>
+<li><p>Coefficients in one line, seperated by space, starting with p0</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalIf.CalFromPairs">
+<span class="sig-name descname"><span class="pre">CalFromPairs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalIf.CalFromPairs" title="Link to this definition"></a></dt>
+<dd><p>Create calibration from pairs of channel and energy</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalIf.CalFromFits">
+<span class="sig-name descname"><span class="pre">CalFromFits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalIf.CalFromFits" title="Link to this definition"></a></dt>
+<dd><p>Create a calibration from pairs of fits and energies</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalIf.CalsFromList">
+<span class="sig-name descname"><span class="pre">CalsFromList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalIf.CalsFromList" title="Link to this definition"></a></dt>
+<dd><p>Reads calibrations from a calibration list file. The file has the format
+&lt;specname&gt;: &lt;cal0&gt; &lt;cal1&gt; …
+The calibrations are written into the calibration dictionary.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalIf.CreateCalList">
+<span class="sig-name descname"><span class="pre">CreateCalList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalIf.CreateCalList" title="Link to this definition"></a></dt>
+<dd><p>Creates a printable list of all calibrations in calDict
+&lt;specname&gt;: &lt;cal0&gt; &lt;cal1&gt; …</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalIf.CopyCal">
+<span class="sig-name descname"><span class="pre">CopyCal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ids</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalIf.CopyCal" title="Link to this definition"></a></dt>
+<dd><p>Copy a calibration</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalHDTVInterface">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.plugins.calInterface.</span></span><span class="sig-name descname"><span class="pre">EnergyCalHDTVInterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ECalIf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalHDTVInterface" title="Link to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalHDTVInterface.EnergyCalIf">
+<span class="sig-name descname"><span class="pre">EnergyCalIf</span></span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalHDTVInterface.EnergyCalIf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalHDTVInterface.spectra">
+<span class="sig-name descname"><span class="pre">spectra</span></span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalHDTVInterface.spectra" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalHDTVInterface.calListSort">
+<span class="sig-name descname"><span class="pre">calListSort</span></span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalHDTVInterface.calListSort" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalHDTVInterface.Nuc">
+<span class="sig-name descname"><span class="pre">Nuc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalHDTVInterface.Nuc" title="Link to this definition"></a></dt>
+<dd><p>Returns a table of energies and intensities of the given nuclide.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosSet">
+<span class="sig-name descname"><span class="pre">CalPosSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosSet" title="Link to this definition"></a></dt>
+<dd><p>Create calibration from the coefficients p of a polynomial</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosUnset">
+<span class="sig-name descname"><span class="pre">CalPosUnset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosUnset" title="Link to this definition"></a></dt>
+<dd><p>Unset calibration</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosCopy">
+<span class="sig-name descname"><span class="pre">CalPosCopy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosCopy" title="Link to this definition"></a></dt>
+<dd><p>Copy calibration from one spectrum to others</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosEnter">
+<span class="sig-name descname"><span class="pre">CalPosEnter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosEnter" title="Link to this definition"></a></dt>
+<dd><p>Create calibration from pairs of channel and energy</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosNuc">
+<span class="sig-name descname"><span class="pre">CalPosNuc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosNuc" title="Link to this definition"></a></dt>
+<dd><p>Create a calibration for given nuclide.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosRead">
+<span class="sig-name descname"><span class="pre">CalPosRead</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosRead" title="Link to this definition"></a></dt>
+<dd><p>Read calibration from file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosAssign">
+<span class="sig-name descname"><span class="pre">CalPosAssign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosAssign" title="Link to this definition"></a></dt>
+<dd><p>Calibrate the active spectrum by assigning energies to fitted peaks</p>
+<p>Peaks are specified by their id and the peak number within the fit.
+Syntax: id.number
+If no number is given, the first peak in the fit is used.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosList">
+<span class="sig-name descname"><span class="pre">CalPosList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosList" title="Link to this definition"></a></dt>
+<dd><p>Print currently known calibration list</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosListWrite">
+<span class="sig-name descname"><span class="pre">CalPosListWrite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosListWrite" title="Link to this definition"></a></dt>
+<dd><p>Write calibration list to file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosListRead">
+<span class="sig-name descname"><span class="pre">CalPosListRead</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosListRead" title="Link to this definition"></a></dt>
+<dd><p>Read calibrations for several spectra from file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosListClear">
+<span class="sig-name descname"><span class="pre">CalPosListClear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.calInterface.EnergyCalHDTVInterface.CalPosListClear" title="Link to this definition"></a></dt>
+<dd><p>Clear list of name &lt;-&gt; calibration pairs</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.eff_cal_interface">
+<span class="sig-prename descclassname"><span class="pre">hdtv.plugins.calInterface.</span></span><span class="sig-name descname"><span class="pre">eff_cal_interface</span></span><a class="headerlink" href="#hdtv.plugins.calInterface.eff_cal_interface" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="hdtv.plugins.calInterface.energy_cal_interface">
+<span class="sig-prename descclassname"><span class="pre">hdtv.plugins.calInterface.</span></span><span class="sig-name descname"><span class="pre">energy_cal_interface</span></span><a class="headerlink" href="#hdtv.plugins.calInterface.energy_cal_interface" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../EnergyCalibration/index.html" class="btn btn-neutral float-left" title="hdtv.plugins.EnergyCalibration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../config/index.html" class="btn btn-neutral float-right" title="hdtv.plugins.config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, IKP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

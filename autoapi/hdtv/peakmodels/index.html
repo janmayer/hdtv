@@ -1,0 +1,332 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hdtv.peakmodels &mdash; hdtv  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="hdtv.peakmodels.eePeak" href="eePeak/index.html" />
+    <link rel="prev" title="hdtv.options" href="../options/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            hdtv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../include_guide.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../include_tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">hdtv</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../app/index.html">hdtv.app</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../backgroundmodels/index.html">hdtv.backgroundmodels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cal/index.html">hdtv.cal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cmdline/index.html">hdtv.cmdline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../color/index.html">hdtv.color</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cut/index.html">hdtv.cut</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../database/index.html">hdtv.database</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../drawable/index.html">hdtv.drawable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dummy/index.html">hdtv.dummy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../efficiency/index.html">hdtv.efficiency</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fit/index.html">hdtv.fit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fitpanel/index.html">hdtv.fitpanel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fitter/index.html">hdtv.fitter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fitxml/index.html">hdtv.fitxml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../histogram/index.html">hdtv.histogram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../integral/index.html">hdtv.integral</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../marker/index.html">hdtv.marker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../matrix/index.html">hdtv.matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../options/index.html">hdtv.options</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">hdtv.peakmodels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../plugins/index.html">hdtv.plugins</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../rfile_utils/index.html">hdtv.rfile_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../rootext/index.html">hdtv.rootext</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../session/index.html">hdtv.session</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../specreader/index.html">hdtv.specreader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spectrum/index.html">hdtv.spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tabformat/index.html">hdtv.tabformat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ui/index.html">hdtv.ui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util/index.html">hdtv.util</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../weakref_proxy/index.html">hdtv.weakref_proxy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../window/index.html">hdtv.window</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#attributes">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#package-contents">Package Contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">hdtv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">hdtv</a></li>
+      <li class="breadcrumb-item active">hdtv.peakmodels</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/hdtv/peakmodels/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-hdtv.peakmodels">
+<span id="hdtv-peakmodels"></span><h1>hdtv.peakmodels<a class="headerlink" href="#module-hdtv.peakmodels" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="eePeak/index.html">hdtv.peakmodels.eePeak</a></li>
+<li class="toctree-l1"><a class="reference internal" href="peak/index.html">hdtv.peakmodels.peak</a></li>
+<li class="toctree-l1"><a class="reference internal" href="theuerkaufPeak/index.html">hdtv.peakmodels.theuerkaufPeak</a></li>
+</ul>
+</div>
+</section>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.peakmodels.PeakModels" title="hdtv.peakmodels.PeakModels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PeakModels</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.peakmodels.PeakModelEE" title="hdtv.peakmodels.PeakModelEE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PeakModelEE</span></code></a></p></td>
+<td><p>Peak model for electron-electron scattering</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hdtv.peakmodels.PeakModelTheuerkauf" title="hdtv.peakmodels.PeakModelTheuerkauf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PeakModelTheuerkauf</span></code></a></p></td>
+<td><p>Theuerkauf peak model - &quot;classical&quot; model used by tv</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="package-contents">
+<h2>Package Contents<a class="headerlink" href="#package-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelEE">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.peakmodels.</span></span><span class="sig-name descname"><span class="pre">PeakModelEE</span></span><a class="headerlink" href="#hdtv.peakmodels.PeakModelEE" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="peak/index.html#hdtv.peakmodels.peak.PeakModel" title="hdtv.peakmodels.peak.PeakModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hdtv.peakmodels.peak.PeakModel</span></code></a></p>
+<p>Peak model for electron-electron scattering</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelEE.fParStatus">
+<span class="sig-name descname"><span class="pre">fParStatus</span></span><a class="headerlink" href="#hdtv.peakmodels.PeakModelEE.fParStatus" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelEE.fValidParStatus">
+<span class="sig-name descname"><span class="pre">fValidParStatus</span></span><a class="headerlink" href="#hdtv.peakmodels.PeakModelEE.fValidParStatus" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelEE.fOptStatus">
+<span class="sig-name descname"><span class="pre">fOptStatus</span></span><a class="headerlink" href="#hdtv.peakmodels.PeakModelEE.fOptStatus" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelEE.fValidOptStatus">
+<span class="sig-name descname"><span class="pre">fValidOptStatus</span></span><a class="headerlink" href="#hdtv.peakmodels.PeakModelEE.fValidOptStatus" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelEE.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ee'</span></span><a class="headerlink" href="#hdtv.peakmodels.PeakModelEE.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelEE.Peak">
+<span class="sig-name descname"><span class="pre">Peak</span></span><a class="headerlink" href="#hdtv.peakmodels.PeakModelEE.Peak" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelEE.CopyPeak">
+<span class="sig-name descname"><span class="pre">CopyPeak</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cpeak</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.peakmodels.PeakModelEE.CopyPeak" title="Link to this definition"></a></dt>
+<dd><p>Copies peak data from a C++ peak class to a Python class</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelEE.RestoreParams">
+<span class="sig-name descname"><span class="pre">RestoreParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpeak</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.peakmodels.PeakModelEE.RestoreParams" title="Link to this definition"></a></dt>
+<dd><p>Restore the params of a C++ peak object using a python peak object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelEE.ResetParamStatus">
+<span class="sig-name descname"><span class="pre">ResetParamStatus</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.peakmodels.PeakModelEE.ResetParamStatus" title="Link to this definition"></a></dt>
+<dd><p>Reset parameter status to defaults</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelEE.Uncal">
+<span class="sig-name descname"><span class="pre">Uncal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_uncal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cal</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.peakmodels.PeakModelEE.Uncal" title="Link to this definition"></a></dt>
+<dd><p>Convert a value from calibrated to uncalibrated units
+This is needed, when a value is hold to a specific calibrated value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelEE.GetFitter">
+<span class="sig-name descname"><span class="pre">GetFitter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">region</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaklist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cal</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.peakmodels.PeakModelEE.GetFitter" title="Link to this definition"></a></dt>
+<dd><p>Creates a C++ Fitter object, which can then do the real work</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelTheuerkauf">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.peakmodels.</span></span><span class="sig-name descname"><span class="pre">PeakModelTheuerkauf</span></span><a class="headerlink" href="#hdtv.peakmodels.PeakModelTheuerkauf" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="peak/index.html#hdtv.peakmodels.peak.PeakModel" title="hdtv.peakmodels.peak.PeakModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hdtv.peakmodels.peak.PeakModel</span></code></a></p>
+<p>Theuerkauf peak model - “classical” model used by tv</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelTheuerkauf.fParStatus">
+<span class="sig-name descname"><span class="pre">fParStatus</span></span><a class="headerlink" href="#hdtv.peakmodels.PeakModelTheuerkauf.fParStatus" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelTheuerkauf.fValidParStatus">
+<span class="sig-name descname"><span class="pre">fValidParStatus</span></span><a class="headerlink" href="#hdtv.peakmodels.PeakModelTheuerkauf.fValidParStatus" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelTheuerkauf.fOptStatus">
+<span class="sig-name descname"><span class="pre">fOptStatus</span></span><a class="headerlink" href="#hdtv.peakmodels.PeakModelTheuerkauf.fOptStatus" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelTheuerkauf.fValidOptStatus">
+<span class="sig-name descname"><span class="pre">fValidOptStatus</span></span><a class="headerlink" href="#hdtv.peakmodels.PeakModelTheuerkauf.fValidOptStatus" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelTheuerkauf.Peak">
+<span class="sig-name descname"><span class="pre">Peak</span></span><a class="headerlink" href="#hdtv.peakmodels.PeakModelTheuerkauf.Peak" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelTheuerkauf.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'theuerkauf'</span></span><a class="headerlink" href="#hdtv.peakmodels.PeakModelTheuerkauf.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelTheuerkauf.CopyPeak">
+<span class="sig-name descname"><span class="pre">CopyPeak</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cpeak</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.peakmodels.PeakModelTheuerkauf.CopyPeak" title="Link to this definition"></a></dt>
+<dd><p>create a python peak object from C++ peak object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelTheuerkauf.RestoreParams">
+<span class="sig-name descname"><span class="pre">RestoreParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpeak</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.peakmodels.PeakModelTheuerkauf.RestoreParams" title="Link to this definition"></a></dt>
+<dd><p>Restore the params of a C++ peak object using a python peak object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelTheuerkauf.ResetParamStatus">
+<span class="sig-name descname"><span class="pre">ResetParamStatus</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.peakmodels.PeakModelTheuerkauf.ResetParamStatus" title="Link to this definition"></a></dt>
+<dd><p>Reset parameter status to defaults</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelTheuerkauf.Uncal">
+<span class="sig-name descname"><span class="pre">Uncal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_uncal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cal</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.peakmodels.PeakModelTheuerkauf.Uncal" title="Link to this definition"></a></dt>
+<dd><p>Convert a value from calibrated (spectrum) to uncalibrated (fitter) units
+This is needed, when a value is hold to a specific calibrated value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModelTheuerkauf.GetFitter">
+<span class="sig-name descname"><span class="pre">GetFitter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">region</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaklist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cal</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.peakmodels.PeakModelTheuerkauf.GetFitter" title="Link to this definition"></a></dt>
+<dd><p>Creates a C++ Fitter object, which can then do the real work</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="hdtv.peakmodels.PeakModels">
+<span class="sig-prename descclassname"><span class="pre">hdtv.peakmodels.</span></span><span class="sig-name descname"><span class="pre">PeakModels</span></span><a class="headerlink" href="#hdtv.peakmodels.PeakModels" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../options/index.html" class="btn btn-neutral float-left" title="hdtv.options" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="eePeak/index.html" class="btn btn-neutral float-right" title="hdtv.peakmodels.eePeak" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, IKP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

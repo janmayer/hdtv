@@ -1,0 +1,376 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hdtv.window &mdash; hdtv  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="prev" title="hdtv.weakref_proxy" href="../weakref_proxy/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            hdtv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../include_guide.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../include_tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">hdtv</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../app/index.html">hdtv.app</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../backgroundmodels/index.html">hdtv.backgroundmodels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cal/index.html">hdtv.cal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cmdline/index.html">hdtv.cmdline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../color/index.html">hdtv.color</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cut/index.html">hdtv.cut</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../database/index.html">hdtv.database</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../drawable/index.html">hdtv.drawable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dummy/index.html">hdtv.dummy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../efficiency/index.html">hdtv.efficiency</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fit/index.html">hdtv.fit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fitpanel/index.html">hdtv.fitpanel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fitter/index.html">hdtv.fitter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fitxml/index.html">hdtv.fitxml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../histogram/index.html">hdtv.histogram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../integral/index.html">hdtv.integral</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../marker/index.html">hdtv.marker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../matrix/index.html">hdtv.matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../options/index.html">hdtv.options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../peakmodels/index.html">hdtv.peakmodels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../plugins/index.html">hdtv.plugins</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../rfile_utils/index.html">hdtv.rfile_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../rootext/index.html">hdtv.rootext</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../session/index.html">hdtv.session</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../specreader/index.html">hdtv.specreader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spectrum/index.html">hdtv.spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tabformat/index.html">hdtv.tabformat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ui/index.html">hdtv.ui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util/index.html">hdtv.util</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../weakref_proxy/index.html">hdtv.weakref_proxy</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">hdtv.window</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#attributes">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#package-contents">Package Contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">hdtv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">hdtv</a></li>
+      <li class="breadcrumb-item active">hdtv.window</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/hdtv/window/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-hdtv.window">
+<span id="hdtv-window"></span><h1>hdtv.window<a class="headerlink" href="#module-hdtv.window" title="Link to this heading"></a></h1>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.window.HotkeyList" title="hdtv.window.HotkeyList"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HotkeyList</span></code></a></p></td>
+<td><p>Class to handle multi-key hotkeys.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hdtv.window.KeyHandler" title="hdtv.window.KeyHandler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KeyHandler</span></code></a></p></td>
+<td><p>Hotkey handler, adding support for a status line (that can be (ab)used as</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.window.Window" title="hdtv.window.Window"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Window</span></code></a></p></td>
+<td><p>Base class of a window object</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.window.wrap_cmd" title="hdtv.window.wrap_cmd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wrap_cmd</span></code></a>(cmd)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.window.HotkeyList">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.window.</span></span><span class="sig-name descname"><span class="pre">HotkeyList</span></span><a class="headerlink" href="#hdtv.window.HotkeyList" title="Link to this definition"></a></dt>
+<dd><p>Class to handle multi-key hotkeys.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.window.HotkeyList.fKeyCmds">
+<span class="sig-name descname"><span class="pre">fKeyCmds</span></span><a class="headerlink" href="#hdtv.window.HotkeyList.fKeyCmds" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.window.HotkeyList.fCurNode">
+<span class="sig-name descname"><span class="pre">fCurNode</span></span><a class="headerlink" href="#hdtv.window.HotkeyList.fCurNode" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.HotkeyList.AddHotkey">
+<span class="sig-name descname"><span class="pre">AddHotkey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.HotkeyList.AddHotkey" title="Link to this definition"></a></dt>
+<dd><p>Adds a hotkey to the hotkey table. If key is a list,
+it is taken as a multi-key hotkey. The function refuses
+to overwrite definitions that do not match exactly, i.e.
+once you have defined hotkey x, you can no longer define
+the multi-key combination xy (since that would have to
+overwrite x). You can overwrite matching combinations,
+though (i.e. redefine x in the example above).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.HotkeyList.HandleHotkey">
+<span class="sig-name descname"><span class="pre">HandleHotkey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.HotkeyList.HandleHotkey" title="Link to this definition"></a></dt>
+<dd><p>Handles a key press. Returns True if the input was a
+valid hotkey, False if it was not, and None if further
+input is needed (i.e. if the input could be part of a
+multi-key hotkey)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.HotkeyList.ResetHotkeyState">
+<span class="sig-name descname"><span class="pre">ResetHotkeyState</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.HotkeyList.ResetHotkeyState" title="Link to this definition"></a></dt>
+<dd><p>Reset possible waiting state for a multi-key hotkey.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.window.KeyHandler">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.window.</span></span><span class="sig-name descname"><span class="pre">KeyHandler</span></span><a class="headerlink" href="#hdtv.window.KeyHandler" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#hdtv.window.HotkeyList" title="hdtv.window.HotkeyList"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HotkeyList</span></code></a></p>
+<p>Hotkey handler, adding support for a status line (that can be (ab)used as
+a text entry)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.window.KeyHandler.fEditMode">
+<span class="sig-name descname"><span class="pre">fEditMode</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#hdtv.window.KeyHandler.fEditMode" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.window.KeyHandler.MODIFIER_KEYS">
+<span class="sig-name descname"><span class="pre">MODIFIER_KEYS</span></span><a class="headerlink" href="#hdtv.window.KeyHandler.MODIFIER_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.KeyHandler.EnterEditMode">
+<span class="sig-name descname"><span class="pre">EnterEditMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prompt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handler</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.KeyHandler.EnterEditMode" title="Link to this definition"></a></dt>
+<dd><p>Enter edit mode (mode where the status line is used as a text entry)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.KeyHandler.EditKeyHandler">
+<span class="sig-name descname"><span class="pre">EditKeyHandler</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.KeyHandler.EditKeyHandler" title="Link to this definition"></a></dt>
+<dd><p>Key handler in edit mode</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.KeyHandler.KeyHandler">
+<span class="sig-name descname"><span class="pre">KeyHandler</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.KeyHandler.KeyHandler" title="Link to this definition"></a></dt>
+<dd><p>Key handler (handles hotkeys and calls EditKeyHandler in edit mode)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.window.Window">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.window.</span></span><span class="sig-name descname"><span class="pre">Window</span></span><a class="headerlink" href="#hdtv.window.Window" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#hdtv.window.KeyHandler" title="hdtv.window.KeyHandler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KeyHandler</span></code></a></p>
+<p>Base class of a window object</p>
+<p>This class provides basic key handling for zooming and scrolling.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.window.Window.viewer">
+<span class="sig-name descname"><span class="pre">viewer</span></span><a class="headerlink" href="#hdtv.window.Window.viewer" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.window.Window.viewport">
+<span class="sig-name descname"><span class="pre">viewport</span></span><a class="headerlink" href="#hdtv.window.Window.viewport" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.window.Window._dispatchers">
+<span class="sig-name descname"><span class="pre">_dispatchers</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#hdtv.window.Window._dispatchers" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.window.Window.XZoomMarkers">
+<span class="sig-name descname"><span class="pre">XZoomMarkers</span></span><a class="headerlink" href="#hdtv.window.Window.XZoomMarkers" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.window.Window.YZoomMarkers">
+<span class="sig-name descname"><span class="pre">YZoomMarkers</span></span><a class="headerlink" href="#hdtv.window.Window.YZoomMarkers" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.window.Window.keyString">
+<span class="sig-name descname"><span class="pre">keyString</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></span><a class="headerlink" href="#hdtv.window.Window.keyString" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.Window.YMinVisibleRegionChanged">
+<span class="sig-name descname"><span class="pre">YMinVisibleRegionChanged</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.Window.YMinVisibleRegionChanged" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.Window.SetDarkMode">
+<span class="sig-name descname"><span class="pre">SetDarkMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.Window.SetDarkMode" title="Link to this definition"></a></dt>
+<dd><p>Switch between dark and light mode.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.Window.ViewRegion">
+<span class="sig-name descname"><span class="pre">ViewRegion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.Window.ViewRegion" title="Link to this definition"></a></dt>
+<dd><p>Zoom and move viewport to show a region</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.Window.GoToPosition">
+<span class="sig-name descname"><span class="pre">GoToPosition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.Window.GoToPosition" title="Link to this definition"></a></dt>
+<dd><p>Move viewport to be centered around a position</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.Window.FocusObjects">
+<span class="sig-name descname"><span class="pre">FocusObjects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.Window.FocusObjects" title="Link to this definition"></a></dt>
+<dd><p>Move and stretch viewport to show multiple objs</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.Window.IsInVisibleRegion">
+<span class="sig-name descname"><span class="pre">IsInVisibleRegion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">part</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.Window.IsInVisibleRegion" title="Link to this definition"></a></dt>
+<dd><p>Check if obj is in the visible region of the viewport</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.Window.ExpandX">
+<span class="sig-name descname"><span class="pre">ExpandX</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.Window.ExpandX" title="Link to this definition"></a></dt>
+<dd><p>expand in X direction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.Window.ExpandY">
+<span class="sig-name descname"><span class="pre">ExpandY</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.Window.ExpandY" title="Link to this definition"></a></dt>
+<dd><p>expand in Y direction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.Window.Expand">
+<span class="sig-name descname"><span class="pre">Expand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.Window.Expand" title="Link to this definition"></a></dt>
+<dd><p>expand in X and in Y direction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.Window._Expand">
+<span class="sig-name descname"><span class="pre">_Expand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xytype</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.Window._Expand" title="Link to this definition"></a></dt>
+<dd><p>expand the display to show the region between the zoom markers (X or Y),
+or the full spectrum if not zoom markers are set.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.Window.SetXZoomMarker">
+<span class="sig-name descname"><span class="pre">SetXZoomMarker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.Window.SetXZoomMarker" title="Link to this definition"></a></dt>
+<dd><p>set a X zoom marker</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.window.Window.SetYZoomMarker">
+<span class="sig-name descname"><span class="pre">SetYZoomMarker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.Window.SetYZoomMarker" title="Link to this definition"></a></dt>
+<dd><p>set a Y zoom marker</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hdtv.window.wrap_cmd">
+<span class="sig-prename descclassname"><span class="pre">hdtv.window.</span></span><span class="sig-name descname"><span class="pre">wrap_cmd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.window.wrap_cmd" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../weakref_proxy/index.html" class="btn btn-neutral float-left" title="hdtv.weakref_proxy" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, IKP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

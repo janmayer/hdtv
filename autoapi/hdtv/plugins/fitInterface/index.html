@@ -1,0 +1,508 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hdtv.plugins.fitInterface &mdash; hdtv  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="hdtv.plugins.fitlist" href="../fitlist/index.html" />
+    <link rel="prev" title="hdtv.plugins.dblookup" href="../dblookup/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            hdtv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../include_guide.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../include_tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html">hdtv</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../../app/index.html">hdtv.app</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../backgroundmodels/index.html">hdtv.backgroundmodels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cal/index.html">hdtv.cal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cmdline/index.html">hdtv.cmdline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../color/index.html">hdtv.color</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cut/index.html">hdtv.cut</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../database/index.html">hdtv.database</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../drawable/index.html">hdtv.drawable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dummy/index.html">hdtv.dummy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../efficiency/index.html">hdtv.efficiency</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../fit/index.html">hdtv.fit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../fitpanel/index.html">hdtv.fitpanel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../fitter/index.html">hdtv.fitter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../fitxml/index.html">hdtv.fitxml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../histogram/index.html">hdtv.histogram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../integral/index.html">hdtv.integral</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../marker/index.html">hdtv.marker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../matrix/index.html">hdtv.matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../options/index.html">hdtv.options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../peakmodels/index.html">hdtv.peakmodels</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../index.html">hdtv.plugins</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../rfile_utils/index.html">hdtv.rfile_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../rootext/index.html">hdtv.rootext</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../session/index.html">hdtv.session</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../specreader/index.html">hdtv.specreader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spectrum/index.html">hdtv.spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../tabformat/index.html">hdtv.tabformat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../ui/index.html">hdtv.ui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../util/index.html">hdtv.util</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../weakref_proxy/index.html">hdtv.weakref_proxy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../window/index.html">hdtv.window</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#attributes">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#package-contents">Package Contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">hdtv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">hdtv</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">hdtv.plugins</a></li>
+      <li class="breadcrumb-item active">hdtv.plugins.fitInterface</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/autoapi/hdtv/plugins/fitInterface/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-hdtv.plugins.fitInterface">
+<span id="hdtv-plugins-fitinterface"></span><h1>hdtv.plugins.fitInterface<a class="headerlink" href="#module-hdtv.plugins.fitInterface" title="Link to this heading"></a></h1>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.plugins.fitInterface.fit_interface" title="hdtv.plugins.fitInterface.fit_interface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_interface</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.plugins.fitInterface.FitInterface" title="hdtv.plugins.fitInterface.FitInterface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FitInterface</span></code></a></p></td>
+<td><p>User interface for fitting 1-d spectra</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hdtv.plugins.fitInterface.TvFitInterface" title="hdtv.plugins.fitInterface.TvFitInterface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TvFitInterface</span></code></a></p></td>
+<td><p>TV style interface for fitting</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.plugins.fitInterface.</span></span><span class="sig-name descname"><span class="pre">FitInterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectra</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface" title="Link to this definition"></a></dt>
+<dd><p>User interface for fitting 1-d spectra</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.spectra">
+<span class="sig-name descname"><span class="pre">spectra</span></span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.spectra" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.window">
+<span class="sig-name descname"><span class="pre">window</span></span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.window" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.tv">
+<span class="sig-name descname"><span class="pre">tv</span></span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.tv" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.opt">
+<span class="sig-name descname"><span class="pre">opt</span></span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.opt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface._register_hotkeys">
+<span class="sig-name descname"><span class="pre">_register_hotkeys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface._register_hotkeys" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface._HotkeyShow">
+<span class="sig-name descname"><span class="pre">_HotkeyShow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface._HotkeyShow" title="Link to this definition"></a></dt>
+<dd><p>Show wrapper for use with a Hotkey (internal use)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface._HotkeyActivate">
+<span class="sig-name descname"><span class="pre">_HotkeyActivate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface._HotkeyActivate" title="Link to this definition"></a></dt>
+<dd><p>ActivateObject wrapper for use with a Hotkey (internal use)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.ExecuteRefit">
+<span class="sig-name descname"><span class="pre">ExecuteRefit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">specID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.ExecuteRefit" title="Link to this definition"></a></dt>
+<dd><p>Re-Execute Fit on store fits</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.ExecuteReintegrate">
+<span class="sig-name descname"><span class="pre">ExecuteReintegrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">specID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.ExecuteReintegrate" title="Link to this definition"></a></dt>
+<dd><p>Re-Execute Fit on store fits</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.QuickFit">
+<span class="sig-name descname"><span class="pre">QuickFit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.QuickFit" title="Link to this definition"></a></dt>
+<dd><p>Set region and peak markers automatically and do a quick fit as position “pos”.</p>
+<p>If pos is not given, use cursor position</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.ListFits">
+<span class="sig-name descname"><span class="pre">ListFits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sortBy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverseSort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.ListFits" title="Link to this definition"></a></dt>
+<dd><p>List results of stored fits as nice table</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.ListIntegrals">
+<span class="sig-name descname"><span class="pre">ListIntegrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sortBy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverseSort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integral_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.ListIntegrals" title="Link to this definition"></a></dt>
+<dd><p>List integrals of fit regions as nice table</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.PrintWorkFit">
+<span class="sig-name descname"><span class="pre">PrintWorkFit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.PrintWorkFit" title="Link to this definition"></a></dt>
+<dd><p>Print results of workFit as nice table</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.PrintWorkFitIntegral">
+<span class="sig-name descname"><span class="pre">PrintWorkFitIntegral</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.PrintWorkFitIntegral" title="Link to this definition"></a></dt>
+<dd><p>Print integral of workFit range as nice table</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.ExtractFits">
+<span class="sig-name descname"><span class="pre">ExtractFits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.ExtractFits" title="Link to this definition"></a></dt>
+<dd><p>Helper function for use with ListFits and PrintWorkFit functions.</p>
+<dl class="simple">
+<dt>Return values:</dt><dd><p>fitlist    : a list of dicts for each peak in the fits
+params     : a ordered list of valid parameter names</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.ExtractIntegrals">
+<span class="sig-name descname"><span class="pre">ExtractIntegrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integral_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.ExtractIntegrals" title="Link to this definition"></a></dt>
+<dd><p>Helper function for functions ListIntegrals, PrintWorkFitIntegral.</p>
+<dl class="simple">
+<dt>Return values:</dt><dd><p>integrallist : a list of dicts for each integral in the fits
+params       : a ordered list of valid parameter names</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.ShowFitterStatus">
+<span class="sig-name descname"><span class="pre">ShowFitterStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.ShowFitterStatus" title="Link to this definition"></a></dt>
+<dd><p>Show status of the fit parameters of the work Fit.</p>
+<p>If default is true, the status of the default Fitter is shown in addition.
+If a list of ids is given, the status of the fitters belonging to that
+fits is also shown. Note, that the latter will silently fail for invalid
+IDs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.SetFitterParameter">
+<span class="sig-name descname"><span class="pre">SetFitterParameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.SetFitterParameter" title="Link to this definition"></a></dt>
+<dd><p>Sets status of fitter parameter</p>
+<p>If not specified otherwise only the fitter of the workFit will be changed.
+If a list of fits is given, we try to set the parameter status also
+for these fits. Be aware that failures for the fits from the list will
+be silently ignored.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.ResetFitterParameters">
+<span class="sig-name descname"><span class="pre">ResetFitterParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.ResetFitterParameters" title="Link to this definition"></a></dt>
+<dd><p>Reset Status of Fitter</p>
+<p>The fitter of the workFit is resetted to the internal default values .
+If a list with ids is given, they are treated in the same way as the workFit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.SetPeakModel">
+<span class="sig-name descname"><span class="pre">SetPeakModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peakmodel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.SetPeakModel" title="Link to this definition"></a></dt>
+<dd><p>Set the peak model (function used for fitting peaks)</p>
+<p>If a list of ids is given, the peak model of the stored fits with that
+ids will be set. Note, that the latter will fail silently for invalid
+fit ids.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.SetBackgroundModel">
+<span class="sig-name descname"><span class="pre">SetBackgroundModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backgroundModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.SetBackgroundModel" title="Link to this definition"></a></dt>
+<dd><p>Set the background model (function used for fitting the quasi-continuous background)</p>
+<p>If a list of ids is given, the peak model of the stored fits with that
+ids will be set. Note, that the latter will fail silently for invalid
+fit ids.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.SetDecomposition">
+<span class="sig-name descname"><span class="pre">SetDecomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_enable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.SetDecomposition" title="Link to this definition"></a></dt>
+<dd><p>Set default decomposition display status</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.FitInterface.ShowDecomposition">
+<span class="sig-name descname"><span class="pre">ShowDecomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.FitInterface.ShowDecomposition" title="Link to this definition"></a></dt>
+<dd><p>Show decomposition of fits</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.plugins.fitInterface.</span></span><span class="sig-name descname"><span class="pre">TvFitInterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fitInterface</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface" title="Link to this definition"></a></dt>
+<dd><p>TV style interface for fitting</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.fitIf">
+<span class="sig-name descname"><span class="pre">fitIf</span></span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.fitIf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.spectra">
+<span class="sig-name descname"><span class="pre">spectra</span></span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.spectra" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.FitMarkerChange">
+<span class="sig-name descname"><span class="pre">FitMarkerChange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.FitMarkerChange" title="Link to this definition"></a></dt>
+<dd><p>Set or delete a marker from command line</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.MarkerCompleter">
+<span class="sig-name descname"><span class="pre">MarkerCompleter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.MarkerCompleter" title="Link to this definition"></a></dt>
+<dd><p>Helper function for FitMarkerChange</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.FitExecute">
+<span class="sig-name descname"><span class="pre">FitExecute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.FitExecute" title="Link to this definition"></a></dt>
+<dd><p>Execute a fit</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.FitIntegralExecute">
+<span class="sig-name descname"><span class="pre">FitIntegralExecute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.FitIntegralExecute" title="Link to this definition"></a></dt>
+<dd><p>Execute integral over fit region</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.FitClear">
+<span class="sig-name descname"><span class="pre">FitClear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.FitClear" title="Link to this definition"></a></dt>
+<dd><p>Clear work fit</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.FitStore">
+<span class="sig-name descname"><span class="pre">FitStore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.FitStore" title="Link to this definition"></a></dt>
+<dd><p>Store work fit</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.FitActivate">
+<span class="sig-name descname"><span class="pre">FitActivate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.FitActivate" title="Link to this definition"></a></dt>
+<dd><p>Activate a fit</p>
+<p>This marks a stored fit as active and copies its markers to the work Fit</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.FitDelete">
+<span class="sig-name descname"><span class="pre">FitDelete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.FitDelete" title="Link to this definition"></a></dt>
+<dd><p>Delete fits</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.FitHide">
+<span class="sig-name descname"><span class="pre">FitHide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.FitHide" title="Link to this definition"></a></dt>
+<dd><p>Hide Fits</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.FitShow">
+<span class="sig-name descname"><span class="pre">FitShow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.FitShow" title="Link to this definition"></a></dt>
+<dd><p>Show Fits</p>
+<p>inverse = True inverses the fit selection i.e. FitShow becomes FitHide</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.FitHideDecomp">
+<span class="sig-name descname"><span class="pre">FitHideDecomp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.FitHideDecomp" title="Link to this definition"></a></dt>
+<dd><p>Hide decomposition of fits</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.FitShowDecomp">
+<span class="sig-name descname"><span class="pre">FitShowDecomp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.FitShowDecomp" title="Link to this definition"></a></dt>
+<dd><p>Show decomposition of fits</p>
+<p>show = False hides decomposition</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.FitFocus">
+<span class="sig-name descname"><span class="pre">FitFocus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.FitFocus" title="Link to this definition"></a></dt>
+<dd><p>Focus a fit.</p>
+<p>If no fit is given focus the active fit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.FitList">
+<span class="sig-name descname"><span class="pre">FitList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.FitList" title="Link to this definition"></a></dt>
+<dd><p>Show a nice table with the results of fits</p>
+<p>By default the result of the work fit is shown.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.FitIntegralList">
+<span class="sig-name descname"><span class="pre">FitIntegralList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.FitIntegralList" title="Link to this definition"></a></dt>
+<dd><p>Show a nice table with the results of fits</p>
+<p>By default the result of the work fit is shown.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.FitSetPeakModel">
+<span class="sig-name descname"><span class="pre">FitSetPeakModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.FitSetPeakModel" title="Link to this definition"></a></dt>
+<dd><p>Defines peak model to use for fitting</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.FitSetBackgroundModel">
+<span class="sig-name descname"><span class="pre">FitSetBackgroundModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.FitSetBackgroundModel" title="Link to this definition"></a></dt>
+<dd><p>Defines background model to use for fitting</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.PeakModelCompleter">
+<span class="sig-name descname"><span class="pre">PeakModelCompleter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.PeakModelCompleter" title="Link to this definition"></a></dt>
+<dd><p>Helper function for FitSetPeakModel</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.BackgroundModelCompleter">
+<span class="sig-name descname"><span class="pre">BackgroundModelCompleter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.BackgroundModelCompleter" title="Link to this definition"></a></dt>
+<dd><p>Helper function for FitSetBackgroundModel</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.FitParam">
+<span class="sig-name descname"><span class="pre">FitParam</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.FitParam" title="Link to this definition"></a></dt>
+<dd><p>Manipulate the status of fitter parameter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.ParamCompleter">
+<span class="sig-name descname"><span class="pre">ParamCompleter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.ParamCompleter" title="Link to this definition"></a></dt>
+<dd><p>Creates a completer for all possible parameter names
+or valid states for a parameter (args[0]: parameter name).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.TvFitInterface.ResetFit">
+<span class="sig-name descname"><span class="pre">ResetFit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.fitInterface.TvFitInterface.ResetFit" title="Link to this definition"></a></dt>
+<dd><p>Reset fitter of a fit to unfitted default.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="hdtv.plugins.fitInterface.fit_interface">
+<span class="sig-prename descclassname"><span class="pre">hdtv.plugins.fitInterface.</span></span><span class="sig-name descname"><span class="pre">fit_interface</span></span><a class="headerlink" href="#hdtv.plugins.fitInterface.fit_interface" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../dblookup/index.html" class="btn btn-neutral float-left" title="hdtv.plugins.dblookup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../fitlist/index.html" class="btn btn-neutral float-right" title="hdtv.plugins.fitlist" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, IKP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

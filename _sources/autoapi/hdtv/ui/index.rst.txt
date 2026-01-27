@@ -1,0 +1,109 @@
+hdtv.ui
+=======
+
+.. py:module:: hdtv.ui
+
+.. autoapi-nested-parse::
+
+   Basic user interface functions (Input/Output, etc)
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.ui.ui
+   hdtv.ui.msg
+   hdtv.ui.info
+   hdtv.ui.warning
+   hdtv.ui.error
+   hdtv.ui.opt
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.ui.SimpleUI
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.ui.debug
+
+
+Module Contents
+---------------
+
+.. py:class:: SimpleUI
+
+   Very simple UserInterface
+
+
+   .. py:attribute:: stdout
+      :value: None
+
+
+
+   .. py:attribute:: stderr
+      :value: None
+
+
+
+   .. py:method:: print(html, end='\n', err=False)
+
+
+   .. py:method:: print_patched(text, end)
+
+
+   .. py:method:: msg(text=None, *, html=None, end='\n')
+
+      Print message
+
+
+
+   .. py:method:: info(text=None, *, html=None, end='\n')
+
+      Print informational message
+
+
+
+   .. py:method:: warning(text=None, *, html=None, end='\n')
+
+      Print warning message
+
+
+
+   .. py:method:: error(text=None, *, html=None, end='\n')
+
+      Print error message
+
+
+
+   .. py:method:: debug(text=None, *, html=None, end='\n', level=1)
+
+      Debugging output. The higher the level, the more specific is
+      the debug message.
+
+
+
+.. py:data:: ui
+
+.. py:data:: msg
+
+.. py:data:: info
+
+.. py:data:: warning
+
+.. py:data:: error
+
+.. py:function:: debug(text, end='\n', level=1)
+
+.. py:data:: opt
+

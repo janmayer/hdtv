@@ -1,0 +1,27 @@
+hdtv.plugins.run
+================
+
+.. py:module:: hdtv.plugins.run
+
+.. autoapi-nested-parse::
+
+   Plugin for executing a python script from the command line
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.plugins.run.run
+
+
+Module Contents
+---------------
+
+.. py:function:: run(args)
+
+   Executes a python script from the hdtv command line (via execfile)
+
+

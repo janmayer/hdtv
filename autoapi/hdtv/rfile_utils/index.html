@@ -1,0 +1,327 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hdtv.rfile_utils &mdash; hdtv  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="hdtv.rootext" href="../rootext/index.html" />
+    <link rel="prev" title="hdtv.plugins.textInterface" href="../plugins/textInterface/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            hdtv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../include_guide.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../include_tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">hdtv</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../app/index.html">hdtv.app</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../backgroundmodels/index.html">hdtv.backgroundmodels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cal/index.html">hdtv.cal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cmdline/index.html">hdtv.cmdline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../color/index.html">hdtv.color</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cut/index.html">hdtv.cut</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../database/index.html">hdtv.database</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../drawable/index.html">hdtv.drawable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dummy/index.html">hdtv.dummy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../efficiency/index.html">hdtv.efficiency</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fit/index.html">hdtv.fit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fitpanel/index.html">hdtv.fitpanel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fitter/index.html">hdtv.fitter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fitxml/index.html">hdtv.fitxml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../histogram/index.html">hdtv.histogram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../integral/index.html">hdtv.integral</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../marker/index.html">hdtv.marker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../matrix/index.html">hdtv.matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../options/index.html">hdtv.options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../peakmodels/index.html">hdtv.peakmodels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../plugins/index.html">hdtv.plugins</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">hdtv.rfile_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../rootext/index.html">hdtv.rootext</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../session/index.html">hdtv.session</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../specreader/index.html">hdtv.specreader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spectrum/index.html">hdtv.spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tabformat/index.html">hdtv.tabformat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ui/index.html">hdtv.ui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util/index.html">hdtv.util</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../weakref_proxy/index.html">hdtv.weakref_proxy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../window/index.html">hdtv.window</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#attributes">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#package-contents">Package Contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">hdtv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">hdtv</a></li>
+      <li class="breadcrumb-item active">hdtv.rfile_utils</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/hdtv/rfile_utils/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-hdtv.rfile_utils">
+<span id="hdtv-rfile-utils"></span><h1>hdtv.rfile_utils<a class="headerlink" href="#module-hdtv.rfile_utils" title="Link to this heading"></a></h1>
+<p>Helper functions for access to ROOT files, treating them like POSIX
+directories</p>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.rfile_utils.Quiet" title="hdtv.rfile_utils.Quiet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quiet</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hdtv.rfile_utils.RootCdCompleter" title="hdtv.rfile_utils.RootCdCompleter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RootCdCompleter</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.rfile_utils.RootCompleter" title="hdtv.rfile_utils.RootCompleter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RootCompleter</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.rfile_utils.GetSuggestions" title="hdtv.rfile_utils.GetSuggestions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GetSuggestions</span></code></a>(document[, dirs_only])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hdtv.rfile_utils.CombinedSuggestions" title="hdtv.rfile_utils.CombinedSuggestions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombinedSuggestions</span></code></a>(text[, dirs_only])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.rfile_utils.RootSuggestions" title="hdtv.rfile_utils.RootSuggestions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RootSuggestions</span></code></a>(text[, dirs_only])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hdtv.rfile_utils.FileSuggestions" title="hdtv.rfile_utils.FileSuggestions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FileSuggestions</span></code></a>(text)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.rfile_utils.GetRelDirectory" title="hdtv.rfile_utils.GetRelDirectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GetRelDirectory</span></code></a>(cur_posix_path, cur_root_dir, path)</p></td>
+<td><p>Resolve the relative path path with respect to the current directory</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hdtv.rfile_utils.Get" title="hdtv.rfile_utils.Get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Get</span></code></a>(cur_posix_path, cur_root_dir, pattern)</p></td>
+<td><p>Function to load objects from ROOT files, treating them like POSIX</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.rfile_utils.RecursivePathMatch" title="hdtv.rfile_utils.RecursivePathMatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RecursivePathMatch</span></code></a>(cur_path, pcomp)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hdtv.rfile_utils.RecursiveROOTMatch" title="hdtv.rfile_utils.RecursiveROOTMatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RecursiveROOTMatch</span></code></a>(rfile_path, rfile_dir, pcomp)</p></td>
+<td><p>Recursively descend into ROOT file directory structure.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.rfile_utils.IsROOTFile" title="hdtv.rfile_utils.IsROOTFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IsROOTFile</span></code></a>(fname)</p></td>
+<td><p>Tests if fname is a ROOT file</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.rfile_utils.Quiet">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.rfile_utils.</span></span><span class="sig-name descname"><span class="pre">Quiet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ROOT.kInfo</span> <span class="pre">+</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.rfile_utils.Quiet" title="Link to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.rfile_utils.Quiet.level">
+<span class="sig-name descname"><span class="pre">level</span></span><a class="headerlink" href="#hdtv.rfile_utils.Quiet.level" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.rfile_utils.Quiet.__enter__">
+<span class="sig-name descname"><span class="pre">__enter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.rfile_utils.Quiet.__enter__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.rfile_utils.Quiet.__exit__">
+<span class="sig-name descname"><span class="pre">__exit__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.rfile_utils.Quiet.__exit__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.rfile_utils.RootCdCompleter">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.rfile_utils.</span></span><span class="sig-name descname"><span class="pre">RootCdCompleter</span></span><a class="headerlink" href="#hdtv.rfile_utils.RootCdCompleter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">prompt_toolkit.completion.Completer</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.rfile_utils.RootCdCompleter.get_completions">
+<span class="sig-name descname"><span class="pre">get_completions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">document</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">complete_event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.rfile_utils.RootCdCompleter.get_completions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.rfile_utils.RootCompleter">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.rfile_utils.</span></span><span class="sig-name descname"><span class="pre">RootCompleter</span></span><a class="headerlink" href="#hdtv.rfile_utils.RootCompleter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">prompt_toolkit.completion.Completer</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.rfile_utils.RootCompleter.get_completions">
+<span class="sig-name descname"><span class="pre">get_completions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">document</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">complete_event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.rfile_utils.RootCompleter.get_completions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hdtv.rfile_utils.GetSuggestions">
+<span class="sig-prename descclassname"><span class="pre">hdtv.rfile_utils.</span></span><span class="sig-name descname"><span class="pre">GetSuggestions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">document</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dirs_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.rfile_utils.GetSuggestions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hdtv.rfile_utils.CombinedSuggestions">
+<span class="sig-prename descclassname"><span class="pre">hdtv.rfile_utils.</span></span><span class="sig-name descname"><span class="pre">CombinedSuggestions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dirs_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.rfile_utils.CombinedSuggestions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hdtv.rfile_utils.RootSuggestions">
+<span class="sig-prename descclassname"><span class="pre">hdtv.rfile_utils.</span></span><span class="sig-name descname"><span class="pre">RootSuggestions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dirs_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.rfile_utils.RootSuggestions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hdtv.rfile_utils.FileSuggestions">
+<span class="sig-prename descclassname"><span class="pre">hdtv.rfile_utils.</span></span><span class="sig-name descname"><span class="pre">FileSuggestions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.rfile_utils.FileSuggestions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hdtv.rfile_utils.GetRelDirectory">
+<span class="sig-prename descclassname"><span class="pre">hdtv.rfile_utils.</span></span><span class="sig-name descname"><span class="pre">GetRelDirectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cur_posix_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cur_root_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.rfile_utils.GetRelDirectory" title="Link to this definition"></a></dt>
+<dd><p>Resolve the relative path path with respect to the current directory
+specified by cur_posix_path and cur_root_dir.</p>
+<p>cur_posix_path is a string specifying the current working directory. If
+cur_root_dir is not None, it is taken as a TDirectoryFile object specifying
+the working directory inside the ROOT file. The ROOT file is expected to
+reside inside the directory specified by cur_posix_path.</p>
+<p>Returns a triple (new_posix_path, new_root_file, new_root_dir).
+new_posix_path is the new posix path.
+new_root_file is the ROOT file in which new_root_dir resides, or None if
+new_root_dir resides in the same file as cur_root_dir. If new_root_file is
+not None, the caller is expected to close the file after being done with it.
+(Note: a path moving out of a ROOT file and then back in
+is considered to refer to a different file, with the consequences mentioned
+above.)
+new_root_dir is the new ROOT TDirectory.</p>
+<p>If path is invalid, (None, None, None) is returned.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hdtv.rfile_utils.Get">
+<span class="sig-prename descclassname"><span class="pre">hdtv.rfile_utils.</span></span><span class="sig-name descname"><span class="pre">Get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cur_posix_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cur_root_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.rfile_utils.Get" title="Link to this definition"></a></dt>
+<dd><p>Function to load objects from ROOT files, treating them like POSIX
+directories.</p>
+<p>cur_posix_path specifies the current working directory.
+If cur_root_dir is a ROOT TDirectoryFile object, searching starts relative
+to that directory. If is is None, searching starts relative to
+cur_posix_path.    Pattern is a shell-style pattern, e.g. “<em>.root/spec/</em>”.</p>
+<p>Returns a list of ROOT objects.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hdtv.rfile_utils.RecursivePathMatch">
+<span class="sig-prename descclassname"><span class="pre">hdtv.rfile_utils.</span></span><span class="sig-name descname"><span class="pre">RecursivePathMatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cur_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pcomp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.rfile_utils.RecursivePathMatch" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hdtv.rfile_utils.RecursiveROOTMatch">
+<span class="sig-prename descclassname"><span class="pre">hdtv.rfile_utils.</span></span><span class="sig-name descname"><span class="pre">RecursiveROOTMatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rfile_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rfile_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pcomp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.rfile_utils.RecursiveROOTMatch" title="Link to this definition"></a></dt>
+<dd><p>Recursively descend into ROOT file directory structure.
+rfile_path is a string specifying the POSIX directory of the ROOT file
+rfile_dir is a TDirectoryFile object specifying the current directory</p>
+<blockquote>
+<div><p>in the ROOT file</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hdtv.rfile_utils.IsROOTFile">
+<span class="sig-prename descclassname"><span class="pre">hdtv.rfile_utils.</span></span><span class="sig-name descname"><span class="pre">IsROOTFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.rfile_utils.IsROOTFile" title="Link to this definition"></a></dt>
+<dd><p>Tests if fname is a ROOT file</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../plugins/textInterface/index.html" class="btn btn-neutral float-left" title="hdtv.plugins.textInterface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../rootext/index.html" class="btn btn-neutral float-right" title="hdtv.rootext" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, IKP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

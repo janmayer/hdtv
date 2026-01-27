@@ -1,0 +1,272 @@
+hdtv.database.common
+====================
+
+.. py:module:: hdtv.database.common
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.database.common.Elements
+   hdtv.database.common.Nuclides
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.database.common._Element
+   hdtv.database.common._Elements
+   hdtv.database.common._Nuclide
+   hdtv.database.common._Nuclides
+   hdtv.database.common.Gamma
+   hdtv.database.common.GammaLib
+
+
+Module Contents
+---------------
+
+.. py:class:: _Element(Z, Symbol, Name=None, M=None)
+
+   Store info about elements
+
+
+   .. py:attribute:: __slots__
+      :value: ('ID', 'z', 'symbol', 'name', 'm')
+
+
+
+   .. py:attribute:: z
+
+
+   .. py:attribute:: symbol
+
+
+   .. py:attribute:: name
+      :value: None
+
+
+
+   .. py:attribute:: m
+      :value: None
+
+
+
+   .. py:attribute:: ID
+
+
+   .. py:method:: _get_Z()
+
+
+   .. py:attribute:: Z
+
+
+   .. py:method:: _get_M()
+
+
+   .. py:attribute:: M
+
+
+   .. py:method:: __str__()
+
+
+.. py:class:: _Elements(csvfile=None)
+
+   Bases: :py:obj:`list`
+
+
+   Read and hold complete elements list
+
+
+   .. py:method:: __call__(Z=None, symbol=None, name=None)
+
+
+   .. py:method:: __setitem__(index, value)
+
+      Set self[key] to value.
+
+
+
+   .. py:method:: __getitem__(index)
+
+      Return self[index].
+
+
+
+.. py:class:: _Nuclide(element, A, abundance=None, sigma=None, M=None)
+
+   Bases: :py:obj:`_Element`
+
+
+   Store info about elements
+
+
+   .. py:attribute:: __slots__
+      :value: ('ID', 'element', 'a', 'm', 'sigma', 'abundance')
+
+
+
+   .. py:attribute:: element
+
+
+   .. py:attribute:: a
+
+
+   .. py:attribute:: m
+      :value: None
+
+
+
+   .. py:attribute:: sigma
+      :value: None
+
+
+
+   .. py:attribute:: abundance
+      :value: None
+
+
+
+   .. py:attribute:: ID
+      :value: '-'
+
+
+
+   .. py:method:: _get_symbol()
+
+
+   .. py:method:: _set_symbol(symbol)
+
+
+   .. py:attribute:: symbol
+
+
+   .. py:method:: __str__()
+
+
+.. py:class:: _Nuclides(csvfile=None)
+
+   .. py:attribute:: _storage
+
+
+   .. py:method:: __call__(Z=None, A=None, symbol=None, name=None)
+
+      Return a list of nuclides with given properties (Z, A, symbol, name)
+
+      e.g.: Nuclides(A=197, symbol="Au") returns [Au-197]
+            Nuclides(symbol="Au") or Nuclides(name="gold") or Nuclides(Z=79) return list of all gold nuclides
+
+
+
+.. py:class:: Gamma(nuclide, energy, sigma, intensity)
+
+   Class for storing information about gammas
+
+
+   .. py:attribute:: __slots__
+      :value: ('ID', 'nuclide', 'energy', 'sigma', 'intensity')
+
+
+
+   .. py:attribute:: ID
+      :value: '@'
+
+
+
+   .. py:attribute:: nuclide
+
+
+   .. py:attribute:: energy
+
+
+   .. py:attribute:: sigma
+
+
+   .. py:attribute:: intensity
+
+
+   .. py:method:: __str__()
+
+
+   .. py:method:: _Z()
+
+
+   .. py:attribute:: z
+
+
+   .. py:method:: _A()
+
+
+   .. py:attribute:: a
+
+
+   .. py:method:: _symbol()
+
+
+   .. py:attribute:: symbol
+
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: __ne__(other)
+
+
+   .. py:method:: __gt__(other)
+
+
+   .. py:method:: __lt__(other)
+
+
+   .. py:method:: __ge__(other)
+
+
+   .. py:method:: __le__(other)
+
+
+.. py:class:: GammaLib(fuzziness=1.0)
+
+   Bases: :py:obj:`list`
+
+
+   Class for storing a gamma library
+
+   The real libs should be derived from this
+
+
+   .. py:attribute:: __slots__
+      :value: ('nuclide', 'energy', 'sigma', 'intensity', 'E_fuzziness')
+
+
+
+   .. py:attribute:: fuzziness
+      :value: 1.0
+
+
+
+   .. py:attribute:: opened
+      :value: False
+
+
+
+   .. py:method:: find(fuzziness=None, sort_key=None, sort_reverse=False, **args)
+
+      Find in gamma lib
+
+      Does a fuzzy compare for floats. All strings are compared lowercase.
+
+      Valid key args are:
+
+       * sort_key: key to sort
+       * sort_reverse: sort_reverse
+       * "key: value" : key value pairs to find
+
+
+
+.. py:data:: Elements
+
+.. py:data:: Nuclides
+

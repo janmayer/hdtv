@@ -1,0 +1,343 @@
+hdtv.plugins.fitInterface
+=========================
+
+.. py:module:: hdtv.plugins.fitInterface
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.plugins.fitInterface.fit_interface
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.plugins.fitInterface.FitInterface
+   hdtv.plugins.fitInterface.TvFitInterface
+
+
+Module Contents
+---------------
+
+.. py:class:: FitInterface(spectra)
+
+   User interface for fitting 1-d spectra
+
+
+   .. py:attribute:: spectra
+
+
+   .. py:attribute:: window
+
+
+   .. py:attribute:: tv
+
+
+   .. py:attribute:: opt
+
+
+   .. py:method:: _register_hotkeys()
+
+
+   .. py:method:: _HotkeyShow(args)
+
+      Show wrapper for use with a Hotkey (internal use)
+
+
+
+   .. py:method:: _HotkeyActivate(args)
+
+      ActivateObject wrapper for use with a Hotkey (internal use)
+
+
+
+   .. py:method:: ExecuteRefit(specID, fitID, peaks=True)
+
+      Re-Execute Fit on store fits
+
+
+
+   .. py:method:: ExecuteReintegrate(specID, fitID, print_result=True)
+
+      Re-Execute Fit on store fits
+
+
+
+   .. py:method:: QuickFit(pos=None)
+
+      Set region and peak markers automatically and do a quick fit as position "pos".
+
+      If pos is not given, use cursor position
+
+
+
+   .. py:method:: ListFits(sid=None, ids=None, sortBy=None, reverseSort=False)
+
+      List results of stored fits as nice table
+
+
+
+   .. py:method:: ListIntegrals(sid=None, ids=None, sortBy=None, reverseSort=False, integral_type='auto')
+
+      List integrals of fit regions as nice table
+
+
+
+   .. py:method:: PrintWorkFit()
+
+      Print results of workFit as nice table
+
+
+
+   .. py:method:: PrintWorkFitIntegral()
+
+      Print integral of workFit range as nice table
+
+
+
+   .. py:method:: ExtractFits(fits)
+
+      Helper function for use with ListFits and PrintWorkFit functions.
+
+      Return values:
+          fitlist    : a list of dicts for each peak in the fits
+          params     : a ordered list of valid parameter names
+
+
+
+   .. py:method:: ExtractIntegrals(fits, integral_type='auto')
+
+      Helper function for functions ListIntegrals, PrintWorkFitIntegral.
+
+      Return values:
+          integrallist : a list of dicts for each integral in the fits
+          params       : a ordered list of valid parameter names
+
+
+
+   .. py:method:: ShowFitterStatus(ids=None)
+
+      Show status of the fit parameters of the work Fit.
+
+      If default is true, the status of the default Fitter is shown in addition.
+      If a list of ids is given, the status of the fitters belonging to that
+      fits is also shown. Note, that the latter will silently fail for invalid
+      IDs.
+
+
+
+   .. py:method:: SetFitterParameter(parname, status, ids=None)
+
+      Sets status of fitter parameter
+
+      If not specified otherwise only the fitter of the workFit will be changed.
+      If a list of fits is given, we try to set the parameter status also
+      for these fits. Be aware that failures for the fits from the list will
+      be silently ignored.
+
+
+
+   .. py:method:: ResetFitterParameters(ids=None)
+
+      Reset Status of Fitter
+
+      The fitter of the workFit is resetted to the internal default values .
+      If a list with ids is given, they are treated in the same way as the workFit.
+
+
+
+   .. py:method:: SetPeakModel(peakmodel, ids=None)
+
+      Set the peak model (function used for fitting peaks)
+
+      If a list of ids is given, the peak model of the stored fits with that
+      ids will be set. Note, that the latter will fail silently for invalid
+      fit ids.
+
+
+
+   .. py:method:: SetBackgroundModel(backgroundModel, ids=None)
+
+      Set the background model (function used for fitting the quasi-continuous background)
+
+      If a list of ids is given, the peak model of the stored fits with that
+      ids will be set. Note, that the latter will fail silently for invalid
+      fit ids.
+
+
+
+   .. py:method:: SetDecomposition(default_enable)
+
+      Set default decomposition display status
+
+
+
+   .. py:method:: ShowDecomposition(enable, sid=None, ids=None)
+
+      Show decomposition of fits
+
+
+
+.. py:class:: TvFitInterface(fitInterface)
+
+   TV style interface for fitting
+
+
+   .. py:attribute:: fitIf
+
+
+   .. py:attribute:: spectra
+
+
+   .. py:method:: FitMarkerChange(args)
+
+      Set or delete a marker from command line
+
+
+
+   .. py:method:: MarkerCompleter(text, args=None)
+
+      Helper function for FitMarkerChange
+
+
+
+   .. py:method:: FitExecute(args)
+
+      Execute a fit
+
+
+
+   .. py:method:: FitIntegralExecute(args)
+
+      Execute integral over fit region
+
+
+
+   .. py:method:: FitClear(args)
+
+      Clear work fit
+
+
+
+   .. py:method:: FitStore(args)
+
+      Store work fit
+
+
+
+   .. py:method:: FitActivate(args)
+
+      Activate a fit
+
+      This marks a stored fit as active and copies its markers to the work Fit
+
+
+
+   .. py:method:: FitDelete(args)
+
+      Delete fits
+
+
+
+   .. py:method:: FitHide(args)
+
+      Hide Fits
+
+
+
+   .. py:method:: FitShow(args, inverse=False)
+
+      Show Fits
+
+      inverse = True inverses the fit selection i.e. FitShow becomes FitHide
+
+
+
+   .. py:method:: FitHideDecomp(args)
+
+      Hide decomposition of fits
+
+
+
+   .. py:method:: FitShowDecomp(args, show=True)
+
+      Show decomposition of fits
+
+      show = False hides decomposition
+
+
+
+   .. py:method:: FitFocus(args)
+
+      Focus a fit.
+
+      If no fit is given focus the active fit.
+
+
+
+   .. py:method:: FitList(args)
+
+      Show a nice table with the results of fits
+
+      By default the result of the work fit is shown.
+
+
+
+   .. py:method:: FitIntegralList(args)
+
+      Show a nice table with the results of fits
+
+      By default the result of the work fit is shown.
+
+
+
+   .. py:method:: FitSetPeakModel(args)
+
+      Defines peak model to use for fitting
+
+
+
+   .. py:method:: FitSetBackgroundModel(args)
+
+      Defines background model to use for fitting
+
+
+
+   .. py:method:: PeakModelCompleter(text, args=None)
+
+      Helper function for FitSetPeakModel
+
+
+
+   .. py:method:: BackgroundModelCompleter(text, args=None)
+
+      Helper function for FitSetBackgroundModel
+
+
+
+   .. py:method:: FitParam(args)
+
+      Manipulate the status of fitter parameter
+
+
+
+   .. py:method:: ParamCompleter(text, args=None)
+
+      Creates a completer for all possible parameter names
+      or valid states for a parameter (args[0]: parameter name).
+
+
+
+   .. py:method:: ResetFit(args)
+
+      Reset fitter of a fit to unfitted default.
+
+
+
+.. py:data:: fit_interface
+

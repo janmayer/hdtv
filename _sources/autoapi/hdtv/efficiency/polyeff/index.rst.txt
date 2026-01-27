@@ -1,0 +1,68 @@
+hdtv.efficiency.polyeff
+=======================
+
+.. py:module:: hdtv.efficiency.polyeff
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.efficiency.polyeff.PolyEff
+
+
+Module Contents
+---------------
+
+.. py:class:: PolyEff(pars=None, degree=4, norm=False)
+
+   Bases: :py:obj:`hdtv.efficiency.efficiency._Efficiency`
+
+
+   'Polynom' efficiency
+
+   Internally working on double logarithmic E and eff scale
+
+
+
+   .. py:attribute:: name
+      :value: 'Polynom'
+
+
+
+   .. py:attribute:: id
+
+
+   .. py:attribute:: _degree
+      :value: 4
+
+
+
+   .. py:attribute:: TF1
+
+
+   .. py:method:: _set_fitInput(fitPairs)
+
+
+   .. py:method:: _get_fitInput()
+
+
+   .. py:attribute:: fitInput
+
+
+   .. py:method:: normalize()
+
+
+   .. py:method:: value(E)
+
+
+   .. py:method:: error(E)
+
+      Calculate error using the covariance matrix via:
+
+        delta_Eff = sqrt((dEff_dP[0], dEff_dP[1], ... dEff_dP[num_pars]) x cov x (dEff_dP[0], dEff_dP[1], ... dEff_dP[num_pars]))
+
+
+
+

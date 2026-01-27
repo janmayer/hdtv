@@ -1,0 +1,88 @@
+hdtv.plugins.printing
+=====================
+
+.. py:module:: hdtv.plugins.printing
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.plugins.printing.print_interface
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.plugins.printing.PrintOut
+   hdtv.plugins.printing.PrintInterface
+
+
+Module Contents
+---------------
+
+.. py:class:: PrintOut(spectra, energies=False)
+
+   .. py:attribute:: spectra
+
+
+   .. py:attribute:: labels
+      :value: False
+
+
+
+   .. py:method:: Execute()
+
+      creates a plot with all currently visible objects
+
+
+
+   .. py:method:: PrintHistogram(spec)
+
+      print histogramm
+
+
+
+   .. py:method:: PrintFit(fit)
+
+      print fit including peak marker and functions
+
+
+
+   .. py:method:: PrintMarker(marker)
+
+      print marker
+
+
+
+   .. py:method:: PrintLabel(peak, i)
+
+      print energy labels for peaks
+
+
+
+   .. py:method:: PrintFunc(func, cal, color)
+
+      print function by evaluation it at several points
+
+
+
+   .. py:method:: ApplyCalibration(en, cal)
+
+      return calibrated values
+
+
+
+.. py:class:: PrintInterface(spectra)
+
+   .. py:attribute:: spectra
+
+
+   .. py:method:: Print(args)
+
+
+.. py:data:: print_interface
+

@@ -1,0 +1,44 @@
+hdtv.efficiency.wiedenhoever
+============================
+
+.. py:module:: hdtv.efficiency.wiedenhoever
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.efficiency.wiedenhoever.WiedenhoeverEff
+
+
+Module Contents
+---------------
+
+.. py:class:: WiedenhoeverEff(pars=None, norm=True)
+
+   Bases: :py:obj:`hdtv.efficiency.efficiency._Efficiency`
+
+
+   'Wiedenhoever' efficiency formula.
+
+   former formula: eff(E) = a * (E - c+ d * exp(-e * E))^-b
+   new formula: eff(E) = d * (E - b + c * exp(-d * E))^-a
+
+
+   .. py:attribute:: name
+      :value: 'Wiedenhoever'
+
+
+
+   .. py:attribute:: id
+
+
+   .. py:attribute:: TF1
+
+
+   .. py:attribute:: _dEff_dP
+      :value: [None, None, None, None, None]
+
+
+

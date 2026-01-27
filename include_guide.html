@@ -1,0 +1,391 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HDTV &mdash; hdtv  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="HDTV" href="include_tutorial.html" />
+    <link rel="prev" title="Welcome to hdtv’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            hdtv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#nuclear-spectrum-analysis-tool">Nuclear Spectrum Analysis Tool</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#options">OPTIONS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hdtv-command-line">HDTV COMMAND LINE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#key-bindings">KEY BINDINGS</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#window">Window</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spec-interface">Spec Interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fit-interface">Fit Interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matrix-interface">Matrix Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#files">FILES</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bugs">BUGS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#authors">AUTHORS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#see-also">SEE ALSO</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="include_tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">hdtv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">HDTV</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/include_guide.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="hdtv">
+<h1>HDTV<a class="headerlink" href="#hdtv" title="Link to this heading"></a></h1>
+<section id="nuclear-spectrum-analysis-tool">
+<h2>Nuclear Spectrum Analysis Tool<a class="headerlink" href="#nuclear-spectrum-analysis-tool" title="Link to this heading"></a></h2>
+<dl class="field-list simple">
+<dt class="field-odd">Manual section<span class="colon">:</span></dt>
+<dd class="field-odd"><p>1</p>
+</dd>
+</dl>
+<section id="synopsis">
+<h3>SYNOPSIS<a class="headerlink" href="#synopsis" title="Link to this heading"></a></h3>
+<div class="line-block">
+<div class="line"><strong>hdtv</strong> [ <strong>-h</strong> ] [ <strong>-b</strong> <em>batchfile</em> ] [ <strong>-e</strong> <em>commands</em> ] [ <strong>-v</strong> ]</div>
+</div>
+</section>
+<section id="description">
+<h3>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
+<p>HDTV tries to provide functionality similar to the old TV program on top
+of the <code class="docutils literal notranslate"><span class="pre">ROOT</span></code>(1) data analysis toolkit developed at CERN. The use of Python
+gives HDTV much better scripting capabilities than TV. Also, since HDTV
+consists of a number of modules that can in principle be used independently
+of each other, HDTV is much easier to extend and customize. HDTV is written
+in a mixture of C++ and Python, glued together using PyROOT.</p>
+</section>
+<section id="options">
+<h3>OPTIONS<a class="headerlink" href="#options" title="Link to this heading"></a></h3>
+<dl class="option-list">
+<dt><kbd><span class="option">--help</span>, <span class="option">-h</span></kbd></dt>
+<dd><p>Show help message and exit</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>–batch <em>batchfile</em>, -b <em>batchfile</em></dt><dd><p>Open and execute hdtv batchfile</p>
+</dd>
+<dt>–execute <em>commands</em>, -e <em>commands</em></dt><dd><p>Execute hdtv command(s)</p>
+</dd>
+</dl>
+<dl class="option-list">
+<dt><kbd><span class="option">--version</span>, <span class="option">-v</span></kbd></dt>
+<dd><p>Show HDTV Version</p>
+</dd>
+</dl>
+</section>
+<section id="hdtv-command-line">
+<h3>HDTV COMMAND LINE<a class="headerlink" href="#hdtv-command-line" title="Link to this heading"></a></h3>
+<p>HDTV features an extensive command line interface. Besides a wide set of
+HDTV commands, it is possible to use special prefixes:</p>
+<dl class="simple">
+<dt>:</dt><dd><p>Execute a single Python command.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>&#64;</dt><dd><p>Execute an HDTV batch file (or use the <code class="docutils literal notranslate"><span class="pre">exec</span></code> command).</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>!</dt><dd><p>Execute a single shell command.</p>
+</dd>
+</dl>
+<p>The command line is implemented using <code class="docutils literal notranslate"><span class="pre">prompt_toolkit</span></code>. Common features,
+such as tab-completion, history and history-search (using <code class="docutils literal notranslate"><span class="pre">Ctrl-R</span></code>) are
+available.</p>
+</section>
+<section id="key-bindings">
+<h3>KEY BINDINGS<a class="headerlink" href="#key-bindings" title="Link to this heading"></a></h3>
+<p>Note: Key bindings are case sensitive.</p>
+<section id="window">
+<h4>Window<a class="headerlink" href="#window" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt>u</dt><dd><p>Update Viewport</p>
+</dd>
+<dt>l</dt><dd><p>Toggle Log Scale</p>
+</dd>
+<dt>A</dt><dd><p>Toggle Y Auto Scale</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>!</dt><dd><p>Toggle Use Norm</p>
+</dd>
+</dl>
+<section id="x-directions">
+<h5>x directions<a class="headerlink" href="#x-directions" title="Link to this heading"></a></h5>
+<dl class="simple">
+<dt>Space</dt><dd><p>Set X Zoom Marker</p>
+</dd>
+<dt>x</dt><dd><p>Expand X</p>
+</dd>
+<dt>Right, &gt;</dt><dd><p>Shift X Offset Right</p>
+</dd>
+<dt>Left, &lt;</dt><dd><p>Shift X Offset Left</p>
+</dd>
+<dt>Return, Enter</dt><dd><p>Update</p>
+</dd>
+<dt>|</dt><dd><p>Set X Center at Cursor</p>
+</dd>
+<dt>1</dt><dd><p>X Zoom In Around Cursor</p>
+</dd>
+<dt>0</dt><dd><p>X Zoom Out Around Cursor</p>
+</dd>
+</dl>
+</section>
+<section id="y-direction">
+<h5>y direction<a class="headerlink" href="#y-direction" title="Link to this heading"></a></h5>
+<dl class="simple">
+<dt>h</dt><dd><p>Set Y Zoom Marker</p>
+</dd>
+<dt>y</dt><dd><p>Expand Y</p>
+</dd>
+<dt>Up</dt><dd><p>Shift Y Offset Up</p>
+</dd>
+<dt>Down</dt><dd><p>Shift Y Offset Down</p>
+</dd>
+<dt>Z</dt><dd><p>Y Zoom In Around Cursor</p>
+</dd>
+<dt>X</dt><dd><p>Y Zoom Out Around Cursor</p>
+</dd>
+</dl>
+</section>
+<section id="all-directions">
+<h5>all directions<a class="headerlink" href="#all-directions" title="Link to this heading"></a></h5>
+<dl class="simple">
+<dt>e</dt><dd><p>Expand</p>
+</dd>
+<dt>i</dt><dd><p>Enter Edit Mode: Go To Position</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="spec-interface">
+<h4>Spec Interface<a class="headerlink" href="#spec-interface" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt>PageUp, N + p</dt><dd><p>Show Prev</p>
+</dd>
+<dt>PageDown, N + n</dt><dd><p>Show Next</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>=</dt><dd><p>Refresh All</p>
+</dd>
+<dt>t</dt><dd><p>Refresh Visible</p>
+</dd>
+<dt>n</dt><dd><p>Enter Edit Mode: Show spectrum</p>
+</dd>
+<dt>a</dt><dd><p>Enter Edit Mode: Activate spectrum</p>
+</dd>
+</dl>
+</section>
+<section id="fit-interface">
+<h4>Fit Interface<a class="headerlink" href="#fit-interface" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt>b</dt><dd><p>Set Marker bg</p>
+</dd>
+<dt>Minus + b</dt><dd><p>Remove Marker bg</p>
+</dd>
+<dt>r</dt><dd><p>Set Marker region</p>
+</dd>
+<dt>Minus + r</dt><dd><p>Remove Marker region</p>
+</dd>
+<dt>p</dt><dd><p>Set Marker peak</p>
+</dd>
+<dt>Minus + p</dt><dd><p>Remove Marker peak</p>
+</dd>
+<dt>B</dt><dd><p>Execute Fit (Background only)</p>
+</dd>
+<dt>F</dt><dd><p>Execute Fit</p>
+</dd>
+<dt>Q</dt><dd><p>QuickFit</p>
+</dd>
+<dt>Minus + B</dt><dd><p>Clear Fit (Background only)</p>
+</dd>
+<dt>Minus + F</dt><dd><p>Clear Fit</p>
+</dd>
+<dt>Plus + F</dt><dd><p>Store Fit</p>
+</dd>
+<dt>D</dt><dd><p>Show Decomposition</p>
+</dd>
+<dt>Minus + D</dt><dd><p>Hide Decomposition</p>
+</dd>
+<dt>f + s</dt><dd><p>Enter Edit Mode: Show Fit</p>
+</dd>
+<dt>f + a</dt><dd><p>Enter Edit Mode: Activate Fit</p>
+</dd>
+<dt>f + p</dt><dd><p>Show Prev</p>
+</dd>
+<dt>f + n</dt><dd><p>Show Next</p>
+</dd>
+<dt>I</dt><dd><p>Execute Integral</p>
+</dd>
+</dl>
+</section>
+<section id="matrix-interface">
+<h4>Matrix Interface<a class="headerlink" href="#matrix-interface" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt>g</dt><dd><p>Set Marker cut</p>
+</dd>
+<dt>c + g</dt><dd><p>Set Marker cutregion</p>
+</dd>
+<dt>c + b</dt><dd><p>Set Marker cutbg</p>
+</dd>
+<dt>Minus + c + g</dt><dd><p>Remove Marker cutregion</p>
+</dd>
+<dt>Minus + c + b</dt><dd><p>Remove Marker cutbg</p>
+</dd>
+<dt>Minus + C</dt><dd><p>Clear Cut</p>
+</dd>
+<dt>Plus + C</dt><dd><p>Store Cut</p>
+</dd>
+<dt>C</dt><dd><p>Execute Cut</p>
+</dd>
+<dt>c + s</dt><dd><p>Enter Edit Mode: Show Cut</p>
+</dd>
+<dt>c + a</dt><dd><p>Enter Edit Mode: Activate Cut</p>
+</dd>
+<dt>c + p</dt><dd><p>Show Prev</p>
+</dd>
+<dt>c + n</dt><dd><p>Show Next</p>
+</dd>
+<dt>Tab</dt><dd><p>Switch</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="files">
+<h3>FILES<a class="headerlink" href="#files" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>$HOME/.config/hdtv/startup.py</dt><dd><p>Python script that gets executed during startup.</p>
+</dd>
+<dt>$HOME/.config/hdtv/startup.hdtv, $HOME/.config/hdtv/startup.hdtv.d/*.hdtv</dt><dd><p>Files containing HDTV commands that get executed during startup.</p>
+</dd>
+<dt>$HOME/.config/hdtv/plugins/</dt><dd><p>Put plugins here.</p>
+</dd>
+<dt>$HOME/.local/share/hdtv/hdtv_history</dt><dd><p>History of commands executed in HDTV.</p>
+</dd>
+</dl>
+<p>HDTV supports the XDG Base Directory Specification, with the default paths
+listed above. If the legacy directory <code class="docutils literal notranslate"><span class="pre">$HOME/.hdtv</span></code> exists, it is used
+instead. It is also possible to manually set the directory using the
+<code class="docutils literal notranslate"><span class="pre">$HDTV_USER_PATH</span></code> environment variable.</p>
+</section>
+<section id="bugs">
+<h3>BUGS<a class="headerlink" href="#bugs" title="Link to this heading"></a></h3>
+<p>See <a class="reference external" href="https://gitlab.ikp.uni-koeln.de/staging/hdtv/issues/">https://gitlab.ikp.uni-koeln.de/staging/hdtv/issues/</a> for a list of all
+currently open bugs and feature requests.</p>
+</section>
+<section id="authors">
+<h3>AUTHORS<a class="headerlink" href="#authors" title="Link to this heading"></a></h3>
+<p>Jan Mayer (<a class="reference external" href="mailto:jan&#46;mayer&#37;&#52;&#48;ikp&#46;uni-koeln&#46;de">jan<span>&#46;</span>mayer<span>&#64;</span>ikp<span>&#46;</span>uni-koeln<span>&#46;</span>de</a>),
+Elena Hoemann (<a class="reference external" href="mailto:ehoemann&#37;&#52;&#48;ikp&#46;uni-koeln&#46;de">ehoemann<span>&#64;</span>ikp<span>&#46;</span>uni-koeln<span>&#46;</span>de</a>),
+Oliver Papst (<a class="reference external" href="mailto:opapst&#37;&#52;&#48;ikp&#46;tu-darmstadt&#46;de">opapst<span>&#64;</span>ikp<span>&#46;</span>tu-darmstadt<span>&#46;</span>de</a>),
+Nigel Warr (<a class="reference external" href="mailto:warr&#37;&#52;&#48;ikp&#46;uni-koeln&#46;de">warr<span>&#64;</span>ikp<span>&#46;</span>uni-koeln<span>&#46;</span>de</a>),
+Norbert Braun (<a class="reference external" href="mailto:n&#46;braun&#37;&#52;&#48;ikp&#46;uni-koeln&#46;de">n<span>&#46;</span>braun<span>&#64;</span>ikp<span>&#46;</span>uni-koeln<span>&#46;</span>de</a>),
+Tanja Kotthaus (<a class="reference external" href="mailto:t&#46;kotthaus&#37;&#52;&#48;ikp&#46;uni-koeln&#46;de">t<span>&#46;</span>kotthaus<span>&#64;</span>ikp<span>&#46;</span>uni-koeln<span>&#46;</span>de</a>),
+Ralf Schulze (<a class="reference external" href="mailto:r&#46;schulze&#37;&#52;&#48;ikp&#46;uni-koeln&#46;de">r<span>&#46;</span>schulze<span>&#64;</span>ikp<span>&#46;</span>uni-koeln<span>&#46;</span>de</a>)</p>
+</section>
+<section id="see-also">
+<h3>SEE ALSO<a class="headerlink" href="#see-also" title="Link to this heading"></a></h3>
+<div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">hdtv-tutorial</span></code>(1), <code class="docutils literal notranslate"><span class="pre">root</span></code>(1), <code class="docutils literal notranslate"><span class="pre">python</span></code>(1)</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to hdtv’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="include_tutorial.html" class="btn btn-neutral float-right" title="HDTV" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, IKP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

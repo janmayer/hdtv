@@ -1,0 +1,137 @@
+hdtv.efficiency.efficiency
+==========================
+
+.. py:module:: hdtv.efficiency.efficiency
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.efficiency.efficiency._Efficiency
+
+
+Module Contents
+---------------
+
+.. py:class:: _Efficiency(num_pars=0, pars=None, norm=True)
+
+   .. py:attribute:: _numPars
+      :value: 0
+
+
+
+   .. py:attribute:: parameter
+      :value: []
+
+
+
+   .. py:attribute:: fCov
+
+
+   .. py:attribute:: _dEff_dP
+      :value: []
+
+
+
+   .. py:attribute:: TGraph
+
+
+   .. py:attribute:: _doNorm
+      :value: True
+
+
+
+   .. py:attribute:: norm
+      :value: 1.0
+
+
+
+   .. py:attribute:: _fitInput
+
+
+   .. py:method:: _getParameter()
+
+      Get parameter of efficiency function
+
+
+
+   .. py:method:: _setParameter(pars)
+
+      Set parameter for efficiency function
+
+
+
+   .. py:method:: __call__(E)
+
+
+   .. py:method:: _set_fitInput(fitPairs)
+
+
+   .. py:method:: _get_fitInput()
+
+
+   .. py:attribute:: fitInput
+
+
+   .. py:method:: fit(fitPairs=None, quiet=True)
+
+      Fit efficiency curve to values given by 'fitPairs' which should be a list
+      of energy<->efficiency pairs. (See hdtv.util.Pairs())
+
+      'energies' and 'efficiencies' may be a list of ufloats
+
+
+
+   .. py:method:: normalize()
+
+
+   .. py:method:: value(E)
+
+
+   .. py:method:: error(E)
+
+      Calculate error using the covariance matrix via:
+
+        delta_Eff = sqrt((dEff_dP[0], dEff_dP[1], ... dEff_dP[num_pars]) x cov x (dEff_dP[0], dEff_dP[1], ... dEff_dP[num_pars]))
+
+
+
+
+   .. py:method:: loadPar(parfile)
+
+      Read parameter from file
+
+
+
+   .. py:method:: loadCov(covfile)
+
+      Load covariance matrix from file
+
+
+
+   .. py:method:: load(parfile, covfile=None)
+
+      Read parameter and covariance matrix from file
+
+
+
+   .. py:method:: savePar(parfile)
+
+      Save parameter to file
+
+
+
+   .. py:method:: saveCov(covfile)
+
+      Save covariance matrix to file
+
+
+
+   .. py:method:: save(parfile, covfile=None)
+
+      Save parameter and covariance matrix to files
+
+
+

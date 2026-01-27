@@ -1,0 +1,157 @@
+hdtv.peakmodels
+===============
+
+.. py:module:: hdtv.peakmodels
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/hdtv/peakmodels/eePeak/index
+   /autoapi/hdtv/peakmodels/peak/index
+   /autoapi/hdtv/peakmodels/theuerkaufPeak/index
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.peakmodels.PeakModels
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.peakmodels.PeakModelEE
+   hdtv.peakmodels.PeakModelTheuerkauf
+
+
+Package Contents
+----------------
+
+.. py:class:: PeakModelEE
+
+   Bases: :py:obj:`hdtv.peakmodels.peak.PeakModel`
+
+
+   Peak model for electron-electron scattering
+
+
+   .. py:attribute:: fParStatus
+
+
+   .. py:attribute:: fValidParStatus
+
+
+   .. py:attribute:: fOptStatus
+
+
+   .. py:attribute:: fValidOptStatus
+
+
+   .. py:attribute:: name
+      :value: 'ee'
+
+
+
+   .. py:attribute:: Peak
+
+
+   .. py:method:: CopyPeak(cpeak, color=None, cal=None)
+
+      Copies peak data from a C++ peak class to a Python class
+
+
+
+   .. py:method:: RestoreParams(peak, cpeak)
+
+      Restore the params of a C++ peak object using a python peak object
+
+
+
+   .. py:method:: ResetParamStatus()
+
+      Reset parameter status to defaults
+
+
+
+   .. py:method:: Uncal(parname, value, pos_uncal, cal)
+
+      Convert a value from calibrated to uncalibrated units
+      This is needed, when a value is hold to a specific calibrated value.
+
+
+
+   .. py:method:: GetFitter(region, peaklist, cal)
+
+      Creates a C++ Fitter object, which can then do the real work
+
+
+
+.. py:class:: PeakModelTheuerkauf
+
+   Bases: :py:obj:`hdtv.peakmodels.peak.PeakModel`
+
+
+   Theuerkauf peak model - "classical" model used by tv
+
+
+   .. py:attribute:: fParStatus
+
+
+   .. py:attribute:: fValidParStatus
+
+
+   .. py:attribute:: fOptStatus
+
+
+   .. py:attribute:: fValidOptStatus
+
+
+   .. py:attribute:: Peak
+
+
+   .. py:attribute:: name
+      :value: 'theuerkauf'
+
+
+
+   .. py:method:: CopyPeak(cpeak, color=None, cal=None)
+
+      create a python peak object from C++ peak object
+
+
+
+   .. py:method:: RestoreParams(peak, cpeak)
+
+      Restore the params of a C++ peak object using a python peak object
+
+
+
+   .. py:method:: ResetParamStatus()
+
+      Reset parameter status to defaults
+
+
+
+   .. py:method:: Uncal(parname, value, pos_uncal, cal)
+
+      Convert a value from calibrated (spectrum) to uncalibrated (fitter) units
+      This is needed, when a value is hold to a specific calibrated value.
+
+
+
+   .. py:method:: GetFitter(region, peaklist, cal)
+
+      Creates a C++ Fitter object, which can then do the real work
+
+
+
+.. py:data:: PeakModels
+

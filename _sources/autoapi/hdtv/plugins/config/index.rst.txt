@@ -1,0 +1,74 @@
+hdtv.plugins.config
+===================
+
+.. py:module:: hdtv.plugins.config
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.plugins.config.config_var_completer
+   hdtv.plugins.config.prog
+   hdtv.plugins.config.description
+   hdtv.plugins.config.parser
+   hdtv.plugins.config.prog
+   hdtv.plugins.config.description
+   hdtv.plugins.config.parser
+   hdtv.plugins.config.prog
+   hdtv.plugins.config.description
+   hdtv.plugins.config.parser
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.plugins.config.ConfigSet
+   hdtv.plugins.config.ConfigShow
+   hdtv.plugins.config.ConfigReset
+
+
+Module Contents
+---------------
+
+.. py:function:: ConfigSet(args)
+
+.. py:function:: ConfigShow(args)
+
+.. py:function:: ConfigReset(args)
+
+.. py:data:: config_var_completer
+
+.. py:data:: prog
+   :value: 'config set'
+
+
+.. py:data:: description
+   :value: 'Set a configuration variable'
+
+
+.. py:data:: parser
+
+.. py:data:: prog
+   :value: 'config show'
+
+
+.. py:data:: description
+   :value: 'Show the configuration or a single configuration variable'
+
+
+.. py:data:: parser
+
+.. py:data:: prog
+   :value: 'config reset'
+
+
+.. py:data:: description
+   :value: 'Reset a single configuration variable'
+
+
+.. py:data:: parser
+

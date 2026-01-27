@@ -1,0 +1,284 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hdtv.plugins.peakfinder &mdash; hdtv  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="hdtv.plugins.printing" href="../printing/index.html" />
+    <link rel="prev" title="hdtv.plugins.matInterface" href="../matInterface/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            hdtv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../include_guide.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../include_tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html">hdtv</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../../app/index.html">hdtv.app</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../backgroundmodels/index.html">hdtv.backgroundmodels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cal/index.html">hdtv.cal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cmdline/index.html">hdtv.cmdline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../color/index.html">hdtv.color</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cut/index.html">hdtv.cut</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../database/index.html">hdtv.database</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../drawable/index.html">hdtv.drawable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dummy/index.html">hdtv.dummy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../efficiency/index.html">hdtv.efficiency</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../fit/index.html">hdtv.fit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../fitpanel/index.html">hdtv.fitpanel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../fitter/index.html">hdtv.fitter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../fitxml/index.html">hdtv.fitxml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../histogram/index.html">hdtv.histogram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../integral/index.html">hdtv.integral</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../marker/index.html">hdtv.marker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../matrix/index.html">hdtv.matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../options/index.html">hdtv.options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../peakmodels/index.html">hdtv.peakmodels</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../index.html">hdtv.plugins</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../rfile_utils/index.html">hdtv.rfile_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../rootext/index.html">hdtv.rootext</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../session/index.html">hdtv.session</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../specreader/index.html">hdtv.specreader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spectrum/index.html">hdtv.spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../tabformat/index.html">hdtv.tabformat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../ui/index.html">hdtv.ui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../util/index.html">hdtv.util</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../weakref_proxy/index.html">hdtv.weakref_proxy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../window/index.html">hdtv.window</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#attributes">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#package-contents">Package Contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">hdtv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">hdtv</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">hdtv.plugins</a></li>
+      <li class="breadcrumb-item active">hdtv.plugins.peakfinder</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/autoapi/hdtv/plugins/peakfinder/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-hdtv.plugins.peakfinder">
+<span id="hdtv-plugins-peakfinder"></span><h1>hdtv.plugins.peakfinder<a class="headerlink" href="#module-hdtv.plugins.peakfinder" title="Link to this heading"></a></h1>
+<p>Peak finding and fitting plugin for HDTV</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.plugins.peakfinder.peakfinder" title="hdtv.plugins.peakfinder.peakfinder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">peakfinder</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#id1" title="hdtv.plugins.peakfinder.opt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">opt</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id1" title="hdtv.plugins.peakfinder.opt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">opt</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#id1" title="hdtv.plugins.peakfinder.opt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">opt</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.plugins.peakfinder.prog" title="hdtv.plugins.peakfinder.prog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prog</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#hdtv.plugins.peakfinder.description" title="hdtv.plugins.peakfinder.description"><code class="xref py py-obj docutils literal notranslate"><span class="pre">description</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.plugins.peakfinder.parser" title="hdtv.plugins.peakfinder.parser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parser</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.plugins.peakfinder.PeakFinder" title="hdtv.plugins.peakfinder.PeakFinder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PeakFinder</span></code></a></p></td>
+<td><p>Automatic peak finder - using ROOTS peak search function</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.plugins.peakfinder.PeakSearch" title="hdtv.plugins.peakfinder.PeakSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PeakSearch</span></code></a>(args)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.plugins.peakfinder.PeakFinder">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.plugins.peakfinder.</span></span><span class="sig-name descname"><span class="pre">PeakFinder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectra</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.peakfinder.PeakFinder" title="Link to this definition"></a></dt>
+<dd><p>Automatic peak finder - using ROOTS peak search function</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.peakfinder.PeakFinder.spectra">
+<span class="sig-name descname"><span class="pre">spectra</span></span><a class="headerlink" href="#hdtv.plugins.peakfinder.PeakFinder.spectra" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.peakfinder.PeakFinder.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autofit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reject</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.peakfinder.PeakFinder.__call__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.peakfinder.PeakFinder.PeakSearch">
+<span class="sig-name descname"><span class="pre">PeakSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.peakfinder.PeakFinder.PeakSearch" title="Link to this definition"></a></dt>
+<dd><p>Search for peaks</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.peakfinder.PeakFinder.StoreFits">
+<span class="sig-name descname"><span class="pre">StoreFits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">foundpeaks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autofit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reject</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.peakfinder.PeakFinder.StoreFits" title="Link to this definition"></a></dt>
+<dd><p>Create fit objects from peak positions and add them to the fitlist
+If autofit is set to True fitting is done,
+if reject is set to True all badFits will be remove.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.peakfinder.PeakFinder.BadFit">
+<span class="sig-name descname"><span class="pre">BadFit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.peakfinder.PeakFinder.BadFit" title="Link to this definition"></a></dt>
+<dd><p>Check if the fit is sensible</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="hdtv.plugins.peakfinder.peakfinder">
+<span class="sig-prename descclassname"><span class="pre">hdtv.plugins.peakfinder.</span></span><span class="sig-name descname"><span class="pre">peakfinder</span></span><a class="headerlink" href="#hdtv.plugins.peakfinder.peakfinder" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hdtv.plugins.peakfinder.PeakSearch">
+<span class="sig-prename descclassname"><span class="pre">hdtv.plugins.peakfinder.</span></span><span class="sig-name descname"><span class="pre">PeakSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.peakfinder.PeakSearch" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="hdtv.plugins.peakfinder.opt">
+<span class="sig-prename descclassname"><span class="pre">hdtv.plugins.peakfinder.</span></span><span class="sig-name descname"><span class="pre">opt</span></span><a class="headerlink" href="#hdtv.plugins.peakfinder.opt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-prename descclassname"><span class="pre">hdtv.plugins.peakfinder.</span></span><span class="sig-name descname"><span class="pre">opt</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-prename descclassname"><span class="pre">hdtv.plugins.peakfinder.</span></span><span class="sig-name descname"><span class="pre">opt</span></span><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="hdtv.plugins.peakfinder.prog">
+<span class="sig-prename descclassname"><span class="pre">hdtv.plugins.peakfinder.</span></span><span class="sig-name descname"><span class="pre">prog</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'fit</span> <span class="pre">peakfind'</span></span><a class="headerlink" href="#hdtv.plugins.peakfinder.prog" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="hdtv.plugins.peakfinder.description">
+<span class="sig-prename descclassname"><span class="pre">hdtv.plugins.peakfinder.</span></span><span class="sig-name descname"><span class="pre">description</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Search</span> <span class="pre">for</span> <span class="pre">peaks</span> <span class="pre">in</span> <span class="pre">active</span> <span class="pre">spectrum</span> <span class="pre">in</span> <span class="pre">given</span> <span class="pre">range'</span></span><a class="headerlink" href="#hdtv.plugins.peakfinder.description" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="hdtv.plugins.peakfinder.parser">
+<span class="sig-prename descclassname"><span class="pre">hdtv.plugins.peakfinder.</span></span><span class="sig-name descname"><span class="pre">parser</span></span><a class="headerlink" href="#hdtv.plugins.peakfinder.parser" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../matInterface/index.html" class="btn btn-neutral float-left" title="hdtv.plugins.matInterface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../printing/index.html" class="btn btn-neutral float-right" title="hdtv.plugins.printing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, IKP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

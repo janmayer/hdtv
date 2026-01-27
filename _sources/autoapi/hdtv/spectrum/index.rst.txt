@@ -1,0 +1,116 @@
+hdtv.spectrum
+=============
+
+.. py:module:: hdtv.spectrum
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.spectrum.Spectrum
+   hdtv.spectrum.CutSpectrum
+
+
+Module Contents
+---------------
+
+.. py:class:: Spectrum(histogram)
+
+   Bases: :py:obj:`hdtv.drawable.DrawableManager`
+
+
+   This class provides some handy functions to manage a collection of
+   identical drawable objects.
+
+
+   .. py:method:: __setattr__(name, value)
+
+
+   .. py:method:: __getattr__(name)
+
+
+   .. py:method:: _set_color(color)
+
+
+   .. py:method:: _get_color()
+
+
+   .. py:attribute:: color
+
+
+   .. py:method:: _set_cal(cal)
+
+
+   .. py:method:: _get_cal()
+
+
+   .. py:attribute:: cal
+
+
+   .. py:method:: Insert(fit, ID=None)
+
+      This inserts an object to the dictionary of this manager
+      If no ID is given, the first free ID is used, else the object is inserted
+      at the given ID, possibly removing an object which was there before.
+
+
+
+   .. py:method:: Pop(ID)
+
+      Remove object with ID
+
+
+
+   .. py:method:: Draw(viewport)
+
+      Draw function (sets the viewport and draws all components)
+
+
+
+   .. py:method:: Show()
+
+      Show the object as whole (according to last visible/active states)
+
+
+
+   .. py:method:: Hide()
+
+      Hide the object as a whole (with info about current visible/active states)
+
+
+
+   .. py:method:: Refresh()
+
+      Refresh whole object
+
+
+
+.. py:class:: CutSpectrum(hist, matrix, axis)
+
+   Bases: :py:obj:`Spectrum`
+
+
+   This class provides some handy functions to manage a collection of
+   identical drawable objects.
+
+
+   .. py:method:: Show()
+
+      Show all visible cut markers for the axis of this spectrum
+
+
+
+   .. py:method:: Hide()
+
+      Hide also the cut markers, but without changing the visibility state of the matrix
+
+
+
+   .. py:method:: Refresh()
+
+      Repeat the cut
+
+
+

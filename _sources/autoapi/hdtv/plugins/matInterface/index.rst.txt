@@ -1,0 +1,136 @@
+hdtv.plugins.matInterface
+=========================
+
+.. py:module:: hdtv.plugins.matInterface
+
+.. autoapi-nested-parse::
+
+   Matrix interface for hdtv
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.plugins.matInterface.matrix_interface
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.plugins.matInterface.MatInterface
+   hdtv.plugins.matInterface.TvMatInterface
+
+
+Module Contents
+---------------
+
+.. py:class:: MatInterface(spectra)
+
+   .. py:attribute:: spectra
+
+
+   .. py:attribute:: window
+
+
+   .. py:attribute:: oldcut
+      :value: None
+
+
+
+   .. py:attribute:: tv
+
+
+   .. py:method:: _HotkeyShow(args)
+
+      Show wrapper for use with a Hotkey (internal use)
+
+
+
+   .. py:method:: _HotkeyActivate(args)
+
+      ActivateObject wrapper for use with a Hotkey (internal use)
+
+
+
+   .. py:method:: _HotkeySwitch()
+
+
+   .. py:method:: LoadMatrix(fname, sym, ID=None)
+
+
+   .. py:method:: ListMatrix(matrix)
+
+
+.. py:class:: TvMatInterface(matInterface)
+
+   .. py:attribute:: matIf
+
+
+   .. py:attribute:: spectra
+
+
+   .. py:attribute:: matviews
+      :value: []
+
+
+
+   .. py:method:: MatrixView(args)
+
+      Load a matrix from file, then display it in 2d
+
+
+
+   .. py:method:: MatrixGet(args)
+
+      Load a matrix from file
+
+
+
+   .. py:method:: MatrixList(args)
+
+      Show a overview of matrices with all cuts and cut spectra
+
+
+
+   .. py:method:: CutMarkerChange(args)
+
+      Set or delete a marker from command line
+
+
+
+   .. py:method:: MarkerCompleter(text, args=None)
+
+      Helper function for CutMarkerChange
+
+
+
+   .. py:method:: CutExecute(args)
+
+
+   .. py:method:: CutClear(args)
+
+
+   .. py:method:: CutStore(args)
+
+
+   .. py:method:: CutActivate(args)
+
+      Activate a cut
+
+      This marks a stored cut as active and copies its markers to the work cut
+
+
+
+   .. py:method:: CutDelete(args)
+
+      Delete a cut and its cut spectrum
+
+
+
+.. py:data:: matrix_interface
+

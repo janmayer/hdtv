@@ -1,0 +1,73 @@
+hdtv.plugins.textInterface
+==========================
+
+.. py:module:: hdtv.plugins.textInterface
+
+.. autoapi-nested-parse::
+
+   TextInterface functions
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.plugins.textInterface.FormatText
+   hdtv.plugins.textInterface.TextInterface
+
+
+Module Contents
+---------------
+
+.. py:class:: FormatText
+
+   Bases: :py:obj:`prompt_toolkit.layout.processors.Processor`
+
+
+   .. py:method:: apply_transformation(ti)
+
+
+.. py:class:: TextInterface(height=25, width=80)
+
+   Bases: :py:obj:`hdtv.ui.SimpleUI`
+
+
+   Very simple UserInterface
+
+
+   .. py:attribute:: opt
+
+
+   .. py:attribute:: _fallback_canvasheight
+      :value: 25
+
+
+
+   .. py:attribute:: _fallback_canvaswidth
+      :value: 80
+
+
+
+   .. py:method:: page(html, end='\n')
+
+      Print text by pages
+
+
+
+   .. py:method:: pager(html, end='\n')
+
+      Construct pager using prompt_toolkit
+
+
+
+   .. py:method:: msg(text=None, *, html=None, end='\n')
+
+      Message output
+
+
+
+   .. py:method:: _updateTerminalSize()
+
+

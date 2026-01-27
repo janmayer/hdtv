@@ -1,0 +1,308 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hdtv.plugins.rootInterface &mdash; hdtv  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="hdtv.plugins.run" href="../run/index.html" />
+    <link rel="prev" title="hdtv.plugins.printing" href="../printing/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            hdtv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../include_guide.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../include_tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html">hdtv</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../../app/index.html">hdtv.app</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../backgroundmodels/index.html">hdtv.backgroundmodels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cal/index.html">hdtv.cal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cmdline/index.html">hdtv.cmdline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../color/index.html">hdtv.color</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cut/index.html">hdtv.cut</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../database/index.html">hdtv.database</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../drawable/index.html">hdtv.drawable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dummy/index.html">hdtv.dummy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../efficiency/index.html">hdtv.efficiency</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../fit/index.html">hdtv.fit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../fitpanel/index.html">hdtv.fitpanel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../fitter/index.html">hdtv.fitter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../fitxml/index.html">hdtv.fitxml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../histogram/index.html">hdtv.histogram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../integral/index.html">hdtv.integral</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../marker/index.html">hdtv.marker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../matrix/index.html">hdtv.matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../options/index.html">hdtv.options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../peakmodels/index.html">hdtv.peakmodels</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../index.html">hdtv.plugins</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../rfile_utils/index.html">hdtv.rfile_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../rootext/index.html">hdtv.rootext</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../session/index.html">hdtv.session</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../specreader/index.html">hdtv.specreader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../spectrum/index.html">hdtv.spectrum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../tabformat/index.html">hdtv.tabformat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../ui/index.html">hdtv.ui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../util/index.html">hdtv.util</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../weakref_proxy/index.html">hdtv.weakref_proxy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../window/index.html">hdtv.window</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#attributes">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#package-contents">Package Contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">hdtv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">hdtv</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">hdtv.plugins</a></li>
+      <li class="breadcrumb-item active">hdtv.plugins.rootInterface</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/autoapi/hdtv/plugins/rootInterface/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-hdtv.plugins.rootInterface">
+<span id="hdtv-plugins-rootinterface"></span><h1>hdtv.plugins.rootInterface<a class="headerlink" href="#module-hdtv.plugins.rootInterface" title="Link to this heading"></a></h1>
+<p>Preliminary ROOT file interface for hdtv</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.plugins.rootInterface.r" title="hdtv.plugins.rootInterface.r"><code class="xref py py-obj docutils literal notranslate"><span class="pre">r</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#hdtv.plugins.rootInterface.RootFileInterface" title="hdtv.plugins.rootInterface.RootFileInterface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RootFileInterface</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">hdtv.plugins.rootInterface.</span></span><span class="sig-name descname"><span class="pre">RootFileInterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectra</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface" title="Link to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.spectra">
+<span class="sig-name descname"><span class="pre">spectra</span></span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.spectra" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.window">
+<span class="sig-name descname"><span class="pre">window</span></span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.window" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.caldict">
+<span class="sig-name descname"><span class="pre">caldict</span></span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.caldict" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.rootfile">
+<span class="sig-name descname"><span class="pre">rootfile</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.rootfile" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.browser">
+<span class="sig-name descname"><span class="pre">browser</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.browser" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.matviews">
+<span class="sig-name descname"><span class="pre">matviews</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.matviews" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.RootBrowse">
+<span class="sig-name descname"><span class="pre">RootBrowse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.RootBrowse" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.RootLs">
+<span class="sig-name descname"><span class="pre">RootLs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.RootLs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.RootLL">
+<span class="sig-name descname"><span class="pre">RootLL</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.RootLL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.RootCd">
+<span class="sig-name descname"><span class="pre">RootCd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.RootCd" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.RootPwd">
+<span class="sig-name descname"><span class="pre">RootPwd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.RootPwd" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.RootOpen">
+<span class="sig-name descname"><span class="pre">RootOpen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.RootOpen" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.RootClose">
+<span class="sig-name descname"><span class="pre">RootClose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.RootClose" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.GetObj">
+<span class="sig-name descname"><span class="pre">GetObj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.GetObj" title="Link to this definition"></a></dt>
+<dd><p>Load an object from a ROOT file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.GetCut">
+<span class="sig-name descname"><span class="pre">GetCut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.GetCut" title="Link to this definition"></a></dt>
+<dd><p>Load a cut (TCutG) from a ROOT file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.GetTH2">
+<span class="sig-name descname"><span class="pre">GetTH2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.GetTH2" title="Link to this definition"></a></dt>
+<dd><p>Load a 2D histogram (<a href="#id1"><span class="problematic" id="id2">``</span></a>matrix’’) from a ROOT file. This can be either
+a <a href="#id3"><span class="problematic" id="id4">``</span></a>true’’ TH2 histogram or a THnSparse of dimension 2.</p>
+<p>Note: Unlike RootGet(), this function does not support shell-style
+pattern expansion, as this make it too easy to undeliberately load
+too many histograms. As they use a lot of memory, this would likely
+lead to a crash of the program.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.RootCutView">
+<span class="sig-name descname"><span class="pre">RootCutView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.RootCutView" title="Link to this definition"></a></dt>
+<dd><p>Load a ROOT cut (TCutG) from a ROOT file and display it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.RootCutDelete">
+<span class="sig-name descname"><span class="pre">RootCutDelete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.RootCutDelete" title="Link to this definition"></a></dt>
+<dd><p>Delete all cuts shown in the current matrix view.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.RootMatrixView">
+<span class="sig-name descname"><span class="pre">RootMatrixView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.RootMatrixView" title="Link to this definition"></a></dt>
+<dd><p>Load a 2D histogram (<a href="#id5"><span class="problematic" id="id6">``</span></a>matrix’’) from a ROOT file and display it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.RootMatrixGet">
+<span class="sig-name descname"><span class="pre">RootMatrixGet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.RootMatrixGet" title="Link to this definition"></a></dt>
+<dd><p>Load a 2D histogram (<a href="#id7"><span class="problematic" id="id8">``</span></a>matrix’’) from a ROOT file in projection mode.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.RootFileInterface.RootGet">
+<span class="sig-name descname"><span class="pre">RootGet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hdtv.plugins.rootInterface.RootFileInterface.RootGet" title="Link to this definition"></a></dt>
+<dd><p>Load spectra from Rootfile</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="hdtv.plugins.rootInterface.r">
+<span class="sig-prename descclassname"><span class="pre">hdtv.plugins.rootInterface.</span></span><span class="sig-name descname"><span class="pre">r</span></span><a class="headerlink" href="#hdtv.plugins.rootInterface.r" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../printing/index.html" class="btn btn-neutral float-left" title="hdtv.plugins.printing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../run/index.html" class="btn btn-neutral float-right" title="hdtv.plugins.run" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, IKP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

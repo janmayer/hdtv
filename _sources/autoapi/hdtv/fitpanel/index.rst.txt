@@ -1,0 +1,109 @@
+hdtv.fitpanel
+=============
+
+.. py:module:: hdtv.fitpanel
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.fitpanel.FitPanel
+
+
+Module Contents
+---------------
+
+.. py:class:: FitPanel
+
+   .. py:attribute:: _dispatchers
+      :value: []
+
+
+
+   .. py:attribute:: fFitHandler
+      :value: None
+
+
+
+   .. py:attribute:: fClearHandler
+      :value: None
+
+
+
+   .. py:attribute:: fResetHandler
+      :value: None
+
+
+
+   .. py:attribute:: fDecompHandler
+      :value: None
+
+
+
+   .. py:attribute:: fVisible
+      :value: False
+
+
+
+   .. py:attribute:: fMainFrame
+
+
+   .. py:attribute:: fButtonFrame
+
+
+   .. py:attribute:: fFitButton
+
+
+   .. py:attribute:: fClearButton
+
+
+   .. py:attribute:: fResetButton
+
+
+   .. py:attribute:: fHideButton
+
+
+   .. py:attribute:: fDecompButton
+
+
+   .. py:attribute:: fFitInfo
+
+
+   .. py:attribute:: fOptionsText
+
+
+   .. py:attribute:: fFitText
+
+
+   .. py:method:: Hide()
+
+
+   .. py:method:: Show()
+
+
+   .. py:method:: FitClicked()
+
+
+   .. py:method:: ClearClicked()
+
+
+   .. py:method:: ResetClicked()
+
+
+   .. py:method:: HideClicked()
+
+
+   .. py:method:: DecompClicked()
+
+
+   .. py:method:: SetDecomp(stat)
+
+
+   .. py:method:: SetData(text)
+
+
+   .. py:method:: SetOptions(text)
+
+

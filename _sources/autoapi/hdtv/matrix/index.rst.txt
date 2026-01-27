@@ -1,0 +1,95 @@
+hdtv.matrix
+===========
+
+.. py:module:: hdtv.matrix
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.matrix.Matrix
+
+
+Module Contents
+---------------
+
+.. py:class:: Matrix(histo2D, sym, viewport)
+
+   Bases: :py:obj:`hdtv.drawable.DrawableManager`
+
+
+   This class provides some handy functions to manage a collection of
+   identical drawable objects.
+
+
+   .. py:attribute:: histo2D
+
+
+   .. py:attribute:: sym
+
+
+   .. py:attribute:: ID
+      :value: None
+
+
+
+   .. py:attribute:: _xproj
+      :value: None
+
+
+
+   .. py:attribute:: _yproj
+      :value: None
+
+
+
+   .. py:attribute:: _color
+
+
+   .. py:method:: _set_color(color)
+
+
+   .. py:method:: _get_color()
+
+
+   .. py:attribute:: color
+
+
+   .. py:property:: name
+
+
+   .. py:property:: xproj
+
+
+   .. py:property:: yproj
+
+
+   .. py:method:: project(axis)
+
+      Return Projection along a given axis
+
+
+
+   .. py:method:: ExecuteCut(cut)
+
+
+   .. py:method:: Insert(obj, ID=None)
+
+      Insert cut to internal dict
+
+
+
+   .. py:method:: ActivateObject(ID)
+
+      Activates the object with ID
+
+
+
+   .. py:method:: Show(axis='0')
+
+      Show the object as whole (according to last visible/active states)
+
+
+

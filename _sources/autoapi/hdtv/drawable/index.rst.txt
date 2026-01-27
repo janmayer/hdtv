@@ -1,0 +1,343 @@
+hdtv.drawable
+=============
+
+.. py:module:: hdtv.drawable
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.drawable.Drawable
+   hdtv.drawable.DrawableManager
+
+
+Module Contents
+---------------
+
+.. py:class:: Drawable(color=None, cal=None)
+
+   .. py:attribute:: viewport
+      :value: None
+
+
+
+   .. py:attribute:: displayObj
+      :value: None
+
+
+
+   .. py:attribute:: active
+      :value: False
+
+
+
+   .. py:attribute:: cal
+      :value: None
+
+
+
+   .. py:attribute:: color
+      :value: None
+
+
+
+   .. py:attribute:: ID
+      :value: None
+
+
+
+   .. py:property:: name
+
+
+   .. py:method:: _set_cal(cal)
+
+
+   .. py:method:: _get_cal()
+
+
+   .. py:method:: _set_color(color)
+
+
+   .. py:method:: _get_color()
+
+
+   .. py:method:: _set_active(state)
+
+
+   .. py:method:: _get_active()
+
+
+   .. py:method:: _set_ID(ID)
+
+
+   .. py:method:: _get_ID()
+
+
+   .. py:method:: Draw(viewport)
+
+      This function must create the appropriate object from the underlying
+      C++ display code and call its draw function.
+      Attention: Unlike the Display object of the underlying implementation,
+      python objects can only be drawn on a single viewport
+
+
+
+   .. py:method:: Refresh()
+
+      Refresh the objects data
+
+
+
+   .. py:method:: Show()
+
+      Show the object
+
+
+
+   .. py:method:: Hide()
+
+      Hide the object
+
+
+
+.. py:class:: DrawableManager(viewport=None)
+
+   This class provides some handy functions to manage a collection of
+   identical drawable objects.
+
+
+   .. py:attribute:: nextPrevEndBell
+
+
+   .. py:attribute:: viewport
+      :value: None
+
+
+
+   .. py:attribute:: dict
+
+
+   .. py:attribute:: visible
+
+
+   .. py:attribute:: activeID
+      :value: None
+
+
+
+   .. py:attribute:: _iteratorID
+      :value: None
+
+
+
+   .. py:attribute:: _active
+      :value: False
+
+
+
+   .. py:method:: __len__()
+
+
+   .. py:property:: ids
+
+
+   .. py:method:: _set_active(state)
+
+
+   .. py:method:: _get_active()
+
+
+   .. py:attribute:: active
+
+
+   .. py:method:: ActivateObject(ID=None)
+
+      Activates the object with ID
+
+
+
+   .. py:method:: GetActiveObject()
+
+      Returns currently active object
+
+
+
+   .. py:method:: Get(ID)
+
+
+   .. py:method:: Index(obj)
+
+      Return index such that self[index] == obj
+
+
+
+   .. py:method:: Insert(obj, ID=None)
+
+      This inserts an object to the dictionary of this manager
+      If no ID is given, the first free ID is used, else the object is inserted
+      at the given ID, possibly removing an object which was there before.
+
+
+
+   .. py:method:: Pop(ID)
+
+      Remove object with ID
+
+
+
+   .. py:method:: Clear()
+
+      Clear dict and reset everything
+
+
+
+   .. py:method:: GetFreeID()
+
+      Finds the first free index
+
+
+
+   .. py:method:: Draw(viewport)
+
+      Draw function (sets the viewport and draws all components)
+
+
+
+   .. py:method:: Refresh()
+
+      Refresh whole object
+
+
+
+   .. py:method:: RefreshAll()
+
+      Refresh all objects in dict
+
+
+
+   .. py:method:: RefreshVisible()
+
+      Refresh visible objects
+
+
+
+   .. py:method:: RefreshObjects(ids)
+
+      Refresh objects with ids
+
+
+
+   .. py:method:: Hide()
+
+      Hide the object as a whole (with info about current visible/active states)
+
+
+
+   .. py:method:: HideAll()
+
+      Hide all child objects
+
+
+
+   .. py:method:: HideObjects(ids)
+
+      Hide objects
+
+
+
+   .. py:method:: Show()
+
+      Show the object as whole (according to last visible/active states)
+
+
+
+   .. py:method:: ShowAll()
+
+      Show all
+
+
+
+   .. py:method:: ShowObjects(ids, clear=True)
+
+      Show objects on the display.
+
+      If the clear parameter is True, the display is cleared first.
+      Otherwise the objects are shown in addition to the ones, that
+      are already visible.
+
+
+
+   .. py:property:: nextID
+
+
+   .. py:property:: nextVisibleID
+
+
+   .. py:property:: prevID
+
+
+   .. py:property:: prevVisibleID
+
+
+   .. py:property:: firstID
+
+
+   .. py:property:: firstVisibleID
+
+
+   .. py:property:: lastID
+
+
+   .. py:property:: lastVisibleID
+
+
+   .. py:method:: _firstID(onlyVisible=False)
+
+
+   .. py:method:: _lastID(onlyVisible=False)
+
+
+   .. py:method:: _nextID(onlyVisible=False)
+
+      Get next ID after _iteratorID
+
+
+
+   .. py:method:: _prevID(onlyVisible=False)
+
+      Get previous ID before _iteratorID
+
+
+
+   .. py:method:: ShowNext(nb=1)
+
+      Show next object (by index)
+
+      With the parameter nb, the user can choose how many new spectra
+      there should be displayed.
+
+
+
+   .. py:method:: ShowPrev(nb=1)
+
+      Show previous object (by index)
+
+      With the parameter nb, the user can choose how many new spectra
+      there should be displayed.
+
+
+
+   .. py:method:: ShowFirst(nb=1)
+
+      Show the first nb objects
+
+
+
+   .. py:method:: ShowLast(nb=1)
+
+      Show the last nb objects
+
+
+

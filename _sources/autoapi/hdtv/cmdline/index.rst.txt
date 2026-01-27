@@ -1,0 +1,533 @@
+hdtv.cmdline
+============
+
+.. py:module:: hdtv.cmdline
+
+.. autoapi-nested-parse::
+
+   HDTV command line
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.cmdline.command_tree
+   hdtv.cmdline.command_line
+   hdtv.cmdline.RegisterInteractive
+   hdtv.cmdline.AddCommand
+   hdtv.cmdline.ExecCommand
+   hdtv.cmdline.RemoveCommand
+   hdtv.cmdline.SetHistory
+   hdtv.cmdline.AsyncExit
+   hdtv.cmdline.MainLoop
+   hdtv.cmdline.session
+   hdtv.cmdline.prog
+   hdtv.cmdline.description
+   hdtv.cmdline.parser
+   hdtv.cmdline.prog
+   hdtv.cmdline.description
+   hdtv.cmdline.parser
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   hdtv.cmdline.HDTVCommandError
+   hdtv.cmdline.HDTVCommandAbort
+   hdtv.cmdline.HDTVCommandParserError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.cmdline.CMDType
+   hdtv.cmdline.HDTVOptionParser
+   hdtv.cmdline.HDTVCommandTreeNode
+   hdtv.cmdline.HDTVCommandTree
+   hdtv.cmdline.CommandLine
+   hdtv.cmdline.HDTVCompleter
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.cmdline.SetInteractiveDict
+
+
+Module Contents
+---------------
+
+.. py:class:: CMDType(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access:
+
+     >>> Color.RED
+     <Color.RED: 1>
+
+   - value lookup:
+
+     >>> Color(1)
+     <Color.RED: 1>
+
+   - name lookup:
+
+     >>> Color['RED']
+     <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+
+   .. py:attribute:: python
+
+
+   .. py:attribute:: shell
+
+
+   .. py:attribute:: cmdfile
+
+
+   .. py:attribute:: magic
+
+
+   .. py:attribute:: hdtv
+
+
+.. py:exception:: HDTVCommandError(value='')
+
+   Bases: :py:obj:`Exception`
+
+
+   Common base class for all non-exit exceptions.
+
+
+   .. py:attribute:: value
+      :value: ''
+
+
+
+   .. py:method:: __str__()
+
+      Return str(self).
+
+
+
+.. py:exception:: HDTVCommandAbort(value='')
+
+   Bases: :py:obj:`Exception`
+
+
+   Common base class for all non-exit exceptions.
+
+
+   .. py:attribute:: value
+      :value: ''
+
+
+
+   .. py:method:: __str__()
+
+      Return str(self).
+
+
+
+.. py:exception:: HDTVCommandParserError(value='')
+
+   Bases: :py:obj:`HDTVCommandError`
+
+
+   Common base class for all non-exit exceptions.
+
+
+.. py:class:: HDTVOptionParser(prog=None, usage=None, description=None, epilog=None, parents=[], formatter_class=HelpFormatter, prefix_chars='-', fromfile_prefix_chars=None, argument_default=None, conflict_handler='error', add_help=True, allow_abbrev=True, exit_on_error=True)
+
+   Bases: :py:obj:`argparse.ArgumentParser`
+
+
+   Object for parsing command line strings into Python objects.
+
+   Keyword Arguments:
+       - prog -- The name of the program (default:
+           ``os.path.basename(sys.argv[0])``)
+       - usage -- A usage message (default: auto-generated from arguments)
+       - description -- A description of what the program does
+       - epilog -- Text following the argument descriptions
+       - parents -- Parsers whose arguments should be copied into this one
+       - formatter_class -- HelpFormatter class for printing help messages
+       - prefix_chars -- Characters that prefix optional arguments
+       - fromfile_prefix_chars -- Characters that prefix files containing
+           additional arguments
+       - argument_default -- The default value for all arguments
+       - conflict_handler -- String indicating how to handle conflicts
+       - add_help -- Add a -h/-help option
+       - allow_abbrev -- Allow long options to be abbreviated unambiguously
+       - exit_on_error -- Determines whether or not ArgumentParser exits with
+           error info when an error occurs
+
+
+   .. py:method:: error(message)
+
+      error(message: string)
+
+      Prints a usage message incorporating the message to stderr and
+      exits.
+
+      If you override this in a subclass, it should not return -- it
+      should either exit or raise an exception.
+
+
+
+   .. py:method:: exit(status=0, message=None)
+
+
+.. py:class:: HDTVCommandTreeNode(parent, title, level)
+
+   .. py:attribute:: parent
+
+
+   .. py:attribute:: title
+
+
+   .. py:attribute:: level
+
+
+   .. py:attribute:: command
+      :value: None
+
+
+
+   .. py:attribute:: params
+      :value: None
+
+
+
+   .. py:attribute:: childs
+      :value: []
+
+
+
+   .. py:method:: FullTitle()
+
+      Returns the full title of the node, i.e. all titles of all
+      nodes from the root to this one.
+
+
+
+   .. py:method:: FindChild(title, use_levels=True)
+
+      Find the nodes child whose title begins with title.    The use_levels
+      parameter decides whether to use the level of the node in resolving
+      ambiguities (node with lower level take precedence). Returns None
+      if there were unresolvable ambiguities or 0 if there were no matching
+      childs at all.
+
+
+
+   .. py:method:: PrimaryChild()
+
+      Returns the child with the lowest level, if unambiguous,
+      or None otherwise.
+
+
+
+   .. py:method:: HasChildren()
+
+      Checks if the node has child nodes
+
+
+
+   .. py:method:: RemoveChild(child)
+
+      Deletes the child node child
+
+
+
+.. py:class:: HDTVCommandTree
+
+   Bases: :py:obj:`HDTVCommandTreeNode`
+
+
+   The HDTVCommandTree structure contains all commands understood by HDTV.
+
+
+   .. py:attribute:: childs
+      :value: []
+
+
+
+   .. py:attribute:: parent
+      :value: None
+
+
+
+   .. py:attribute:: command
+      :value: None
+
+
+
+   .. py:attribute:: options
+      :value: None
+
+
+
+   .. py:attribute:: default_level
+      :value: 1
+
+
+
+   .. py:method:: SetDefaultLevel(level)
+
+
+   .. py:method:: AddCommand(title, command, overwrite=False, level=None, **opt)
+
+      Adds a command, specified by title, to the command tree.
+
+
+
+   .. py:method:: FindNode(path, use_levels=True)
+
+      Finds the command node given by path, which should be a list
+      of path elements. All path elements may be abbreviated if
+      unambiguous. Returns a tuple consisting of the node found and
+      of the remaining elements in the path. The use_levels parameter
+      decides whether to use the level of the node in resolving
+      ambiguities (node with lower level take precedence).
+
+
+
+   .. py:method:: ExecCommand(cmdline)
+
+
+   .. py:method:: RemoveCommand(title)
+
+      Removes the command node specified by the string title.
+
+
+
+   .. py:method:: GetFileCompleteOptions(directory, text, dirs_only=False)
+
+      Returns a list of all filenames in directory <directory> beginning
+      with <text>. If dirs_only=True, only (sub)directories are considered.
+
+
+
+   .. py:method:: GetCompleteOptions(document, complete_event)
+
+      Get all possible completions.
+
+
+
+.. py:class:: CommandLine(command_tree)
+
+   Class implementing the HDTV command line, including switching between
+   command and Python mode.
+
+
+   .. py:attribute:: cmds
+
+
+   .. py:attribute:: loop
+
+
+   .. py:attribute:: fallback_eventloop
+
+
+   .. py:attribute:: command_tree
+
+
+   .. py:attribute:: history
+      :value: None
+
+
+
+   .. py:attribute:: _py_console
+
+
+   .. py:attribute:: fPyMode
+      :value: False
+
+
+
+   .. py:attribute:: fPyMore
+      :value: False
+
+
+
+   .. py:attribute:: session
+      :value: None
+
+
+
+   .. py:attribute:: fKeepRunning
+      :value: True
+
+
+
+   .. py:attribute:: exit_handlers
+      :value: []
+
+
+
+   .. py:method:: StartEventLoop()
+
+
+   .. py:method:: SetHistory(path)
+
+
+   .. py:method:: RegisterInteractive(name, ref)
+
+
+   .. py:method:: Unescape(s)
+
+      Recognize special command prefixes
+
+
+
+   .. py:method:: Clear(args)
+
+      Clear the screen
+
+
+
+   .. py:method:: EnterPython(args=None)
+
+
+   .. py:method:: EnterShell(args=None)
+
+      Execute a subshell
+
+
+
+   .. py:method:: Exit(args=None)
+
+
+   .. py:method:: AsyncExit()
+
+      Asynchronous exit; to be called from another thread
+
+
+
+   .. py:method:: EOFHandler()
+
+
+   .. py:method:: GetCompleteOptions(document, complete_event)
+
+
+   .. py:method:: ExecCmdfile(fname)
+
+      Execute a command file with hdtv commands (aka batch file)
+
+
+
+   .. py:method:: ExecCmdfileCmd(args)
+
+
+   .. py:method:: ExecShell(cmd)
+
+
+   .. py:method:: DoLine(line)
+
+      Deal with one line of input
+
+
+
+   .. py:method:: CreateSession()
+
+
+   .. py:method:: MainLoop()
+
+
+.. py:class:: HDTVCompleter(command_tree, cmdline)
+
+   Bases: :py:obj:`prompt_toolkit.completion.Completer`
+
+
+   .. py:attribute:: command_tree
+
+
+   .. py:attribute:: cmdline
+
+
+   .. py:attribute:: loading
+      :value: 0
+
+
+
+   .. py:method:: get_completions(document, complete_event)
+
+
+.. py:data:: command_tree
+
+.. py:data:: command_line
+
+.. py:function:: SetInteractiveDict(d)
+
+.. py:data:: RegisterInteractive
+
+.. py:data:: AddCommand
+
+.. py:data:: ExecCommand
+
+.. py:data:: RemoveCommand
+
+.. py:data:: SetHistory
+
+.. py:data:: AsyncExit
+
+.. py:data:: MainLoop
+
+.. py:data:: session
+   :value: None
+
+
+.. py:data:: prog
+   :value: 'shell'
+
+
+.. py:data:: description
+   :value: 'Start and enter a shell. To return to hdtv, exit the shell.'
+
+
+.. py:data:: parser
+
+.. py:data:: prog
+   :value: 'exec'
+
+
+.. py:data:: description
+   :value: 'Execute batch file(s) with hdtv commands. Globbing is supported.'
+
+
+.. py:data:: parser
+

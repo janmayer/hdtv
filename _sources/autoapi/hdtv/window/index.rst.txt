@@ -1,0 +1,204 @@
+hdtv.window
+===========
+
+.. py:module:: hdtv.window
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.window.HotkeyList
+   hdtv.window.KeyHandler
+   hdtv.window.Window
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.window.wrap_cmd
+
+
+Module Contents
+---------------
+
+.. py:class:: HotkeyList
+
+   Class to handle multi-key hotkeys.
+
+
+   .. py:attribute:: fKeyCmds
+
+
+   .. py:attribute:: fCurNode
+
+
+   .. py:method:: AddHotkey(key, cmd)
+
+      Adds a hotkey to the hotkey table. If key is a list,
+      it is taken as a multi-key hotkey. The function refuses
+      to overwrite definitions that do not match exactly, i.e.
+      once you have defined hotkey x, you can no longer define
+      the multi-key combination xy (since that would have to
+      overwrite x). You can overwrite matching combinations,
+      though (i.e. redefine x in the example above).
+
+
+
+   .. py:method:: HandleHotkey(key)
+
+      Handles a key press. Returns True if the input was a
+      valid hotkey, False if it was not, and None if further
+      input is needed (i.e. if the input could be part of a
+      multi-key hotkey)
+
+
+
+   .. py:method:: ResetHotkeyState()
+
+      Reset possible waiting state for a multi-key hotkey.
+
+
+
+.. py:class:: KeyHandler
+
+   Bases: :py:obj:`HotkeyList`
+
+
+   Hotkey handler, adding support for a status line (that can be (ab)used as
+   a text entry)
+
+
+   .. py:attribute:: fEditMode
+      :value: False
+
+
+
+   .. py:attribute:: MODIFIER_KEYS
+
+
+   .. py:method:: EnterEditMode(prompt, handler)
+
+      Enter edit mode (mode where the status line is used as a text entry)
+
+
+
+   .. py:method:: EditKeyHandler()
+
+      Key handler in edit mode
+
+
+
+   .. py:method:: KeyHandler()
+
+      Key handler (handles hotkeys and calls EditKeyHandler in edit mode)
+
+
+
+.. py:class:: Window
+
+   Bases: :py:obj:`KeyHandler`
+
+
+   Base class of a window object
+
+   This class provides basic key handling for zooming and scrolling.
+
+
+   .. py:attribute:: viewer
+
+
+   .. py:attribute:: viewport
+
+
+   .. py:attribute:: _dispatchers
+      :value: []
+
+
+
+   .. py:attribute:: XZoomMarkers
+
+
+   .. py:attribute:: YZoomMarkers
+
+
+   .. py:attribute:: keyString
+      :value: ''
+
+
+
+   .. py:method:: YMinVisibleRegionChanged(opt)
+
+
+   .. py:method:: SetDarkMode(opt)
+
+      Switch between dark and light mode.
+
+
+
+   .. py:method:: ViewRegion(args)
+
+      Zoom and move viewport to show a region
+
+
+
+   .. py:method:: GoToPosition(args)
+
+      Move viewport to be centered around a position
+
+
+
+   .. py:method:: FocusObjects(objs)
+
+      Move and stretch viewport to show multiple objs
+
+
+
+   .. py:method:: IsInVisibleRegion(obj, part=False)
+
+      Check if obj is in the visible region of the viewport
+
+
+
+   .. py:method:: ExpandX()
+
+      expand in X direction
+
+
+
+   .. py:method:: ExpandY()
+
+      expand in Y direction
+
+
+
+   .. py:method:: Expand()
+
+      expand in X and in Y direction
+
+
+
+   .. py:method:: _Expand(xytype)
+
+      expand the display to show the region between the zoom markers (X or Y),
+      or the full spectrum if not zoom markers are set.
+
+
+
+   .. py:method:: SetXZoomMarker(pos=None)
+
+      set a X zoom marker
+
+
+
+   .. py:method:: SetYZoomMarker(pos=None)
+
+      set a Y zoom marker
+
+
+
+.. py:function:: wrap_cmd(cmd)
+

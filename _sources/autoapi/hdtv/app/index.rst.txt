@@ -1,0 +1,74 @@
+hdtv.app
+========
+
+.. py:module:: hdtv.app
+
+.. autoapi-nested-parse::
+
+   This is the main HDTV application.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   hdtv.app.project_dir
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.app.App
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.app.check_root_version
+   hdtv.app.get_path
+   hdtv.app.run
+
+
+Module Contents
+---------------
+
+.. py:data:: project_dir
+
+.. py:function:: check_root_version()
+
+.. py:function:: get_path(env: str, default: str) -> pathlib.Path
+
+   Get path used for user config and data
+
+
+.. py:class:: App
+
+   .. py:attribute:: configpath
+
+
+   .. py:attribute:: datapath
+
+
+   .. py:method:: parse_args(args)
+
+
+   .. py:method:: run_commands(args)
+
+      Execute commands given on command line
+
+
+
+   .. py:method:: run_batchfile(args)
+
+      Execute batchfile given on command line
+
+
+
+.. py:function:: run()
+

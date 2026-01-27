@@ -1,0 +1,245 @@
+hdtv.dummy
+==========
+
+.. py:module:: hdtv.dummy
+
+.. autoapi-nested-parse::
+
+   This is a dummy/noop module that can replace ROOT.HDTV.Display
+   without actually doing anything. In particular, no GUI windows
+   are opened.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.dummy.Viewer
+   hdtv.dummy.View1D
+   hdtv.dummy.DisplayObj
+   hdtv.dummy.DisplayBlock
+   hdtv.dummy.Marker
+   hdtv.dummy.XMarker
+   hdtv.dummy.YMarker
+   hdtv.dummy.DisplayFunc
+   hdtv.dummy.DisplaySpec
+   hdtv.dummy.MTViewer
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   hdtv.dummy._noop
+   hdtv.dummy._get_float
+   hdtv.dummy._get_bool
+
+
+Module Contents
+---------------
+
+.. py:function:: _noop(*args, **kwargs)
+
+.. py:function:: _get_float(self, *args, **kwargs)
+
+.. py:function:: _get_bool(self, *args, **kwargs)
+
+.. py:class:: Viewer(*args, **kwargs)
+
+   .. py:attribute:: Connect
+
+
+   .. py:attribute:: fView
+
+
+   .. py:attribute:: fKeySym
+      :value: 0
+
+
+
+   .. py:attribute:: fKeyStr
+      :value: ''
+
+
+
+   .. py:method:: GetViewport()
+
+
+.. py:class:: View1D(*args, **kwargs)
+
+   .. py:attribute:: GetCursorX
+
+
+   .. py:attribute:: GetCursorY
+
+
+   .. py:attribute:: GetDarkMode
+
+
+   .. py:attribute:: GetXOffset
+
+
+   .. py:attribute:: GetXVisibleRegion
+
+
+   .. py:attribute:: GetYMinVisibleRegion
+
+
+   .. py:attribute:: GetYOffset
+
+
+   .. py:attribute:: GetYVisibleRegion
+
+
+   .. py:attribute:: LockUpdate
+
+
+   .. py:attribute:: SetDarkMode
+
+
+   .. py:attribute:: SetStatusText
+
+
+   .. py:attribute:: SetXCenter
+
+
+   .. py:attribute:: SetXVisibleRegion
+
+
+   .. py:attribute:: SetYMinVisibleRegion
+
+
+   .. py:attribute:: SetYVisibleRegion
+
+
+   .. py:attribute:: ShiftXOffset
+
+
+   .. py:attribute:: ShiftYOffset
+
+
+   .. py:attribute:: ShowAll
+
+
+   .. py:attribute:: ToggleLogScale
+
+
+   .. py:attribute:: ToggleUseNorm
+
+
+   .. py:attribute:: ToggleYAutoScale
+
+
+   .. py:attribute:: UnlockUpdate
+
+
+   .. py:attribute:: Update
+
+
+   .. py:attribute:: XZoomAroundCursor
+
+
+   .. py:attribute:: YAutoScaleOnce
+
+
+   .. py:attribute:: YZoomAroundCursor
+
+
+   .. py:attribute:: i
+      :value: 0.1
+
+
+
+.. py:class:: DisplayObj(*args, **kwargs)
+
+   .. py:attribute:: Draw
+
+
+   .. py:attribute:: Hide
+
+
+   .. py:attribute:: Show
+
+
+   .. py:attribute:: __call__
+
+
+   .. py:attribute:: ID
+      :value: None
+
+
+
+.. py:class:: DisplayBlock(*args, **kwargs)
+
+   Bases: :py:obj:`DisplayObj`
+
+
+   .. py:attribute:: SetCal
+
+
+   .. py:attribute:: SetColor
+
+
+   .. py:attribute:: SetNorm
+
+
+.. py:class:: Marker(*args, **kwargs)
+
+   Bases: :py:obj:`DisplayObj`
+
+
+   .. py:attribute:: SetColor
+
+
+   .. py:attribute:: SetDash
+
+
+   .. py:attribute:: SetID
+
+
+   .. py:attribute:: SetN
+
+
+   .. py:attribute:: SetPos
+
+
+.. py:class:: XMarker(*args, **kwargs)
+
+   Bases: :py:obj:`Marker`
+
+
+   .. py:attribute:: SetCal
+
+
+   .. py:attribute:: SetConnectTop
+
+
+.. py:class:: YMarker(*args, **kwargs)
+
+   Bases: :py:obj:`Marker`
+
+
+.. py:class:: DisplayFunc(*args, **kwargs)
+
+   Bases: :py:obj:`DisplayBlock`
+
+
+.. py:class:: DisplaySpec(*args, **kwargs)
+
+   Bases: :py:obj:`DisplayBlock`
+
+
+   .. py:attribute:: SetHist
+
+
+   .. py:attribute:: SetID
+
+
+.. py:class:: MTViewer(*args, **kwargs)
+
+   Bases: :py:obj:`Viewer`
+
+

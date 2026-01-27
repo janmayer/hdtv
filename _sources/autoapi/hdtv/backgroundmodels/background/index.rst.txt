@@ -1,0 +1,64 @@
+hdtv.backgroundmodels.background
+================================
+
+.. py:module:: hdtv.backgroundmodels.background
+
+.. autoapi-nested-parse::
+
+   For each model implemented on the C++ side, we have a corresponding Python
+   class to handle fitter setup and data transfer to the Python side
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   hdtv.backgroundmodels.background.BackgroundModel
+
+
+Module Contents
+---------------
+
+.. py:class:: BackgroundModel
+
+   A background model is a function used to fit the quasi-continuous background
+   of a spectrum. The user can choose how to fit its parameters (and whether to
+   include them at all). After everything has been configured, the background
+   model produces a C++ fitter object.
+
+
+   .. py:attribute:: fGlobalParams
+
+
+   .. py:attribute:: requiredBgRegions
+      :value: 1
+
+
+
+   .. py:method:: ResetGlobalParams()
+
+
+   .. py:method:: OptionsStr()
+
+      Returns a string describing the currently set parameters of the model
+
+
+
+   .. py:method:: ParseParamStatus(parname, status)
+
+      Parse a parameter status specification string
+      Raises ValueError when the status is not legal for this parameter
+
+
+
+   .. py:method:: SetParameter(parname, status)
+
+      Set status for a certain parameter. Status is a string describing the
+      desired status. Raises ValueError in case of invalid input.
+
+      status may be a string or a number, depending on the parameter type
+
+
+
