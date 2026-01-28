@@ -120,6 +120,10 @@ class App:
 
         check_root_version()
 
+        if args.headless:
+            from hdtv.util import monkey_patch_ui
+            monkey_patch_ui()
+
         # Import core modules
         import hdtv.cmdline
         import hdtv.session
@@ -205,6 +209,11 @@ class App:
             nargs="*",
             dest="rebuildsys",
             help="Rebuild ROOT-loadable libraries for all users",
+        )
+        parser.add_argument(
+            "--headless",
+            action="store_true",
+            help="Execute HDTV without opening the GUI",
         )
         return parser.parse_args(args)
 

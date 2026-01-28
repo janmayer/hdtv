@@ -3,6 +3,7 @@
 _arguments \
     {'(--batch)-b','(-b)--batch'}'[Open and execute HDTV batchfile]:batchfile:_files'\
     {'(--execute)-e','(-e)--execute'}'[Execute HDTV command(s)]:commands'\
+    '--headless[Execute HDTV without opening the GUI]'\
     {'(--help)-h','(-h)--help'}'[Show help message and exit]'\
     '--rebuild-usr[Rebuild ROOT-loadable libraries for the current user]'\
     '--rebuild-sys[Rebuild ROOT-loadable libraries for all users]'\

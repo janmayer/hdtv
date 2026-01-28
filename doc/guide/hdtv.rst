@@ -32,6 +32,9 @@ OPTIONS
 --batch *batchfile*, -b *batchfile*
     Open and execute hdtv batchfile
 
+--headless
+    Execute HDTV without opening the GUI
+
 --execute *commands*, -e *commands*
     Execute hdtv command(s)
 
